@@ -19,7 +19,7 @@
 #include "ConnectivityMap.h"
 #include "BinaryImage.h"
 #include "InfluenceMap.h"
-#include "BitOps.h"
+#include "ColorForId.h"
 #include <boost/foreach.hpp>
 #include <QImage>
 #include <QColor>
@@ -215,21 +215,9 @@ ConnectivityMap::visualized(QColor bgcolor) const
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
 			uint32_t const val = src_line[x];
-			if (val == 0) {
-				continue;
+			if (val) {
+				dst_line[x] = colorForId(val).rgba();
 			}
-			
-			int const bits_unused = countMostSignificantZeroes(val);
-			uint32_t const reversed = reverseBits(val) >> bits_unused;
-			uint32_t const mask = ~uint32_t(0) >> bits_unused;
-			
-			double const H = 0.99 * (double(reversed) / mask);
-			double const S = 1.0;
-			double const V = 1.0;
-			QColor color;
-			color.setHsvF(H, S, V, 1.0);
-			
-			dst_line[x] = color.rgba();
 		}
 		src_line += src_stride;
 		dst_line += dst_stride;
