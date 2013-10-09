@@ -19,7 +19,10 @@
 #ifndef VEC_NT_H_
 #define VEC_NT_H_
 
+#include "CopyableByMemcpy.h"
 #include <QPointF>
+#include <boost/type_traits/is_arithmetic.hpp>
+#include <cmath>
 #include <stddef.h>
 
 template<size_t N, typename T> class VecNT;
@@ -31,6 +34,12 @@ typedef VecNT<3, float> Vec3f;
 typedef VecNT<3, double> Vec3d;
 typedef VecNT<4, float> Vec4f;
 typedef VecNT<4, double> Vec4d;
+
+template<size_t N, typename T>
+struct CopyableByMemcpy<VecNT<N, T> >
+{
+	static bool const value = boost::is_arithmetic<T>::value;
+};
 
 template<size_t N, typename T>
 class VecNT
@@ -139,6 +148,8 @@ public:
 
 	T* data() { return m_data; }
 
+	void fill(T val);
+
 	/**
 	 * \brief Sums elements in the vector.
 	 */
@@ -147,6 +158,12 @@ public:
 	T dot(VecNT const& other) const;
 
 	T squaredNorm() const { return dot(*this); }
+
+	T norm() const;
+
+	void normalize();
+
+	VecNT normalized() const;
 private:
 	T m_data[N];
 };
@@ -367,6 +384,47 @@ VecNT<N, T>::dot(VecNT const& other) const
 		sum += m_data[i] * other[i];
 	}
 	return sum;
+}
+
+template<size_t N, typename T>
+void
+VecNT<N, T>::fill(T const val)
+{
+	for (size_t i = 0; i < N; ++i) {
+		m_data[i] = val;
+	}
+}
+
+template<size_t N, typename T>
+T
+VecNT<N, T>::norm() const
+{
+	using namespace std;
+	return sqrt(squaredNorm());
+}
+
+template<size_t N, typename T>
+void
+VecNT<N, T>::normalize()
+{
+	using namespace std;
+
+	T const sqnorm = squaredNorm();
+	if (sqnorm <= std::numeric_limits<T>::epsilon()) {
+		fill(T());
+	} else {
+		using namespace std;
+		*this /= sqrt(sqnorm);
+	}
+}
+
+template<size_t N, typename T>
+VecNT<N, T>
+VecNT<N, T>::normalized() const
+{
+	VecNT res(*this);
+	res.normalize();
+	return res;
 }
 
 template<size_t N, typename T>

@@ -64,6 +64,12 @@ Utils::maybeCreateCacheDir(QString const& output_dir)
 }
 
 QString
+Utils::swappingDir()
+{
+        return QDir::tempPath()+QLatin1String("/scantailor-swap");
+}
+
+QString
 Utils::outputDirToThumbDir(QString const& output_dir)
 {
 	return output_dir+QLatin1String("/cache/thumbs");

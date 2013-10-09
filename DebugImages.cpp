@@ -17,58 +17,65 @@
 */
 
 #include "DebugImages.h"
+#include "ObjectSwapper.h"
+#include "ObjectSwapperImplQImage.h"
+#include "BasicImageView.h"
 #include "imageproc/BinaryImage.h"
 #include <QImage>
-#include <QImageWriter>
-#include <QTemporaryFile>
 #include <QDir>
+#include <QDebug>
 
-void
-DebugImages::add(
-	QImage const& image, QString const& label,
-	boost::function<QWidget* (QImage const&)> const& image_view_factory)
+DebugImages::DebugImages(QString const& swap_dir, bool ensure_exists)
+:	m_swapDir(swap_dir)
 {
-	QTemporaryFile file(QDir::tempPath()+"/scantailor-dbg-XXXXXX.png");
-	if (!file.open()) {
-		return;
+	if (ensure_exists) {
+		if (!QDir().mkpath(swap_dir)) {
+			qDebug() << "Unable to create swap directory " << swap_dir;
+		}
 	}
-
-	AutoRemovingFile arem_file(file.fileName());
-	file.setAutoRemove(false);
-
-	QImageWriter writer(&file, "png");
-	writer.setCompression(2); // Trade space for speed.
-	if (!writer.write(image)) {
-		return;
-	}
-
-	m_sequence.push_back(IntrusivePtr<Item>(new Item(arem_file, label, image_view_factory)));
 }
 
 void
-DebugImages::add(
-	imageproc::BinaryImage const& image, QString const& label,
-	boost::function<QWidget* (QImage const&)> const& image_view_factory)
+DebugImages::add(QImage const& image, QString const& label)
 {
-	add(image.toQImage(), label, image_view_factory);
+	class Factory : public DebugViewFactory
+	{
+	public:
+		Factory(QImage const& image, QString const& swap_dir)
+			: m_swapper(image, swap_dir) {} 
+
+		virtual void swapIn() { m_swapper.swapIn(); }
+
+		virtual void swapOut() { m_swapper.swapOut(); }
+
+		virtual std::auto_ptr<QWidget> newInstance() {
+			return std::auto_ptr<QWidget>(new BasicImageView(m_swapper.constObject()));
+		}
+	private:
+		ObjectSwapper<QImage> m_swapper;
+	};
+
+	IntrusivePtr<DebugViewFactory> factory(new Factory(image, m_swapDir));
+	factory->swapOut();
+	m_sequence.push_back(std::make_pair(factory, label));
 }
 
-AutoRemovingFile
-DebugImages::retrieveNext(QString* label, boost::function<QWidget* (QImage const&)>* image_view_factory)
+void
+DebugImages::add(imageproc::BinaryImage const& image, QString const& label)
 {
-	if (m_sequence.empty()) {
-		return AutoRemovingFile();
+	add(image.toQImage(), label);
+}
+
+IntrusivePtr<DebugViewFactory>
+DebugImages::retrieveNext(QString* label)
+{
+	IntrusivePtr<DebugViewFactory> factory;
+
+	if (!m_sequence.empty()) {
+		factory = m_sequence.front().first;
+		*label = m_sequence.front().second;
+		m_sequence.pop_front();
 	}
 
-	AutoRemovingFile file(m_sequence.front()->file);
-	if (label) {
-		*label = m_sequence.front()->label;
-	}
-	if (image_view_factory) {
-		*image_view_factory = m_sequence.front()->imageViewFactory;
-	}
-
-	m_sequence.pop_front();
-
-	return file;
+	return factory;
 }

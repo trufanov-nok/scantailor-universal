@@ -215,10 +215,10 @@ DespeckleView::despeckleDone(
 	if (dbg && !dbg->empty()) {
 		std::auto_ptr<TabbedDebugImages> tab_widget(new TabbedDebugImages);
 		tab_widget->addTab(widget.release(), "Main");
-		AutoRemovingFile file;
+		IntrusivePtr<DebugViewFactory> factory;
 		QString label;
-		while (!(file = dbg->retrieveNext(&label)).get().isNull()) {
-			tab_widget->addTab(new DebugImageView(file), label);
+		while ((factory = dbg->retrieveNext(&label))) {
+			tab_widget->addTab(new DebugImageView(factory), label);
 		}
 		widget = tab_widget;
 	}

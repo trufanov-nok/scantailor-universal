@@ -26,48 +26,45 @@
 #include <QPointer>
 #include <memory>
 
-class DebugImageView::ImageLoadResult : public AbstractCommand0<void>
+class DebugImageView::BackgroundLoadResult : public AbstractCommand0<void>
 {
 public:
-	ImageLoadResult(QPointer<DebugImageView> const& owner, QImage const& image)
-			: m_ptrOwner(owner), m_image(image) {}
+	BackgroundLoadResult(QPointer<DebugImageView> const& owner) : m_ptrOwner(owner) {}
 
 	// This method is called from the main thread.
 	virtual void operator()() {
 		if (DebugImageView* owner = m_ptrOwner) {
-			owner->imageLoaded(m_image);
+			owner->factoryReady();
 		}
 	}
 private:
 	QPointer<DebugImageView> m_ptrOwner;
-	QImage m_image;
 };
 
 
-class DebugImageView::ImageLoader :
+class DebugImageView::BackgroundLoader :
 	public AbstractCommand0<BackgroundExecutor::TaskResultPtr>
 {
 public:
-	ImageLoader(DebugImageView* owner, QString const& file_path)
-			: m_ptrOwner(owner), m_filePath(file_path) {}
+	BackgroundLoader(DebugImageView* owner)
+		: m_ptrOwner(owner), m_ptrFactory(owner->m_ptrFactory) {}
 
 	virtual BackgroundExecutor::TaskResultPtr operator()() {
-		QImage image(m_filePath);
-		return BackgroundExecutor::TaskResultPtr(new ImageLoadResult(m_ptrOwner, image));
+		m_ptrFactory->swapIn();
+		return BackgroundExecutor::TaskResultPtr(new BackgroundLoadResult(m_ptrOwner));
 	}
 private:
 	QPointer<DebugImageView> m_ptrOwner;
-	QString m_filePath;
+	IntrusivePtr<DebugViewFactory> m_ptrFactory;
 };
 
 
-DebugImageView::DebugImageView(AutoRemovingFile file,
-	boost::function<QWidget* (QImage const&)> const& image_view_factory, QWidget* parent)
-:	QStackedWidget(parent),
-	m_file(file),
-	m_imageViewFactory(image_view_factory),
-	m_pPlaceholderWidget(new ProcessingIndicationWidget(this)),
-	m_isLive(false)
+DebugImageView::DebugImageView(IntrusivePtr<DebugViewFactory> const& factory, QWidget* parent)
+:	QStackedWidget(parent)
+,	m_ptrFactory(factory)
+,	m_pPlaceholderWidget(new ProcessingIndicationWidget(this))
+,	m_numBgTasksInitiated(0)
+,	m_isLive(false)
 {
 	addWidget(m_pPlaceholderWidget);
 }
@@ -76,10 +73,13 @@ void
 DebugImageView::setLive(bool const live)
 {
 	if (live && !m_isLive) {
+		// Going live.
 		ImageViewBase::backgroundExecutor().enqueueTask(
-			BackgroundExecutor::TaskPtr(new ImageLoader(this, m_file.get()))
+			BackgroundExecutor::TaskPtr(new BackgroundLoader(this))
 		);
+		++m_numBgTasksInitiated;
 	} else if (!live && m_isLive) {
+		// Going dead.
 		if (QWidget* wgt = currentWidget()) {
 			if (wgt != m_pPlaceholderWidget) {
 				removeWidget(wgt);
@@ -92,19 +92,18 @@ DebugImageView::setLive(bool const live)
 }
 
 void
-DebugImageView::imageLoaded(QImage const& image)
+DebugImageView::factoryReady()
 {
-	if (!m_isLive) {
+	if (--m_numBgTasksInitiated != 0) {
+		// We can't do anything with m_ptrFactory while a background
+		// thread may be doing swapIn() on it.
 		return;
 	}
 
-	if (currentWidget() == m_pPlaceholderWidget) {
-		std::auto_ptr<QWidget> image_view;
-		if (m_imageViewFactory.empty()) {
-			image_view.reset(new BasicImageView(image));
-		} else {
-			image_view.reset(m_imageViewFactory(image));
-		}
+	if (m_isLive && currentWidget() == m_pPlaceholderWidget) {
+		std::auto_ptr<QWidget> image_view(m_ptrFactory->newInstance());
 		setCurrentIndex(addWidget(image_view.release()));
 	}
+
+	m_ptrFactory->swapOut();
 }

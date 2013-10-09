@@ -19,11 +19,11 @@
 #ifndef DEBUG_IMAGE_VIEW_H_
 #define DEBUG_IMAGE_VIEW_H_
 
-#include "AutoRemovingFile.h"
+#include "DebugViewFactory.h"
+#include "IntrusivePtr.h"
 #include <QStackedWidget>
 #include <QWidget>
 #include <boost/intrusive/list.hpp>
-#include <boost/function.hpp>
 
 class QImage;
 
@@ -34,9 +34,7 @@ class DebugImageView :
 	>
 {
 public:
-	DebugImageView(AutoRemovingFile file,
-		boost::function<QWidget* (QImage const&)> const& image_view_factory =
-		boost::function<QWidget* (QImage const&)>(), QWidget* parent = 0);
+	DebugImageView(IntrusivePtr<DebugViewFactory> const& factory, QWidget* parent = 0);
 
 	/**
 	 * Tells this widget to either display the actual image or just
@@ -44,15 +42,15 @@ public:
 	 */
 	void setLive(bool live);
 private:
-	class ImageLoadResult;
-	class ImageLoader;
+	class BackgroundLoadResult;
+	class BackgroundLoader;
 
-	void imageLoaded(QImage const& image);
+	void factoryReady();
 
-	AutoRemovingFile m_file;
-	boost::function<QWidget* (QImage const&)> m_imageViewFactory;
+	IntrusivePtr<DebugViewFactory> m_ptrFactory;
 	QWidget* m_pPlaceholderWidget;
-	bool m_isLive;
+	int m_numBgTasksInitiated;
+	bool m_isLive; // True if displaying the actual thing rather than a placeholder.
 };
 
 #endif

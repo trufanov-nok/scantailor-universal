@@ -783,12 +783,12 @@ MainWindow::setImageWidget(
 	
 	if (!debug_images || debug_images->empty()) {
 		m_pImageFrameLayout->addWidget(widget);
-	} else {
+    } else {
 		m_ptrTabbedDebugImages->addTab(widget, "Main");
-		AutoRemovingFile file;
 		QString label;
-		while (!(file = debug_images->retrieveNext(&label)).get().isNull()) {
-			QWidget* widget = new DebugImageView(file);
+		IntrusivePtr<DebugViewFactory> factory;
+		while ((factory = debug_images->retrieveNext(&label))) {
+			QWidget* widget = new DebugImageView(factory);
 			m_imageWidgetCleanup.add(widget);
 			m_ptrTabbedDebugImages->addTab(widget, label);
 		}

@@ -5,6 +5,12 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 SET(
 	sources
 	NonCopyable.h IntrusivePtr.h RefCountable.h
+	CopyableByMemcpy.h
+	ObjectSwapper.h
+	ObjectSwapperFactory.cpp ObjectSwapperFactory.h
+	ObjectSwapperImpl.h
+	ObjectSwapperImplGrid.h
+	ObjectSwapperImplQImage.cpp ObjectSwapperImplQImage.h
 	AlignedArray.h
 	FastQueue.h
 	SafeDeletingQObjectPtr.h
@@ -34,4 +40,4 @@ SET(
 SOURCE_GROUP("Sources" FILES ${sources})
 
 ADD_LIBRARY(foundation STATIC ${sources})
-QT5_USE_MODULES(foundation Core Xml)
+QT5_USE_MODULES(foundation Gui Core Xml)

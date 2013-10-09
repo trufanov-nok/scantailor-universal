@@ -37,6 +37,8 @@ public:
 	 */
 	static void maybeCreateCacheDir(QString const& output_dir);
 
+	static QString swappingDir();
+
 	static QString outputDirToThumbDir(QString const& output_dir);
 
 	static IntrusivePtr<ThumbnailPixmapCache> createThumbnailCache(QString const& output_dir);

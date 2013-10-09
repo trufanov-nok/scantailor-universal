@@ -426,6 +426,7 @@ SET(
 	ContentBoxPropagator.cpp ContentBoxPropagator.h
 	PageOrientationPropagator.cpp PageOrientationPropagator.h
 	DebugImages.cpp DebugImages.h
+	DebugViewFactory.h
 	ImageId.cpp ImageId.h
 	PageId.cpp PageId.h
 	PageInfo.cpp PageInfo.h

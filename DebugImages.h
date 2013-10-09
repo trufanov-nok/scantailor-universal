@@ -21,13 +21,17 @@
 
 #include "RefCountable.h"
 #include "IntrusivePtr.h"
-#include "AutoRemovingFile.h"
+#include "DebugViewFactory.h"
+#include "Utils.h"
 #include <boost/function.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <QString>
+#include <QWidget>
 #include <deque>
+#include <utility>
+#include <memory>
 
 class QImage;
-class QWidget;
 
 namespace imageproc
 {
@@ -40,38 +44,93 @@ namespace imageproc
 class DebugImages
 {
 public:
-	void add(QImage const& image, QString const& label,
-		boost::function<QWidget* (QImage const&)> const& image_view_factory =
-		boost::function<QWidget* (QImage const&)>());
+	explicit DebugImages(QString const& swap_dir = Utils::swappingDir(), bool ensure_exists = true);
+
+	void add(QImage const& image, QString const& label);
 	
-	void add(imageproc::BinaryImage const& image, QString const& label,
-		boost::function<QWidget* (QImage const&)> const& image_view_factory =
-		boost::function<QWidget* (QImage const&)>());
+	void add(imageproc::BinaryImage const& image, QString const& label);
+
+	/**
+	 * \brief Adds a debug view with parameters to be swapped out.
+	 *
+	 * Usage example:
+	 * \code
+	 * QImage image = ...;
+	 * Grid<Vec2f> vector_field = ...; 
+	 * ObjectSwapperFactory factory(swap_dir);
+	 * ObjectSwapper<QImage> image_swapper(factory(image));
+	 * ObjectSwapper<Grid<Vec2f> > vector_field_swapper(factory(vector_field));
+	 * using namespace boost::lambda;
+	 * DebugImages* dbg = ...;
+	 * dbg->add(
+	 *     "label", boost::fusion::make_vector(image_swapper, vector_field_swapper),
+	 *     bind(new_ptr<DebugImageView>(), bind(image_swapper.accessor()), bind(vector_field_swapper.accessor()))
+	 * );
+	 * \endcode
+	 */
+	template<typename SwappableParams>
+	void add(QString const& label, SwappableParams const& swappable_params,
+		boost::function<QWidget* ()> const& delegate_factory, bool swap_out_now = true);
 	
 	bool empty() const { return m_sequence.empty(); }
 
 	/**
-	 * \brief Removes and returns the first item in the sequence.
+	 * \brief Removes and returns the front DebugViewFactory.
 	 *
-	 * The label and viewer widget factory (that may not be bound)
-	 * are returned by taking pointers to them as arguments.
-	 * Returns a null AutoRemovingFile if image sequence is empty.
+	 * \param[out] label The label will be written here.
+	 * \return A smart pointer to a DebugViewFactory instance, or null if nothing to retrieve.
 	 */
-	AutoRemovingFile retrieveNext(QString* label = 0,
-		boost::function<QWidget* (QImage const&)>* image_view_factory = 0);
+	IntrusivePtr<DebugViewFactory> retrieveNext(QString* label);
 private:
-	struct Item : public RefCountable
+	class SwapInFunctor
 	{
-		AutoRemovingFile file;
-		QString label;
-		boost::function<QWidget* (QImage const&)> imageViewFactory;
-
-		Item(AutoRemovingFile f, QString const& l,
-			boost::function<QWidget* (QImage const&)> const& imf)
-		:	file(f), label(l), imageViewFactory(imf) {}
+	public:
+		template<typename T>
+		void operator()(T& obj) const {
+			obj.swapIn();
+		}
 	};
 
-	std::deque<IntrusivePtr<Item> > m_sequence;
+	class SwapOutFunctor
+	{
+	public:
+		template<typename T>
+		void operator()(T& obj) const {
+			obj.swapOut();
+		}
+	};
+
+	QString m_swapDir;
+	std::deque<std::pair<IntrusivePtr<DebugViewFactory>, QString> > m_sequence;
 };
+
+template<typename SwappableParams>
+void
+DebugImages::add(QString const& label, SwappableParams const& swappable_params,
+	boost::function<QWidget* ()> const& delegate_factory, bool swap_out_now)
+{
+	class Factory : public DebugViewFactory
+	{
+	public:
+		Factory(SwappableParams const& swappable_params,
+			boost::function<QWidget* ()> const& delegate_factory)
+			: m_params(swappable_params), m_delegateFactory(delegate_factory) {}
+
+		virtual void swapIn() { boost::fusion::for_each(m_params, SwapInFunctor()); }
+
+		virtual void swapOut() { boost::fusion::for_each(m_params, SwapOutFunctor()); }
+
+		virtual std::auto_ptr<QWidget> newInstance() { return std::auto_ptr<QWidget>(m_delegateFactory()); }
+	private:
+		SwappableParams m_params;
+		boost::function<QWidget* ()> m_delegateFactory;
+	};
+
+	IntrusivePtr<DebugViewFactory> factory(new Factory(swappable_params, delegate_factory));
+	if (swap_out_now) {
+		factory->swapOut();
+	}
+	m_sequence.push_back(std::make_pair(factory, label));
+}
 
 #endif
