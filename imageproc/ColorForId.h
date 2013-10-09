@@ -35,8 +35,8 @@ template<typename T>
 QColor colorForId(T id) {
 	int const bits_unused = countMostSignificantZeroes(id);
 	int const bits_used = sizeof(T) * 8 - bits_unused;
-	T const reversed = reverseBits(id) >> bits_unused;
 	T const mask = (T(1) << bits_used) - 1;
+	T const reversed = (reverseBits(id) >> bits_unused) & mask;
 
 	double const H = 0.99 * double(reversed + 1) / (mask + 1);
 	double const S = 1.0;
