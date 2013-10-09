@@ -44,6 +44,13 @@ template<typename T, typename Op>
 void rasterOpGeneric(T* data, int stride, QSize size, Op operation);
 
 /**
+ * Same as the one directly above, but \p operation receives two extra arguments:
+ * x and y of a pixel.
+ */
+template<typename T, typename Op>
+void rasterOpGenericXY(T* data, int stride, QSize size, Op operation);
+
+/**
  * \brief Perform an operation on a pair of images.
  *
  * \param data1 The pointer to image data of the first image.
@@ -63,6 +70,13 @@ template<typename T1, typename T2, typename Op>
 void rasterOpGeneric(T1* data1, int stride1, QSize size,
 					 T2* data2, int stride2, Op operation);
 
+/**
+ * Same as the one directly above, but \p operation receives two extra arguments:
+ * x and y of a pixel.
+ */
+template<typename T1, typename T2, typename Op>
+void rasterOpGenericXY(T1* data1, int stride1, QSize size,
+					 T2* data2, int stride2, Op operation);
 
 /**
  * \brief Same as the one above, except one of the images is a const BinaryImage.
@@ -111,6 +125,24 @@ void rasterOpGeneric(T* data, int stride, QSize size, Op operation)
 	}
 }
 
+template<typename T, typename Op>
+void rasterOpGenericXY(T* data, int stride, QSize size, Op operation)
+{
+	if (size.isEmpty()) {
+		return;
+	}
+
+	int const w = size.width();
+	int const h = size.height();
+
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) {
+			operation(data[x], x, y);
+		}
+		data += stride;
+	}
+}
+
 template<typename T1, typename T2, typename Op>
 void rasterOpGeneric(T1* data1, int stride1, QSize size,
 					 T2* data2, int stride2, Op operation)
@@ -125,6 +157,26 @@ void rasterOpGeneric(T1* data1, int stride1, QSize size,
 	for (int y = 0; y < h; ++y) {
 		for (int x = 0; x < w; ++x) {
 			operation(data1[x], data2[x]);
+		}
+		data1 += stride1;
+		data2 += stride2;
+	}
+}
+
+template<typename T1, typename T2, typename Op>
+void rasterOpGenericXY(T1* data1, int stride1, QSize size,
+					   T2* data2, int stride2, Op operation)
+{
+	if (size.isEmpty()) {
+		return;
+	}
+
+	int const w = size.width();
+	int const h = size.height();
+
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) {
+			operation(data1[x], data2[x], x, y);
 		}
 		data1 += stride1;
 		data2 += stride2;
