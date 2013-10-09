@@ -68,6 +68,11 @@ public:
 	 * This function is faster than projectionDist().
 	 */
 	double projectionSqDist(QPointF const& pt) const;
+
+	/**
+	 * \see projectionScalar(), projectionPoint()
+	 */
+	QPointF projectionScalarToProjectionPoint(double scalar) const;
 private:
 	QPointF m_origin;
 	QPointF m_vec;

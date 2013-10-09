@@ -51,7 +51,7 @@ ToLineProjector::projectionScalar(QPointF const& pt) const
 QPointF
 ToLineProjector::projectionPoint(QPointF const& pt) const
 {
-	return m_origin + m_vec * projectionScalar(pt);
+	return projectionScalarToProjectionPoint(projectionScalar(pt));
 }
 
 QPointF
@@ -70,4 +70,10 @@ double
 ToLineProjector::projectionSqDist(QPointF const& pt) const
 {
 	return Vec2d(projectionPoint(pt) - pt).squaredNorm();
+}
+
+QPointF
+ToLineProjector::projectionScalarToProjectionPoint(double scalar) const
+{
+	return m_origin + m_vec * scalar;
 }
