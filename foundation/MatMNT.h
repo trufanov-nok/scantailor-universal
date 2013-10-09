@@ -19,6 +19,7 @@
 #ifndef MAT_MNT_H_
 #define MAT_MNT_H_
 
+#include "VecNT.h"
 #include <stddef.h>
 
 template<size_t M, size_t N, typename T> class MatMNT;
@@ -81,6 +82,10 @@ public:
 	T& operator()(int i, int j) {
 		return m_data[i + j * M];
 	}
+
+	MatMNT& operator*=(T scalar);
+
+	MatMNT& operator/=(T scalar) { return *this *= T(1) / scalar; }
 private:
 	T m_data[M*N];
 };
@@ -114,6 +119,31 @@ MatMNT<M, N, T>::MatMNT(MatMNT<M, N, OT> const& other)
 	for (size_t i = 0; i < len; ++i) {
 		m_data[i] = static_cast<T>(data[i]);
 	}
+}
+
+template<size_t M, size_t N, typename T>
+MatMNT<M, N, T>&
+MatMNT<M, N, T>::operator*=(T scalar)
+{
+	size_t const len = ROWS*COLS;
+	for (size_t i = 0; i < len; ++i) {
+		m_data[i] *= scalar;
+	}
+	return *this;
+}
+
+template<size_t M, size_t N, typename T>
+VecNT<M, T> operator*(MatMNT<M, N, T> const& A, VecNT<N, T> const& b)
+{
+	VecNT<M, T> res;
+	for (int i = 0; i < M; ++i) {
+		T sum = T();
+		for (int j = 0; j < N; ++j) {
+			sum += A(i, j) * b[j];
+		}
+		res[i] = sum;
+	}
+	return res;
 }
 
 #endif
