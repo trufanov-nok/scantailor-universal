@@ -330,23 +330,20 @@ ENDFOREACH()
 
 IF(MSVC)
 	SET(make_command nmake)
-	IF(MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR MSVC90)
-		MESSAGE(FATAL_ERROR "This Visual Studio version is too old and is not supported")
-	ELSEIF(MSVC100)
-		MESSAGE("Visual Studio 2010 may work but wasn't tested. Visual Studio 2012 is strongly recommended")
-		SET(platform win32-msvc2010)
-		SET(force_frame_pointer TRUE)
+	IF(MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR MSVC90 OR MSVC10 OR MSVC11)
+		MESSAGE(FATAL_ERROR "This Visual Studio version is too old and is not supported. Supported versions are Visual Studio 2013 or above")
+	ELSEIF(MSVC12)
+		SET(platform win32-msvc2013)
 	ELSE()
-		# Visual Studio 2012 or above
-		SET(platform win32-msvc2012)
-		SET(force_frame_pointer TRUE)
+		MESSAGE("A new and unsupported version of Visual Studio was detected. You may proceed, but it may not work. Visual Studio 2013 is strongly recommended")
+		SET(platform win32-msvc2013)
 	ENDIF()
 ELSE()
-	MESSAGE(FATAL_ERROR "Unsupported platform.")
+	MESSAGE(FATAL_ERROR "Unsupported compiler. Only Visual Studio 2013 is currently supported.")
 ENDIF()
 
 
-IF(MSVC AND force_frame_pointer)
+IF(MSVC)
 	# Disable frame pointer ommission in release mode to ensure
 	# good stack traces from our built-in crash reporter.
 	PATCH_FILE(
@@ -416,12 +413,12 @@ ADD_DEPENDENCIES(
 # can easily pick the wrong one.
 MESSAGE(STATUS "----------------------------")
 MESSAGE(STATUS "QT_SRC_DIR is ${QT_SRC_DIR}")
-MESSAGE(STATUS "Check it's the one you want.")
 IF(QT_PREBUILT_DIR)
 	MESSAGE(STATUS "QT_PREBUILT_DIR is ${QT_PREBUILT_DIR}")
 ELSE()
 	MESSAGE(STATUS "QT_PREBUILT_DIR is not set. Using a source-only version of Qt? Fine, but building will take longer.")
 ENDIF()
+MESSAGE(STATUS "If you've got multiple versions of Qt installed, check we've got the right one.")
 MESSAGE(STATUS "----------------------------")
 
 
@@ -464,3 +461,7 @@ IF(DUMP_DLL_SYMBOLS)
 	# Qt depends on the rest of them.
 	ADD_DEPENDENCIES(dump_dll_symbols Qt)
 ENDIF()
+
+#==========================================================================#
+
+CONFIGURE_FILE(export-vars.cmake.in "${CMAKE_BINARY_DIR}/export-vars.cmake" @ONLY)

@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
 
-IF(COMMAND cmake_policy)
-	# Suppress warnings.
-	cmake_policy(SET CMP0003 NEW)
-ENDIF(COMMAND cmake_policy)
+IF(POLICY CMP0003)
+	# Allow linking with full library path instead of -L/path -llibrary
+	CMAKE_POLICY(SET CMP0003 NEW)
+ENDIF()
 
 IF(POLICY CMP0020)
 	# Disable auto-linking to qtmain. This feature appeared in Qt 5.1, but
@@ -96,7 +96,7 @@ IF(CMAKE_COMPILER_IS_GNUCC)
 	ST_SET_DEFAULT_GCC_FLAGS()
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
-GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
+GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/.." ABSOLUTE)
 GET_FILENAME_COMPONENT(build_outer_dir "${PROJECT_BINARY_DIR}/.." ABSOLUTE)
 
 SET(STAGING_LIBS_DIR "")
@@ -113,7 +113,7 @@ OPTION(ENABLE_OPENGL "OpenGL may be used for UI acceleration" ${use_opengl})
 
 IF(WIN32)
 	FIND_PATH(
-		DEPS_BUILD_DIR build-qt.bat
+		DEPS_BUILD_DIR export-vars.cmake
 		HINTS "${build_outer_dir}/scantailor-deps-build"
 		DOC "Build directory for Scan Tailor dependencies."
 	)
@@ -124,35 +124,8 @@ IF(WIN32)
 		)
 	ENDIF()
 	SET(STAGING_LIBS_DIR "${DEPS_BUILD_DIR}/staging/libs")
-	
-	IF (NOT QT_SRC_DIR OR NOT EXISTS "${QT_SRC_DIR}")
-		FILE(GLOB qt_dirs1 "${build_outer_dir}/qt-win-*-5.[0-9]*")
-		FILE(GLOB qt_dirs2 "${build_outer_dir}/qt-everywhere-*-5.[0-9]*")
-		FILE(GLOB qt_dirs3 "${source_outer_dir}/qt-win-*-5.[0-9]*")
-		FILE(GLOB qt_dirs4 "${source_outer_dir}/qt-everywhere-*-5.[0-9]*")
-		FILE(GLOB qt_dirs5 "C:/Qt/Qt5.*/*/Src")
-		FIND_PATH(
-			QT_SRC_DIR qtbase/qtbase.pro
-			HINTS ${qt_dirs1} ${qt_dirs2} ${qt_dirs3}
-			${qt_dirs4} ${qt_dirs5} dummy_dir
-			DOC "Path to top-level Qt5 source directory. If you installed a binary version, it will be something like C:\\Qt\\Qt5.0.2\\5.0.2\\Src"
-		)
-	ENDIF()
-	
-	IF(NOT QT_SRC_DIR OR NOT EXISTS "${QT_SRC_DIR}")
-		MESSAGE(
-			FATAL_ERROR "Qt5 could not be found. "
-			"If it's installed in a non-standard location, specify it QT_SRC_DIR variable."
-		)
-	ENDIF()
+	INCLUDE("${DEPS_BUILD_DIR}/export-vars.cmake")
 
-	FILE(GLOB qt_possible_prebuilt_dirs "${QT_SRC_DIR}/../*")
-	FIND_PATH(
-		QT_PREBUILT_DIR bin/qmake.exe HINTS ${qt_possible_prebuilt_dirs}
-		DOC "[optional] Installation path of a pre-built version of Qt5. If you installed a binary version, it will be something like C:\\Qt\\Qt5.0.2\\5.0.2\\msvc2012"
-	)
-	
-	
 	SET(Qt5Core_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Core")
 	SET(Qt5Gui_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Gui")
 	SET(Qt5Widgets_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Widgets")
@@ -177,24 +150,10 @@ IF(ENABLE_OPENGL)
 	FIND_PACKAGE(Qt5OpenGL REQUIRED)
 ENDIF()
 
-
-FILE(GLOB jpeg_dirs1 "${build_outer_dir}/jpeg-[0-9]*")
-FILE(GLOB jpeg_dirs2 "${source_outer_dir}/jpeg-[0-9]*")
-FILE(GLOB zlib_dirs1 "${build_outer_dir}/zlib-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB zlib_dirs2 "${source_outer_dir}/zlib-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB png_dirs1 "${build_outer_dir}/libpng-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB png_dirs2 "${source_outer_dir}/libpng-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB png_dirs3 "${build_outer_dir}/lpng[0-9]*")
-FILE(GLOB png_dirs4 "${source_outer_dir}/lpng[0-9]*")
-FILE(GLOB tiff_dirs1 "${build_outer_dir}/tiff-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB tiff_dirs2 "${source_outer_dir}/tiff-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB boost_dirs1 "${build_outer_dir}/boost_1_[0-9]*_[0-9]*")
-FILE(GLOB boost_dirs2 "${source_outer_dir}/boost_1_[0-9]*_[0-9]*")
-
 FIND_PATH(
 	JPEG_INCLUDE_DIR jpeglib.h
 	PATHS /usr/local/include /usr/include
-	HINTS ${jpeg_dirs1} ${jpeg_dirs2}
+	HINTS ${JPEG_DIR} # JPEG_DIR may come from export-vars.cmake
 	DOC "Path to libjpeg headers."
 )
 IF(NOT JPEG_INCLUDE_DIR)
@@ -210,7 +169,7 @@ INCLUDE_DIRECTORIES("${JPEG_INCLUDE_DIR}")
 FIND_LIBRARY(
 	JPEG_LIBRARY NAMES jpeg libjpeg.lib
 	PATHS /usr/local/lib /usr/lib
-	HINTS ${jpeg_dirs1} ${jpeg_dirs2} ${STAGING_LIBS_DIR}
+	HINTS ${STAGING_LIBS_DIR}
 	DOC "Path to jpeg library."
 )
 IF(NOT JPEG_LIBRARY)
@@ -225,7 +184,7 @@ ENDIF()
 FIND_PATH(
 	ZLIB_INCLUDE_DIR zlib.h
 	PATHS /usr/local/include /usr/include
-	HINTS ${zlib_dirs1} ${zlib_dirs2}
+	HINTS ${ZLIB_DIR} # ZLIB_DIR may come from export-vars.cmake
 	DOC "Path to zlib headers."
 )
 IF(NOT ZLIB_INCLUDE_DIR)
@@ -241,7 +200,7 @@ INCLUDE_DIRECTORIES("${ZLIB_INCLUDE_DIR}")
 FIND_LIBRARY(
 	ZLIB_LIBRARY NAMES z zdll.lib
 	PATHS /usr/local/lib /usr/lib
-	HINTS ${zlib_dirs1} ${zlib_dirs2} ${STAGING_LIBS_DIR}
+	HINTS ${STAGING_LIBS_DIR}
 	DOC "Path to zlib library."
 )
 IF(NOT ZLIB_LIBRARY)
@@ -255,7 +214,7 @@ ENDIF()
 FIND_PATH(
 	PNG_INCLUDE_DIR png.h
 	PATHS /usr/local/include /usr/include
-	HINTS ${png_dirs1} ${png_dirs2} ${png_dirs3} ${png_dirs4}
+	HINTS ${PNG_DIR} # PNG_DIR may come from export-vars.cmake
 	DOC "Path to libpng headers."
 )
 IF(NOT PNG_INCLUDE_DIR)
@@ -271,7 +230,7 @@ INCLUDE_DIRECTORIES("${PNG_INCLUDE_DIR}")
 FIND_LIBRARY(
 	PNG_LIBRARY NAMES png libpng.lib
 	PATHS /usr/local/lib /usr/lib
-	HINTS ${png_dirs1} ${png_dirs2} ${png_dirs3} ${png_dirs4} ${STAGING_LIBS_DIR}
+	HINTS ${STAGING_LIBS_DIR}
 	DOC "Path to png library."
 )
 IF(NOT PNG_LIBRARY)
@@ -286,7 +245,7 @@ ENDIF()
 FIND_PATH(
 	TIFF_INCLUDE_DIR tiff.h
 	PATHS /usr/local/include /usr/include
-	HINTS ${tiff_dirs1} ${tiff_dirs2}
+	HINTS ${TIFF_DIR} # TIFF_DIR may come from export-vars.cmake
 	PATH_SUFFIXES libtiff
 	DOC "Path to libtiff headers."
 )
@@ -303,7 +262,7 @@ INCLUDE_DIRECTORIES("${TIFF_INCLUDE_DIR}")
 FIND_LIBRARY(
 	TIFF_LIBRARY tiff libtiff.lib
 	PATHS /usr/local/lib /usr/lib
-	HINTS ${tiff_dirs1} ${tiff_dirs2} ${STAGING_LIBS_DIR}
+	HINTS ${STAGING_LIBS_DIR}
 	PATH_SUFFIXES libtiff
 	DOC "Path to tiff library."
 )
@@ -321,10 +280,6 @@ ENDIF()
 
 
 IF(WIN32)
-	FIND_PATH(
-		BOOST_ROOT boost-build.jam PATHS ${boost_dirs1} ${boost_dirs2}
-		DOC "Path to top-level Boost source directory."
-	)
 	SET(Boost_USE_STATIC_LIBS ON)
 ELSE(WIN32)
 	ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK)
@@ -358,9 +313,6 @@ IF(UNIX)
 			"Try specifying them manually in PTHREADS_CFLAGS and PTHREADS_LIBS."
 		)
 	ENDIF(PTHREADS_FOUND)
-ELSEIF(MINGW)
-	ADD_DEFINITIONS(-mthreads)
-	LINK_LIBRARIES(-mthreads)
 ELSEIF(WIN32)
 	ADD_DEFINITIONS(-DNOMINMAX)
 ENDIF(UNIX)

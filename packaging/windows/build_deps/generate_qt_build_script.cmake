@@ -6,8 +6,7 @@ FILE(
 	# cmd /c is used because it may be configure.bat, which otherwise wouldn't return control.
 	"cmd /c configure -platform ${PLATFORM} -debug-and-release -shared -force-debug-info"
 	" -no-gif -system-zlib -system-libpng -system-libjpeg -qt-imageformat-jpeg -no-openssl"
-	" -opengl desktop -nomake examples -nomake demos -nomake docs"
-	" -opensource -confirm-license -no-ltcg"
+	" -opengl desktop -nomake examples -opensource -confirm-license -no-ltcg"
 	" -I \"${JPEG_INCLUDE_DIR}\" -I \"${ZLIB_INCLUDE_DIR}\""
 	" -I \"${PNG_INCLUDE_DIR}\" -L \"${JPEG_LINK_DIR}\" -L \"${ZLIB_LINK_DIR}\""
 	" -L \"${PNG_LINK_DIR}\""

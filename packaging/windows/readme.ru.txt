@@ -6,7 +6,7 @@ This file is in UTF-8 encoding.
 С какого-то момента времени, поддержка MinGW была убрана, с целью снизить
 усилия по сопровождению кода. Кроме того Scan Tailor начал использовать
 некоторые возможности стандарта C++11, из-за чего версии Visual Studio
-до 2012 перестали поддерживаться.
+до 2013 перестали поддерживаться.
 
 
                             Скачиваем необходимый софт
@@ -14,7 +14,7 @@ This file is in UTF-8 encoding.
 Первым делом, нам понадобится нижеследующий софт.  Если не указано обратного,
 всегда берите последние стабильные версии.
 
-1. Visual Studio Express 2012 for Windows Desktop.
+1. Visual Studio Express 2013 for Windows Desktop.
    Сайт: http://www.microsoft.com/visualstudio/eng/products/visual-studio-express-products
 2. CMake >= 2.8.9
    Сайт: http://www.cmake.org
@@ -36,7 +36,7 @@ This file is in UTF-8 encoding.
    далее в этом документе.  Если вы не собираетесь распространять ваши сборки
    Scan Tailor'а и не собираетесь открывать им файлы из сомнительных источников,
    тогда можете и не патчить libtiff.
-7. Qt 5.x.x (протестировано с Qt 5.0.2)
+7. Qt 5.x.x (протестировано с Qt 5.1.1)
    Cайт: http://qt-project.org/
    Скачивать можно любую бинарную версию (используемый компилятор не важен),
    или даже версию только с исходниками. В любом случае будет сделана
@@ -47,7 +47,7 @@ This file is in UTF-8 encoding.
    Рекомендуется ставить 32-битную версию. Будет или нет работать 64-битная -
    никто не проверял. При установке убедитесь, что опция "Add Perl to the PATH
    environment variable" включена.
-8. Boost (протестировано с 1.53.0)
+8. Boost (протестировано с 1.55.0)
    Сайт: http://boost.org/
    Качайте boost в любом формате, при условии что вы знаете, как этот формат
    распаковывать.
@@ -64,7 +64,7 @@ This file is in UTF-8 encoding.
    scantailor в директорию сборки.  В результате должна получиться примерно
    такая структура директорий:
    C:\build
-     | boost_1_53_0
+	 | boost_1_55_0
      | jpeg-9
      | libpng-1.6.2
      | scantailor-0.10.0
@@ -92,10 +92,10 @@ This file is in UTF-8 encoding.
    Where is the source code: C:\build\scantailor-0.10.0\packaging\windows\build-deps
    Where to build the binaries: C:\build\scantailor-deps-build
 
-   Жмем "Configure".  Выбираем тип проекта "Visual Studio 11" или
-   "Visual Studio 11 Win64" для 64-битной сборки. Имейте в виду, что 64-битную
-   сборку можно собрать только на 64-битной версии Windows. Visual Studio 11 -
-   это то же самое, что Visual Studio 2012. Если какие-то пути не были найдены,
+   Жмем "Configure".  Выбираем тип проекта "Visual Studio 12" или
+   "Visual Studio 12 Win64" для 64-битной сборки. Имейте в виду, что 64-битную
+   сборку можно собрать только на 64-битной версии Windows. Visual Studio 12 -
+   это то же самое, что Visual Studio 2013. Если какие-то пути не были найдены,
    указываем их вручную и жмем "Configure" опять. Если все прошло нормально,
    кнопка "Generate" станет активной. Жмем на нее. Имейте в виду, что иногда
    нужно нажимать "Configure" несколько раз, прежде чем кнопка "Generate"
