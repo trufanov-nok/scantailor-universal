@@ -26,9 +26,11 @@
 #include "PageLayout.h"
 #include "ImageId.h"
 #include "PageId.h"
+#include "Params.h"
 #include "PageSelectionAccessor.h"
 #include "Dependencies.h"
 #include "AutoManualMode.h"
+#include <boost/optional.hpp>
 #include <set>
 
 class ProjectPages;
@@ -43,37 +45,6 @@ class OptionsWidget :
 {
 	Q_OBJECT
 public:
-	class UiData
-	{
-		// Member-wise copying is OK.
-	public:
-		UiData();
-		
-		~UiData();
-		
-		void setPageLayout(PageLayout const& layout);
-		
-		PageLayout const& pageLayout() const;
-		
-		void setDependencies(Dependencies const& deps);
-		
-		Dependencies const& dependencies() const;
-		
-		void setSplitLineMode(AutoManualMode mode);
-		
-		AutoManualMode splitLineMode() const;
-		
-		bool layoutTypeAutoDetected() const;
-		
-		void setLayoutTypeAutoDetected(bool val);
-	private:
-		PageLayout m_pageLayout;
-		Dependencies m_deps;
-		AutoManualMode m_splitLineMode;
-		bool m_layoutTypeAutoDetected;
-	};
-	
-	
 	OptionsWidget(IntrusivePtr<Settings> const& settings,
 		IntrusivePtr<ProjectPages> const& page_sequence,
 		PageSelectionAccessor const& page_selection_accessor);
@@ -82,7 +53,7 @@ public:
 	
 	void preUpdateUI(PageId const& page_id);
 	
-	void postUpdateUI(UiData const& ui_data);
+	void postUpdateUI(Params const& params, bool layout_type_auto_detected);
 signals:
 	void pageLayoutSetLocally(PageLayout const& page_layout);
 public slots:
@@ -104,9 +75,10 @@ private:
 	IntrusivePtr<ProjectPages> m_ptrPages;
 	PageSelectionAccessor m_pageSelectionAccessor;
 	PageId m_pageId;
-	UiData m_uiData;
+	boost::optional<Params> m_params;
 	int m_ignoreAutoManualToggle;
 	int m_ignoreLayoutTypeToggle;
+	bool m_layoutTypeAutoDetected;
 };
 
 } // namespace page_split

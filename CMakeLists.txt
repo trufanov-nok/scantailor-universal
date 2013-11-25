@@ -392,18 +392,19 @@ SOURCE_GROUP("Generated" FILES ${resource_sources})
 
 SET(
 	common_sources
+	RoundingHasher.cpp RoundingHasher.h
 	BackgroundExecutor.cpp BackgroundExecutor.h
 	OpenGLSupport.cpp OpenGLSupport.h
 	PixmapRenderer.cpp PixmapRenderer.h
 	BubbleAnimation.cpp BubbleAnimation.h
 	ProcessingIndicationWidget.cpp ProcessingIndicationWidget.h
 	NonOwningWidget.cpp NonOwningWidget.h
-	Dpi.cpp Dpi.h Dpm.cpp Dpm.h
+	ContentBox.cpp ContentBox.h
 	SmartFilenameOrdering.cpp SmartFilenameOrdering.h
 	AbstractRelinker.h
 	RelinkablePath.cpp RelinkablePath.h
 	ImageInfo.cpp ImageInfo.h
-	ImageFileInfo.cpp ImageFileInfo.h
+	ImageFileInfo.h
 	ImageMetadata.cpp ImageMetadata.h
 	RecentProjects.cpp RecentProjects.h
 	OutOfMemoryHandler.cpp OutOfMemoryHandler.h
@@ -411,8 +412,10 @@ SET(
 	PageSelectionAccessor.cpp PageSelectionAccessor.h
 	PageSelectionProvider.h
 	ContentSpanFinder.cpp ContentSpanFinder.h
-	PhysicalTransformation.cpp PhysicalTransformation.h
-	ImageTransformation.cpp ImageTransformation.h
+	AbstractImageTransform.h
+	AffineImageTransform.cpp AffineImageTransform.h
+	DewarpingImageTransform.cpp DewarpingImageTransform.h
+	AffineTransformedImage.cpp AffineTransformedImage.h
 	ImagePixmapUnion.h
 	ImageViewBase.cpp ImageViewBase.h
 	BasicImageView.cpp BasicImageView.h
@@ -436,7 +439,6 @@ SET(
 	PageSequence.cpp PageSequence.h
 	StageSequence.cpp StageSequence.h
 	ProjectPages.cpp ProjectPages.h
-	FilterData.cpp FilterData.h
 	ImageMetadataLoader.cpp ImageMetadataLoader.h
 	TiffReader.cpp TiffReader.h
 	TiffWriter.cpp TiffWriter.h
@@ -470,7 +472,7 @@ SET(
 	BeforeOrAfter.h
 	FilterResult.h
 	CompositeCacheDrivenTask.h
-	Margins.h
+	RelativeMargins.h
 	ChangedStateItemDelegate.h
 	PageOrderProvider.h
 	PageOrderOption.h
@@ -495,7 +497,6 @@ SET(
 	RelinkingListView.cpp RelinkingListView.h
 	RelinkingDialog.cpp RelinkingDialog.h
 	SettingsDialog.cpp SettingsDialog.h
-	FixDpiDialog.cpp FixDpiDialog.h
 	LoadFilesStatusDialog.cpp LoadFilesStatusDialog.h
 	ProjectCreationContext.cpp ProjectCreationContext.h
 	ProjectOpeningContext.cpp ProjectOpeningContext.h
@@ -551,12 +552,14 @@ ADD_EXECUTABLE(scantailor-cli ${cli_only_sources} ${common_ui_sources})
 
 TARGET_LINK_LIBRARIES(
 	scantailor
-	fix_orientation page_split deskew select_content page_layout output stcore
+	page_layout output
+	fix_orientation page_split deskew select_content stcore
 	dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(
 	scantailor-cli
-	fix_orientation page_split deskew select_content page_layout output stcore
+	page_layout output
+	fix_orientation page_split deskew select_content stcore
 	dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 

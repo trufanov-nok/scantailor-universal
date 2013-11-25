@@ -231,13 +231,13 @@ ProjectPages::setLayoutTypeForAllPages(LayoutType const layout)
 
 void
 ProjectPages::autoSetLayoutTypeFor(
-	ImageId const& image_id, OrthogonalRotation const rotation)
+	ImageId const& image_id, OrthogonalRotation const& orientation)
 {
 	bool was_modified = false;
 	
 	{
 		QMutexLocker locker(&m_mutex);
-		autoSetLayoutTypeForImpl(image_id, rotation, &was_modified);
+		autoSetLayoutTypeForImpl(image_id, orientation, &was_modified);
 	}
 	
 	if (was_modified) {
@@ -262,17 +262,21 @@ ProjectPages::updateImageMetadata(
 }
 
 int
-ProjectPages::adviseNumberOfLogicalPages(
-	ImageMetadata const& metadata, OrthogonalRotation const rotation)
+ProjectPages::adviseNumberOfLogicalPages(QSize const& size)
 {
-	QSize const size(rotation.rotate(metadata.size()));
-	QSize const dpi(rotation.rotate(metadata.dpi().toSize()));
-	
-	if (size.width() * dpi.height() > size.height() * dpi.width()) {
+	if (size.width() > size.height()) {
 		return 2;
 	} else {
 		return 1;
 	}
+}
+
+int
+ProjectPages::adviseNumberOfLogicalPages(
+	QSize const& size, OrthogonalRotation const& orientation)
+{
+	QSize const rotated_size(orientation.rotate(size));
+	return adviseNumberOfLogicalPages(rotated_size);
 }
 
 int
@@ -333,20 +337,6 @@ ProjectPages::unremovePage(PageId const& page_id)
 	}
 
 	return page_info;
-}
-
-bool
-ProjectPages::validateDpis() const
-{
-	QMutexLocker locker(&m_mutex);
-	
-	BOOST_FOREACH(ImageDesc const& image, m_images) {
-		if (!image.metadata.isDpiOK()) {
-			return false;
-		}
-	}
-	
-	return true;
 }
 
 namespace
@@ -470,26 +460,28 @@ ProjectPages::setLayoutTypeForAllPagesImpl(
 }
 
 void
-ProjectPages::autoSetLayoutTypeForImpl(
-	ImageId const& image_id, OrthogonalRotation const rotation, bool* modified)
+ProjectPages::autoSetLayoutTypeForImpl(ImageId const& image_id,
+	OrthogonalRotation const& orientation, bool* modified)
 {
 	int const num_images = m_images.size();
 	for (int i = 0; i < num_images; ++i) {
-		ImageDesc& image = m_images[i];
-		if (image.id == image_id) {
-			int num_pages = adviseNumberOfLogicalPages(image.metadata, rotation);
-			if (num_pages == 2 && image.leftHalfRemoved != image.rightHalfRemoved) {
+		ImageDesc& desc = m_images[i];
+		if (desc.id == image_id) {
+			int num_pages = adviseNumberOfLogicalPages(
+				desc.metadata.size(), orientation
+			);
+			if (num_pages == 2 && desc.leftHalfRemoved != desc.rightHalfRemoved) {
 				// Both can't be removed, but we handle that case anyway
 				// by treating it like none are removed.
 				--num_pages;
 			}
 
-			int const delta = num_pages - image.numLogicalPages;
+			int const delta = num_pages - desc.numLogicalPages;
 			if (delta == 0) {
 				break;
 			}
 			
-			image.numLogicalPages = num_pages;
+			desc.numLogicalPages = num_pages;
 			
 			*modified = true;
 			break;
@@ -682,9 +674,7 @@ ProjectPages::ImageDesc::ImageDesc(
 			numLogicalPages = 2;
 			break;
 		case AUTO_PAGES:
-			numLogicalPages = adviseNumberOfLogicalPages(
-				metadata, OrthogonalRotation()
-			);
+			numLogicalPages = adviseNumberOfLogicalPages(metadata.size());
 			break;
 	}
 }

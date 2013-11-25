@@ -24,18 +24,18 @@
 namespace deskew
 {
 
-Params::Params(double const deskew_angle_deg,
-	Dependencies const& deps, AutoManualMode const mode)
-:	m_deskewAngleDeg(deskew_angle_deg),
-	m_deps(deps),
-	m_mode(mode)
+Params::Params(Dependencies const& deps)
+:	m_distortionType(defaultDistortionType())
+,	m_deps(deps)
 {
 }
 
 Params::Params(QDomElement const& deskew_el)
-:	m_deskewAngleDeg(deskew_el.attribute("angle").toDouble()),
-	m_deps(deskew_el.namedItem("dependencies").toElement()),
-	m_mode(deskew_el.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO)
+:	m_distortionType(deskew_el.attribute("distortionType"))
+,	m_rotationParams(deskew_el.namedItem("rotation").toElement())
+,	m_perspectiveParams(deskew_el.namedItem("perspective").toElement())
+,	m_dewarpingParams(deskew_el.namedItem("warp").toElement())
+,	m_deps(deskew_el.namedItem("dependencies").toElement())
 {
 }
 
@@ -43,14 +43,67 @@ Params::~Params()
 {
 }
 
+DistortionType
+Params::defaultDistortionType()
+{
+	return DistortionType::ROTATION;
+}
+
+AutoManualMode
+Params::mode() const
+{
+	switch (m_distortionType.get()) {
+		case DistortionType::NONE:
+			return MODE_MANUAL;
+		case DistortionType::ROTATION:
+			return m_rotationParams.mode();
+		case DistortionType::PERSPECTIVE:
+			return m_perspectiveParams.mode();
+		case DistortionType::WARP:
+			return m_dewarpingParams.mode();
+	}
+
+	assert(!"unreachable");
+	return MODE_AUTO;
+}
+
+bool
+Params::validForDistortionType(DistortionType const& distortion_type) const
+{
+	switch (distortion_type.get()) {
+		case DistortionType::NONE:
+			return true;
+		case DistortionType::ROTATION:
+			return m_rotationParams.isValid();
+		case DistortionType::PERSPECTIVE:
+			return m_perspectiveParams.isValid();
+		case DistortionType::WARP:
+			return m_dewarpingParams.isValid();
+	}
+
+	assert(!"unreachable");
+	return false;
+}
+
 QDomElement
 Params::toXml(QDomDocument& doc, QString const& name) const
 {
 	QDomElement el(doc.createElement(name));
-	el.setAttribute("mode", m_mode == MODE_AUTO ? "auto" : "manual");
-	el.setAttribute("angle", Utils::doubleToString(m_deskewAngleDeg));
+	el.setAttribute("distortionType", m_distortionType.toString());
+	el.appendChild(m_rotationParams.toXml(doc, "rotation"));
+	el.appendChild(m_perspectiveParams.toXml(doc, "perspective"));
+	el.appendChild(m_dewarpingParams.toXml(doc, "warp"));
 	el.appendChild(m_deps.toXml(doc, "dependencies"));
 	return el;
+}
+
+void
+Params::takeManualSettingsFrom(Params const& other)
+{
+	// These settings are specified manually even in automatic mode,
+	// so we want to preserve them after a dependency mismatch.
+	m_distortionType = other.distortionType();
+	m_dewarpingParams.setDepthPerception(other.dewarpingParams().depthPerception());
 }
 
 } // namespace deskew

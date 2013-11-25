@@ -17,13 +17,9 @@
 */
 
 #include "Dependencies.h"
-#include "XmlMarshaller.h"
-#include "XmlUnmarshaller.h"
-#include "imageproc/PolygonUtils.h"
 #include <QDomDocument>
 #include <QDomElement>
-
-using namespace imageproc;
+#include <utility>
 
 namespace select_content
 {
@@ -32,16 +28,16 @@ Dependencies::Dependencies()
 {
 }
 
-Dependencies::Dependencies(QPolygonF const& rotated_page_outline)
-:	m_rotatedPageOutline(rotated_page_outline)
+Dependencies::Dependencies(QString const& transform_fingerprint)
+:	m_transformFingerprint(transform_fingerprint)
 {
 }
 
 Dependencies::Dependencies(QDomElement const& deps_el)
-:	m_rotatedPageOutline(
-		XmlUnmarshaller::polygonF(
-			deps_el.namedItem("rotated-page-outline").toElement()
-		)
+:	m_transformFingerprint(
+		deps_el.namedItem(
+			QStringLiteral("transform-fingerprint")
+		).toElement().text().trimmed().toLatin1()
 	)
 {
 }
@@ -53,24 +49,21 @@ Dependencies::~Dependencies()
 bool
 Dependencies::matches(Dependencies const& other) const
 {
-	return PolygonUtils::fuzzyCompare(
-		m_rotatedPageOutline, other.m_rotatedPageOutline
-	);
+	return m_transformFingerprint == other.m_transformFingerprint;
 }
 
 QDomElement
 Dependencies::toXml(QDomDocument& doc, QString const& name) const
 {
-	XmlMarshaller marshaller(doc);
-	
-	QDomElement el(doc.createElement(name));
-	el.appendChild(
-		marshaller.polygonF(
-			m_rotatedPageOutline, "rotated-page-outline"
-		)
+	QDomElement fingerprint_el(
+		doc.createElement(QStringLiteral("transform-fingerprint"))
 	);
+	fingerprint_el.appendChild(doc.createTextNode(m_transformFingerprint));
+
+	QDomElement deps_el(doc.createElement(name));
+	deps_el.appendChild(std::move(fingerprint_el));
 	
-	return el;
+	return deps_el;
 }
 
 } // namespace select_content

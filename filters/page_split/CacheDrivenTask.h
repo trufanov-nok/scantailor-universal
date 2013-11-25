@@ -26,7 +26,8 @@
 class QSizeF;
 class PageInfo;
 class AbstractFilterDataCollector;
-class ImageTransformation;
+class AffineImageTransform;
+class OrthogonalRotation;
 
 namespace deskew
 {
@@ -48,9 +49,10 @@ public:
 	
 	virtual ~CacheDrivenTask();
 	
-	void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform);
+	void process(PageInfo const& page_info,
+		OrthogonalRotation const& pre_rotation,
+		AffineImageTransform const& image_transform,
+		AbstractFilterDataCollector* collector);
 private:
 	IntrusivePtr<deskew::CacheDrivenTask> m_ptrNextTask;
 	IntrusivePtr<Settings> m_ptrSettings;

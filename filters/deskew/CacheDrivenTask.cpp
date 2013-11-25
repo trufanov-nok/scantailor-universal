@@ -17,14 +17,22 @@
 */
 
 #include "CacheDrivenTask.h"
-#include "Thumbnail.h"
+#include "DistortionType.h"
+#include "RotationThumbnail.h"
+#include "DewarpingThumbnail.h"
 #include "IncompleteThumbnail.h"
 #include "Settings.h"
 #include "PageInfo.h"
-#include "ImageTransformation.h"
+#include "AbstractImageTransform.h"
+#include "AffineImageTransform.h"
+#include "DewarpingImageTransform.h"
 #include "filter_dc/AbstractFilterDataCollector.h"
 #include "filter_dc/ThumbnailCollector.h"
 #include "filters/select_content/CacheDrivenTask.h"
+#include <QPointF>
+#include <memory>
+#include <cassert>
+#include <vector>
 
 namespace deskew
 {
@@ -43,12 +51,15 @@ CacheDrivenTask::~CacheDrivenTask()
 
 void
 CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform)
+	PageInfo const& page_info, OrthogonalRotation const& pre_rotation,
+	AffineImageTransform const& image_transform,
+	AbstractFilterDataCollector* collector)
 {
-	Dependencies const deps(xform.preCropArea(), xform.preRotation());
+	Dependencies const deps(image_transform.origCropArea(), pre_rotation);
+
 	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(page_info.id()));
-	if (!params.get() || !deps.matches(params->dependencies())) {
+	if (!params.get() || !deps.matches(params->dependencies()) ||
+			!params->validForDistortionType(params->distortionType())) {
 		
 		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 			thumb_col->processThumbnail(
@@ -56,7 +67,7 @@ CacheDrivenTask::process(
 					new IncompleteThumbnail(
 						thumb_col->thumbnailCache(),
 						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), xform
+						page_info.id(), image_transform
 					)
 				)
 			);
@@ -65,24 +76,118 @@ CacheDrivenTask::process(
 		return;
 	}
 	
-	ImageTransformation new_xform(xform);
-	new_xform.setPostRotation(params->deskewAngle());
-	
 	if (m_ptrNextTask) {
-		m_ptrNextTask->process(page_info, collector, new_xform);
+
+		std::shared_ptr<AbstractImageTransform const> new_transform;
+
+		switch (params->distortionType()) {
+			case DistortionType::NONE: {
+				new_transform = image_transform.clone();
+				break;
+			}
+			case DistortionType::ROTATION: {
+				auto rotated = std::make_shared<AffineImageTransform>(image_transform);
+				rotated->rotate(params->rotationParams().compensationAngleDeg());
+				new_transform = std::move(rotated);
+				break;
+			}
+			case DistortionType::PERSPECTIVE: {
+				std::vector<QPointF> const top_curve{
+					params->perspectiveParams().corner(PerspectiveParams::TOP_LEFT),
+					params->perspectiveParams().corner(PerspectiveParams::TOP_RIGHT)
+				};
+				std::vector<QPointF> const bottom_curve{
+					params->perspectiveParams().corner(PerspectiveParams::BOTTOM_LEFT),
+					params->perspectiveParams().corner(PerspectiveParams::BOTTOM_RIGHT)
+				};
+				new_transform = std::make_shared<DewarpingImageTransform>(
+					image_transform.origSize(), image_transform.origCropArea(),
+					top_curve, bottom_curve, dewarping::DepthPerception()
+				);
+				break;
+			}
+			case DistortionType::WARP: {
+				new_transform = std::make_shared<DewarpingImageTransform>(
+					image_transform.origSize(), image_transform.origCropArea(),
+					params->dewarpingParams().distortionModel().topCurve().polyline(),
+					params->dewarpingParams().distortionModel().bottomCurve().polyline(),
+					params->dewarpingParams().depthPerception()
+				);
+				break;
+			}
+		}
+
+		assert(new_transform);
+		m_ptrNextTask->process(page_info, new_transform, collector);
 		return;
 	}
 	
 	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-		thumb_col->processThumbnail(
-			std::auto_ptr<QGraphicsItem>(
-				new Thumbnail(
-					thumb_col->thumbnailCache(),
-					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), new_xform
-				)
-			)
-		);
+
+		std::auto_ptr<QGraphicsItem> thumb;
+
+		switch (params->distortionType()) {
+			case DistortionType::NONE: {
+				thumb.reset(
+					new RotationThumbnail(
+						thumb_col->thumbnailCache(),
+						thumb_col->maxLogicalThumbSize(),
+						page_info.id(), image_transform,
+						/*compensation_angle_deg=*/0.0,
+						/*grid_visible=*/false
+					)
+				);
+				break;
+			}
+			case DistortionType::ROTATION: {
+				thumb.reset(
+					new RotationThumbnail(
+						thumb_col->thumbnailCache(),
+						thumb_col->maxLogicalThumbSize(),
+						page_info.id(), image_transform,
+						params->rotationParams().compensationAngleDeg(),
+						/*grid_visible=*/true
+					)
+				);
+				break;
+			}
+			case DistortionType::PERSPECTIVE: {
+				std::vector<QPointF> const top_curve{
+					params->perspectiveParams().corner(PerspectiveParams::TOP_LEFT),
+					params->perspectiveParams().corner(PerspectiveParams::TOP_RIGHT)
+				};
+				std::vector<QPointF> const bottom_curve{
+					params->perspectiveParams().corner(PerspectiveParams::BOTTOM_LEFT),
+					params->perspectiveParams().corner(PerspectiveParams::BOTTOM_RIGHT)
+				};
+				thumb.reset(
+					new DewarpingThumbnail(
+						thumb_col->thumbnailCache(),
+						thumb_col->maxLogicalThumbSize(),
+						page_info.id(), image_transform,
+						top_curve, bottom_curve,
+						dewarping::DepthPerception()
+					)
+				);
+				break;
+			}
+			case DistortionType::WARP: {
+				thumb.reset(
+					new DewarpingThumbnail(
+						thumb_col->thumbnailCache(),
+						thumb_col->maxLogicalThumbSize(),
+						page_info.id(), image_transform,
+						params->dewarpingParams().distortionModel().topCurve().polyline(),
+						params->dewarpingParams().distortionModel().bottomCurve().polyline(),
+						params->dewarpingParams().depthPerception()
+					)
+				);
+				break;
+			}
+		}
+
+		assert(thumb.get());
+		thumb_col->processThumbnail(thumb);
 	}
 }
 

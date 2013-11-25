@@ -28,7 +28,6 @@
 #include "PropertySet.h"
 #include "FillColorProperty.h"
 #include "Settings.h"
-#include "ImageTransformation.h"
 #include "ImagePresentation.h"
 #include "OutputMargins.h"
 #include <QTransform>

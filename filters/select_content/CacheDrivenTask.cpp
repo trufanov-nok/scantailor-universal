@@ -19,7 +19,6 @@
 #include "CacheDrivenTask.h"
 #include "Thumbnail.h"
 #include "IncompleteThumbnail.h"
-#include "ImageTransformation.h"
 #include "Settings.h"
 #include "PageInfo.h"
 #include "PageId.h"
@@ -44,12 +43,13 @@ CacheDrivenTask::~CacheDrivenTask()
 }
 
 void
-CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform)
+CacheDrivenTask::process(PageInfo const& page_info,
+	std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+	AbstractFilterDataCollector* collector)
 {
 	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(page_info.id()));
-	Dependencies const deps(xform.resultingPreCropArea());
+	Dependencies const deps(full_size_image_transform->fingerprint());
+
 	if (!params.get() || !params->dependencies().matches(deps)) {
 		
 		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
@@ -58,7 +58,7 @@ CacheDrivenTask::process(
 					new IncompleteThumbnail(
 						thumb_col->thumbnailCache(),
 						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), xform
+						page_info.id(), *full_size_image_transform
 					)
 				)
 			);
@@ -68,11 +68,13 @@ CacheDrivenTask::process(
 	}
 	
 	if (ContentBoxCollector* col = dynamic_cast<ContentBoxCollector*>(collector)) {
-		col->process(xform, params->contentRect());
+		col->process(*full_size_image_transform, params->contentBox());
 	}
 	
 	if (m_ptrNextTask) {
-		m_ptrNextTask->process(page_info, collector, xform, params->contentRect());
+		m_ptrNextTask->process(
+			page_info, collector, full_size_image_transform, params->contentBox()
+		);
 		return;
 	}
 	
@@ -82,8 +84,8 @@ CacheDrivenTask::process(
 				new Thumbnail(
 					thumb_col->thumbnailCache(),
 					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), xform,
-					params->contentRect()
+					page_info.id(), *full_size_image_transform,
+					params->contentBox()
 				)
 			)
 		);

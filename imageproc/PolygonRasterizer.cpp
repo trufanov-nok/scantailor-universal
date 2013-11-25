@@ -19,6 +19,7 @@
 #include "PolygonRasterizer.h"
 #include "PolygonUtils.h"
 #include "BinaryImage.h"
+#include "GrayImage.h"
 #include <QRect>
 #include <QRectF>
 #include <QPolygonF>
@@ -129,7 +130,7 @@ public:
 	
 	void fillBinary(BinaryImage& image, BWColor color) const;
 	
-	void fillGrayscale(QImage& image, uint8_t color) const;
+	void fillGrayscale(GrayImage& image, uint8_t color) const;
 private:
 	void prepareEdges();
 	
@@ -191,15 +192,12 @@ PolygonRasterizer::fillExcept(
 }
 
 void
-PolygonRasterizer::grayFill(
-	QImage& image, unsigned char const color,
+PolygonRasterizer::fill(
+	GrayImage& image, unsigned char const color,
 	QPolygonF const& poly, Qt::FillRule const fill_rule)
 {
 	if (image.isNull()) {
 		throw std::invalid_argument("PolygonRasterizer: target image is null");
-	}
-	if (image.format() != QImage::Format_Indexed8 || !image.isGrayscale()) {
-		throw std::invalid_argument("PolygonRasterizer: target image is not grayscale");
 	}
 	
 	Rasterizer rasterizer(image.rect(), poly, fill_rule, false);
@@ -207,15 +205,12 @@ PolygonRasterizer::grayFill(
 }
 
 void
-PolygonRasterizer::grayFillExcept(
-	QImage& image, unsigned char const color,
+PolygonRasterizer::fillExcept(
+	GrayImage& image, unsigned char const color,
 	QPolygonF const& poly, Qt::FillRule const fill_rule)
 {
 	if (image.isNull()) {
 		throw std::invalid_argument("PolygonRasterizer: target image is null");
-	}
-	if (image.format() != QImage::Format_Indexed8 || !image.isGrayscale()) {
-		throw std::invalid_argument("PolygonRasterizer: target image is not grayscale");
 	}
 	
 	Rasterizer rasterizer(image.rect(), poly, fill_rule, true);
@@ -416,13 +411,13 @@ PolygonRasterizer::Rasterizer::fillBinary(
 
 void
 PolygonRasterizer::Rasterizer::fillGrayscale(
-	QImage& image, uint8_t const color) const
+	GrayImage& image, uint8_t const color) const
 {
 	std::vector<EdgeComponent> edges_for_line;
 	typedef std::vector<EdgeComponent>::const_iterator EdgeIter;
 	
-	uint8_t* line = image.bits();
-	int const bpl = image.bytesPerLine();
+	uint8_t* line = image.data();
+	int const bpl = image.stride();
 	
 	int i = qRound(m_boundingBox.top());
 	line += i * bpl;

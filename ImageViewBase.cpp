@@ -23,8 +23,6 @@
 #include "OpenGLSupport.h"
 #include "PixmapRenderer.h"
 #include "BackgroundExecutor.h"
-#include "Dpm.h"
-#include "Dpi.h"
 #include "ScopedIncDec.h"
 #include "imageproc/PolygonUtils.h"
 #include "imageproc/Transform.h"
@@ -68,7 +66,7 @@ public:
 	HqTransformTask(
 		ImageViewBase* image_view,
 		QImage const& image, QTransform const& xform,
-		QSize const& target_size);
+		QRect const& target_rect);
 	
 	void cancel() { m_ptrResult->cancel(); }
 	
@@ -81,7 +79,7 @@ private:
 	public:
 		Result(ImageViewBase* image_view);
 		
-		void setData(QPoint const& origin, QImage const& hq_image);
+		void setData(QImage const& hq_image);
 		
 		void cancel() { m_cancelFlag.store(1); }
 		
@@ -90,7 +88,6 @@ private:
 		virtual void operator()();
 	private:
 		QPointer<ImageViewBase> m_ptrImageView;
-		QPoint m_origin;
 		QImage m_hqImage;
 		QAtomicInt m_cancelFlag;
 	};
@@ -98,7 +95,7 @@ private:
 	IntrusivePtr<Result> m_ptrResult;
 	QImage m_image;
 	QTransform m_xform;
-	QSize m_targetSize;
+	QRect m_targetRect;
 };
 
 
@@ -147,7 +144,7 @@ private:
 
 ImageViewBase::ImageViewBase(
 	QImage const& image, ImagePixmapUnion const& downscaled_version,
-	ImagePresentation const& presentation, Margins const& margins)
+	ImagePresentation const& presentation, QMarginsF const& margins)
 :	m_image(image),
 	m_virtualImageCropArea(presentation.cropArea()),
 	m_virtualDisplayArea(presentation.displayArea()),
@@ -162,6 +159,15 @@ ImageViewBase::ImageViewBase(
 	m_blockScrollBarUpdate(0),
 	m_hqTransformEnabled(true)
 {
+	/* For some reason, the default viewport fills background with
+	 * a color different from QPalette::Window. Here we make it not
+	 * fill it at all, assuming QMainWindow will do that anyway
+	 * (with the correct color). Note that an attempt to do the same
+	 * to an OpenGL viewport produces "black hole" artefacts. Therefore,
+	 * we do this before setting an OpenGL viewport rather than after.
+	 */
+	viewport()->setAutoFillBackground(false);
+
 #ifdef ENABLE_OPENGL
 	if (QSettings().value("settings/use_3d_acceleration", false) != false) {
 		if (OpenGLSupport::supported()) {
@@ -248,28 +254,23 @@ QImage
 ImageViewBase::createDownscaledImage(QImage const& image)
 {
 	assert(!image.isNull());
+
+	QSize const scaled_size = image.size().scaled(3000, 3000, Qt::KeepAspectRatio);
 	
-	// Original and downscaled DPM.
-	Dpm const o_dpm(image);
-	Dpm const d_dpm(Dpi(300, 300));
-	
-	int const o_w = image.width();
-	int const o_h = image.height();
-	
-	int d_w = o_w * d_dpm.horizontal() / o_dpm.horizontal();
-	int d_h = o_h * d_dpm.vertical() / o_dpm.vertical();
-	d_w = qBound(1, d_w, o_w);
-	d_h = qBound(1, d_h, o_h);
-	
-	if (d_w * 1.2 > o_w || d_h * 1.2 > o_h) {
+	if (scaled_size.width() * 1.2 > image.width() ||
+		scaled_size.height() * 1.2 > image.height()) {
 		// Sizes are close - no point in downscaling.
 		return image;
 	}
 	
 	QTransform xform;
-	xform.scale((double)d_w / o_w, (double)d_h / o_h);
+	xform.scale(
+		(double)scaled_size.width() / image.width(),
+		(double)scaled_size.height() / image.height()
+	);
+
 	return transform(
-		image, xform, QRect(0, 0, d_w, d_h),
+		image, xform, QRect(QPoint(0, 0), scaled_size),
 		OutsidePixels::assumeColor(Qt::white)
 	);
 }
@@ -454,61 +455,33 @@ ImageViewBase::paintEvent(QPaintEvent* event)
 	// Width of a source pixel in mm, as it's displayed on screen.
 	double const pixel_width = widthMM() * xscale / width();
 
-	// Disable antialiasing for large zoom levels.
+	// Make clipping smooth.
+	painter.setRenderHint(QPainter::Antialiasing, true);
+
+	// Disable pixmap antialiasing for large zoom levels.
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, pixel_width < 0.5);
 
 	if (validateHqPixmap()) {
 		// HQ pixmap maps one to one to screen pixels, so antialiasing is not necessary.
 		painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
+
+		QPainterPath clip_path;
+		clip_path.addPolygon(m_virtualToWidget.map(m_virtualImageCropArea));
+		painter.setClipPath(clip_path);
+
 		painter.drawPixmap(m_hqPixmapPos, m_hqPixmap);
 	} else {
 		scheduleHqVersionRebuild();
 
-		painter.setWorldTransform(
-			m_pixmapToImage * m_imageToVirtual * m_virtualToWidget
-		);
+		QTransform const pixmap_to_virtual(m_pixmapToImage * m_imageToVirtual);
+		painter.setWorldTransform(pixmap_to_virtual * m_virtualToWidget);
+
+		QPainterPath clip_path;
+		clip_path.addPolygon(pixmap_to_virtual.inverted().map(m_virtualImageCropArea));
+		painter.setClipPath(clip_path);
+
 		PixmapRenderer::drawPixmap(painter, m_pixmap);
 	}
-
-	painter.setRenderHints(QPainter::Antialiasing, true);
-	painter.setWorldMatrixEnabled(false);
-
-	// Cover parts of the image that should not be visible with background.
-	// Note that because of Qt::WA_OpaquePaintEvent attribute, we need
-	// to paint the whole widget, which we do here.
-
-	QPolygonF const image_area(
-		PolygonUtils::round(
-			m_virtualToWidget.map(
-				m_imageToVirtual.map(QRectF(m_image.rect()))
-			)
-		)
-	);
-	QPolygonF const crop_area(
-		PolygonUtils::round(m_virtualToWidget.map(m_virtualImageCropArea))
-	);
-
-	QPolygonF const intersected_area(
-		PolygonUtils::round(image_area.intersected(crop_area))
-	);
-
-	QPainterPath intersected_path;
-	intersected_path.addPolygon(intersected_area);
-
-	QPainterPath containing_path;
-	containing_path.addRect(viewport()->rect());
-
-	QBrush const brush(palette().color(QPalette::Window));
-	QPen pen(brush, 1.0);
-	pen.setCosmetic(true);
-
-	// By using a pen with the same color as the brush, we essentially
-	// expanding the area we are going to draw.  It's necessary because
-	// XRender doesn't provide subpixel accuracy.
-
-	painter.setPen(pen);
-	painter.setBrush(brush);
-	painter.drawPath(containing_path.subtracted(intersected_path));
 
 	painter.restore();
 
@@ -1070,14 +1043,20 @@ ImageViewBase::initiateBuildingHqVersion()
 	}
 
 	QTransform const xform(m_imageToVirtual * m_virtualToWidget);
+	QRect const target_rect(
+		m_virtualToWidget.map(m_virtualImageCropArea)
+		.boundingRect().toAlignedRect().intersected(this->rect())
+	);
+
 	IntrusivePtr<HqTransformTask> const task(
-		new HqTransformTask(this, m_image, xform, viewport()->size())
+		new HqTransformTask(this, m_image, xform, target_rect)
 	);
 	
 	backgroundExecutor().enqueueTask(task);
 	
 	m_ptrHqTransformTask = task;
 	m_hqXform = xform;
+	m_hqPixmapPos = target_rect.topLeft();
 	m_hqSourceId = m_image.cacheKey();
 }
 
@@ -1085,15 +1064,13 @@ ImageViewBase::initiateBuildingHqVersion()
  * Gets called from HqTransformationTask::Result.
  */
 void
-ImageViewBase::hqVersionBuilt(
-	QPoint const& origin, QImage const& image)
+ImageViewBase::hqVersionBuilt(QImage const& image)
 {
 	if (!m_hqTransformEnabled) {
 		return;
 	}
 	
 	m_hqPixmap = QPixmap::fromImage(image);
-	m_hqPixmapPos = origin;
 	m_ptrHqTransformTask.reset();
 	update();
 }
@@ -1139,11 +1116,11 @@ ImageViewBase::backgroundExecutor()
 ImageViewBase::HqTransformTask::HqTransformTask(
 	ImageViewBase* image_view,
 	QImage const& image, QTransform const& xform,
-	QSize const& target_size)
+	QRect const& target_rect)
 :	m_ptrResult(new Result(image_view)),
 	m_image(image),
 	m_xform(xform),
-	m_targetSize(target_size)
+	m_targetRect(target_rect)
 {
 }
 
@@ -1153,32 +1130,29 @@ ImageViewBase::HqTransformTask::operator()()
 	if (isCancelled()) {
 		return IntrusivePtr<AbstractCommand0<void> >();
 	}
-	
-	QRect const target_rect(
-		m_xform.map(
-			QRectF(m_image.rect())
-		).boundingRect().toRect().intersected(
-			QRect(QPoint(0, 0), m_targetSize)
-		)
-	);
-	
+
 	QImage hq_image(
 		transform(
-			m_image, m_xform, target_rect,
-			OutsidePixels::assumeWeakColor(Qt::white), QSizeF(0.0, 0.0)
+			m_image, m_xform, m_targetRect,
+			OutsidePixels::assumeColor(Qt::transparent), QSizeF(0.0, 0.0)
 		)
 	);
+
+	if (isCancelled()) {
+		return IntrusivePtr<AbstractCommand0<void> >();
+	}
 
 	// In many cases m_image and therefore hq_image are grayscale with
 	// a palette, but given that hq_image will be converted to a QPixmap
 	// on the GUI thread, it's better to convert it to RGB as a preparation
 	// step while we are still in a background thread.
-	hq_image = hq_image.convertToFormat(
-		hq_image.hasAlphaChannel() ? QImage::Format_ARGB32_Premultiplied : QImage::Format_RGB32
-	);
+	hq_image = hq_image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
-	m_ptrResult->setData(target_rect.topLeft(), hq_image);
-	
+	if (isCancelled()) {
+		return IntrusivePtr<AbstractCommand0<void> >();
+	}
+
+	m_ptrResult->setData(hq_image);
 	return m_ptrResult;
 }
 
@@ -1192,18 +1166,16 @@ ImageViewBase::HqTransformTask::Result::Result(
 }
 
 void
-ImageViewBase::HqTransformTask::Result::setData(
-	QPoint const& origin, QImage const& hq_image)
+ImageViewBase::HqTransformTask::Result::setData(QImage const& hq_image)
 {
 	m_hqImage = hq_image;
-	m_origin = origin;
 }
 
 void
 ImageViewBase::HqTransformTask::Result::operator()()
 {
 	if (m_ptrImageView && !isCancelled()) {
-		m_ptrImageView->hqVersionBuilt(m_origin, m_hqImage);
+		m_ptrImageView->hqVersionBuilt(m_hqImage);
 	}
 }
 

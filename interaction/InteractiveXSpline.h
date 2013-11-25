@@ -40,7 +40,12 @@ public:
 
 	InteractiveXSpline();
 
-	void setSpline(XSpline const& spline);
+	/**
+	 * @param spline The spline to set. Must have at least 2 control points.
+	 * @param fixed_number_of_control_points If set to true, adding / deleting
+	 *        control points will be disabled.
+	 */
+	void setSpline(XSpline const& spline, bool fixed_number_of_control_points);
 
 	XSpline const& spline() const { return m_spline; }
 
@@ -106,6 +111,7 @@ private:
 	QPointF m_curveProximityPointScreen;
 	double m_curveProximityT;
 	bool m_lastProximity;
+	bool m_fixedNumberOfControlPoints;
 };
 
 #endif

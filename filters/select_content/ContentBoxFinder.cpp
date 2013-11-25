@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
 #include "ContentBoxFinder.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
-#include "FilterData.h"
-#include "ImageTransformation.h"
-#include "Dpi.h"
+#include "AffineTransformedImage.h"
 #include "Despeckle.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/BinaryThreshold.h"
@@ -111,24 +109,26 @@ struct PreferVertical
 } // anonymous namespace
 
 QRectF
-ContentBoxFinder::findContentBox(
-	TaskStatus const& status, FilterData const& data, DebugImages* dbg)
+ContentBoxFinder::findContentBox(TaskStatus const& status,
+	AffineTransformedImage const& image, DebugImages* dbg)
 {
-	ImageTransformation xform_150dpi(data.xform());
-	xform_150dpi.preScaleToDpi(Dpi(150, 150));
+	AffineImageTransform downscaled_transform(image.xform());
+	downscaled_transform.scaleTo(QSize(1500, 1500), Qt::KeepAspectRatio);
 
-	if (xform_150dpi.resultingRect().toRect().isEmpty()) {
+	QRect const downscaled_rect(
+		downscaled_transform.transformedCropArea().boundingRect().toRect()
+	);
+	if (downscaled_rect.isEmpty()) {
 		return QRectF();
 	}
 	
-	uint8_t const darkest_gray_level = darkestGrayLevel(data.grayImage());
+	uint8_t const darkest_gray_level = darkestGrayLevel(image.origImage());
 	QColor const outside_color(darkest_gray_level, darkest_gray_level, darkest_gray_level);
 
 	QImage gray150(
 		transformToGray(
-			data.grayImage(), xform_150dpi.transform(),
-			xform_150dpi.resultingRect().toRect(),
-			OutsidePixels::assumeColor(outside_color)
+			image.origImage(), downscaled_transform.transform(),
+			downscaled_rect, OutsidePixels::assumeColor(outside_color)
 		)
 	);
 	// Note that we fill new areas that appear as a result of
@@ -137,6 +137,8 @@ ContentBoxFinder::findContentBox(
 	if (dbg) {
 		dbg->add(gray150, "gray150");
 	}
+
+	downscaled_transform.translateSoThatPointBecomes(downscaled_rect.topLeft(), QPointF(0, 0));
 	
 	BinaryImage bw150(binarizeWolf(gray150, QSize(51, 51), 50));
 	if (dbg) {
@@ -144,7 +146,7 @@ ContentBoxFinder::findContentBox(
 	}
 	
 	PolygonRasterizer::fillExcept(
-		bw150, BLACK, xform_150dpi.resultingPreCropArea(), Qt::WindingFill
+		bw150, BLACK, downscaled_transform.transformedCropArea(), Qt::WindingFill
 	);
 	if (dbg) {
 		dbg->add(bw150, "page_mask_applied");
@@ -217,7 +219,7 @@ ContentBoxFinder::findContentBox(
 		despeckleLevel = cli.getContentDetection();
 	}
 
-	BinaryImage despeckled(Despeckle::despeckle(content, Dpi(150, 150), despeckleLevel, status, dbg));
+	BinaryImage despeckled(Despeckle::despeckle(content, despeckleLevel, status, dbg));
 	if (dbg) {
 		dbg->add(despeckled, "despeckled");
 	}
@@ -437,9 +439,10 @@ ContentBoxFinder::findContentBox(
 	}
 	
 	// Transform back from 150dpi.
-	QTransform combined_xform(xform_150dpi.transform().inverted());
-	combined_xform *= data.xform().transform();
-	return combined_xform.map(QRectF(content_rect)).boundingRect();
+	QTransform const transform_back(
+		downscaled_transform.transform().inverted() * image.xform().transform()
+	);
+	return transform_back.map(QRectF(content_rect)).boundingRect();
 }
 
 namespace

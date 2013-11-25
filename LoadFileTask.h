@@ -23,7 +23,7 @@
 #include "BackgroundTask.h"
 #include "FilterResult.h"
 #include "IntrusivePtr.h"
-#include "ImageId.h"
+#include "PageId.h"
 #include "ImageMetadata.h"
 
 class ThumbnailPixmapCache;
@@ -53,10 +53,8 @@ private:
 	
 	void updateImageSizeIfChanged(QImage const& image);
 	
-	void overrideDpi(QImage& image) const;
-	
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	ImageId m_imageId;
+	PageId m_pageId;
 	ImageMetadata m_imageMetadata;
 	IntrusivePtr<ProjectPages> const m_ptrPages;
 	IntrusivePtr<fix_orientation::Task> const m_ptrNextTask;

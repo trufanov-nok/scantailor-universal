@@ -26,7 +26,9 @@
 #include <boost/weak_ptr.hpp>
 #include <memory>
 
-class ImageId;
+class PageId;
+class AbstractImageTransform;
+class AffineImageTransform;
 class QImage;
 class QPixmap;
 class QString;
@@ -36,11 +38,7 @@ class ThumbnailPixmapCache : public RefCountable
 {
 	DECLARE_NON_COPYABLE(ThumbnailPixmapCache)
 public:
-	enum Status { LOADED, LOAD_FAILED, QUEUED };
-	
-	typedef AbstractCommand1<
-		void, ThumbnailLoadResult const&
-	> CompletionHandler;
+	typedef AbstractCommand1<void, ThumbnailLoadResult::Status> CompletionHandler;
 	
 	/**
 	 * \brief Constructor.  To be called from the GUI thread only.
@@ -71,22 +69,6 @@ public:
 	void setThumbDir(QString const& thumb_dir);
 
 	/**
-	 * \brief Take the pixmap from cache, if it's there.
-	 *
-	 * If it's not, LOAD_FAILED will be returned.
-	 *
-	 * \note This function is to be called from the GUI thread only.
-	 */
-	Status loadFromCache(ImageId const& image_id, QPixmap& pixmap);
-	
-	/**
-	 * \brief Take the pixmap from cache or from disk, blocking if necessary.
-	 *
-	 * \note This function is to be called from the GUI thread only.
-	 */
-	Status loadNow(ImageId const& image_id, QPixmap& pixmap);
-	
-	/**
 	 * \brief Take the pixmap from cache or schedule a load request.
 	 *
 	 * If the pixmap is in cache, return it immediately.  Otherwise,
@@ -95,29 +77,25 @@ public:
 	 *
 	 * \note This function is to be called from the GUI thread only.
 	 *
-	 * \param image_id The identifier of the full size image and its thumbnail.
-	 * \param[out] pixmap If the pixmap is cached, store it here.
-	 * \param completion_handler A functor that will be called on request
-	 * completion.  The best way to construct such a functor would be:
-	 * \code
-	 * class X : public boost::signals::trackable
-	 * {
-	 * public:
-	 * 	void handleCompletion(ThumbnailLoadResult const& result);
-	 * };
-	 *
-	 * X x;
-	 * cache->loadRequest(image_id, pixmap, boost::bind(&X::handleCompletion, x, _1));
-	 * \endcode
-	 * Note that deriving X from boost::signals::trackable (with public inheritance)
-	 * allows to safely delete the x object without worrying about callbacks
-	 * it may receive in the future.  Keep in mind however, that deleting
-	 * x is only safe when done from the GUI thread.  Another thing to
-	 * keep in mind is that only boost::bind() can handle trackable binds.
-	 * Other methods, for example boost::lambda::bind() can't do that.
+	 * \param page_id The identifier of the full size image and its thumbnail.
+	 * \param full_size_image_transform Transformation of the original, full
+	 *        size image. The result of thumbnail loading is a pixmap plus an
+	 *        affine transformation of that pixmap that's equivalent of applying
+	 *        \p full_size_image_transform on the original image. Both transforms
+	 *        would produce a full size image, even though one of them takes a
+	 *        thumbnail as its input. Note that while \p full_size_image_transform
+	 *        is an arbitrary transform, the resulting pixmap transform will
+	 *        always be affine. If necessary, the pixmap will be dewarped to
+	 *        achieve that.
+	 * \param completion_handler A weak pointer to an instance of CompletionHandler
+	 *        class, that will be called to handle requrest completion.
+	 *        if the thumbnail was already in cache, it will be returned
+	 *        immediately, and \p completion_handler will never get called.
+	 *        It's allowed to pass a null completion handler. In this case,
+	 *        thumbnail loading into cache will still happen.
 	 */
-	Status loadRequest(
-		ImageId const& image_id, QPixmap& pixmap,
+	ThumbnailLoadResult loadRequest(PageId const& page_id,
+		AbstractImageTransform const& full_size_image_transform,
 		boost::weak_ptr<CompletionHandler> const& completion_handler);
 	
 	/**
@@ -127,23 +105,35 @@ public:
 	 * opportunity.  Suppose you have the full size image already loaded,
 	 * and want to avoid a second load when its thumbnail is requested.
 	 *
-	 * \param image_id The identifier of the full size image and its thumbnail.
-	 * \param image The full-size image.
+	 * \param page_id The identifier of the full size image and its thumbnail.
+	 * \param full_size_image The full size, original image.
+	 * \param full_size_image_transform The transformation to apply to
+	 *        \p full_size_image before downscaling it to thumbnail size.
 	 *
 	 * \note This function may be called from any thread, even concurrently.
 	 */
-	void ensureThumbnailExists(ImageId const& image_id, QImage const& image);
-	
+	void ensureThumbnailExists(
+		PageId const& page_id, QImage const& full_size_image,
+		AbstractImageTransform const& full_size_image_transform);
+
 	/**
-	 * \brief Re-create and replace the existing thumnail.
+	 * \brief Re-create the thumbnail, replacing the existing one.
 	 *
-	 * \param image_id The identifier of the full size image and its thumbnail.
-	 * \param image The full-size image or a thumbnail.
+	 * Similar to ensureThumbnailExists(), except this one will re-create the
+	 * thumbnail even if one already exists and is up to date.
+	 *
+	 * \param page_id The identifier of the full size image and its thumbnail.
+	 * \param full_size_image The full size, original image.
+	 * \param full_size_image_transform The transformation to apply to
+	 *        \p full_size_image before downscaling it to thumbnail size.
 	 *
 	 * \note This function may be called from any thread, even concurrently.
 	 */
-	void recreateThumbnail(ImageId const& image_id, QImage const& image);
+	void recreateThumbnail(
+		PageId const& page_id, QImage const& full_size_image,
+		AbstractImageTransform const& full_size_image_transform);
 private:
+	struct ThumbId;
 	class Item;
 	class Impl;
 	

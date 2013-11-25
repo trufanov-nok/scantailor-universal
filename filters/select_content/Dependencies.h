@@ -19,7 +19,7 @@
 #ifndef SELECT_CONTENT_DEPENDENCIES_H_
 #define SELECT_CONTENT_DEPENDENCIES_H_
 
-#include <QPolygonF>
+#include <QString>
 
 class QDomDocument;
 class QDomElement;
@@ -40,19 +40,17 @@ public:
 	
 	Dependencies();
 	
-	Dependencies(QPolygonF const& rotated_page_outline);
+	Dependencies(QString const& transform_fingerprint);
 	
 	Dependencies(QDomElement const& deps_el);
 	
 	~Dependencies();
 	
-	QPolygonF const& rotatedPageOutline() const { return m_rotatedPageOutline; }
-	
 	bool matches(Dependencies const& other) const;
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
-	QPolygonF m_rotatedPageOutline;
+	QString m_transformFingerprint;
 };
 
 } // namespace select_content

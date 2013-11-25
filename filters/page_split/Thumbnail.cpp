@@ -20,6 +20,7 @@
 #include <QPolygonF>
 #include <QPointF>
 #include <QRectF>
+#include <QSize>
 #include <QSizeF>
 #include <QTransform>
 #include <QPainter>
@@ -32,10 +33,14 @@ namespace page_split
 
 Thumbnail::Thumbnail(
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-	QSizeF const& max_size, ImageId const& image_id,
-	ImageTransformation const& xform, PageLayout const& layout,
+	QSizeF const& max_display_size, PageId const& page_id,
+	PageLayout const& layout,
+	AffineImageTransform const& full_size_image_transform,
 	bool left_half_removed, bool right_half_removed)
-:	ThumbnailBase(thumbnail_cache, max_size, image_id, xform),
+:	ThumbnailBase(
+		thumbnail_cache, max_display_size, page_id,
+		full_size_image_transform
+	),
 	m_layout(layout),
 	m_leftHalfRemoved(left_half_removed),
 	m_rightHalfRemoved(right_half_removed)
@@ -47,13 +52,15 @@ Thumbnail::Thumbnail(
 
 void
 Thumbnail::paintOverImage(
-	QPainter& painter, QTransform const& image_to_display,
+	QPainter& painter, QTransform const& transformed_to_display,
 	QTransform const& thumb_to_display)
 {
-	QRectF const canvas_rect(imageXform().resultingRect());
+	QRectF const canvas_rect(
+		fullSizeImageTransform().transformedCropArea().boundingRect()
+	);
 	
 	painter.setRenderHint(QPainter::Antialiasing, false);
-	painter.setWorldTransform(image_to_display);
+	painter.setWorldTransform(transformed_to_display);
 	
 	painter.setPen(Qt::NoPen);
 	switch (m_layout.type()) {
@@ -79,14 +86,14 @@ Thumbnail::paintOverImage(
 				
 				int const subpage_idx = m_leftHalfRemoved ? 0 : 1;
 				QPointF const center(
-					subPageCenter(left_poly, right_poly, image_to_display, subpage_idx)
+					subPageCenter(left_poly, right_poly, transformed_to_display, subpage_idx)
 				);
 
-				QRectF rect(m_trashPixmap.rect());				
+				QRectF rect(m_trashPixmap.rect());
 				rect.moveCenter(center);
 				painter.drawPixmap(rect.topLeft(), m_trashPixmap);
 				
-				painter.setWorldTransform(image_to_display);
+				painter.setWorldTransform(transformed_to_display);
 			}
 			break;
 	}
@@ -108,7 +115,6 @@ Thumbnail::paintOverImage(
 			break;
 		default:;
 	}
-	
 }
 
 QPointF

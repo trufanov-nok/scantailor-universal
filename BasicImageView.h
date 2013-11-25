@@ -23,17 +23,24 @@
 #include "DragHandler.h"
 #include "ZoomHandler.h"
 #include "ImagePixmapUnion.h"
-#include "Margins.h"
-#include <QImage>
+#include <QMarginsF>
+
+class QImage;
+class AffineTransformedImage;
 
 class BasicImageView : public ImageViewBase
 {
 	Q_OBJECT
 public:
 	BasicImageView(
-		QImage const& image,
+		QImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
-		Margins const& margins = Margins());
+		QMarginsF const& margins = QMarginsF());
+
+	BasicImageView(
+		AffineTransformedImage const& full_size_image,
+		ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
+		QMarginsF const& margins = QMarginsF());
 	
 	virtual ~BasicImageView();
 private:

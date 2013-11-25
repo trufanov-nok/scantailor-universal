@@ -24,11 +24,9 @@
 #include "Params.h"
 #include "Thumbnail.h"
 #include "IncompleteThumbnail.h"
-#include "ImageTransformation.h"
 #include "PageInfo.h"
 #include "PageId.h"
 #include "ImageId.h"
-#include "Dpi.h"
 #include "Utils.h"
 #include "filter_dc/AbstractFilterDataCollector.h"
 #include "filter_dc/ThumbnailCollector.h"
@@ -55,16 +53,20 @@ CacheDrivenTask::~CacheDrivenTask()
 
 void
 CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform, QPolygonF const& content_rect_phys)
+	PageInfo const& page_info,
+	std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+	QRectF const& content_rect, QRectF const& outer_rect,
+	AbstractFilterDataCollector* collector)
 {
 	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 		
 		QString const out_file_path(m_outFileNameGen.filePathFor(page_info.id()));
 		Params const params(m_ptrSettings->getParams(page_info.id()));
 
-		ImageTransformation new_xform(xform);
-		new_xform.postScaleToDpi(params.outputDpi());
+		OutputGenerator const generator(
+			full_size_image_transform, content_rect, outer_rect,
+			params.colorParams(), params.despeckleLevel()
+		);
 
 		bool need_reprocess = false;
 
@@ -79,15 +81,10 @@ CacheDrivenTask::process(
 				break;
 			}
 
-			OutputGenerator const generator(
-				params.outputDpi(), params.colorParams(), params.despeckleLevel(),
-				new_xform, content_rect_phys
-			);
 			OutputImageParams const new_output_image_params(
-				generator.outputImageSize(), generator.outputContentRect(),
-				new_xform, params.outputDpi(), params.colorParams(),
-				params.dewarpingMode(), params.distortionModel(),
-				params.depthPerception(), params.despeckleLevel()
+				full_size_image_transform->fingerprint(),
+				generator.outputImageRect(), generator.outputContentRect(),
+				params.colorParams(), params.despeckleLevel()
 			);
 
 			if (!stored_output_params->outputImageParams().matches(new_output_image_params)) {
@@ -126,21 +123,18 @@ CacheDrivenTask::process(
 					new IncompleteThumbnail(
 						thumb_col->thumbnailCache(),
 						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), new_xform
+						page_info.id(), *full_size_image_transform
 					)
 				)
 			);
 		} else {
-			ImageTransformation const out_xform(
-				new_xform.resultingRect(), params.outputDpi()
-			);
-
 			thumb_col->processThumbnail(
 				std::auto_ptr<QGraphicsItem>(
 					new Thumbnail(
 						thumb_col->thumbnailCache(),
 						thumb_col->maxLogicalThumbSize(),
-						ImageId(out_file_path), out_xform
+						PageId(ImageId(out_file_path)),
+						AffineImageTransform(generator.outputImageSize())
 					)
 				)
 			);

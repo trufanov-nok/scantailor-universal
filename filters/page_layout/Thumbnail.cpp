@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
 */
 
 #include "Thumbnail.h"
+#include "AbstractImageTransform.h"
 #include "Utils.h"
-#include "imageproc/PolygonUtils.h"
+#include <QApplication>
+#include <QPalette>
 #include <QPolygonF>
 #include <QTransform>
 #include <QPainter>
@@ -26,78 +28,66 @@
 #include <QBrush>
 #include <QColor>
 
-using namespace imageproc;
-
 namespace page_layout
 {
 
 Thumbnail::Thumbnail(
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-	QSizeF const& max_size, ImageId const& image_id, Params const& params,
-	ImageTransformation const& xform, QPolygonF const& phys_content_rect)
-:	ThumbnailBase(thumbnail_cache, max_size, image_id, xform),
-	m_params(params),
-	m_virtContentRect(xform.transform().map(phys_content_rect).boundingRect()),
-	m_virtOuterRect(xform.resultingPostCropArea().boundingRect())
+	QSizeF const& max_display_size, PageId const& page_id, Params const& params,
+	AbstractImageTransform const& full_size_image_transform, PageLayout const& page_layout)
+:	ThumbnailBase(
+		thumbnail_cache, max_display_size, page_id,
+		full_size_image_transform, page_layout.outerRect()
+	)
+,	m_params(params)
+,	m_pageLayout(page_layout)
 {
-	setExtendedClipArea(true);
 }
 
 void
 Thumbnail::paintOverImage(
-	QPainter& painter, QTransform const& image_to_display,
+	QPainter& painter, QTransform const& transformed_to_display,
 	QTransform const& thumb_to_display)
 {	
 	// We work in display coordinates because we want to be
 	// pixel-accurate with what we draw.
 	painter.setWorldTransform(QTransform());
 
-	QTransform const virt_to_display(virtToThumb() * thumb_to_display);
+	painter.setRenderHint(QPainter::Antialiasing, true);
 
-	QRectF const inner_rect(virt_to_display.map(m_virtContentRect).boundingRect());
-	
-	// We extend the outer rectangle because otherwise we may get white
-	// thin lines near the edges due to rounding errors and the lack
-	// of subpixel accuracy.  Doing that is actually OK, because what
-	// we paint will be clipped anyway.
-	QRectF const outer_rect(
-		virt_to_display.map(m_virtOuterRect).boundingRect().adjusted(-1.0, -1.0, 1.0, 1.0)
-	);
+	QRectF const inner_rect(transformed_to_display.mapRect(m_pageLayout.innerRect()));
+	QRectF const outer_rect(transformed_to_display.mapRect(m_pageLayout.outerRect()));
+
+	// Fill the transparent (that is not covered by the thumbnail) portions
+	// of outer_rect with "window" color. That's done because we are going to
+	// draw translucent margins on top of that area, and the whole thing
+	// will be eventually blitted on top of "selected page" indicator,
+	// which is typically of dark color. Introducing the "window" color
+	// in those areas will make margins more visible.
+	painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
+	painter.fillRect(outer_rect, qApp->palette().window());
 	
 	QPainterPath outer_outline;
-	outer_outline.addPolygon(PolygonUtils::round(outer_rect));
+	outer_outline.addPolygon(outer_rect);
 	
 	QPainterPath content_outline;
-	content_outline.addPolygon(PolygonUtils::round(inner_rect));
+	content_outline.addPolygon(inner_rect);
 	
-	painter.setRenderHint(QPainter::Antialiasing, true);
-	
-	QColor bg_color;
-	QColor fg_color;
-	if (m_params.alignment().isNull()) {
-		// "Align with other pages" is turned off.
-		// Different color is useful on a thumbnail list to
-		// distinguish "safe" pages from potentially problematic ones.
-		bg_color = QColor(0x58, 0x7f, 0xf4, 70);
-		fg_color = QColor(0x00, 0x52, 0xff);
-	} else {
-		bg_color = QColor(0xbb, 0x00, 0xff, 40);
-		fg_color = QColor(0xbe, 0x5b, 0xec);
-	}
+	QColor const bg_color(Utils::backgroundColorForMatchSizeMode(m_params.matchSizeMode()));
+	QColor const border_color(Utils::borderColorForMatchSizeMode(m_params.matchSizeMode()));
 
 	// Draw margins.
+	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter.fillPath(outer_outline.subtracted(content_outline), bg_color);
 	
-	QPen pen(fg_color);
+	// Draw the inner border of margins.
+	QPen pen(border_color);
 	pen.setCosmetic(true);
 	pen.setWidthF(1.0);
 	painter.setPen(pen);
 	painter.setBrush(Qt::NoBrush);
-	
-	// toRect() is necessary because we turn off antialiasing.
-	// For some reason, if we let Qt round the coordinates,
-	// the result is slightly different.
-	painter.drawRect(inner_rect.toRect());
+	painter.setRenderHint(QPainter::Antialiasing, false);
+	painter.drawRect(inner_rect);
 }
 
 } // namespace page_layout

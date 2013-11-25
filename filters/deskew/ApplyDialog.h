@@ -25,6 +25,7 @@
 #include <QDialog>
 #include <set>
 
+class QPixmap;
 class QButtonGroup;
 class PageSelectionAccessor;
 
@@ -39,8 +40,11 @@ public:
 		PageSelectionAccessor const& page_selection_accessor);
 	
 	virtual ~ApplyDialog();
+
+	void setPixmap(QPixmap const& pixmap);
 signals:
 	void appliedTo(std::set<PageId> const& pages);
+
 	void appliedToAllPages(std::set<PageId> const& pages);
 private slots:
 	void onSubmit();

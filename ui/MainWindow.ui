@@ -177,14 +177,13 @@
      <x>0</x>
      <y>0</y>
      <width>613</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="actionFixDpi"/>
     <addaction name="actionRelinking"/>
     <addaction name="separator"/>
     <addaction name="actionDebug"/>

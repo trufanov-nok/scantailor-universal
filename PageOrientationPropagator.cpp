@@ -19,12 +19,17 @@
 #include "PageOrientationPropagator.h"
 #include "CompositeCacheDrivenTask.h"
 #include "OrthogonalRotation.h"
+#include "AffineImageTransform.h"
 #include "ProjectPages.h"
 #include "PageSequence.h"
 #include "PageView.h"
 #include "PageInfo.h"
 #include "filters/page_split/Filter.h"
 #include "filter_dc/PageOrientationCollector.h"
+#include <QPointF>
+#include <QSizeF>
+#include <QRectF>
+#include <QPolygonF>
 
 class PageOrientationPropagator::Collector : public PageOrientationCollector
 {
@@ -56,11 +61,12 @@ PageOrientationPropagator::propagate(ProjectPages const& pages)
 {
 	PageSequence const sequence(pages.toPageSequence(PAGE_VIEW));
 	size_t const num_pages = sequence.numPages();
-	
+
 	for (size_t i = 0; i < num_pages; ++i) {
-		PageInfo const& page_info = sequence.pageAt(i);
 		Collector collector;
-		m_ptrTask->process(page_info, &collector);
+		PageInfo const& page_info = sequence.pageAt(i);
+		AffineImageTransform const image_transform(page_info.metadata().size());
+		m_ptrTask->process(page_info, image_transform, &collector);
 		m_ptrPageSplitFilter->pageOrientationUpdate(
 			page_info.imageId(), collector.orientation()
 		);

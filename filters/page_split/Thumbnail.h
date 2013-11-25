@@ -27,9 +27,10 @@
 class QPointF;
 class QSizeF;
 class QPolygonF;
+class QTransform;
+class AffineImageTransform;
 class ThumbnailPixmapCache;
-class ImageId;
-class ImageTransformation;
+class PageId;
 
 namespace page_split
 {
@@ -38,18 +39,18 @@ class Thumbnail : public ThumbnailBase
 {
 public:
 	Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& xform, PageLayout const& layout,
+		QSizeF const& max_display_size, PageId const& page_id,
+		PageLayout const& layout,
+		AffineImageTransform const& full_size_image_transform,
 		bool left_half_removed, bool right_half_removed);
 	
 	virtual void paintOverImage(
-		QPainter& painter,
-		QTransform const& image_to_display,
+		QPainter& painter, QTransform const& transformed_to_display,
 		QTransform const& thumb_to_display);
 private:
 	QPointF subPageCenter(
 		QPolygonF const& left_page, QPolygonF const& right_page,
-		QTransform const& image_to_display, int subpage_idx);
+		QTransform const& virtual_to_display, int subpage_idx);
 
 	PageLayout m_layout;
 	QPixmap m_trashPixmap;

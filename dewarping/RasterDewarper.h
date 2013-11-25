@@ -32,11 +32,21 @@ class CylindricalSurfaceDewarper;
 class RasterDewarper
 {
 public:
+	/**
+	 * @brief Performs a dewarping operation.
+	 *
+	 * @param src The warped image. Can't be null.
+	 * @param dst_size The dimensions of the output image.
+	 * @param distortion_model A curved quadrilateral in source image coordinates.
+	 * @param model_domain The rectangle in output image coordinates that the
+	 *        curved quadrilateral will map to.
+	 * @param background_color The color to use for pixels outside of source image boundaries.
+	 * @return The dewarped image.
+	 */
 	static QImage dewarp(
 		QImage const& src, QSize const& dst_size,
 		CylindricalSurfaceDewarper const& distortion_model,
-		QRectF const& model_domain, QColor const& background_color
-	);
+		QRectF const& model_domain, QColor const& background_color);
 };
 
 } // namespace dewarping

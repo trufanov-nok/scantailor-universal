@@ -25,9 +25,8 @@
 
 class QSize;
 class QSizeF;
-class Dpi;
 class OrthogonalRotation;
-class Margins;
+class RelativeMargins;
 class QPointF;
 class QLineF;
 class QPolygonF;
@@ -45,8 +44,6 @@ public:
 	
 	QDomElement sizeF(QSizeF const& size, QString const& name);
 	
-	QDomElement dpi(Dpi const& dpi, QString const& name);
-	
 	QDomElement rotation(OrthogonalRotation const& rotation, QString const& name);
 	
 	QDomElement pointF(QPointF const& p, QString const& name);
@@ -59,7 +56,7 @@ public:
 	
 	QDomElement polygonF(QPolygonF const& poly, QString const& name);
 	
-	QDomElement margins(Margins const& margins, QString const& name);
+	QDomElement relativeMargins(RelativeMargins const& margins, QString const& name);
 private:
 	QDomDocument m_doc;
 };

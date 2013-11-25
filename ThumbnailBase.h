@@ -20,26 +20,41 @@
 #define THUMBNAILBASE_H_
 
 #include "NonCopyable.h"
-#include "ImageId.h"
-#include "ImageTransformation.h"
+#include "PageId.h"
 #include "IntrusivePtr.h"
+#include "AbstractImageTransform.h"
+#include "AffineImageTransform.h"
 #include "ThumbnailPixmapCache.h"
+#include "ThumbnailLoadResult.h"
+#include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 #include <QTransform>
 #include <QGraphicsItem>
+#include <QSize>
 #include <QSizeF>
 #include <QRectF>
-
-class ThumbnailLoadResult;
+#include <QPolygonF>
+#include <memory>
 
 class ThumbnailBase : public QGraphicsItem
 {
 	DECLARE_NON_COPYABLE(ThumbnailBase)
 public:
+	/**
+	 * @param thumbnail_cache The storage of cached thumbnails.
+	 * @param max_display_size The maximum width and height of this QGraphicsItem.
+	 * @param page_id Identifies the page.
+	 * @param full_size_image_transform The transformation from full size original
+	 *        image to a transformed space.
+	 * @param transformed_viewport The rectangle in transformed coordinates
+	 *        that we want to display. If unspecified,
+	 *        transform.transformedCropArea().boundingRect() will be used instead.
+	 */
 	ThumbnailBase(
 		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& image_xform);
+		QSizeF const& max_display_size, PageId const& page_id,
+		AbstractImageTransform const& full_size_image_transform,
+		boost::optional<QRectF> const& transformed_viewport = boost::none);
 	
 	virtual ~ThumbnailBase();
 	
@@ -52,60 +67,68 @@ protected:
 	 * \brief A hook to allow subclasses to draw over the thumbnail.
 	 *
 	 * \param painter The painter to be used for drawing.
-	 * \param image_to_display Can be supplied to \p painter as a world
-	 *        transformation in order to draw in virtual image coordinates,
-	 *        that is in coordinates we get after applying the
-	 *        ImageTransformation to the physical image coordinates.
-	 *        We are talking about full-sized images here.
+	 * \param transformed_to_display Can be supplied to \p painter as a world
+	 *        transformation in order to draw in transformed space of
+	 *        m_ptrFullSizeImageTransform.
 	 * \param thumb_to_display Can be supplied to \p painter as a world
 	 *        transformation in order to draw in thumbnail coordinates.
 	 *        Valid thumbnail coordinates lie within this->boundingRect().
 	 *
 	 * The painter is configured for drawing in thumbnail coordinates by
 	 * default.  No clipping is configured, but drawing should be
-	 * restricted to this->boundingRect().  Note that it's not necessary
-	 * for subclasses to restore the painter state.
+	 * restricted to this->boundingRect(). When this method is called on
+	 * a subclass, the paint device is a temporary pixmap with thumbnail
+	 * image already drawn on it, with appropriate transformations.
+	 * Areas not covered by the image are transparent, which gives sublasses
+	 * the opportunity to decide whether they want to draw in outside-of-image
+	 * areas by utilising appropriate composition modes.
+	 *
+	 * @note It's not necessary for subclasses to restore the painter state.
 	 */
 	virtual void paintOverImage(
-		QPainter& painter, QTransform const& image_to_display,
+		QPainter& painter, QTransform const& transformed_to_display,
 		QTransform const& thumb_to_display) {}
-	
-	/**
-	 * By default, the image is clipped by both the crop area (as defined
-	 * by imageXform().resultingPostCropArea()), and the physical boundaries of
-	 * the image itself.  Basically a point won't be clipped only if it's both
-	 * inside of the crop area and inside the image.
-	 * Extended clipping area only includes the cropping area, so it's possible
-	 * to draw outside of the image but inside the crop area.
-	 */
-	void setExtendedClipArea(bool enabled) { m_extendedClipArea = enabled; }
-	
-	void setImageXform(ImageTransformation const& image_xform);
-	
-	ImageTransformation const& imageXform() const { return m_imageXform; }
-	
+
+	AbstractImageTransform const& fullSizeImageTransform() const {
+		return *m_ptrFullSizeImageTransform;
+	}
+
 	/**
 	 * \brief Converts from the virtual image coordinates to thumbnail image coordinates.
 	 *
-	 * Virtual image coordinates is what you get after ImageTransformation.
+	 * Virtual image coordinates is the transformed space of m_ptrFullSizeImageTransform.
 	 */
-	QTransform const& virtToThumb() const { return m_postScaleXform; }
+	QTransform const& toThumb() const { return m_postTransform; }
 private:
 	class LoadCompletionHandler;
 	
-	void handleLoadResult(ThumbnailLoadResult const& result);
+	/**
+	 * @param transform The transformation from full size original image
+	 *        to a transformed space.
+	 * @param transformed_viewport The rectangle in transformed coordinates
+	 *        that we want to display. If unspecified,
+	 *        transform.transformedCropArea().boundingRect() will be used instead.
+	 */
+	void setFullSizeToVirtualTransform(
+		AbstractImageTransform const& transform,
+		boost::optional<QRectF> const& transformed_viewport);
+
+	void handleLoadResult(ThumbnailLoadResult::Status status);
 	
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	QSizeF m_maxSize;
-	ImageId m_imageId;
-	ImageTransformation m_imageXform;
+	QSizeF m_maxDisplaySize; /**< Maximum thumbnail size on screen. */
+	PageId m_pageId;
+	std::unique_ptr<AbstractImageTransform> m_ptrFullSizeImageTransform;
+	QRectF m_transformedViewport;
+
+	/** @see QGraphicsItem::boundingRect() */
 	QRectF m_boundingRect;
 	
 	/**
-	 * Transforms virtual image coordinates into thumbnail coordinates.
-	 * Valid thumbnail coordinates lie within this->boundingRect().
+	 * Transforms full size transformed image coordinates into thumbnail
+	 * coordinates. Valid thumbnail coordinates lie within this->boundingRect().
 	 */
-	QTransform m_postScaleXform;
+	QTransform m_postTransform;
 	
 	boost::shared_ptr<LoadCompletionHandler> m_ptrCompletionHandler;
 	bool m_extendedClipArea;

@@ -185,7 +185,7 @@ private:
 	
 	/**
 	 * This polygon always corresponds to a rectangle, unless it's empty.
-	 * It's vertex 0 corresponds to top-left vertex of a rectangle, and
+	 * Its vertex 0 corresponds to top-left vertex of a rectangle, and
 	 * it goes clockwise from there, ending at vertex 3.
 	 */
 	QPolygonF m_uncutOutline;

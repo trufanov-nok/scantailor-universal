@@ -19,8 +19,6 @@
 #include "JpegMetadataLoader.h"
 #include "ImageMetadata.h"
 #include "NonCopyable.h"
-#include "Dpi.h"
-#include "Dpm.h"
 #include <QIODevice>
 #include <QSize>
 #include <QDebug>
@@ -261,15 +259,6 @@ JpegMetadataLoader::loadMetadata(
 	}
 	
 	QSize const size(cinfo->image_width, cinfo->image_height);
-	Dpi dpi;
-	if (cinfo->density_unit == 1) {
-		// Dots per inch.
-		dpi = Dpi(cinfo->X_density, cinfo->Y_density);
-	} else if (cinfo->density_unit == 2) {
-		// Dots per centimeter.
-		dpi = Dpm(cinfo->X_density * 100, cinfo->Y_density * 100);
-	}
-	
-	out(ImageMetadata(size, dpi));
+	out(ImageMetadata(size));
 	return LOADED;
 }

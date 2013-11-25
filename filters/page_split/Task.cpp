@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,16 +29,14 @@
 #include "PageLayout.h"
 #include "Dependencies.h"
 #include "Params.h"
-#include "FilterData.h"
 #include "ImageMetadata.h"
-#include "Dpm.h"
-#include "Dpi.h"
+#include "AffineTransformedImage.h"
 #include "OrthogonalRotation.h"
-#include "ImageTransformation.h"
-#include "filters/deskew/Task.h"
 #include "ImageView.h"
 #include "FilterUiInterface.h"
 #include "DebugImages.h"
+#include "imageproc/GrayImage.h"
+#include "filters/deskew/Task.h"
 #include <QImage>
 #include <QObject>
 #include <QDebug>
@@ -56,9 +54,10 @@ public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
 		IntrusivePtr<ProjectPages> const& pages,
 		std::auto_ptr<DebugImages> dbg_img,
-		QImage const& image, PageInfo const& page_info,
-		ImageTransformation const& xform,
-		OptionsWidget::UiData const& ui_data,
+		AffineTransformedImage const& full_size_image,
+		PageInfo const& page_info,
+		Params const& params,
+		bool layout_type_auto_detected,
 		bool batch_processing);
 	
 	virtual void updateUI(FilterUiInterface* ui);
@@ -68,11 +67,10 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<ProjectPages> m_ptrPages;
 	std::auto_ptr<DebugImages> m_ptrDbg;
-	QImage m_image;
-	QImage m_downscaledImage;
+	AffineTransformedImage m_fullSizeImage;
 	PageInfo m_pageInfo;
-	ImageTransformation m_xform;
-	OptionsWidget::UiData m_uiData;
+	Params m_params;
+	bool m_layoutTypeAutoDetected;
 	bool m_batchProcessing;
 };
 
@@ -114,20 +112,19 @@ Task::~Task()
 }
 
 FilterResultPtr
-Task::process(TaskStatus const& status, FilterData const& data)
+Task::process(
+	TaskStatus const& status, QImage const& orig_image,
+	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+	AffineImageTransform const& orig_image_transform,
+	OrthogonalRotation const& rotation)
 {
 	status.throwIfCancelled();
 	
 	Settings::Record record(m_ptrSettings->getPageRecord(m_pageInfo.imageId()));
 	
-	OrthogonalRotation const pre_rotation(data.xform().preRotation());
 	Dependencies const deps(
-		data.origImage().size(), pre_rotation,
-		record.combinedLayoutType()
+		orig_image.size(), rotation, record.combinedLayoutType()
 	);
-	
-	OptionsWidget::UiData ui_data;
-	ui_data.setDependencies(deps);
 
 	for (;;) {
 		Params const* const params = record.params();
@@ -137,14 +134,14 @@ Task::process(TaskStatus const& status, FilterData const& data)
 		if (!params || !deps.compatibleWith(*params)) {
 			new_layout = PageLayoutEstimator::estimatePageLayout(
 				record.combinedLayoutType(),
-				data.grayImage(), data.xform(),
-				data.bwThreshold(), m_ptrDbg.get()
+				AffineTransformedImage(gray_orig_image_factory(), orig_image_transform),
+				m_ptrDbg.get()
 			);
 			status.throwIfCancelled();
 		} else if (params->pageLayout().uncutOutline().isEmpty()) {
 			// Backwards compatibility with versions < 0.9.9
 			new_layout = params->pageLayout();
-			new_layout.setUncutOutline(data.xform().resultingRect());
+			new_layout.setUncutOutline(orig_image_transform.transformedCropArea().boundingRect());
 		} else {
 			break;
 		}
@@ -159,7 +156,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 			updated_record.update(update);
 			assert(!updated_record.hasLayoutTypeConflict());
 			// This assert effectively verifies that PageLayoutEstimator::estimatePageLayout()
-			// returned a layout with of a type consistent with the requested one.
+			// returned a layout of a type consistent with the requested one.
 			// If it didn't, it's a bug which will in fact cause a dead loop.
 		}
 #endif
@@ -185,23 +182,27 @@ Task::process(TaskStatus const& status, FilterData const& data)
 	}
 	
 	PageLayout const& layout = record.params()->pageLayout();
-	ui_data.setLayoutTypeAutoDetected(
-		record.combinedLayoutType() == AUTO_LAYOUT_TYPE
-	);
-	ui_data.setPageLayout(layout);
-	ui_data.setSplitLineMode(record.params()->splitLineMode());
-	
 	m_ptrPages->setLayoutTypeFor(m_pageInfo.imageId(), toPageLayoutType(layout));
 	
 	if (m_ptrNextTask) {
-		ImageTransformation new_xform(data.xform());
-		new_xform.setPreCropArea(layout.pageOutline(m_pageInfo.id().subPage()));
-		return m_ptrNextTask->process(status, FilterData(data, new_xform));
+		AffineImageTransform cropping_transform(orig_image_transform);
+		cropping_transform.setOrigCropArea(
+			orig_image_transform.transform().inverted().map(
+				layout.pageOutline(m_pageInfo.id().subPage())
+			)
+		);
+		return m_ptrNextTask->process(
+			status, orig_image, gray_orig_image_factory,
+			cropping_transform, rotation
+		);
 	} else {
 		return FilterResultPtr(
 			new UiUpdater(
-				m_ptrFilter, m_ptrPages, m_ptrDbg, data.origImage(),
-				m_pageInfo, data.xform(), ui_data, m_batchProcessing
+				m_ptrFilter, m_ptrPages, m_ptrDbg,
+				AffineTransformedImage(orig_image, orig_image_transform),
+				m_pageInfo, *record.params(),
+				record.combinedLayoutType() == AUTO_LAYOUT_TYPE,
+				m_batchProcessing
 			)
 		);
 	}
@@ -214,18 +215,18 @@ Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<ProjectPages> const& pages,
 	std::auto_ptr<DebugImages> dbg_img,
-	QImage const& image, PageInfo const& page_info,
-	ImageTransformation const& xform,
-	OptionsWidget::UiData const& ui_data,
+	AffineTransformedImage const& full_size_image,
+	PageInfo const& page_info,
+	Params const& params,
+	bool const layout_type_auto_detected,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
 	m_ptrPages(pages),
 	m_ptrDbg(dbg_img),
-	m_image(image),
-	m_downscaledImage(ImageView::createDownscaledImage(image)),
+	m_fullSizeImage(full_size_image),
 	m_pageInfo(page_info),
-	m_xform(xform),
-	m_uiData(ui_data),
+	m_params(params),
+	m_layoutTypeAutoDetected(layout_type_auto_detected),
 	m_batchProcessing(batch_processing)
 {
 }
@@ -236,7 +237,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	// This function is executed from the GUI thread.
 	
 	OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
-	opt_widget->postUpdateUI(m_uiData);
+	opt_widget->postUpdateUI(m_params, m_layoutTypeAutoDetected);
 	ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 	
 	ui->invalidateThumbnail(m_pageInfo.id());
@@ -246,8 +247,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	ImageView* view = new ImageView(
-		m_image, m_downscaledImage, m_xform, m_uiData.pageLayout(),
-		m_ptrPages, m_pageInfo.imageId(),
+		m_fullSizeImage, m_params.pageLayout(), m_ptrPages, m_pageInfo.imageId(),
 		m_pageInfo.leftHalfRemoved(), m_pageInfo.rightHalfRemoved()
 	);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());

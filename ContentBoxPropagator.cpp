@@ -17,11 +17,13 @@
 */
 
 #include "ContentBoxPropagator.h"
+#include "ContentBox.h"
 #include "CompositeCacheDrivenTask.h"
 #include "ProjectPages.h"
 #include "PageSequence.h"
 #include "PageInfo.h"
-#include "ImageTransformation.h"
+#include "AbstractImageTransform.h"
+#include "AffineImageTransform.h"
 #include "filters/page_layout/Filter.h"
 #include "filter_dc/ContentBoxCollector.h"
 #include <QRectF>
@@ -32,16 +34,13 @@ public:
 	Collector();
 	
 	virtual void process(
-		ImageTransformation const& xform,
-		QRectF const& content_rect);
+		AbstractImageTransform const& xform,
+		ContentBox const& content_box);
 	
 	bool collected() const { return m_collected; }
 	
-	ImageTransformation const& xform() const { return m_xform; }
-	
 	QRectF const& contentRect() const { return m_contentRect; }
 private:
-	ImageTransformation m_xform;
 	QRectF m_contentRect;
 	bool m_collected;
 };
@@ -68,11 +67,11 @@ ContentBoxPropagator::propagate(ProjectPages const& pages)
 	for (size_t i = 0; i < num_pages; ++i) {
 		PageInfo const& page_info = sequence.pageAt(i);
 		Collector collector;
-		m_ptrTask->process(page_info, &collector);
+		AffineImageTransform const identity(page_info.metadata().size());
+		m_ptrTask->process(page_info, identity, &collector);
 		if (collector.collected()) {
 			m_ptrPageLayoutFilter->setContentBox(
-				page_info.id(), collector.xform(),
-				collector.contentRect()
+				page_info.id(), collector.contentRect()
 			);
 		} else {
 			m_ptrPageLayoutFilter->invalidateContentBox(page_info.id());
@@ -84,16 +83,15 @@ ContentBoxPropagator::propagate(ProjectPages const& pages)
 /*=================== ContentBoxPropagator::Collector ====================*/
 
 ContentBoxPropagator::Collector::Collector()
-:	m_xform(QRectF(0, 0, 1, 1), Dpi(300, 300)),
-	m_collected(false)
+:	m_collected(false)
 {
 }
 
 void
 ContentBoxPropagator::Collector::process(
-	ImageTransformation const& xform, QRectF const& content_rect)
+	AbstractImageTransform const& xform,
+	ContentBox const& content_box)
 {
-	m_xform = xform;
-	m_contentRect = content_rect;
+	m_contentRect = content_box.toTransformedRect(xform);
 	m_collected = true;
 }

@@ -21,7 +21,6 @@
 #include "FileNameDisambiguator.h"
 #include "AbstractFilter.h"
 #include "XmlUnmarshaller.h"
-#include "Dpi.h"
 #include <QSize>
 #include <QDir>
 #include <QDomElement>
@@ -235,18 +234,13 @@ ImageMetadata
 ProjectReader::processImageMetadata(QDomElement const& image_el)
 {
 	QSize size;
-	Dpi dpi;
 	
 	QDomElement const size_el(image_el.namedItem("size").toElement());
 	if (!size_el.isNull()) {
 		size = XmlUnmarshaller::size(size_el);
 	}
-	QDomElement const dpi_el(image_el.namedItem("dpi").toElement());
-	if (!dpi_el.isNull()) {
-		dpi = XmlUnmarshaller::dpi(dpi_el);
-	}
 	
-	return ImageMetadata(size, dpi);
+	return ImageMetadata(size);
 }
 
 void

@@ -19,7 +19,6 @@
 #ifndef DESPECKLE_H_
 #define DESPECKLE_H_
 
-class Dpi;
 class TaskStatus;
 class DebugImages;
 
@@ -37,22 +36,21 @@ public:
 	 * \brief Removes small speckles from a binary image.
 	 *
 	 * \param src The image to despeckle.  Must not be null.
-	 * \param dpi DPI of \p src.
 	 * \param level Despeckling aggressiveness.
 	 * \param dbg An optional sink for debugging images.
 	 * \param status For asynchronous task cancellation.
 	 * \return The despeckled image.
 	 */
 	static imageproc::BinaryImage despeckle(
-		imageproc::BinaryImage const& src, Dpi const& dpi, Level level,
+		imageproc::BinaryImage const& src, Level level,
 		TaskStatus const& status, DebugImages* dbg = 0);
 
 	/**
 	 * \brief A slightly faster, in-place version of despeckle().
 	 */
 	static void despeckleInPlace(
-		imageproc::BinaryImage& image, Dpi const& dpi,
-		Level level, TaskStatus const& status, DebugImages* dbg = 0);
+		imageproc::BinaryImage& image, Level level,
+		TaskStatus const& status, DebugImages* dbg = 0);
 };
 
 #endif

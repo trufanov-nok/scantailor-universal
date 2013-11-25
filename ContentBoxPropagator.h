@@ -20,7 +20,6 @@
 #define CONTENTBOXPROPAGATOR_H_
 
 #include "IntrusivePtr.h"
-#include <QSizeF>
 
 class CompositeCacheDrivenTask;
 class ProjectPages;

@@ -19,14 +19,11 @@
 #ifndef OUTPUT_OUTPUTGENERATOR_H_
 #define OUTPUT_OUTPUTGENERATOR_H_
 
-#include "imageproc/Connectivity.h"
-#include "Dpi.h"
+#include "AbstractImageTransform.h"
 #include "ColorParams.h"
-#include "DepthPerception.h"
 #include "DespeckleLevel.h"
-#include "DewarpingMode.h"
-#include "ImageTransformation.h"
-#include <boost/function.hpp>
+#include "CachingFactory.h"
+#include <boost/optional.hpp>
 #include <QSize>
 #include <QRect>
 #include <QTransform>
@@ -34,15 +31,17 @@
 #include <QPointF>
 #include <QLineF>
 #include <QPolygonF>
+#include <functional>
+#include <memory>
 #include <vector>
 #include <utility>
 #include <stdint.h>
 
 class TaskStatus;
 class DebugImages;
-class FilterData;
 class ZoneSet;
 class QSize;
+class QRectF;
 class QImage;
 
 namespace imageproc
@@ -65,28 +64,28 @@ class OutputGenerator
 {
 public:
 	OutputGenerator(
-		Dpi const& dpi, ColorParams const& color_params,
-		DespeckleLevel despeckle_level,
-		ImageTransformation const& xform,
-		QPolygonF const& content_rect_phys);
+		std::shared_ptr<AbstractImageTransform const> const& image_transform,
+		QRectF const& content_rect, QRectF const& outer_rect,
+		ColorParams const& color_params,
+		DespeckleLevel despeckle_level);
 	
 	/**
 	 * \brief Produce the output image.
-	 *
 	 * \param status For asynchronous task cancellation.
 	 * \param input The input image plus data produced by previous stages.
 	 * \param picture_zones A set of manual picture zones.
 	 * \param fill_zones A set of manual fill zones.
-	 * \param distortion_model A curved rectangle.
-	 * \param auto_picture_mask If provided, the auto-detected picture mask
-	 *        will be written there.  It would only happen if automatic picture
-	 *        detection actually took place.  Otherwise, nothing will be
-	 *        written into the provided image.  Black areas on the mask
-	 *        indicate pictures.  The manual zones aren't represented in it.
-	 * \param speckles_image If provided, the speckles removed from the
-	 *        binarized image will be written there.  It would only happen
+	 * \param out_auto_picture_mask If provided, the auto-detected picture mask
+	 *        will be written there. It would only happen if automatic picture
+	 *        detection actually took place. Otherwise, nothing will be
+	 *        written into the provided image. The picture mask image has the same
+	 *        geometry as the output image. White areas on the mask indicate pictures.
+	 *        The manual zones aren't represented in it.
+	 * \param out_speckles_image If provided, the speckles removed from the
+	 *        binarized image will be written there. It would only happen
 	 *        if despeckling was required and actually took place.
 	 *        Otherwise, nothing will be written into the provided image.
+	 *        The speckles image has the same geometry as the output image.
 	 *        Because despeckling is intentionally the last operation on
 	 *        the B/W part of the image, the "pre-despeckle" image may be
 	 *        restored from the output and speckles images, allowing despeckling
@@ -95,93 +94,55 @@ public:
 	 * \param dbg An optional sink for debugging images.
 	 */
 	QImage process(
-		TaskStatus const& status, FilterData const& input,
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 		ZoneSet const& picture_zones, ZoneSet const& fill_zones,
-		DewarpingMode dewarping_mode,
-		dewarping::DistortionModel& distortion_model,
-		DepthPerception const& depth_perception,
-		imageproc::BinaryImage* auto_picture_mask = 0,
-		imageproc::BinaryImage* speckles_image = 0,
-		DebugImages* dbg = 0) const;
+		imageproc::BinaryImage* out_auto_picture_mask = nullptr,
+		imageproc::BinaryImage* out_speckles_image = nullptr,
+		DebugImages* dbg = nullptr) const;
 	
 	QSize outputImageSize() const;
+
+	/**
+	 * The rectangle in the transformed space of m_ptrImageTransform
+	 * corresponding to the output image.
+	 */
+	QRect outputImageRect() const;
 	
 	/**
 	 * \brief Returns the content rectangle in output image coordinates.
 	 */
 	QRect outputContentRect() const;
+
+	/**
+	 * @brief Returns a mapper from original image to output image coordinates.
+	 */
+	std::function<QPointF(QPointF const&)> origToOutputMapper() const;
+
+	/**
+	 * @brief Returns a mapper from output to original image coordinates.
+	 */
+	std::function<QPointF(QPointF const&)> outputToOrigMapper() const;
 private:
-	QImage processImpl(
-		TaskStatus const& status, FilterData const& input,
-		ZoneSet const& picture_zones, ZoneSet const& fill_zones,
-		DewarpingMode dewarping_mode,
-		dewarping::DistortionModel& distortion_model,
-		DepthPerception const& depth_perception,
-		imageproc::BinaryImage* auto_picture_mask = 0,
-		imageproc::BinaryImage* speckles_image = 0,
-		DebugImages* dbg = 0) const;
-
-	QImage processAsIs(
-		FilterData const& input, TaskStatus const& status,
-		ZoneSet const& fill_zones,
-		DepthPerception const& depth_perception,
-		DebugImages* dbg = 0) const;
-
-	QImage processWithoutDewarping(
-		TaskStatus const& status, FilterData const& input,
-		ZoneSet const& picture_zones, ZoneSet const& fill_zones,
-		imageproc::BinaryImage* auto_picture_mask = 0,
-		imageproc::BinaryImage* speckles_image = 0,
-		DebugImages* dbg = 0) const;
-
-	QImage processWithDewarping(
-		TaskStatus const& status, FilterData const& input,
-		ZoneSet const& picture_zones, ZoneSet const& fill_zones,
-		DewarpingMode dewarping_mode,
-		dewarping::DistortionModel& distortion_model,
-		DepthPerception const& depth_perception,
-		imageproc::BinaryImage* auto_picture_mask = 0,
-		imageproc::BinaryImage* speckles_image = 0,
-		DebugImages* dbg = 0) const;
-	
-	void setupTrivialDistortionModel(dewarping::DistortionModel& distortion_model) const;
-
-	static dewarping::CylindricalSurfaceDewarper createDewarper(
-		dewarping::DistortionModel const& distortion_model,
-		QTransform const& distortion_model_to_target, double depth_perception);
-
-	QImage dewarp(
-		QTransform const& orig_to_src, QImage const& src,
-		QTransform const& src_to_output, dewarping::DistortionModel const& distortion_model,
-		DepthPerception const& depth_perception, QColor const& bg_color) const;
-
-	static QSize from300dpi(QSize const& size, Dpi const& target_dpi);
-	
-	static QSize to300dpi(QSize const& size, Dpi const& source_dpi);
-	
 	static QImage convertToRGBorRGBA(QImage const& src);
 
-	static void fillMarginsInPlace(
-		QImage& image, QPolygonF const& content_poly, QColor const& color);
-
 	static imageproc::GrayImage normalizeIlluminationGray(
-		TaskStatus const& status,
-		QImage const& input, QPolygonF const& area_to_consider,
-		QTransform const& xform, QRect const& target_rect,
-		imageproc::GrayImage* background = 0, DebugImages* dbg = 0);
+		TaskStatus const& status, imageproc::GrayImage const& input_for_estimation,
+		imageproc::GrayImage const& input_for_normalisation,
+		boost::optional<QPolygonF> const& estimation_region_of_intereset,
+		DebugImages* dbg);
 	
 	static imageproc::GrayImage detectPictures(
-		imageproc::GrayImage const& input_300dpi, TaskStatus const& status,
-		DebugImages* dbg = 0);
+		TaskStatus const& status, imageproc::GrayImage const& downscaled,
+		DebugImages* dbg);
 	
 	imageproc::BinaryImage estimateBinarizationMask(
 		TaskStatus const& status, imageproc::GrayImage const& gray_source,
-		QRect const& source_rect, QRect const& source_sub_rect,
-		DebugImages* const dbg) const;
+		DebugImages* dbg) const;
 
 	void modifyBinarizationMask(
-		imageproc::BinaryImage& bw_mask,
-		QRect const& mask_rect, ZoneSet const& zones) const;
+		imageproc::BinaryImage& bw_mask, ZoneSet const& zones,
+		std::function<QPointF(QPointF const&)> const& orig_to_output) const;
 	
 	imageproc::BinaryThreshold adjustThreshold(
 		imageproc::BinaryThreshold threshold) const;
@@ -201,12 +162,11 @@ private:
 		imageproc::BinaryImage const* mask = 0) const;
 	
 	void maybeDespeckleInPlace(
-		imageproc::BinaryImage& image, QRect const& image_rect,
-		QRect const& mask_rect, DespeckleLevel level,
-		imageproc::BinaryImage* speckles_img,
-		Dpi const& dpi, TaskStatus const& status, DebugImages* dbg) const;
+		imageproc::BinaryImage& image, DespeckleLevel level,
+		imageproc::BinaryImage* out_speckles_img,
+		TaskStatus const& status, DebugImages* dbg) const;
 
-	static QImage smoothToGrayscale(QImage const& src, Dpi const& dpi);
+	static QImage smoothToGrayscale(QImage const& src);
 	
 	static void morphologicalSmoothInPlace(
 		imageproc::BinaryImage& img, TaskStatus const& status);
@@ -215,7 +175,7 @@ private:
 		imageproc::BinaryImage& img, char const* pattern,
 		int pattern_width, int pattern_height);
 	
-	static QSize calcLocalWindowSize(Dpi const& dpi);
+	static QSize calcLocalWindowSize();
 	
 	static unsigned char calcDominantBackgroundGrayLevel(QImage const& img);
 	
@@ -230,31 +190,29 @@ private:
 		QImage const* morph_background = 0) const;
 
 	void applyFillZonesInPlace(QImage& img, ZoneSet const& zones,
-		boost::function<QPointF(QPointF const&)> const& orig_to_output) const;
+		std::function<QPointF(QPointF const&)> const& orig_to_output) const;
 
 	void applyFillZonesInPlace(QImage& img, ZoneSet const& zones) const;
 
 	void applyFillZonesInPlace(imageproc::BinaryImage& img, ZoneSet const& zones,
-		boost::function<QPointF(QPointF const&)> const& orig_to_output) const;
+		std::function<QPointF(QPointF const&)> const& orig_to_output) const;
 
 	void applyFillZonesInPlace(imageproc::BinaryImage& img, ZoneSet const& zones) const;
 	
-	Dpi m_dpi;
+	std::shared_ptr<AbstractImageTransform const> m_ptrImageTransform;
 	ColorParams m_colorParams;
-	
-	/**
-	 * Transformation from the input to the output image coordinates.
-	 */
-	ImageTransformation m_xform;
 
 	/**
-	 * The rectangle corresponding to the output image.
-	 * The top-left corner will always be at (0, 0).
+	 * The rectangle corresponding to the output image in transformed coordinates.
 	 */
 	QRect m_outRect;
 
 	/**
-	 * The content rectangle in output image coordinates.
+	 * The content rectangle in output image coordinates. That is, if there are
+	 * no margins, m_contentRect is going to be:
+	 * \code
+	 * QRect(QPoint(0, 0), m_outRect.size())
+	 * \endcode
 	 */
 	QRect m_contentRect;
 

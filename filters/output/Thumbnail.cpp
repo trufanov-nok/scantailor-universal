@@ -23,9 +23,9 @@ namespace output
 
 Thumbnail::Thumbnail(
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-	QSizeF const& max_size, ImageId const& image_id,
-	ImageTransformation const& xform)
-:	ThumbnailBase(thumbnail_cache, max_size, image_id, xform)
+	QSizeF const& max_size, PageId const& page_id,
+	AbstractImageTransform const& full_size_image_transform)
+:	ThumbnailBase(thumbnail_cache, max_size, page_id, full_size_image_transform)
 {
 }
 

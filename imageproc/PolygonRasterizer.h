@@ -24,12 +24,12 @@
 
 class QPolygonF;
 class QRectF;
-class QImage;
 
 namespace imageproc
 {
 
 class BinaryImage;
+class GrayImage;
 
 class PolygonRasterizer
 {
@@ -42,12 +42,12 @@ public:
 		BinaryImage& image, BWColor color,
 		QPolygonF const& poly, Qt::FillRule fill_rule);
 	
-	static void grayFill(
-		QImage& image, unsigned char color,
+	static void fill(
+		GrayImage& image, unsigned char color,
 		QPolygonF const& poly, Qt::FillRule fill_rule);
 	
-	static void grayFillExcept(
-		QImage& image, unsigned char color,
+	static void fillExcept(
+		GrayImage& image, unsigned char color,
 		QPolygonF const& poly, Qt::FillRule fill_rule);
 private:
 	class Edge;

@@ -21,7 +21,6 @@
 #define OUTPUT_DESPECKLE_STATE_H_
 
 #include "DespeckleLevel.h"
-#include "Dpi.h"
 #include "imageproc/BinaryImage.h"
 #include <QImage>
 
@@ -42,8 +41,7 @@ class DespeckleState
 	// Member-wise copying is OK.
 public:
 	DespeckleState(QImage const& output,
-		imageproc::BinaryImage const& speckles,
-		DespeckleLevel level, Dpi const& dpi);
+		imageproc::BinaryImage const& speckles, DespeckleLevel level);
 
 	DespeckleLevel level() const { return m_despeckleLevel; }
 
@@ -75,11 +73,6 @@ private:
 	 * This image may be null, which is equivalent to having it all white.
 	 */
 	imageproc::BinaryImage m_speckles;
-
-	/**
-	 * The DPI of all 3 above images.
-	 */
-	Dpi m_dpi;
 
 	/**
 	 * Despeckling level at which m_speckles was produced from

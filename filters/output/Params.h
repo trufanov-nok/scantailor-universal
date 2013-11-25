@@ -19,11 +19,7 @@
 #ifndef OUTPUT_PARAMS_H_
 #define OUTPUT_PARAMS_H_
 
-#include "Dpi.h"
 #include "ColorParams.h"
-#include "DewarpingMode.h"
-#include "dewarping/DistortionModel.h"
-#include "DepthPerception.h"
 #include "DespeckleLevel.h"
 
 class QDomDocument;
@@ -38,28 +34,10 @@ public:
 	Params();
 	
 	Params(QDomElement const& el);
-	
-	Dpi const& outputDpi() const { return m_dpi; }
 
-	void setOutputDpi(Dpi const& dpi) { m_dpi = dpi; }
-	
 	ColorParams const& colorParams() const { return m_colorParams; }
 
 	void setColorParams(ColorParams const& params) { m_colorParams = params; }
-
-	DewarpingMode const& dewarpingMode() const { return m_dewarpingMode; }
-
-	void setDewarpingMode(DewarpingMode const& mode) { m_dewarpingMode = mode; }
-
-	dewarping::DistortionModel const& distortionModel() const { return m_distortionModel; }
-
-	void setDistortionModel(dewarping::DistortionModel const& model) { m_distortionModel = model; }
-
-	DepthPerception const& depthPerception() const { return m_depthPerception; }
-
-	void setDepthPerception(DepthPerception depth_perception) {
-		m_depthPerception = depth_perception;
-	}
 
 	DespeckleLevel despeckleLevel() const { return m_despeckleLevel; }
 
@@ -71,11 +49,7 @@ private:
 	
 	static QString formatColorMode(ColorParams::ColorMode mode);
 	
-	Dpi m_dpi;
 	ColorParams m_colorParams;
-	dewarping::DistortionModel m_distortionModel;
-	DepthPerception m_depthPerception;
-	DewarpingMode m_dewarpingMode;
 	DespeckleLevel m_despeckleLevel;
 };
 

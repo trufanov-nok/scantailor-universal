@@ -21,9 +21,11 @@
 
 #include "ImageViewBase.h"
 #include "OrthogonalRotation.h"
-#include "ImageTransformation.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
+#include <QSizeF>
+
+class AffineTransformedImage;
 
 namespace fix_orientation
 {
@@ -32,9 +34,7 @@ class ImageView : public ImageViewBase
 {
 	Q_OBJECT
 public:
-	ImageView(
-		QImage const& image, QImage const& downscaled_image,
-		ImageTransformation const& xform);
+	ImageView(AffineTransformedImage const& full_size_image);
 	
 	virtual ~ImageView();
 public slots:
@@ -42,7 +42,7 @@ public slots:
 private:
 	DragHandler m_dragHandler;
 	ZoomHandler m_zoomHandler;
-	ImageTransformation m_xform;
+	QSizeF m_origImageSize;
 };
 
 } // namespace fix_orientation

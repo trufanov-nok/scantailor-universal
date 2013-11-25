@@ -17,6 +17,7 @@
 */
 
 #include "Thumbnail.h"
+#include "ContentBox.h"
 #include <QRectF>
 #include <QSizeF>
 #include <QTransform>
@@ -30,19 +31,27 @@ namespace select_content
 
 Thumbnail::Thumbnail(
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-	QSizeF const& max_size, ImageId const& image_id,
-	ImageTransformation const& xform, QRectF const& content_rect)
-:	ThumbnailBase(thumbnail_cache, max_size, image_id, xform),
-	m_contentRect(content_rect)
+	QSizeF const& max_display_size, PageId const& page_id,
+	AbstractImageTransform const& full_size_image_transform,
+	ContentBox const& content_box)
+:	ThumbnailBase(
+		thumbnail_cache, max_display_size,
+		page_id, full_size_image_transform
+	)
 {
+	if (content_box.isValid()) {
+		m_transformedContentRect = content_box.toTransformedRect(
+			full_size_image_transform
+		);
+	}
 }
 
 void
 Thumbnail::paintOverImage(
-	QPainter& painter, QTransform const& image_to_display,
+	QPainter& painter, QTransform const& transformed_to_display,
 	QTransform const& thumb_to_display)
 {
-	if (m_contentRect.isNull()) {
+	if (m_transformedContentRect.isNull()) {
 		return;
 	}
 	
@@ -55,7 +64,7 @@ Thumbnail::paintOverImage(
 	
 	painter.setBrush(QColor(0x00, 0x00, 0xff, 50));
 	
-	QRectF content_rect(virtToThumb().mapRect(m_contentRect));
+	QRectF content_rect(toThumb().mapRect(m_transformedContentRect));
 	
 	// Adjust to compensate for pen width.
 	content_rect.adjust(-1, -1, 1, 1);

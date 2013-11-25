@@ -92,9 +92,6 @@ public:
 
 	RansacModel const& bestModel() const { return m_bestModel; }
 private:
-	double calcReferenceHeight(
-		CylindricalSurfaceDewarper const& dewarper, QPointF const& loc);
-
 	RansacModel m_bestModel;
 	std::vector<TracedCurve> const& m_rAllCurves;
 };
@@ -377,7 +374,7 @@ DistortionModelBuilder::fitExtendedSpline(
 
 	QLineF const chord(polyline.front(), polyline.back());
 	XSpline spline;
-	int const initial_spline_points = 5;
+	int const initial_spline_points = 6;
 	spline.appendControlPoint(chord.pointAt(0), 1);
 	for (int i = 1; i < initial_spline_points - 1; ++i) {
 		double const fraction = i / (initial_spline_points - 1.0);
@@ -396,12 +393,9 @@ DistortionModelBuilder::fitExtendedSpline(
 			QPointF const& pt, FittableSpline::SampleFlags sample_flags,
 			Flags polyline_flags, FrenetFrame const& frenet_frame, double signed_curvature) const {
 			
-			if (polyline_flags & (POLYLINE_FRONT|POLYLINE_BACK)) {
-				if (sample_flags & FittableSpline::JUNCTION_SAMPLE) {
-					return SqDistApproximant::pointDistance(frenet_frame.origin());
-				} else {
-					return SqDistApproximant();
-				}
+			if ((polyline_flags & (POLYLINE_FRONT|POLYLINE_BACK)) &&
+				(sample_flags & (FittableSpline::HEAD_SAMPLE|FittableSpline::TAIL_SAMPLE))) {
+				return SqDistApproximant::weightedCurveDistance(pt, frenet_frame, signed_curvature, 100.0);
 			} else {
 				return SqDistApproximant::curveDistance(pt, frenet_frame, signed_curvature);
 			}
@@ -550,19 +544,7 @@ try {
 } catch (std::runtime_error const&) {
 	// Probably CylindricalSurfaceDewarper didn't like something.
 }
-#if 0
-double
-DistortionModelBuilder::RansacAlgo::calcReferenceHeight(
-	CylindricalSurfaceDewarper const& dewarper, QPointF const& loc)
-{
-	// TODO: ideally, we would use the counterpart of CylindricalSurfaceDewarper::mapGeneratrix(),
-	// that would map it the other way, and which doesn't currently exist.
 
-	QPointF const pt1(dewarper.mapToDewarpedSpace(loc + QPointF(0.0, -10)));
-	QPointF const pt2(dewarper.mapToDewarpedSpace(loc + QPointF(0.0, 10)));
-	return fabs(pt1.y() - pt2.y());
-}
-#endif
 QImage
 DistortionModelBuilder::visualizeTrimmedPolylines(
 	QImage const& background, std::vector<TracedCurve> const& curves) const
@@ -648,6 +630,8 @@ DistortionModelBuilder::visualizeModel(
 
 	QBrush junction_point_brush(QColor(0xff, 0x00, 0xff, 255));
 
+	QBrush polyline_knot_brush(QColor(0xff, 0x00, 0xff, 180));
+
 	BOOST_FOREACH(TracedCurve const& curve, curves) {
 		if (curve.extendedPolyline.empty()) {
 			continue;
@@ -699,7 +683,7 @@ DistortionModelBuilder::visualizeModel(
 
 		int const num_control_points = curve.extendedSpline.numControlPoints();
 		QRectF rect(0, 0, stroke_width, stroke_width);
-
+#if 0
 		// Draw junction points.
 		painter.setPen(Qt::NoPen);
 		painter.setBrush(junction_point_brush);
@@ -714,6 +698,14 @@ DistortionModelBuilder::visualizeModel(
 		painter.setBrush(control_point_brush);
 		for (int i = 0; i < num_control_points; ++i) {
 			rect.moveCenter(curve.extendedSpline.controlPointPosition(i));
+			painter.drawEllipse(rect);
+		}
+#endif
+		// Draw original polyline knots.
+		painter.setPen(Qt::NoPen);
+		painter.setBrush(polyline_knot_brush);
+		for (QPointF const& knot : curve.trimmedPolyline) {
+			rect.moveCenter(knot);
 			painter.drawEllipse(rect);
 		}
 	}

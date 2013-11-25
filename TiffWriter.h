@@ -51,8 +51,6 @@ public:
 private:
 	class TiffHandle;
 	
-	static void setDpm(TiffHandle const& tif, Dpm const& dpm);
-	
 	static bool writeBitonalOrIndexed8Image(
 		TiffHandle const& tif, QImage const& image);
 	

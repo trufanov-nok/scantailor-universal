@@ -19,7 +19,6 @@
 #ifndef OUTPUT_UTILS_H_
 #define OUTPUT_UTILS_H_
 
-class Dpi;
 class QString;
 class QTransform;
 
@@ -34,8 +33,6 @@ public:
 	static QString predespeckleDir(QString const& out_dir);
 
 	static QString specklesDir(QString const& out_dir);
-	
-	static QTransform scaleFromToDpi(Dpi const& from, Dpi const& to);
 };
 
 } // namespace output

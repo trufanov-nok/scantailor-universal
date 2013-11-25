@@ -20,13 +20,13 @@
 #define PAGE_LAYOUT_IMAGEVIEW_H_
 
 #include "ImageViewBase.h"
-#include "ImageTransformation.h"
-#include "PhysicalTransformation.h"
+#include "AffineImageTransform.h"
 #include "InteractionHandler.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
 #include "DraggableObject.h"
 #include "ObjectDragHandler.h"
+#include "MatchSizeMode.h"
 #include "Alignment.h"
 #include "IntrusivePtr.h"
 #include "PageId.h"
@@ -35,8 +35,11 @@
 #include <QRectF>
 #include <QPointF>
 #include <QPoint>
+#include <memory>
 
-class Margins;
+class AffineTransformedImage;
+class ContentBox;
+class RelativeMargins;
 
 namespace page_layout
 {
@@ -52,9 +55,9 @@ class ImageView :
 public:
 	ImageView(
 		IntrusivePtr<Settings> const& settings, PageId const& page_id,
-		QImage const& image, QImage const& downscaled_image,
-		ImageTransformation const& xform,
-		QRectF const& adapted_content_rect,
+		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
+		AffineTransformedImage const& affine_transformed_image,
+		ContentBox const& adapted_content_box,
 		OptionsWidget const& opt_widget);
 	
 	virtual ~ImageView();
@@ -63,14 +66,16 @@ signals:
 	
 	void invalidateAllThumbnails();
 	
-	void marginsSetLocally(Margins const& margins_mm);
+	void marginsSetLocally(RelativeMargins const& margins);
 public slots:
-	void marginsSetExternally(Margins const& margins_mm);
+	void marginsSetExternally(RelativeMargins const& margins);
 	
 	void leftRightLinkToggled(bool linked);
 	
 	void topBottomLinkToggled(bool linked);
 	
+	void matchSizeModeChanged(MatchSizeMode const& match_size_mode);
+
 	void alignmentChanged(Alignment const& alignment);
 	
 	void aggregateHardSizeChanged();
@@ -122,19 +127,17 @@ private:
 
 	void dragFinished();
 	
-	void recalcBoxesAndFit(Margins const& margins_mm);
+	void recalcBoxesAndFit(RelativeMargins const& margins);
 	
 	void updatePresentationTransform(FitMode fit_mode);
 	
 	void forceNonNegativeHardMargins(QRectF& middle_rect) const;
 	
-	Margins calcHardMarginsMM() const;
+	RelativeMargins calcHardMargins() const;
 	
 	void recalcOuterRect();
 	
-	QSizeF origRectToSizeMM(QRectF const& rect) const;
-	
-	AggregateSizeChanged commitHardMargins(Margins const& margins_mm);
+	AggregateSizeChanged commitHardMargins(RelativeMargins const& margins);
 	
 	void invalidateThumbnails(AggregateSizeChanged agg_size_changed);
 	
@@ -154,18 +157,32 @@ private:
 	IntrusivePtr<Settings> m_ptrSettings;
 	
 	PageId const m_pageId;
+
+	/**
+	 * AffineImageTransform extracted from \p affine_transformed_image constructor parameter.
+	 * This doesn't take image scaling as a result of MatchSizeMode::SCALE into account.
+	 */
+	AffineImageTransform const m_unscaledAffineTransform;
+
+	/**
+	 * ContentBox in virtual image coordinates, prior to scaling by MatchSizeMode::SCALE.
+	 */
+	QRectF const m_unscaledContentRect;
+
+	/**
+	 * The point in affine_transformed_image.origImage() coordinates corresponding to
+	 * the top-left corner of the content box. This point is obtained by reverse mapping
+	 * of m_unscaledContentRect.topLeft() through m_unscaledAffineTransform.
+	 *
+	 * @note This member must follow both m_unscaledAffineTransform and m_unscaledContentRect.
+	 */
+	QPointF const m_affineImageContentTopLeft;
 	
 	/**
-	 * Transformation between the pixel image coordinates and millimeters,
-	 * assuming that point (0, 0) in pixel coordinates corresponds to point
-	 * (0, 0) in millimeter coordinates.
+	 * Content box in virtual image coordinates, possibly scaled
+	 * as a result of MatchSizeMode::SCALE.
 	 */
-	PhysicalTransformation const m_physXform;
-	
-	/**
-	 * Content box in virtual image coordinates.
-	 */
-	QRectF const m_innerRect;
+	QRectF m_innerRect;
 	
 	/**
 	 * \brief Content box + hard margins in virtual image coordinates.
@@ -186,25 +203,27 @@ private:
 	QRectF m_outerRect;
 	
 	/**
-	 * \brief Aggregate (max width + max height) hard page size.
+	 * \brief Aggregate (max_width, max_height) hard page size in pixels.
 	 *
 	 * This one is for displaying purposes only.  It changes during
 	 * dragging, and it may differ from what
-	 * m_ptrSettings->getAggregateHardSizeMM() would return.
+	 * m_ptrSettings->getAggregateHardSize() would return.
 	 *
-	 * \see m_committedAggregateHardSizeMM
+	 * \see m_committedAggregateHardSize
 	 */
-	QSizeF m_aggregateHardSizeMM;
+	QSizeF m_aggregateHardSize;
 	
 	/**
-	 * \brief Aggregate (max width + max height) hard page size.
+	 * \brief Aggregate (max_width, max_height) hard page size in pixels.
 	 *
 	 * This one is supposed to be the cached version of what
-	 * m_ptrSettings->getAggregateHardSizeMM() would return.
+	 * m_ptrSettings->getAggregateHardSize() would return.
 	 *
-	 * \see m_aggregateHardSizeMM
+	 * \see m_aggregateHardSize
 	 */
-	QSizeF m_committedAggregateHardSizeMM;
+	QSizeF m_committedAggregateHardSize;
+
+	MatchSizeMode m_matchSizeMode;
 	
 	Alignment m_alignment;
 	

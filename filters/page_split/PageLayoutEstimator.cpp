@@ -18,14 +18,13 @@
 
 #include "PageLayoutEstimator.h"
 #include "PageLayout.h"
+#include "AffineTransformedImage.h"
 #include "OrthogonalRotation.h"
 #include "VertLineFinder.h"
 #include "ContentSpanFinder.h"
 #include "ImageMetadata.h"
 #include "ProjectPages.h"
 #include "DebugImages.h"
-#include "Dpi.h"
-#include "ImageTransformation.h"
 #include "foundation/Span.h"
 #include "imageproc/Binarize.h"
 #include "imageproc/BinaryThreshold.h"
@@ -50,7 +49,7 @@
 #include <boost/foreach.hpp>
 #include <QRect>
 #include <QRectF>
-#include <QSize>
+#include <QSizeF>
 #include <QImage>
 #include <QPointF>
 #include <QPoint>
@@ -62,6 +61,7 @@
 #include <QBrush>
 #include <QTransform>
 #include <QtGlobal>
+#include <Qt>
 #include <QDebug>
 #include <vector>
 #include <utility>
@@ -97,18 +97,14 @@ struct CenterComparator
  * \param layout_type The requested layout type.  The layout type of
  *        SINGLE_PAGE_UNCUT is not handled here.
  * \param ltr_lines Folding line candidates sorted from left to right.
- * \param image_size The dimentions of the page image.
- * \param hor_shadows A downscaled grayscale image that contains
- *        long enough and not too thin horizontal lines.
+ * \param virtual_image_rect Corresponds to PageLayout::uncutOutline().
  * \param dbg An optional sink for debugging images.
  * \return The page layout detected or a null auto_ptr.
  */
 std::auto_ptr<PageLayout> autoDetectSinglePageLayout(
 	LayoutType const layout_type,
 	std::vector<QLineF> const& ltr_lines,
-	QRectF const& virtual_image_rect,
-	GrayImage const& gray_downscaled,
-	QTransform const& out_to_downscaled, DebugImages* dbg)
+	QRectF const& virtual_image_rect, DebugImages* dbg)
 {
 	double const image_center = virtual_image_rect.center().x();
 	
@@ -210,19 +206,16 @@ std::auto_ptr<PageLayout> autoDetectTwoPageLayout(
 	);
 }
 
-int numPages(LayoutType const layout_type, ImageTransformation const& pre_xform)
+int numPages(LayoutType const layout_type, AffineImageTransform const& transform)
 {
 	int num_pages = 0;
 	
 	switch (layout_type) {
 		case AUTO_LAYOUT_TYPE: {
-			QSize const image_size(
-				pre_xform.origRect().size().toSize()
+			QSizeF const transformed_size(
+				transform.transformedCropArea().boundingRect().toRect().size()
 			);
-			num_pages = ProjectPages::adviseNumberOfLogicalPages(
-				ImageMetadata(image_size, pre_xform.origDpi()),
-				pre_xform.preRotation()
-			);
+			num_pages = transformed_size.width() > transformed_size.height() ? 2 : 1;
 			break;
 		}
 		case SINGLE_PAGE_UNCUT:
@@ -241,24 +234,21 @@ int numPages(LayoutType const layout_type, ImageTransformation const& pre_xform)
 
 
 PageLayout
-PageLayoutEstimator::estimatePageLayout(
-	LayoutType const layout_type, QImage const& input,
-	ImageTransformation const& pre_xform,
-	BinaryThreshold const bw_threshold,
-	DebugImages* const dbg)
+PageLayoutEstimator::estimatePageLayout(LayoutType const layout_type,
+	AffineTransformedImage const& image, DebugImages* const dbg)
 {
 	if (layout_type == SINGLE_PAGE_UNCUT) {
-		return PageLayout(pre_xform.resultingRect());
+		return PageLayout(image.xform().transformedCropArea().boundingRect());
 	}
 	
 	std::auto_ptr<PageLayout> layout(
-		tryCutAtFoldingLine(layout_type, input, pre_xform, dbg)
+		tryCutAtFoldingLine(layout_type, image, dbg)
 	);
 	if (layout.get()) {
 		return *layout;
 	}
 	
-	return cutAtWhitespace(layout_type, input, pre_xform, bw_threshold, dbg);
+	return cutAtWhitespace(layout_type, image, dbg);
 }
 
 namespace
@@ -302,28 +292,17 @@ private:
  *         could not be detected.
  */
 std::auto_ptr<PageLayout>
-PageLayoutEstimator::tryCutAtFoldingLine(
-	LayoutType const layout_type, QImage const& input,
-	ImageTransformation const& pre_xform, DebugImages* const dbg)
+PageLayoutEstimator::tryCutAtFoldingLine(LayoutType const layout_type,
+	AffineTransformedImage const& image, DebugImages* const dbg)
 {
-	int const num_pages = numPages(layout_type, pre_xform);
-	
-	GrayImage gray_downscaled;
-	QTransform out_to_downscaled;
-	
+	int const num_pages = numPages(layout_type, image.xform());
 	int const max_lines = 8;
-	std::vector<QLineF> lines(
-		VertLineFinder::findLines(
-			input, pre_xform, max_lines, dbg,
-			num_pages == 1 ? &gray_downscaled : 0,
-			num_pages == 1 ? &out_to_downscaled : 0
-		)
-	);
-	
+
+	std::vector<QLineF> lines(VertLineFinder::findLines(image, max_lines, dbg));
 	std::sort(lines.begin(), lines.end(), CenterComparator());
 	
 	QRectF const virtual_image_rect(
-		pre_xform.transform().mapRect(input.rect())
+		image.xform().transformedCropArea().boundingRect()
 	);
 	QPointF const center(virtual_image_rect.center());
 	
@@ -357,8 +336,7 @@ PageLayoutEstimator::tryCutAtFoldingLine(
 			break;
 		}
 		return autoDetectSinglePageLayout(
-			layout_type, lines, virtual_image_rect, gray_downscaled,
-			out_to_downscaled, dbg
+			layout_type, lines, virtual_image_rect, dbg
 		);
 	} else {
 		assert(num_pages == 2);
@@ -390,31 +368,40 @@ PageLayoutEstimator::tryCutAtFoldingLine(
  *         will return a PageLayout consistent with the layout_type requested.
  */
 PageLayout
-PageLayoutEstimator::cutAtWhitespace(
-	LayoutType const layout_type, QImage const& input,
-	ImageTransformation const& pre_xform,
-	BinaryThreshold const bw_threshold,
-	DebugImages* const dbg)
+PageLayoutEstimator::cutAtWhitespace(LayoutType const layout_type,
+	AffineTransformedImage const& image, DebugImages* const dbg)
 {
-	QTransform xform;
+	BinaryImage img;
+	QTransform extra_xform;
+
+	{
+		AffineTransformedImage const downscaled = image.withAdjustedTransform(
+			[](AffineImageTransform& xform) {
+				xform.scaleTo(QSize(3000, 3000), Qt::KeepAspectRatio);
+			}
+		);
+		img = binarize(downscaled);
+
+		QSize const size3k(img.size());
+		if (dbg) {
+			dbg->add(img, "bw_downscaled");
+		}
+
+		extra_xform = image.xform().transform().inverted()
+			* downscaled.xform().transform();
 	
-	// Convert to B/W and rotate.
-	BinaryImage img(to300DpiBinary(input, xform, bw_threshold));
-	
-	// Note: here we assume the only transformation applied
-	// to the input image is orthogonal rotation.
-	img = orthogonalRotation(img, pre_xform.preRotation().toDegrees());
-	if (dbg) {
-		dbg->add(img, "bw300");
+		img = removeGarbageAnd2xDownscale(img, dbg);
+		if (dbg) {
+			dbg->add(img, "no_garbage");
+		}
+
+		extra_xform *= QTransform().scale(
+			double(img.width()) / size3k.width(),
+			double(img.height()) / size3k.height()
+		);
 	}
-	
-	img = removeGarbageAnd2xDownscale(img, dbg);
-	xform.scale(0.5, 0.5);
-	if (dbg) {
-		dbg->add(img, "no_garbage");
-	}
-	
-	// From now on we work with 150 dpi images.
+
+	// From now on we work with ~150 DPI images.
 	
 	bool const left_offcut = checkForLeftOffcut(img);
 	bool const right_offcut = checkForRightOffcut(img);
@@ -448,11 +435,11 @@ PageLayoutEstimator::cutAtWhitespace(
 			t2.shear(tg, 0.0);
 			QTransform t3;
 			t3.translate(0.5 * w - margin, 0.5 * h);
-			xform = xform * t1 * t2 * t3;
+			extra_xform *= t1 * t2 * t3;
 		}
 	}
 	
-	int const num_pages = numPages(layout_type, pre_xform);
+	int const num_pages = numPages(layout_type, image.xform());
 	PageLayout const layout(
 		cutAtWhitespaceDeskewed150(
 			layout_type, num_pages, img,
@@ -460,10 +447,10 @@ PageLayoutEstimator::cutAtWhitespace(
 		)
 	);
 
-	PageLayout transformed_layout(layout.transformed(xform.inverted()));
+	PageLayout transformed_layout(layout.transformed(extra_xform.inverted()));
 
 	// We don't want a skewed outline!
-	transformed_layout.setUncutOutline(pre_xform.resultingRect());
+	transformed_layout.setUncutOutline(image.xform().transformedCropArea().boundingRect());
 	
 	return transformed_layout;
 }
@@ -543,26 +530,19 @@ PageLayoutEstimator::cutAtWhitespaceDeskewed150(
 }
 
 imageproc::BinaryImage
-PageLayoutEstimator::to300DpiBinary(
-	QImage const& img, QTransform& xform,
-	BinaryThreshold const binary_threshold)
+PageLayoutEstimator::binarize(AffineTransformedImage const& image)
 {
-	double const xfactor = (300.0 * constants::DPI2DPM) / img.dotsPerMeterX();
-	double const yfactor = (300.0 * constants::DPI2DPM) / img.dotsPerMeterY();
-	if (fabs(xfactor - 1.0) < 0.1 && fabs(yfactor - 1.0) < 0.1) {
-		return BinaryImage(img, binary_threshold);
-	}
-	
-	QTransform scale_xform;
-	scale_xform.scale(xfactor, yfactor);
-	xform *= scale_xform;
-	QSize const new_size(
-		std::max(1, (int)ceil(xfactor * img.width())),
-		std::max(1, (int)ceil(yfactor * img.height()))
+	BinaryThreshold const bw_threshold(
+		BinaryThreshold::otsuThreshold(image.origImage())
 	);
-	
-	GrayImage const new_image(scaleToGray(GrayImage(img), new_size));
-	return BinaryImage(new_image, binary_threshold);
+
+	return BinaryImage(
+		transformToGray(
+			image.origImage(), image.xform().transform(),
+			image.xform().transformedCropArea().boundingRect().toRect(),
+			OutsidePixels::assumeColor(Qt::white)
+		), bw_threshold
+	);
 }
 
 BinaryImage

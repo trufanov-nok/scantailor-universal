@@ -26,7 +26,8 @@
 class QSizeF;
 class PageInfo;
 class AbstractFilterDataCollector;
-class ImageTransformation;
+class AffineImageTransform;
+class OrthogonalRotation;
 
 namespace select_content
 {
@@ -49,8 +50,9 @@ public:
 	virtual ~CacheDrivenTask();
 	
 	void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform);
+		PageInfo const& page_info, OrthogonalRotation const& pre_rotation,
+		AffineImageTransform const& image_transform,
+		AbstractFilterDataCollector* collector);
 private:
 	IntrusivePtr<select_content::CacheDrivenTask> m_ptrNextTask;
 	IntrusivePtr<Settings> m_ptrSettings;

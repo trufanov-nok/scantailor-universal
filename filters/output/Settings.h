@@ -22,11 +22,8 @@
 #include "RefCountable.h"
 #include "NonCopyable.h"
 #include "PageId.h"
-#include "Dpi.h"
 #include "ColorParams.h"
 #include "OutputParams.h"
-#include "DewarpingMode.h"
-#include "dewarping/DistortionModel.h"
 #include "DespeckleLevel.h"
 #include "ZoneSet.h"
 #include "PropertySet.h"
@@ -58,14 +55,6 @@ public:
 	void setParams(PageId const& page_id, Params const& params);
 
 	void setColorParams(PageId const& page_id, ColorParams const& prms);
-
-	void setDpi(PageId const& page_id, Dpi const& dpi);
-
-	void setDewarpingMode(PageId const& page_id, DewarpingMode const& mode);
-
-	void setDistortionModel(PageId const& page_id, dewarping::DistortionModel const& model);
-
-	void setDepthPerception(PageId const& page_id, DepthPerception const& depth_perception);
 
 	void setDespeckleLevel(PageId const& page_id, DespeckleLevel level);
 	

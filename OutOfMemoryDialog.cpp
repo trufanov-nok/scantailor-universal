@@ -72,7 +72,7 @@ OutOfMemoryDialog::saveProject()
 void
 OutOfMemoryDialog::saveProjectAs()
 {
-	// XXX: this function is duplicated MainWindow
+	// XXX: this function is duplicated in MainWindow
 
 	QString project_dir;
 	if (!m_projectFile.isEmpty()) {

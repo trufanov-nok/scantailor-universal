@@ -23,7 +23,10 @@
 #include "IntrusivePtr.h"
 #include <QPainterPath>
 
+class AbstractImageTransform;
 class ThumbnailPixmapCache;
+class PageId;
+class QSize;
 class QSizeF;
 class QRectF;
 
@@ -44,15 +47,15 @@ class IncompleteThumbnail : public ThumbnailBase
 public:
 	IncompleteThumbnail(
 		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& image_xform);
+		QSizeF const& max_display_size, PageId const& page_id,
+		AbstractImageTransform const& full_size_image_transform);
 	
 	virtual ~IncompleteThumbnail();
 	
 	static void drawQuestionMark(QPainter& painter, QRectF const& bounding_rect);
 protected:
 	virtual void paintOverImage(
-		QPainter& painter, QTransform const& image_to_display,
+		QPainter& painter, QTransform const& transformed_to_display,
 		QTransform const& thumb_to_display);
 private:
 	static QPainterPath m_sCachedPath;

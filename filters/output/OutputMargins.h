@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef OUTPUT_OUTPUT_MARGINS_H_
 #define OUTPUT_OUTPUT_MARGINS_H_
 
-#include "Margins.h"
+#include <QMarginsF>
 
 namespace output
 {
@@ -30,10 +30,10 @@ namespace output
  * We use the same margins on all tabs to preserve their geometrical
  * one-to-one relationship.
  */
-class OutputMargins : public Margins
+class OutputMargins : public QMarginsF
 {
 public:
-	OutputMargins() : Margins(10.0, 10.0, 10.0, 10.0) {}
+    OutputMargins() : QMarginsF(10.0, 10.0, 10.0, 10.0) {}
 };
 
 } // namespace output

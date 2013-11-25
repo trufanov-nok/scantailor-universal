@@ -6,64 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>262</width>
-    <height>499</height>
+    <width>272</width>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QGroupBox" name="marginsGroup">
      <property name="title">
       <string>Margins</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QComboBox" name="unitsComboBox">
-          <item>
-           <property name="text">
-            <string>Millimeters (mm)</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Inches (in)</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -124,11 +80,17 @@
           </item>
           <item row="1" column="1">
            <widget class="QDoubleSpinBox" name="bottomMarginSpinBox">
+            <property name="suffix">
+             <string notr="true">%</string>
+            </property>
             <property name="decimals">
              <number>1</number>
             </property>
             <property name="maximum">
              <double>999.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
             </property>
            </widget>
           </item>
@@ -141,11 +103,17 @@
           </item>
           <item row="2" column="1">
            <widget class="QDoubleSpinBox" name="leftMarginSpinBox">
+            <property name="suffix">
+             <string notr="true">%</string>
+            </property>
             <property name="decimals">
              <number>1</number>
             </property>
             <property name="maximum">
              <double>999.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
             </property>
            </widget>
           </item>
@@ -188,21 +156,33 @@
           </item>
           <item row="3" column="1">
            <widget class="QDoubleSpinBox" name="rightMarginSpinBox">
+            <property name="suffix">
+             <string notr="true">%</string>
+            </property>
             <property name="decimals">
              <number>1</number>
             </property>
             <property name="maximum">
              <double>999.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
            <widget class="QDoubleSpinBox" name="topMarginSpinBox">
+            <property name="suffix">
+             <string notr="true">%</string>
+            </property>
             <property name="decimals">
              <number>1</number>
             </property>
             <property name="maximum">
              <double>999.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
             </property>
            </widget>
           </item>
@@ -288,14 +268,38 @@
          </spacer>
         </item>
         <item>
-         <widget class="QCheckBox" name="alignWithOthersCB">
-          <property name="text">
-           <string>Match size with other pages</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QRadioButton" name="matchSizeDisabledRb">
+            <property name="text">
+             <string>Don't match size</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">matchSizeButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="matchSizeMarginsRb">
+            <property name="text">
+             <string>Match size by growing margins</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">matchSizeButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="matchSizeScaleRb">
+            <property name="text">
+             <string>Match size by scaling</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">matchSizeButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <spacer name="horizontalSpacer_8">
@@ -353,6 +357,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="1">
@@ -376,6 +383,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="2">
@@ -399,6 +409,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="0">
@@ -422,6 +435,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="1">
@@ -448,6 +464,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="2">
@@ -471,6 +490,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="0">
@@ -494,6 +516,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="1">
@@ -517,6 +542,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="2">
@@ -540,6 +568,9 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">alignmentButtonGroup</string>
+            </attribute>
            </widget>
           </item>
          </layout>
@@ -615,7 +646,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>unitsComboBox</tabstop>
   <tabstop>topBottomLink</tabstop>
   <tabstop>topMarginSpinBox</tabstop>
   <tabstop>bottomMarginSpinBox</tabstop>
@@ -623,7 +653,6 @@
   <tabstop>leftMarginSpinBox</tabstop>
   <tabstop>rightMarginSpinBox</tabstop>
   <tabstop>applyMarginsBtn</tabstop>
-  <tabstop>alignWithOthersCB</tabstop>
   <tabstop>alignTopLeftBtn</tabstop>
   <tabstop>alignTopBtn</tabstop>
   <tabstop>alignTopRightBtn</tabstop>
@@ -639,4 +668,8 @@
   <include location="../../../resources/resources.qrc"/>
  </resources>
  <connections/>
+ <buttongroups>
+  <buttongroup name="alignmentButtonGroup"/>
+  <buttongroup name="matchSizeButtonGroup"/>
+ </buttongroups>
 </ui>

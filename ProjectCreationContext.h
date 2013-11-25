@@ -28,7 +28,6 @@
 #include <vector>
 
 class ProjectFilesDialog;
-class FixDpiDialog;
 class QWidget;
 
 class ProjectCreationContext : public QObject
@@ -51,17 +50,10 @@ private slots:
 	void projectFilesSubmitted();
 	
 	void projectFilesDialogDestroyed();
-	
-	void fixedDpiSubmitted();
-	
-	void fixDpiDialogDestroyed();
 private:
 	void showProjectFilesDialog();
 	
-	void showFixDpiDialog();
-	
 	QPointer<ProjectFilesDialog> m_ptrProjectFilesDialog;
-	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
 	QString m_outDir;
 	std::vector<ImageFileInfo> m_files;
 	Qt::LayoutDirection m_layoutDirection;

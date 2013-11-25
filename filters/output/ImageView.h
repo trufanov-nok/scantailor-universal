@@ -24,8 +24,6 @@
 #include "ZoomHandler.h"
 #include <QColor>
 
-class ImageTransformation;
-
 namespace output
 {
 

@@ -18,12 +18,14 @@
 
 #include "ImageView.h"
 #include "ImageView.moc"
-#include "ImageTransformation.h"
 #include "ImagePresentation.h"
+#include "AffineTransformedImage.h"
 #include "InteractionState.h"
 #include "imageproc/Constants.h"
 #include <QRect>
+#include <QRectF>
 #include <QSizeF>
+#include <QPolygonF>
 #include <QPainter>
 #include <QWheelEvent>
 #include <QVector>
@@ -45,17 +47,23 @@ double const ImageView::m_maxRotationSin = sin(
 int const ImageView::m_cellSize = 20;
 
 ImageView::ImageView(
-	QImage const& image, QImage const& downscaled_image,
-	ImageTransformation const& xform)
+	AffineTransformedImage const& full_size_image,
+	double rotation_angle_deg)
 :	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(xform.transform(), xform.resultingPreCropArea())
+		full_size_image.origImage(), ImagePixmapUnion(),
+		ImagePresentation(
+			full_size_image.xform().transform(),
+			full_size_image.xform().transformedCropArea()
+		)
 	),
 	m_handlePixmap(":/icons/aqua-sphere.png"),
 	m_dragHandler(*this),
 	m_zoomHandler(*this),
-	m_xform(xform)
+	m_beforeRotationTransform(full_size_image.xform()),
+	m_rotationAngleDeg(0)
 {
+	setRotationAngle(rotation_angle_deg, /*preserve_scale=*/false);
+
 	setMouseTracking(true);
 
 	interactionState().setDefaultStatusTip(
@@ -95,13 +103,27 @@ ImageView::~ImageView()
 
 void
 ImageView::manualDeskewAngleSetExternally(double const degrees)
+{	
+	setRotationAngle(degrees, /*preserve_scale=*/false);
+}
+
+void
+ImageView::setRotationAngle(double const degrees, bool preserve_scale)
 {
-	if (m_xform.postRotation() == degrees) {
-		return;
+	m_rotationAngleDeg = degrees;
+
+	AffineImageTransform rotated_transform(m_beforeRotationTransform);
+	rotated_transform.rotate(degrees);
+
+	ImagePresentation const presentation(
+		rotated_transform.transform(), rotated_transform.transformedCropArea()
+	);
+
+	if (preserve_scale) {
+		updateTransformPreservingScale(presentation);
+	} else {
+		updateTransform(presentation);
 	}
-	
-	m_xform.setPostRotation(degrees);
-	updateTransform(ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea()));
 }
 
 void
@@ -196,17 +218,14 @@ ImageView::onWheelEvent(QWheelEvent* event, InteractionState& interaction)
 	
 	event->accept();
 	double const delta = degree_fraction * event->delta() / 120;
-	double angle_deg = m_xform.postRotation() - delta;
+	double angle_deg = m_rotationAngleDeg - delta;
 	angle_deg = qBound(-m_maxRotationDeg, angle_deg, m_maxRotationDeg);
-	if (angle_deg == m_xform.postRotation()) {
+	if (angle_deg == m_rotationAngleDeg) {
 		return;
 	}
 
-	m_xform.setPostRotation(angle_deg);
-	updateTransformPreservingScale(
-		ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea())
-	);
-	emit manualDeskewAngleSet(m_xform.postRotation());
+	setRotationAngle(angle_deg, /*preserve_scale=*/false);
+	emit manualDeskewAngleSet(angle_deg);
 }
 
 QPointF
@@ -235,18 +254,17 @@ ImageView::handleMoveRequest(int idx, QPointF const& pos)
 	}
 	double angle_deg = angle_rad * imageproc::constants::RAD2DEG;
 	angle_deg = qBound(-m_maxRotationDeg, angle_deg, m_maxRotationDeg);
-	if (angle_deg == m_xform.postRotation()) {
+	if (angle_deg == m_rotationAngleDeg) {
 		return;
 	}
 
-	m_xform.setPostRotation(angle_deg);
-	updateTransformPreservingScale(ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea()));
+	setRotationAngle(angle_deg, /*preserve_scale=*/true);
 }
 
 void
 ImageView::dragFinished()
 {
-	emit manualDeskewAngleSet(m_xform.postRotation());
+	emit manualDeskewAngleSet(m_rotationAngleDeg);
 }
 
 /**
@@ -290,8 +308,10 @@ ImageView::getRotationArcSquare() const
 std::pair<QPointF, QPointF>
 ImageView::getRotationHandles(QRectF const& arc_square) const
 {
-	double const rot_sin = m_xform.postRotationSin();
-	double const rot_cos = m_xform.postRotationCos();
+	using imageproc::constants::DEG2RAD;
+
+	double const rot_sin = sin(m_rotationAngleDeg * DEG2RAD);
+	double const rot_cos = cos(m_rotationAngleDeg * DEG2RAD);
 	double const arc_radius = 0.5 * arc_square.width();
 	QPointF const arc_center(arc_square.center());
 	QPointF left_handle(-rot_cos * arc_radius, -rot_sin * arc_radius);

@@ -42,9 +42,8 @@ OptionsWidget::OptionsWidget(
 	PageSelectionAccessor const& page_selection_accessor)
 :	m_ptrSettings(settings),
 	m_pageSelectionAccessor(page_selection_accessor),
-	m_mmToUnit(1.0),
-	m_unitToMM(1.0),
 	m_ignoreMarginChanges(0),
+	m_ignoreMatchSizeModeChanges(0),
 	m_leftRightLinked(true),
 	m_topBottomLinked(true)
 {
@@ -104,10 +103,6 @@ OptionsWidget::OptionsWidget(
 	);
 	
 	connect(
-		unitsComboBox, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(unitsChanged(int))
-	);
-	connect(
 		topMarginSpinBox, SIGNAL(valueChanged(double)),
 		this, SLOT(vertMarginsChanged(double))
 	);
@@ -136,8 +131,16 @@ OptionsWidget::OptionsWidget(
 		this, SLOT(showApplyMarginsDialog())
 	);
 	connect(
-		alignWithOthersCB, SIGNAL(toggled(bool)),
-		this, SLOT(alignWithOthersToggled())
+		matchSizeDisabledRb, SIGNAL(toggled(bool)),
+		this, SLOT(matchSizeDisabledToggled(bool))
+	);
+	connect(
+		matchSizeMarginsRb, SIGNAL(toggled(bool)),
+		this, SLOT(matchSizeMarginsToggled(bool))
+	);
+	connect(
+		matchSizeScaleRb, SIGNAL(toggled(bool)),
+		this, SLOT(matchSizeScaleToggled(bool))
 	);
 	connect(
 		applyAlignmentBtn, SIGNAL(clicked()),
@@ -159,14 +162,15 @@ OptionsWidget::~OptionsWidget()
 
 void
 OptionsWidget::preUpdateUI(
-	PageId const& page_id, Margins const& margins_mm, Alignment const& alignment)
+	PageId const& page_id, RelativeMargins const& margins,
+	MatchSizeMode const& match_size_mode, Alignment const& alignment)
 {
 	m_pageId = page_id;
-	m_marginsMM = margins_mm;
+	m_margins = margins;
+	m_matchSizeMode = match_size_mode;
 	m_alignment = alignment;
 	
-	typedef AlignmentByButton::value_type KeyVal;
-	BOOST_FOREACH (KeyVal const& kv, m_alignmentByButton) {
+	for (auto const& kv : m_alignmentByButton) {
 		if (kv.second == m_alignment) {
 			kv.first->setChecked(true);
 		}
@@ -174,14 +178,26 @@ OptionsWidget::preUpdateUI(
 	
 	updateMarginsDisplay();
 	
-	alignWithOthersCB->blockSignals(true);
-	alignWithOthersCB->setChecked(!alignment.isNull());
-	alignWithOthersCB->blockSignals(false);
+	{
+		ScopedIncDec<int> const guard(m_ignoreMatchSizeModeChanges);
+
+		switch (match_size_mode.get()) {
+			case MatchSizeMode::DISABLED:
+				matchSizeDisabledRb->setChecked(true);
+				break;
+			case MatchSizeMode::GROW_MARGINS:
+				matchSizeMarginsRb->setChecked(true);
+				break;
+			case MatchSizeMode::SCALE:
+				matchSizeScaleRb->setChecked(true);
+				break;
+		}
+	}
 	
 	enableDisableAlignmentButtons();
 	
-	m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
-	m_topBottomLinked = m_topBottomLinked && (margins_mm.top() == margins_mm.bottom());
+	m_leftRightLinked = m_leftRightLinked && margins.horizontalMarginsApproxEqual();
+	m_topBottomLinked = m_topBottomLinked && margins.verticalMarginsApproxEqual();
 	updateLinkDisplay(topBottomLink, m_topBottomLinked);
 	updateLinkDisplay(leftRightLink, m_leftRightLinked);
 	
@@ -197,39 +213,9 @@ OptionsWidget::postUpdateUI()
 }
 
 void
-OptionsWidget::marginsSetExternally(Margins const& margins_mm)
+OptionsWidget::marginsSetExternally(RelativeMargins const& margins)
 {
-	m_marginsMM = margins_mm;
-	updateMarginsDisplay();
-}
-
-void
-OptionsWidget::unitsChanged(int const idx)
-{
-	int decimals = 0;
-	double step = 0.0;
-	
-	if (idx == 0) { // mm
-		m_mmToUnit = 1.0;
-		m_unitToMM = 1.0;
-		decimals = 1;
-		step = 1.0;
-	} else { // in
-		m_mmToUnit = MM2INCH;
-		m_unitToMM = INCH2MM;
-		decimals = 2;
-		step = 0.01;
-	}
-	
-	topMarginSpinBox->setDecimals(decimals);
-	topMarginSpinBox->setSingleStep(step);
-	bottomMarginSpinBox->setDecimals(decimals);
-	bottomMarginSpinBox->setSingleStep(step);
-	leftMarginSpinBox->setDecimals(decimals);
-	leftMarginSpinBox->setSingleStep(step);
-	rightMarginSpinBox->setDecimals(decimals);
-	rightMarginSpinBox->setSingleStep(step);
-	
+	m_margins = margins;
 	updateMarginsDisplay();
 }
 
@@ -246,10 +232,10 @@ OptionsWidget::horMarginsChanged(double const val)
 		rightMarginSpinBox->setValue(val);
 	}
 
-	m_marginsMM.setLeft(leftMarginSpinBox->value() * m_unitToMM);
-	m_marginsMM.setRight(rightMarginSpinBox->value() * m_unitToMM);
+	m_margins.setLeft(leftMarginSpinBox->value() / 100.0);
+	m_margins.setRight(rightMarginSpinBox->value() / 100.0);
 	
-	emit marginsSetLocally(m_marginsMM);
+	emit marginsSetLocally(m_margins);
 }
 
 void
@@ -265,10 +251,10 @@ OptionsWidget::vertMarginsChanged(double const val)
 		bottomMarginSpinBox->setValue(val);
 	}
 	
-	m_marginsMM.setTop(topMarginSpinBox->value() * m_unitToMM);
-	m_marginsMM.setBottom(bottomMarginSpinBox->value() * m_unitToMM);
+	m_margins.setTop(topMarginSpinBox->value() / 100.0);
+	m_margins.setBottom(bottomMarginSpinBox->value() / 100.0);
 	
-	emit marginsSetLocally(m_marginsMM);
+	emit marginsSetLocally(m_margins);
 }
 
 void
@@ -290,11 +276,42 @@ OptionsWidget::leftRightLinkClicked()
 }
 
 void
-OptionsWidget::alignWithOthersToggled()
+OptionsWidget::matchSizeDisabledToggled(bool selected)
 {
-	m_alignment.setNull(!alignWithOthersCB->isChecked());
+	if (!selected || m_ignoreMatchSizeModeChanges) {
+		return;
+	}
+
+	m_matchSizeMode.set(MatchSizeMode::DISABLED);
+
 	enableDisableAlignmentButtons();
-	emit alignmentChanged(m_alignment);
+	emit matchSizeModeChanged(m_matchSizeMode);
+}
+
+void
+OptionsWidget::matchSizeMarginsToggled(bool selected)
+{
+	if (!selected || m_ignoreMatchSizeModeChanges) {
+		return;
+	}
+
+	m_matchSizeMode.set(MatchSizeMode::GROW_MARGINS);
+
+	enableDisableAlignmentButtons();
+	emit matchSizeModeChanged(m_matchSizeMode);
+}
+
+void
+OptionsWidget::matchSizeScaleToggled(bool selected)
+{
+	if (!selected || m_ignoreMatchSizeModeChanges) {
+		return;
+	}
+
+	m_matchSizeMode.set(MatchSizeMode::SCALE);
+
+	enableDisableAlignmentButtons();
+	emit matchSizeModeChanged(m_matchSizeMode);
 }
 
 void
@@ -348,7 +365,7 @@ OptionsWidget::applyMargins(std::set<PageId> const& pages)
 	}
 	
 	BOOST_FOREACH(PageId const& page_id, pages) {
-		m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
+		m_ptrSettings->setHardMargins(page_id, m_margins);
 	}
 	
 	emit aggregateHardSizeChanged();
@@ -374,10 +391,10 @@ OptionsWidget::updateMarginsDisplay()
 {
 	ScopedIncDec<int> const ignore_scope(m_ignoreMarginChanges);
 	
-	topMarginSpinBox->setValue(m_marginsMM.top() * m_mmToUnit);
-	bottomMarginSpinBox->setValue(m_marginsMM.bottom() * m_mmToUnit);
-	leftMarginSpinBox->setValue(m_marginsMM.left() * m_mmToUnit);
-	rightMarginSpinBox->setValue(m_marginsMM.right() * m_mmToUnit);
+	topMarginSpinBox->setValue(m_margins.top() * 100.0);
+	bottomMarginSpinBox->setValue(m_margins.bottom() * 100.0);
+	leftMarginSpinBox->setValue(m_margins.left() * 100.0);
+	rightMarginSpinBox->setValue(m_margins.right() * 100.0);
 }
 
 void
@@ -389,7 +406,7 @@ OptionsWidget::updateLinkDisplay(QToolButton* button, bool const linked)
 void
 OptionsWidget::enableDisableAlignmentButtons()
 {
-	bool const enabled = alignWithOthersCB->isChecked();
+	bool const enabled = !matchSizeDisabledRb->isChecked();
 	
 	alignTopLeftBtn->setEnabled(enabled);
 	alignTopBtn->setEnabled(enabled);

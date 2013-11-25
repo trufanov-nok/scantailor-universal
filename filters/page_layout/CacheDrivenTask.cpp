@@ -21,7 +21,7 @@
 #include "Params.h"
 #include "Thumbnail.h"
 #include "IncompleteThumbnail.h"
-#include "ImageTransformation.h"
+#include "PageLayout.h"
 #include "PageInfo.h"
 #include "PageId.h"
 #include "Utils.h"
@@ -39,8 +39,8 @@ namespace page_layout
 CacheDrivenTask::CacheDrivenTask(
 	IntrusivePtr<output::CacheDrivenTask> const& next_task,
 	IntrusivePtr<Settings> const& settings)
-:	m_ptrNextTask(next_task),
-	m_ptrSettings(settings)
+:	m_ptrNextTask(next_task)
+,	m_ptrSettings(settings)
 {
 }
 
@@ -51,43 +51,47 @@ CacheDrivenTask::~CacheDrivenTask()
 void
 CacheDrivenTask::process(
 	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform, QRectF const& content_rect)
+	std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+	ContentBox const& content_box)
 {
 	std::auto_ptr<Params> const params(
 		m_ptrSettings->getPageParams(page_info.id())
 	);
-	if (!params.get() || !params->contentSizeMM().isValid()) {
+	if (!params.get() || !params->contentSize().isValid()) {
 		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 			thumb_col->processThumbnail(
 				std::auto_ptr<QGraphicsItem>(
 					new IncompleteThumbnail(
 						thumb_col->thumbnailCache(),
 						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), xform
+						page_info.id(), *full_size_image_transform
 					)
 				)
 			);
 		}
 		return;
 	}
-	
-	QRectF const adapted_content_rect(
-		Utils::adaptContentRect(xform, content_rect)
+
+	QRectF const unscaled_content_rect(
+		content_box.toTransformedRect(*full_size_image_transform)
 	);
-	QPolygonF const content_rect_phys(
-		xform.transformBack().map(adapted_content_rect)
+
+	std::shared_ptr<AbstractImageTransform> adjusted_transform(
+		full_size_image_transform->clone()
 	);
-	QPolygonF const page_rect_phys(
-		Utils::calcPageRectPhys(
-			xform, content_rect_phys, *params,
-			m_ptrSettings->getAggregateHardSizeMM()
-		)
+
+	PageLayout page_layout(
+		unscaled_content_rect, m_ptrSettings->getAggregateHardSize(),
+		params->matchSizeMode(), params->alignment(), params->hardMargins()
 	);
-	ImageTransformation new_xform(xform);
-	new_xform.setPostCropArea(xform.transform().map(page_rect_phys));
-	
+	page_layout.absorbScalingIntoTransform(*adjusted_transform);
+
 	if (m_ptrNextTask) {
-		m_ptrNextTask->process(page_info, collector, new_xform, content_rect_phys);
+
+		m_ptrNextTask->process(
+			page_info, adjusted_transform,
+			page_layout.innerRect(), page_layout.outerRect(), collector
+		);
 		return;
 	}
 	
@@ -98,8 +102,8 @@ CacheDrivenTask::process(
 				new Thumbnail(
 					thumb_col->thumbnailCache(),
 					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), *params,
-					new_xform, content_rect_phys
+					page_info.id(), *params,
+					*adjusted_transform, page_layout
 				)
 			)
 		);

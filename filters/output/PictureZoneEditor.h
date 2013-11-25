@@ -36,8 +36,8 @@
 #include <QPoint>
 #include <QTimer>
 #include <QPixmap>
+#include <functional>
 
-class ImageTransformation;
 class InteractionState;
 class QPainter;
 class QMenu;
@@ -52,11 +52,26 @@ class PictureZoneEditor : public ImageViewBase, private InteractionHandler
 {
 	Q_OBJECT
 public:
+	/**
+	 * @param transformed_orig_image The original image transformed
+	 *        into output image coordinates.
+	 * @param downscaled_transformed_orig_image A downscaled version of
+	 *        @p transformed_orig_image or a default-constructed ImagePixmapUnion.
+	 *        Use ImageViewBase::createDownscaledImage() to create a downscaled image.
+	 * @param output_picture_mask A binary image in output image coordinates
+	 *        where white pixels correspond to auto-detected picture areas.
+	 * @param page_id Identifies the page.
+	 * @param settings Output stage settings.
+	 * @param orig_to_output Mapper from original to output image coordinates.
+	 * @param output_to_orig Mapper from output to original image coordinates.
+	 */
 	PictureZoneEditor(
-		QImage const& image, ImagePixmapUnion const& downscaled_image,
-		imageproc::BinaryImage const& picture_mask,
-		QTransform const& image_to_virt, QPolygonF const& virt_display_area,
-		PageId const& page_id, IntrusivePtr<Settings> const& settings);
+		QImage const& transformed_orig_image,
+		ImagePixmapUnion const& downscaled_transformed_orig_image,
+		imageproc::BinaryImage const& output_picture_mask,
+		PageId const& page_id, IntrusivePtr<Settings> const& settings,
+		std::function<QPointF(QPointF const&)> const& orig_to_output,
+		std::function<QPointF(QPointF const&)> const& output_to_orig);
 	
 	virtual ~PictureZoneEditor();
 signals:
@@ -92,7 +107,7 @@ private:
 	DragHandler m_dragHandler;
 	ZoomHandler m_zoomHandler;
 
-	imageproc::BinaryImage m_origPictureMask;
+	imageproc::BinaryImage m_outputPictureMask;
 	QPixmap m_screenPictureMask;
 	QPoint m_screenPictureMaskOrigin;
 	QTransform m_screenPictureMaskXform;
@@ -104,6 +119,8 @@ private:
 
 	PageId m_pageId;
 	IntrusivePtr<Settings> m_ptrSettings;
+	std::function<QPointF(QPointF const&)> m_origToOutput;
+	std::function<QPointF(QPointF const&)> m_outputToOrig;
 };
 
 } // namespace output

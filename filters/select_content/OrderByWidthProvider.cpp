@@ -39,11 +39,11 @@ OrderByWidthProvider::precedes(
 	
 	QSizeF lhs_size;
 	if (lhs_params.get()) {
-		lhs_size = lhs_params->contentSizeMM();
+		lhs_size = lhs_params->contentSizePx();
 	}
 	QSizeF rhs_size;
 	if (rhs_params.get()) {
-		rhs_size = rhs_params->contentSizeMM();
+		rhs_size = rhs_params->contentSizePx();
 	}
 	
 	bool const lhs_valid = !lhs_incomplete && lhs_size.isValid();

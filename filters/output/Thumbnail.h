@@ -22,8 +22,8 @@
 #include "ThumbnailBase.h"
 #include "IntrusivePtr.h"
 
+class AbstractImageTransform;
 class ThumbnailPixmapCache;
-class ImageTransformation;
 class ImageId;
 class QSizeF;
 
@@ -34,8 +34,8 @@ class Thumbnail : public ThumbnailBase
 {
 public:
 	Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& xform);
+		QSizeF const& max_size, PageId const& page_id,
+		AbstractImageTransform const& full_size_image_transform);
 };
 
 } // namespace output

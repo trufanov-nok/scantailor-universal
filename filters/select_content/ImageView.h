@@ -28,8 +28,11 @@
 #include <QRectF>
 #include <QSizeF>
 #include <QString>
+#include <memory>
 
-class ImageTransformation;
+class AbstractImageTransform;
+class AffineTransformedImage;
+class ContentBox;
 class QMenu;
 
 namespace select_content
@@ -42,16 +45,23 @@ class ImageView :
 	Q_OBJECT
 public:
 	/**
-	 * \p content_rect is in virtual image coordinates.
+	 * @param orig_transform Transformation from original image to virtual
+	 *        coordinate system.
+	 * @param affine_transformed_image Either the original image or a dewarped
+	 *        version of it, plus an affine transform whose target space
+	 *        is the same as the target space of \p orig_transform.
+	 * @param content_box ContentBox internal representation is in source
+	 *        space of \p orig_transform.
 	 */
 	ImageView(
-		QImage const& image, QImage const& downscaled_image,
-		ImageTransformation const& xform,
-		QRectF const& content_rect);
+		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
+		AffineTransformedImage const& affine_transformed_image,
+		ContentBox const& content_box);
 	
 	virtual ~ImageView();
 signals:
-	void manualContentRectSet(QRectF const& content_rect);
+	void manualContentBoxSet(
+		ContentBox const& content_box, QSizeF const& content_size_px);
 private slots:
 	void createContentBox();
 	
@@ -94,9 +104,8 @@ private:
 	 */
 	QMenu* m_pHaveContentMenu;
 	
-	/**
-	 * Content box in virtual image coordinates.
-	 */
+	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
+
 	QRectF m_contentRect;
 
 	QSizeF m_minBoxSize;

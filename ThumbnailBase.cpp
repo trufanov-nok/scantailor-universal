@@ -43,14 +43,14 @@
 using namespace imageproc;
 
 class ThumbnailBase::LoadCompletionHandler :
-	public AbstractCommand1<void, ThumbnailLoadResult const&>
+	public AbstractCommand1<void, ThumbnailLoadResult::Status>
 {
 	DECLARE_NON_COPYABLE(LoadCompletionHandler)
 public:
 	LoadCompletionHandler(ThumbnailBase* thumb) : m_pThumb(thumb) {}
 	
-	virtual void operator()(ThumbnailLoadResult const& result) {
-		m_pThumb->handleLoadResult(result);
+	virtual void operator()(ThumbnailLoadResult::Status status) {
+		m_pThumb->handleLoadResult(status);
 	}
 private:
 	ThumbnailBase* m_pThumb;
@@ -59,15 +59,15 @@ private:
 
 ThumbnailBase::ThumbnailBase(
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-	QSizeF const& max_size, ImageId const& image_id,
-	ImageTransformation const& image_xform)
+	QSizeF const& max_display_size, PageId const& page_id,
+	AbstractImageTransform const& full_size_image_transform,
+	boost::optional<QRectF> const& transformed_viewport)
 :	m_ptrThumbnailCache(thumbnail_cache),
-	m_maxSize(max_size),
-	m_imageId(image_id),
-	m_imageXform(image_xform),
+	m_maxDisplaySize(max_display_size),
+	m_pageId(page_id),
 	m_extendedClipArea(false)
 {
-	setImageXform(m_imageXform);
+	setFullSizeToVirtualTransform(full_size_image_transform, transformed_viewport);
 }
 
 ThumbnailBase::~ThumbnailBase()
@@ -84,23 +84,26 @@ void
 ThumbnailBase::paint(QPainter* painter,
 	QStyleOptionGraphicsItem const* option, QWidget *widget)
 {
-	QPixmap pixmap;
-	
+	ThumbnailLoadResult res(ThumbnailLoadResult::QUEUED);
+
 	if (!m_ptrCompletionHandler.get()) {
 		boost::shared_ptr<LoadCompletionHandler> handler(
 			new LoadCompletionHandler(this)
 		);
-		ThumbnailPixmapCache::Status const status =
-			m_ptrThumbnailCache->loadRequest(m_imageId, pixmap, handler);
-		if (status == ThumbnailPixmapCache::QUEUED) {
+		res = m_ptrThumbnailCache->loadRequest(
+			m_pageId, *m_ptrFullSizeImageTransform, handler
+		);
+		if (res.status() == ThumbnailLoadResult::QUEUED) {
 			m_ptrCompletionHandler.swap(handler);
 		}
 	}
 	
-	QTransform const image_to_display(m_postScaleXform * painter->worldTransform());
+	QTransform const full_size_transformed_to_display(
+		m_postTransform * painter->worldTransform()
+	);
 	QTransform const thumb_to_display(painter->worldTransform());
 	
-	if (pixmap.isNull()) {
+	if (res.status() != ThumbnailLoadResult::LOADED) {
 		double const border = 1.0;
 		double const shadow = 2.0;
 		QRectF rect(m_boundingRect);
@@ -109,45 +112,30 @@ ThumbnailBase::paint(QPainter* painter,
 		painter->fillRect(m_boundingRect, QColor(0x00, 0x00, 0x00));
 		painter->fillRect(rect, QColor(0xff, 0xff, 0xff));
 		
-		paintOverImage(*painter, image_to_display, thumb_to_display);
+		paintOverImage(*painter, full_size_transformed_to_display, thumb_to_display);
 		return;
 	}
-	
-	
-	QSizeF const orig_image_size(m_imageXform.origRect().size());
-	double const x_pre_scale = orig_image_size.width() / pixmap.width();
-	double const y_pre_scale = orig_image_size.height() / pixmap.height();
-	QTransform pre_scale_xform;
-	pre_scale_xform.scale(x_pre_scale, y_pre_scale);
-	
+
 	QTransform const pixmap_to_thumb(
-		pre_scale_xform * m_imageXform.transform() * m_postScaleXform
+		res.pixmapTransform()->transform() * m_postTransform
 	);
-	
-	// The polygon to draw into in original image coordinates.
-	QPolygonF image_poly(PolygonUtils::round(m_imageXform.resultingPostCropArea()));
-	if (!m_extendedClipArea) {
-		image_poly = image_poly.intersected(
-			PolygonUtils::round(
-				m_imageXform.transform().map(m_imageXform.origRect())
-			)
-		);
-	}
-	
-	// The polygon to draw into in display coordinates.
-	QPolygonF display_poly(image_to_display.map(image_poly));
-	
-	QRectF display_rect(display_poly.boundingRect());
-	display_rect.setTop(floor(display_rect.top()));
-	display_rect.setLeft(floor(display_rect.left()));
-	display_rect.setBottom(ceil(display_rect.bottom()));
-	display_rect.setRight(ceil(display_rect.right()));
-		
+
+	QRectF const display_rect(
+		full_size_transformed_to_display.mapRect(m_transformedViewport)
+	);
+
 	QPixmap temp_pixmap;
 	QString const cache_key(QString::fromLatin1("ThumbnailBase::temp_pixmap"));
-	if (!QPixmapCache::find(cache_key, temp_pixmap)
-			|| temp_pixmap.width() < display_rect.width()
-			|| temp_pixmap.height() < display_rect.width()) {
+	if (QPixmapCache::find(cache_key, temp_pixmap)
+			&& temp_pixmap.width() >= display_rect.width()
+			&& temp_pixmap.height() >= display_rect.width()) {
+#if 0
+		// Since below we are drawing with QPainter::CompositionMode_Source,
+		// which overwrites destination pixels rather than blending with them,
+		// we can skip clearing the pixmap.
+		temp_pixmap.fill(Qt::transparent);
+#endif
+	} else {
 		int w = (int)display_rect.width();
 		int h = (int)display_rect.height();
 		
@@ -164,49 +152,58 @@ ThumbnailBase::paint(QPainter* painter,
 		
 		QPixmapCache::insert(cache_key, temp_pixmap);
 	}
-	
+
 	QPainter temp_painter;
 	temp_painter.begin(&temp_pixmap);
-	
+	temp_painter.save();
+
 	QTransform temp_adjustment;
 	temp_adjustment.translate(-display_rect.left(), -display_rect.top());
-	
-	temp_painter.setWorldTransform(
-		pixmap_to_thumb * thumb_to_display * temp_adjustment
-	);
-	
-	// Turn off alpha compositing.
+
+	// Setup for drawing in res.pixmap() coordinates.
+	temp_painter.setWorldTransform(pixmap_to_thumb * thumb_to_display * temp_adjustment);
+
+	// Draw the thumbnail.
 	temp_painter.setCompositionMode(QPainter::CompositionMode_Source);
-	
-	temp_painter.setRenderHint(QPainter::SmoothPixmapTransform);
-	temp_painter.setRenderHint(QPainter::Antialiasing);
-	
-	PixmapRenderer::drawPixmap(temp_painter, pixmap);
-	
-	// Turn alpha compositing on again.
-	temp_painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-	
+	temp_painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+	temp_painter.setRenderHint(QPainter::Antialiasing, true);
+	temp_painter.drawPixmap(0, 0, res.pixmap());
+
+	// We could have used setClipPath() before drawing the pixmap above,
+	// however QPainter::Antialiasing flag is getting ignored in that case
+	// for some reason, even though it works fine in ImageViewBase.
+	// Instead we are going to clear the areas in temp_pixmap outside of
+	// the crop area.
+
+	// Setup for drawing in display coordinates.
+	temp_painter.setWorldTransform(temp_adjustment);
+
+	QPainterPath outer_path;
+	outer_path.addRect(display_rect);
+
+	QPainterPath inner_path;
+	inner_path.addPolygon(
+		full_size_transformed_to_display.map(
+			m_ptrFullSizeImageTransform->transformedCropArea()
+		)
+	);
+
+	// Clear the area outside of the thumbnail.
+	temp_painter.fillPath(outer_path.subtracted(inner_path), Qt::transparent);
+
+	temp_painter.restore();
+
 	// Setup the painter for drawing in thumbnail coordinates,
 	// as required for paintOverImage().
 	temp_painter.setWorldTransform(thumb_to_display * temp_adjustment);
-	
-	temp_painter.save();
+
 	paintOverImage(
-		temp_painter, image_to_display * temp_adjustment,
+		temp_painter, full_size_transformed_to_display * temp_adjustment,
 		thumb_to_display * temp_adjustment
 	);
-	temp_painter.restore();
-	
-	temp_painter.setPen(Qt::NoPen);
-	temp_painter.setBrush(Qt::white);
-	temp_painter.setWorldTransform(temp_adjustment);
-	temp_painter.setCompositionMode(QPainter::CompositionMode_Clear);
-	temp_painter.drawPolygon(
-		QPolygonF(display_rect).subtracted(PolygonUtils::round(display_poly))
-	);
-	
+
 	temp_painter.end();
-	
+
 	painter->setWorldTransform(QTransform());
 	painter->setClipRect(display_rect);
 	painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
@@ -215,32 +212,38 @@ ThumbnailBase::paint(QPainter* painter,
 }
 
 void
-ThumbnailBase::setImageXform(ImageTransformation const& image_xform)
+ThumbnailBase::setFullSizeToVirtualTransform(
+	AbstractImageTransform const& transform,
+	boost::optional<QRectF> const& transformed_viewport)
 {
-	m_imageXform = image_xform;
-	QSizeF const unscaled_size(
-		image_xform.resultingRect().size().expandedTo(QSizeF(1, 1))
-	);
+	m_ptrFullSizeImageTransform = transform.clone();
+
+	if (transformed_viewport) {
+		m_transformedViewport = *transformed_viewport;
+	} else {
+		m_transformedViewport = transform.transformedCropArea().boundingRect();
+	}
+
+	QSizeF const unscaled_size(m_transformedViewport.size().expandedTo(QSize(1, 1)));
 	QSizeF scaled_size(unscaled_size);
-	scaled_size.scale(m_maxSize, Qt::KeepAspectRatio);
+	scaled_size.scale(m_maxDisplaySize, Qt::KeepAspectRatio);
 	
 	m_boundingRect = QRectF(QPointF(0.0, 0.0), scaled_size);
-	
+
 	double const x_post_scale = scaled_size.width() / unscaled_size.width();
 	double const y_post_scale = scaled_size.height() / unscaled_size.height();
-	m_postScaleXform.reset();
-	m_postScaleXform.scale(x_post_scale, y_post_scale);
+
+	m_postTransform.reset();
+	m_postTransform.scale(x_post_scale, y_post_scale);
+	m_postTransform.translate(-m_transformedViewport.x(), -m_transformedViewport.y());
 }
 
 void
-ThumbnailBase::handleLoadResult(ThumbnailLoadResult const& result)
+ThumbnailBase::handleLoadResult(ThumbnailLoadResult::Status status)
 {
 	m_ptrCompletionHandler.reset();
-	
-	if (result.status() != ThumbnailLoadResult::LOAD_FAILED) {
-		// Note that we don't store result.pixmap() in
-		// this object, because we may have already went
-		// out of view, so we may never receive a paint event.
+
+	if (status != ThumbnailLoadResult::LOAD_FAILED) {
 		update();
 	}
 }

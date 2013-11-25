@@ -66,7 +66,6 @@ class ProjectOpeningContext;
 class CompositeCacheDrivenTask;
 class TabbedDebugImages;
 class ProcessingTaskQueue;
-class FixDpiDialog;
 class OutOfMemoryDialog;
 class QLineF;
 class QRectF;
@@ -144,10 +143,6 @@ private slots:
 		FilterResultPtr const& result);
 	
 	void debugToggled(bool enabled);
-	
-	void fixDpiDialogRequested();
-
-	void fixedDpiSubmitted();
 
 	void saveProjectTriggered();
 	
@@ -283,7 +278,6 @@ private:
 	QStackedLayout* m_pImageFrameLayout;
 	QStackedLayout* m_pOptionsFrameLayout;
 	QPointer<FilterOptionsWidget> m_ptrOptionsWidget;
-	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
 	std::auto_ptr<TabbedDebugImages> m_ptrTabbedDebugImages;
 	std::auto_ptr<ContentBoxPropagator> m_ptrContentBoxPropagator;
 	std::auto_ptr<PageOrientationPropagator> m_ptrPageOrientationPropagator;

@@ -17,7 +17,9 @@
 */
 
 #include "LoadFileTask.h"
-#include "filters/fix_orientation/Task.h"
+#include "AffineImageTransform.h"
+#include "AffineTransformedImage.h"
+#include "CachingFactory.h"
 #include "TaskStatus.h"
 #include "FilterResult.h"
 #include "ErrorWidget.h"
@@ -27,18 +29,15 @@
 #include "ThumbnailPixmapCache.h"
 #include "ProjectPages.h"
 #include "PageInfo.h"
-#include "Dpi.h"
-#include "Dpm.h"
-#include "FilterData.h"
 #include "ImageLoader.h"
+#include "imageproc/GrayImage.h"
+#include "filters/fix_orientation/Task.h"
 #include <QCoreApplication>
 #include <QFile>
 #include <QDir>
 #include <QImage>
 #include <QString>
 #include <assert.h>
-
-using namespace imageproc;
 
 class LoadFileTask::ErrorResult : public FilterResult
 {
@@ -64,7 +63,7 @@ LoadFileTask::LoadFileTask(
 	IntrusivePtr<fix_orientation::Task> const& next_task)
 :	BackgroundTask(type),
 	m_ptrThumbnailCache(thumbnail_cache),
-	m_imageId(page.imageId()),
+	m_pageId(page.id()),
 	m_imageMetadata(page.metadata()),
 	m_ptrPages(pages),
 	m_ptrNextTask(next_task)
@@ -79,18 +78,29 @@ LoadFileTask::~LoadFileTask()
 FilterResultPtr
 LoadFileTask::operator()()
 {
-	QImage image(ImageLoader::load(m_imageId));
+	using namespace imageproc;
+
+	QImage image(ImageLoader::load(m_pageId.imageId()));
 	
 	try {
 		throwIfCancelled();
 		
 		if (image.isNull()) {
-			return FilterResultPtr(new ErrorResult(m_imageId.filePath()));
+			return FilterResultPtr(new ErrorResult(m_pageId.imageId().filePath()));
 		} else {
 			updateImageSizeIfChanged(image);
-			overrideDpi(image);
-			m_ptrThumbnailCache->ensureThumbnailExists(m_imageId, image);
-			return m_ptrNextTask->process(*this, FilterData(image));
+
+			// It's a good time to create a thumbnail if it's missing.
+			AffineImageTransform const transform(image.size());
+			m_ptrThumbnailCache->ensureThumbnailExists(m_pageId, image, transform);
+
+			CachingFactory<GrayImage> gray_image_factory([image]() {
+				return GrayImage(image);
+			});
+
+			return m_ptrNextTask->process(
+				*this, image, gray_image_factory, transform
+			);
 		}
 	} catch (CancelledException const&) {
 		return FilterResultPtr();
@@ -102,26 +112,10 @@ LoadFileTask::updateImageSizeIfChanged(QImage const& image)
 {
 	// The user might just replace a file with another one.
 	// In that case, we update its size that we store.
-	// Note that we don't do the same about DPI, because
-	// a DPI mismatch between the image and the stored value
-	// may indicate that the DPI was overridden.
-	// TODO: do something about DPIs when we have the ability
-	// to change DPIs at any point in time (not just when
-	// creating a project).
 	if (image.size() != m_imageMetadata.size()) {
 		m_imageMetadata.setSize(image.size());
-		m_ptrPages->updateImageMetadata(m_imageId, m_imageMetadata);
+		m_ptrPages->updateImageMetadata(m_pageId.imageId(), m_imageMetadata);
 	}
-}
-
-void
-LoadFileTask::overrideDpi(QImage& image) const
-{
-	// Beware: QImage will have a default DPI when loading
-	// an image that doesn't specify one.
-	Dpm const dpm(m_imageMetadata.dpi());
-	image.setDotsPerMeterX(dpm.horizontal());
-	image.setDotsPerMeterY(dpm.vertical());
 }
 
 

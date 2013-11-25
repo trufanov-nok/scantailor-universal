@@ -21,11 +21,10 @@
 
 #include "NonCopyable.h"
 #include "RefCountable.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
 #include <memory>
 
 class PageId;
-class Margins;
 class PageSequence;
 class AbstractRelinker;
 class QSizeF;
@@ -34,6 +33,7 @@ namespace page_layout
 {
 
 class Params;
+class MatchSizeMode;
 class Alignment;
 
 class Settings : public RefCountable
@@ -42,7 +42,7 @@ class Settings : public RefCountable
 public:
 	enum AggregateSizeChanged { AGGREGATE_SIZE_UNCHANGED, AGGREGATE_SIZE_CHANGED };
 	
-	static Margins defaultHardMarginsMM() { return Margins(10.0, 5.0, 10.0, 5.0); }
+	static RelativeMargins defaultHardMargins() { return RelativeMargins(0.05, 0.05, 0.05, 0.05); }
 
 	Settings();
 	
@@ -87,7 +87,7 @@ public:
 	 * \brief Updates content size and returns all parameters at once.
 	 */
 	Params updateContentSizeAndGetParams(
-		PageId const& page_id, QSizeF const& content_size_mm,
+		PageId const& page_id, QSizeF const& content_size,
 		QSizeF* agg_hard_size_before = 0,
 		QSizeF* agg_hard_size_after = 0);
 	
@@ -101,7 +101,7 @@ public:
 	 * If no margins were assigned to the specified page, the default
 	 * margins are returned.
 	 */
-	Margins getHardMarginsMM(PageId const& page_id) const;
+	RelativeMargins getHardMargins(PageId const& page_id) const;
 	
 	/**
 	 * \brief Sets hard margins for the specified page.
@@ -110,8 +110,28 @@ public:
 	 * Soft margins are those added to extend the page to match its
 	 * size with other pages.
 	 */
-	void setHardMarginsMM(PageId const& page_id, Margins const& margins_mm);
+	void setHardMargins(PageId const& page_id, RelativeMargins const& margins);
 	
+	/**
+	 * \brief Returns the match size mode for the specified page.
+	 *
+	 * The match-size mode defines whether and how this page will try to match
+	 * the size of other pages and whether it will affect the size of other pages.
+	 * \par
+	 * If no match size mode was specified, the default mode is returned,
+	 * which is MatchSizeMode::GROW_MARGINS.
+	 */
+	MatchSizeMode getMatchSizeMode(PageId const& page_id) const;
+
+	/**
+	 * \brief Sets the match-size mode for the specified page.
+	 *
+	 * The match-size mode defines whether and how this page will try to match
+	 * the size of other pages and whether it will affect the size of other pages.
+	 */
+	AggregateSizeChanged setMatchSizeMode(
+		PageId const& page_id, MatchSizeMode const& match_size_mode);
+
 	/**
 	 * \brief Returns the alignment for the specified page.
 	 *
@@ -125,36 +145,35 @@ public:
 	/**
 	 * \brief Sets alignment for the specified page.
 	 *
-	 * Alignments affect the distribution of soft margins and whether this
-	 * page's size affects others and vice versa.
+	 * Alignments affect the distribution of soft margins.
 	 */
-	AggregateSizeChanged setPageAlignment(PageId const& page_id, Alignment const& alignment);
+	void setPageAlignment(PageId const& page_id, Alignment const& alignment);
 	
 	/**
 	 * \brief Sets content size in millimeters for the specified page.
 	 *
 	 * The content size comes from the "Select Content" filter.
 	 */
-	AggregateSizeChanged setContentSizeMM(
-		PageId const& page_id, QSizeF const& content_size_mm);
+	AggregateSizeChanged setContentSize(
+		PageId const& page_id, QSizeF const& content_size);
 	
 	void invalidateContentSize(PageId const& page_id);
 	
 	/**
 	 * \brief Returns the aggregate (max width + max height) hard page size.
 	 */
-	QSizeF getAggregateHardSizeMM() const;
+	QSizeF getAggregateHardSize() const;
 	
 	/**
-	 * \brief Same as getAggregateHardSizeMM(), but assumes a specified
-	 *        size and alignment for a specified page.
+	 * \brief Same as getAggregateHardSize(), but assumes a specified
+	 *        size and match-size mode for a specified page.
 	 *
 	 * This function doesn't modify anything, it just pretends that
-	 * the size and alignment of a specified page have changed.
+	 * the size and match-size mode of a specified page have changed.
 	 */
-	QSizeF getAggregateHardSizeMM(
-		PageId const& page_id, QSizeF const& hard_size_mm,
-		Alignment const& alignment) const;
+	QSizeF getAggregateHardSize(
+		PageId const& page_id, QSizeF const& hard_size,
+		MatchSizeMode const& match_size_mode) const;
 private:
 	class Impl;
 	class Item;

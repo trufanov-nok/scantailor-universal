@@ -25,8 +25,7 @@
 #include <vector>
 
 class QLineF;
-class QImage;
-class ImageTransformation;
+class AffineTransformedImage;
 class DebugImages;
 
 namespace imageproc
@@ -41,10 +40,8 @@ class VertLineFinder
 {
 public:
 	static std::vector<QLineF> findLines(
-		QImage const& image, ImageTransformation const& xform,
-		int max_lines, DebugImages* dbg = 0,
-		imageproc::GrayImage* gray_downscaled = 0,
-		QTransform* out_to_downscaled = 0);
+		AffineTransformedImage const& image,
+		int max_lines, DebugImages* dbg = nullptr);
 private:
 	class QualityLine
 	{

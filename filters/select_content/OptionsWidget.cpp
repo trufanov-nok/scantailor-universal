@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #include "Settings.h"
 #include "Params.h"
 #include "ScopedIncDec.h"
-#include <boost/foreach.hpp>
+#include <cassert>
 
 namespace select_content
 {
@@ -56,19 +56,23 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 }
 
 void
-OptionsWidget::postUpdateUI(UiData const& ui_data)
+OptionsWidget::postUpdateUI(Params const& params)
 {
-	m_uiData = ui_data;
-	updateModeIndication(ui_data.mode());
+	m_params = params;
+	updateModeIndication(params.mode());
 	autoBtn->setEnabled(true);
 	manualBtn->setEnabled(true);
 }
 
 void
-OptionsWidget::manualContentRectSet(QRectF const& content_rect)
+OptionsWidget::manualContentBoxSet(
+	ContentBox const& content_box, QSizeF const& content_size_px)
 {
-	m_uiData.setContentRect(content_rect);
-	m_uiData.setMode(MODE_MANUAL);
+	assert(m_params);
+
+	m_params->setContentBox(content_box);
+	m_params->setContentSizePx(content_size_px);
+	m_params->setMode(MODE_MANUAL);
 	updateModeIndication(MODE_MANUAL);
 	commitCurrentParams();
 	
@@ -83,11 +87,12 @@ OptionsWidget::modeChanged(bool const auto_mode)
 	}
 	
 	if (auto_mode) {
-		m_uiData.setMode(MODE_AUTO);
+		m_params.reset();
 		m_ptrSettings->clearPageParams(m_pageId);
 		emit reloadRequested();
 	} else {
-		m_uiData.setMode(MODE_MANUAL);
+		assert(m_params);
+		m_params->setMode(MODE_MANUAL);
 		commitCurrentParams();
 	}
 }
@@ -107,11 +112,8 @@ OptionsWidget::updateModeIndication(AutoManualMode const mode)
 void
 OptionsWidget::commitCurrentParams()
 {
-	Params const params(
-		m_uiData.contentRect(), m_uiData.contentSizeMM(),
-		m_uiData.dependencies(), m_uiData.mode()
-	);
-	m_ptrSettings->setPageParams(m_pageId, params);
+	assert(m_params);
+	m_ptrSettings->setPageParams(m_pageId, *m_params);
 }
 
 void
@@ -134,75 +136,13 @@ OptionsWidget::applySelection(std::set<PageId> const& pages)
 	if (pages.empty()) {
 		return;
 	}
-	
-	Params const params(
-		m_uiData.contentRect(), m_uiData.contentSizeMM(),
-		m_uiData.dependencies(), m_uiData.mode()
-	);
 
-	BOOST_FOREACH(PageId const& page_id, pages) {
-		m_ptrSettings->setPageParams(page_id, params);
+	assert(m_params);
+
+	for (PageId const& page_id : pages) {
+		m_ptrSettings->setPageParams(page_id, *m_params);
 		emit invalidateThumbnail(page_id);
 	}
-}
-
-/*========================= OptionsWidget::UiData ======================*/
-
-OptionsWidget::UiData::UiData()
-:	m_mode(MODE_AUTO)
-{
-}
-
-OptionsWidget::UiData::~UiData()
-{
-}
-
-void
-OptionsWidget::UiData::setSizeCalc(PhysSizeCalc const& calc)
-{
-	m_sizeCalc = calc;
-}
-
-void
-OptionsWidget::UiData::setContentRect(QRectF const& content_rect)
-{
-	m_contentRect = content_rect;
-}
-
-QRectF const&
-OptionsWidget::UiData::contentRect() const
-{
-	return m_contentRect;
-}
-
-QSizeF
-OptionsWidget::UiData::contentSizeMM() const
-{
-	return m_sizeCalc.sizeMM(m_contentRect);
-}
-
-void
-OptionsWidget::UiData::setDependencies(Dependencies const& deps)
-{
-	m_deps = deps;
-}
-
-Dependencies const&
-OptionsWidget::UiData::dependencies() const
-{
-	return m_deps;
-}
-
-void
-OptionsWidget::UiData::setMode(AutoManualMode const mode)
-{
-	m_mode = mode;
-}
-
-AutoManualMode
-OptionsWidget::UiData::mode() const
-{
-	return m_mode;
 }
 
 } // namespace select_content

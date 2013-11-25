@@ -18,8 +18,7 @@
 
 #include "XmlMarshaller.h"
 #include "OrthogonalRotation.h"
-#include "Margins.h"
-#include "Dpi.h"
+#include "RelativeMargins.h"
 #include "Utils.h"
 #include <boost/foreach.hpp>
 #include <QPointF>
@@ -62,19 +61,6 @@ XmlMarshaller::sizeF(QSizeF const& size, QString const& name)
 	QDomElement el(m_doc.createElement(name));
 	el.setAttribute("width", Utils::doubleToString(size.width()));
 	el.setAttribute("height", Utils::doubleToString(size.height()));
-	return el;
-}
-
-QDomElement
-XmlMarshaller::dpi(Dpi const& dpi, QString const& name)
-{
-	if (dpi.isNull()) {
-		return QDomElement();
-	}
-	
-	QDomElement el(m_doc.createElement(name));
-	el.setAttribute("horizontal", dpi.horizontal());
-	el.setAttribute("vertical", dpi.vertical());
 	return el;
 }
 
@@ -142,7 +128,7 @@ XmlMarshaller::polygonF(QPolygonF const& poly, QString const& name)
 }
 
 QDomElement
-XmlMarshaller::margins(Margins const& margins, QString const& name)
+XmlMarshaller::relativeMargins(RelativeMargins const& margins, QString const& name)
 {
 	QDomElement el(m_doc.createElement(name));
 	el.setAttribute("left", Utils::doubleToString(margins.left()));

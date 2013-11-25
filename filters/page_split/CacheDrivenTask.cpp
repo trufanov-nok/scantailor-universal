@@ -21,7 +21,7 @@
 #include "IncompleteThumbnail.h"
 #include "Settings.h"
 #include "PageInfo.h"
-#include "ImageTransformation.h"
+#include "AffineImageTransform.h"
 #include "filter_dc/AbstractFilterDataCollector.h"
 #include "filter_dc/ThumbnailCollector.h"
 #include "filters/deskew/CacheDrivenTask.h"
@@ -42,15 +42,15 @@ CacheDrivenTask::~CacheDrivenTask()
 }
 
 void
-CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform)
+CacheDrivenTask::process(PageInfo const& page_info,
+	OrthogonalRotation const& pre_rotation,
+	AffineImageTransform const& image_transform,
+	AbstractFilterDataCollector* collector)
 {
 	Settings::Record const record(
 		m_ptrSettings->getPageRecord(page_info.imageId())
 	);
 	
-	OrthogonalRotation const pre_rotation(xform.preRotation());
 	Dependencies const deps(
 		page_info.metadata().size(), pre_rotation,
 		record.combinedLayoutType()
@@ -65,7 +65,7 @@ CacheDrivenTask::process(
 					new IncompleteThumbnail(
 						thumb_col->thumbnailCache(),
 						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), xform
+						page_info.id(), image_transform
 					)
 				)
 			);
@@ -77,13 +77,19 @@ CacheDrivenTask::process(
 	PageLayout layout(params->pageLayout());
 	if (layout.uncutOutline().isEmpty()) {
 		// Backwards compatibility with versions < 0.9.9
-		layout.setUncutOutline(xform.resultingRect());
+		layout.setUncutOutline(
+			QRectF(QPointF(0, 0), pre_rotation.rotate(page_info.metadata().size()))
+		);
 	}
 
 	if (m_ptrNextTask) {
-		ImageTransformation new_xform(xform);
-		new_xform.setPreCropArea(layout.pageOutline(page_info.id().subPage()));
-		m_ptrNextTask->process(page_info, collector, new_xform);
+		AffineImageTransform new_transform(image_transform);
+		new_transform.setOrigCropArea(
+			image_transform.transform().inverted().map(
+				layout.pageOutline(page_info.id().subPage())
+			)
+		);
+		m_ptrNextTask->process(page_info, pre_rotation, new_transform, collector);
 		return;
 	}
 	
@@ -93,9 +99,8 @@ CacheDrivenTask::process(
 				new Thumbnail(
 					thumb_col->thumbnailCache(),
 					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), xform, layout,
-					page_info.leftHalfRemoved(),
-					page_info.rightHalfRemoved()
+					page_info.id(), layout, image_transform,
+					page_info.leftHalfRemoved(), page_info.rightHalfRemoved()
 				)
 			)
 		);

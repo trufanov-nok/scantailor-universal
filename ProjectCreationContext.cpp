@@ -19,7 +19,6 @@
 #include "ProjectCreationContext.h"
 #include "ProjectCreationContext.moc"
 #include "ProjectFilesDialog.h"
-#include "FixDpiDialog.h"
 #include "ImageFileInfo.h"
 #include <QString>
 #include <Qt>
@@ -39,24 +38,7 @@ ProjectCreationContext::~ProjectCreationContext()
 {
 	// Deleting a null pointer is OK.
 	delete m_ptrProjectFilesDialog;
-	delete m_ptrFixDpiDialog;
 }
-
-namespace
-{
-
-template<typename T>
-bool allDpisOK(T const& container)
-{
-	using namespace boost::lambda;
-	
-	return std::find_if(
-		container.begin(), container.end(),
-		!bind(&ImageFileInfo::isDpiOK, _1)
-	) == container.end();
-}
-
-} // anonymous namespace
 
 void
 ProjectCreationContext::projectFilesSubmitted()
@@ -67,31 +49,12 @@ ProjectCreationContext::projectFilesSubmitted()
 	if (m_ptrProjectFilesDialog->isRtlLayout()) {
 		m_layoutDirection = Qt::RightToLeft;
 	}
-	
-	if (!m_ptrProjectFilesDialog->isDpiFixingForced() && allDpisOK(m_files)) {
-		emit done(this);
-	} else {
-		showFixDpiDialog();
-	}
-}
 
-void
-ProjectCreationContext::projectFilesDialogDestroyed()
-{
-	if (!m_ptrFixDpiDialog) {
-		deleteLater();
-	}
-}
-
-void
-ProjectCreationContext::fixedDpiSubmitted()
-{
-	m_files = m_ptrFixDpiDialog->files();
 	emit done(this);
 }
 
 void
-ProjectCreationContext::fixDpiDialogDestroyed()
+ProjectCreationContext::projectFilesDialogDestroyed()
 {
 	deleteLater();
 }
@@ -116,26 +79,3 @@ ProjectCreationContext::showProjectFilesDialog()
 	);
 	m_ptrProjectFilesDialog->show();
 }
-
-void
-ProjectCreationContext::showFixDpiDialog()
-{
-	assert(!m_ptrFixDpiDialog);
-	m_ptrFixDpiDialog = new FixDpiDialog(m_files, m_pParent);
-	m_ptrFixDpiDialog->setAttribute(Qt::WA_DeleteOnClose);
-	m_ptrFixDpiDialog->setAttribute(Qt::WA_QuitOnClose, false);
-	if (m_pParent) {
-		m_ptrFixDpiDialog->setWindowModality(Qt::WindowModal);
-	}
-	connect(
-		m_ptrFixDpiDialog, SIGNAL(accepted()),
-		this, SLOT(fixedDpiSubmitted())
-	);
-	connect(
-		m_ptrFixDpiDialog, SIGNAL(destroyed(QObject*)),
-		this, SLOT(fixDpiDialogDestroyed())
-	);
-	m_ptrFixDpiDialog->show();
-}
-
-

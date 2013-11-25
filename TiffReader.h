@@ -25,7 +25,6 @@
 class QIODevice;
 class QImage;
 class ImageMetadata;
-class Dpi;
 
 class TiffReader
 {
@@ -57,8 +56,6 @@ private:
 	static bool checkHeader(TiffHeader const& header);
 	
 	static ImageMetadata currentPageMetadata(TiffHandle const& tif);
-	
-	static Dpi getDpi(float xres, float yres, unsigned res_unit);
 	
 	static QImage extractBinaryOrIndexed8Image(
 		TiffHandle const& tif, TiffInfo const& info);

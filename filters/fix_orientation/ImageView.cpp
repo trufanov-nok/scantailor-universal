@@ -18,22 +18,27 @@
 
 #include "ImageView.h"
 #include "ImageView.moc"
-#include "ImageTransformation.h"
 #include "ImagePresentation.h"
+#include "AffineImageTransform.h"
+#include "AffineTransformedImage.h"
+#include <QRect>
+#include <QRectF>
+#include <QPolygonF>
 
 namespace fix_orientation
 {
 
-ImageView::ImageView(
-	QImage const& image, QImage const& downscaled_image,
-	ImageTransformation const& xform)
+ImageView::ImageView(AffineTransformedImage const& full_size_image)
 :	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(xform.transform(), xform.resultingPreCropArea())
+		full_size_image.origImage(), ImagePixmapUnion(),
+		ImagePresentation(
+			full_size_image.xform().transform(),
+			full_size_image.xform().transformedCropArea()
+		)
 	),
 	m_dragHandler(*this),
 	m_zoomHandler(*this),
-	m_xform(xform)
+	m_origImageSize(full_size_image.origImage().size())
 {
 	rootInteractionHandler().makeLastFollower(m_dragHandler);
 	rootInteractionHandler().makeLastFollower(m_zoomHandler);
@@ -46,14 +51,10 @@ ImageView::~ImageView()
 void
 ImageView::setPreRotation(OrthogonalRotation const rotation)
 {
-	if (m_xform.preRotation() == rotation) {
-		return;
-	}
-	
-	m_xform.setPreRotation(rotation);
+	QRectF const rect(QPointF(0, 0), rotation.rotate(m_origImageSize));
 
 	// This should call update() by itself.
-	updateTransform(ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea()));
+	updateTransform(ImagePresentation(rotation.transform(m_origImageSize), rect));
 }
 
 } // namespace fix_orientation

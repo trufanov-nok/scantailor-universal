@@ -36,13 +36,14 @@
 #include <vector>
 #include <stddef.h>
 
+class OrthogonalRotation;
 class ImageFileInfo;
 class ImageInfo;
-class OrthogonalRotation;
 class PageSequence;
 class RelinkablePath;
 class AbstractRelinker;
 class QDomElement;
+class QSize;
 
 class ProjectPages : public QObject, public RefCountable
 {
@@ -79,14 +80,16 @@ public:
 	void setLayoutTypeForAllPages(LayoutType layout);
 	
 	void autoSetLayoutTypeFor(
-		ImageId const& image_id, OrthogonalRotation rotation);
+		ImageId const& image_id, OrthogonalRotation const& orientation);
 	
 	void updateImageMetadata(
 		ImageId const& image_id, ImageMetadata const& metadata);
-	
+
+	static int adviseNumberOfLogicalPages(QSize const& size);
+
 	static int adviseNumberOfLogicalPages(
-		ImageMetadata const& metadata, OrthogonalRotation rotation);
-	
+		QSize const& size, OrthogonalRotation const& orientation);
+
 	int numImages() const;
 	
 	/**
@@ -119,13 +122,6 @@ public:
 	 */
 	PageInfo unremovePage(PageId const& page_id);
 	
-	/**
-	 * \brief Check if all DPIs are OK, in terms of ImageMetadata::isDpiOK()
-	 *
-	 * \return true if all DPIs are OK, false if not.
-	 */
-	bool validateDpis() const;
-	
 	std::vector<ImageFileInfo> toImageFileInfo() const;
 	
 	void updateMetadataFrom(std::vector<ImageFileInfo> const& files);
@@ -156,8 +152,8 @@ private:
 	void setLayoutTypeForAllPagesImpl(
 		LayoutType layout, bool* modified);
 	
-	void autoSetLayoutTypeForImpl(
-		ImageId const& image_id, OrthogonalRotation rotation, bool* modified);
+	void autoSetLayoutTypeForImpl(ImageId const& image_id,
+		OrthogonalRotation const& orientation, bool* modified);
 	
 	void updateImageMetadataImpl(
 		ImageId const& image_id,

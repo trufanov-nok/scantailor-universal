@@ -35,8 +35,6 @@ public:
 	std::vector<ImageMetadata>& imageInfo() { return m_imageInfo; }
 	
 	std::vector<ImageMetadata> const& imageInfo() const { return m_imageInfo; }
-	
-	bool isDpiOK() const;
 private:
 	QFileInfo m_fileInfo;
 	std::vector<ImageMetadata> m_imageInfo;

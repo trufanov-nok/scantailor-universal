@@ -31,11 +31,8 @@ namespace output
 {
 
 DespeckleState::DespeckleState(
-	QImage const& output,
-	imageproc::BinaryImage const& speckles,
-	DespeckleLevel level, Dpi const& dpi)
+	QImage const& output, BinaryImage const& speckles, DespeckleLevel level)
 :	m_speckles(speckles),
-	m_dpi(dpi),
 	m_despeckleLevel(level)
 {
 	m_everythingMixed = overlaySpeckles(output, speckles);
@@ -45,7 +42,7 @@ DespeckleState::DespeckleState(
 DespeckleVisualization
 DespeckleState::visualize() const
 {
-	return DespeckleVisualization(m_everythingMixed, m_speckles, m_dpi);
+	return DespeckleVisualization(m_everythingMixed, m_speckles);
 }
 
 DespeckleState
@@ -79,7 +76,7 @@ DespeckleState::redespeckle(
 	}
 
 	new_state.m_speckles = Despeckle::despeckle(
-		m_everythingBW, m_dpi, level2, status, dbg
+		m_everythingBW, level2, status, dbg
 	);
 
 	status.throwIfCancelled();

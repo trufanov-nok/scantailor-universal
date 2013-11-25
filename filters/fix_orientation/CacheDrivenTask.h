@@ -24,6 +24,7 @@
 #include "IntrusivePtr.h"
 
 class PageInfo;
+class AffineImageTransform;
 class AbstractFilterDataCollector;
 
 namespace page_split
@@ -47,7 +48,8 @@ public:
 	virtual ~CacheDrivenTask();
 	
 	virtual void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector);
+		PageInfo const& page_info, AffineImageTransform const& image_transform,
+		AbstractFilterDataCollector* collector);
 private:
 	IntrusivePtr<page_split::CacheDrivenTask> m_ptrNextTask;
 	IntrusivePtr<Settings> m_ptrSettings;

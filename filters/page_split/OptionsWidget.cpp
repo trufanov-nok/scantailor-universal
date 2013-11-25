@@ -41,7 +41,8 @@ OptionsWidget::OptionsWidget(
 	m_ptrPages(page_sequence),
 	m_pageSelectionAccessor(page_selection_accessor),
 	m_ignoreAutoManualToggle(0),
-	m_ignoreLayoutTypeToggle(0)
+	m_ignoreLayoutTypeToggle(0),
+	m_layoutTypeAutoDetected(false)
 {
 	setupUi(this);
 	
@@ -128,24 +129,25 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 }
 
 void
-OptionsWidget::postUpdateUI(UiData const& ui_data)
+OptionsWidget::postUpdateUI(Params const& params, bool layout_type_auto_detected)
 {
 	ScopedIncDec<int> guard1(m_ignoreAutoManualToggle);
 	ScopedIncDec<int> guard2(m_ignoreLayoutTypeToggle);
 	
-	m_uiData = ui_data;
+	m_params = params;
+	m_layoutTypeAutoDetected = layout_type_auto_detected;
 
 	changeBtn->setEnabled(true);
 	autoBtn->setEnabled(true);
 	manualBtn->setEnabled(true);
 	
-	if (ui_data.splitLineMode() == MODE_AUTO) {
+	if (params.splitLineMode() == MODE_AUTO) {
 		autoBtn->setChecked(true);
 	} else {
 		manualBtn->setChecked(true);
 	}
 
-	PageLayout::Type const layout_type = ui_data.pageLayout().type();
+	PageLayout::Type const layout_type = params.pageLayout().type();
 
 	switch (layout_type) {
 		case PageLayout::SINGLE_PAGE_UNCUT:
@@ -161,7 +163,7 @@ OptionsWidget::postUpdateUI(UiData const& ui_data)
 
 	splitLineGroup->setVisible(layout_type != PageLayout::SINGLE_PAGE_UNCUT);
 	
-	if (ui_data.layoutTypeAutoDetected()) {
+	if (m_layoutTypeAutoDetected) {
 		scopeLabel->setText(tr("Auto detected"));
 	}
 }
@@ -169,10 +171,12 @@ OptionsWidget::postUpdateUI(UiData const& ui_data)
 void
 OptionsWidget::pageLayoutSetExternally(PageLayout const& page_layout)
 {
+	assert(m_params);
+
 	ScopedIncDec<int> guard(m_ignoreAutoManualToggle);
 	
-	m_uiData.setPageLayout(page_layout);
-	m_uiData.setSplitLineMode(MODE_MANUAL);
+	m_params->setPageLayout(page_layout);
+	m_params->setSplitLineMode(MODE_MANUAL);
 	commitCurrentParams();
 	
 	manualBtn->setChecked(true);
@@ -186,6 +190,8 @@ OptionsWidget::layoutTypeButtonToggled(bool const checked)
 	if (!checked || m_ignoreLayoutTypeToggle) {
 		return;
 	}
+
+	assert(m_params);
 	
 	LayoutType lt;
 	ProjectPages::LayoutType plt = ProjectPages::ONE_PAGE_LAYOUT;
@@ -211,7 +217,7 @@ OptionsWidget::layoutTypeButtonToggled(bool const checked)
 	
 	if (lt == PAGE_PLUS_OFFCUT ||
 			(lt != SINGLE_PAGE_UNCUT &&
-			m_uiData.splitLineMode() == MODE_AUTO)) {
+			m_params->splitLineMode() == MODE_AUTO)) {
 		m_ptrSettings->updatePage(m_pageId.imageId(), update);
 		emit reloadRequested();
 	} else {
@@ -223,17 +229,12 @@ OptionsWidget::layoutTypeButtonToggled(bool const checked)
 			plt = PageLayout::TWO_PAGES;
 		}
 		
-		PageLayout new_layout(m_uiData.pageLayout());
+		PageLayout new_layout(m_params->pageLayout());
 		new_layout.setType(plt);
-		Params const new_params(
-			new_layout, m_uiData.dependencies(),
-			m_uiData.splitLineMode()
-		);
+		m_params->setPageLayout(new_layout);
 		
-		update.setParams(new_params);
+		update.setParams(*m_params);
 		m_ptrSettings->updatePage(m_pageId.imageId(), update);
-		
-		m_uiData.setPageLayout(new_layout);
 
 		emit pageLayoutSetLocally(new_layout);
 		emit invalidateThumbnail(m_pageId);
@@ -308,15 +309,17 @@ OptionsWidget::splitLineModeChanged(bool const auto_mode)
 	if (m_ignoreAutoManualToggle) {
 		return;
 	}
+
+	assert(m_params);
 	
 	if (auto_mode) {
 		Settings::UpdateAction update;
 		update.clearParams();
 		m_ptrSettings->updatePage(m_pageId.imageId(), update);
-		m_uiData.setSplitLineMode(MODE_AUTO);
+		m_params->setSplitLineMode(MODE_AUTO);
 		emit reloadRequested();
 	} else {
-		m_uiData.setSplitLineMode(MODE_MANUAL);
+		m_params->setSplitLineMode(MODE_MANUAL);
 		commitCurrentParams();
 	}
 }
@@ -324,74 +327,11 @@ OptionsWidget::splitLineModeChanged(bool const auto_mode)
 void
 OptionsWidget::commitCurrentParams()
 {
-	Params const params(
-		m_uiData.pageLayout(),
-		m_uiData.dependencies(), m_uiData.splitLineMode()
-	);
+	assert(m_params);
+
 	Settings::UpdateAction update;
-	update.setParams(params);
+	update.setParams(*m_params);
 	m_ptrSettings->updatePage(m_pageId.imageId(), update);
-}
-
-
-/*============================= Widget::UiData ==========================*/
-
-OptionsWidget::UiData::UiData()
-:	m_splitLineMode(MODE_AUTO),
-	m_layoutTypeAutoDetected(false)
-{
-}
-
-OptionsWidget::UiData::~UiData()
-{
-}
-
-void
-OptionsWidget::UiData::setPageLayout(PageLayout const& layout)
-{
-	m_pageLayout = layout;
-}
-
-PageLayout const&
-OptionsWidget::UiData::pageLayout() const
-{
-	return m_pageLayout;
-}
-
-void
-OptionsWidget::UiData::setDependencies(Dependencies const& deps)
-{
-	m_deps = deps;
-}
-
-Dependencies const&
-OptionsWidget::UiData::dependencies() const
-{
-	return m_deps;
-}
-
-void
-OptionsWidget::UiData::setSplitLineMode(AutoManualMode const mode)
-{
-	m_splitLineMode = mode;
-}
-
-AutoManualMode
-OptionsWidget::UiData::splitLineMode() const
-{
-	return m_splitLineMode;
-}
-
-bool
-OptionsWidget::UiData::layoutTypeAutoDetected() const
-{
-	return m_layoutTypeAutoDetected;
-}
-
-void
-OptionsWidget::UiData::setLayoutTypeAutoDetected(bool const val)
-{
-	m_layoutTypeAutoDetected = val;
 }
 
 } // namespace page_split

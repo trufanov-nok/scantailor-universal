@@ -18,7 +18,6 @@
 
 #include "DespeckleVisualization.h"
 #include "ImageViewBase.h"
-#include "Dpi.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/SEDM.h"
 #include <QPainter>
@@ -30,7 +29,7 @@ namespace output
 {
 
 DespeckleVisualization::DespeckleVisualization(
-	QImage const& output, imageproc::BinaryImage const& speckles, Dpi const& dpi)
+	QImage const& output, imageproc::BinaryImage const& speckles)
 {
 	if (output.isNull()) {
 		// This can happen in batch processing mode.
@@ -40,7 +39,7 @@ DespeckleVisualization::DespeckleVisualization(
 	m_image = output.convertToFormat(QImage::Format_RGB32);
 
 	if (!speckles.isNull()) {
-		colorizeSpeckles(m_image, speckles, dpi);
+		colorizeSpeckles(m_image, speckles);
 	}
 
 	m_downscaledImage = ImageViewBase::createDownscaledImage(m_image);
@@ -48,7 +47,7 @@ DespeckleVisualization::DespeckleVisualization(
 
 void
 DespeckleVisualization::colorizeSpeckles(
-	QImage& image, imageproc::BinaryImage const& speckles, Dpi const& dpi)
+	QImage& image, imageproc::BinaryImage const& speckles)
 {
 	int const w = image.width();
 	int const h = image.height();
@@ -59,7 +58,7 @@ DespeckleVisualization::colorizeSpeckles(
 	uint32_t const* sedm_line = sedm.data();
 	int const sedm_stride = sedm.stride();
 
-	float const radius = 15.0 * std::max(dpi.horizontal(), dpi.vertical()) / 600;
+	float const radius = 20.0 * std::min(w, h) / 3000.0;
 	float const sq_radius = radius * radius;
 
 	for (int y = 0; y < h; ++y) {

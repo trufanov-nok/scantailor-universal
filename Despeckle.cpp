@@ -19,7 +19,6 @@
 #include "Despeckle.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
-#include "Dpi.h"
 #include "FastQueue.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/ConnectivityMap.h"
@@ -27,6 +26,7 @@
 #include <boost/foreach.hpp>
 #include <QtGlobal>
 #include <QImage>
+#include <QSize>
 #include <QDebug>
 #include <vector>
 #include <map>
@@ -90,16 +90,16 @@ struct Settings
 	 */
 	int bigObjectThreshold;
 
-	static Settings get(Despeckle::Level level, Dpi const& dpi);
+	static Settings get(Despeckle::Level level, QSize image_size);
 };
 
 Settings
-Settings::get(Despeckle::Level const level, Dpi const& dpi)
+Settings::get(Despeckle::Level const level, QSize const image_size)
 {
 	Settings settings;
 
-	int const min_dpi = std::min(dpi.horizontal(), dpi.vertical());
-	double const dpi_factor = min_dpi / 300.0;
+	int const min_dim = std::min(image_size.width(), image_size.height());
+	double const size_factor = min_dim / 2000.0;
 
 	// To silence compiler's warnings.
 	settings.minRelativeParentWeight = 0;
@@ -108,19 +108,19 @@ Settings::get(Despeckle::Level const level, Dpi const& dpi)
 
 	switch (level) {
 		case Despeckle::CAUTIOUS:
-			settings.minRelativeParentWeight = 0.125 * dpi_factor;
+			settings.minRelativeParentWeight = 0.125 * size_factor;
 			settings.pixelsToSqDist = 10.0*10.0;
-			settings.bigObjectThreshold = qRound(7 * dpi_factor);
+			settings.bigObjectThreshold = qRound(7 * size_factor);
 			break;
 		case Despeckle::NORMAL:
-			settings.minRelativeParentWeight = 0.175 * dpi_factor;
+			settings.minRelativeParentWeight = 0.175 * size_factor;
 			settings.pixelsToSqDist = 6.5*6.5;
-			settings.bigObjectThreshold = qRound(12 * dpi_factor);
+			settings.bigObjectThreshold = qRound(12 * size_factor);
 			break;
 		case Despeckle::AGGRESSIVE:
-			settings.minRelativeParentWeight = 0.225 * dpi_factor;
+			settings.minRelativeParentWeight = 0.225 * size_factor;
 			settings.pixelsToSqDist = 3.5*3.5;
-			settings.bigObjectThreshold = qRound(17 * dpi_factor);
+			settings.bigObjectThreshold = qRound(17 * size_factor);
 			break;
 	}
 
@@ -697,20 +697,20 @@ void voronoiDistances(
 
 BinaryImage
 Despeckle::despeckle(
-	BinaryImage const& src, Dpi const& dpi, Level const level,
+	BinaryImage const& src, Level const level,
 	TaskStatus const& status, DebugImages* const dbg)
 {
 	BinaryImage dst(src);
-	despeckleInPlace(dst, dpi, level, status, dbg);
+	despeckleInPlace(dst, level, status, dbg);
 	return dst;
 }
 
 void
 Despeckle::despeckleInPlace(
-	BinaryImage& image, Dpi const& dpi, Level const level,
+	BinaryImage& image, Level const level,
 	TaskStatus const& status, DebugImages* const dbg)
 {
-	Settings const settings(Settings::get(level, dpi));
+	Settings const settings(Settings::get(level, image.size()));
 
 	ConnectivityMap cmap(image, CONN8);
 	if (cmap.maxLabel() == 0) {

@@ -26,10 +26,10 @@ namespace select_content
 {
 
 Params::Params(
-	QRectF const& content_rect, QSizeF const& content_size_mm,
+	ContentBox const& content_box, QSizeF const& content_size_px,
 	Dependencies const& deps, AutoManualMode const mode)
-:	m_contentRect(content_rect),
-	m_contentSizeMM(content_size_mm),
+:	m_contentBox(content_box),
+	m_contentSizePx(content_size_px),
 	m_deps(deps),
 	m_mode(mode)
 {
@@ -41,18 +41,14 @@ Params::Params(Dependencies const& deps)
 }
 
 Params::Params(QDomElement const& filter_el)
-:	m_contentRect(
-		XmlUnmarshaller::rectF(
-			filter_el.namedItem("content-rect").toElement()
-		)
-	),
-	m_contentSizeMM(
+:	m_contentBox(filter_el.namedItem("content-box").toElement())
+,	m_contentSizePx(
 		XmlUnmarshaller::sizeF(
-			filter_el.namedItem("content-size-mm").toElement()
+			filter_el.namedItem("content-size-px").toElement()
 		)
-	),
-	m_deps(filter_el.namedItem("dependencies").toElement()),
-	m_mode(filter_el.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO)
+	)
+,	m_deps(filter_el.namedItem("dependencies").toElement())
+,	m_mode(filter_el.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO)
 {
 }
 
@@ -67,8 +63,8 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 	
 	QDomElement el(doc.createElement(name));
 	el.setAttribute("mode", m_mode == MODE_AUTO ? "auto" : "manual");
-	el.appendChild(marshaller.rectF(m_contentRect, "content-rect"));
-	el.appendChild(marshaller.sizeF(m_contentSizeMM, "content-size-mm"));
+	el.appendChild(m_contentBox.toXml(doc, "content-box"));
+	el.appendChild(marshaller.sizeF(m_contentSizePx, "content-size-px"));
 	el.appendChild(m_deps.toXml(doc, "dependencies"));
 	return el;
 }

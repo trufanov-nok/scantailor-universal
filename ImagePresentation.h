@@ -26,7 +26,6 @@
 /**
  * Image presentation consists of 3 components:
  * \li A transformation from pixel coordinates to some arbitrary virtual coordinates.
- *     Such transformation usually comes from an instance of ImageTransformation.
  * \li Image crop area, in virtual coordinates, that specifies which parts of the
  *     image should be visible.
  * \li Display area, in virtual coordinates, which is usually the bounding box

@@ -17,9 +17,8 @@
 */
 
 #include "XmlUnmarshaller.h"
-#include "Dpi.h"
 #include "OrthogonalRotation.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
 #include <QString>
 #include <QSize>
 #include <QSizeF>
@@ -52,14 +51,6 @@ XmlUnmarshaller::sizeF(QDomElement const& el)
 	return QSizeF(width, height);
 }
 
-Dpi
-XmlUnmarshaller::dpi(QDomElement const& el)
-{
-	int const hor = el.attribute("horizontal").toInt();
-	int const ver = el.attribute("vertical").toInt();
-	return Dpi(hor, ver);
-}
-
 OrthogonalRotation
 XmlUnmarshaller::rotation(QDomElement const& el)
 {
@@ -74,10 +65,10 @@ XmlUnmarshaller::rotation(QDomElement const& el)
 	return rotation;
 }
 
-Margins
-XmlUnmarshaller::margins(QDomElement const& el)
+RelativeMargins
+XmlUnmarshaller::relativeMargins(QDomElement const& el)
 {
-	Margins margins;
+	RelativeMargins margins;
 	margins.setLeft(el.attribute("left").toDouble());
 	margins.setRight(el.attribute("right").toDouble());
 	margins.setTop(el.attribute("top").toDouble());

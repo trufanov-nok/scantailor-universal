@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 #ifndef IMAGEVIEWBASE_H_
 #define IMAGEVIEWBASE_H_
 
-#include "Margins.h"
 #include "IntrusivePtr.h"
 #include "InteractionHandler.h"
 #include "InteractionState.h"
@@ -35,6 +34,7 @@
 #include <QPointF>
 #include <QSizeF>
 #include <QRectF>
+#include <QMarginsF>
 #include <Qt>
 
 class QPainter;
@@ -83,7 +83,8 @@ public:
 	 */
 	ImageViewBase(
 		QImage const& image, ImagePixmapUnion const& downscaled_version,
-		ImagePresentation const& presentation, Margins const& margins = Margins());
+		ImagePresentation const& presentation,
+		QMarginsF const& margins = QMarginsF());
 	
 	virtual ~ImageViewBase();
 
@@ -287,7 +288,7 @@ private:
 
 	void scheduleHqVersionRebuild();
 
-	void hqVersionBuilt(QPoint const& origin, QImage const& image);
+	void hqVersionBuilt(QImage const& image);
 
 	void updateStatusTipAndCursor();
 
@@ -422,7 +423,7 @@ private:
 	/**
 	 * The number of pixels to be left blank at each side of the widget.
 	 */
-	Margins m_margins;
+	QMarginsF m_margins;
 	
 	/**
 	 * The zoom factor.  A value of 1.0 corresponds to fit-to-widget zoom.

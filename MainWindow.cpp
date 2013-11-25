@@ -57,7 +57,6 @@
 #include "ImageMetadataLoader.h"
 #include "SmartFilenameOrdering.h"
 #include "OrthogonalRotation.h"
-#include "FixDpiDialog.h"
 #include "LoadFilesStatusDialog.h"
 #include "SettingsDialog.h"
 #include "AbstractRelinker.h"
@@ -262,7 +261,6 @@ MainWindow::MainWindow()
 		this, SLOT(pageOrderingChanged(int))
 	);
 	
-	connect(actionFixDpi, SIGNAL(triggered(bool)), SLOT(fixDpiDialogRequested()));
 	connect(actionRelinking, SIGNAL(triggered(bool)), SLOT(showRelinkingDialog()));
 	connect(actionDebug, SIGNAL(toggled(bool)), SLOT(debugToggled(bool)));
 
@@ -398,7 +396,7 @@ MainWindow::switchToNewProject(
 	}
 
 	updateSortOptions();
-	
+
 	m_ptrContentBoxPropagator.reset(
 		new ContentBoxPropagator(
 			m_ptrStages->pageLayoutFilter(),
@@ -1293,51 +1291,6 @@ MainWindow::debugToggled(bool const enabled)
 }
 
 void
-MainWindow::fixDpiDialogRequested()
-{
-	if (isBatchProcessingInProgress() || !isProjectLoaded()) {
-		return;
-	}
-
-	assert(!m_ptrFixDpiDialog);
-	m_ptrFixDpiDialog = new FixDpiDialog(m_ptrPages->toImageFileInfo(), this);
-	m_ptrFixDpiDialog->setAttribute(Qt::WA_DeleteOnClose);
-	m_ptrFixDpiDialog->setWindowModality(Qt::WindowModal);
-
-	connect(m_ptrFixDpiDialog, SIGNAL(accepted()), SLOT(fixedDpiSubmitted()));
-
-	m_ptrFixDpiDialog->show();
-}
-
-void
-MainWindow::fixedDpiSubmitted()
-{
-	assert(m_ptrFixDpiDialog);
-	assert(m_ptrPages);
-	assert(m_ptrThumbSequence.get());
-
-	PageInfo const selected_page_before(m_ptrThumbSequence->selectionLeader());
-
-	m_ptrPages->updateMetadataFrom(m_ptrFixDpiDialog->files());
-	
-	// The thumbnail list also stores page metadata, including the DPI.
-	m_ptrThumbSequence->reset(
-		m_ptrPages->toPageSequence(getCurrentView()),
-		ThumbnailSequence::KEEP_SELECTION, m_ptrThumbSequence->pageOrderProvider()
-	);
-
-	PageInfo const selected_page_after(m_ptrThumbSequence->selectionLeader());
-
-	// Reload if the current page was affected.
-	// Note that imageId() isn't supposed to change - we check just in case.
-	if (selected_page_before.imageId() != selected_page_after.imageId() ||
-		selected_page_before.metadata() != selected_page_after.metadata()) {
-		
-		reloadRequested();
-	}
-}
-
-void
 MainWindow::saveProjectTriggered()
 {
 	if (m_projectFile.isEmpty()) {
@@ -1572,7 +1525,6 @@ MainWindow::updateProjectActions()
 	bool const loaded = isProjectLoaded();
 	actionSaveProject->setEnabled(loaded);
 	actionSaveProjectAs->setEnabled(loaded);
-	actionFixDpi->setEnabled(loaded);
 	actionRelinking->setEnabled(loaded);
 }
 
@@ -1917,18 +1869,6 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
 		}
 	}
 
-	// Check if there is at least one DPI that's not OK.
-	auto dpi_ok_pred = [](ImageFileInfo const& info) { return info.isDpiOK(); };
-	if (std::find_if(new_files.begin(), new_files.end(), dpi_ok_pred) != new_files.end()) {
-		std::auto_ptr<FixDpiDialog> dpi_dialog(new FixDpiDialog(new_files, this));
-		dpi_dialog->setWindowModality(Qt::WindowModal);
-		if (dpi_dialog->exec() != QDialog::Accepted) {
-			return;
-		}
-
-		new_files = dpi_dialog->files();
-	}
-
 	// Actually insert the new pages.
 	BOOST_FOREACH(ImageFileInfo const& file, new_files) {
 		int image_num = -1; // Zero-based image number in a multi-page TIFF.
@@ -1936,9 +1876,7 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
 		BOOST_FOREACH(ImageMetadata const& metadata, file.imageInfo()) {
 			++image_num;
 
-			int const num_sub_pages = ProjectPages::adviseNumberOfLogicalPages(
-				metadata, OrthogonalRotation()
-			);
+			int const num_sub_pages = ProjectPages::adviseNumberOfLogicalPages(metadata.size());
 			ImageInfo const image_info(
 				ImageId(file.fileInfo(), image_num), metadata, num_sub_pages, false, false
 			);
@@ -2111,7 +2049,7 @@ MainWindow::createCompositeCacheDrivenTask(int const last_filter_idx)
 	IntrusivePtr<select_content::CacheDrivenTask> select_content_task;
 	IntrusivePtr<page_layout::CacheDrivenTask> page_layout_task;
 	IntrusivePtr<output::CacheDrivenTask> output_task;
-	
+
 	if (last_filter_idx >= m_ptrStages->outputFilterIdx()) {
 		output_task = m_ptrStages->outputFilter()
 				->createCacheDrivenTask(m_outFileNameGen);

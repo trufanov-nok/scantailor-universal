@@ -28,7 +28,6 @@
 #include <Qt>
 #include <vector>
 
-class FixDpiDialog;
 class QWidget;
 class QDomDocument;
 
@@ -49,16 +48,9 @@ public:
 	ProjectReader* projectReader() { return &m_reader; }
 signals:
 	void done(ProjectOpeningContext* context);
-private slots:
-	void fixedDpiSubmitted();
-	
-	void fixDpiDialogDestroyed();
 private:
-	void showFixDpiDialog();
-	
 	QString m_projectFile;
 	ProjectReader m_reader;
-	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
 	QWidget* m_pParent;
 };
 

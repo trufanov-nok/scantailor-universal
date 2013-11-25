@@ -19,7 +19,8 @@
 #ifndef PAGE_LAYOUT_PARAMS_H_
 #define PAGE_LAYOUT_PARAMS_H_
 
-#include "Margins.h"
+#include "RelativeMargins.h"
+#include "MatchSizeMode.h"
 #include "Alignment.h"
 #include <QSizeF>
 
@@ -34,21 +35,26 @@ class Params
 {
 	// Member-wise copying is OK.
 public:
-	Params(Margins const& hard_margins_mm,
-		QSizeF const& content_size_mm, Alignment const& alignment);
+	Params(RelativeMargins const& hard_margins,
+		QSizeF const& content_size,
+		MatchSizeMode const& match_size_mode,
+		Alignment const& alignment);
 	
 	Params(QDomElement const& el);
 	
-	Margins const& hardMarginsMM() const { return m_hardMarginsMM; }
+	RelativeMargins const& hardMargins() const { return m_hardMargins; }
 	
-	QSizeF const& contentSizeMM() const { return m_contentSizeMM; }
+	QSizeF const& contentSize() const { return m_contentSize; }
 	
+	MatchSizeMode matchSizeMode() const { return m_matchSizeMode; }
+
 	Alignment const& alignment() const { return m_alignment; }
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
-	Margins m_hardMarginsMM;
-	QSizeF m_contentSizeMM;
+	RelativeMargins m_hardMargins;
+	QSizeF m_contentSize;
+	MatchSizeMode m_matchSizeMode;
 	Alignment m_alignment;
 };
 

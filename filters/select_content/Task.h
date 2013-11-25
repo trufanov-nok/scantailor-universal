@@ -22,15 +22,21 @@
 #include "NonCopyable.h"
 #include "RefCountable.h"
 #include "FilterResult.h"
+#include "CachingFactory.h"
 #include "PageId.h"
 #include <QSizeF>
 #include <QRectF>
 #include <memory>
 
 class TaskStatus;
-class FilterData;
 class DebugImages;
-class ImageTransformation;
+class AbstractImageTransform;
+class QImage;
+
+namespace imageproc
+{
+	class GrayImage;
+}
 
 namespace page_layout
 {
@@ -54,7 +60,10 @@ public:
 	
 	virtual ~Task();
 	
-	FilterResultPtr process(TaskStatus const& status, FilterData const& data);
+	FilterResultPtr process(
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		std::shared_ptr<AbstractImageTransform const> const& orig_image_transform);
 private:
 	class UiUpdater;
 	

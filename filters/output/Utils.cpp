@@ -17,7 +17,6 @@
 */
 
 #include "Utils.h"
-#include "Dpi.h"
 #include <QString>
 #include <QTransform>
 #include <QDir>
@@ -41,17 +40,6 @@ QString
 Utils::specklesDir(QString const& out_dir)
 {
 	return QDir(out_dir).absoluteFilePath("cache/speckles");
-}
-
-QTransform
-Utils::scaleFromToDpi(Dpi const& from, Dpi const& to)
-{
-	QTransform xform;
-	xform.scale(
-		(double)to.horizontal() / from.horizontal(),
-		(double)to.vertical() / from.vertical()
-	);
-	return xform;
 }
 
 } // namespace output

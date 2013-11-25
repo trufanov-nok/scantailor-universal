@@ -22,8 +22,6 @@
 
 #include <QImage>
 
-class Dpi;
-
 namespace imageproc
 {
 	class BinaryImage;
@@ -45,10 +43,9 @@ public:
 	 *        If this one is null, the visualization will be null as well.
 	 * \param speckles Speckles detected in the image.
 	 *        If this one is null, it is considered no speckles were detected.
-	 * \param dpi Dots-per-inch of both images.
 	 */
 	DespeckleVisualization(
-		QImage const& output, imageproc::BinaryImage const& speckles, Dpi const& dpi);
+		QImage const& output, imageproc::BinaryImage const& speckles);
 
 	bool isNull() const { return m_image.isNull(); }
 
@@ -57,7 +54,7 @@ public:
 	QImage const& downscaledImage() const { return m_downscaledImage; }
 private:
 	static void colorizeSpeckles(
-		QImage& image, imageproc::BinaryImage const& speckles, Dpi const& dpi);
+		QImage& image, imageproc::BinaryImage const& speckles);
 
 	QImage m_image;
 	QImage m_downscaledImage;

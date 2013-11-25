@@ -18,8 +18,8 @@
 
 #include "ImageView.h"
 #include "ImageView.moc"
-#include "ImageTransformation.h"
 #include "ImagePresentation.h"
+#include "AffineTransformedImage.h"
 #include "Proximity.h"
 #include "PageId.h"
 #include "ProjectPages.h"
@@ -37,13 +37,15 @@ namespace page_split
 {
 
 ImageView::ImageView(
-	QImage const& image, QImage const& downscaled_image,
-	ImageTransformation const& xform, PageLayout const& layout,
-	IntrusivePtr<ProjectPages> const& pages, ImageId const& image_id,
-	bool left_half_removed, bool right_half_removed)
+	AffineTransformedImage const& full_size_image,
+	PageLayout const& layout, IntrusivePtr<ProjectPages> const& pages,
+	ImageId const& image_id, bool left_half_removed, bool right_half_removed)
 :	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(xform.transform(), xform.resultingPreCropArea())
+		full_size_image.origImage(), ImagePixmapUnion(),
+		ImagePresentation(
+			full_size_image.xform().transform(),
+			full_size_image.xform().transformedCropArea()
+		)
 	),
 	m_ptrPages(pages),
 	m_imageId(image_id),

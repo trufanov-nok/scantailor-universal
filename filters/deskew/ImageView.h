@@ -20,7 +20,7 @@
 #define DESKEW_IMAGEVIEW_H_
 
 #include "ImageViewBase.h"
-#include "ImageTransformation.h"
+#include "AffineImageTransform.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
 #include "ObjectDragHandler.h"
@@ -34,6 +34,7 @@
 #include <utility>
 
 class QRect;
+class AffineTransformedImage;
 
 namespace deskew
 {
@@ -44,9 +45,15 @@ class ImageView :
 {
 	Q_OBJECT
 public:
-	ImageView(
-		QImage const& image, QImage const& downscaled_image,
-		ImageTransformation const& xform);
+	/**
+	 * @param full_size_image Original, full size image.
+	 * @param full_size_image_transform Logical transformation applied
+	 *        to \p full_size_image. This transform doesn't include rotation
+	 *        by \p rotation_angle_deg.
+	 * @param rotation_angle_deg Initial rotation angle, in degrees.
+	 */
+	ImageView(AffineTransformedImage const& full_size_image,
+		double rotation_angle_deg);
 	
 	virtual ~ImageView();
 signals:
@@ -58,6 +65,8 @@ protected:
 
 	virtual void onWheelEvent(QWheelEvent* event, InteractionState& interaction);
 private:
+	void setRotationAngle(double degrees, bool preserve_scale);
+
 	QPointF handlePosition(int idx) const;
 
 	void handleMoveRequest(int idx, QPointF const& pos);
@@ -79,7 +88,8 @@ private:
 	ObjectDragHandler m_handleInteractors[2];
 	DragHandler m_dragHandler;
 	ZoomHandler m_zoomHandler;
-	ImageTransformation m_xform;
+	AffineImageTransform m_beforeRotationTransform;
+	double m_rotationAngleDeg;
 };
 
 } // namespace deskew

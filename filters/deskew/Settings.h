@@ -23,12 +23,18 @@
 #include "NonCopyable.h"
 #include "PageId.h"
 #include "Params.h"
+#include "DistortionType.h"
 #include <QMutex>
 #include <memory>
 #include <map>
 #include <set>
 
 class AbstractRelinker;
+
+namespace dewarping
+{
+	class DepthPerception;
+}
 
 namespace deskew
 {
@@ -46,12 +52,14 @@ public:
 	void performRelinking(AbstractRelinker const& relinker);
 	
 	void setPageParams(PageId const& page_id, Params const& params);
-	
-	void clearPageParams(PageId const& page_id);
-	
+
 	std::auto_ptr<Params> getPageParams(PageId const& page_id) const;
 	
-	void setDegress(std::set<PageId> const& pages, Params const& params);
+	void setDistortionType(
+		std::set<PageId> const& pages, DistortionType const& distortion_type);
+
+	void setDepthPerception(
+		std::set<PageId> const& pages, dewarping::DepthPerception const& depth_perception);
 private:
 	typedef std::map<PageId, Params> PerPageParams;
 	

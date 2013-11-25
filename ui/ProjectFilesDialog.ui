@@ -173,13 +173,6 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="forceFixDpi">
-     <property name="text">
-      <string>Fix DPIs, even if they look OK</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>

@@ -23,7 +23,8 @@
 #include "FilterOptionsWidget.h"
 #include "PageSelectionAccessor.h"
 #include "IntrusivePtr.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
+#include "MatchSizeMode.h"
 #include "Alignment.h"
 #include "PageId.h"
 #include <QIcon>
@@ -51,8 +52,8 @@ public:
 	
 	virtual ~OptionsWidget();
 	
-	void preUpdateUI(PageId const& page_id,
-		Margins const& margins_mm, Alignment const& alignment);
+	void preUpdateUI(PageId const& page_id, RelativeMargins const& margins,
+		MatchSizeMode const& match_size_mode, Alignment const& alignment);
 	
 	void postUpdateUI();
 	
@@ -60,7 +61,9 @@ public:
 	
 	bool topBottomLinked() const { return m_topBottomLinked; }
 	
-	Margins const& marginsMM() const { return m_marginsMM; }
+	RelativeMargins const& margins() const { return m_margins; }
+
+	MatchSizeMode const& matchSizeMode() const { return m_matchSizeMode; }
 	
 	Alignment const& alignment() const { return m_alignment; }
 signals:
@@ -68,16 +71,16 @@ signals:
 	
 	void topBottomLinkToggled(bool linked);
 	
+	void matchSizeModeChanged(MatchSizeMode const& match_size_mode);
+
 	void alignmentChanged(Alignment const& alignment);
 	
-	void marginsSetLocally(Margins const& margins_mm);
+	void marginsSetLocally(RelativeMargins const& margins);
 	
 	void aggregateHardSizeChanged();
 public slots:
-	void marginsSetExternally(Margins const& margins_mm);
+	void marginsSetExternally(RelativeMargins const& margins);
 private slots:
-	void unitsChanged(int idx);
-	
 	void horMarginsChanged(double val);
 	
 	void vertMarginsChanged(double val);
@@ -86,7 +89,11 @@ private slots:
 	
 	void leftRightLinkClicked();
 	
-	void alignWithOthersToggled();
+	void matchSizeDisabledToggled(bool selected);
+
+	void matchSizeMarginsToggled(bool selected);
+
+	void matchSizeScaleToggled(bool selected);
 	
 	void alignmentButtonClicked();
 	
@@ -111,12 +118,12 @@ private:
 	QIcon m_chainIcon;
 	QIcon m_brokenChainIcon;
 	AlignmentByButton m_alignmentByButton;
-	double m_mmToUnit;
-	double m_unitToMM;
 	PageId m_pageId;
-	Margins m_marginsMM;
+	RelativeMargins m_margins;
+	MatchSizeMode m_matchSizeMode;
 	Alignment m_alignment;
 	int m_ignoreMarginChanges;
+	int m_ignoreMatchSizeModeChanges;
 	bool m_leftRightLinked;
 	bool m_topBottomLinked;
 };

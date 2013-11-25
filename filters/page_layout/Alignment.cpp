@@ -28,7 +28,6 @@ Alignment::Alignment(QDomElement const& el)
 {
 	QString const vert(el.attribute("vert"));
 	QString const hor(el.attribute("hor"));
-	m_isNull = el.attribute("null").toInt() != 0;
 	
 	if (vert == "top") {
 		m_vert = TOP;
@@ -79,9 +78,7 @@ Alignment::toXml(QDomDocument& doc, QString const& name) const
 	QDomElement el(doc.createElement(name));
 	el.setAttribute("vert", QString::fromUtf8(vert));
 	el.setAttribute("hor", QString::fromUtf8(hor));
-	el.setAttribute("null", m_isNull ? 1 : 0);
 	return el;
 }
 
 } // namespace page_layout
-

@@ -186,11 +186,6 @@ ProjectWriter::writeImageMetadata(
 	size_el.setAttribute("width", metadata.size().width());
 	size_el.setAttribute("height", metadata.size().height());
 	image_el.appendChild(size_el);
-	
-	QDomElement dpi_el(doc.createElement("dpi"));
-	dpi_el.setAttribute("horizontal", metadata.dpi().horizontal());
-	dpi_el.setAttribute("vertical", metadata.dpi().vertical());
-	image_el.appendChild(dpi_el);
 }
 
 QDomElement

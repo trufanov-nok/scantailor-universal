@@ -18,7 +18,6 @@
 
 #include "Task.h"
 #include "Filter.h"
-#include "FilterData.h"
 #include "DebugImages.h"
 #include "OptionsWidget.h"
 #include "AutoManualMode.h"
@@ -30,12 +29,15 @@
 #include "FilterUiInterface.h"
 #include "ImageView.h"
 #include "OrthogonalRotation.h"
-#include "ImageTransformation.h"
-#include "PhysSizeCalc.h"
+#include "AbstractImageTransform.h"
+#include "AffineImageTransform.h"
+#include "AffineTransformedImage.h"
 #include "filters/page_layout/Task.h"
 #include <QObject>
 #include <QTransform>
 #include <QDebug>
+#include <boost/optional.hpp>
+#include <assert.h>
 
 namespace select_content
 {
@@ -44,11 +46,11 @@ class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
-		PageId const& page_id,
+		PageId const& page_id, Params const& params,
 		std::auto_ptr<DebugImages> dbg,
-		QImage const& image,
-		ImageTransformation const& xform,
-		OptionsWidget::UiData const& ui_data, bool batch);
+		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
+		AffineTransformedImage const& affine_transformed_image,
+		bool batch);
 	
 	virtual void updateUI(FilterUiInterface* ui);
 	
@@ -56,11 +58,10 @@ public:
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	PageId m_pageId;
+	Params m_params;
 	std::auto_ptr<DebugImages> m_ptrDbg;
-	QImage m_image;
-	QImage m_downscaledImage;
-	ImageTransformation m_xform;
-	OptionsWidget::UiData m_uiData;
+	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
+	AffineTransformedImage m_affineTransformedImage;
 	bool m_batchProcessing;
 };
 
@@ -85,70 +86,77 @@ Task::~Task()
 }
 
 FilterResultPtr
-Task::process(TaskStatus const& status, FilterData const& data)
+Task::process(
+	TaskStatus const& status, QImage const& orig_image,
+	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+	std::shared_ptr<AbstractImageTransform const> const& orig_image_transform)
 {
+	assert(!orig_image.isNull());
+	assert(orig_image_transform);
+
 	status.throwIfCancelled();
 	
-	Dependencies const deps(data.xform().resultingPreCropArea());
+	Dependencies const deps(orig_image_transform->fingerprint());
 
 	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
-	if (params.get() && !params->dependencies().matches(deps) && (params->mode() == MODE_AUTO)) {
-		params.reset();
+	if (params.get() && !params->dependencies().matches(deps)) {
+		// Dependency mismatch.
+		if (params->mode() == MODE_AUTO) {
+			params.reset();
+		} else {
+			// If the content box was set manually, we don't want to lose it
+			// just because the user went back and adjusted the warping grid slightly.
+			// We still need to update params->contentSizePx() however.
+			params->setContentSizePx(
+				params->contentBox().toTransformedRect(*orig_image_transform).size()
+			);
+			params->setDependencies(deps);
+			m_ptrSettings->setPageParams(m_pageId, *params);
+		}
+
 	}
 
-	OptionsWidget::UiData ui_data;
-	ui_data.setSizeCalc(PhysSizeCalc(data.xform()));
+	boost::optional<AffineTransformedImage> dewarped;
 
-	if (params.get()) {
-		ui_data.setContentRect(params->contentRect());
-		ui_data.setDependencies(deps);
-		ui_data.setMode(params->mode());
+	if (!params.get()) {
+		dewarped = orig_image_transform->toAffine(
+			orig_image.convertToFormat(QImage::Format_ARGB32),
+			QColor(0, 0, 0, 0) // Transparent black.
+		);
 
-		if (!params->dependencies().matches(deps)) {
-			QRectF content_rect = ui_data.contentRect();
-			QPointF new_center= deps.rotatedPageOutline().boundingRect().center();
-			QPointF old_center = params->dependencies().rotatedPageOutline().boundingRect().center();
-
-			content_rect.translate(new_center - old_center);
-			ui_data.setContentRect(content_rect);
-		}
-
-		if ((params->contentSizeMM().isEmpty() && !params->contentRect().isEmpty()) || !params->dependencies().matches(deps)) {
-			// Backwards compatibilty: put the missing data where it belongs.
-			Params const new_params(
-				ui_data.contentRect(), ui_data.contentSizeMM(),
-				deps, params->mode()
-			);
-			m_ptrSettings->setPageParams(m_pageId, new_params);
-		}
-	} else {
 		QRectF const content_rect(
-			ContentBoxFinder::findContentBox(
-				status, data, m_ptrDbg.get()
+			ContentBoxFinder::findContentBox(status, *dewarped, m_ptrDbg.get())
+		);
+
+		params.reset(
+			new Params(
+				ContentBox(*orig_image_transform, content_rect),
+				content_rect.size(), deps, MODE_AUTO
 			)
 		);
-		ui_data.setContentRect(content_rect);
-		ui_data.setDependencies(deps);
-		ui_data.setMode(MODE_AUTO);
 
-		Params const new_params(
-			ui_data.contentRect(), ui_data.contentSizeMM(), deps, MODE_AUTO
-		);
-		m_ptrSettings->setPageParams(m_pageId, new_params);
+		m_ptrSettings->setPageParams(m_pageId, *params);
 	}
 	
 	status.throwIfCancelled();
-	
+
 	if (m_ptrNextTask) {
 		return m_ptrNextTask->process(
-			status, FilterData(data, data.xform()),
-			ui_data.contentRect()
+			status, orig_image, gray_orig_image_factory,
+			orig_image_transform, dewarped, params->contentBox()
 		);
 	} else {
+		if (!dewarped) {
+			dewarped = orig_image_transform->toAffine(
+				orig_image.convertToFormat(QImage::Format_ARGB32),
+				QColor(0, 0, 0, 0) // Transparent black
+			);
+		}
+
 		return FilterResultPtr(
 			new UiUpdater(
-				m_ptrFilter, m_pageId, m_ptrDbg, data.origImage(),
-				data.xform(), ui_data, m_batchProcessing
+				m_ptrFilter, m_pageId, *params, m_ptrDbg,
+				orig_image_transform, *dewarped, m_batchProcessing
 			)
 		);
 	}
@@ -159,16 +167,15 @@ Task::process(TaskStatus const& status, FilterData const& data)
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter, PageId const& page_id,
-	std::auto_ptr<DebugImages> dbg, QImage const& image,
-	ImageTransformation const& xform, OptionsWidget::UiData const& ui_data,
-	bool const batch)
+	Params const& params, std::auto_ptr<DebugImages> dbg,
+	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
+	AffineTransformedImage const& affine_transformed_image, bool const batch)
 :	m_ptrFilter(filter),
 	m_pageId(page_id),
+	m_params(params),
 	m_ptrDbg(dbg),
-	m_image(image),
-	m_downscaledImage(ImageView::createDownscaledImage(image)),
-	m_xform(xform),
-	m_uiData(ui_data),
+	m_ptrOrigTransform(orig_transform),
+	m_affineTransformedImage(affine_transformed_image),
 	m_batchProcessing(batch)
 {
 }
@@ -179,7 +186,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	// This function is executed from the GUI thread.
 	
 	OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
-	opt_widget->postUpdateUI(m_uiData);
+	opt_widget->postUpdateUI(m_params);
 	ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 	
 	ui->invalidateThumbnail(m_pageId);
@@ -189,14 +196,13 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	ImageView* view = new ImageView(
-		m_image, m_downscaledImage,
-		m_xform, m_uiData.contentRect()
+		m_ptrOrigTransform, m_affineTransformedImage, m_params.contentBox()
 	);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());
 	
 	QObject::connect(
-		view, SIGNAL(manualContentRectSet(QRectF const&)),
-		opt_widget, SLOT(manualContentRectSet(QRectF const&))
+		view, SIGNAL(manualContentBoxSet(ContentBox const&, QSizeF const&)),
+		opt_widget, SLOT(manualContentBoxSet(ContentBox const&, QSizeF const&))
 	);
 }
 

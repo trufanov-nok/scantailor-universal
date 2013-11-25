@@ -25,15 +25,14 @@
 #include <QRectF>
 #include <QStringList>
 
-#include "Dpi.h"
+#include "dewarping/DepthPerception.h"
 #include "filters/page_split/LayoutType.h"
 #include "filters/output/ColorParams.h"
 #include "filters/output/DespeckleLevel.h"
-#include "filters/output/DewarpingMode.h"
-#include "filters/output/DepthPerception.h"
+#include "filters/deskew/DewarpingMode.h"
 #include "filters/page_layout/Alignment.h"
 #include "ImageFileInfo.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
 #include "Despeckle.h"
 
 /**
@@ -85,9 +84,7 @@ public:
 	page_split::LayoutType getLayout() const { return m_layoutType; }
 	Qt::LayoutDirection getLayoutDirection() const { return m_layoutDirection; }
 	output::ColorParams::ColorMode getColorMode() const { return m_colorMode; }
-	Dpi getInputDpi() const { return m_dpi; }
-	Dpi getOutputDpi() const { return m_outputDpi; }
-	Margins getMargins() const { return m_margins; }
+	RelativeMargins getMargins() const { return m_margins; }
 	page_layout::Alignment getAlignment() const { return m_alignment; }
 	Despeckle::Level getContentDetection() const { return m_contentDetection; }
 	QRectF getContentRect() const { return m_contentRect; }
@@ -96,9 +93,9 @@ public:
 	double getDeskewAngle() const { return m_deskewAngle; }
 	int getStartFilterIdx() const { return m_startFilterIdx; }
 	int getEndFilterIdx() const { return m_endFilterIdx; }
-	output::DewarpingMode getDewarpingMode() const { return m_dewarpingMode; }
-	output::DespeckleLevel getDespeckleLevel() const { return m_despeckleLevel; }
-	output::DepthPerception getDepthPerception() const { return m_depthPerception; }
+	//output::DewarpingMode getDewarpingMode() const { return m_dewarpingMode; }
+	//output::DespeckleLevel getDespeckleLevel() const { return m_despeckleLevel; }
+	//output::DepthPerception getDepthPerception() const { return m_depthPerception; }
 
 	bool help() { return m_options.contains("help"); }
 	void printHelp();
@@ -126,9 +123,7 @@ private:
 	page_split::LayoutType m_layoutType;
 	Qt::LayoutDirection m_layoutDirection;
 	output::ColorParams::ColorMode m_colorMode;
-	Dpi m_dpi;
-	Dpi m_outputDpi;
-	Margins m_margins;
+	RelativeMargins m_margins;
 	page_layout::Alignment m_alignment;
 	Despeckle::Level m_contentDetection;
 	QRectF m_contentRect;
@@ -137,9 +132,9 @@ private:
 	double m_deskewAngle;
 	int m_startFilterIdx;
 	int m_endFilterIdx;
-	output::DewarpingMode m_dewarpingMode;
-	output::DespeckleLevel m_despeckleLevel;
-	output::DepthPerception m_depthPerception;
+	//output::DewarpingMode m_dewarpingMode;
+	//output::DespeckleLevel m_despeckleLevel;
+	//output::DepthPerception m_depthPerception;
 
 	void parseCli(QStringList const& argv);
 	void addImage(QString const& path);
@@ -147,8 +142,7 @@ private:
 	page_split::LayoutType fetchLayoutType();
 	output::ColorParams::ColorMode fetchColorMode();
 	Qt::LayoutDirection fetchLayoutDirection();
-	Dpi fetchDpi(QString oname="dpi");
-	Margins fetchMargins();
+	RelativeMargins fetchMargins();
 	page_layout::Alignment fetchAlignment();
 	Despeckle::Level fetchContentDetection();
 	QRectF fetchContentRect();
@@ -158,9 +152,9 @@ private:
 	double fetchDeskewAngle();
 	int fetchStartFilterIdx();
 	int fetchEndFilterIdx();
-	output::DewarpingMode fetchDewarpingMode();
-	output::DespeckleLevel fetchDespeckleLevel();
-	output::DepthPerception fetchDepthPerception();
+	//output::DewarpingMode fetchDewarpingMode();
+	//output::DespeckleLevel fetchDespeckleLevel();
+	//output::DepthPerception fetchDepthPerception();
 };
 
 #endif

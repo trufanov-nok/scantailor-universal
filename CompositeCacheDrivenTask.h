@@ -22,6 +22,7 @@
 #include "RefCountable.h"
 
 class PageInfo;
+class AffineImageTransform;
 class AbstractFilterDataCollector;
 
 class CompositeCacheDrivenTask : public RefCountable
@@ -31,6 +32,7 @@ public:
 	
 	virtual void process(
 		PageInfo const& page_info,
+		AffineImageTransform const& image_transform,
 		AbstractFilterDataCollector* collector) = 0;
 };
 

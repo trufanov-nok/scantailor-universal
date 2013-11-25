@@ -20,37 +20,40 @@
 #include "Filter.h"
 #include "OptionsWidget.h"
 #include "Settings.h"
-#include "FilterData.h"
-#include "ImageTransformation.h"
+#include "AffineImageTransform.h"
+#include "AffineTransformedImage.h"
 #include "filters/page_split/Task.h"
 #include "TaskStatus.h"
 #include "ImageView.h"
 #include "FilterUiInterface.h"
-#include <QImage>
+#include <QSize>
 #include <iostream>
 
 namespace fix_orientation
 {
 
-using imageproc::BinaryThreshold;
-
 class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
-		QImage const& image, ImageId const& image_id,
-		ImageTransformation const& xform,
-		bool batch_processing);
+		AffineTransformedImage const& transformed_image,
+		OrthogonalRotation const& rotation,
+		ImageId const& image_id, bool batch_processing);
 	
 	virtual void updateUI(FilterUiInterface* wnd);
 	
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
-	QImage m_image;
-	QImage m_downscaledImage;
+
+	/**
+	 * The transformation associated with m_transformedImage doesn't
+	 * incorporate m_rotation.
+	 */
+	AffineTransformedImage m_transformedImage;
+
+	OrthogonalRotation m_rotation;
 	ImageId m_imageId;
-	ImageTransformation m_xform;
 	bool m_batchProcessing;
 };
 
@@ -74,22 +77,32 @@ Task::~Task()
 }
 
 FilterResultPtr
-Task::process(TaskStatus const& status, FilterData const& data)
+Task::process(
+	TaskStatus const& status, QImage const& orig_image,
+	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+	AffineImageTransform const& orig_image_transform)
 {
 	// This function is executed from the worker thread.
 	
 	status.throwIfCancelled();
 	
-	ImageTransformation xform(data.xform());
-	xform.setPreRotation(m_ptrSettings->getRotationFor(m_imageId));
-	
+	OrthogonalRotation const rotation(m_ptrSettings->getRotationFor(m_imageId));
+
 	if (m_ptrNextTask) {
-		return m_ptrNextTask->process(status, FilterData(data, xform));
+		AffineImageTransform const rotated_transform = orig_image_transform.adjusted(
+			[rotation](AffineImageTransform& xform) {
+				xform.rotate(rotation.toDegrees());
+			}
+		);
+		return m_ptrNextTask->process(
+			status, orig_image, gray_orig_image_factory,
+			rotated_transform, rotation
+		);
 	} else {
 		return FilterResultPtr(
 			new UiUpdater(
-				m_ptrFilter, data.origImage(), m_imageId, xform,
-				m_batchProcessing
+				m_ptrFilter, AffineTransformedImage(orig_image, orig_image_transform),
+				rotation, m_imageId, m_batchProcessing
 			)
 		);
 	}
@@ -100,14 +113,14 @@ Task::process(TaskStatus const& status, FilterData const& data)
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
-	QImage const& image, ImageId const& image_id,
-	ImageTransformation const& xform,
+	AffineTransformedImage const& transformed_image,
+	OrthogonalRotation const& rotation,
+	ImageId const& image_id,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
-	m_image(image),
-	m_downscaledImage(ImageView::createDownscaledImage(image)),
+	m_transformedImage(transformed_image),
+	m_rotation(rotation),
 	m_imageId(image_id),
-	m_xform(xform),
 	m_batchProcessing(batch_processing)
 {
 }
@@ -117,7 +130,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 {
 	// This function is executed from the GUI thread.
 	OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
-	opt_widget->postUpdateUI(m_xform.preRotation());
+	opt_widget->postUpdateUI(m_rotation);
 	ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 	
 	ui->invalidateThumbnail(PageId(m_imageId));
@@ -126,7 +139,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 	
-	ImageView* view = new ImageView(m_image, m_downscaledImage, m_xform);
+	ImageView* view = new ImageView(m_transformedImage);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
 	QObject::connect(
 		opt_widget, SIGNAL(rotated(OrthogonalRotation)),

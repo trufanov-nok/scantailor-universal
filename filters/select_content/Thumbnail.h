@@ -23,9 +23,10 @@
 #include <QRectF>
 
 class QSizeF;
+class PageId;
 class ThumbnailPixmapCache;
-class ImageId;
-class ImageTransformation;
+class AbstractImageTransform;
+class ContentBox;
 
 namespace select_content
 {
@@ -34,15 +35,19 @@ class Thumbnail : public ThumbnailBase
 {
 public:
 	Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& xform, QRectF const& content_rect);
+		QSizeF const& max_display_size, PageId const& page_id,
+		AbstractImageTransform const& full_size_image_transform,
+		ContentBox const& content_box);
 	
 	virtual void paintOverImage(
-		QPainter& painter,
-		QTransform const& image_to_display,
+		QPainter& painter, QTransform const& transformed_to_display,
 		QTransform const& thumb_to_display);
 private:
-	QRectF m_contentRect;
+	/**
+	 * Content rectangle in transformed coordinates of AbstractImageTransform
+	 * that was passed to the constructor.
+	 */
+	QRectF m_transformedContentRect;
 };
 
 } // namespace select_content

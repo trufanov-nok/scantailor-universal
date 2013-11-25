@@ -10,6 +10,10 @@ Files:
 ../appicon.svg
 aqua-sphere.png
 aque-sphere.svg
+distortion-none.png
+distortion-rotation.png
+distortion-perspective.png
+distortion-warp.png
 keep-in-view.png
 layout-type-auto.png
 left_page_plus_offcut.png

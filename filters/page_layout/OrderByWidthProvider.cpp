@@ -18,7 +18,7 @@
 
 #include "OrderByWidthProvider.h"
 #include "Params.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
 #include <QSizeF>
 #include <memory>
 
@@ -40,19 +40,11 @@ OrderByWidthProvider::precedes(
 	
 	QSizeF lhs_size;
 	if (lhs_params.get()) {
-		Margins const margins(lhs_params->hardMarginsMM());
-		lhs_size = lhs_params->contentSizeMM();
-		lhs_size += QSizeF(
-			margins.left() + margins.right(), margins.top() + margins.bottom()
-		);
+		lhs_size = lhs_params->hardMargins().extendContentSize(lhs_params->contentSize());
 	}
 	QSizeF rhs_size;
 	if (rhs_params.get()) {
-		Margins const margins(rhs_params->hardMarginsMM());
-		rhs_size = rhs_params->contentSizeMM();
-		rhs_size += QSizeF(
-			margins.left() + margins.right(), margins.top() + margins.bottom()
-		);
+		rhs_size = rhs_params->hardMargins().extendContentSize(rhs_params->contentSize());
 	}
 	
 	bool const lhs_valid = !lhs_incomplete && lhs_size.isValid();

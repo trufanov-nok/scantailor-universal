@@ -18,8 +18,10 @@
 
 #include "ImageView.h"
 #include "ImageView.moc"
-#include "ImageTransformation.h"
+#include "AbstractImageTransform.h"
+#include "AffineTransformedImage.h"
 #include "ImagePresentation.h"
+#include "ContentBox.h"
 #include <QMouseEvent>
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -34,24 +36,32 @@
 #include <Qt>
 #include <boost/bind.hpp>
 #include <algorithm>
+#include <assert.h>
 
 namespace select_content
 {
 
 ImageView::ImageView(
-	QImage const& image, QImage const& downscaled_image,
-	ImageTransformation const& xform, QRectF const& content_rect)
+	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
+	AffineTransformedImage const& affine_transformed_image,
+	ContentBox const& content_box)
 :	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(xform.transform(), xform.resultingPreCropArea())
+		affine_transformed_image.origImage(), ImagePixmapUnion(),
+		ImagePresentation(
+			affine_transformed_image.xform().transform(),
+			affine_transformed_image.xform().transformedCropArea()
+		)
 	),
 	m_dragHandler(*this),
 	m_zoomHandler(*this),
 	m_pNoContentMenu(new QMenu(this)),
 	m_pHaveContentMenu(new QMenu(this)),
-	m_contentRect(content_rect),
+	m_ptrOrigTransform(orig_transform),
+	m_contentRect(content_box.toTransformedRect(*orig_transform)),
 	m_minBoxSize(10.0, 10.0)
 {
+	assert(orig_transform);
+
 	setMouseTracking(true);
 
 	interactionState().setDefaultStatusTip(
@@ -129,7 +139,10 @@ ImageView::createContentBox()
 	content_rect.moveCenter(virtual_rect.center());
 	m_contentRect = content_rect;
 	update();
-	emit manualContentRectSet(m_contentRect);
+
+	emit manualContentBoxSet(
+		ContentBox(*m_ptrOrigTransform, m_contentRect), m_contentRect.size()
+	);
 }
 
 void
@@ -144,7 +157,10 @@ ImageView::removeContentBox()
 	
 	m_contentRect = QRectF();
 	update();
-	emit manualContentRectSet(m_contentRect);
+
+	emit manualContentBoxSet(
+		ContentBox(*m_ptrOrigTransform, m_contentRect), m_contentRect.size()
+	);
 }
 
 void
@@ -253,7 +269,9 @@ ImageView::edgeMoveRequest(int const edge, QLineF const& line)
 void
 ImageView::dragFinished()
 {
-	emit manualContentRectSet(m_contentRect);
+	emit manualContentBoxSet(
+		ContentBox(*m_ptrOrigTransform, m_contentRect), m_contentRect.size()
+	);
 }
 
 void

@@ -18,7 +18,6 @@
 
 #include "ProjectOpeningContext.h"
 #include "ProjectOpeningContext.moc"
-#include "FixDpiDialog.h"
 #include "ProjectPages.h"
 #include <QString>
 #include <QMessageBox>
@@ -38,8 +37,6 @@ ProjectOpeningContext::ProjectOpeningContext(
 
 ProjectOpeningContext::~ProjectOpeningContext()
 {
-	// Deleting a null pointer is OK.
-	delete m_ptrFixDpiDialog;
 }
 
 void
@@ -54,45 +51,6 @@ ProjectOpeningContext::proceed()
 		return;
 	}
 	
-	if (m_reader.pages()->validateDpis()) {
-		deleteLater();
-		emit done(this);
-		return;
-	}
-	
-	showFixDpiDialog();
-}
-
-void
-ProjectOpeningContext::fixedDpiSubmitted()
-{
-	m_reader.pages()->updateMetadataFrom(m_ptrFixDpiDialog->files());
-	emit done(this);
-}
-
-void
-ProjectOpeningContext::fixDpiDialogDestroyed()
-{
 	deleteLater();
-}
-
-void
-ProjectOpeningContext::showFixDpiDialog()
-{
-	assert(!m_ptrFixDpiDialog);
-	m_ptrFixDpiDialog = new FixDpiDialog(m_reader.pages()->toImageFileInfo(), m_pParent);
-	m_ptrFixDpiDialog->setAttribute(Qt::WA_DeleteOnClose);
-	m_ptrFixDpiDialog->setAttribute(Qt::WA_QuitOnClose, false);
-	if (m_pParent) {
-		m_ptrFixDpiDialog->setWindowModality(Qt::WindowModal);
-	}
-	connect(
-		m_ptrFixDpiDialog, SIGNAL(accepted()),
-		this, SLOT(fixedDpiSubmitted())
-	);
-	connect(
-		m_ptrFixDpiDialog, SIGNAL(destroyed(QObject*)),
-		this, SLOT(fixDpiDialogDestroyed())
-	);
-	m_ptrFixDpiDialog->show();
+	emit done(this);
 }

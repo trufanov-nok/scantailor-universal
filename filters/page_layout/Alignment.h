@@ -33,14 +33,9 @@ public:
 	
 	enum Horizontal { LEFT, HCENTER, RIGHT };
 	
-	/**
-	 * \brief Constructs a null alignment.
-	 */
-	Alignment()
-	: m_vert(VCENTER), m_hor(HCENTER), m_isNull(true) {}
+	Alignment() : m_vert(VCENTER), m_hor(HCENTER) {}
 	
-	Alignment(Vertical vert, Horizontal hor)
-	: m_vert(vert), m_hor(hor), m_isNull(false) {}
+	Alignment(Vertical vert, Horizontal hor) : m_vert(vert), m_hor(hor) {}
 	
 	Alignment(QDomElement const& el);
 	
@@ -52,13 +47,8 @@ public:
 	
 	void setHorizontal(Horizontal hor) { m_hor = hor; }
 	
-	bool isNull() const { return m_isNull; }
-	
-	void setNull(bool is_null) { m_isNull = is_null; }
-	
 	bool operator==(Alignment const& other) const {
-		return m_vert == other.m_vert && m_hor == other.m_hor
-				&& m_isNull == other.m_isNull;
+		return m_vert == other.m_vert && m_hor == other.m_hor;
 	}
 	
 	bool operator!=(Alignment const& other) const {
@@ -69,7 +59,6 @@ public:
 private:
 	Vertical m_vert;
 	Horizontal m_hor;
-	bool m_isNull;
 };
 
 } // namespace page_layout

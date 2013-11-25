@@ -27,7 +27,6 @@
 #include <QRegExp>
 #include <QStringList>
 
-#include "Dpi.h"
 #include "ImageId.h"
 #include "version.h"
 #include "CommandLine.h"
@@ -35,7 +34,7 @@
 #include "ImageMetadata.h"
 #include "filters/page_split/LayoutType.h"
 #include "filters/page_layout/Settings.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
 #include "Despeckle.h"
 
 
@@ -140,7 +139,6 @@ CommandLine::addImage(QString const& path)
 	// create ImageFileInfo and push to images
 	ImageId const image_id(file.filePath());
 	ImageMetadata metadata;
-	metadata.setDpi(fetchDpi());
 	std::vector<ImageMetadata> vMetadata;
 	vMetadata.push_back(metadata);
 	ImageFileInfo image_info(file, vMetadata);
@@ -155,8 +153,6 @@ CommandLine::setup()
 	m_layoutType = fetchLayoutType();
 	m_layoutDirection = fetchLayoutDirection();
 	m_colorMode = fetchColorMode();
-	m_dpi = fetchDpi();
-	m_outputDpi = fetchDpi("output-dpi");
 	m_margins = fetchMargins();
 	m_alignment = fetchAlignment();
 	m_contentDetection = fetchContentDetection();
@@ -269,26 +265,6 @@ CommandLine::fetchLayoutDirection()
 	return l;
 }
 
-Dpi
-CommandLine::fetchDpi(QString oname)
-{
-	int xdpi=600;
-	int ydpi=600;
-
-	if (m_options.contains(oname+"-x")) {
-		xdpi = m_options[oname+"-x"].toInt();
-	}
-	if (m_options.contains(oname+"-y")) {
-		ydpi = m_options[oname+"-y"].toInt();
-	}
-	if (m_options.contains(oname)) {
-		xdpi = m_options[oname].toInt();
-		ydpi = m_options[oname].toInt();
-	}
-
-	return Dpi(xdpi, ydpi);
-}
-
 output::ColorParams::ColorMode
 CommandLine::fetchColorMode()
 {
@@ -303,10 +279,10 @@ CommandLine::fetchColorMode()
 }
 
 
-Margins
+RelativeMargins
 CommandLine::fetchMargins()
 {
-	Margins margins(page_layout::Settings::defaultHardMarginsMM());
+	RelativeMargins margins(page_layout::Settings::defaultHardMargins());
 
 	if (m_options.contains("margins")) {
 		double m = m_options["margins"].toDouble();
@@ -458,6 +434,7 @@ CommandLine::fetchEndFilterIdx()
 	return m_options["end-filter"].toInt() - 1;
 }
 
+#if 0
 output::DewarpingMode
 CommandLine::fetchDewarpingMode()
 {
@@ -484,7 +461,7 @@ CommandLine::fetchDepthPerception()
 
 	return output::DepthPerception(m_options["depth-perception"]);
 }
-
+#endif
 bool
 CommandLine::hasMargins() const
 {

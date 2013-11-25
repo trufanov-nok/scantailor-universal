@@ -19,8 +19,6 @@
 #include "PngMetadataLoader.h"
 #include "ImageMetadata.h"
 #include "NonCopyable.h"
-#include "Dpi.h"
-#include "Dpm.h"
 #include <QIODevice>
 #include <QSize>
 #include <new> // for std::bad_alloc
@@ -118,18 +116,10 @@ PngMetadataLoader::loadMetadata(
 	png_read_info(png.handle(), png.info());
 	
 	QSize size;
-	Dpi dpi;
 	size.setWidth(png_get_image_width(png.handle(), png.info()));
 	size.setHeight(png_get_image_height(png.handle(), png.info()));
-	png_uint_32 res_x, res_y;
-	int unit_type;
-	if (png_get_pHYs(png.handle(), png.info(), &res_x, &res_y, &unit_type)) {
-		if (unit_type == PNG_RESOLUTION_METER) {
-			dpi = Dpm(res_x, res_y);
-		}
-	}
 	
-	out(ImageMetadata(size, dpi));
+	out(ImageMetadata(size));
 	return LOADED;
 }
 

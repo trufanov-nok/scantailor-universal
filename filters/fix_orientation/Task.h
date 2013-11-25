@@ -21,17 +21,22 @@
 
 #include "NonCopyable.h"
 #include "RefCountable.h"
+#include "AffineImageTransform.h"
+#include "CachingFactory.h"
 #include "FilterResult.h"
 #include "IntrusivePtr.h"
 #include "ImageId.h"
 
 class TaskStatus;
-class FilterData;
-class QImage;
 
 namespace page_split
 {
 	class Task;
+}
+
+namespace imageproc
+{
+	class GrayImage;
 }
 
 namespace fix_orientation
@@ -53,7 +58,10 @@ public:
 	
 	virtual ~Task();
 	
-	FilterResultPtr process(TaskStatus const& status, FilterData const& data);
+	FilterResultPtr process(
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		AffineImageTransform const& orig_image_transform);
 private:
 	class UiUpdater;
 	

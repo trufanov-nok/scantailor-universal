@@ -21,7 +21,6 @@
 #include "PageInfo.h"
 #include "PageId.h"
 #include "ImageId.h"
-#include "ImageTransformation.h"
 #include "ThumbnailBase.h"
 #include "filter_dc/AbstractFilterDataCollector.h"
 #include "filter_dc/ThumbnailCollector.h"
@@ -45,18 +44,22 @@ CacheDrivenTask::~CacheDrivenTask()
 
 void
 CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector)
-{
-	QRectF const initial_rect(QPointF(0.0, 0.0), page_info.metadata().size());
-	ImageTransformation xform(initial_rect, page_info.metadata().dpi());
-	xform.setPreRotation(m_ptrSettings->getRotationFor(page_info.imageId()));
-	
+	PageInfo const& page_info, AffineImageTransform const& image_transform,
+	AbstractFilterDataCollector* collector)
+{	
+	OrthogonalRotation const rotation(m_ptrSettings->getRotationFor(page_info.imageId()));
+
 	if (PageOrientationCollector* col = dynamic_cast<PageOrientationCollector*>(collector)) {
-		col->process(xform.preRotation());
+		col->process(rotation);
 	}
 
+	AffineImageTransform rotated_transform(image_transform);
+	rotated_transform.rotate(rotation.toDegrees());
+
 	if (m_ptrNextTask) {
-		m_ptrNextTask->process(page_info, collector, xform);
+		m_ptrNextTask->process(
+			page_info, rotation, std::move(rotated_transform), collector
+		);
 		return;
 	}
 	
@@ -66,7 +69,8 @@ CacheDrivenTask::process(
 				new ThumbnailBase(
 					thumb_col->thumbnailCache(),
 					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), xform
+					page_info.id(),
+					std::move(rotated_transform)
 				)
 			)
 		);

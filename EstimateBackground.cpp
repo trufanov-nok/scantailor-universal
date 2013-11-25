@@ -17,7 +17,6 @@
 */
 
 #include "EstimateBackground.h"
-#include "ImageTransformation.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
 #include "imageproc/GrayImage.h"
@@ -178,18 +177,11 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
 }
 
 imageproc::PolynomialSurface estimateBackground(
-	GrayImage const& input, QPolygonF const& area_to_consider,
+	GrayImage const& downscaled_input,
+	boost::optional<QPolygonF> const& region_of_intereset,
 	TaskStatus const& status, DebugImages* dbg)
 {
-	QSize reduced_size(input.size());
-	reduced_size.scale(300, 300, Qt::KeepAspectRatio);
-	GrayImage background(scaleToGray(GrayImage(input), reduced_size));
-	if (dbg) {
-		dbg->add(background, "downscaled");
-	}
-	
-	status.throwIfCancelled();
-
+	GrayImage background(downscaled_input);
 	morphologicalPreprocessingInPlace(background, dbg);
 
 	status.throwIfCancelled();
@@ -202,19 +194,14 @@ imageproc::PolynomialSurface estimateBackground(
 	
 	BinaryImage mask(background.size(), BLACK);
 	
-	if (!area_to_consider.isEmpty()) {
-		QTransform xform;
-		xform.scale(
-			(double)reduced_size.width() / input.width(),
-			(double)reduced_size.height() / input.height()
-		);
+	if (region_of_intereset) {
 		PolygonRasterizer::fillExcept(
-			mask, WHITE, xform.map(area_to_consider), Qt::WindingFill
+			mask, WHITE, *region_of_intereset, Qt::WindingFill
 		);
 	}
 	
 	if (dbg) {
-		dbg->add(mask, "area_to_consider");
+		dbg->add(mask, "region_of_intereset");
 	}
 	
 	uint32_t* mask_data = mask.data();

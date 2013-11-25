@@ -23,7 +23,6 @@
 #include "DespeckleLevel.h"
 #include "DespeckleState.h"
 #include "IntrusivePtr.h"
-#include "Dpi.h"
 #include "imageproc/BinaryImage.h"
 #include <QStackedWidget>
 #include <QImage>

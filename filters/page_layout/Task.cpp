@@ -20,15 +20,15 @@
 #include "Filter.h"
 #include "OptionsWidget.h"
 #include "Settings.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
 #include "Params.h"
 #include "Utils.h"
 #include "FilterUiInterface.h"
 #include "TaskStatus.h"
-#include "FilterData.h"
 #include "ImageView.h"
-#include "ImageTransformation.h"
-#include "PhysicalTransformation.h"
+#include "AffineTransformedImage.h"
+#include "ContentBox.h"
+#include "PageLayout.h"
 #include "filters/output/Task.h"
 #include <QSizeF>
 #include <QRectF>
@@ -48,9 +48,9 @@ public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
 		IntrusivePtr<Settings> const& settings,
 		PageId const& page_id,
-		QImage const& image,
-		ImageTransformation const& xform,
-		QRectF const& adapted_content_rect,
+		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
+		AffineTransformedImage const& affine_transformed_image,
+		ContentBox const& adapted_content_box,
 		bool agg_size_changed, bool batch);
 	
 	virtual void updateUI(FilterUiInterface* ui);
@@ -60,10 +60,9 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageId m_pageId;
-	QImage m_image;
-	QImage m_downscaledImage;
-	ImageTransformation m_xform;
-	QRectF m_adaptedContentRect;
+	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
+	AffineTransformedImage m_affineTransformedImage;
+	ContentBox m_adaptedContentBox;
 	bool m_aggSizeChanged;
 	bool m_batchProcessing;
 };
@@ -87,56 +86,66 @@ Task::~Task()
 
 FilterResultPtr
 Task::process(
-	TaskStatus const& status, FilterData const& data,
-	QRectF const& content_rect)
+	TaskStatus const& status, QImage const& orig_image,
+	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+	std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
+	boost::optional<AffineTransformedImage> pre_transformed_image,
+	ContentBox const& content_box)
 {
 	status.throwIfCancelled();
-	
-	QSizeF const content_size_mm(
-		Utils::calcRectSizeMM(data.xform(), content_rect)
-	);
-	
+
 	QSizeF agg_hard_size_before;
 	QSizeF agg_hard_size_after;
 	Params const params(
 		m_ptrSettings->updateContentSizeAndGetParams(
-			m_pageId, content_size_mm,
+			m_pageId, content_box.toTransformedRect(*orig_image_transform).size(),
 			&agg_hard_size_before, &agg_hard_size_after
 		)
 	);
-	
-	QRectF const adapted_content_rect(
-		Utils::adaptContentRect(data.xform(), content_rect)
+
+	ContentBox const adapted_content_box(
+		Utils::adaptContentBox(*orig_image_transform, content_box)
 	);
-	
+
 	if (m_ptrNextTask) {
-		QPolygonF const content_rect_phys(
-			data.xform().transformBack().map(adapted_content_rect)
-		);
-		QPolygonF const page_rect_phys(
-			Utils::calcPageRectPhys(
-				data.xform(), content_rect_phys,
-				params, agg_hard_size_after
-			)
+		QRectF const unscaled_content_rect(
+			content_box.toTransformedRect(*orig_image_transform)
 		);
 
-		ImageTransformation new_xform(data.xform());
-		new_xform.setPostCropArea(new_xform.transform().map(page_rect_phys));
+		std::shared_ptr<AbstractImageTransform> adjusted_transform(
+			orig_image_transform->clone()
+		);
+
+		PageLayout page_layout(
+			unscaled_content_rect, agg_hard_size_after,
+			params.matchSizeMode(), params.alignment(), params.hardMargins()
+		);
+		page_layout.absorbScalingIntoTransform(*adjusted_transform);
 
 		return m_ptrNextTask->process(
-			status, FilterData(data, new_xform), content_rect_phys
+			status, orig_image, gray_orig_image_factory, adjusted_transform,
+			page_layout.innerRect(), page_layout.outerRect()
 		);
-	} else if (m_ptrFilter->optionsWidget() != 0) {
+	} else if (m_ptrFilter->optionsWidget()) {
+
+		if (!pre_transformed_image)
+		{
+			pre_transformed_image = orig_image_transform->toAffine(
+				orig_image.convertToFormat(QImage::Format_ARGB32),
+				QColor(0, 0, 0, 0) // Transparent black.
+			);
+		}
+
 		return FilterResultPtr(
 			new UiUpdater(
 				m_ptrFilter, m_ptrSettings, m_pageId,
-				data.origImage(), data.xform(), adapted_content_rect,
+				orig_image_transform, *pre_transformed_image, adapted_content_box,
 				agg_hard_size_before != agg_hard_size_after,
 				m_batchProcessing
 			)
 		);
 	} else {
-		return FilterResultPtr(0);
+		return FilterResultPtr();
 	}
 }
 
@@ -147,16 +156,16 @@ Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<Settings> const& settings,
 	PageId const& page_id,
-	QImage const& image, ImageTransformation const& xform,
-	QRectF const& adapted_content_rect,
-	bool const agg_size_changed, bool const batch)
+	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
+	AffineTransformedImage const& affine_transformed_image,
+	ContentBox const& adapted_content_box,
+	bool agg_size_changed, bool batch)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
 	m_pageId(page_id),
-	m_image(image),
-	m_downscaledImage(ImageView::createDownscaledImage(image)),
-	m_xform(xform),
-	m_adaptedContentRect(adapted_content_rect),
+	m_ptrOrigTransform(orig_transform),
+	m_affineTransformedImage(affine_transformed_image),
+	m_adaptedContentBox(adapted_content_box),
 	m_aggSizeChanged(agg_size_changed),
 	m_batchProcessing(batch)
 {
@@ -182,8 +191,9 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	ImageView* view = new ImageView(
-		m_ptrSettings, m_pageId, m_image, m_downscaledImage,
-		m_xform, m_adaptedContentRect, *opt_widget
+		m_ptrSettings, m_pageId,
+		m_ptrOrigTransform, m_affineTransformedImage,
+		m_adaptedContentBox, *opt_widget
 	);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
 	
@@ -196,12 +206,12 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		opt_widget, SIGNAL(invalidateAllThumbnails())
 	);
 	QObject::connect(
-		view, SIGNAL(marginsSetLocally(Margins const&)),
-		opt_widget, SLOT(marginsSetExternally(Margins const&))
+		view, SIGNAL(marginsSetLocally(RelativeMargins const&)),
+		opt_widget, SLOT(marginsSetExternally(RelativeMargins const&))
 	);
 	QObject::connect(
-		opt_widget, SIGNAL(marginsSetLocally(Margins const&)),
-		view, SLOT(marginsSetExternally(Margins const&))
+		opt_widget, SIGNAL(marginsSetLocally(RelativeMargins const&)),
+		view, SLOT(marginsSetExternally(RelativeMargins const&))
 	);
 	QObject::connect(
 		opt_widget, SIGNAL(topBottomLinkToggled(bool)),
@@ -210,6 +220,10 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	QObject::connect(
 		opt_widget, SIGNAL(leftRightLinkToggled(bool)),
 		view, SLOT(leftRightLinkToggled(bool))
+	);
+	QObject::connect(
+		opt_widget, SIGNAL(matchSizeModeChanged(MatchSizeMode const&)),
+		view, SLOT(matchSizeModeChanged(MatchSizeMode const&))
 	);
 	QObject::connect(
 		opt_widget, SIGNAL(alignmentChanged(Alignment const&)),

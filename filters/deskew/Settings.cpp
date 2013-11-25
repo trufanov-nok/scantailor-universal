@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 */
 
 #include "Settings.h"
-#include "Utils.h"
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
+#include "../../Utils.h"
 #include <QMutexLocker>
 #include <boost/foreach.hpp>
 
@@ -64,13 +64,6 @@ Settings::setPageParams(PageId const& page_id, Params const& params)
 	Utils::mapSetValue(m_perPageParams, page_id, params);
 }
 
-void
-Settings::clearPageParams(PageId const& page_id)
-{
-	QMutexLocker locker(&m_mutex);
-	m_perPageParams.erase(page_id);
-}
-
 std::auto_ptr<Params>
 Settings::getPageParams(PageId const& page_id) const
 {
@@ -85,11 +78,38 @@ Settings::getPageParams(PageId const& page_id) const
 }
 
 void
-Settings::setDegress(std::set<PageId> const& pages, Params const& params)
+Settings::setDistortionType(
+	std::set<PageId> const& pages, DistortionType const& distortion_type)
 {
 	QMutexLocker const locker(&m_mutex);
-	BOOST_FOREACH(PageId const& page, pages) {
-		Utils::mapSetValue(m_perPageParams, page, params);
+
+	for (PageId const& page_id : pages) {
+		PerPageParams::iterator it = m_perPageParams.find(page_id);
+		if (it != m_perPageParams.end()) {
+			it->second.setDistortionType(distortion_type);
+		} else {
+			Params params((Dependencies()));
+			params.setDistortionType(distortion_type);
+			Utils::mapSetValue(m_perPageParams, page_id, params);
+		}
+	}
+}
+
+void
+Settings::setDepthPerception(
+	std::set<PageId> const& pages, dewarping::DepthPerception const& depth_perception)
+{
+	QMutexLocker const locker(&m_mutex);
+
+	for (PageId const& page_id : pages) {
+		PerPageParams::iterator it = m_perPageParams.find(page_id);
+		if (it != m_perPageParams.end()) {
+			it->second.dewarpingParams().setDepthPerception(depth_perception);
+		} else {
+			Params params((Dependencies()));
+			params.dewarpingParams().setDepthPerception(depth_perception);
+			Utils::mapSetValue(m_perPageParams, page_id, params);
+		}
 	}
 }
 

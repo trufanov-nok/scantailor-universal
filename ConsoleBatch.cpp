@@ -137,7 +137,6 @@ ConsoleBatch::createCompositeTask(
 	if (batch) {
 		debug = false;
 	}
-
 	if (last_filter_idx >= m_ptrStages->outputFilterIdx()) {
 		output_task = m_ptrStages->outputFilter()->createTask(
 			page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug
@@ -199,7 +198,8 @@ ConsoleBatch::process()
 		startFilterIdx = sf;
 	}
 
-	int endFilterIdx = m_ptrStages->outputFilterIdx();
+	//int endFilterIdx = m_ptrStages->outputFilterIdx();
+	int endFilterIdx = m_ptrStages->selectContentFilterIdx();
 	if (cli.hasEndFilterIdx()) {
 		unsigned int ef = cli.getEndFilterIdx();
 		if (ef<0 || ef>=m_ptrStages->filters().size())
@@ -244,10 +244,12 @@ ConsoleBatch::setupFilter(int idx, std::set<PageId> allPages)
 		setupDeskew(allPages);
 	else if (idx == m_ptrStages->selectContentFilterIdx())
 		setupSelectContent(allPages);
+#if 0
 	else if (idx == m_ptrStages->pageLayoutFilterIdx())
 		setupPageLayout(allPages);
 	else if (idx == m_ptrStages->outputFilterIdx())
 		setupOutput(allPages);
+#endif
 }
 
 
@@ -311,8 +313,10 @@ ConsoleBatch::setupDeskew(std::set<PageId> allPages)
 			double angle = 0.0;
 			if (cli.hasDeskewAngle())
 				angle = cli.getDeskewAngle();
-			deskew::Dependencies deps(QPolygonF(), rotation);
-			deskew::Params params(angle, deps, MODE_MANUAL);
+			deskew::Dependencies deps(QPolygonF()/*XXX*/, rotation);
+			deskew::Params params(deps);
+			params.setDistortionType(deskew::DistortionType::ROTATION);
+			params.rotationParams().setCompensationAngleDeg(angle);
 			deskew->getSettings()->setPageParams(page, params);
 		}
 	}
@@ -330,16 +334,18 @@ ConsoleBatch::setupSelectContent(std::set<PageId> allPages)
 
 		// SELECT CONTENT FILTER
 		if (cli.hasContentRect()) {
+#if 0
 			QRectF rect(cli.getContentRect());
 			QSizeF size_mm(rect.width(), rect.height());
 			select_content::Dependencies deps;
 			select_content::Params params(rect, size_mm, deps, MODE_MANUAL);
 			select_content->getSettings()->setPageParams(page, params);
+#endif
 		}
 	}
 }
 
-
+#if 0
 void
 ConsoleBatch::setupPageLayout(std::set<PageId> allPages)
 {
@@ -407,3 +413,4 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
 		output->getSettings()->setParams(page, params);
 	}
 }
+#endif

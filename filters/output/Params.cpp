@@ -30,17 +30,12 @@ namespace output
 {
 
 Params::Params()
-:	m_dpi(600, 600),
-	m_despeckleLevel(DESPECKLE_CAUTIOUS)
+:	m_despeckleLevel(DESPECKLE_CAUTIOUS)
 {
 }
 
 Params::Params(QDomElement const& el)
-:	m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
-	m_distortionModel(el.namedItem("distortion-model").toElement()),
-	m_depthPerception(el.attribute("depthPerception")),
-	m_dewarpingMode(el.attribute("dewarpingMode")),
-	m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
+:	m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
 {
 	QDomElement const cp(el.namedItem("color-params").toElement());
 	m_colorParams.setColorMode(parseColorMode(cp.attribute("colorMode")));
@@ -60,11 +55,7 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 	XmlMarshaller marshaller(doc);
 	
 	QDomElement el(doc.createElement(name));
-	el.appendChild(m_distortionModel.toXml(doc, "distortion-model"));
-	el.setAttribute("depthPerception", m_depthPerception.toString());
-	el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
 	el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
-	el.appendChild(marshaller.dpi(m_dpi, "dpi"));
 	
 	QDomElement cp(doc.createElement("color-params"));
 	cp.setAttribute(

@@ -23,8 +23,9 @@
 namespace deskew
 {
 
-ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
-		PageSelectionAccessor const& page_selection_accessor)
+ApplyDialog::ApplyDialog(
+	QWidget* parent, PageId const& cur_page,
+	PageSelectionAccessor const& page_selection_accessor)
 :	QDialog(parent),
 	m_pages(page_selection_accessor.allPages()),
 	m_curPage(cur_page),
@@ -32,19 +33,27 @@ ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
 	m_pScopeGroup(new QButtonGroup(this))
 {
 	setupUi(this);
+
 	m_pScopeGroup->addButton(thisPageRB);
 	m_pScopeGroup->addButton(allPagesRB);
 	m_pScopeGroup->addButton(thisPageAndFollowersRB);
 	m_pScopeGroup->addButton(selectedPagesRB);
+
 	if (m_selectedPages.size() <= 1) {
 		selectedPagesWidget->setEnabled(false);
 	}
-	
+
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
 
 ApplyDialog::~ApplyDialog()
 {
+}
+
+void
+ApplyDialog::setPixmap(QPixmap const& pixmap)
+{
+	distortionTypeLabel->setPixmap(pixmap);
 }
 
 void

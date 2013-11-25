@@ -23,11 +23,18 @@
 #include "RefCountable.h"
 #include "IntrusivePtr.h"
 #include "OutputFileNameGenerator.h"
+#include <memory>
 
+class QRectF;
 class QPolygonF;
 class PageInfo;
+class AbstractImageTransform;
 class AbstractFilterDataCollector;
-class ImageTransformation;
+
+namespace page_layout
+{
+	class PageLayout;
+}
 
 namespace output
 {
@@ -43,10 +50,12 @@ public:
 		OutputFileNameGenerator const& out_file_name_gen);
 	
 	virtual ~CacheDrivenTask();
-	
+
 	void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform, QPolygonF const& content_rect_phys);
+		PageInfo const& page_info,
+		std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+		QRectF const& content_rect, QRectF const& outer_rect,
+		AbstractFilterDataCollector* collector);
 private:
 	IntrusivePtr<Settings> m_ptrSettings;
 	OutputFileNameGenerator m_outFileNameGen;

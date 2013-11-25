@@ -19,8 +19,6 @@
 #include "TiffReader.h"
 #include "ImageMetadata.h"
 #include "NonCopyable.h"
-#include "Dpi.h"
-#include "Dpm.h"
 #include <QtGlobal>
 #include <QSysInfo>
 #include <QIODevice>
@@ -358,12 +356,6 @@ TiffReader::readImage(QIODevice& device, int const page_num)
 		}
 	}
 	
-	if (!metadata.dpi().isNull()) {
-		Dpm const dpm(metadata.dpi());
-		image.setDotsPerMeterX(dpm.horizontal());
-		image.setDotsPerMeterY(dpm.vertical());
-	}
-	
 	return image;
 }
 
@@ -405,26 +397,9 @@ ImageMetadata
 TiffReader::currentPageMetadata(TiffHandle const& tif)
 {
 	uint32 width = 0, height = 0;
-	float xres = 0, yres = 0;
-	uint16 res_unit = 0;
 	TIFFGetField(tif.handle(), TIFFTAG_IMAGEWIDTH, &width);
 	TIFFGetField(tif.handle(), TIFFTAG_IMAGELENGTH, &height);
-	TIFFGetField(tif.handle(), TIFFTAG_XRESOLUTION, &xres);
-	TIFFGetField(tif.handle(), TIFFTAG_YRESOLUTION, &yres);
-	TIFFGetFieldDefaulted(tif.handle(), TIFFTAG_RESOLUTIONUNIT, &res_unit);
-	return ImageMetadata(QSize(width, height), getDpi(xres, yres, res_unit));
-}
-
-Dpi
-TiffReader::getDpi(float xres, float yres, unsigned res_unit)
-{
-	switch (res_unit) {
-		case RESUNIT_INCH: // inch
-			return Dpi(qRound(xres), qRound(yres));
-		case RESUNIT_CENTIMETER: // cm
-			return Dpm(qRound(xres * 100), qRound(yres * 100));
-	}
-	return Dpi();
+	return ImageMetadata(QSize(width, height));
 }
 
 QImage

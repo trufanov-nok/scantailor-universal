@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@
 #ifndef ESTIMATE_BACKGROUND_H_
 #define ESTIMATE_BACKGROUND_H_
 
-class ImageTransformation;
+#include <boost/optional.hpp>
+
 class TaskStatus;
 class DebugImages;
 class QPolygonF;
@@ -33,11 +34,11 @@ namespace imageproc
 /**
  * \brief Estimates a grayscale background of a scanned page.
  *
- * \param input The image of a page.
- * \param area_to_consider The area in \p input image coordinates to consider.
- *        The resulting surface will only be valid in that area.
- *        This parameter can be an empty polygon, in which case all of the
- *        \p input image area is considered.
+ * \param downscaled_input A downscaled version of the original image. This
+ *        procedure is too slow for full-size images. A downscaled image of
+ *        approximately 200x300 pixels is recommended.
+ * \param region_of_intereset The area in \p downscaled_input coordinates
+ *        to consider. The resulting surface will only be valid in that area.
  * \param status The status of a task.  If it's cancelled by another thread,
  *        this function may throw an implementation-defined exception.
  * \param dbg The sink for intermediate images used for debugging purposes.
@@ -58,7 +59,8 @@ namespace imageproc
  *    provided they touch the edges, but it performs better without them.
  */
 imageproc::PolynomialSurface estimateBackground(
-	imageproc::GrayImage const& input, QPolygonF const& area_to_consider,
+	imageproc::GrayImage const& downscaled_input,
+	boost::optional<QPolygonF> const& region_of_intereset,
 	TaskStatus const& status, DebugImages* dbg = 0);
 
 #endif

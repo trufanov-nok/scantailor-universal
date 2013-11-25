@@ -17,10 +17,15 @@
 */
 
 #include "ThumbnailFactory.h"
+#include "AffineImageTransform.h"
 #include "CompositeCacheDrivenTask.h"
+#include "PageInfo.h"
 #include "filter_dc/ThumbnailCollector.h"
 #include <QGraphicsItem>
+#include <QPointF>
 #include <QSizeF>
+#include <QRectF>
+#include <QPolygonF>
 
 class ThumbnailFactory::Collector : public ThumbnailCollector
 {
@@ -57,8 +62,9 @@ ThumbnailFactory::~ThumbnailFactory()
 std::auto_ptr<QGraphicsItem>
 ThumbnailFactory::get(PageInfo const& page_info)
 {
+	AffineImageTransform image_transform(page_info.metadata().size());
 	Collector collector(m_ptrPixmapCache, m_maxSize);
-	m_ptrTask->process(page_info, &collector);
+	m_ptrTask->process(page_info, image_transform, &collector);
 	return collector.retrieveThumbnail();
 }
 

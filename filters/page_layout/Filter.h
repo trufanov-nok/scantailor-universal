@@ -32,7 +32,6 @@
 class PageId;
 class ProjectPages;
 class PageSelectionAccessor;
-class ImageTransformation;
 class QString;
 class QRectF;
 
@@ -83,8 +82,7 @@ public:
 		ProjectReader const& reader, QDomElement const& filters_el);
 	
 	void setContentBox(
-		PageId const& page_id, ImageTransformation const& xform,
-		QRectF const& content_rect);
+		PageId const& page_id, QRectF const& content_rect);
 	
 	void invalidateContentBox(PageId const& page_id);
 	

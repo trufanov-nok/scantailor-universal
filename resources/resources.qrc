@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/">
+    <file>icons/distortion-none.png</file>
+    <file>icons/distortion-rotation.png</file>
+    <file>icons/distortion-warp.png</file>
+    <file>icons/distortion-perspective.png</file>
     <file>icons/file-16.png</file>
     <file>icons/folder-16.png</file>
     <file>icons/undo-22.png</file>

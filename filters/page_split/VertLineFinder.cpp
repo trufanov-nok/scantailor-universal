@@ -17,9 +17,8 @@
 */
 
 #include "VertLineFinder.h"
-#include "ImageTransformation.h"
-#include "Dpi.h"
 #include "DebugImages.h"
+#include "AffineTransformedImage.h"
 #include "imageproc/Transform.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Grayscale.h"
@@ -49,37 +48,29 @@ using namespace imageproc;
 
 std::vector<QLineF>
 VertLineFinder::findLines(
-	QImage const& image, ImageTransformation const& xform,
-	int const max_lines, DebugImages* dbg,
-	GrayImage* gray_downscaled, QTransform* out_to_downscaled)
+	AffineTransformedImage const& image,
+	int const max_lines, DebugImages* dbg)
 {
-	int const dpi = 100;
+	AffineImageTransform downscaled_xform(image.xform());
+	downscaled_xform.scaleTo(QSize(1200, 1200), Qt::KeepAspectRatio);
 
-	ImageTransformation xform_100dpi(xform);
-	xform_100dpi.preScaleToDpi(Dpi(dpi, dpi));
-	
-	QRect target_rect(xform_100dpi.resultingRect().toRect());
-	if (target_rect.isEmpty()) {
-		target_rect.setWidth(1);
-		target_rect.setHeight(1);
-	}
+	QTransform const orig_to_downscaled(
+		image.xform().transform().inverted() * downscaled_xform.transform()
+	);
+	QRect const bounding_rect(downscaled_xform.transformedCropArea().boundingRect().toRect());
 
+	QTransform transform_back(orig_to_downscaled.inverted());
+	transform_back.translate(bounding_rect.x(), bounding_rect.y());
+
+	// From now on we work with ~100 DPI images.
 	GrayImage const gray100(
 		transformToGray(
-			image, xform_100dpi.transform(), target_rect,
+			image.origImage(), downscaled_xform.transform(), bounding_rect,
 			OutsidePixels::assumeWeakColor(Qt::black), QSizeF(5.0, 5.0)
 		)
 	);
 	if (dbg) {
 		dbg->add(gray100, "gray100");
-	}
-	
-	if (gray_downscaled) {
-		*gray_downscaled = gray100;
-	}
-	if (out_to_downscaled) {
-		*out_to_downscaled = xform.transformBack()
-				* xform_100dpi.transform();
 	}
 	
 #if 0
@@ -143,8 +134,7 @@ VertLineFinder::findLines(
 	buildWeightTable(weight_table);
 
 	// We don't want to process areas too close to the vertical edges.
-	double const margin_mm = 3.5;
-	int const margin = (int)floor(0.5 + margin_mm * constants::MM2INCH * dpi);
+	int const margin = 10;
 
 	int const x_limit = raster_lines.width() - margin;
 	int const height = raster_lines.height();
@@ -229,11 +219,8 @@ VertLineFinder::findLines(
 	}
 	
 	// Transform lines back into original coordinates.
-	QTransform const undo_100dpi(
-		xform_100dpi.transformBack() * xform.transform()
-	);
 	BOOST_FOREACH (QLineF& line, lines) {
-		line = undo_100dpi.map(line);
+		line = transform_back.map(line);
 	}
 	
 	return lines;

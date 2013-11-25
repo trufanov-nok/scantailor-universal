@@ -23,9 +23,8 @@ class QString;
 class QDomElement;
 class QSize;
 class QSizeF;
-class Dpi;
 class OrthogonalRotation;
-class Margins;
+class RelativeMargins;
 class QPointF;
 class QLineF;
 class QRect;
@@ -41,11 +40,9 @@ public:
 	
 	static QSizeF sizeF(QDomElement const& el);
 	
-	static Dpi dpi(QDomElement const& el);
-	
 	static OrthogonalRotation rotation(QDomElement const& el);
 	
-	static Margins margins(QDomElement const& el);
+	static RelativeMargins relativeMargins(QDomElement const& el);
 	
 	static QPointF pointF(QDomElement const& el);
 	

@@ -26,7 +26,6 @@
 #include "PictureLayerProperty.h"
 #include "PictureZonePropDialog.h"
 #include "Settings.h"
-#include "ImageTransformation.h"
 #include "ImagePresentation.h"
 #include "OutputMargins.h"
 #include "PixmapRenderer.h"
@@ -41,6 +40,7 @@
 #include <QPen>
 #include <QBrush>
 #include <Qt>
+#include <QDebug>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <assert.h>
@@ -96,22 +96,26 @@ private:
 
 
 PictureZoneEditor::PictureZoneEditor(
-	QImage const& image, ImagePixmapUnion const& downscaled_image,
-	imageproc::BinaryImage const& picture_mask,
-	QTransform const& image_to_virt, QPolygonF const& virt_display_area,
-	PageId const& page_id, IntrusivePtr<Settings> const& settings)
+	QImage const& transformed_orig_image,
+	ImagePixmapUnion const& downscaled_transformed_orig_image,
+	imageproc::BinaryImage const& output_picture_mask,
+	PageId const& page_id, IntrusivePtr<Settings> const& settings,
+	std::function<QPointF(QPointF const&)> const& orig_to_output,
+	std::function<QPointF(QPointF const&)> const& output_to_orig)
 :	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(image_to_virt, virt_display_area),
+		transformed_orig_image, downscaled_transformed_orig_image,
+		ImagePresentation(QTransform(), QRectF(transformed_orig_image.rect())),
 		OutputMargins()
 	),
 	m_context(*this, m_zones),
 	m_dragHandler(*this),
 	m_zoomHandler(*this),
-	m_origPictureMask(picture_mask),
+	m_outputPictureMask(output_picture_mask),
 	m_pictureMaskAnimationPhase(270),
 	m_pageId(page_id),
-	m_ptrSettings(settings)
+	m_ptrSettings(settings),
+	m_origToOutput(orig_to_output),
+	m_outputToOrig(output_to_orig)
 {
 	m_zones.setDefaultProperties(m_ptrSettings->defaultPictureZoneProperties());
 
@@ -142,7 +146,7 @@ PictureZoneEditor::PictureZoneEditor(
 	m_pictureMaskRebuildTimer.setInterval(150);
 
 	BOOST_FOREACH(Zone const& zone, m_ptrSettings->pictureZonesForPage(page_id)) {
-		EditableSpline::Ptr spline(new EditableSpline(zone.spline()));
+		EditableSpline::Ptr spline(new EditableSpline(zone.spline().transformed(m_origToOutput)));
 		m_zones.addZone(spline, zone.properties());
 	}
 }
@@ -226,7 +230,7 @@ PictureZoneEditor::initiateBuildingScreenPictureMask()
 
 	QTransform const xform(virtualToWidget());
 	IntrusivePtr<MaskTransformTask> const task(
-		new MaskTransformTask(this, m_origPictureMask, xform, viewport()->size())
+		new MaskTransformTask(this, m_outputPictureMask, xform, viewport()->size())
 	);
 
 	backgroundExecutor().enqueueTask(task);
@@ -314,7 +318,10 @@ PictureZoneEditor::commitZones()
 	ZoneSet zones;
 
 	BOOST_FOREACH(EditableZoneSet::Zone const& zone, m_zones) {
-		zones.add(Zone(*zone.spline(), *zone.properties()));
+		SerializableSpline const spline(
+			SerializableSpline(*zone.spline()).transformed(m_outputToOrig)
+		);
+		zones.add(Zone(spline, *zone.properties()));
 	}
 	
 	m_ptrSettings->setPictureZones(m_pageId, zones);

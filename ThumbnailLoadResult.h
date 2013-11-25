@@ -19,24 +19,35 @@
 #ifndef THUMBNAILLOADRESULT_H_
 #define THUMBNAILLOADRESULT_H_
 
+#include "AffineImageTransform.h"
 #include <QPixmap>
+#include <boost/optional.hpp>
+#include <assert.h>
 
 class ThumbnailLoadResult
 {
 public:
 	enum Status {
 		/**
-		 * \brief Thumbnail loaded successfully.  Pixmap is not null.
+		 * \brief Load request has been queued.
+		 *
+		 * This status will never be returned through an asynchronous
+		 * completion handler.
+		 */
+		QUEUED,
+
+		/**
+		 * \brief Thumbnail loaded successfully.
 		 */
 		LOADED,
 		
 		/**
-		 * \brief Thumbnail failed to load.  Pixmap is null.
+		 * \brief Thumbnail failed to load.
 		 */
 		LOAD_FAILED,
 		
 		/**
-		 * \brief Request has expired.  Pixmap is null.
+		 * \brief Request has expired.
 		 *
 		 * Consider the following situation: we scroll our thumbnail
 		 * list from the beginning all the way to the end.  This will
@@ -53,14 +64,28 @@ public:
 		REQUEST_EXPIRED
 	};
 	
-	ThumbnailLoadResult(Status status, QPixmap const& pixmap)
-	: m_pixmap(pixmap), m_status(status) {}
+	ThumbnailLoadResult(Status status) : m_status(status) {
+		assert(status != LOADED);
+	}
+
+	ThumbnailLoadResult(Status status, QPixmap const& pixmap,
+		boost::optional<AffineImageTransform> const& pixmap_transform)
+	: m_pixmap(pixmap), m_pixmapTransform(pixmap_transform), m_status(status) {}
 	
 	Status status() const { return m_status; }
 	
 	QPixmap const& pixmap() const { return m_pixmap; }
+
+	/**
+	 * @see ThumbnailPixmapCache::Item::pixmapTransform
+	 * @note Guaranteed to be set if status() is LOADED.
+	 */
+	boost::optional<AffineImageTransform> const& pixmapTransform() const {
+		return m_pixmapTransform;
+	}
 private:
 	QPixmap m_pixmap;
+	boost::optional<AffineImageTransform> m_pixmapTransform;
 	Status m_status;
 };
 

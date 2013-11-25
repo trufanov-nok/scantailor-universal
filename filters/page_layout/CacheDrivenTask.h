@@ -22,11 +22,13 @@
 #include "NonCopyable.h"
 #include "RefCountable.h"
 #include "IntrusivePtr.h"
+#include "ContentBox.h"
+#include <memory>
 
 class QRectF;
 class PageInfo;
+class AbstractImageTransform;
 class AbstractFilterDataCollector;
-class ImageTransformation;
 
 namespace output
 {
@@ -49,7 +51,8 @@ public:
 	
 	void process(
 		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform, QRectF const& content_rect);
+		std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+		ContentBox const& content_box);
 private:
 	IntrusivePtr<output::CacheDrivenTask> m_ptrNextTask;
 	IntrusivePtr<Settings> m_ptrSettings;

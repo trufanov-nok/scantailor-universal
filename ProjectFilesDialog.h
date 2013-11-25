@@ -42,8 +42,6 @@ public:
 	std::vector<ImageFileInfo> inProjectFiles() const;
 	
 	bool isRtlLayout() const;
-	
-	bool isDpiFixingForced() const;
 private slots:
 	static QString sanitizePath(QString const& path);
 	

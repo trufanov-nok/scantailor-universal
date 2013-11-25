@@ -5,7 +5,6 @@ INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
 SET(
 	sources
 	ApplyColorsDialog.cpp ApplyColorsDialog.h
-	ChangeDpiDialog.cpp ChangeDpiDialog.h
 	ImageView.cpp ImageView.h
 	ImageViewTab.h
 	TabbedImageView.cpp TabbedImageView.h
@@ -31,6 +30,7 @@ SET(
 	PictureZonePropDialog.cpp PictureZonePropDialog.h
 	PictureZoneComparator.cpp PictureZoneComparator.h
 	PictureZoneEditor.cpp PictureZoneEditor.h
+	OnDemandPictureZoneEditor.cpp OnDemandPictureZoneEditor.h
 	FillColorProperty.cpp FillColorProperty.h
 	FillZonePropFactory.cpp FillZonePropFactory.h
 	FillZoneComparator.cpp FillZoneComparator.h
@@ -40,10 +40,6 @@ SET(
 	DespeckleView.cpp DespeckleView.h
 	DespeckleVisualization.cpp DespeckleVisualization.h
 	DespeckleLevel.cpp DespeckleLevel.h
-	DewarpingView.cpp DewarpingView.h
-	DewarpingMode.cpp DewarpingMode.h
-	ChangeDewarpingDialog.cpp ChangeDewarpingDialog.h
-	DepthPerception.cpp DepthPerception.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 

@@ -28,8 +28,7 @@
 class QRect;
 class QPoint;
 class QImage;
-class QTransform;
-class ImageTransformation;
+class AffineTransformedImage;
 class DebugImages;
 class Span;
 
@@ -53,40 +52,31 @@ public:
 	 * \param layout_type The type of a layout to detect.  If set to
 	 *        something other than Rule::AUTO_DETECT, the returned
 	 *        layout will have the same type.
-	 * \param input The input image.  Will be converted to grayscale unless
-	 *        it's already grayscale.
-	 * \param pre_xform The logical transformation applied to the input image.
-	 *        The resulting page layout will be in transformed coordinates.
+	 * \param image The input image plus a linear transformation.
 	 * \param bw_threshold The global binarization threshold for the
 	 *        input image.
 	 * \param dbg An optional sink for debugging images.
 	 * \return The estimated PageLayout of type consistent with the
 	 *         requested layout type.
 	 */
-	static PageLayout estimatePageLayout(
-		LayoutType layout_type, QImage const& input,
-		ImageTransformation const& pre_xform,
-		imageproc::BinaryThreshold bw_threshold,
-		DebugImages* dbg = 0);
+	static PageLayout estimatePageLayout(LayoutType layout_type,
+		AffineTransformedImage const& image, DebugImages* dbg = 0);
 private:
 	static std::auto_ptr<PageLayout> tryCutAtFoldingLine(
-		LayoutType layout_type, QImage const& input,
-		ImageTransformation const& pre_xform, DebugImages* dbg);
+		LayoutType layout_type, AffineTransformedImage const& image,
+		DebugImages* dbg);
 		
 	static PageLayout cutAtWhitespace(
-		LayoutType layout_type, QImage const& input,
-		ImageTransformation const& pre_xform,
-		imageproc::BinaryThreshold const bw_threshold,
+		LayoutType layout_type, AffineTransformedImage const& image,
 		DebugImages* dbg);
 	
 	static PageLayout cutAtWhitespaceDeskewed150(
 		LayoutType layout_type, int num_pages,
-		imageproc::BinaryImage const& input,
+		imageproc::BinaryImage const& image,
 		bool left_offcut, bool right_offcut, DebugImages* dbg);
 	
-	static imageproc::BinaryImage to300DpiBinary(
-		QImage const& img, QTransform& xform,
-		imageproc::BinaryThreshold threshold);
+	static imageproc::BinaryImage binarize(
+		AffineTransformedImage const& image);
 	
 	static imageproc::BinaryImage removeGarbageAnd2xDownscale(
 		imageproc::BinaryImage const& image, DebugImages* dbg);

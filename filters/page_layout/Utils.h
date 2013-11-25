@@ -19,81 +19,55 @@
 #ifndef PAGE_LAYOUT_UTILS_H_
 #define PAGE_LAYOUT_UTILS_H_
 
-class QPolygonF;
+class QColor;
 class QPointF;
 class QSizeF;
 class QRectF;
-class Margins;
-class ImageTransformation;
+class QMarginsF;
+class AbstractImageTransform;
+class ContentBox;
 
 namespace page_layout
 {
 
+class MatchSizeMode;
 class Alignment;
-class Params;
 
 class Utils
 {
 public:
 	/**
-	 * \brief Replace an empty content rectangle with a tiny centered one.
+	 * \brief Replace an invalid content box with a tiny centered one.
 	 *
-	 * If the content rectangle is empty (no content on the page), it
-	 * creates various problems for us.  So, we replace it with a tiny
-	 * non-empty rectangle centered in the page's crop area, which
-	 * is retrieved from the ImageTransformation.
+	 * If the content box is invalid (no content on the page), it
+	 * creates various problems for us.	So, we replace it with a tiny
+	 * box centered in the page's crop area.
 	 */
-	static QRectF adaptContentRect(
-		ImageTransformation const& xform, QRectF const& content_rect);
+	static ContentBox adaptContentBox(
+		AbstractImageTransform const& image_transform,
+		ContentBox const& content_box);
 	
 	/**
-	 * \brief Calculates the physical size of a rectangle in a transformed space.
-	 */
-	static QSizeF calcRectSizeMM(
-		ImageTransformation const& xform, QRectF const& rect);
-	
-	/**
-	 * \brief Extend a rectangle transformed into a polygon with margins.
+	 * \brief Calculates margins to extend hard_size_px to aggregate_hard_size_px.
 	 *
-	 * The first edge of the polygon is considered to be the top edge, the
-	 * next one is right, and so on.  The polygon must have 4 or 5 vertices
-	 * (unclosed vs closed polygon).  It must have 90 degree angles and
-	 * must not be empty.
+	 * \param hard_size_px Source size in pixels after applying AbstractImageTransform.
+	 * \param aggregate_hard_size_mm Target size in pixels after applying AbstractImageTransform
+	 *        and optionally applying additional scaling according to MatchSizeMode::SCALE.
+	 * \param match_size_mode Determines whether and how to match the size of other pages.
+	 * \param alignment Determines how to grow margins to match the size of other pages.
+	 * \return Non-negative margins that extend \p hard_size_px to
+	 *         \p aggregate_hard_size_px. If \p match_size_mode is MatchSizeMode::DISABLED,
+	 *         zero margins are returned.
 	 */
-	static void extendPolyRectWithMargins(
-		QPolygonF& poly_rect, Margins const& margins);
-	
-	/**
-	 * \brief Calculates margins to extend hard_size_mm to aggregate_hard_size_mm.
-	 *
-	 * \param hard_size_mm Source size in millimeters.
-	 * \param aggregate_hard_size_mm Target size in millimeters.
-	 * \param alignment Determines how exactly to grow the size.
-	 * \return Non-negative margins that extend \p hard_size_mm to
-	 *         \p aggregate_hard_size_mm.
-	 */
-	static Margins calcSoftMarginsMM(
-		QSizeF const& hard_size_mm,
-		QSizeF const& aggregate_hard_size_mm,
+	static QMarginsF calcSoftMarginsPx(
+		QSizeF const& hard_size_px,
+		QSizeF const& aggregate_hard_size_px,
+		MatchSizeMode const& match_size_mode,
 		Alignment const& alignment);
-	
-	/**
-	 * \brief Calculates the page rect (content + hard margins + soft margins)
-	 *
-	 * \param xform Transformations applied to image.
-	 * \param content_rect_phys Content rectangle in transformed coordinates.
-	 * \param params Margins, aligment and other parameters.
-	 * \param aggregate_hard_size_mm Maximum width and height across all pages.
-	 * \return Page rectangle (as a polygon) in physical image coordinates.
-	 */
-	static QPolygonF calcPageRectPhys(
-		ImageTransformation const& xform,
-		QPolygonF const& content_rect_phys,
-		Params const& params, QSizeF const& aggregate_hard_size_mm);
-private:
-	static QPointF getRightUnitVector(QPolygonF const& poly_rect);
-	
-	static QPointF getDownUnitVector(QPolygonF const& poly_rect);
+
+	static QColor borderColorForMatchSizeMode(MatchSizeMode const& mode);
+
+	static QColor backgroundColorForMatchSizeMode(MatchSizeMode const& mode);
 };
 
 } // namespace page_layout

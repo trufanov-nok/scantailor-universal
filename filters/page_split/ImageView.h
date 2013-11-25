@@ -31,7 +31,7 @@
 #include "IntrusivePtr.h"
 #include <QPixmap>
 
-class ImageTransformation;
+class AffineTransformedImage;
 class ProjectPages;
 class PageInfo;
 class QPointF;
@@ -47,10 +47,10 @@ class ImageView :
 {
 	Q_OBJECT
 public:
-	ImageView(QImage const& image, QImage const& downscaled_image,
-		ImageTransformation const& xform, PageLayout const& layout,
-		IntrusivePtr<ProjectPages> const& pages, ImageId const& image_id,
-		bool left_half_removed, bool right_half_removed);
+	ImageView(
+		AffineTransformedImage const& full_size_image,
+		PageLayout const& layout, IntrusivePtr<ProjectPages> const& pages,
+		ImageId const& image_id, bool left_half_removed, bool right_half_removed);
 	
 	virtual ~ImageView();
 signals:

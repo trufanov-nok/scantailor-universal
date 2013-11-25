@@ -34,9 +34,19 @@
 template<typename T>
 class CachingFactory
 {
+private:
+	struct SharedState
+	{
+		std::mutex mutex;
+		std::function<T()> factory;
+		boost::optional<T> cached;
+
+		template<typename F>
+		SharedState(F&& factory) : factory(std::forward<F>(factory)) {}
+	};
 public:
 	template<typename F>
-	CachingFactory(F&& factory)
+	explicit CachingFactory(F&& factory)
 	: m_ptrState(std::make_shared<SharedState>(std::forward<F>(factory))) {}
 
 	T operator()() const {
@@ -62,16 +72,6 @@ public:
 		s.cached.reset();
 	}
 private:
-	struct SharedState
-	{
-		std::mutex mutex;
-		std::function<T()> factory;
-		boost::optional<T> cached;
-
-		template<typename F>
-		SharedState(F&& factory) : factory(std::forward<F>(factory)) {}
-	};
-
 	std::shared_ptr<SharedState> m_ptrState;
 };
 

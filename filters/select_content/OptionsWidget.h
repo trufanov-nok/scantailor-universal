@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,11 +23,12 @@
 #include "FilterOptionsWidget.h"
 #include "IntrusivePtr.h"
 #include "AutoManualMode.h"
+#include "ContentBox.h"
 #include "Dependencies.h"
-#include "PhysSizeCalc.h"
 #include "PageId.h"
 #include "PageSelectionAccessor.h"
 #include "Params.h"
+#include <boost/optional.hpp>
 #include <QSizeF>
 #include <QRectF>
 #include <memory>
@@ -42,36 +43,6 @@ class OptionsWidget :
 {
 	Q_OBJECT
 public:
-	class UiData
-	{
-		// Member-wise copying is OK.
-	public:
-		UiData();
-		
-		~UiData();
-		
-		void setSizeCalc(PhysSizeCalc const& calc);
-
-		void setContentRect(QRectF const& content_rect);
-		
-		QRectF const& contentRect() const;
-
-		QSizeF contentSizeMM() const;
-		
-		void setDependencies(Dependencies const& deps);
-		
-		Dependencies const& dependencies() const;
-		
-		void setMode(AutoManualMode mode);
-		
-		AutoManualMode mode() const;
-	private:
-		QRectF m_contentRect; // In virtual image coordinates.
-		PhysSizeCalc m_sizeCalc;
-		Dependencies m_deps;
-		AutoManualMode m_mode;
-	};
-	
 	OptionsWidget(IntrusivePtr<Settings> const& settings,
 		PageSelectionAccessor const& page_selection_accessor);
 	
@@ -79,9 +50,10 @@ public:
 	
 	void preUpdateUI(PageId const& page_id);
 	
-	void postUpdateUI(UiData const& ui_data);
+	void postUpdateUI(Params const& params);
 public slots:
-	void manualContentRectSet(QRectF const& content_rect);
+	void manualContentBoxSet(
+		ContentBox const& content_box, QSizeF const& content_size_px);
 private slots:
 	void showApplyToDialog();
 
@@ -94,7 +66,7 @@ private:
 	void commitCurrentParams();
 	
 	IntrusivePtr<Settings> m_ptrSettings;
-	UiData m_uiData;
+	boost::optional<Params> m_params;
 	PageSelectionAccessor m_pageSelectionAccessor;
 	PageId m_pageId;
 	int m_ignoreAutoManualToggle;

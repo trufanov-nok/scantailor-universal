@@ -25,22 +25,23 @@
 #include "PageId.h"
 #include "ImageViewTab.h"
 #include "OutputFileNameGenerator.h"
+#include "CachingFactory.h"
 #include <QColor>
 #include <memory>
 
 class DebugImages;
 class TaskStatus;
-class FilterData;
 class ThumbnailPixmapCache;
-class ImageTransformation;
+class AbstractImageTransform;
 class QPolygonF;
 class QSize;
+class QRectF;
 class QImage;
-class Dpi;
 
 namespace imageproc
 {
 	class BinaryImage;
+	class GrayImage;
 }
 
 namespace output
@@ -62,8 +63,10 @@ public:
 	virtual ~Task();
 	
 	FilterResultPtr process(
-		TaskStatus const& status, FilterData const& data,
-		QPolygonF const& content_rect_phys);
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
+		QRectF const& content_rect, QRectF const& outer_rect);
 private:
 	class UiUpdater;
 	

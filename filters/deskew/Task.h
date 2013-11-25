@@ -23,18 +23,20 @@
 #include "RefCountable.h"
 #include "FilterResult.h"
 #include "PageId.h"
+#include "CachingFactory.h"
 #include <memory>
 
 class TaskStatus;
-class FilterData;
+class AffineImageTransform;
+class OrthogonalRotation;
 class QImage;
 class QSize;
-class Dpi;
 class DebugImages;
 
 namespace imageproc
 {
 	class BinaryImage;
+	class GrayImage;
 };
 
 namespace select_content
@@ -47,6 +49,7 @@ namespace deskew
 
 class Filter;
 class Settings;
+class Params;
 
 class Task : public RefCountable
 {
@@ -60,17 +63,37 @@ public:
 	virtual ~Task();
 	
 	FilterResultPtr process(
-		TaskStatus const& status, FilterData const& data);
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		AffineImageTransform const& orig_image_transform,
+		OrthogonalRotation const& pre_rotation);
 private:
-	class UiUpdater;
-		
-	static void cleanup(
-		TaskStatus const& status,
-		imageproc::BinaryImage& img, Dpi const& dpi);
-	
-	static int from150dpi(int size, int target_dpi);
-	
-	static QSize from150dpi(QSize const& size, Dpi const& target_dpi);
+	class NoDistortionUiUpdater;
+	class RotationUiUpdater;
+	class PerspectiveUiUpdater;
+	class DewarpingUiUpdater;
+
+	FilterResultPtr processNoDistortion(
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		AffineImageTransform const& orig_image_transform, Params& params);
+
+	FilterResultPtr processRotationDistortion(
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		AffineImageTransform const& orig_image_transform, Params& params);
+
+	FilterResultPtr processPerspectiveDistortion(
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		AffineImageTransform const& orig_image_transform, Params& params);
+
+	FilterResultPtr processWarpDistortion(
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		AffineImageTransform const& orig_image_transform, Params& params);
+
+	static void cleanup(TaskStatus const& status, imageproc::BinaryImage& img);
 	
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;

@@ -43,10 +43,16 @@ public:
 	~Params();
 	
 	PageLayout const& pageLayout() const { return m_layout; }
+
+	void setPageLayout(PageLayout const& layout) { m_layout = layout; }
 	
 	Dependencies const& dependencies() const { return m_deps; }
+
+	void setDependencies(Dependencies const& deps) { m_deps = deps; }
 	
 	AutoManualMode splitLineMode() const { return m_splitLineMode; }
+
+	void setSplitLineMode(AutoManualMode mode) { m_splitLineMode = mode; }
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:

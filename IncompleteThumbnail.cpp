@@ -31,9 +31,12 @@ QPainterPath IncompleteThumbnail::m_sCachedPath;
 
 IncompleteThumbnail::IncompleteThumbnail(
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-	QSizeF const& max_size, ImageId const& image_id,
-	ImageTransformation const& image_xform)
-:	ThumbnailBase(thumbnail_cache, max_size, image_id, image_xform)
+	QSizeF const& max_display_size, PageId const& page_id,
+	AbstractImageTransform const& full_size_image_transform)
+:	ThumbnailBase(
+		thumbnail_cache, max_display_size,
+		page_id, full_size_image_transform
+	)
 {
 }
 
@@ -144,7 +147,7 @@ IncompleteThumbnail::drawQuestionMark(QPainter& painter, QRectF const& bounding_
 
 void
 IncompleteThumbnail::paintOverImage(
-	QPainter& painter, QTransform const& image_to_display,
+	QPainter& painter, QTransform const& transformed_to_display,
 	QTransform const& thumb_to_display)
 {
 	drawQuestionMark(painter, boundingRect());

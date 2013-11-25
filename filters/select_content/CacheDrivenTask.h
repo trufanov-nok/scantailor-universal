@@ -22,11 +22,12 @@
 #include "NonCopyable.h"
 #include "RefCountable.h"
 #include "IntrusivePtr.h"
+#include <memory>
 
 class QSizeF;
 class PageInfo;
 class AbstractFilterDataCollector;
-class ImageTransformation;
+class AbstractImageTransform;
 
 namespace page_layout
 {
@@ -47,9 +48,9 @@ public:
 	
 	virtual ~CacheDrivenTask();
 	
-	void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform);
+	void process(PageInfo const& page_info,
+		std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+		AbstractFilterDataCollector* collector);
 private:
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<page_layout::CacheDrivenTask> m_ptrNextTask;

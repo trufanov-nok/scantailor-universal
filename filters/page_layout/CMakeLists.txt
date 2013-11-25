@@ -15,6 +15,8 @@ SET(
 	Thumbnail.cpp Thumbnail.h
 	ApplyDialog.cpp ApplyDialog.h
 	Alignment.cpp Alignment.h
+	MatchSizeMode.cpp MatchSizeMode.h
+	PageLayout.cpp PageLayout.h
 	OrderByWidthProvider.cpp OrderByWidthProvider.h
 	OrderByHeightProvider.cpp OrderByHeightProvider.h
 )

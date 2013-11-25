@@ -21,15 +21,15 @@
 
 #include "AbstractFilterDataCollector.h"
 
-class ImageTransformation;
-class QRectF;
+class AbstractImageTransform;
+class ContentBox;
 
 class ContentBoxCollector : public AbstractFilterDataCollector
 {
 public:
 	virtual void process(
-		ImageTransformation const& xform,
-		QRectF const& content_rect) = 0;
+		AbstractImageTransform const& xform,
+		ContentBox const& content_box) = 0;
 };
 
 #endif

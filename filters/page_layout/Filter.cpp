@@ -22,7 +22,8 @@
 #include "Task.h"
 #include "PageId.h"
 #include "Settings.h"
-#include "Margins.h"
+#include "RelativeMargins.h"
+#include "MatchSizeMode.h"
 #include "Alignment.h"
 #include "Params.h"
 #include "ProjectPages.h"
@@ -119,9 +120,11 @@ Filter::performRelinking(AbstractRelinker const& relinker)
 void
 Filter::preUpdateUI(FilterUiInterface* ui, PageId const& page_id)
 {
-	Margins const margins_mm(m_ptrSettings->getHardMarginsMM(page_id));
+	RelativeMargins const margins(m_ptrSettings->getHardMargins(page_id));
+	MatchSizeMode const match_size_mode(m_ptrSettings->getMatchSizeMode(page_id));
 	Alignment const alignment(m_ptrSettings->getPageAlignment(page_id));
-	m_ptrOptionsWidget->preUpdateUI(page_id, margins_mm, alignment);
+
+	m_ptrOptionsWidget->preUpdateUI(page_id, margins, match_size_mode, alignment);
 	ui->setOptionsWidget(m_ptrOptionsWidget.get(), ui->KEEP_OWNERSHIP);
 }
 
@@ -203,11 +206,9 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
 
 void
 Filter::setContentBox(
-	PageId const& page_id, ImageTransformation const& xform,
-	QRectF const& content_rect)
+	PageId const& page_id, QRectF const& content_rect)
 {
-	QSizeF const content_size_mm(Utils::calcRectSizeMM(xform, content_rect));
-	m_ptrSettings->setContentSizeMM(page_id, content_size_mm);
+	m_ptrSettings->setContentSize(page_id, content_rect.size());
 }
 
 void
