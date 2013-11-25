@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
 
-IF(COMMAND cmake_policy)
-        # Suppress warnings.
-        cmake_policy(SET CMP0003 NEW)
-ENDIF(COMMAND cmake_policy)
+IF(POLICY CMP0003)
+	# Allow linking with full library path instead of -L/path -llibrary
+	CMAKE_POLICY(SET CMP0003 NEW)
+ENDIF()
 
 SET(
         CMAKE_USER_MAKE_RULES_OVERRIDE
@@ -84,7 +84,7 @@ IF(CMAKE_COMPILER_IS_GNUCC)
         ST_SET_DEFAULT_GCC_FLAGS()
 ENDIF(CMAKE_COMPILER_IS_GNUCC)
 
-GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
+GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/.." ABSOLUTE)
 GET_FILENAME_COMPONENT(build_outer_dir "${PROJECT_BINARY_DIR}/.." ABSOLUTE)
 
 SET(STAGING_LIBS_DIR "")
@@ -112,6 +112,7 @@ IF(WIN32)
                 )
         ENDIF()
         SET(STAGING_LIBS_DIR "${DEPS_BUILD_DIR}/staging/libs")
+        INCLUDE("${DEPS_BUILD_DIR}/export-vars.cmake")
 
         IF (NOT QT_SRC_DIR OR NOT EXISTS "${QT_SRC_DIR}")
                 FILE(GLOB qt_dirs1 "${build_outer_dir}/qt-win-*-5.[0-9]*")
@@ -165,25 +166,11 @@ IF(ENABLE_OPENGL)
         FIND_PACKAGE(Qt5OpenGL REQUIRED)
 ENDIF()
 
-
-FILE(GLOB jpeg_dirs1 "${build_outer_dir}/jpeg-[0-9]*")
-FILE(GLOB jpeg_dirs2 "${source_outer_dir}/jpeg-[0-9]*")
-FILE(GLOB zlib_dirs1 "${build_outer_dir}/zlib-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB zlib_dirs2 "${source_outer_dir}/zlib-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB png_dirs1 "${build_outer_dir}/libpng-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB png_dirs2 "${source_outer_dir}/libpng-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB png_dirs3 "${build_outer_dir}/lpng[0-9]*")
-FILE(GLOB png_dirs4 "${source_outer_dir}/lpng[0-9]*")
-FILE(GLOB tiff_dirs1 "${build_outer_dir}/tiff-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB tiff_dirs2 "${source_outer_dir}/tiff-[0-9]*.[0-9]*.[0-9]*")
-FILE(GLOB boost_dirs1 "${build_outer_dir}/boost_1_[0-9]*_[0-9]*")
-FILE(GLOB boost_dirs2 "${source_outer_dir}/boost_1_[0-9]*_[0-9]*")
-
 FIND_PATH(
-        JPEG_INCLUDE_DIR jpeglib.h
-        PATHS /usr/local/include /usr/include
-        HINTS ${jpeg_dirs1} ${jpeg_dirs2}
-        DOC "Path to libjpeg headers."
+	JPEG_INCLUDE_DIR jpeglib.h
+	PATHS /usr/local/include /usr/include
+	HINTS ${JPEG_DIR} # JPEG_DIR may come from export-vars.cmake
+	DOC "Path to libjpeg headers."
 )
 IF(NOT JPEG_INCLUDE_DIR)
         MESSAGE(
@@ -196,10 +183,10 @@ ENDIF()
 INCLUDE_DIRECTORIES("${JPEG_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-        JPEG_LIBRARY NAMES jpeg libjpeg.lib
-        PATHS /usr/local/lib /usr/lib
-        HINTS ${jpeg_dirs1} ${jpeg_dirs2} ${STAGING_LIBS_DIR}
-        DOC "Path to jpeg library."
+	JPEG_LIBRARY NAMES jpeg libjpeg.lib
+	PATHS /usr/local/lib /usr/lib
+	HINTS ${STAGING_LIBS_DIR}
+	DOC "Path to jpeg library."
 )
 IF(NOT JPEG_LIBRARY)
         MESSAGE(
@@ -211,10 +198,10 @@ ENDIF()
 
 
 FIND_PATH(
-        ZLIB_INCLUDE_DIR zlib.h
-        PATHS /usr/local/include /usr/include
-        HINTS ${zlib_dirs1} ${zlib_dirs2}
-        DOC "Path to zlib headers."
+	ZLIB_INCLUDE_DIR zlib.h
+	PATHS /usr/local/include /usr/include
+	HINTS ${ZLIB_DIR} # ZLIB_DIR may come from export-vars.cmake
+	DOC "Path to zlib headers."
 )
 IF(NOT ZLIB_INCLUDE_DIR)
         MESSAGE(
@@ -227,10 +214,10 @@ ENDIF()
 INCLUDE_DIRECTORIES("${ZLIB_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-        ZLIB_LIBRARY NAMES z zdll.lib
-        PATHS /usr/local/lib /usr/lib
-        HINTS ${zlib_dirs1} ${zlib_dirs2} ${STAGING_LIBS_DIR}
-        DOC "Path to zlib library."
+	ZLIB_LIBRARY NAMES z zdll.lib
+	PATHS /usr/local/lib /usr/lib
+	HINTS ${STAGING_LIBS_DIR}
+	DOC "Path to zlib library."
 )
 IF(NOT ZLIB_LIBRARY)
         MESSAGE(
@@ -241,10 +228,10 @@ IF(NOT ZLIB_LIBRARY)
 ENDIF()
 
 FIND_PATH(
-        PNG_INCLUDE_DIR png.h
-        PATHS /usr/local/include /usr/include
-        HINTS ${png_dirs1} ${png_dirs2} ${png_dirs3} ${png_dirs4}
-        DOC "Path to libpng headers."
+	PNG_INCLUDE_DIR png.h
+	PATHS /usr/local/include /usr/include
+	HINTS ${PNG_DIR} # PNG_DIR may come from export-vars.cmake
+	DOC "Path to libpng headers."
 )
 IF(NOT PNG_INCLUDE_DIR)
         MESSAGE(
@@ -257,10 +244,10 @@ ENDIF()
 INCLUDE_DIRECTORIES("${PNG_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-        PNG_LIBRARY NAMES png libpng.lib
-        PATHS /usr/local/lib /usr/lib
-        HINTS ${png_dirs1} ${png_dirs2} ${png_dirs3} ${png_dirs4} ${STAGING_LIBS_DIR}
-        DOC "Path to png library."
+	PNG_LIBRARY NAMES png libpng.lib
+	PATHS /usr/local/lib /usr/lib
+	HINTS ${STAGING_LIBS_DIR}
+	DOC "Path to png library."
 )
 IF(NOT PNG_LIBRARY)
         MESSAGE(
@@ -272,11 +259,11 @@ ENDIF()
 
 
 FIND_PATH(
-        TIFF_INCLUDE_DIR tiff.h
-        PATHS /usr/local/include /usr/include
-        HINTS ${tiff_dirs1} ${tiff_dirs2}
-        PATH_SUFFIXES libtiff
-        DOC "Path to libtiff headers."
+	TIFF_INCLUDE_DIR tiff.h
+	PATHS /usr/local/include /usr/include
+	HINTS ${TIFF_DIR} # TIFF_DIR may come from export-vars.cmake
+	PATH_SUFFIXES libtiff
+	DOC "Path to libtiff headers."
 )
 IF(NOT TIFF_INCLUDE_DIR)
         MESSAGE(
@@ -289,11 +276,11 @@ ENDIF()
 INCLUDE_DIRECTORIES("${TIFF_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-        TIFF_LIBRARY tiff libtiff.lib
-        PATHS /usr/local/lib /usr/lib
-        HINTS ${tiff_dirs1} ${tiff_dirs2} ${STAGING_LIBS_DIR}
-        PATH_SUFFIXES libtiff
-        DOC "Path to tiff library."
+	TIFF_LIBRARY tiff libtiff.lib
+	PATHS /usr/local/lib /usr/lib
+	HINTS ${STAGING_LIBS_DIR}
+	PATH_SUFFIXES libtiff
+	DOC "Path to tiff library."
 )
 IF(NOT TIFF_LIBRARY)
         MESSAGE(
@@ -309,11 +296,7 @@ ENDIF()
 
 
 IF(WIN32)
-        FIND_PATH(
-                BOOST_ROOT boost-build.jam PATHS ${boost_dirs1} ${boost_dirs2}
-                DOC "Path to top-level Boost source directory."
-        )
-        SET(Boost_USE_STATIC_LIBS ON)
+	SET(Boost_USE_STATIC_LIBS ON)
 ELSE(WIN32)
         ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK)
 ENDIF(WIN32)
@@ -360,9 +343,6 @@ IF(UNIX)
                         "Try specifying them manually in PTHREADS_CFLAGS and PTHREADS_LIBS."
                 )
         ENDIF(PTHREADS_FOUND)
-ELSEIF(MINGW)
-        ADD_DEFINITIONS(-mthreads)
-        LINK_LIBRARIES(-mthreads)
 ELSEIF(WIN32)
         ADD_DEFINITIONS(-DNOMINMAX)
 ENDIF(UNIX)

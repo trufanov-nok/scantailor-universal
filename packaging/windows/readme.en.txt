@@ -3,7 +3,7 @@ This document describes building the Windows version of Scan Tailor.
 Earlier versions of Scan Tailor supported both Visual Studio and MinGW
 compilers. MinGW support was dropped at some point, in order to reduce
 maintenance effort. Furthermore, Scan Tailor started to use some C++11
-features, making Visual Studio versions below 2012 not supported.
+features, making Visual Studio versions below 2013 not supported.
 
 
                                 Downloading Prerequisites
@@ -11,7 +11,7 @@ features, making Visual Studio versions below 2012 not supported.
 First, download the following software.  Unless stated otherwise, take the
 latest stable version.
 
-1. Visual Studio Express 2012 for Windows Desktop.
+1. Visual Studio Express 2013 for Windows Desktop.
    Homepage: http://www.microsoft.com/visualstudio/eng/products/visual-studio-express-products
 2. CMake >= 2.8.9
    Homepage: http://www.cmake.org
@@ -35,7 +35,7 @@ latest stable version.
    The process of patching libtiff is described later in this document.
    If you aren't going to distribute your Scan Tailor build and aren't going
    to open files from untrusted sources, then you don't really need patching it.
-7. Qt 5.x.x (tested with 5.0.2)
+7. Qt 5.x.x (tested with 5.1.1)
    Homepage: http://qt-project.org/
    Either a source-only or any of the binary versions will do. In either case
    a custom build of Qt will be made, though a binary version will result in
@@ -45,7 +45,7 @@ latest stable version.
    A 32-bit version is suggested. Whether or not 64-bit version would work
    is unclear. When installing make sure that "Add Perl to the PATH environment
    variable" option is set.
-9. Boost (tested with 1.53.0)
+9. Boost (tested with 1.55.0)
    Homepage: http://boost.org/
    You can download it in any file format, provided you know how to unpack it.
 10. NSIS 2.x (tested with 2.46)
@@ -61,7 +61,7 @@ latest stable version.
    itself to the build directory.  You should get a directory structure like
    this:
    C:\build
-     | boost_1_53_0
+	 | boost_1_55_0
      | jpeg-9
      | libpng-1.6.2
      | scantailor-0.10.0
@@ -86,10 +86,10 @@ latest stable version.
    Where is the source code: C:\build\scantailor-0.10.0\packaging\windows\build-deps
    Where to build the binaries: C:\build\scantailor-deps-build
 
-   Click "Configure". Select the project type "Visual Studio 11" or
-   "Visual Studio 11 Win64" for 64-bit builds. Keep in mind that 64-bit
-   builds are only possible on a 64-bit version of Windows. Visual Studio 11
-   is the same as Visual Studio 2012. If any of the paths weren't found,
+   Click "Configure". Select the project type "Visual Studio 12" or
+   "Visual Studio 12 Win64" for 64-bit builds. Keep in mind that 64-bit
+   builds are only possible on a 64-bit version of Windows. Visual Studio 12
+   is the same as Visual Studio 2013. If any of the paths weren't found,
    enter them manually, then click "Configure" again. If everything went right,
    the "Generate" button will become clickable. Click it. Sometimes it's
    necessary to click "Configure" more than once before "Generate" becomes
