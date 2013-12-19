@@ -112,7 +112,7 @@ font-weight:bold;</string>
             <x>0</x>
             <y>0</y>
             <width>423</width>
-            <height>484</height>
+            <height>500</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -263,6 +263,13 @@ font-weight:bold;</string>
               </widget>
              </item>
              <item>
+              <widget class="QLabel" name="label_30">
+               <property name="text">
+                <string>Hxcan Cai - Simplified Chinese</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QLabel" name="label_23">
                <property name="text">
                 <string>Marián Hvolka - Slovak</string>
@@ -366,9 +373,9 @@ font-weight:bold;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-862</y>
-            <width>423</width>
-            <height>1106</height>
+            <y>0</y>
+            <width>112</width>
+            <height>4482</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
