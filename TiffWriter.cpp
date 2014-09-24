@@ -298,6 +298,9 @@ TiffWriter::writeBitonalOrIndexed8Image(
 	TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, bits_per_sample);
 	TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, photometric);
 	
+	if (bits_per_sample == 8)
+		TIFFSetField(tif.handle(), TIFFTAG_PREDICTOR, PREDICTOR_HORIZONTAL);
+	
 	if (photometric == PHOTOMETRIC_PALETTE) {
 		int const num_colors = 1 << bits_per_sample;
 		QVector<QRgb> color_table(image.colorTable());
@@ -337,6 +340,7 @@ TiffWriter::writeRGB32Image(
 	TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION, uint16(compression));
 	TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, uint16(8));
 	TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+	TIFFSetField(tif.handle(), TIFFTAG_PREDICTOR, PREDICTOR_HORIZONTAL);
 	
 	int const width = image.width();
 	int const height = image.height();
@@ -374,6 +378,7 @@ TiffWriter::writeARGB32Image(
 	TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION, uint16(compression));
 	TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, uint16(8));
 	TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+	TIFFSetField(tif.handle(), TIFFTAG_PREDICTOR, PREDICTOR_HORIZONTAL);
 	
 	int const width = image.width();
 	int const height = image.height();
