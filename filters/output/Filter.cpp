@@ -192,7 +192,10 @@ Filter::createTask(
 //Dont_Equalize_Illumination_Pic_Zones
 	//bool const batch, bool const debug)
 	bool const batch, bool const debug,	
-	bool dont_equalize_illumination_pic_zones)
+	bool dont_equalize_illumination_pic_zones,
+	bool keep_orig_fore_subscan,
+//Original_Foreground_Mixed
+	QImage* p_orig_fore_subscan)
 //end of modified by monday2000
 {
 	ImageViewTab lastTab(TAB_OUTPUT);
@@ -205,7 +208,10 @@ Filter::createTask(
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
 			//lastTab, batch, debug
-			lastTab, batch, debug, dont_equalize_illumination_pic_zones
+			lastTab, batch, debug, dont_equalize_illumination_pic_zones,
+			keep_orig_fore_subscan, 
+//Original_Foreground_Mixed
+			p_orig_fore_subscan
 //end of modified by monday2000
 		)
 	);

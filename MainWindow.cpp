@@ -174,8 +174,13 @@ MainWindow::MainWindow()
 //Export_Subscans
 //added:
 	m_outpaths_vector(0),
+	m_closing(false),
+//Export_Subscans
+	m_exportTimerId(0),
+	m_keep_orig_fore_subscan(0),
+	m_dont_equalize_illumination_pic_zones(0)	
 //end of modified by monday2000
-	m_closing(false)
+
 {
 	m_maxLogicalThumbSize = QSize(250, 160);
 	m_ptrThumbSequence.reset(new ThumbnailSequence(m_maxLogicalThumbSize));
@@ -305,6 +310,11 @@ MainWindow::MainWindow()
 	connect(
 		actionExport, SIGNAL(triggered(bool)),
 		this, SLOT(openExportDialog())
+	);
+//Original_Foreground_Mixed
+	connect(
+		this, SIGNAL(StartExportTimerSignal()),
+		this, SLOT(StartExportTimer())
 	);
 //end of modified by monday2000
 	connect(
@@ -1684,6 +1694,7 @@ MainWindow::openSettingsDialog()
 
 //begin of modified by monday2000
 //Export_Subscans
+//Original_Foreground_Mixed
 //added:
 void
 MainWindow::openExportDialog()
@@ -1701,7 +1712,7 @@ MainWindow::openExportDialog()
 
 
 template<typename MixedPixel>
-bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2)
+bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2, bool keep_orig_fore_subscan = false, QImage* p_orig_fore_subscan = NULL)
 {
 	int const width = source_img.width();
 	int const height = source_img.height();
@@ -1709,7 +1720,14 @@ bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2)
 	MixedPixel* source_line = reinterpret_cast<MixedPixel*>(source_img.bits());
 	int const source_stride = source_img.bytesPerLine() / sizeof(MixedPixel);
 
-	subscan1 = QImage(source_img.width(),source_img.height(),QImage::Format_Mono);
+	QImage::Format format;
+
+	if (keep_orig_fore_subscan)
+		format = source_img.format();
+	else
+		format = QImage::Format_Mono;
+
+	subscan1 = QImage(source_img.width(),source_img.height(),format);
 	subscan2 = QImage(source_img.width(),source_img.height(),source_img.format());
 
 	subscan1.setDotsPerMeterX(source_img.dotsPerMeterX());
@@ -1717,10 +1735,22 @@ bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2)
 	subscan2.setDotsPerMeterX(source_img.dotsPerMeterX());
 	subscan2.setDotsPerMeterY(source_img.dotsPerMeterY());
 
+	if (keep_orig_fore_subscan)
+	{
+		if (subscan1.format() == QImage::Format_Indexed8) 
+		{	//createGrayscalePalette() from C:\build\scantailor-0.9.11.1\imageproc\Grayscale.cpp
+			QVector<QRgb> palette(256);
+			for (int i = 0; i < 256; ++i) palette[i] = qRgb(i, i, i);
+			subscan1.setColorTable(palette);
+		}
+	}
+	else
+	{
 	QVector<QRgb> bw_palette(2);	
 	bw_palette[0] = qRgb(0, 0, 0);
 	bw_palette[1] = qRgb(255, 255, 255);
 	subscan1.setColorTable(bw_palette);
+	}
 
 	if (subscan2.format() == QImage::Format_Indexed8) 
 	{	//createGrayscalePalette() from C:\build\scantailor-0.9.11.1\imageproc\Grayscale.cpp
@@ -1729,11 +1759,23 @@ bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2)
 		subscan2.setColorTable(palette);
 	}
 
-	uchar* subscan1_line = subscan1.bits();
-	int const subscan1_stride = subscan1.bytesPerLine();
+	MixedPixel* subscan1_line = reinterpret_cast<MixedPixel*>(subscan1.bits());	
+	int subscan1_stride = subscan1.bytesPerLine() / sizeof(MixedPixel);
+
+	uchar* subscan1_bw_line = subscan1.bits();
+	int const subscan1_bw_stride = subscan1.bytesPerLine();
 
 	MixedPixel* subscan2_line = reinterpret_cast<MixedPixel*>(subscan2.bits());
 	int const subscan2_stride = subscan2.bytesPerLine() / sizeof(MixedPixel);
+
+	MixedPixel* orig_fore_line = NULL;
+	int orig_fore_stride = 0;
+
+	if (keep_orig_fore_subscan)
+	{
+		orig_fore_line = reinterpret_cast<MixedPixel*>(p_orig_fore_subscan->bits());
+		orig_fore_stride = p_orig_fore_subscan->bytesPerLine() / sizeof(MixedPixel);
+	}
 
 	uint32_t tmp_white_pixel = 0xffffffff;
 	uint32_t mask_pixel = 0x00ffffff;
@@ -1748,24 +1790,46 @@ bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2)
 		{	//this line of code was suggested by Tulon:		
 			if ((source_line[x] & mask) == 0 || (source_line[x] & mask) == mask) // BW
 			{				
+				if (keep_orig_fore_subscan)
+				{
+					subscan1_line[x] = orig_fore_line[x];
+				}
+				else
+				{
 				uint8_t value1 = static_cast<uint8_t>(source_line[x]);
 				//BW SetPixel from http://djvu-soft.narod.ru/bookscanlib/023.htm
-				value1 ? subscan1_line[x >> 3] |= (0x80 >> (x & 0x7)) : subscan1_line[x >> 3] &= (0xFF7F >> (x & 0x7));
+				value1 ? subscan1_bw_line[x >> 3] |= (0x80 >> (x & 0x7)) : subscan1_bw_line[x >> 3] &= (0xFF7F >> (x & 0x7));
+				}
+
 				subscan2_line[x] = static_cast<MixedPixel>(tmp_white_pixel);
 
 				mixed_detected = true;
 			}
 			else // non-BW
+			{				
+				if (keep_orig_fore_subscan)
+				{
+					subscan1_line[x] = static_cast<MixedPixel>(tmp_white_pixel);
+				}
+				else
 			{
 				uint8_t value = static_cast<uint8_t>(tmp_white_pixel);
 				//BW SetPixel from http://djvu-soft.narod.ru/bookscanlib/023.htm
-				value ? subscan1_line[x >> 3] |= (0x80 >> (x & 0x7)) : subscan1_line[x >> 3] &= (0xFF7F >> (x & 0x7));
+				value ? subscan1_bw_line[x >> 3] |= (0x80 >> (x & 0x7)) : subscan1_bw_line[x >> 3] &= (0xFF7F >> (x & 0x7));
+				}
+
 				subscan2_line[x] = source_line[x];
 			}			
 		}
 		source_line += source_stride;
-		subscan1_line += subscan1_stride;
 		subscan2_line += subscan2_stride;
+		if (keep_orig_fore_subscan)
+		{
+			subscan1_line += subscan1_stride;
+			orig_fore_line += orig_fore_stride;
+		}
+		else
+			subscan1_bw_line += subscan1_bw_stride;
 	}
 
 	return mixed_detected;
@@ -1808,11 +1872,27 @@ MainWindow::ExportNextFile()
 	if (m_pos_export == m_outpaths_vector.size())
 		return 1; //all the files are processed
 
+	if (m_keep_orig_fore_subscan)
+	{
+		killTimer(m_exportTimerId);
+
+		PageSequence page_sec = m_ptrThumbSequence_export->toPageSequence();		
+
+		PageInfo page = page_sec.pageAt(m_pos_export);		
+
+		assert(m_ptrThumbnailCache.get());	
+
+		m_ptrInteractiveQueue->cancelAndClear();
+
+		BackgroundTaskPtr task = createCompositeTask(page, 5, false, m_debug);
+		FilterResultPtr result = (*task)();		
+	}
+
 	QImage subscan1;
 	QImage subscan2;
 
-	QString text_dir = m_export_dir + "\\1"; //folder for foreground subscans
-	QString pic_dir = m_export_dir + "\\2"; //folder for background subscans
+	QString text_dir = m_export_dir + QDir::separator() + "1"; //folder for foreground subscans
+	QString pic_dir = m_export_dir + QDir::separator() + "2"; //folder for background subscans
 
 	QString out_file_path = m_outpaths_vector[m_pos_export];
 
@@ -1824,10 +1904,10 @@ MainWindow::ExportNextFile()
 
 	name += st_num;
 
-	QString out_file_path1 = text_dir + "\\" + name + ".tif";
-	QString out_file_path2 = pic_dir + "\\" + name + ".tif";
+	QString out_file_path1 = text_dir + QDir::separator() + name + ".tif";
+	QString out_file_path2 = pic_dir + QDir::separator() + name + ".tif";
 
-	QString out_file_path_no_split = m_export_dir + "\\" + name + ".tif";
+	QString out_file_path_no_split = m_export_dir + QDir::separator() + name + ".tif";
 
 	if (!QFile().exists(out_file_path))
 	{
@@ -1841,10 +1921,12 @@ MainWindow::ExportNextFile()
 	if (m_split_subscans)
 	{
 		bool mixed_detected;
-		bool back_written = false;
 
 		if (out_img.format() == QImage::Format_Indexed8)
 		{
+			if (m_keep_orig_fore_subscan)
+				mixed_detected = GenerateSubscans<uint8_t>(out_img, subscan1, subscan2, m_keep_orig_fore_subscan, &m_orig_fore_subscan);
+			else				
 			mixed_detected = GenerateSubscans<uint8_t>(out_img, subscan1, subscan2);
 			
 			if (mixed_detected)
@@ -1861,6 +1943,9 @@ MainWindow::ExportNextFile()
 		else if(out_img.format() == QImage::Format_RGB32 
 			|| out_img.format() == QImage::Format_ARGB32)
 		{
+			if (m_keep_orig_fore_subscan)			
+				mixed_detected = GenerateSubscans<uint32_t>(out_img, subscan1, subscan2, m_keep_orig_fore_subscan, &m_orig_fore_subscan);
+			else
 			mixed_detected = GenerateSubscans<uint32_t>(out_img, subscan1, subscan2);
 
 			if (mixed_detected)
@@ -1891,13 +1976,16 @@ MainWindow::ExportNextFile()
 
 	m_pos_export++;
 
+	if (m_keep_orig_fore_subscan)	
+		m_exportTimerId = startTimer(0);
+
 	return 0;
 }
 
 void 
 MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool split_subscans,
 						 bool generate_blank_back_subscans, 
-						 bool keep_original_color_illum_fore_subscans)
+						 bool keep_orig_fore_subscan)
 {
 	if (isBatchProcessingInProgress())
 	{
@@ -1919,16 +2007,14 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 
 // Checking whether all the output thumbnails don't have a question mark on them
 
-	std::auto_ptr<ThumbnailSequence> ptrThumbSequence;
-
-	ptrThumbSequence.reset(new ThumbnailSequence(m_maxLogicalThumbSize));
+	m_ptrThumbSequence_export.reset(new ThumbnailSequence(m_maxLogicalThumbSize));
 
 	if (m_ptrThumbnailCache.get()) {
 		IntrusivePtr<CompositeCacheDrivenTask> const task(
 			createCompositeCacheDrivenTask(5)
 		);
 
-		ptrThumbSequence->setThumbnailFactory(
+		m_ptrThumbSequence_export->setThumbnailFactory(
 			IntrusivePtr<ThumbnailFactory>(
 				new ThumbnailFactory(
 					m_ptrThumbnailCache,
@@ -1938,12 +2024,12 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 		);
 	}
 	
-	ptrThumbSequence->reset(
+	m_ptrThumbSequence_export->reset(
 		m_ptrPages->toPageSequence(m_ptrStages->filterAt(5)->getView()),
 		ThumbnailSequence::RESET_SELECTION, currentPageOrderProvider()
 	);
 
-	if (!ptrThumbSequence->AllThumbnailsComplete()) 
+	if (!m_ptrThumbSequence_export->AllThumbnailsComplete()) 
 	{
 		m_p_export_dialog->reset();
 
@@ -1954,21 +2040,20 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 
 	if (default_out_dir)
 	{
-		m_export_dir = m_outFileNameGen.outDir() + "\\export";
+		m_export_dir = m_outFileNameGen.outDir() + QDir::separator() + "export";
 	}
 	else
 	{
-		m_export_dir = export_dir_path + "\\export";
+		m_export_dir = export_dir_path + QDir::separator() + "export";
 	}
 	QDir().mkdir(m_export_dir);
 
-	QString text_dir = m_export_dir + "\\1"; //folder for foreground subscans
-	QString pic_dir = m_export_dir + "\\2"; //folder for background subscans					
+	QString text_dir = m_export_dir + QDir::separator() + "1"; //folder for foreground subscans
+	QString pic_dir = m_export_dir + QDir::separator() + "2"; //folder for background subscans					
 
 	m_split_subscans = split_subscans;
 	m_generate_blank_back_subscans = generate_blank_back_subscans;
-	m_keep_original_color_illum_fore_subscans = keep_original_color_illum_fore_subscans;
-
+	m_keep_orig_fore_subscan = keep_orig_fore_subscan;
 	
 	if (split_subscans) 
 	{
@@ -2618,9 +2703,11 @@ MainWindow::createCompositeTask(
 		output_task = m_ptrStages->outputFilter()->createTask(
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
+//Original_Foreground_Mixed
 			//page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug
 			page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug,
-			m_dont_equalize_illumination_pic_zones
+			m_dont_equalize_illumination_pic_zones,
+			m_keep_orig_fore_subscan, &m_orig_fore_subscan
 //end of modified by monday2000
 		);
 		debug = false;

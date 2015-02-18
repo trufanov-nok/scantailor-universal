@@ -296,8 +296,10 @@ OutputGenerator::process(
 	DepthPerception const& depth_perception,
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
+//Original_Foreground_Mixed
 //added:	
 	bool dont_equalize_illumination_pic_zones,
+	bool keep_orig_fore_subscan,
 //end of modified by monday2000
 	imageproc::BinaryImage* auto_picture_mask,
 	imageproc::BinaryImage* speckles_image,
@@ -308,6 +310,7 @@ OutputGenerator::process(
 			status, input, picture_zones, fill_zones,
 			dewarping_mode, distortion_model, depth_perception,
 			dont_equalize_illumination_pic_zones,
+            keep_orig_fore_subscan,
 			auto_picture_mask, speckles_image, dbg, picture_shape
 		)
 	);
@@ -492,8 +495,10 @@ OutputGenerator::processImpl(
 	DepthPerception const& depth_perception,
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
+//Original_Foreground_Mixed
 //added:	
 	bool dont_equalize_illumination_pic_zones,
+	bool keep_orig_fore_subscan,
 //end of modified by monday2000
 	imageproc::BinaryImage* auto_picture_mask,
 	imageproc::BinaryImage* speckles_image,
@@ -501,12 +506,35 @@ OutputGenerator::processImpl(
 {
 	RenderParams const render_params(m_colorParams);
 
+//begin of modified by monday2000
+//Original_Foreground_Mixed
+//added:
+
+	if (keep_orig_fore_subscan)
+	{
+		if (dewarping_mode == DewarpingMode::AUTO ||
+			(dewarping_mode == DewarpingMode::MANUAL && distortion_model.isValid())) {
+				return processWithDewarping(
+					status, input, picture_zones, fill_zones,
+					dewarping_mode, distortion_model, depth_perception,
+					dont_equalize_illumination_pic_zones,
+					keep_orig_fore_subscan,
+					auto_picture_mask, speckles_image, dbg
+					);
+		} else return processAsIs(
+			input, status, fill_zones, depth_perception, dbg
+			);
+	}
+//end of modified by monday2000
+
 	if (dewarping_mode == DewarpingMode::AUTO ||
 		(dewarping_mode == DewarpingMode::MANUAL && distortion_model.isValid())) {
 		return processWithDewarping(
 			status, input, picture_zones, fill_zones,
 			dewarping_mode, distortion_model, depth_perception,
 			dont_equalize_illumination_pic_zones,
+
+			false,
 			auto_picture_mask, speckles_image, dbg, picture_shape
 		);
 	} else if (!render_params.whiteMargins()) {
@@ -877,8 +905,10 @@ OutputGenerator::processWithDewarping(
 	DepthPerception const& depth_perception,
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
+//Original_Foreground_Mixed
 //added:	
 	bool dont_equalize_illumination_pic_zones,
+	bool keep_orig_fore_subscan,
 //end of modified by monday2000
 	imageproc::BinaryImage* auto_picture_mask,
 	imageproc::BinaryImage* speckles_image,
@@ -1122,25 +1152,6 @@ OutputGenerator::processWithDewarping(
 		bg_color = QColor(dominant_gray, dominant_gray, dominant_gray);
 	}
 
-	QImage dewarped;
-	try {
-		dewarped = dewarp(
-			QTransform(), normalized_original, m_xform.transform(),
-			distortion_model, depth_perception, bg_color
-		);
-	} catch (std::runtime_error const&) {
-		// Probably an impossible distortion model.  Let's fall back to a trivial one.
-		setupTrivialDistortionModel(distortion_model);
-		dewarped = dewarp(
-			QTransform(), normalized_original, m_xform.transform(),
-			distortion_model, depth_perception, bg_color
-		);
-	}
-	normalized_original = QImage(); // Save memory.
-	if (dbg) {
-		dbg->add(dewarped, "dewarped");
-	}
-
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
 //added:
@@ -1163,7 +1174,44 @@ OutputGenerator::processWithDewarping(
 	}
 	normalized_original_Dont_Equalize_Illumination_Pic_Zones = QImage(); // Save memory.
 
+//Original_Foreground_Mixed
+	if (keep_orig_fore_subscan)
+	{
+
+	boost::shared_ptr<DewarpingPointMapper> mapper(
+		new DewarpingPointMapper(
+			distortion_model, depth_perception.value(),
+			m_xform.transform(), m_contentRect
+		)
+	);
+	boost::function<QPointF(QPointF const&)> const orig_to_output(
+		boost::bind(&DewarpingPointMapper::mapToDewarpedSpace, mapper, _1)
+	);
+
+		applyFillZonesInPlace(dewarped_Dont_Equalize_Illumination_Pic_Zones, fill_zones, orig_to_output);
+	
+		return dewarped_Dont_Equalize_Illumination_Pic_Zones;	
+	}
 //end of modified by monday2000
+
+	QImage dewarped;
+	try {
+		dewarped = dewarp(
+			QTransform(), normalized_original, m_xform.transform(),
+			distortion_model, depth_perception, bg_color
+		);
+	} catch (std::runtime_error const&) {
+		// Probably an impossible distortion model.  Let's fall back to a trivial one.
+		setupTrivialDistortionModel(distortion_model);
+		dewarped = dewarp(
+			QTransform(), normalized_original, m_xform.transform(),
+			distortion_model, depth_perception, bg_color
+		);
+	}
+	normalized_original = QImage(); // Save memory.
+	if (dbg) {
+		dbg->add(dewarped, "dewarped");
+	}
 
 	status.throwIfCancelled();
 
