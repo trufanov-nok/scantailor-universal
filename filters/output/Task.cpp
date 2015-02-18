@@ -127,7 +127,12 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<Settings> const& settings,
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
 	PageId const& page_id, OutputFileNameGenerator const& out_file_name_gen,
-	ImageViewTab const last_tab, bool const batch, bool const debug)
+//begin of modified by monday2000
+//Dont_Equalize_Illumination_Pic_Zones
+	//ImageViewTab const last_tab, bool const batch, bool const debug)
+	ImageViewTab const last_tab, bool const batch, bool const debug, 
+	bool dont_equalize_illumination_pic_zones)
+//end of modified by monday2000
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
 	m_ptrThumbnailCache(thumbnail_cache),
@@ -135,7 +140,12 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 	m_outFileNameGen(out_file_name_gen),
 	m_lastTab(last_tab),
 	m_batchProcessing(batch),
-	m_debug(debug)
+//begin of modified by monday2000
+//Dont_Equalize_Illumination_Pic_Zones
+	//m_debug(debug)
+	m_debug(debug),
+	m_dont_equalize_illumination_pic_zones(dont_equalize_illumination_pic_zones)
+//end of modified by monday2000
 {
 	if (debug) {
 		m_ptrDbg.reset(new DebugImages);
@@ -322,6 +332,11 @@ Task::process(
 			status, data, new_picture_zones, new_fill_zones,
 			params.dewarpingMode(), distortion_model,
 			params.depthPerception(),
+//begin of modified by monday2000
+//Dont_Equalize_Illumination_Pic_Zones
+//added:
+			m_dont_equalize_illumination_pic_zones,
+//end of modified by monday2000
 			write_automask ? &automask_img : 0,
 			write_speckles_file ? &speckles_img : 0,
 			m_ptrDbg.get(), params.pictureShape()
