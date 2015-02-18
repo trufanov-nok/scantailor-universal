@@ -31,7 +31,10 @@ class QDomElement;
 
 namespace output
 {
-	enum PictureShape { FREE_SHAPE, RECTANGULAR_SHAPE };
+//Picture_Shape
+	enum PictureShape { FREE_SHAPE, RECTANGULAR_SHAPE, 
+//Quadro_Zoner		
+		QUADRO_SHAPE };
 
 class Params
 {

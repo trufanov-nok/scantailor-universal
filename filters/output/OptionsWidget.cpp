@@ -69,6 +69,7 @@ OptionsWidget::OptionsWidget(
 	
 	pictureShapeSelector->addItem(tr("Free"), FREE_SHAPE);
 	pictureShapeSelector->addItem(tr("Rectangular"), RECTANGULAR_SHAPE);
+    pictureShapeSelector->addItem(tr("Quadro"), QUADRO_SHAPE);
     labePictureShape->setText(tr("Picture Shape"));
 
 	tiffCompression->addItem(tr("None"), COMPRESSION_NONE);

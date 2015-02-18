@@ -290,7 +290,9 @@ OutputGenerator::OutputGenerator(
 QImage
 OutputGenerator::process(
 	TaskStatus const& status, FilterData const& input,
-	ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+//Quadro_Zoner
+	//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+	ZoneSet& picture_zones, ZoneSet const& fill_zones,
 	DewarpingMode dewarping_mode,
 	DistortionModel& distortion_model,
 	DepthPerception const& depth_perception,
@@ -303,15 +305,27 @@ OutputGenerator::process(
 //end of modified by monday2000
 	imageproc::BinaryImage* auto_picture_mask,
 	imageproc::BinaryImage* speckles_image,
-	DebugImages* const dbg, PictureShape picture_shape) const
+//Picture_Shape
+	//DebugImages* const dbg) const
+	DebugImages* const dbg,
+	PictureShape picture_shape
+//Quadro_Zoner
+	, PageId* p_pageId,
+	IntrusivePtr<Settings>* p_settings
+	) const
 {
 	QImage image(
 		processImpl(
 			status, input, picture_zones, fill_zones,
 			dewarping_mode, distortion_model, depth_perception,
 			dont_equalize_illumination_pic_zones,
-            keep_orig_fore_subscan,
-			auto_picture_mask, speckles_image, dbg, picture_shape
+			keep_orig_fore_subscan,
+			auto_picture_mask, speckles_image, dbg
+//Picture_Shape
+			, picture_shape
+//Quadro_Zoner
+			, p_pageId,
+			p_settings
 		)
 	);
 	assert(!image.isNull());
@@ -489,7 +503,9 @@ OutputGenerator::modifyBinarizationMask(
 QImage
 OutputGenerator::processImpl(
 	TaskStatus const& status, FilterData const& input,
-	ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+//Quadro_Zoner
+	//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+	ZoneSet& picture_zones, ZoneSet const& fill_zones,
 	DewarpingMode dewarping_mode,
 	DistortionModel& distortion_model,
 	DepthPerception const& depth_perception,
@@ -502,7 +518,13 @@ OutputGenerator::processImpl(
 //end of modified by monday2000
 	imageproc::BinaryImage* auto_picture_mask,
 	imageproc::BinaryImage* speckles_image,
-	DebugImages* const dbg, PictureShape picture_shape) const
+//Picture_Shape
+	DebugImages* const dbg,
+	PictureShape picture_shape
+//Quadro_Zoner
+	, PageId* p_pageId,
+	IntrusivePtr<Settings>* p_settings
+	) const
 {
 	RenderParams const render_params(m_colorParams);
 
@@ -523,6 +545,9 @@ OutputGenerator::processImpl(
 //begin of modified by monday2000
 //Picture_Shape
 					, picture_shape
+//Quadro_Zoner
+					, p_pageId,
+					p_settings
 //end of modified by monday2000
 					);
 		} else return processAsIs(
@@ -538,7 +563,12 @@ OutputGenerator::processImpl(
 			dewarping_mode, distortion_model, depth_perception,
 			dont_equalize_illumination_pic_zones,
 			false,
-			auto_picture_mask, speckles_image, dbg, picture_shape
+			auto_picture_mask, speckles_image, dbg
+//Picture_Shape
+			, picture_shape
+//Quadro_Zoner
+			, p_pageId,
+			p_settings
 		);
 	} else if (!render_params.whiteMargins()) {
 		return processAsIs(
@@ -548,7 +578,12 @@ OutputGenerator::processImpl(
 		return processWithoutDewarping(
 			status, input, picture_zones, fill_zones,
 			dont_equalize_illumination_pic_zones,
-			auto_picture_mask, speckles_image, dbg, picture_shape
+			auto_picture_mask, speckles_image, dbg
+//Picture_Shape
+			, picture_shape
+//Quadro_Zoner
+			, p_pageId,
+			p_settings
 		);
 	}
 }
@@ -608,7 +643,9 @@ OutputGenerator::processAsIs(
 QImage
 OutputGenerator::processWithoutDewarping(
 	TaskStatus const& status, FilterData const& input,
-	ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+//Quadro_Zoner
+	//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+	ZoneSet& picture_zones, ZoneSet const& fill_zones,
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
 //added:	
@@ -616,7 +653,14 @@ OutputGenerator::processWithoutDewarping(
 //end of modified by monday2000
 	imageproc::BinaryImage* auto_picture_mask,
 	imageproc::BinaryImage* speckles_image,
-	DebugImages* dbg, PictureShape picture_shape) const
+//Picture_Shape
+	//DebugImages* dbg) const
+	DebugImages* dbg,
+	PictureShape picture_shape
+//Quadro_Zoner
+	, PageId* p_pageId,
+	IntrusivePtr<Settings>* p_settings
+	) const
 {
 	RenderParams const render_params(m_colorParams);
 	
@@ -755,8 +799,49 @@ QImage maybe_normalized_Dont_Equalize_Illumination_Pic_Zones = transform(
 			small_margins_rect, dbg
 		);
 
-		if (picture_shape == RECTANGULAR_SHAPE) {
+//Picture_Shape
+//Quadro_Zoner
+		if (picture_shape == RECTANGULAR_SHAPE)
+		{
 			bw_mask.rectangularizeAreas(WHITE);
+
+			picture_zones.remove_auto_zones();
+
+			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
+		}		
+		else if (picture_shape == QUADRO_SHAPE)
+		{
+			if (picture_zones.auto_zones_found())
+				bw_mask.fill(BLACK);
+			else
+			{
+				std::vector<QRect> areas;
+				bw_mask.rectangularizeAreasTest(WHITE, areas);				
+
+				QTransform xform1(m_xform.transform());            
+				xform1 *= QTransform().translate(-small_margins_rect.x(), -small_margins_rect.y());
+
+				QTransform inv_xform(xform1.inverted()); 
+
+				for (int i=0; i<(int)areas.size(); i++)
+				{				
+					QRectF area0(areas[i]);
+					QPolygonF area1(area0);
+					QPolygonF area(inv_xform.map(area1));
+
+					Zone zone1(area);
+
+					picture_zones.add(zone1);
+				}
+
+				(*p_settings)->setPictureZones(*p_pageId, picture_zones);
+			}
+		}
+		else
+		{
+			picture_zones.remove_auto_zones();
+
+			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
 		}
 
 		if (dbg) {
@@ -902,7 +987,9 @@ QImage maybe_normalized_Dont_Equalize_Illumination_Pic_Zones = transform(
 QImage
 OutputGenerator::processWithDewarping(
 	TaskStatus const& status, FilterData const& input,
-	ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+//Quadro_Zoner
+	//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+	ZoneSet& picture_zones, ZoneSet const& fill_zones,
 	DewarpingMode dewarping_mode,
 	DistortionModel& distortion_model,
 	DepthPerception const& depth_perception,
@@ -915,7 +1002,13 @@ OutputGenerator::processWithDewarping(
 //end of modified by monday2000
 	imageproc::BinaryImage* auto_picture_mask,
 	imageproc::BinaryImage* speckles_image,
-	DebugImages* dbg, PictureShape picture_shape) const
+//Picture_Shape
+	DebugImages* dbg,
+	PictureShape picture_shape
+//Quadro_Zoner
+	, PageId* p_pageId,
+	IntrusivePtr<Settings>* p_settings
+	) const
 {
 	QSize const target_size(m_outRect.size().expandedTo(QSize(1, 1)));
 	if (m_outRect.isEmpty()) {
@@ -1076,8 +1169,49 @@ OutputGenerator::processWithDewarping(
 			dbg->add(warped_bw_mask, "warped_bw_mask");
 		}
 
-		if (picture_shape == RECTANGULAR_SHAPE) {
+//Picture_Shape
+//Quadro_Zoner
+		if (picture_shape == RECTANGULAR_SHAPE)
+		{
 			warped_bw_mask.rectangularizeAreas(WHITE);
+
+			picture_zones.remove_auto_zones();
+
+			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
+		}		
+		else if (picture_shape == QUADRO_SHAPE)
+		{
+			if (picture_zones.auto_zones_found())
+				warped_bw_mask.fill(BLACK);
+			else
+			{
+				std::vector<QRect> areas;
+				warped_bw_mask.rectangularizeAreasTest(WHITE, areas);				
+
+				QTransform xform1(m_xform.transform());            
+				xform1 *= QTransform().translate(-small_margins_rect.x(), -small_margins_rect.y());
+
+				QTransform inv_xform(xform1.inverted()); 
+
+				for (int i=0; i<(int)areas.size(); i++)
+				{				
+					QRectF area0(areas[i]);
+					QPolygonF area1(area0);
+					QPolygonF area(inv_xform.map(area1));
+
+					Zone zone1(area);
+
+					picture_zones.add(zone1);
+				}			
+
+				(*p_settings)->setPictureZones(*p_pageId, picture_zones);
+			}
+		}
+		else
+		{
+			picture_zones.remove_auto_zones();
+
+			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
 		}
 
 		status.throwIfCancelled();

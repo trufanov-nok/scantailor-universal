@@ -130,7 +130,7 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 //begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
 	//ImageViewTab const last_tab, bool const batch, bool const debug)
-	ImageViewTab const last_tab, bool const batch, bool const debug, 
+	ImageViewTab const last_tab, bool const batch, bool const debug,
 	bool const dont_equalize_illumination_pic_zones,
 	bool const keep_orig_fore_subscan,
 //Original_Foreground_Mixed
@@ -221,9 +221,13 @@ Task::process(
 		params.depthPerception(), params.despeckleLevel(), params.pictureShape()
 	);
 
-	ZoneSet const new_picture_zones(m_ptrSettings->pictureZonesForPage(m_pageId));
+//begin of modified by monday2000
+//Quadro_Zoner
+	//ZoneSet const new_picture_zones(m_ptrSettings->pictureZonesForPage(m_pageId));
+	ZoneSet new_picture_zones(m_ptrSettings->pictureZonesForPage(m_pageId));
+//end of modified by monday2000
 	ZoneSet const new_fill_zones(m_ptrSettings->fillZonesForPage(m_pageId));
-	
+
 //begin of modified by monday2000
 //Original_Foreground_Mixed
 //added:
@@ -396,8 +400,12 @@ Task::process(
 			false,
 //end of modified by monday2000
 			write_automask ? &automask_img : 0,
-			write_speckles_file ? &speckles_img : 0,
-			m_ptrDbg.get(), params.pictureShape()
+            write_speckles_file ? &speckles_img : 0,
+            m_ptrDbg.get()
+//Picture_Shape
+			, params.pictureShape()
+//Quadro_Zoner
+            , &m_pageId, &m_ptrSettings
 		);
 
 		if (params.dewarpingMode() == DewarpingMode::AUTO && distortion_model.isValid()) {
