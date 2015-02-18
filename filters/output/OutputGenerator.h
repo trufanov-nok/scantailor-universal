@@ -220,6 +220,11 @@ private:
 	void movePointToBottomMargin(BinaryImage& bw_image, XSpline& spline, int idx) const;
 	void drawPoint(QImage& image, QPointF const& pt) const;	
 	void maybe_deskew(QImage* p_dewarped, DewarpingMode dewarping_mode) const;
+
+//Auto_Dewarping_Vert_Half_Correction
+	void movePointToTopMargin(BinaryImage& bw_image, std::vector<QPointF>& polyline, int idx) const;
+	void movePointToBottomMargin(BinaryImage& bw_image, std::vector<QPointF>& polyline, int idx) const;
+	float vert_border_skew_angle(QPointF const& top, QPointF const& bottom) const;
 	
 	void setupTrivialDistortionModel(dewarping::DistortionModel& distortion_model) const;
 
