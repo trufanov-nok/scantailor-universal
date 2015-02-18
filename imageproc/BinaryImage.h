@@ -25,6 +25,10 @@
 #include <QSize>
 #include <QColor>
 #include <stdint.h>
+//begin of modified by monday2000
+//Quadro_Zoner
+#include <vector>
+//end of modified by monday2000	
 
 class QImage;
 
@@ -199,9 +203,10 @@ public:
 	 * \brief Calculates the bounding box of either black or white content.
 	 */
 	QRect contentBoundingBox(BWColor content_color = BLACK) const;
-
+    
 	void rectangularizeAreas(BWColor content_color = BLACK);
-	
+	void rectangularizeAreasTest(BWColor content_color, std::vector<QRect>& areas);
+
 	int width() const { return m_width; }
 	
 	int height() const { return m_height; }
@@ -287,6 +292,11 @@ private:
 	
 	static int rightmostBitOffset(
 		uint32_t const* line, int offset_limit, uint32_t modifier);
+
+//begin of modified by monday2000
+	void setPixel(int x, int y, BWColor color);
+	BWColor getPixel(int x, int y);
+//end of modified by monday2000
 	
 	SharedData* m_pData;
 	int m_width;

@@ -75,9 +75,10 @@ private:
 	
 	static QString formatColorMode(ColorParams::ColorMode mode);
 	
-	Dpi m_dpi;
 	ColorParams m_colorParams;
 	PictureShape m_pictureShape;
+
+	Dpi m_dpi;
 	dewarping::DistortionModel m_distortionModel;
 	DepthPerception m_depthPerception;
 	DewarpingMode m_dewarpingMode;

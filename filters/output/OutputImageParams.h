@@ -28,6 +28,10 @@
 #include "DespeckleLevel.h"
 #include <QSize>
 #include <QRect>
+//begin of modified by monday2000
+//Picture_Shape
+#include "Params.h"
+//end of modified by monday2000
 
 class ImageTransformation;
 class QDomDocument;

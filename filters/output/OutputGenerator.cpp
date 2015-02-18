@@ -520,6 +520,10 @@ OutputGenerator::processImpl(
 					dont_equalize_illumination_pic_zones,
 					keep_orig_fore_subscan,
 					auto_picture_mask, speckles_image, dbg
+//begin of modified by monday2000
+//Picture_Shape
+					, picture_shape
+//end of modified by monday2000
 					);
 		} else return processAsIs(
 			input, status, fill_zones, depth_perception, dbg
@@ -533,7 +537,6 @@ OutputGenerator::processImpl(
 			status, input, picture_zones, fill_zones,
 			dewarping_mode, distortion_model, depth_perception,
 			dont_equalize_illumination_pic_zones,
-
 			false,
 			auto_picture_mask, speckles_image, dbg, picture_shape
 		);

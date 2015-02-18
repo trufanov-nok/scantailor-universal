@@ -262,6 +262,10 @@ Task::process(
 			write_automask ? &automask_img : 0,
 			write_speckles_file ? &speckles_img : 0,
 			m_ptrDbg.get()
+//begin of modified by monday2000
+//Picture_Shape
+			, params.pictureShape()
+//end of modified by monday2000
 		);	
 
 //Original_Foreground_Mixed

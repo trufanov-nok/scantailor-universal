@@ -40,6 +40,10 @@
 #include <vector>
 #include <utility>
 #include <stdint.h>
+//begin of modified by monday2000
+//Picture_Shape
+#include "Params.h"
+//end of modified by monday2000
 
 class TaskStatus;
 class DebugImages;

@@ -69,13 +69,14 @@ OptionsWidget::OptionsWidget(
 	
 	pictureShapeSelector->addItem(tr("Free"), FREE_SHAPE);
 	pictureShapeSelector->addItem(tr("Rectangular"), RECTANGULAR_SHAPE);
+    labePictureShape->setText(tr("Picture Shape"));
 
 	tiffCompression->addItem(tr("None"), COMPRESSION_NONE);
 	tiffCompression->addItem(tr("LZW"), COMPRESSION_LZW);
 	tiffCompression->addItem(tr("Deflate"), COMPRESSION_DEFLATE);
 	tiffCompression->addItem(tr("Packbits"), COMPRESSION_PACKBITS);
 	tiffCompression->addItem(tr("JPEG"), COMPRESSION_JPEG);
-	                         
+
 	darkerThresholdLink->setText(
 		Utils::richTextForLink(darkerThresholdLink->text())
 	);
@@ -96,6 +97,13 @@ OptionsWidget::OptionsWidget(
 		colorModeSelector, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(colorModeChanged(int))
 	);
+//begin of modified by monday2000
+//Picture_Shape
+	connect(
+		pictureShapeSelector, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(pictureShapeChanged(int))
+	);
+//end of modified by monday2000	
 	connect(
 		pictureShapeSelector, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(pictureShapeChanged(int))
@@ -390,8 +398,8 @@ OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 	BOOST_FOREACH(PageId const& page_id, pages) {
 		m_ptrSettings->setColorParams(page_id, m_colorParams);
 		m_ptrSettings->setPictureShape(page_id, m_pictureShape);
+        emit invalidateThumbnail(page_id);
 	}
-	emit invalidateAllThumbnails();
 	
 	if (pages.find(m_pageId) != pages.end()) {
 		emit reloadRequested();
@@ -642,6 +650,7 @@ OptionsWidget::updateColorsDisplay()
 	bool color_grayscale_options_visible = false;
 	bool bw_options_visible = false;
 	bool picture_shape_visible = false;
+
 	switch (color_mode) {
 		case ColorParams::BLACK_AND_WHITE:
 			bw_options_visible = true;

@@ -362,6 +362,7 @@ CommandLine::printHelp()
 	std::cout << "\t\t--output-dpi-y=<number>" << std::endl;
 	std::cout << "\t--default-output-dpi=<number>\t\t-- default output dpi for pages created by split filter in gui" << std::endl;
 	std::cout << "\t--color-mode=<black_and_white|color_grayscale|mixed>\n\t\t\t\t\t\t-- default: black_and_white" << std::endl;
+    std::cout << "\t--picture-shape=<free|rectangular>\n\t\t\t\t\t\t-- default: free" << std::endl;
 	std::cout << "\t--default-color-mode=<...>\t\t-- sets default value for new images created by split filter" << std::endl;
 	std::cout << "\t--picture-shape=<free|rectangular>\n\t\t\t\t\t\t-- default: free" << std::endl;
 	std::cout << "\t--white-margins\t\t\t\t-- default: false" << std::endl;
@@ -482,7 +483,6 @@ CommandLine::fetchPictureShape()
 
 	return output::FREE_SHAPE;
 }
-
 
 Margins
 CommandLine::fetchMargins(QString base, Margins def)
