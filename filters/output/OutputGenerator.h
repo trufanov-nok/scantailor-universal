@@ -47,6 +47,12 @@
 #include "PageId.h"
 #include "IntrusivePtr.h"
 #include "Settings.h"
+//Marginal_Dewarping
+#include <QMessageBox>
+#include "TiffWriter.h"
+#include <QtCore/qmath.h>
+#include <QFile>
+#include "imageproc/SkewFinder.h"
 //end of modified by monday2000
 
 class TaskStatus;
@@ -68,7 +74,10 @@ namespace dewarping
 	class DistortionModel;
 	class CylindricalSurfaceDewarper;
 }
-
+//begin of modified by monday2000
+//Marginal_Dewarping
+using namespace imageproc;
+//end of modified by monday2000
 namespace output
 {
 
@@ -205,6 +214,12 @@ private:
 //Quadro_Zoner
 		, PageId* p_pageId = NULL, IntrusivePtr<Settings>* p_settings = NULL
 		) const;
+
+//Marginal_Dewarping
+	void movePointToTopMargin(BinaryImage& bw_image, XSpline& spline, int idx) const;
+	void movePointToBottomMargin(BinaryImage& bw_image, XSpline& spline, int idx) const;
+	void drawPoint(QImage& image, QPointF const& pt) const;	
+	void maybe_deskew(QImage* p_dewarped, DewarpingMode dewarping_mode) const;
 	
 	void setupTrivialDistortionModel(dewarping::DistortionModel& distortion_model) const;
 
