@@ -1,9 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
-
-    Based on code from the GIMP project,
-    Copyright (C) 1995 Spencer Kimball and Peter Mattis
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,10 +19,15 @@
 #include "GaussBlur.h"
 #include "GrayImage.h"
 #include "Constants.h"
+#include "MatMNT.h"
+#include "VecNT.h"
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include <stdint.h>
-#include <math.h>
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstring>
+#include <cstdint>
 
 namespace imageproc
 {
@@ -33,74 +35,160 @@ namespace imageproc
 namespace gauss_blur_impl
 {
 
-void find_iir_constants(
-	float* n_p, float *n_m, float *d_p,
-	float* d_m, float *bd_p, float *bd_m, float std_dev)
+FilterParams::FilterParams(float sigma)
 {
-	/*  The constants used in the implemenation of a casual sequence
-	 *  using a 4th order approximation of the gaussian operator
-	 */
-	
-	const float div = sqrt(2.0 * constants::PI) * std_dev;
-	const float x0 = -1.783 / std_dev;
-	const float x1 = -1.723 / std_dev;
-	const float x2 = 0.6318 / std_dev;
-	const float x3 = 1.997  / std_dev;
-	const float x4 = 1.6803 / div;
-	const float x5 = 3.735 / div;
-	const float x6 = -0.6803 / div;
-	const float x7 = -0.2598 / div;
-	
-	n_p [0] = x4 + x6;
-	n_p [1] = (exp(x1)*(x7*sin(x3)-(x6+2*x4)*cos(x3)) +
-		exp(x0)*(x5*sin(x2) - (2*x6+x4)*cos (x2)));
-	n_p [2] = (2 * exp(x0+x1) *
-		((x4+x6)*cos(x3)*cos(x2) - x5*cos(x3)*sin(x2) -
-		x7*cos(x2)*sin(x3)) +
-		x6*exp(2*x0) + x4*exp(2*x1));
-	n_p [3] = (exp(x1+2*x0) * (x7*sin(x3) - x6*cos(x3)) +
-		exp(x0+2*x1) * (x5*sin(x2) - x4*cos(x2)));
-	n_p [4] = 0.0;
-	
-	d_p [0] = 0.0;
-	d_p [1] = -2 * exp(x1) * cos(x3) -  2 * exp(x0) * cos (x2);
-	d_p [2] = 4 * cos(x3) * cos(x2) * exp(x0 + x1) +  exp(2 * x1) + exp(2 * x0);
-	d_p [3] = -2 * cos(x2) * exp(x0 + 2*x1) -  2*cos(x3) * exp(x1 + 2*x0);
-	d_p [4] = exp(2*x0 + 2*x1);
-	
-	for (int i = 0; i <= 4; i++) {
-		d_m[i] = d_p[i];
+	float const q = sigmaToQ(sigma);
+	float const q2 = q * q;
+	float const q3 = q2 * q;
+	assert(q > 0); // Guaranteed by sigmaToQ()
+
+	// Formula 8c in [1].
+	float const b0 = 1.57825f + 2.44413f * q + 1.4281f * q2 + 0.422205f * q3;
+	float const b1 = 2.44413 * q + 2.85619 * q2 + 1.26661 * q3;
+	float const b2 = -1.4281 * q2 - 1.26661 * q3;
+	float const b3 = 0.422205 * q3;
+	assert(b0 > 0); // Because q is > 0
+
+	a1 = b1 / b0;
+	a2 = b2 / b0;
+	a3 = b3 / b0;
+	B = 1.0f - (a1 + a2 + a3);
+}
+
+float
+FilterParams::sigmaToQ(float sigma)
+{
+	// Formula 11b in [1].
+	if (sigma >= 2.5) {
+		return 0.98711 * sigma - 0.9633;
+	} else {
+		return 3.97156 - 4.14554 * std::sqrt(1.0 - 0.26891 * std::max<float>(sigma, 0.5f));
 	}
-	
-	n_m[0] = 0.0;
-	
-	for (int i = 1; i <= 4; i++) {
-		n_m[i] = n_p[i] - d_p[i] * n_p[0];
+}
+
+AnisotropicParams::AnisotropicParams(
+	float const dir_x, float const dir_y,
+	float const dir_sigma, float const ortho_dir_sigma)
+{
+	Vec2f cos_sin(dir_x, dir_y);
+	cos_sin.normalize();
+
+	float const sigma_u = dir_sigma;
+	float const sigma_v = ortho_dir_sigma;
+	float const sigma2_u = sigma_u * sigma_u;
+	float const sigma2_v = sigma_v * sigma_v;
+	float const cos2 = cos_sin[0] * cos_sin[0];
+	float const sin2 = cos_sin[1] * cos_sin[1];
+	float const sum_squares = sigma2_v * cos2 + sigma2_u * sin2;
+
+	// Formula 9 in [3].
+	sigma_x = sigma_u * sigma_v / std::sqrt(sum_squares);
+
+	// Formula 11 in [3], except we calculate cotangent rather than tangent.
+	cot_phi = ((sigma2_u - sigma2_v) * cos_sin[0] * cos_sin[1]) / sum_squares;
+
+	// Equivalent to formula 10 in [3], except it avoids a negative sigma.
+	sigma_phi = std::sqrt((cot_phi * cot_phi + 1.0f) * sum_squares);
+}
+
+/**
+ * The second application of an LTI system involves a 3-step look-ahead into the
+ * output signal. That is, we need 3 values from the future of our output signal
+ * in order to compute the rest of it. Paper [2] is all about computing those 3
+ * values.
+ *
+ * @param p Parameters of our LTI system.
+ * @param w_end We use array w to store both the intermediate signal w and the
+ *        output signal. We allocate memory for 3 additional values on each side
+ *        to store the initial conditions. The w_end parameter corresponds to the
+ *        position just beyond the computed intermediate signal w. The 3 elements
+ *        starting from w_end[0] will be filled with the initial conditions for
+ *        the second pass, in which the intermediate signal in w gets overwritten
+ *        by the output signal.
+ * @param future_signal_val We assume the input signal continues into the future
+ *        with a constant value. This parameter specifies that value.
+ */
+void
+calcBackwardPassInitialConditions(FilterParams const& p, float* w_end, float future_signal_val)
+{
+	// Formula 15 in [2].
+	float const u_plus = future_signal_val / p.B;
+	float const v_plus = u_plus / p.B;
+
+	// Formula 3 in [2].
+	Mat33f M;
+	M(0, 0) = -p.a3 * p.a1 + 1.0 - p.a3 * p.a3 - p.a2;
+	M(0, 1) = (p.a3 + p.a1) * (p.a2 + p.a3 * p.a1);
+	M(0, 2) = p.a3 * (p.a1 + p.a3 * p.a2);
+	M(1, 0) = p.a1 + p.a3 * p.a2;
+	M(1, 1) = -(p.a2 - 1.0f) * (p.a2 + p.a3 * p.a1);
+	M(1, 2) = -(p.a3 * p.a1 + p.a3 * p.a3 + p.a2 - 1.0f) * p.a3;
+	M(2, 0) = p.a3 * p.a1 + p.a2 + p.a1 * p.a1 - p.a2 * p.a2;
+	M(2, 1) = p.a1 * p.a2 + p.a3 * p.a2 * p.a2 - p.a1 * p.a3 * p.a3
+			- p.a3 * p.a3 * p.a3 - p.a3 * p.a2 + p.a3;
+	M(2, 2) = p.a3 * (p.a1 + p.a3 * p.a2);
+	M /= (1.0f + p.a1 - p.a2 + p.a3) * p.B * (1.0f + p.a2 + (p.a1 - p.a3) * p.a3);
+
+	Vec3f u(w_end[-1], w_end[-2], w_end[-3]);
+	u -= u_plus;
+
+	// Formula 14 in [2].
+	Vec3f result(M * u);
+	result += v_plus;
+
+	w_end[0] = result[0];
+	w_end[1] = result[1];
+	w_end[2] = result[2];
+}
+
+void initPaddingLayers(Grid<float>& intermediate_image)
+{
+	assert(intermediate_image.padding() == 2);
+
+	int const width = intermediate_image.width();
+	int const height = intermediate_image.height();
+	int const stride = intermediate_image.stride();
+	float* line = intermediate_image.paddedData();
+
+	// Outer padding.
+	memset(line, 0, stride);
+	line += stride;
+
+	// 1px outer padding - inner padding - 1px outer padding.
+	line[0] = 0.0f;
+	line[1] = line[2 + stride]; // top-left corner
+	for (int x = 0; x < width; ++x) {
+		line[2 + x] = line[2 + x + stride];
 	}
-	
-	float sum_n_p = 0.0;
-	float sum_n_m = 0.0;
-	float sum_d = 0.0;
-	
-	for (int i = 0; i <= 4; i++) {
-		sum_n_p += n_p[i];
-		sum_n_m += n_m[i];
-		sum_d += d_p[i];
+	line[2 + width] = line[2 + width - 1 + stride]; // top-right corner
+	line[2 + width + 1] = 0.0f;
+	line += stride;
+
+	for (int y = 0; y < height; ++y, line += stride) {
+		line[0] = 0.0f;
+		line[1] = line[2];
+		line[2 + width] = line[2 + width - 1];
+		line[2 + width + 1] = 0.0f;
 	}
-	
-	float const a = sum_n_p / (1.0 + sum_d);
-	float const b = sum_n_m / (1.0 + sum_d);
-	
-	for (int i = 0; i <= 4; i++) {
-		bd_p[i] = d_p[i] * a;
-		bd_m[i] = d_m[i] * b;
+
+	// 1px outer padding - inner padding - 1px outer padding.
+	line[0] = 0.0f;
+	line[1] = line[2 - stride]; // bottom-left corner
+	for (int x = 0; x < width; ++x) {
+		line[2 + x] = line[2 + x - stride];
 	}
+	line[2 + width] = line[2 + width - 1 - stride]; // bottom-right corner
+	line[2 + width + 1] = 0.0f;
+	line += stride;
+
+	// Outer padding.
+	memset(line, 0, stride);
 }
 
 } // namespace gauss_blur_impl
 
 GrayImage gaussBlur(GrayImage const& src, float h_sigma, float v_sigma)
-{	
+{
 	using namespace boost::lambda;
 
 	if (src.isNull()) {
@@ -110,6 +198,26 @@ GrayImage gaussBlur(GrayImage const& src, float h_sigma, float v_sigma)
 	GrayImage dst(src.size());
 	gaussBlurGeneric(
 		src.size(), h_sigma, v_sigma,
+		src.data(), src.stride(), StaticCastValueConv<float>(),
+		dst.data(), dst.stride(), _1 = bind<uint8_t>(RoundAndClipValueConv<uint8_t>(), _2)
+	);
+
+	return dst;
+}
+
+GrayImage anisotropicGaussBlur(
+	GrayImage const& src, float dir_x, float dir_y,
+	float dir_sigma, float ortho_dir_sigma)
+{
+	using namespace boost::lambda;
+
+	if (src.isNull()) {
+		return src;
+	}
+
+	GrayImage dst(src.size());
+	anisotropicGaussBlurGeneric(
+		src.size(), dir_x, dir_y, dir_sigma, ortho_dir_sigma,
 		src.data(), src.stride(), StaticCastValueConv<float>(),
 		dst.data(), dst.stride(), _1 = bind<uint8_t>(RoundAndClipValueConv<uint8_t>(), _2)
 	);
