@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ namespace imageproc
 {
 
 class BinaryImage;
+class GrayImage;
 
 /**
  * \brief Image binarization using Otsu's global thresholding method.
@@ -52,6 +53,27 @@ BinaryImage binarizeOtsu(QImage const& src);
 BinaryImage binarizeMokji(
 	QImage const& src, unsigned max_edge_width = 3,
 	unsigned min_edge_magnitude = 20);
+
+/**
+  * \brief Image binarization using Niblack's local thresholding method.
+  *
+  * Niblack, W.: An Introduction to Digital Image Processing.
+  * Englewood Cliffs, N. J., Prentice Hall (1986) 115-116
+  */
+BinaryImage binarizeNiblack(GrayImage const& src, QSize window_size);
+
+/**
+ * \brief Image binarization using Gatos' local thresholding method.
+ *
+ * Gatos, Basilios, Ioannis Pratikakis, and Stavros J. Perantonis.
+ * "Adaptive degraded document image binarization."
+ * Pattern recognition 39.3 (2006): 317-327.
+ *
+ * This implementation doesn't include the post-processing steps from
+ * the above paper.
+ */
+BinaryImage binarizeGatos(
+    GrayImage const& src, QSize window_size, double noise_sigma);
 
 /**
  * \brief Image binarization using Sauvola's local thresholding method.
