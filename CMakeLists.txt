@@ -330,31 +330,17 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 SET(EXTRA_LIBS "")
 
 IF(UNIX)
-        # We need to manually use XRender.
-        INCLUDE(FindX11)
-        IF(NOT X11_Xrender_FOUND)
-                MESSAGE(
-                        FATAL_ERROR
-                        "Could not find Xrender.h\n"
-                        "You may need to install a package called\n"
-                        "libxrender-dev or libXrender-dev or similarly."
-                )
-        ENDIF()
-
-        INCLUDE_DIRECTORIES("${X11_Xrender_INCLUDE_PATH}")
-        LIST(APPEND EXTRA_LIBS ${X11_Xrender_LIB})
-
-        FindPthreads()
-        IF(PTHREADS_FOUND)
-                ADD_DEFINITIONS(${PTHREADS_CFLAGS})
-                LINK_LIBRARIES(${PTHREADS_LIBS})
-        ELSE(PTHREADS_FOUND)
-                MESSAGE(
-                        FATAL_ERROR
-                        "Could not detect threading flags.\n"
-                        "Try specifying them manually in PTHREADS_CFLAGS and PTHREADS_LIBS."
-                )
-        ENDIF(PTHREADS_FOUND)
+	FindPthreads()
+	IF(PTHREADS_FOUND)
+		ADD_DEFINITIONS(${PTHREADS_CFLAGS})
+		LINK_LIBRARIES(${PTHREADS_LIBS})
+	ELSE(PTHREADS_FOUND)
+		MESSAGE(
+			FATAL_ERROR
+			"Could not detect threading flags.\n"
+			"Try specifying them manually in PTHREADS_CFLAGS and PTHREADS_LIBS."
+		)
+	ENDIF(PTHREADS_FOUND)
 ELSEIF(WIN32)
         ADD_DEFINITIONS(-DNOMINMAX)
 ENDIF(UNIX)
