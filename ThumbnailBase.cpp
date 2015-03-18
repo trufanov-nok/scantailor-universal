@@ -200,16 +200,7 @@ ThumbnailBase::paint(QPainter* painter,
 	temp_painter.setPen(Qt::NoPen);
 	temp_painter.setBrush(Qt::white);
 	temp_painter.setWorldTransform(temp_adjustment);
-#ifndef Q_WS_X11
-	// That's how it's supposed to be.
 	temp_painter.setCompositionMode(QPainter::CompositionMode_Clear);
-#else
-	// QPainter::CompositionMode_Clear doesn't work for arbitrarily shaped
-	// objects on X11, as well as CompositionMode_Source with a transparent
-	// brush.  Fortunately, CompositionMode_DestinationOut with a non-transparent
-	// brush does actually work.
-	temp_painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-#endif
 	temp_painter.drawPolygon(
 		QPolygonF(display_rect).subtracted(PolygonUtils::round(display_poly))
 	);
