@@ -29,7 +29,7 @@
 #include "BasicSplineVisualizer.h"
 #include <QObject>
 #include <QColor>
-#include <QtGlobal>
+#include <QtGlobal> // For Q_OS_*
 #ifndef Q_MOC_RUN
 #include <boost/function.hpp>
 #endif
@@ -134,7 +134,7 @@ private:
 	std::auto_ptr<QMenu> m_ptrMenu;
 	int m_highlightedZoneIdx;
 	bool m_menuItemTriggered;
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
 	int m_extraDelaysDone;
 #endif
 };

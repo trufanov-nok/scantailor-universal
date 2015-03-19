@@ -21,10 +21,9 @@
 #include <QByteArray>
 #include <QFile>
 #include <QDir>
-#include <Qt>
-#include <QTextDocument> // Qt::escape() is actually declare there.
+#include <QtGlobal>
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #include <windows.h>
 #else
 #include <stdio.h>
@@ -33,7 +32,7 @@
 bool
 Utils::overwritingRename(QString const& from, QString const& to)
 {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 	return MoveFileExW(
 		(WCHAR*)from.utf16(), (WCHAR*)to.utf16(),
 		MOVEFILE_REPLACE_EXISTING

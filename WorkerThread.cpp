@@ -23,6 +23,7 @@
 #include <QThread>
 #include <QEvent>
 #include <QSettings>
+#include <QtGlobal> // For Q_OS_LINUX
 #include <new>
 #include <assert.h>
 
