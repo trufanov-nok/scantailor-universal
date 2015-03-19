@@ -5,6 +5,12 @@ IF(POLICY CMP0003)
 	CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF()
 
+IF(POLICY CMP0020)
+	# Disable auto-linking to qtmain. This feature appeared in Qt 5.1, but
+	# we want to keep compatibility with Qt 5.0, so we link to qtmain manually.
+	CMAKE_POLICY(SET CMP0020 OLD)
+ENDIF()
+
 IF(POLICY CMP0043)
 	# Don't ignore COMPILE_DEFINITIONS_{CONFIG} directives, as these are used
 	# by Qt.
