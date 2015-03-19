@@ -161,4 +161,4 @@ ADD_CUSTOM_TARGET(
 	SOURCES ${SOURCES}
 	DEPENDS "${INSTALLER_FILENAME}"
 )
-ADD_DEPENDENCIES(installer prepare_staging_dir copy_to_staging_dir)
+ADD_DEPENDENCIES(installer prepare_staging_dir)
