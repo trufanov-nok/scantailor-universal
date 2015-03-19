@@ -35,12 +35,6 @@
 
 #include "CommandLine.h"
 
-
-//#ifdef Q_WS_WIN
-//// Import static plugins
-//#Q_IMPORT_PLUGIN(qjpeg)
-//#endif
-
 #ifdef ENABLE_CRASH_REPORTER
 
 #include "google-breakpad/client/windows/handler/exception_handler.h"
