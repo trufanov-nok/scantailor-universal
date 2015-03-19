@@ -5,6 +5,12 @@ IF(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy)
 
+IF(POLICY CMP0043)
+	# Don't ignore COMPILE_DEFINITIONS_{CONFIG} directives, as these are used
+	# by Qt.
+	CMAKE_POLICY(SET CMP0043 OLD)
+ENDIF()
+
 SET(
 	CMAKE_USER_MAKE_RULES_OVERRIDE
 	"${CMAKE_SOURCE_DIR}/cmake/default_cflags.cmake"
