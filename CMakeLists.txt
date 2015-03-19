@@ -746,14 +746,20 @@ IF(WIN32)
 		"${PLUGINS_DIR}/platforms/qwindowsd.dll" SUBDIR platforms
 		CONFIGURATIONS Debug
 	)
-	COPY_TO_BUILD_DIR(
-		"${PLUGINS_DIR}/accessible/qtaccessiblewidgets.dll" SUBDIR accessible
-		CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-	)
-	COPY_TO_BUILD_DIR(
-		"${PLUGINS_DIR}/accessible/qtaccessiblewidgetsd.dll" SUBDIR accessible
-		CONFIGURATIONS Debug
-	)
+
+	IF(EXISTS "${PLUGINS_DIR}/accessible/qtaccessiblewidgets.dll")
+		COPY_TO_BUILD_DIR(
+			"${PLUGINS_DIR}/accessible/qtaccessiblewidgets.dll" SUBDIR accessible
+			CONFIGURATIONS Release MinSizeRel RelWithDebInfo
+		)
+	ENDIF()
+
+	IF(EXISTS "${PLUGINS_DIR}/accessible/qtaccessiblewidgetsd.dll")
+		COPY_TO_BUILD_DIR(
+			"${PLUGINS_DIR}/accessible/qtaccessiblewidgetsd.dll" SUBDIR accessible
+			CONFIGURATIONS Debug
+		)
+	ENDIF()
 	
 	# Generate the target that will actually do the copying.
 	GENERATE_COPY_TO_BUILD_DIR_TARGET(copy_to_build_dir)
