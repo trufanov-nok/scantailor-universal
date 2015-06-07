@@ -22,12 +22,14 @@
 #include "VecNT.h"
 #include "imageproc/ColorMixer.h"
 #include "imageproc/GrayImage.h"
+#include "imageproc/BadAllocIfNull.h"
 #include <QtGlobal>
 #include <QColor>
 #include <QImage>
 #include <QSize>
 #include <QRect>
 #include <QDebug>
+#include <cstdint>
 #include <math.h>
 
 #define INTERP_NONE 0
@@ -299,11 +301,7 @@ void areaMapGeneratrix(
 		assert(src_right >= src_left);
 		
 		ColorMixer mixer;
-		//if (weak_background) {
-		//	background_area = 0;
-		//} else {
-			mixer.add(bg_color, background_area);
-		//}
+		mixer.add(bg_color, background_area);
 		
 		unsigned const left_fraction = 32 - (src32_left & 31);
 		unsigned const top_fraction = 32 - (src32_top & 31);
@@ -474,12 +472,19 @@ void dewarpGeneric(
 
 #if INTERPOLATION_METHOD == INTERP_BILLINEAR
 typedef float MixingWeight;
+typedef float ArgbMixingWeight;
 #else
-typedef unsigned MixingWeight;
+typedef uint32_t MixingWeight;
+typedef float ArgbMixingWeight;
+/* We can't use uint32_t for ArgbMixingWeight because additional scaling
+ * by alpha makes integer overflow possible when doing significant downscaling
+ * (think thumbnail creation). We could have used uint64_t, but float provides
+ * better performance, at least on my machine.
+ */
 #endif
 
 QImage dewarpGrayscale(
-	QImage const& src, QSize const& dst_size,
+	GrayImage const& src, QSize const& dst_size,
 	CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& bg_color)
 {
@@ -487,7 +492,7 @@ QImage dewarpGrayscale(
 	uint8_t const bg_sample = qGray(bg_color.rgb());
 	dst.fill(bg_sample);
 	dewarpGeneric<GrayColorMixer<MixingWeight>, uint8_t>(
-		src.bits(), src.size(), src.bytesPerLine(),
+		src.data(), src.size(), src.stride(),
 		dst.data(), dst_size, dst.stride(),
 		distortion_model, model_domain, bg_sample
 	);
@@ -500,6 +505,8 @@ QImage dewarpRgb(
 	QRectF const& model_domain, QColor const& bg_color)
 {
 	QImage dst(dst_size, QImage::Format_RGB32);
+	badAllocIfNull(dst);
+
 	dst.fill(bg_color.rgb());
 	dewarpGeneric<RgbColorMixer<MixingWeight>, uint32_t>(
 		(uint32_t const*)src.bits(), src.size(), src.bytesPerLine()/4,
@@ -515,8 +522,10 @@ QImage dewarpArgb(
 	QRectF const& model_domain, QColor const& bg_color)
 {
 	QImage dst(dst_size, QImage::Format_ARGB32);
+	badAllocIfNull(dst);
+
 	dst.fill(bg_color.rgba());
-	dewarpGeneric<ArgbColorMixer<MixingWeight>, uint32_t>(
+	dewarpGeneric<ArgbColorMixer<ArgbMixingWeight>, uint32_t>(
 		(uint32_t const*)src.bits(), src.size(), src.bytesPerLine()/4,
 		(uint32_t*)dst.bits(), dst_size, dst.bytesPerLine()/4,
 		distortion_model, model_domain, bg_color.rgba()
@@ -536,47 +545,34 @@ RasterDewarper::dewarp(
 		throw std::invalid_argument("RasterDewarper: model_domain is empty.");
 	}
 
+	auto is_opaque_gray = [](QRgb rgba) {
+		return qAlpha(rgba) == 0xff && qRed(rgba) == qBlue(rgba) && qRed(rgba) == qGreen(rgba);
+	};
+
 	switch (src.format()) {
 		case QImage::Format_Invalid:
 			return QImage();
-		case QImage::Format_RGB32:
-			return dewarpRgb(src, dst_size, distortion_model, model_domain, bg_color);
-		case QImage::Format_ARGB32:
-			return dewarpArgb(src, dst_size, distortion_model, model_domain, bg_color);
 		case QImage::Format_Indexed8:
-			if (src.isGrayscale()) {
-				return dewarpGrayscale(src, dst_size, distortion_model, model_domain, bg_color);
-			} else if (src.allGray()) {
-				// Only shades of gray but non-standard palette.
-				return dewarpGrayscale(
-					GrayImage(src).toQImage(), dst_size, distortion_model,
-					model_domain, bg_color
-				);
-			}
-			break;
 		case QImage::Format_Mono:
 		case QImage::Format_MonoLSB:
-			if (src.allGray()) {
+			if (src.allGray() && is_opaque_gray(bg_color.rgba())) {
 				return dewarpGrayscale(
-					GrayImage(src).toQImage(),
+					GrayImage(src), dst_size, distortion_model, model_domain, bg_color
+				);
+			}
+			// fall through
+		default:
+			if (!src.hasAlphaChannel() && qAlpha(bg_color.rgba()) == 0xff) {
+				return dewarpRgb(
+					badAllocIfNull(src.convertToFormat(QImage::Format_RGB32)),
+					dst_size, distortion_model, model_domain, bg_color
+				);
+			} else {
+				return dewarpArgb(
+					badAllocIfNull(src.convertToFormat(QImage::Format_ARGB32)),
 					dst_size, distortion_model, model_domain, bg_color
 				);
 			}
-			break;
-		default:;
-	}
-
-	// Generic case: convert to either RGB32 or ARGB32.
-	if (src.hasAlphaChannel()) {
-		return dewarpArgb(
-			src.convertToFormat(QImage::Format_ARGB32),
-			dst_size, distortion_model, model_domain, bg_color
-		);
-	} else {
-		return dewarpRgb(
-			src.convertToFormat(QImage::Format_RGB32),
-			dst_size, distortion_model, model_domain, bg_color
-		);
 	}
 }
 

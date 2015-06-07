@@ -3,6 +3,7 @@ PROJECT(imageproc)
 SET(
 	sources
 	Constants.h Constants.cpp
+	BadAllocIfNull.cpp BadAllocIfNull.h
 	BinaryImage.cpp BinaryImage.h
 	BinaryThreshold.cpp BinaryThreshold.h
 	SlicedHistogram.cpp SlicedHistogram.h
