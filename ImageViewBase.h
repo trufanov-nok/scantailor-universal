@@ -434,6 +434,8 @@ private:
 	int m_ignoreScrollEvents;
 
 	int m_ignoreResizeEvents;
+
+	int m_blockScrollBarUpdate;
 	
 	bool m_hqTransformEnabled;
 };

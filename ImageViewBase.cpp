@@ -159,6 +159,7 @@ ImageViewBase::ImageViewBase(
 	m_transformChangeWatchersActive(0),
 	m_ignoreScrollEvents(0),
 	m_ignoreResizeEvents(0),
+	m_blockScrollBarUpdate(0),
 	m_hqTransformEnabled(true)
 {
 #ifdef ENABLE_OPENGL
@@ -627,9 +628,21 @@ ImageViewBase::resizeEvent(QResizeEvent* event)
 
 	ScopedIncDec<int> const guard(m_ignoreScrollEvents);
 
-	if (maximumViewportSize() != m_lastMaximumViewportSize) {
-		m_lastMaximumViewportSize = maximumViewportSize();
-		m_widgetFocalPoint = centeredWidgetFocalPoint();
+	QSize const max_viewport_size = maximumViewportSize();
+
+	if (max_viewport_size != m_lastMaximumViewportSize) {
+		m_lastMaximumViewportSize = max_viewport_size;
+
+		// Since the the value of maximumViewportSize() changed,
+		// we need to call updateWidgetTransform(). This has to
+		// go before getIdealWidgetFocalPoint(), as it updates
+		// the transform getIdealWidgetFocalPoint() relies on.
+		updateWidgetTransform();
+
+		m_widgetFocalPoint = getIdealWidgetFocalPoint(CENTER_IF_FITS);
+
+		// Having updated m_widgetFocalPoint, we need to update
+		// the virtual <-> widget transforms again.
 		updateWidgetTransform();
 	} else {
 		TransformChangeWatcher const watcher(*this);
@@ -659,6 +672,10 @@ ImageViewBase::transformChanged()
 void
 ImageViewBase::updateScrollBars()
 {
+	if (m_blockScrollBarUpdate) {
+		return;
+	}
+
 	if (verticalScrollBar()->isSliderDown() || horizontalScrollBar()->isSliderDown()) {
 		return;
 	}
@@ -695,12 +712,10 @@ ImageViewBase::updateScrollBars()
 			ymin = std::min<double>(viewport_center.y(), viewport.bottom() - 0.5 * picture.height());
 		}
 
-		int const xrange = (int)ceil(xmax - xmin);
-		int const yrange = (int)ceil(ymax - ymin);
 		int const xfirst = 0;
-		int const xlast = xrange - 1;
 		int const yfirst = 0;
-		int const ylast = yrange - 1;
+		int const xlast = (int)floor(xmax - xmin);
+		int const ylast = (int)floor(ymax - ymin);
 
 		// We are going to map scrollbar coordinates to widget coordinates
 		// of the central point of the display area using a linear function.
@@ -774,8 +789,12 @@ ImageViewBase::reactToScrollBars()
 
 /**
  * Updates m_virtualToWidget and m_widgetToVirtual.\n
- * To be called whenever any of the following is modified:
- * m_imageToVirt, m_widgetFocalPoint, m_pixmapFocalPoint, m_zoom.
+ * To be called whenever any of the following changes / is modified:
+ * \li maxViewportSize()
+ * \li m_imageToVirt
+ * \li m_widgetFocalPoint
+ * \li m_pixmapFocalPoint
+ * \li m_zoom
  * Modifying both m_widgetFocalPoint and m_pixmapFocalPoint in a way
  * that doesn't cause image movement doesn't require calling this method.
  */
@@ -925,47 +944,56 @@ void
 ImageViewBase::adjustAndSetNewWidgetFP(
 	QPointF const proposed_widget_fp, bool const update)
 {
-	// We first apply the proposed focal point, and only then
-	// calculate the ideal one.  That's done because
-	// the ideal focal point is the current focal point when
-	// no widget space is wasted (image covers the whole widget).
-	// We don't want the ideal focal point to be equal to the current
-	// one, as that would disallow any movements.
 	QPointF const old_widget_fp(m_widgetFocalPoint);
-	setNewWidgetFP(proposed_widget_fp, update);
-	
-	QPointF const ideal_widget_fp(getIdealWidgetFocalPoint(CENTER_IF_FITS));
-	
-	QPointF const towards_ideal(ideal_widget_fp - old_widget_fp);
-	QPointF const towards_proposed(proposed_widget_fp - old_widget_fp);
-	
-	QPointF movement(towards_proposed);
-	
-	// Horizontal movement.
-	if (towards_ideal.x() * towards_proposed.x() < 0.0) {
-		// Wrong direction - no movement at all.
-		movement.setX(0.0);
-	} else if (fabs(towards_proposed.x()) > fabs(towards_ideal.x())) {
-		// Too much movement - limit it.
-		movement.setX(towards_ideal.x());
-	}
-	
-	// Vertical movement.
-	if (towards_ideal.y() * towards_proposed.y() < 0.0) {
-		// Wrong direction - no movement at all.
-		movement.setY(0.0);
-	} else if (fabs(towards_proposed.y()) > fabs(towards_ideal.y())) {
-		// Too much movement - limit it.
-		movement.setY(towards_ideal.y());
-	}
-	
-	QPointF const adjusted_widget_fp(old_widget_fp + movement);
-	if (adjusted_widget_fp != m_widgetFocalPoint) {
-		m_widgetFocalPoint = adjusted_widget_fp;
-		updateWidgetTransform();
-		if (update) {
-			this->update();
+
+	{
+		ScopedIncDec<int> const guard(m_blockScrollBarUpdate);
+
+		// We first apply the proposed focal point, and only then
+		// calculate the ideal one.  That's done because
+		// the ideal focal point is the current focal point when
+		// no widget space is wasted (image covers the whole widget).
+		// We don't want the ideal focal point to be equal to the current
+		// one, as that would disallow any movements.
+		setNewWidgetFP(proposed_widget_fp, update);
+
+		QPointF const ideal_widget_fp(getIdealWidgetFocalPoint(CENTER_IF_FITS));
+
+		QPointF const towards_ideal(ideal_widget_fp - old_widget_fp);
+		QPointF const towards_proposed(proposed_widget_fp - old_widget_fp);
+
+		QPointF movement(towards_proposed);
+
+		// Horizontal movement.
+		if (towards_ideal.x() * towards_proposed.x() < 0.0) {
+			// Wrong direction - no movement at all.
+			movement.setX(0.0);
+		} else if (fabs(towards_proposed.x()) > fabs(towards_ideal.x())) {
+			// Too much movement - limit it.
+			movement.setX(towards_ideal.x());
 		}
+
+		// Vertical movement.
+		if (towards_ideal.y() * towards_proposed.y() < 0.0) {
+			// Wrong direction - no movement at all.
+			movement.setY(0.0);
+		} else if (fabs(towards_proposed.y()) > fabs(towards_ideal.y())) {
+			// Too much movement - limit it.
+			movement.setY(towards_ideal.y());
+		}
+
+		QPointF const adjusted_widget_fp(old_widget_fp + movement);
+		if (adjusted_widget_fp != m_widgetFocalPoint) {
+			m_widgetFocalPoint = adjusted_widget_fp;
+			updateWidgetTransform();
+			if (update) {
+				this->update();
+			}
+		}
+	}
+
+	if (old_widget_fp != m_widgetFocalPoint) {
+		updateScrollBars();
 	}
 }
 
