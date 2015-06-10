@@ -664,10 +664,6 @@ ADD_CUSTOM_TARGET(compile_translations ALL DEPENDS ${QM_FILES})
 
 INSTALL(FILES ${QM_FILES} DESTINATION "${TRANSLATIONS_DIR_REL}/")
 
-# Tests
-ADD_TEST(ImageProcTests imageproc/tests/imageproc_tests --log_level=message)
-ADD_TEST(ScanTaylorTests tests/tests --log_level=message)
-
 # Source code packaging
 SET(CPACK_CMAKE_GENERATOR "")
 SET(CPACK_SOURCE_GENERATOR "TGZ")

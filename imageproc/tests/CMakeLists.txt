@@ -32,3 +32,11 @@ SET(
 ADD_EXECUTABLE(imageproc_tests ${sources})
 QT5_USE_MODULES(imageproc_tests Widgets Xml)
 TARGET_LINK_LIBRARIES(imageproc_tests ${libs})
+
+# We want the executable located where we copy all the DLLs.
+SET_TARGET_PROPERTIES(
+	imageproc_tests PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+
+ADD_TEST(NAME imageproc_tests COMMAND imageproc_tests --log_level=message)

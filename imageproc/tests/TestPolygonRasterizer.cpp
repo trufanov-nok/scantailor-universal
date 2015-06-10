@@ -22,6 +22,7 @@
 #include "RasterOp.h"
 #include "BWColor.h"
 #include "Utils.h"
+#include <QApplication>
 #include <QPolygonF>
 #include <QSize>
 #include <QRectF>
@@ -31,6 +32,7 @@
 #include <QBrush>
 #include <QColor>
 #include <Qt>
+#include <memory>
 #include <math.h>
 #ifndef Q_MOC_RUN
 #include <boost/test/auto_unit_test.hpp>
@@ -44,7 +46,18 @@ namespace tests
 
 using namespace utils;
 
-BOOST_AUTO_TEST_SUITE(PolygonRasterizerTestSuite);
+class PolygonRasterizerFixture
+{
+public:
+	PolygonRasterizerFixture() {
+		// In Qt5, an instance of QApplication is required to be able to use QPainter.
+		m_ptrApp = createApplication();
+	}
+private:
+	std::unique_ptr<QApplication> m_ptrApp;
+};
+
+BOOST_FIXTURE_TEST_SUITE(PolygonRasterizerTestSuite, PolygonRasterizerFixture);
 
 static QPolygonF createShape(QSize const& image_size, double radius)
 {
