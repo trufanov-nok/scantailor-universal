@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,9 @@
 #ifndef IMAGEPROC_TESTS_UTILS_H_
 #define IMAGEPROC_TESTS_UTILS_H_
 
+#include <memory>
+
+class QApplication;
 class QImage;
 class QRect;
 
@@ -32,6 +35,8 @@ namespace tests
 
 namespace utils
 {
+
+std::unique_ptr<QApplication> createApplication();
 
 BinaryImage randomBinaryImage(int width, int height);
 

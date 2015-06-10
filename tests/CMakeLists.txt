@@ -14,9 +14,17 @@ SOURCE_GROUP("Sources" FILES ${sources})
 SET(
 	libs
 	imageproc math ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-        ${Boost_PRG_EXECUTION_MONITOR_LIBRARY} ${EXTRA_LIBS}
+	${Boost_PRG_EXECUTION_MONITOR_LIBRARY} ${EXTRA_LIBS}
 )
 
 ADD_EXECUTABLE(tests ${sources})
 QT5_USE_MODULES(tests Widgets)
 TARGET_LINK_LIBRARIES(tests ${libs})
+
+# We want the executable located where we copy all the DLLs.
+SET_TARGET_PROPERTIES(
+	tests PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+
+ADD_TEST(NAME tests COMMAND tests --log_level=message)
