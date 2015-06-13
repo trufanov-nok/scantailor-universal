@@ -1,6 +1,6 @@
 /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimich@gmail.com>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -79,7 +79,17 @@ void rasterOpGenericXY(T1* data1, int stride1, QSize size,
 					 T2* data2, int stride2, Op operation);
 
 /**
- * \brief Same as the one above, except one of the images is a const BinaryImage.
+ * \brief A 3-image version of rasterOpGeneric().
+ */
+template<typename T1, typename T2, typename T3, typename Op>
+void rasterOpGeneric(QSize size,
+	T1* data1, int stride1,
+	T2* data2, int stride2,
+	T3* data3, int stride3, Op operation);
+
+/**
+ * \brief A two image version rasterOpGeneric() taking a const BinaryImage
+ *        as one of its arguments.
  *
  * \p operation will be called like this:
  * \code
@@ -91,7 +101,8 @@ template<typename T2, typename Op>
 void rasterOpGeneric(BinaryImage const& image1, T2* data2, int stride2, Op operation);
 
 /**
- * \brief Same as the one above, except one of the images is a non-const BinaryImage.
+ * \brief A two image version rasterOpGeneric() taking a non-const BinaryImage
+ *        as one of its arguments.
  *
  * \p operation will be called like this:
  * \code
@@ -180,6 +191,29 @@ void rasterOpGenericXY(T1* data1, int stride1, QSize size,
 		}
 		data1 += stride1;
 		data2 += stride2;
+	}
+}
+
+template<typename T1, typename T2, typename T3, typename Op>
+void rasterOpGeneric(QSize size,
+	T1* data1, int stride1,
+	T2* data2, int stride2,
+	T3* data3, int stride3, Op operation)
+{
+	if (size.isEmpty()) {
+		return;
+	}
+
+	int const w = size.width();
+	int const h = size.height();
+
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) {
+			operation(data1[x], data2[x], data3[x]);
+		}
+		data1 += stride1;
+		data2 += stride2;
+		data3 += stride3;
 	}
 }
 
