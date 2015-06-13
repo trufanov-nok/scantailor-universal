@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -123,6 +123,12 @@ RastLineFinder::RastLineFinder(std::vector<QPointF> const& points, RastLineFinde
 	}
 }
 
+void
+RastLineFinder::setClientSubdivisionFunction(ClientSubdivisionFunction const& func)
+{
+	m_clientSubdivisionFunc = func;
+}
+
 QLineF
 RastLineFinder::findNext(std::vector<unsigned>* point_idxs)
 {
@@ -141,12 +147,21 @@ RastLineFinder::findNext(std::vector<unsigned>* point_idxs)
 
 		if (!ssp.subdivideDist(*this, dist_ssp1, dist_ssp2)) {
 			if (!ssp.subdivideAngle(*this, angle_ssp1, angle_ssp2)) {
-				// Can't subdivide at all - return what we've got then.
+				// Can't subdivide by either distance or angle.
+				// At this point we give the client a chance to split
+				// supporting points into several sets. That would also count
+				// as subdivision.
+				QLineF const line(ssp.representativeLine(*this));
+				if (tryClientSubdivision(ssp, line)) {
+					continue;
+				}
+				
+				// If the client didn't subdivide further, we return the result.
 				markPointsUnavailable(ssp.pointIdxs());
 				if (point_idxs) {
 					point_idxs->swap(ssp.pointIdxs());
 				}
-				return ssp.representativeLine(*this);
+				return line;
 			} else {
 				// Can only subdivide by angle.
 				pushIfGoodEnough(angle_ssp1);
@@ -177,11 +192,43 @@ RastLineFinder::findNext(std::vector<unsigned>* point_idxs)
 	return QLineF();
 }
 
+bool
+RastLineFinder::tryClientSubdivision(SearchSpace& ssp, QLineF const& line)
+{
+	if (!m_clientSubdivisionFunc) {
+		return false;
+	}
+
+	std::vector<unsigned> point_idxs;
+	point_idxs.swap(ssp.pointIdxs());
+
+	bool const res = m_clientSubdivisionFunc(
+		line, point_idxs, [this, &ssp](std::vector<unsigned> const& points) {
+			processClientReducedSubspace(ssp, points);
+		}
+	);
+	if (!res) {
+		point_idxs.swap(ssp.pointIdxs());
+	}
+	return res;
+}
+
 void
 RastLineFinder::pushIfGoodEnough(SearchSpace& ssp)
 {
 	if (ssp.pointIdxs().size() >= m_minSupportPoints) {
 		m_orderedSearchSpaces.pushDestructive(ssp);
+	}
+}
+
+void
+RastLineFinder::processClientReducedSubspace(
+	SearchSpace const& ssp, std::vector<unsigned> const& point_idxs)
+{
+	if (point_idxs.size() >= m_minSupportPoints) {
+		SearchSpace reduced_ssp(ssp);
+		reduced_ssp.pointIdxs() = point_idxs;
+		m_orderedSearchSpaces.pushDestructive(reduced_ssp);
 	}
 }
 
@@ -302,7 +349,7 @@ RastLineFinder::SearchSpace::subdivideDist(
 		return false;
 	}
 
-	if (m_maxDist - m_minDist <= owner.m_angleToleranceRad * 3) {
+	if (m_maxDist - m_minDist <= owner.m_maxDistFromLine * 3) {
 		// This branch prevents near-infinite subdivision that would have happened without it.
 		SearchSpace ssp1(owner, m_minDist, m_minDist + owner.m_maxDistFromLine*2, m_minAngleRad, m_maxAngleRad, m_pointIdxs);
 		SearchSpace ssp2(owner, m_maxDist - owner.m_maxDistFromLine*2, m_maxDist, m_minAngleRad, m_maxAngleRad, m_pointIdxs);

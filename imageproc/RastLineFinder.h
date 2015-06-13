@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include "PriorityQueue.h"
 #include <QPointF>
 #include <QLineF>
+#include <functional>
 #include <vector>
 #include <string>
 #include <stddef.h>
@@ -139,12 +140,40 @@ private:
 	}
 public:
 	/**
+	 * The function to be called by the client subdivision function in order
+	 * to inject a new search space into the system.
+	 */
+	typedef std::function<
+		void(std::vector<unsigned> const&)
+	> ClientSubdivisionEmitter;
+	
+	/**
+	 * The idea behind the ClientSubdivisionFunction is to give the client code
+	 * an opportunity to influence the subspace subdivision process. For instance,
+	 * the client code may know about some constraints that don't allow certain
+	 * groups of points to be a part of the same line.
+	 * This function takes the following arguments:
+	 * \li A line representing the middle of the current search space.
+	 * \li The list of point indexes that fall into the current search space.
+	 * \li A function to be called by the client code to inject a new search space into the system.
+	 *
+	 * If the client decides not to inject any subspaces, it has to return false. In this case,
+	 * the standard search space subdivision process is invoked.
+	 */
+	typedef std::function<
+		bool(QLineF const&, std::vector<unsigned> const&, ClientSubdivisionEmitter const&)
+	> ClientSubdivisionFunction;
+
+	/**
 	 * Construct a line finder from a point cloud and a set of parameters.
 	 *
 	 * \throw std::invalid_argument if \p params are invalid.
 	 * \see RastLineFinderParams::validate()
 	 */
 	RastLineFinder(std::vector<QPointF> const& points, RastLineFinderParams const& params);
+
+	/** @see ClientSubdivisionFunction */
+	void setClientSubdivisionFunction(ClientSubdivisionFunction const& func);
 
 	/**
 	 * Look for the next best line in terms of the number of support points.
@@ -185,6 +214,7 @@ private:
 
 	class SearchSpace
 	{
+		// Member-wise copying is OK.
 	public:
 		SearchSpace();
 
@@ -229,12 +259,18 @@ private:
 		}
 	};
 
+	bool tryClientSubdivision(SearchSpace& ssp, QLineF const& line);
+
 	void pushIfGoodEnough(SearchSpace& ssp);
+
+	void processClientReducedSubspace(
+		SearchSpace const& ssp, std::vector<unsigned> const& point_idxs);
 
 	void markPointsUnavailable(std::vector<unsigned> const& point_idxs);
 
 	void pruneUnavailablePoints();
 
+	ClientSubdivisionFunction m_clientSubdivisionFunc;
 	QPointF m_origin;
 	double m_angleToleranceRad;
 	double m_maxDistFromLine;
