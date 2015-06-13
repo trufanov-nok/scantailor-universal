@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef GRID_H_
 #define GRID_H_
 
+#include "GridAccessor.h"
 #include <boost/scoped_array.hpp>
 
 template<typename Node>
@@ -49,6 +50,10 @@ public:
 	void initPadding(Node const& padding_node);
 
 	void initInterior(Node const& interior_node);
+
+	GridAccessor<Node const> accessor() const;
+
+	GridAccessor<Node> accessor();
 
 	Node& operator()(int x, int y) { return m_pData[m_stride * y + x]; }
 
@@ -193,6 +198,20 @@ Grid<Node>::initInterior(Node const& interior_node)
 		}
 		line += m_stride;
 	}
+}
+
+template<typename Node>
+GridAccessor<Node const>
+Grid<Node>::accessor() const
+{
+	return GridAccessor<Node const>{m_pData, m_stride, m_width, m_height};
+}
+
+template<typename Node>
+GridAccessor<Node>
+Grid<Node>::accessor()
+{
+	return GridAccessor<Node>{m_pData, m_stride, m_width, m_height};
 }
 
 template<typename Node>

@@ -1,6 +1,6 @@
 /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -40,5 +40,18 @@ GrayImage::GrayImage(QImage const& image)
 :	m_image(toGrayscale(image))
 {
 }
+
+GridAccessor<uint8_t const>
+GrayImage::accessor() const
+{
+	return GridAccessor<uint8_t const>{data(), stride(), width(), height()};
+}
+
+GridAccessor<uint8_t>
+GrayImage::accessor()
+{
+	return GridAccessor<uint8_t>{data(), stride(), width(), height()};
+}
+
 
 } // namespace imageproc

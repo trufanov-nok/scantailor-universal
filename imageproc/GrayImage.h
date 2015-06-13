@@ -1,6 +1,6 @@
 /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_GRAYIMAGE_H_
 #define IMAGEPROC_GRAYIMAGE_H_
 
+#include "GridAccessor.h"
 #include <QImage>
 #include <QSize>
 #include <QRect>
@@ -51,6 +52,10 @@ public:
 	 * The QImage may be in any format and may be null.
 	 */
 	explicit GrayImage(QImage const& image);
+
+	GridAccessor<uint8_t const> accessor() const;
+
+	GridAccessor<uint8_t> accessor();
 
 	/**
 	 * \brief Returns a const reference to the underlying QImage.

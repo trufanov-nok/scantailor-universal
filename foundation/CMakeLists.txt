@@ -35,6 +35,7 @@ SET(
 	MatT.h
 	PriorityQueue.h
 	Grid.h
+	GridAccessor.h
 	ValueConv.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})

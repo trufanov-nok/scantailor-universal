@@ -20,7 +20,9 @@
 #define IMAGEPROC_RASTER_OP_GENERIC_H_
 
 #include "BinaryImage.h"
+#include "GridAccessor.h"
 #include <QSize>
+#include <stdexcept>
 #include <stdint.h>
 #include <assert.h>
 
@@ -44,11 +46,25 @@ template<typename T, typename Op>
 void rasterOpGeneric(T* data, int stride, QSize size, Op operation);
 
 /**
- * Same as the one directly above, but \p operation receives two extra arguments:
- * x and y of a pixel.
+ * \brief Same as the above one, but taking a GridAccessor rather than pointers,
+ *        strides and dimensions.
+ */
+template<typename T, typename Op>
+void rasterOpGeneric(GridAccessor<T> grid, Op operation);
+
+/**
+ * \brief Same as the corresponding rasterOpGeneric(), but \p operation receives two
+ *        extra arguments: x and y of a pixel.
  */
 template<typename T, typename Op>
 void rasterOpGenericXY(T* data, int stride, QSize size, Op operation);
+
+/**
+ * \brief Same as the above one, but taking a GridAccessor rather than pointers,
+ *        strides and dimensions.
+ */
+template<typename T, typename Op>
+void rasterOpGenericXY(GridAccessor<T> grid, Op operation);
 
 /**
  * \brief Perform an operation on a pair of images.
@@ -69,14 +85,27 @@ void rasterOpGenericXY(T* data, int stride, QSize size, Op operation);
 template<typename T1, typename T2, typename Op>
 void rasterOpGeneric(T1* data1, int stride1, QSize size,
 					 T2* data2, int stride2, Op operation);
+/**
+ * \brief Same as the above one, but taking a GridAccessor rather than pointers,
+ *        strides and dimensions.
+ */
+template<typename T1, typename T2, typename Op>
+void rasterOpGeneric(GridAccessor<T1> grid1, GridAccessor<T1> grid2, Op operation);
 
 /**
- * Same as the one directly above, but \p operation receives two extra arguments:
- * x and y of a pixel.
+ * \brief Same as the corresponding rasterOpGeneric(), but \p operation receives two
+ *        extra arguments: x and y of a pixel.
  */
 template<typename T1, typename T2, typename Op>
 void rasterOpGenericXY(T1* data1, int stride1, QSize size,
 					 T2* data2, int stride2, Op operation);
+
+/**
+ * \brief Same as the above one, but taking a GridAccessor rather than pointers,
+ *        strides and dimensions.
+ */
+template<typename T1, typename T2, typename Op>
+void rasterOpGenericXY(GridAccessor<T1> data1, GridAccessor<T2> data2, Op operation);
 
 /**
  * \brief A 3-image version of rasterOpGeneric().
@@ -88,8 +117,15 @@ void rasterOpGeneric(QSize size,
 	T3* data3, int stride3, Op operation);
 
 /**
- * \brief A two image version rasterOpGeneric() taking a const BinaryImage
- *        as one of its arguments.
+ * \brief A 3-image version of rasterOpGeneric() taking instances of GridAccessor
+ *        rather than pointers, strides and dimensions.
+ */
+template<typename T1, typename T2, typename T3, typename Op>
+void rasterOpGeneric(GridAccessor<T1> grid1, GridAccessor<T2> grid2,
+	GridAccessor<T3> grid3, Op operation);
+
+/**
+ * \brief A two-image version with the first image being a const BinaryImage.
  *
  * \p operation will be called like this:
  * \code
@@ -101,8 +137,14 @@ template<typename T2, typename Op>
 void rasterOpGeneric(BinaryImage const& image1, T2* data2, int stride2, Op operation);
 
 /**
- * \brief A two image version rasterOpGeneric() taking a non-const BinaryImage
- *        as one of its arguments.
+ * \brief Same as the above one, but taking a GridAccessor rather than pointers,
+ *        strides and dimensions.
+ */
+template<typename T2, typename Op>
+void rasterOpGeneric(BinaryImage const& image1, GridAccessor<T2> image2, Op operation);
+
+/**
+ * \brief A two-image version with the first image being a non-const BinaryImage.
  *
  * \p operation will be called like this:
  * \code
@@ -113,7 +155,14 @@ void rasterOpGeneric(BinaryImage const& image1, T2* data2, int stride2, Op opera
  * and an assignment operator from uint32_t, expecting 0 or 1 only.
  */
 template<typename T2, typename Op>
-void rasterOpGeneric(BinaryImage const& image1, T2* data2, int stride2, Op operation);
+void rasterOpGeneric(BinaryImage& image1, T2* data2, int stride2, Op operation);
+
+/**
+ * \brief Same as the above one, but taking a GridAccessor rather than pointers,
+ *        strides and dimensions.
+ */
+template<typename T2, typename Op>
+void rasterOpGeneric(BinaryImage& image1, GridAccessor<T2> image2, Op operation);
 
 
 /*======================== Implementation ==========================*/
@@ -137,6 +186,15 @@ void rasterOpGeneric(T* data, int stride, QSize size, Op operation)
 }
 
 template<typename T, typename Op>
+void rasterOpGeneric(GridAccessor<T> const grid, Op operation)
+{
+	rasterOpGeneric<T>(
+		grid.data, grid.stride, QSize(grid.width, grid.height),
+		std::move(operation)
+	);
+}
+
+template<typename T, typename Op>
 void rasterOpGenericXY(T* data, int stride, QSize size, Op operation)
 {
 	if (size.isEmpty()) {
@@ -152,6 +210,15 @@ void rasterOpGenericXY(T* data, int stride, QSize size, Op operation)
 		}
 		data += stride;
 	}
+}
+
+template<typename T, typename Op>
+void rasterOpGenericXY(GridAccessor<T> const grid, Op operation)
+{
+	rasterOpGenericXY(
+		grid.data, grid.stride, QSize(grid.width, grid.height),
+		std::move(operation)
+	);
 }
 
 template<typename T1, typename T2, typename Op>
@@ -175,6 +242,20 @@ void rasterOpGeneric(T1* data1, int stride1, QSize size,
 }
 
 template<typename T1, typename T2, typename Op>
+void rasterOpGeneric(GridAccessor<T1> const grid1,
+	GridAccessor<T1> const grid2, Op operation)
+{
+	if (grid1.width != grid2.width || grid1.height != grid2.height) {
+		throw std::invalid_argument("rasterOpGeneric: size mismatch");
+	}
+
+	rasterOpGeneric(
+		grid1.data, grid1.stride, QSize(grid1.width, grid1.height),
+		grid2.data, grid2.stride, std::move(operation)
+	);
+}
+
+template<typename T1, typename T2, typename Op>
 void rasterOpGenericXY(T1* data1, int stride1, QSize size,
 					   T2* data2, int stride2, Op operation)
 {
@@ -192,6 +273,20 @@ void rasterOpGenericXY(T1* data1, int stride1, QSize size,
 		data1 += stride1;
 		data2 += stride2;
 	}
+}
+
+template<typename T1, typename T2, typename Op>
+void rasterOpGenericXY(GridAccessor<T1> const data1,
+	GridAccessor<T2> const data2, Op operation)
+{
+	if (grid1.width != grid2.width || grid1.height != grid2.height) {
+		throw std::invalid_argument("rasterOpGeneric: size mismatch");
+	}
+
+	rasterOpGenericXY(
+		grid1.data, grid1.stride, QSize(grid1.width, grid1.height),
+		grid2.data, grid2.stride, std::move(operation)
+	);
 }
 
 template<typename T1, typename T2, typename T3, typename Op>
@@ -217,6 +312,23 @@ void rasterOpGeneric(QSize size,
 	}
 }
 
+template<typename T1, typename T2, typename T3, typename Op>
+void rasterOpGeneric(GridAccessor<T1> grid1, GridAccessor<T2> grid2,
+	GridAccessor<T3> grid3, Op operation)
+{
+	if (grid1.width != grid2.width || grid1.height != grid2.height ||
+		grid1.width != grid3.width || grid1.height != grid3.height) {
+		throw std::invalid_argument("rasterOpGeneric: size mismatch");
+	}
+
+	rasterOpGeneric(
+		QSize(grid1.width, grid1.height),
+		grid1.data, grid1.stride,
+		grid2.data, grid2.stride,
+		grid3.data, grid3.stride, std::move(operation)
+	);
+}
+
 template<typename T2, typename Op>
 void rasterOpGeneric(BinaryImage const& image1, T2* data2, int stride2, Op operation)
 {
@@ -237,6 +349,16 @@ void rasterOpGeneric(BinaryImage const& image1, T2* data2, int stride2, Op opera
 		data1 += stride1;
 		data2 += stride2;
 	}
+}
+
+template<typename T2, typename Op>
+void rasterOpGeneric(BinaryImage const& image1, GridAccessor<T2> image2, Op operation)
+{
+	if (image1.width() != image2.width || image1.height() != image2.height) {
+		throw std::invalid_argument("rasterOpGeneric: size mismatch");
+	}
+
+	rasterOpGeneric(image1, image2.data, image2.stride, std::move(operation));
 }
 
 namespace rop_generic_impl
@@ -288,6 +410,16 @@ void rasterOpGeneric(BinaryImage& image1, T2* data2, int stride2, Op operation)
 		data1 += stride1;
 		data2 += stride2;
 	}
+}
+
+template<typename T2, typename Op>
+void rasterOpGeneric(BinaryImage& image1, GridAccessor<T2> image2, Op operation)
+{
+	if (image1.width() != image2.width || image1.height() != image2.height) {
+		throw std::invalid_argument("rasterOpGeneric: size mismatch");
+	}
+
+	rasterOpGeneric(image1, image2.data, image2.stride, std::move(operation));
 }
 
 } // namespace imageproc
