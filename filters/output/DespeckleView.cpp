@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,12 +31,12 @@
 #include "TabbedDebugImages.h"
 #include "AutoRemovingFile.h"
 #include "TaskStatus.h"
-#include "Dpi.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/RasterOp.h"
 #include <QPointer>
 #include <QDebug>
 #include <memory>
+#include <exception>
 
 using namespace imageproc;
 
@@ -61,7 +61,7 @@ public:
 
 	virtual void throwIfCancelled() const;
 private:
-	mutable QAtomicInt m_cancelFlag;
+	QAtomicInt m_cancelFlag;
 };
 
 
@@ -326,13 +326,13 @@ DespeckleView::DespeckleResult::operator()()
 void
 DespeckleView::TaskCancelHandle::cancel()
 {
-	m_cancelFlag.fetchAndStoreRelaxed(1);
+	m_cancelFlag.store(1);
 }
 
 bool
 DespeckleView::TaskCancelHandle::isCancelled() const
 {
-	return m_cancelFlag.fetchAndAddRelaxed(0) != 0;
+	return m_cancelFlag.load() != 0;
 }
 
 void

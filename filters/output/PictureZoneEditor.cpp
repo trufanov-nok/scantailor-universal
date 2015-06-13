@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -76,16 +76,16 @@ private:
 
 		void setData(QPoint const& origin, QImage const& mask);
 
-		void cancel() { m_cancelFlag.fetchAndStoreRelaxed(1); }
+		void cancel() { m_cancelFlag.store(1); }
 
-		bool isCancelled() const { return m_cancelFlag.fetchAndAddRelaxed(0) != 0; }
+		bool isCancelled() const { return m_cancelFlag.load() != 0; }
 
 		virtual void operator()();
 	private:
 		QPointer<PictureZoneEditor> m_ptrZoneEditor;
 		QPoint m_origin;
 		QImage m_mask;
-		mutable QAtomicInt m_cancelFlag;
+		QAtomicInt m_cancelFlag;
 	};
 
 	IntrusivePtr<Result> m_ptrResult;
