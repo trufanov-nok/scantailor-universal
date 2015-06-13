@@ -24,7 +24,6 @@ SET(
 	Scale.cpp Scale.h
 	Transform.cpp Transform.h
 	Morphology.cpp Morphology.h
-	DentFinder.cpp DentFinder.h
 	IntegralImage.h
 	Binarize.cpp Binarize.h
 	PolygonUtils.cpp PolygonUtils.h
