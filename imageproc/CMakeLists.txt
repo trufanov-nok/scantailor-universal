@@ -48,6 +48,7 @@ SET(
 	ColorInterpolation.cpp ColorInterpolation.h
 	LocalMinMaxGeneric.h
 	SeedFillGeneric.cpp SeedFillGeneric.h
+	WatershedSegmentation.cpp WatershedSegmentation.h
 	TraverseBorders.h
 	FindPeaksGeneric.h
 	PlugHoles.h
