@@ -12,6 +12,7 @@ SET(
 	ObjectSwapperImplGrid.h
 	ObjectSwapperImplQImage.cpp ObjectSwapperImplQImage.h
 	AlignedArray.h
+	CachingFactory.h
 	FastQueue.h
 	SafeDeletingQObjectPtr.h
 	ScopedIncDec.h ScopedDecInc.h
