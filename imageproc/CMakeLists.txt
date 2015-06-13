@@ -50,6 +50,7 @@ SET(
 	SeedFillGeneric.cpp SeedFillGeneric.h
 	TraverseBorders.h
 	FindPeaksGeneric.h
+	PlugHoles.h
 	ColorMixer.h
 	ColorForId.h
 )
