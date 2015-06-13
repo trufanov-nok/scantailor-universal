@@ -47,6 +47,7 @@ SET(
 	ColorInterpolation.cpp ColorInterpolation.h
 	LocalMinMaxGeneric.h
 	SeedFillGeneric.cpp SeedFillGeneric.h
+	TraverseBorders.h
 	FindPeaksGeneric.h
 	ColorMixer.h
 	ColorForId.h
