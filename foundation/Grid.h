@@ -32,6 +32,8 @@ public:
 
 	/**
 	 * \brief Creates a width x height grid with specified padding on each side.
+	 *
+	 * If type Node doesn't require construction, the grid data is left uninitialized.
 	 */
 	Grid(int width, int height, int padding);
 
@@ -47,6 +49,10 @@ public:
 	void initPadding(Node const& padding_node);
 
 	void initInterior(Node const& interior_node);
+
+	Node& operator()(int x, int y) { return m_pData[m_stride * y + x]; }
+
+	Node const& operator()(int x, int y) const { return m_pData[m_stride * y + x]; }
 
 	/**
 	 * \brief Returns a pointer to the beginning of unpadded data.

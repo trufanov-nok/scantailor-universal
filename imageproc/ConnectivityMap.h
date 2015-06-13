@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -143,6 +143,16 @@ public:
 	uint32_t* paddedData() {
 		return m_pData ? &m_data[0] : 0;
 	}
+
+	/**
+	 * \brief Returns a reference to the label at position (x, y).
+	 */
+	uint32_t& operator()(int x, int y) { return m_pData[m_stride * y + x]; }
+
+	/**
+	 * \brief Returns a const reference to the label at position (x, y).
+	 */
+	uint32_t const& operator()(int x, int y) const { return m_pData[m_stride * y + x]; }
 	
 	/**
 	 * \brief Returns non-padded dimensions of the map.
