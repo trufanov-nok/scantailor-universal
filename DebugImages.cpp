@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -64,6 +64,47 @@ void
 DebugImages::add(imageproc::BinaryImage const& image, QString const& label)
 {
 	add(image.toQImage(), label);
+}
+
+void
+DebugImages::add(QString const& label,
+	boost::function<QWidget* ()> const& image_view_factory,
+	boost::function<void()> const& swap_in_action,
+	boost::function<void()> const& swap_out_action, bool swap_out_now)
+{
+	class Factory : public DebugViewFactory
+	{
+	public:
+		Factory(
+			boost::function<QWidget* ()> const& image_view_factory,
+			boost::function<void()> const& swap_in_action,
+			boost::function<void()> const& swap_out_action)
+		:	m_imageViewFactory(image_view_factory)
+		,	m_swapInAction(swap_in_action)
+		,	m_swapOutAction(swap_out_action)
+		{
+		}
+
+		virtual void swapIn() { m_swapInAction(); }
+
+		virtual void swapOut() { m_swapOutAction(); }
+
+		virtual std::auto_ptr<QWidget> newInstance() {
+			return std::auto_ptr<QWidget>(m_imageViewFactory());
+		}
+	private:
+		boost::function<QWidget*()> m_imageViewFactory;
+		boost::function<void()> m_swapInAction;
+		boost::function<void()> m_swapOutAction;
+	};
+
+	IntrusivePtr<DebugViewFactory> factory(
+		new Factory(image_view_factory, swap_in_action, swap_out_action)
+	);
+	if (swap_out_now) {
+		factory->swapOut();
+	}
+	m_sequence.push_back(std::make_pair(factory, label));
 }
 
 IntrusivePtr<DebugViewFactory>

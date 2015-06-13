@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include "DebugViewFactory.h"
 #include "Utils.h"
 #include <boost/function.hpp>
-#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <QString>
 #include <QWidget>
 #include <deque>
@@ -51,7 +50,7 @@ public:
 	void add(imageproc::BinaryImage const& image, QString const& label);
 
 	/**
-	 * \brief Adds a debug view with parameters to be swapped out.
+	 * \brief The most general add() function.
 	 *
 	 * Usage example:
 	 * \code
@@ -60,17 +59,22 @@ public:
 	 * ObjectSwapperFactory factory(swap_dir);
 	 * ObjectSwapper<QImage> image_swapper(factory(image));
 	 * ObjectSwapper<Grid<Vec2f> > vector_field_swapper(factory(vector_field));
-	 * using namespace boost::lambda;
 	 * DebugImages* dbg = ...;
 	 * dbg->add(
-	 *     "label", boost::fusion::make_vector(image_swapper, vector_field_swapper),
-	 *     bind(new_ptr<DebugImageView>(), bind(image_swapper.accessor()), bind(vector_field_swapper.accessor()))
+	 *     "label", [=]() {
+	 *         return new CustomImageView(
+	 *             image_swapper.constObject(), vector_field_swapper.constObject());
+	 *         );
+	 *     },
+	 *     [=]() mutable { image_swapper.swapIn(); vector_field_swapper.swapIn(); },
+	 *     [=]() mutable { image_swapper.swapOut(); vector_field_swapper.swapOut(); }
 	 * );
 	 * \endcode
 	 */
-	template<typename SwappableParams>
-	void add(QString const& label, SwappableParams const& swappable_params,
-		boost::function<QWidget* ()> const& delegate_factory, bool swap_out_now = true);
+	void add(QString const& label,
+		boost::function<QWidget*()> const& image_view_factory,
+		boost::function<void()> const& swap_in_action,
+		boost::function<void()> const& swap_out_action, bool swap_out_now = true);
 	
 	bool empty() const { return m_sequence.empty(); }
 
@@ -82,55 +86,8 @@ public:
 	 */
 	IntrusivePtr<DebugViewFactory> retrieveNext(QString* label);
 private:
-	class SwapInFunctor
-	{
-	public:
-		template<typename T>
-		void operator()(T& obj) const {
-			obj.swapIn();
-		}
-	};
-
-	class SwapOutFunctor
-	{
-	public:
-		template<typename T>
-		void operator()(T& obj) const {
-			obj.swapOut();
-		}
-	};
-
 	QString m_swapDir;
 	std::deque<std::pair<IntrusivePtr<DebugViewFactory>, QString> > m_sequence;
 };
-
-template<typename SwappableParams>
-void
-DebugImages::add(QString const& label, SwappableParams const& swappable_params,
-	boost::function<QWidget* ()> const& delegate_factory, bool swap_out_now)
-{
-	class Factory : public DebugViewFactory
-	{
-	public:
-		Factory(SwappableParams const& swappable_params,
-			boost::function<QWidget* ()> const& delegate_factory)
-			: m_params(swappable_params), m_delegateFactory(delegate_factory) {}
-
-		virtual void swapIn() { boost::fusion::for_each(m_params, SwapInFunctor()); }
-
-		virtual void swapOut() { boost::fusion::for_each(m_params, SwapOutFunctor()); }
-
-		virtual std::auto_ptr<QWidget> newInstance() { return std::auto_ptr<QWidget>(m_delegateFactory()); }
-	private:
-		SwappableParams m_params;
-		boost::function<QWidget* ()> m_delegateFactory;
-	};
-
-	IntrusivePtr<DebugViewFactory> factory(new Factory(swappable_params, delegate_factory));
-	if (swap_out_now) {
-		factory->swapOut();
-	}
-	m_sequence.push_back(std::make_pair(factory, label));
-}
 
 #endif
