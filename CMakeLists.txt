@@ -417,6 +417,7 @@ SET(
 	ImageViewBase.cpp ImageViewBase.h
 	BasicImageView.cpp BasicImageView.h
 	DebugImageView.cpp DebugImageView.h
+	VectorFieldImageView.cpp VectorFieldImageView.h
 	TabbedDebugImages.cpp TabbedDebugImages.h
 	ThumbnailLoadResult.h
 	ThumbnailPixmapCache.cpp ThumbnailPixmapCache.h
