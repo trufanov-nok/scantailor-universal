@@ -29,6 +29,7 @@ SET(
 	PolygonUtils.cpp PolygonUtils.h
 	PolygonRasterizer.cpp PolygonRasterizer.h
 	HoughLineDetector.cpp HoughLineDetector.h
+	HoughTransform.h
 	GaussBlur.cpp GaussBlur.h
 	Sobel.h
 	MorphGradientDetect.cpp MorphGradientDetect.h
