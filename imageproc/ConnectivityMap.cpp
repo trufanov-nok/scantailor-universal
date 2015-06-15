@@ -187,6 +187,21 @@ ConnectivityMap::addComponent(BinaryImage const& image)
 	m_maxLabel = new_label;
 }
 
+GridAccessor<uint32_t const>
+ConnectivityMap::accessor() const
+{
+	return GridAccessor<uint32_t const>{m_pData, m_stride, m_size.width(), m_size.height()};
+}
+
+/**
+ * \brief Provides integration with rasterOpGeneric().
+ */
+GridAccessor<uint32_t>
+ConnectivityMap::accessor()
+{
+	return GridAccessor<uint32_t>{m_pData, m_stride, m_size.width(), m_size.height()};
+}
+
 QImage
 ConnectivityMap::visualized(QColor bgcolor) const
 {

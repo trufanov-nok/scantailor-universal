@@ -21,6 +21,7 @@
 
 #include "Connectivity.h"
 #include "FastQueue.h"
+#include "GridAccessor.h"
 #include <QSize>
 #include <QColor>
 #include <Qt>
@@ -154,6 +155,16 @@ public:
 	 */
 	uint32_t const& operator()(int x, int y) const { return m_pData[m_stride * y + x]; }
 	
+	/**
+	 * \brief Provides integration with rasterOpGeneric().
+	 */
+	GridAccessor<uint32_t const> accessor() const;
+
+	/**
+	 * \brief Provides integration with rasterOpGeneric().
+	 */
+	GridAccessor<uint32_t> accessor();
+
 	/**
 	 * \brief Returns non-padded dimensions of the map.
 	 */
