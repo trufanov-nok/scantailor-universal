@@ -38,6 +38,7 @@ SET(
 	Grid.h
 	GridAccessor.h
 	ValueConv.h
+	IndexSequence.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 

@@ -47,6 +47,7 @@
 
 #include "Grid.h"
 #include "ValueConv.h"
+#include "GridAccessor.h"
 #include "RasterOpGeneric.h"
 #include <QSize>
 #include <boost/scoped_array.hpp>
@@ -666,11 +667,13 @@ void anisotropicGaussBlurGeneric(
 	}
 
 	// Copy from intermediate image to output image.
+	using OutPixel = std::iterator_traits<DstIt>::value_type;
 	rasterOpGeneric(
-		output, output_stride, size, output_origin, intermediate_stride,
-		[float_writer](typename std::iterator_traits<DstIt>::value_type& out, float value) {
+		[float_writer](OutPixel& out, float value) {
 			float_writer(out, value);
-		}
+		},
+		GridAccessor<OutPixel>{output, output_stride, width, height},
+		GridAccessor<float>{output_origin, intermediate_stride, width, height}
 	);
 }
 

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -123,8 +123,8 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
 	// Take the difference between two methods.
 	GrayImage diff(image);
 	rasterOpGeneric(
-		diff.data(), diff.stride(), diff.size(),
-		method1.data(), method1.stride(), _1 -= _2
+		[](uint8_t& diff, uint8_t method1) { diff -= method1; },
+		diff, method1
 	);
 	if (dbg) {
 		dbg->add(diff, "raw_diff");
@@ -141,9 +141,8 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
 	// Now let's take the difference between the original difference
 	// and approximated difference.
 	rasterOpGeneric(
-		diff.data(), diff.stride(), diff.size(),
-		approximated.data(), approximated.stride(),
-		if_then_else(_1 > _2, _1 -= _2, _1 = _2 - _1)
+		if_then_else(_1 > _2, _1 -= _2, _1 = _2 - _1),
+		diff, approximated
 	);
 	approximated = GrayImage(); // save memory.
 	if (dbg) {

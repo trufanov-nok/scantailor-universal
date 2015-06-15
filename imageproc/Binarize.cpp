@@ -242,14 +242,13 @@ BinaryImage binarizeGatos(
 	double const threshold_bias = q * delta * p2;
 
 	rasterOpGeneric(
-		wiener.data(), wiener.stride(), wiener.size(),
-		background.data(), background.stride(),
 		[exp_scale, exp_bias, threshold_scale, threshold_bias]
 		(uint8_t& wiener, uint8_t const bg) {
 			double const threshold = threshold_scale /
 				(1.0 + exp(double(bg) * exp_scale + exp_bias)) + threshold_bias;
 			wiener = double(bg) - double(wiener) > threshold ? 0x00 : 0xff;
-		}
+		},
+		wiener, background
 	);
 
 	return BinaryImage(wiener);

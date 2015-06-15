@@ -35,6 +35,7 @@
 #include "math/SidesOfLine.h"
 #include "math/LineBoundedByRect.h"
 #include "imageproc/Binarize.h"
+#include "imageproc/BinaryImage.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Transform.h"
 #include "imageproc/RasterOpGeneric.h"
@@ -111,18 +112,16 @@ TextLineTracer::trace(
 		++round;
 
 		rasterOpGeneric(
-			dir_deriv_pos.data(), dir_deriv_pos.stride(), downscaled_image.size(),
-			dir_deriv.data(), dir_deriv.stride(),
 			[](float& pos, float dir_deriv) {
 				pos = std::max(0.0f, -dir_deriv);
-			}
+			},
+			dir_deriv_pos, dir_deriv
 		);
 		rasterOpGeneric(
-			dir_deriv_neg.data(), dir_deriv_neg.stride(), downscaled_image.size(),
-			dir_deriv.data(), dir_deriv.stride(),
 			[](float& neg, float dir_deriv) {
 				neg = std::max(0.0f, dir_deriv);
-			}
+			},
+			dir_deriv_neg, dir_deriv
 		);
 
 		gaussBlurGeneric(
@@ -258,11 +257,10 @@ TextLineTracer::calcDirectionMap(
 	// We need that to prevent opposite vectors cancelling each other during
 	// blurring.
 	rasterOpGeneric(
-		direction_map.data(), direction_map.stride(), size,
-		gradient.data(), gradient.stride(),
 		[](Vec2f& direction, Vec2f const& gradient) {
 			direction = gradient[1] >= 0 ? gradient : -gradient;
-		}
+		},
+		direction_map, gradient
 	);
 
 	gaussBlurGeneric(
@@ -284,14 +282,13 @@ TextLineTracer::calcDirectionMap(
 		Grid<float> magnitude_image(width, height, 0);
 		float max_magnitude = 0;
 		rasterOpGeneric(
-			direction_map.data(), direction_map.stride(), QSize(width, height),
-			magnitude_image.data(), magnitude_image.stride(),
 			[&](Vec2f const& dir, float& magnitude) {
 				magnitude = dir.norm();
 				if (magnitude > max_magnitude) {
 					max_magnitude = magnitude;
 				}
-			}
+			},
+			direction_map, magnitude_image
 		);
 		ObjectSwapperFactory factory(Utils::swappingDir());
 		ObjectSwapper<QImage> image_swapper(factory(visualizeGradient(image, magnitude_image)));
@@ -310,10 +307,7 @@ TextLineTracer::calcDirectionMap(
 	}
 
 	// Normalize vectors in direction_map.
-	rasterOpGeneric(
-		direction_map.data(), direction_map.stride(), size,
-		[](Vec2f& vec) { vec.normalize(); }
-	);
+	rasterOpGeneric([](Vec2f& vec) { vec.normalize(); }, direction_map);
 
 	return std::move(direction_map);
 }
@@ -329,12 +323,10 @@ TextLineTracer::calcDirectionalDerivative(
 
 	Grid<float> dir_deriv(width, height, 0);
 	rasterOpGeneric(
-		QSize(width, height), direction_map.data(), direction_map.stride(),
-		gradient.data(), gradient.stride(),
-		dir_deriv.data(), dir_deriv.stride(),
 		[](Vec2f const& direction, Vec2f const& gradient, float& deriv) {
 			deriv = direction.dot(gradient);
-		}
+		},
+		direction_map, gradient, dir_deriv
 	);
 
 	return std::move(dir_deriv);

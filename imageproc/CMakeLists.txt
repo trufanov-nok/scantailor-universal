@@ -7,7 +7,7 @@ SET(
 	BinaryImage.cpp BinaryImage.h
 	BinaryThreshold.cpp BinaryThreshold.h
 	SlicedHistogram.cpp SlicedHistogram.h
-	ByteOrder.h BWColor.h
+	ByteOrder.h BWColor.h BWPixelProxy.h
 	ConnComp.h Connectivity.h
 	BitOps.cpp BitOps.h
 	SeedFill.cpp SeedFill.h

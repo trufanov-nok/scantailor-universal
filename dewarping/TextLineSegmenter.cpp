@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include "imageproc/RasterOp.h"
 #include "imageproc/RasterOpGeneric.h"
 #include "imageproc/Constants.h"
+#include "imageproc/BWPixelProxy.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/Binarize.h"
 #include "imageproc/FindPeaksGeneric.h"
@@ -85,10 +86,7 @@ QImage visualizeGrid(Grid<float> const& grid)
 	QSize const size(grid.width(), grid.height());
 
 	MinMaxAccumulator<float> range;
-	rasterOpGeneric(
-		grid.data(), grid.stride(), size,
-		[&range](float val) { range(val); }
-	);
+	rasterOpGeneric([&range](float val) { range(val); }, grid);
 
 	float const scale = 255.f / (range.max() - range.min());
 	float const bias = -range.min() * scale;
@@ -98,11 +96,10 @@ QImage visualizeGrid(Grid<float> const& grid)
 		canvas.fill(0x00);
 	} else {
 		rasterOpGeneric(
-			grid.data(), grid.stride(), size,
-			canvas.data(), canvas.stride(),
 			[scale, bias](float val, uint8_t& pixel) {
 				pixel = static_cast<uint8_t>(val * scale + bias);
-			}
+			},
+			grid, canvas
 		);
 	}
 
@@ -210,10 +207,10 @@ TextLineSegmenter::processDownscaled(
 
 	Grid<float> src(width, height, /*padding=*/0);
 	rasterOpGeneric(
-		src.data(), src.stride(), image.size(), image.data(), image.stride(),
 		[](float& grid_pixel, uint8_t image_pixel) {
 			grid_pixel = static_cast<float>(image_pixel) / 255.f;
-		}
+		},
+		src, image
 	);
 
 	status.throwIfCancelled();
@@ -268,7 +265,6 @@ TextLineSegmenter::processDownscaled(
 			QRect const rect(image.rect());
 
 			rasterOpGenericXY(
-				accum.data(), accum.stride(), image.size(), blurred.data(), blurred.stride(),
 				[rect, jump_i, &blurred](float& accum, float px, int x, int y) {
 					QPoint const origin(x, y);
 					QPoint const pt1(origin + jump_i);
@@ -285,7 +281,8 @@ TextLineSegmenter::processDownscaled(
 						val -= -0.5f * px;
 					}
 					accum = std::max(accum, val);
-				}
+				},
+				accum, blurred
 			);
 		}
 	}
@@ -298,10 +295,7 @@ TextLineSegmenter::processDownscaled(
 
 	// Range of values.
 	MinMaxAccumulator<float> range;
-	rasterOpGeneric(
-		accum.data(), accum.stride(), image.size(),
-		[&range](float val) { range(val); }
-	);
+	rasterOpGeneric([&range](float val) { range(val); }, accum);
 
 	status.throwIfCancelled();
 
@@ -313,10 +307,10 @@ TextLineSegmenter::processDownscaled(
 	}
 
 	rasterOpGeneric(
-		accum.data(), accum.stride(), image.size(),
 		[scale, bias](float& val) {
 			val = std::log(val * scale + bias);
-		}
+		},
+		accum
 	);
 
 	status.throwIfCancelled();
@@ -439,7 +433,6 @@ TextLineSegmenter::initialSegmentation(
 	std::priority_queue<Pos> queue;
 
 	rasterOpGenericXY(
-		cmap.data(), cmap.stride(), cmap.size(),
 		[&regions, &blurred, &queue](uint32_t& label, int x, int y) {
 			if (label) {
 				Region& region = regions[label - 1];
@@ -451,7 +444,8 @@ TextLineSegmenter::initialSegmentation(
 				}
 				label = 0;
 			}
-		}
+		},
+		cmap
 	);
 
 	status.throwIfCancelled();
@@ -548,10 +542,10 @@ TextLineSegmenter::initialSegmentation(
 
 	// Re-label the connectivity map.
 	rasterOpGeneric(
-		cmap.data(), cmap.stride(), cmap.size(),
 		[&label_remapper](uint32_t& label) {
 			label = label_remapper[label];
-		}
+		},
+		cmap
 	);
 
 	status.throwIfCancelled();
@@ -648,8 +642,6 @@ TextLineSegmenter::refineSegmentation(
 	}
 
 	rasterOpGeneric(
-		image.data(), image.stride(),
-		seed.size(), seed.data(), seed.stride(),
 		[](uint8_t orig, uint8_t& dst) {
 			if (dst - orig < 1) {
 				dst = 0xff;
@@ -657,7 +649,8 @@ TextLineSegmenter::refineSegmentation(
 				unsigned const bg = dst;
 				dst = static_cast<uint8_t>(orig * 255u / bg);
 			}
-		}
+		},
+		image, seed
 	);
 
 	status.throwIfCancelled();
@@ -675,10 +668,10 @@ TextLineSegmenter::refineSegmentation(
 	}
 
 	rasterOpGeneric(
-		seed.data(), seed.stride(), seed.size(), vert_comps.data(), vert_comps.stride(),
 		[](uint8_t& content, uint8_t vcomps) {
 			content += uint8_t(255) - vcomps;
-		}
+		},
+		seed, vert_comps
 	);
 
 	vert_comps = GrayImage();
@@ -821,12 +814,12 @@ TextLineSegmenter::refineSegmentation(
 	if (dbg) {
 		BinaryImage dilated_mask(width, height, WHITE);
 		rasterOpGeneric(
-			dilated_mask, cmap.data(), cmap.stride(),
-			[](rop_generic_impl::BitProxy bw_pixel, uint32_t cmap_label) {
+			[](BWPixelProxy bw_pixel, uint32_t cmap_label) {
 				if (cmap_label) {
 					bw_pixel = 1;
 				}
-			}
+			},
+			dilated_mask, cmap
 		);
 		dilated_mask = dilateBrick(dilated_mask, QSize(3, 3));
 		InfluenceMap imap(cmap, dilated_mask);
@@ -942,12 +935,12 @@ TextLineSegmenter::calcPageMask(GrayImage const& no_content,
 	status.throwIfCancelled();
 
 	// Set pixels <= threshold to zero. This will prevent oversegmentation.
-	rasterOpGeneric(grad.accessor(), [zero_threshold](uint8_t& px) {
+	rasterOpGeneric([zero_threshold](uint8_t& px) {
 		if (px <= zero_threshold) {
 			px = 0;
 		}
 		//px -= std::min<uint8_t>(px, zero_threshold);
-	});
+	}, grad);
 
 	status.throwIfCancelled();
 
@@ -978,12 +971,12 @@ TextLineSegmenter::calcPageMask(GrayImage const& no_content,
 
 	std::vector<Region> regions(watershed.maxLabel() + 1);
 	Region* regs = &regions[0];
-	rasterOpGenericXY(watershed.accessor(), [regs](uint32_t label, int x, int y) {
+	rasterOpGenericXY([regs](uint32_t label, int x, int y) {
 		Region& reg = regs[label];
 		reg.sumX += x;
 		reg.sumY += y;
 		reg.count += 1;
-	});
+	}, watershed);
 
 	status.throwIfCancelled();
 
@@ -1015,12 +1008,13 @@ TextLineSegmenter::calcPageMask(GrayImage const& no_content,
 	BinaryImage mask(no_content.size(), WHITE);
 
 	if (best_label != 0) {
-		rasterOpGeneric(mask, watershed.accessor(),
-			[best_label](rop_generic_impl::BitProxy bit, uint32_t label) {
+		rasterOpGeneric(
+			[best_label](BWPixelProxy bit, uint32_t label) {
 				if (label == best_label) {
 					bit = BLACK;
 				}
-			}
+			},
+			mask, watershed
 		);
 	}
 

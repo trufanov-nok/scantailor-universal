@@ -118,12 +118,12 @@ void plugHoles(GridAccessor<T> const grid,
 		regions[label] = Region();
 	});
 
-	rasterOpGeneric(grid, [&regions](T& label) {
+	rasterOpGeneric([&regions](T& label) {
 		Region const reg(regions[label]);
 		if (reg.hasExactlyOneNeighbour()) {
 			label = reg.lowestNeighbour;
 		}
-	});
+	}, grid);
 }
 
 } // namespace imageproc
