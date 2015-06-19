@@ -41,7 +41,7 @@
         <item>
          <widget class="QToolButton" name="noDistortionButton">
           <property name="toolTip">
-           <string>No distortions</string>
+           <string>No distortion</string>
           </property>
           <property name="text">
            <string/>
@@ -62,6 +62,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="rotationDistortionButton">
+          <property name="toolTip">
+           <string>Page skew</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -81,6 +84,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="perspectiveDistortionButton">
+          <property name="toolTip">
+           <string>Keystoning</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -100,6 +106,9 @@
         </item>
         <item>
          <widget class="QToolButton" name="warpDistortionButton">
+          <property name="toolTip">
+           <string>Curved lines</string>
+          </property>
           <property name="text">
            <string/>
           </property>
