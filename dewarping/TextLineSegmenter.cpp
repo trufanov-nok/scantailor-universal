@@ -50,8 +50,8 @@
 #include "imageproc/WienerFilter.h"
 #include "imageproc/WatershedSegmentation.h"
 #include "imageproc/PlugHoles.h"
+#include <boost/dynamic_bitset.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/functional/hash.hpp>
 #include <QPoint>
 #include <QPointF>
 #include <QSizeF>
@@ -64,16 +64,17 @@
 #include <QPainter>
 #include <Qt>
 #include <algorithm>
+#include <array>
 #include <list>
 #include <vector>
 #include <deque>
 #include <queue>
+#include <stack>
 #include <limits>
 #include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <cmath>
-#include <unordered_map>
 #include <utility>
 
 using namespace imageproc;
@@ -339,8 +340,7 @@ TextLineSegmenter::processDownscaled(
 		dbg->add(canvas, "peaks");
 	}
 
-	ConnectivityMap cmap(initialSegmentation(
-		image, crop_area, accum, peaks.release(), status, dbg));
+	ConnectivityMap cmap(initialSegmentation(image, accum, peaks.release(), status, dbg));
 
 	status.throwIfCancelled();
 
@@ -388,8 +388,8 @@ TextLineSegmenter::findSkewAngleRad(
 
 ConnectivityMap
 TextLineSegmenter::initialSegmentation(
-	GrayImage const& image, QPolygonF const& crop_area, Grid<float>& blurred,
-	BinaryImage const& peaks, TaskStatus const& status, DebugImages* dbg)
+	GrayImage const& image, Grid<float> const& blurred, BinaryImage const& peaks,
+	TaskStatus const& status, DebugImages* dbg)
 {
 	int const width = image.width();
 	int const height = image.height();
@@ -398,20 +398,51 @@ TextLineSegmenter::initialSegmentation(
 
 	struct Region
 	{
-		int x0 = std::numeric_limits<int>::max();
-		int x1 = std::numeric_limits<int>::min();
+		enum LeftRight { LEFT = 0, RIGHT = 1};
+
+		// These are indexed by LEFT or RIGHT.
+		std::array<int, 2> x; // Leftmost and rightmost x coordinate.
+		std::array<uint32_t, 2> connections; // Regions (labels) we run into from left and right.
+
+		Region() {
+			x[0] = std::numeric_limits<int>::max();
+			x[1] = std::numeric_limits<int>::min();
+			connections[0] = 0;
+			connections[1] = 0;
+		}
 
 		bool empty() const {
-			return x1 == std::numeric_limits<int>::min();
+			return x[RIGHT] == std::numeric_limits<int>::min();
 		}
 
-		bool horizontallyAdjacent(Region const& other) const {
-			return x1 + 1 == other.x0 || other.x1 + 1 == x0;
+		/**
+		 * Negative overlap can be interpreted as a horizontal distance between two regions.
+		 * Zero overlap means regions touch each other in horizontal direction.
+		 */
+		int overlapLength(Region const& other) const {
+			int const this_len = x[RIGHT] + 1 - x[LEFT];
+			int const other_len = other.x[RIGHT] + 1 - other.x[LEFT];
+			int const combined_len = std::max(x[RIGHT], other.x[RIGHT]) + 1
+				- std::min(x[LEFT], other.x[LEFT]);
+			return this_len + other_len - combined_len;
 		}
 
+		/** Absorb point (x, y) into this region. */
 		void extendWith(int x, int /*y*/) {
-			x0 = std::min(x0, x);
-			x1 = std::max(x1, x);
+			this->x[LEFT] = std::min(this->x[LEFT], x);
+			this->x[RIGHT] = std::max(this->x[RIGHT], x);
+		}
+
+		/**
+		 * @brief Absorb another region into this region.
+		 *
+		 * @param other The region to absorb.
+		 * @param located The location of @p other relative to *this.
+		 */
+		void extendWith(Region const& other, LeftRight located) {
+			x[LEFT] = std::min(x[LEFT], other.x[LEFT]);
+			x[RIGHT] = std::max(x[RIGHT], other.x[RIGHT]);
+			connections[located] = other.connections[located];
 		}
 	};
 
@@ -423,10 +454,10 @@ TextLineSegmenter::initialSegmentation(
 		int x, y;
 		int dx; // Left direction: -1, right direction: +1
 		uint32_t label; // (label - 1) indexes into regions vector.
-		float priority; // priority == blurred(x, y)
+		float quality; // quality == blurred(x, y)
 
 		bool operator<(Pos const& rhs) const {
-			return priority < rhs.priority;
+			return quality < rhs.quality;
 		}
 	};
 
@@ -438,9 +469,9 @@ TextLineSegmenter::initialSegmentation(
 				Region& region = regions[label - 1];
 				if (region.empty()) {
 					region.extendWith(x, y);
-					float const val = blurred(x, y);
-					queue.push({x, y, 1, label, val});
-					queue.push({x, y, -1, label, val});
+					float const quality = blurred(x, y);
+					queue.push({x, y, 1, label, quality});
+					queue.push({x, y, -1, label, quality});
 				}
 				label = 0;
 			}
@@ -450,10 +481,94 @@ TextLineSegmenter::initialSegmentation(
 
 	status.throwIfCancelled();
 
-	// (lesser_label, greater_label) -> <number of times they run into one another>
-	using OrderedPair = std::pair<uint32_t, uint32_t>;
-	std::unordered_map<OrderedPair, int, boost::hash<OrderedPair>> connections;
-	connections.reserve(regions.size());
+	// label_remapper is a union-find tree rather than a flat lookup table.
+	// At one point we do flatten it though. Note that label_remapper[0] is
+	// guaranteed to be 0.
+	std::vector<uint32_t> label_remapper(cmap.maxLabel() + 1);
+
+	// Initialize the identity mapping.
+	for (uint32_t label = 0; label <= cmap.maxLabel(); ++label) {
+		label_remapper[label] = label;
+	}
+
+	// Follows the mappings recursively till it finds an identity mapping.
+	auto get_representative = [&label_remapper](uint32_t const label) mutable {
+		uint32_t next_label, prev_label = label;
+		while ((next_label = label_remapper[prev_label]) != prev_label) {
+			prev_label = next_label;
+		}
+		label_remapper[label] = next_label; // Accelerate future searches.
+		return next_label;
+	};
+
+	class RegionMerger
+	{
+	public:
+		RegionMerger(
+			std::function<uint32_t(uint32_t)> get_representative,
+			std::vector<uint32_t>& label_remapper,
+			std::vector<Region>& regions, int max_overlap) :
+			m_getRepresentative(std::move(get_representative)),
+			m_labelRemapper(label_remapper.data()),
+			m_regions(regions.data()),
+			m_labelInConsideration(regions.size() + 1),
+			m_maxOverlap(max_overlap)
+		{}
+
+		void addRegionForConsideration(uint32_t const label) {
+			assert(label);
+			if (!m_labelInConsideration.test(label)) {
+				m_regionsToConsider.push(label);
+				m_labelInConsideration.set(label);
+			}
+		}
+
+		bool continueMerging() {
+			if (m_regionsToConsider.empty()) {
+				return false;
+			}
+
+			uint32_t label = m_regionsToConsider.top();
+			m_regionsToConsider.pop();
+			m_labelInConsideration.reset(label);
+			label = m_getRepresentative(label);
+
+			Region& region = m_regions[label - 1];
+			for (int conn_idx = 0; conn_idx < 2; ++conn_idx) {
+				uint32_t const connected_label = m_getRepresentative(region.connections[conn_idx]);
+				if (connected_label) {
+					if (connected_label == label) {
+						// Already merged.
+						continue;
+					}
+
+					Region const& connected_region = m_regions[connected_label - 1];
+					if (m_getRepresentative(connected_region.connections[1 - conn_idx]) == label) {
+						// Mutual connection detected.
+						int const overlap = region.overlapLength(connected_region);
+						if (overlap <= m_maxOverlap) {
+							// Merge connected_region into region.
+							m_labelRemapper[connected_label] = label;
+							region.extendWith(connected_region, (Region::LeftRight)conn_idx);
+							addRegionForConsideration(label);
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
+	private:
+		std::function<uint32_t(uint32_t)> m_getRepresentative;
+		uint32_t* m_labelRemapper;
+		Region* m_regions;
+		std::stack<uint32_t> m_regionsToConsider;
+		boost::dynamic_bitset<> m_labelInConsideration; // Indexed by label
+		int m_maxOverlap;
+	};
+
+	RegionMerger merger(get_representative, label_remapper, regions, cmap.size().width() / 10);
 
 	while (!queue.empty()) {
 		Pos const pos(queue.top());
@@ -461,40 +576,55 @@ TextLineSegmenter::initialSegmentation(
 
 		uint32_t& label = cmap(pos.x, pos.y);
 		if (label != 0 && label != pos.label) {
-			// Someone else overtook us.
-			if (regions[label - 1].horizontallyAdjacent(regions[pos.label - 1])) {
-				uint32_t lesser_label = label;
-				uint32_t greater_label = pos.label;
-				if (lesser_label > greater_label) {
-					std::swap(lesser_label, greater_label);
-				}
-				connections[std::make_pair(lesser_label, greater_label)] += 1;
+			// We (src) run over another region (dst).
+			uint32_t const src_label = pos.label;
+			uint32_t const dst_label = label;
+			Region& src = regions[src_label - 1];
+			Region const& dst = regions[dst_label - 1];
+
+			// We want: pos.dx == 1  => conn_idx == 1
+			//          pos.dx == -1 => conn_idx == 0
+			int const conn_idx = (pos.dx + 1) >> 1;
+			src.connections[conn_idx] = dst_label;
+			if (dst.connections[1 - conn_idx] == src_label) {
+				// Mutual connection established.
+				merger.addRegionForConsideration(src_label);
 			}
 			continue;
 		}
+
 		label = pos.label;
-		regions[pos.label - 1].extendWith(pos.x, pos.y);
+		Region& region = regions[pos.label - 1];
+		region.extendWith(pos.x, pos.y);
 
 		int const new_x = pos.x + pos.dx;
 		if (new_x < 0 || new_x >= width) {
 			continue;
 		}
 
-		float best_val = -std::numeric_limits<float>::max();
-		int best_y = pos.y;
+		float best_quality = -std::numeric_limits<float>::max();
+		int best_y = -1;
 		for (int y = pos.y - 1; y <= pos.y + 1; ++y) {
 			if (y < 0 || y >= height) {
 				continue;
 			}
 
-			float const val = blurred(new_x, y);
-			if (val >= best_val) {
-				best_val = val;
+			float const quality = blurred(new_x, y);
+			if (quality >= best_quality) {
+				best_quality = quality;
 				best_y = y;
 			}
 		}
 
-		queue.push(Pos{new_x, best_y, pos.dx, pos.label, best_val});
+		if (best_y != -1) {
+			queue.push(Pos{new_x, best_y, pos.dx, pos.label, best_quality});
+		}
+	}
+
+	status.throwIfCancelled();
+
+	while (merger.continueMerging()) {
+		// Just continue.
 	}
 
 	status.throwIfCancelled();
@@ -508,37 +638,7 @@ TextLineSegmenter::initialSegmentation(
 		dbg->add(canvas, "initial_segmentation");
 	}
 
-	// label_remapper is a union-find tree rather than a flat lookup table.
-	std::vector<uint32_t> label_remapper(cmap.maxLabel() + 1);
-
-	// Initialize the identity mapping.
-	for (uint32_t label = 0; label <= cmap.maxLabel(); ++label) {
-		label_remapper[label] = label;
-	}
-
-	// Follows the mappings recursively till it finds an identity mapping.
-	auto get_representative = [&label_remapper](uint32_t label) {
-		uint32_t new_label;
-		while ((new_label = label_remapper[label]) != label) {
-			label = new_label;
-		}
-		return new_label;
-	};
-
-	for (decltype(connections)::value_type const& kv : connections) {
-		if (kv.second > 1) {
-			uint32_t const label1 = get_representative(kv.first.first);
-			uint32_t const label2 = get_representative(kv.first.second);
-			label_remapper[label1] = label2;
-		}
-	}
-
 	status.throwIfCancelled();
-
-	// Flatten the union-find structure.
-	for (uint32_t label = 0; label <= cmap.maxLabel(); ++label) {
-		label_remapper[label] = get_representative(label);
-	}
 
 	// Re-label the connectivity map.
 	rasterOpGeneric(
@@ -559,7 +659,180 @@ TextLineSegmenter::initialSegmentation(
 		dbg->add(canvas, "merged");
 	}
 
+	makePathsUnique(cmap, blurred);
+
+	if (dbg) {
+		QImage canvas(visualizeGrid(blurred).convertToFormat(QImage::Format_ARGB32_Premultiplied));
+		{
+			QPainter painter(&canvas);
+			painter.drawImage(0, 0, cmap.visualized(Qt::transparent));
+		}
+		dbg->add(canvas, "paths_made_unique");
+	}
+
 	return cmap;
+}
+
+void
+TextLineSegmenter::makePathsUnique(
+	imageproc::ConnectivityMap& cmap, Grid<float> const& blurred)
+{
+	// cmap may contain regions shaped like this:
+	//     xxxxxxxxxx
+	//    x     x
+	// xxxxxxxxx
+	// This function interprets each region as a graph and finds the best path on it.
+
+	int const width = cmap.size().width();
+	int const height = cmap.size().height();
+
+	struct Region
+	{
+		QPoint head;
+		QPoint tail;
+	};
+
+	std::vector<Region> regions(cmap.maxLabel()); // Indexed by label - 1.
+
+	// Populate regions.
+	for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < height; ++y) {
+			uint32_t const label = cmap(x, y);
+			if (label) {
+				Region& region = regions[label - 1];
+				region.tail = QPoint(x, y);
+				if (region.head.isNull()) {
+					region.head = region.tail;
+				}
+			}
+		}
+	}
+
+	Grid<float> quality_grid(width, height, /*padding=*/0);
+	quality_grid.initInterior(-std::numeric_limits<float>::max());
+
+	auto better_quality = [&quality_grid](QPoint lhs, QPoint rhs) {
+		return quality_grid(lhs.x(), lhs.y()) > quality_grid(rhs.x(), rhs.y());
+	};
+
+	using PQueue = std::priority_queue<QPoint, std::vector<QPoint>, decltype(better_quality)>;
+	PQueue pqueue(better_quality);
+
+	// Populate pqueue with head points of regions.
+	for (Region const& region : regions) {
+		QPoint const pt(region.head);
+		if (!pt.isNull()) {
+			quality_grid(pt.x(), pt.y()) = blurred(pt.x(), pt.y());
+			pqueue.push(pt);
+		}
+	}
+
+	// Trace the path from tail to head, marking pixels to be preserved.
+	auto backtrace = [&cmap, &quality_grid, height](uint32_t const label, QPoint pt) {
+		for (;;) {
+			// That's our way to mark a pixel to be preserved while keeping its label recoverble.
+			cmap(pt.x(), pt.y()) = ~label;
+
+			int const new_x = pt.x() - 1;
+			if (new_x < 0) {
+				// Out of bounds.
+				break;
+			}
+
+			int new_y = -1;
+			float best_quality = -std::numeric_limits<float>::max();
+			for (int dy = -1; dy <= 1; ++dy) {
+				int const y = pt.y() + dy;
+				if (y < 0 || y >= height) {
+					// Out of bounds.
+					continue;
+				}
+
+				if (cmap(new_x, y) != label) {
+					// Different region.
+					continue;
+				}
+
+				float const quality = quality_grid(new_x, y);
+				if (quality >= best_quality) {
+					best_quality = quality;
+					new_y = y;
+				}
+			}
+
+			if (new_y != -1) {
+				pt = QPoint(new_x, new_y);
+			} else {
+				break;
+			}
+		}
+	};
+
+	// Below is a simplified version of Dijkstra's algorithm. The simplification is that
+	// we never update the priority of a node once it's been added to the priority queue.
+	// This simplification was made possible by the fact that our graph is vertex- rather
+	// then edge-valued.
+	while (!pqueue.empty()) {
+		QPoint const pt(pqueue.top());
+		pqueue.pop();
+
+		uint32_t const label = cmap(pt.x(), pt.y());
+		Region const& region = regions[label - 1];
+		if (pt == region.tail) {
+			backtrace(label, pt);
+			continue;
+		}
+
+		int const new_x = pt.x() + 1;
+		if (new_x >= width) {
+			// Out of bounds.
+			continue;
+		}
+
+		int new_y = -1;
+		float best_quality = -std::numeric_limits<float>::max();
+		float const base_quality = quality_grid(pt.x(), pt.y());
+		for (int dy = -1; dy <= 1; ++dy) {
+			int const y = pt.y() + dy;
+			if (y < 0 || y >= height) {
+				// Out of bounds.
+				continue;
+			}
+
+			if (cmap(new_x, y) != label) {
+				// Different region.
+				continue;
+			}
+
+			if (quality_grid(new_x, y) != -std::numeric_limits<float>::max()) {
+				// This pixel was already processed.
+				continue;
+			}
+
+			float const quality = base_quality + blurred(new_x, y);
+			if (quality >= best_quality) {
+				best_quality = quality;
+				new_y = y;
+			}
+		}
+
+		if (new_y != -1) {
+			quality_grid(new_x, new_y) = best_quality;
+			pqueue.push(QPoint(new_x, new_y));
+		}
+	}
+
+	rasterOpGeneric(
+		[](uint32_t& label) {
+			static uint32_t const msb = uint32_t(1) << 31;
+			if (label & msb) {
+				label = ~label; // Part of shortest path.
+			} else {
+				label = 0;
+			}
+		},
+		cmap
+	);
 }
 
 std::list<std::vector<QPointF>>
@@ -731,7 +1004,13 @@ TextLineSegmenter::refineSegmentation(
 
 	std::list<std::vector<QPointF>> trimmed_lines;
 
-	for (std::vector<Point> const& path : region_paths) {
+	if (dbg) {
+		auto const accessor = cmap.accessor();
+		memset(accessor.data, 0, sizeof(*accessor.data)*accessor.stride*accessor.height);
+	}
+
+	for (size_t path_idx = 0; path_idx < region_paths.size(); ++path_idx) {
+		std::vector<Point> const& path = region_paths[path_idx];
 		if (path.empty()) {
 			continue;
 		}
@@ -798,8 +1077,9 @@ TextLineSegmenter::refineSegmentation(
 			--path_it;
 			if (node->label == 1) {
 				trimmed_path.emplace_back(qreal(path_it->x), qreal(path_it->y));
-			} else if (dbg) {
-				cmap(path_it->x, path_it->y) = 0;
+				if (dbg) {
+					cmap(path_it->x, path_it->y) = path_idx + 1;
+				}
 			}
 		}
 

@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEWARPING_TEXT_LINE_SEGMENTER2_H_
-#define DEWARPING_TEXT_LINE_SEGMENTER2_H_
+#ifndef DEWARPING_TEXT_LINE_SEGMENTER_H_
+#define DEWARPING_TEXT_LINE_SEGMENTER_H_
 
 #include "NonCopyable.h"
 #include "Grid.h"
@@ -67,9 +67,11 @@ private:
 		TaskStatus const& status, DebugImages* dbg);
 
 	static imageproc::ConnectivityMap initialSegmentation(
-		imageproc::GrayImage const& image, QPolygonF const& crop_area,
-		Grid<float>& blurred, imageproc::BinaryImage const& peaks,
-		TaskStatus const& status, DebugImages* dbg);
+		imageproc::GrayImage const& image, Grid<float> const& blurred,
+		imageproc::BinaryImage const& peaks, TaskStatus const& status, DebugImages* dbg);
+
+	static void makePathsUnique(
+		imageproc::ConnectivityMap& cmap, Grid<float> const& blurred);
 
 	static std::list<std::vector<QPointF>> refineSegmentation(
 		imageproc::GrayImage const& image, QPolygonF const& crop_area,
