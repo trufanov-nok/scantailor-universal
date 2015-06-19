@@ -19,6 +19,7 @@
 #include "Settings.h"
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
+#include "DistortionType.h"
 #include "../../Utils.h"
 #include <QMutexLocker>
 #include <boost/foreach.hpp>
@@ -74,6 +75,19 @@ Settings::getPageParams(PageId const& page_id) const
 		return std::auto_ptr<Params>(new Params(it->second));
 	} else {
 		return std::auto_ptr<Params>();
+	}
+}
+
+DistortionType
+Settings::getDistortionType(PageId const& page_id) const
+{
+	QMutexLocker locker(&m_mutex);
+
+	PerPageParams::const_iterator it(m_perPageParams.find(page_id));
+	if (it != m_perPageParams.end()) {
+		return it->second.distortionType();
+	} else {
+		return Params::defaultDistortionType();
 	}
 }
 

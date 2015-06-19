@@ -20,6 +20,7 @@
 #include "OptionsWidget.moc"
 #include "ApplyDialog.h"
 #include "Settings.h"
+#include "DistortionType.h"
 #include "ScopedIncDec.h"
 #include <QSize>
 #include <QString>
@@ -252,9 +253,14 @@ OptionsWidget::manualDeskewAngleSetExternally(double const degrees)
 }
 
 void
-OptionsWidget::preUpdateUI(PageId const& page_id)
+OptionsWidget::preUpdateUI(PageId const& page_id, DistortionType const& distortion_type)
 {
+	ScopedIncDec<int> guard(m_ignoreSignalsFromUiControls);
+
 	m_pageId = page_id;
+	m_pageParams.setDistortionType(distortion_type);
+
+	setupUiForDistortionType(distortion_type);
 	hideDistortionDependentUiElements();
 }
 

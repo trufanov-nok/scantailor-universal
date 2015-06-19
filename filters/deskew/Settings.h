@@ -39,6 +39,8 @@ namespace dewarping
 namespace deskew
 {
 
+class DistortionType;
+
 class Settings : public RefCountable
 {
 	DECLARE_NON_COPYABLE(Settings)
@@ -46,7 +48,7 @@ public:
 	Settings();
 	
 	virtual ~Settings();
-	
+
 	void clear();
 
 	void performRelinking(AbstractRelinker const& relinker);
@@ -55,6 +57,8 @@ public:
 
 	std::auto_ptr<Params> getPageParams(PageId const& page_id) const;
 	
+	DistortionType getDistortionType(PageId const& page_id) const;
+
 	void setDistortionType(
 		std::set<PageId> const& pages, DistortionType const& distortion_type);
 

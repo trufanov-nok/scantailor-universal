@@ -38,6 +38,7 @@ namespace dewarping
 namespace deskew
 {
 
+class DistortionType;
 class Settings;
 
 class OptionsWidget : public FilterOptionsWidget
@@ -58,7 +59,7 @@ public slots:
 	void manualDistortionModelSetExternally(
 		dewarping::DistortionModel const& model);
 public:
-	void preUpdateUI(PageId const& page_id);
+	void preUpdateUI(PageId const& page_id, DistortionType const& distortion_type);
 	
 	void postUpdateUI(Params const& page_params);
 private slots:
@@ -115,7 +116,14 @@ private:
 	Ui::DeskewOptionsWidget ui;
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageId m_pageId;
+
+	/**
+	 * m_pageParams is not always up to date. We make sure not to commit
+	 * it to m_ptrSettings between preUpdateUI() and postUpdateUI(),
+	 * where it's certainly not up to date.
+	 */
 	Params m_pageParams;
+
 	QAbstractButton* m_distortionTypeButtons[DistortionType::LAST + 1];
 	int m_ignoreSignalsFromUiControls;
 	

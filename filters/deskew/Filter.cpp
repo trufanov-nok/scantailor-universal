@@ -72,7 +72,7 @@ Filter::performRelinking(AbstractRelinker const& relinker)
 void
 Filter::preUpdateUI(FilterUiInterface* const ui, PageId const& page_id)
 {
-	m_ptrOptionsWidget->preUpdateUI(page_id);
+	m_ptrOptionsWidget->preUpdateUI(page_id, m_ptrSettings->getDistortionType(page_id));
 	ui->setOptionsWidget(m_ptrOptionsWidget.get(), ui->KEEP_OWNERSHIP);
 }
 
