@@ -27,6 +27,8 @@
 #include "ColorParams.h"
 #include "DespeckleLevel.h"
 #include "ImageViewTab.h"
+#include <boost/optional.hpp>
+#include <QSize>
 #include <set>
 
 namespace output
@@ -46,7 +48,7 @@ public:
 	
 	void preUpdateUI(PageId const& page_id);
 	
-	void postUpdateUI();
+	void postUpdateUI(QSize const& output_size);
 
 	ImageViewTab lastTab() const { return m_lastTab; }
 signals:
@@ -78,18 +80,24 @@ private slots:
 private:
 	void despeckleLevelSelected(DespeckleLevel level);
 
+	void scaleChanged(double scale);
+
 	void reloadIfNecessary();
 
 	void updateColorsDisplay();
+
+	void updateScaleDisplay();
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageSelectionAccessor m_pageSelectionAccessor;
 	PageId m_pageId;
 	ColorParams m_colorParams;
 	DespeckleLevel m_despeckleLevel;
+	boost::optional<QSize> m_thisPageOutputSize;
 	ImageViewTab m_lastTab;
 	int m_ignoreThresholdChanges;
 	int m_ignoreDespeckleLevelChanges;
+	int m_ignoreScaleChanges;
 };
 
 } // namespace output

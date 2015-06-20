@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "CacheDrivenTask.h"
+#include "../../Utils.h"
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <QString>
@@ -34,6 +35,7 @@
 #include <QCoreApplication>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QtGlobal>
 #include <memory>
 
 #include "CommandLine.h"
@@ -90,6 +92,8 @@ Filter::saveSettings(
 	using namespace boost::lambda;
 	
 	QDomElement filter_el(doc.createElement("output"));
+	filter_el.setAttribute("scalingFactor", Utils::doubleToString(m_ptrSettings->scalingFactor()));
+
 	writer.enumPages(
 		bind(
 			&Filter::writePageSettings,
@@ -130,6 +134,8 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
 	QDomElement const filter_el(
 		filters_el.namedItem("output").toElement()
 	);
+
+	m_ptrSettings->setScalingFactor(scalingFactorFromString(filter_el.attribute("scalingFactor")));
 	
 	QString const page_tag_name("page");
 	QDomNode node(filter_el.firstChild());
@@ -202,6 +208,22 @@ Filter::createCacheDrivenTask(OutputFileNameGenerator const& out_file_name_gen)
 	return IntrusivePtr<CacheDrivenTask>(
 		new CacheDrivenTask(m_ptrSettings, out_file_name_gen)
 	);
+}
+
+double
+Filter::scalingFactorFromString(QString const& str)
+{
+	bool ok = true;
+	double factor = str.toDouble(&ok);
+	if (!ok) {
+		return Settings::defaultScalingFactor();
+	}
+
+	factor -= Settings::minScalingFactor();
+	factor = qRound(factor / Settings::scalingFactorStep()) * Settings::scalingFactorStep();
+	factor += Settings::minScalingFactor();
+	factor = qBound(Settings::minScalingFactor(), factor, Settings::maxScalingFactor());
+	return factor;
 }
 
 } // namespace output

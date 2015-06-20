@@ -147,6 +147,23 @@ Task::process(
 	std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
 	QRectF const& content_rect, QRectF const& outer_rect)
 {
+	double const scaling_factor = m_ptrSettings->scalingFactor();
+	std::shared_ptr<AbstractImageTransform> const scaled_transform(orig_image_transform->clone());
+	QTransform const post_scale_xform(scaled_transform->scale(scaling_factor, scaling_factor));
+
+	return processScaled(
+		status, orig_image, gray_orig_image_factory, scaled_transform,
+		post_scale_xform.mapRect(content_rect), post_scale_xform.mapRect(outer_rect)
+	);
+}
+
+FilterResultPtr
+Task::processScaled(
+	TaskStatus const& status, QImage const& orig_image,
+	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+	std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
+	QRectF const& content_rect, QRectF const& outer_rect)
+{
 	status.throwIfCancelled();
 
 	Params params(m_ptrSettings->getParams(m_pageId));
@@ -482,7 +499,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	// This function is executed from the GUI thread.
 	
 	OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
-	opt_widget->postUpdateUI();
+	opt_widget->postUpdateUI(m_outputImage.size());
 	ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 	
 	ui->invalidateThumbnail(m_pageId);

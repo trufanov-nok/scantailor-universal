@@ -70,6 +70,12 @@ public:
 private:
 	class UiUpdater;
 	
+	FilterResultPtr processScaled(
+		TaskStatus const& status, QImage const& orig_image,
+		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
+		std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
+		QRectF const& content_rect, QRectF const& outer_rect);
+
 	void deleteMutuallyExclusiveOutputFiles();
 
 	IntrusivePtr<Filter> m_ptrFilter;

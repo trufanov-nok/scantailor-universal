@@ -57,6 +57,12 @@ public:
 		QRectF const& content_rect, QRectF const& outer_rect,
 		AbstractFilterDataCollector* collector);
 private:
+	void processScaled(
+		PageInfo const& page_info,
+		std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+		QRectF const& content_rect, QRectF const& outer_rect,
+		AbstractFilterDataCollector* collector);
+
 	IntrusivePtr<Settings> m_ptrSettings;
 	OutputFileNameGenerator m_outFileNameGen;
 };

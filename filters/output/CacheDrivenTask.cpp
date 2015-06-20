@@ -58,6 +58,23 @@ CacheDrivenTask::process(
 	QRectF const& content_rect, QRectF const& outer_rect,
 	AbstractFilterDataCollector* collector)
 {
+	double const scaling_factor = m_ptrSettings->scalingFactor();
+	std::shared_ptr<AbstractImageTransform> const scaled_transform(full_size_image_transform->clone());
+	QTransform const post_scale_xform(scaled_transform->scale(scaling_factor, scaling_factor));
+
+	return processScaled(
+		page_info, scaled_transform, post_scale_xform.mapRect(content_rect),
+		post_scale_xform.mapRect(outer_rect), collector
+	);
+}
+
+void
+CacheDrivenTask::processScaled(
+	PageInfo const& page_info,
+	std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+	QRectF const& content_rect, QRectF const& outer_rect,
+	AbstractFilterDataCollector* collector)
+{
 	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 		
 		QString const out_file_path(m_outFileNameGen.filePathFor(page_info.id()));

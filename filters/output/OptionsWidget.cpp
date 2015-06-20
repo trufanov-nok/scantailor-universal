@@ -54,7 +54,8 @@ OptionsWidget::OptionsWidget(
 	m_despeckleLevel(DESPECKLE_NORMAL),
 	m_lastTab(TAB_OUTPUT),
 	m_ignoreThresholdChanges(0),
-	m_ignoreDespeckleLevelChanges(0)
+	m_ignoreDespeckleLevelChanges(0),
+	m_ignoreScaleChanges(0)
 {
 	setupUi(this);
 	
@@ -71,7 +72,20 @@ OptionsWidget::OptionsWidget(
 	thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
 	
 	updateColorsDisplay();
+	updateScaleDisplay();
 	
+	connect(
+		scale1xBtn, &QAbstractButton::toggled,
+		[this](bool checked) { if (checked) scaleChanged(1.0); }
+	);
+	connect(
+		scale15xBtn, &QAbstractButton::toggled,
+		[this](bool checked) { if (checked) scaleChanged(1.5); }
+	);
+	connect(
+		scale2xBtn, &QAbstractButton::toggled,
+		[this](bool checked) { if (checked) scaleChanged(2.0); }
+	);
 	connect(
 		colorModeSelector, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(colorModeChanged(int))
@@ -145,12 +159,16 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	m_pageId = page_id;
 	m_colorParams = params.colorParams();
 	m_despeckleLevel = params.despeckleLevel();
+	m_thisPageOutputSize.reset();
 	updateColorsDisplay();
+	updateScaleDisplay();
 }
 
 void
-OptionsWidget::postUpdateUI()
+OptionsWidget::postUpdateUI(QSize const& output_size)
 {
+	m_thisPageOutputSize = output_size;
+	updateScaleDisplay();
 }
 
 void
@@ -305,6 +323,20 @@ OptionsWidget::despeckleLevelSelected(DespeckleLevel const level)
 }
 
 void
+OptionsWidget::scaleChanged(double const scale)
+{
+	if (m_ignoreScaleChanges) {
+		return;
+	}
+
+	m_ptrSettings->setScalingFactor(scale);
+	updateScaleDisplay();
+
+	emit invalidateAllThumbnails();
+	emit reloadRequested();
+}
+
+void
 OptionsWidget::applyDespeckleButtonClicked()
 {
 	ApplyColorsDialog* dialog = new ApplyColorsDialog(
@@ -424,6 +456,29 @@ OptionsWidget::updateColorsDisplay()
 	}
 	
 	colorModeSelector->blockSignals(false);
+}
+
+void
+OptionsWidget::updateScaleDisplay()
+{
+	ScopedIncDec<int> const guard(m_ignoreScaleChanges);
+
+	double const scale = m_ptrSettings->scalingFactor();
+	if (scale < 1.25) {
+		scale1xBtn->setChecked(true);
+	} else if (scale < 1.75) {
+		scale15xBtn->setChecked(true);
+	} else {
+		scale2xBtn->setChecked(true);
+	}
+
+	if (m_thisPageOutputSize) {
+		int const width = m_thisPageOutputSize->width();
+		int const height = m_thisPageOutputSize->height();
+		scaleLabel->setText(tr("This page: %1 x %2 px").arg(width).arg(height));
+	} else {
+		scaleLabel->setText(QString());
+	}
 }
 
 } // namespace output

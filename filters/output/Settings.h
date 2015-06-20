@@ -83,6 +83,18 @@ public:
 	void setDefaultPictureZoneProperties(PropertySet const& props);
 
 	void setDefaultFillZoneProperties(PropertySet const& props);
+
+	static double scalingFactorStep() { return 0.5; }
+
+	static double minScalingFactor() { return 1.0; }
+
+	static double maxScalingFactor() { return 2.0; }
+
+	static double defaultScalingFactor() { return 2.0; }
+
+	double scalingFactor() const { return m_scalingFactor; }
+
+	void setScalingFactor(double factor) { m_scalingFactor = factor; }
 private:
 	typedef std::map<PageId, Params> PerPageParams;
 	typedef std::map<PageId, OutputParams> PerPageOutputParams;
@@ -93,6 +105,7 @@ private:
 	static PropertySet initialFillZoneProps();
 
 	mutable QMutex m_mutex;
+	double m_scalingFactor;
 	PerPageParams m_perPageParams;
 	PerPageOutputParams m_perPageOutputParams;
 	PerPageZones m_perPagePictureZones;
