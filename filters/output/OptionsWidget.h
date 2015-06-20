@@ -72,19 +72,11 @@ private slots:
 	
 	void bwThresholdChanged();
 
-	void despeckleOffSelected();
-
-	void despeckleCautiousSelected();
-
-	void despeckleNormalSelected();
-
-	void despeckleAggressiveSelected();
-
 	void applyDespeckleButtonClicked();
 
 	void applyDespeckleConfirmed(std::set<PageId> const& pages);
 private:
-	void handleDespeckleLevelChange(DespeckleLevel level);
+	void despeckleLevelSelected(DespeckleLevel level);
 
 	void reloadIfNecessary();
 
@@ -97,6 +89,7 @@ private:
 	DespeckleLevel m_despeckleLevel;
 	ImageViewTab m_lastTab;
 	int m_ignoreThresholdChanges;
+	int m_ignoreDespeckleLevelChanges;
 };
 
 } // namespace output

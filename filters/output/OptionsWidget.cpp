@@ -53,7 +53,8 @@ OptionsWidget::OptionsWidget(
 	m_pageSelectionAccessor(page_selection_accessor),
 	m_despeckleLevel(DESPECKLE_NORMAL),
 	m_lastTab(TAB_OUTPUT),
-	m_ignoreThresholdChanges(0)
+	m_ignoreThresholdChanges(0),
+	m_ignoreDespeckleLevelChanges(0)
 {
 	setupUi(this);
 	
@@ -108,20 +109,20 @@ OptionsWidget::OptionsWidget(
 		this, SLOT(applyColorsButtonClicked())
 	);
 	connect(
-		despeckleOffBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleOffSelected())
+		despeckleOffBtn, &QAbstractButton::toggled,
+		[this](bool checked) { if (checked) despeckleLevelSelected(DESPECKLE_OFF); }
 	);
 	connect(
-		despeckleCautiousBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleCautiousSelected())
+		despeckleCautiousBtn, &QAbstractButton::toggled,
+		[this](bool checked) { if (checked) despeckleLevelSelected(DESPECKLE_CAUTIOUS); }
 	);
 	connect(
-		despeckleNormalBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleNormalSelected())
+		despeckleNormalBtn, &QAbstractButton::toggled,
+		[this](bool checked) { if (checked) despeckleLevelSelected(DESPECKLE_NORMAL); }
 	);
 	connect(
-		despeckleAggressiveBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleAggressiveSelected())
+		despeckleAggressiveBtn, &QAbstractButton::toggled,
+		[this](bool checked) { if (checked) despeckleLevelSelected(DESPECKLE_AGGRESSIVE); }
 	);
 	connect(
 		applyDespeckleButton, SIGNAL(clicked()),
@@ -143,6 +144,7 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	Params const params(m_ptrSettings->getParams(page_id));
 	m_pageId = page_id;
 	m_colorParams = params.colorParams();
+	m_despeckleLevel = params.despeckleLevel();
 	updateColorsDisplay();
 }
 
@@ -282,32 +284,12 @@ OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 }
 
 void
-OptionsWidget::despeckleOffSelected()
+OptionsWidget::despeckleLevelSelected(DespeckleLevel const level)
 {
-	handleDespeckleLevelChange(DESPECKLE_OFF);
-}
+	if (m_ignoreDespeckleLevelChanges) {
+		return;
+	}
 
-void
-OptionsWidget::despeckleCautiousSelected()
-{
-	handleDespeckleLevelChange(DESPECKLE_CAUTIOUS);
-}
-
-void
-OptionsWidget::despeckleNormalSelected()
-{
-	handleDespeckleLevelChange(DESPECKLE_NORMAL);
-}
-
-void
-OptionsWidget::despeckleAggressiveSelected()
-{
-	handleDespeckleLevelChange(DESPECKLE_AGGRESSIVE);
-}
-
-void
-OptionsWidget::handleDespeckleLevelChange(DespeckleLevel const level)
-{
 	m_despeckleLevel = level;
 	m_ptrSettings->setDespeckleLevel(m_pageId, level);
 
@@ -418,6 +400,8 @@ OptionsWidget::updateColorsDisplay()
 	despecklePanel->setVisible(bw_options_visible);
 
 	if (bw_options_visible) {
+		ScopedIncDec<int> const despeckle_guard(m_ignoreDespeckleLevelChanges);
+
 		switch (m_despeckleLevel) {
 			case DESPECKLE_OFF:
 				despeckleOffBtn->setChecked(true);
@@ -433,7 +417,7 @@ OptionsWidget::updateColorsDisplay()
 				break;
 		}
 
-		ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
+		ScopedIncDec<int> const threshold_guard(m_ignoreThresholdChanges);
 		thresholdSlider->setValue(
 			m_colorParams.blackWhiteOptions().thresholdAdjustment()
 		);
