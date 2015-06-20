@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 #ifndef DEWARPING_RASTER_DEWARPER_H_
 #define DEWARPING_RASTER_DEWARPER_H_
+
+#include <QSizeF>
 
 class QImage;
 class QSize;
@@ -41,12 +43,16 @@ public:
 	 * @param model_domain The rectangle in output image coordinates that the
 	 *        curved quadrilateral will map to.
 	 * @param background_color The color to use for pixels outside of source image boundaries.
+	 * @param min_mapping_area Defines the minimum rectangle in the source image
+	 *        that maps to a destination pixel.  This can be used to control
+	 *        smoothing.
 	 * @return The dewarped image.
 	 */
 	static QImage dewarp(
 		QImage const& src, QSize const& dst_size,
 		CylindricalSurfaceDewarper const& distortion_model,
-		QRectF const& model_domain, QColor const& background_color);
+		QRectF const& model_domain, QColor const& background_color,
+		QSizeF const& min_mapping_area = QSizeF(0.9, 0.9));
 };
 
 } // namespace dewarping
