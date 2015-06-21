@@ -21,6 +21,7 @@
 
 #include "GridAccessor.h"
 #include <boost/scoped_array.hpp>
+#include <utility>
 
 template<typename Node>
 class Grid
@@ -44,6 +45,21 @@ public:
 	 * Stride is also preserved.
 	 */
 	Grid(Grid const& other);
+
+	/**
+	 * @brief A move constructor.
+	 */
+	Grid(Grid&& other);
+
+	/**
+	 * @brief Assignment operator. Implemented in terms of the copy constructor and swap().
+	 */
+	Grid& operator=(Grid const& other);
+
+	/**
+	 * @brief The move assignment operator.
+	 */
+	Grid& operator=(Grid&& other);
 
 	bool isNull() const { return m_width <= 0 || m_height <= 0; }
 
@@ -101,12 +117,6 @@ public:
 
 	void swap(Grid& other);
 private:
-	template<typename T>
-	static void basicSwap(T& o1, T& o2) {
-		// Just to avoid incoduing the heavy <algorithm> header.
-		T tmp(o1); o1 = o2; o2 = tmp;
-	}
-
 	boost::scoped_array<Node> m_storage;
 	Node* m_pData;
 	int m_width;
@@ -150,6 +160,29 @@ Grid<Node>::Grid(Grid const& other)
 	for (int i = 0; i < len; ++i) {
 		m_storage[i] = other.m_storage[i];
 	}
+}
+
+template<typename Node>
+Grid<Node>::Grid(Grid&& other)
+:	Grid()
+{
+	swap(other);
+}
+
+template<typename Node>
+Grid<Node>&
+Grid<Node>::operator=(Grid const& other)
+{
+	Grid(other).swap(*this);
+	return *this;
+}
+
+template<typename Node>
+Grid<Node>&
+Grid<Node>::operator=(Grid&& other)
+{
+	Grid(std::move(other)).swap(*this);
+	return *this;
 }
 
 template<typename Node>
@@ -219,11 +252,11 @@ void
 Grid<Node>::swap(Grid& other)
 {
 	m_storage.swap(other.m_storage);
-	basicSwap(m_pData, other.m_pData);
-	basicSwap(m_width, other.m_width);
-	basicSwap(m_height, other.m_height);
-	basicSwap(m_stride, other.m_stride);
-	basicSwap(m_padding, other.m_padding);
+	std::swap(m_pData, other.m_pData);
+	std::swap(m_width, other.m_width);
+	std::swap(m_height, other.m_height);
+	std::swap(m_stride, other.m_stride);
+	std::swap(m_padding, other.m_padding);
 }
 
 template<typename Node>
