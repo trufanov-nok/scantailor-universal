@@ -76,8 +76,8 @@ struct IndexSequenceGenerator :
 {
 };
 
-template<int... Indices>
-struct IndexSequenceGenerator<0, Indices...>
+template<size_t... Indices>
+struct IndexSequenceGenerator<size_t(0), Indices...>
 {
 	using type = IndexSequence<Indices...>;
 };

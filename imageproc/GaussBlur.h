@@ -791,7 +791,7 @@ void anisotropicGaussBlurGeneric(
 	}
 
 	// Copy from intermediate image to output image.
-	using OutPixel = std::iterator_traits<DstIt>::value_type;
+	using OutPixel = typename std::iterator_traits<DstIt>::value_type;
 	rasterOpGeneric(
 		[float_writer](OutPixel& out, float value) {
 			float_writer(out, value);

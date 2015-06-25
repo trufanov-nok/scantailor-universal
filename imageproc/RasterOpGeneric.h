@@ -217,7 +217,7 @@ void rasterOpGeneric(Operation&& op, Images&&... images)
     ptrdiff_t const height = std::get<1>(dims);
 
     auto line_accessors_tuple = createLineAccessors(images...);
-    IndexSequenceGenerator<sizeof...(Images)>::type seq;
+    typename IndexSequenceGenerator<sizeof...(Images)>::type seq;
 
     for (ptrdiff_t y = 0; y < height; ++y) {
         for (ptrdiff_t x = 0; x < width; ++x) {
@@ -237,7 +237,7 @@ void rasterOpGenericXY(Operation&& op, Images&&... images)
     ptrdiff_t const height = std::get<1>(dims);
 
     auto line_accessors_tuple = createLineAccessors(images...);
-    IndexSequenceGenerator<sizeof...(Images)>::type seq;
+    typename IndexSequenceGenerator<sizeof...(Images)>::type seq;
 
     for (ptrdiff_t y = 0; y < height; ++y) {
         for (ptrdiff_t x = 0; x < width; ++x) {

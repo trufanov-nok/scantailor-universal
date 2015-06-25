@@ -1018,7 +1018,7 @@ TextLineSegmenter::refineSegmentation(
 		struct Node {
 			Node* prev;
 			int label;
-			int cost;
+			float cost;
 		};
 		std::deque<Node> node_storage;
 
