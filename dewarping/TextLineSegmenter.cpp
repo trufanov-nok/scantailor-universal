@@ -236,7 +236,7 @@ TextLineSegmenter::processDownscaled(
 	status.throwIfCancelled();
 
 	std::vector<Vec2d> directions;
-	directions.emplace_back(std::cos(base_angle_rad) , std::cos(base_angle_rad));
+	directions.emplace_back(std::cos(base_angle_rad) , std::sin(base_angle_rad));
 	double const angle_step_deg = 2.0;
 	for (double delta_angle_deg = angle_step_deg;
 			delta_angle_deg <= 40.0; delta_angle_deg += angle_step_deg) {
