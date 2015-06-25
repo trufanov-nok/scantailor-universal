@@ -49,6 +49,7 @@
 #include "ValueConv.h"
 #include "GridAccessor.h"
 #include "RasterOpGeneric.h"
+#include "VecNT.h"
 #include <QSize>
 #include <boost/scoped_array.hpp>
 #include <algorithm>
@@ -201,19 +202,81 @@ class FilterParams
 public:
 	float a1, a2, a3, B;
 
-	FilterParams(float sigma);
+	FilterParams(float sigma) {
+		float const q = sigmaToQ(sigma);
+		float const q2 = q * q;
+		float const q3 = q2 * q;
+		assert(q > 0); // Guaranteed by sigmaToQ()
+
+		// Formula 8c in [1].
+		float const b0 = 1.57825f + 2.44413f * q + 1.4281f * q2 + 0.422205f * q3;
+		float const b1 = 2.44413f * q + 2.85619f * q2 + 1.26661 * q3;
+		float const b2 = -1.4281f * q2 - 1.26661f * q3;
+		float const b3 = 0.422205f * q3;
+		assert(b0 > 0); // Because q is > 0
+
+		a1 = b1 / b0;
+		a2 = b2 / b0;
+		a3 = b3 / b0;
+		B = 1.0f - (a1 + a2 + a3);
+	}
+
 private:
-	float sigmaToQ(float sigma);
+	float sigmaToQ(float sigma) {
+		// Formula 11b in [1].
+		if (sigma >= 2.5f) {
+			return 0.98711f * sigma - 0.9633f;
+		} else {
+			return 3.97156f - 4.14554f * std::sqrt(1.f - 0.26891f * std::max<float>(sigma, 0.5f));
+		}
+	}
 };
 
-class AnisotropicParams
+class HorizontalDecompositionParams
 {
 public:
 	float sigma_x, sigma_phi, cot_phi;
 
-	AnisotropicParams(
-		float dir_x, float dir_y,
-		float dir_sigma, float ortho_dir_sigma);
+	HorizontalDecompositionParams(
+		float dir_x, float dir_y, float dir_sigma, float ortho_dir_sigma) {
+
+		Vec2f cos_sin(dir_x, dir_y);
+		cos_sin.normalize();
+
+		// Constraining sigma_u and sigma_v to be slightly positive
+		// prevents sum_squares below from being zero.
+		float const sigma_u = std::max<float>(0.01f, dir_sigma);
+		float const sigma_v = std::max<float>(0.01f, ortho_dir_sigma);
+		float const sigma2_u = sigma_u * sigma_u;
+		float const sigma2_v = sigma_v * sigma_v;
+		float const cos2 = cos_sin[0] * cos_sin[0];
+		float const sin2 = cos_sin[1] * cos_sin[1];
+		float const sum_squares = sigma2_v * cos2 + sigma2_u * sin2;
+
+		// Formula 9 in [3].
+		sigma_x = sigma_u * sigma_v / std::sqrt(sum_squares);
+
+		// Formula 11 in [3], except we calculate cotangent rather than tangent.
+		cot_phi = ((sigma2_u - sigma2_v) * cos_sin[0] * cos_sin[1]) / sum_squares;
+
+		// Equivalent to formula 10 in [3], except it avoids a negative sigma.
+		sigma_phi = std::sqrt((cot_phi * cot_phi + 1.0f) * sum_squares);
+	}
+};
+
+class VerticalDecompositionParams
+{
+public:
+	float sigma_y, sigma_phi, tan_phi;
+
+	VerticalDecompositionParams(
+		float dir_x, float dir_y, float dir_sigma, float ortho_dir_sigma) {
+
+		HorizontalDecompositionParams const p(dir_y, -dir_x, dir_sigma, ortho_dir_sigma);
+		sigma_y = p.sigma_x;
+		sigma_phi = p.sigma_phi;
+		tan_phi = -p.cot_phi;
+	}
 };
 
 void calcBackwardPassInitialConditions(
@@ -371,10 +434,20 @@ void anisotropicGaussBlurGeneric(
 	Grid<float> intermediate_image(width, height, /*padding=*/2);
 	int const intermediate_stride = intermediate_image.stride();
 
-	gauss_blur_impl::AnisotropicParams const ap(dir_x, dir_y, dir_sigma, ortho_dir_sigma);
+	HorizontalDecompositionParams const hdp(dir_x, dir_y, dir_sigma, ortho_dir_sigma);
+	VerticalDecompositionParams const vdp(dir_x, dir_y, dir_sigma, ortho_dir_sigma);
+	bool const horizontal_decomposition = hdp.sigma_x > vdp.sigma_y;
 
-	{ // Horizontal pass.
-		gauss_blur_impl::FilterParams const p(ap.sigma_x);
+	// In [3] they decompose a 2D gaussian into a product of a horizontal 1D gaussian
+	// and an oriented gaussian with a zero standard deviation in one of the directions.
+	// That approach produces the largest errors when decomposing a nearly-vertical gaussian.
+	// We extend the approach of [3] by choosing whether to do a horizontal or a vertical
+	// decomposition. The new approach achieves lower errors overall, while the largest
+	// errors now correspond to diagonal gaussians.
+
+	if (horizontal_decomposition) {
+		// Horizontal pass.
+		gauss_blur_impl::FilterParams const p(hdp.sigma_x);
 		float const B2 = p.B * p.B;
 		SrcIt input_line = input;
 		float* intermediate_line = intermediate_image.data();
@@ -404,6 +477,35 @@ void anisotropicGaussBlurGeneric(
 			input_line += input_stride;
 			intermediate_line += intermediate_stride;
 		}
+	} else {
+		// Vertical pass.
+		gauss_blur_impl::FilterParams const p(vdp.sigma_y);
+		float const B2 = p.B * p.B;
+
+		for (int x = 0; x < width; ++x) {
+			// Forward pass.
+			SrcIt inp_it = input + x;
+			float pixel = float_reader(*inp_it);
+			float* p_w = &w[3];
+			p_w[-1] = p_w[-2] = p_w[-3] = pixel / p.B;
+
+			for (int y = 0; y < height; ++y) {
+				pixel = float_reader(*inp_it);
+				*p_w = pixel + p.a1 * p_w[-1] + p.a2 * p_w[-2] + p.a3 * p_w[-3];
+				inp_it += input_stride;
+				++p_w;
+			}
+
+			// Backward pass.
+			calcBackwardPassInitialConditions(p, p_w, pixel);
+			float* p_int = intermediate_image.data() + x + height * intermediate_stride;
+			for (int y = height - 1; y >= 0; --y) {
+				--p_w;
+				p_int -= intermediate_stride;
+				*p_w = *p_w + p.a1 * p_w[1] + p.a2 * p_w[2] + p.a3 * p_w[3];
+				*p_int = *p_w * B2; // Re-scale by B^2.
+			}
+		}
 	}
 
 	// Initialise padded areas of intermediate_image. The outer area is filled with zeros
@@ -415,24 +517,36 @@ void anisotropicGaussBlurGeneric(
 	// or vertically.
 	float* output_origin;
 
-#if 1
-	// It would make sense to traverse horizontally-leaning lines in horizontal direction,
-	// as otherwise we are jumping over some pixels. However, if we traverse it vertically
-	// anyway, the impulse response looks nicer for some reason. In [3] they always traverse
-	// the phi direction vertically, without explaining why. We are going to do the same.
-	if (true) {
+#if 0
+	// Here we try to choose whether to traverse a skewed line one x unit or one y unit
+	// at a time based on whether the line is horizontally or vertically leaning.
+	// Unfortunately, it produces larger errors in impulse response compared to a
+	// more simple approach below.
+	if ((horizontal_decomposition && std::abs(hdp.cot_phi) <= 1.0f) ||
+		(!horizontal_decomposition && std::abs(vdp.tan_phi) > 1.0f)){
 #else
-	if (std::abs(ap.cot_phi) <= 1.0f) { // Vertically-leaning phi-direction pass.
+	if (horizontal_decomposition) {
 #endif
-		float const adjusted_sigma_phi = ap.sigma_phi /
-				std::sqrt(1.0f + ap.cot_phi * ap.cot_phi);
-		gauss_blur_impl::FilterParams const p(adjusted_sigma_phi);
+		// Traverse the phi-oriented line with a unit step in y direction.
+
+		float dx; // The step in x direction.
+		float sigma_phi;
+		if (horizontal_decomposition) {
+			dx = hdp.cot_phi;
+			sigma_phi = hdp.sigma_phi;
+		} else {
+			dx = 1.f / vdp.tan_phi;
+			sigma_phi = vdp.sigma_phi;
+		}
+
+		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dx*dx);
+		FilterParams const p(adjusted_sigma_phi);
 		float const B2 = p.B * p.B;
 
 		// Initialise a vector of InterpolatedCoord values. These represent a single
 		// skewed line that we will be moving horizontally and traversing vertically.
 		for (int y = 0; y < height; ++y) {
-			float const x_f = y * ap.cot_phi;
+			float const x_f = y * dx;
 			float const lower_bound_f = std::floor(x_f);
 			skewed_line[y] = InterpolatedCoord{
 				static_cast<int>(lower_bound_f),
@@ -542,18 +656,28 @@ void anisotropicGaussBlurGeneric(
 		// Our writes are shifted horizontally by -1.
 		output_origin = intermediate_image.data() - 1;
 
-	} else { // Horizontally-leaning phi-direction pass.
+	} else {
 
-		float const tan_phi = 1.0f / ap.cot_phi;
-		float const adjusted_sigma_phi = ap.sigma_phi /
-				std::sqrt(1.0f + tan_phi * tan_phi);
-		gauss_blur_impl::FilterParams const p(adjusted_sigma_phi);
+		// Traverse the phi-oriented line with a unit step in x direction.
+
+		float dy; // The step in y direction.
+		float sigma_phi;
+		if (horizontal_decomposition) {
+			dy = 1.f / hdp.cot_phi;
+			sigma_phi = hdp.sigma_phi;
+		} else {
+			dy = vdp.tan_phi;
+			sigma_phi = vdp.sigma_phi;
+		}
+
+		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dy*dy);
+		FilterParams const p(adjusted_sigma_phi);
 		float const B2 = p.B * p.B;
 
 		// Initialise a vector of InterpolatedCoord values. These represent a single
 		// skewed line that we will be moving vertically and traversing horizontally.
 		for (int x = 0; x < width; ++x) {
-			float const y_f = x * tan_phi;
+			float const y_f = x * dy;
 			float const lower_bound_f = std::floor(y_f);
 			skewed_line[x] = InterpolatedCoord{
 				static_cast<int>(lower_bound_f),

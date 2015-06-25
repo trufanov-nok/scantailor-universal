@@ -35,62 +35,6 @@ namespace imageproc
 namespace gauss_blur_impl
 {
 
-FilterParams::FilterParams(float sigma)
-{
-	float const q = sigmaToQ(sigma);
-	float const q2 = q * q;
-	float const q3 = q2 * q;
-	assert(q > 0); // Guaranteed by sigmaToQ()
-
-	// Formula 8c in [1].
-	float const b0 = 1.57825f + 2.44413f * q + 1.4281f * q2 + 0.422205f * q3;
-	float const b1 = 2.44413 * q + 2.85619 * q2 + 1.26661 * q3;
-	float const b2 = -1.4281 * q2 - 1.26661 * q3;
-	float const b3 = 0.422205 * q3;
-	assert(b0 > 0); // Because q is > 0
-
-	a1 = b1 / b0;
-	a2 = b2 / b0;
-	a3 = b3 / b0;
-	B = 1.0f - (a1 + a2 + a3);
-}
-
-float
-FilterParams::sigmaToQ(float sigma)
-{
-	// Formula 11b in [1].
-	if (sigma >= 2.5) {
-		return 0.98711 * sigma - 0.9633;
-	} else {
-		return 3.97156 - 4.14554 * std::sqrt(1.0 - 0.26891 * std::max<float>(sigma, 0.5f));
-	}
-}
-
-AnisotropicParams::AnisotropicParams(
-	float const dir_x, float const dir_y,
-	float const dir_sigma, float const ortho_dir_sigma)
-{
-	Vec2f cos_sin(dir_x, dir_y);
-	cos_sin.normalize();
-
-	float const sigma_u = dir_sigma;
-	float const sigma_v = ortho_dir_sigma;
-	float const sigma2_u = sigma_u * sigma_u;
-	float const sigma2_v = sigma_v * sigma_v;
-	float const cos2 = cos_sin[0] * cos_sin[0];
-	float const sin2 = cos_sin[1] * cos_sin[1];
-	float const sum_squares = sigma2_v * cos2 + sigma2_u * sin2;
-
-	// Formula 9 in [3].
-	sigma_x = sigma_u * sigma_v / std::sqrt(sum_squares);
-
-	// Formula 11 in [3], except we calculate cotangent rather than tangent.
-	cot_phi = ((sigma2_u - sigma2_v) * cos_sin[0] * cos_sin[1]) / sum_squares;
-
-	// Equivalent to formula 10 in [3], except it avoids a negative sigma.
-	sigma_phi = std::sqrt((cot_phi * cot_phi + 1.0f) * sum_squares);
-}
-
 /**
  * The second application of an LTI system involves a 3-step look-ahead into the
  * output signal. That is, we need 3 values from the future of our output signal
