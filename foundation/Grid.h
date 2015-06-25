@@ -37,7 +37,7 @@ public:
 	 *
 	 * If type Node doesn't require construction, the grid data is left uninitialized.
 	 */
-	Grid(int width, int height, int padding);
+	Grid(int width, int height, int padding = 0);
 
 	/**
 	 * \brief Creates a deep copy of another grid including padding.
