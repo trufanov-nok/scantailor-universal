@@ -21,9 +21,11 @@
 
 #include "NonCopyable.h"
 #include "Grid.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QPointF>
 #include <list>
 #include <vector>
+#include <memory>
 
 class DebugImages;
 class AffineTransformedImage;
@@ -54,12 +56,14 @@ public:
 	static std::list<std::vector<QPointF>> process(
 		AffineTransformedImage const& image,
 		DistortionModelBuilder& model_builder,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		TaskStatus const& status, DebugImages* dbg = nullptr);
 private:
 	enum LeftRightSide { LEFT_SIDE, RIGHT_SIDE };
 
 	static std::list<std::vector<QPointF>> processDownscaled(
 		imageproc::GrayImage const& image, QPolygonF const& crop_area,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		TaskStatus const& status, DebugImages* dbg);
 
 	static double findSkewAngleRad(

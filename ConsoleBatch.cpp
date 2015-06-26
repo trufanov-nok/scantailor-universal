@@ -40,6 +40,7 @@
 #include "ProjectReader.h"
 #include "OrthogonalRotation.h"
 #include "SelectedPage.h"
+#include "acceleration/DefaultAccelerationProvider.h"
 
 #include "filters/fix_orientation/Settings.h"
 #include "filters/fix_orientation/Filter.h"
@@ -69,12 +70,14 @@
 
 #include <QMap>
 #include <QDomDocument>
+#include <QCoreApplication>
 
 #include "ConsoleBatch.h"
 #include "CommandLine.h"
 
 ConsoleBatch::ConsoleBatch(std::vector<ImageFileInfo> const& images, QString const& output_directory, Qt::LayoutDirection const layout)
 :   batch(true), debug(true),
+	m_pAccelerationProvider(new DefaultAccelerationProvider(QCoreApplication::instance())),
 	m_ptrDisambiguator(new FileNameDisambiguator),
 	m_ptrPages(new ProjectPages(images, ProjectPages::AUTO_PAGES, layout))
 {
@@ -177,8 +180,9 @@ ConsoleBatch::createCompositeTask(
 	
 	return BackgroundTaskPtr(
 		new LoadFileTask(
-			BackgroundTask::BATCH,
-			page, m_ptrThumbnailCache, m_ptrPages, fix_orientation_task
+			BackgroundTask::BATCH, page,
+			m_pAccelerationProvider->getOperations(),
+			m_ptrThumbnailCache, m_ptrPages, fix_orientation_task
 		)
 	);
 }

@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
 
 IF(POLICY CMP0003)
 	# Allow linking with full library path instead of -L/path -llibrary
@@ -15,6 +15,12 @@ IF(POLICY CMP0043)
 	# Don't ignore COMPILE_DEFINITIONS_{CONFIG} directives, as these are used
 	# by Qt.
 	CMAKE_POLICY(SET CMP0043 OLD)
+ENDIF()
+
+IF(POLICY CMP0048)
+	# When PROJECT() is missing the VERSION argument, set the corresponding
+	# CMake variables to zero.
+	CMAKE_POLICY(SET CMP0048 NEW)
 ENDIF()
 
 SET(
@@ -83,6 +89,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 INCLUDE(CheckIncludeFile)
 INCLUDE(CheckIncludeFileCXX)
 INCLUDE(TestCXXAcceptsFlag)
+INCLUDE(CMakeDependentOption)
 INCLUDE(cmake/FindPthreads.cmake)
 INCLUDE(cmake/SetDefaultBuildType.cmake)
 INCLUDE(cmake/SetDefaultGccFlags.cmake)
@@ -103,12 +110,16 @@ SET(STAGING_LIBS_DIR "")
 
 
 INCLUDE(FindOpenGL)
-SET(use_opengl OFF)
-IF(OPENGL_FOUND AND QT_QTOPENGL_FOUND)
-	# Disabled for now due to various problems associated with it.
-	# SET(use_opengl ON)
-ENDIF()
-OPTION(ENABLE_OPENGL "OpenGL may be used for UI acceleration" ${use_opengl})
+CMAKE_DEPENDENT_OPTION(
+	ENABLE_OPENGL "OpenGL may be used for UI acceleration" ON
+	"OPENGL_FOUND" OFF
+)
+
+INCLUDE(FindOpenCL)
+CMAKE_DEPENDENT_OPTION(
+	ENABLE_OPENCL "OpenCL may be used for acceleration of image processing" ON
+	"OpenCL_FOUND" OFF
+)
 
 
 IF(WIN32)
@@ -140,14 +151,15 @@ IF(WIN32)
 ENDIF()
 
 SET(CMAKE_AUTOMOC ON)
-FIND_PACKAGE(Qt5Core REQUIRED)
-FIND_PACKAGE(Qt5Gui REQUIRED)
-FIND_PACKAGE(Qt5Widgets REQUIRED)
-FIND_PACKAGE(Qt5Xml REQUIRED)
-FIND_PACKAGE(Qt5Network REQUIRED)
-FIND_PACKAGE(Qt5LinguistTools REQUIRED)
+SET(qt_min_version 5.3)
+FIND_PACKAGE(Qt5Core ${qt_min_version} REQUIRED)
+FIND_PACKAGE(Qt5Gui ${qt_min_version} REQUIRED)
+FIND_PACKAGE(Qt5Widgets ${qt_min_version} REQUIRED)
+FIND_PACKAGE(Qt5Xml ${qt_min_version} REQUIRED)
+FIND_PACKAGE(Qt5Network ${qt_min_version} REQUIRED)
+FIND_PACKAGE(Qt5LinguistTools ${qt_min_version} REQUIRED)
 IF(ENABLE_OPENGL)
-	FIND_PACKAGE(Qt5OpenGL REQUIRED)
+	FIND_PACKAGE(Qt5OpenGL ${qt_min_version} REQUIRED)
 ENDIF()
 
 FIND_PATH(
@@ -353,11 +365,12 @@ ENDIF(MSVC)
 
 # Prepare config.h
 IF(WIN32)
-	SET(TRANSLATIONS_DIR_REL "translations")
-ELSE(WIN32)
-	SET(TRANSLATIONS_DIR_REL "share/scantailor/translations")
-ENDIF(WIN32)
-SET(TRANSLATIONS_DIR_ABS "${CMAKE_INSTALL_PREFIX}/${TRANSLATIONS_DIR_REL}")
+	SET(TRANSLATION_DIRS ".:translations")
+	SET(PLUGIN_DIRS ".")
+ELSE()
+	SET(TRANSLATION_DIRS ".:${CMAKE_INSTALL_PREFIX}/share/scantailor/translations")
+	SET(PLUGIN_DIRS ".:${CMAKE_INSTALL_PREFIX}/lib/scantailor")
+ENDIF()
 
 CONFIGURE_FILE(config.h.in ${CMAKE_BINARY_DIR}/config.h @ONLY)
 
@@ -372,6 +385,7 @@ ADD_SUBDIRECTORY(math)
 ADD_SUBDIRECTORY(imageproc)
 ADD_SUBDIRECTORY(interaction)
 ADD_SUBDIRECTORY(zones)
+ADD_SUBDIRECTORY(acceleration)
 ADD_SUBDIRECTORY(tests)
 
 ADD_SUBDIRECTORY(filters/fix_orientation)
@@ -552,13 +566,13 @@ ADD_EXECUTABLE(scantailor-cli ${cli_only_sources} ${common_ui_sources})
 
 TARGET_LINK_LIBRARIES(
 	scantailor
-	page_layout output
+	acceleration page_layout output
 	fix_orientation page_split deskew select_content stcore
 	dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(
 	scantailor-cli
-	page_layout output
+	acceleration page_layout output
 	fix_orientation page_split deskew select_content stcore
 	dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
@@ -632,7 +646,7 @@ ENDFOREACH(ts_file)
 QT5_ADD_TRANSLATION(QM_FILES ${FILTERED_TRANSLATION_FILES})
 ADD_CUSTOM_TARGET(compile_translations ALL DEPENDS ${QM_FILES})
 
-INSTALL(FILES ${QM_FILES} DESTINATION "${TRANSLATIONS_DIR_REL}/")
+INSTALL(FILES ${QM_FILES} DESTINATION "share/scantailor/translations")
 
 # Source code packaging
 SET(CPACK_CMAKE_GENERATOR "")

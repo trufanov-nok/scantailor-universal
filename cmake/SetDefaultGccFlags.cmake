@@ -8,6 +8,7 @@ MACRO(ST_SET_DEFAULT_GCC_FLAGS)
 		SET(gc_sections_ldflags_ "")
 		SET(no_inline_dllexport_cflags_ "")
 		SET(werror_return_type_cflags_ "")
+		SET(wno_comment_cflags_ "")
 		
 		CHECK_CXX_ACCEPTS_FLAG(
 			"-ffunction-sections -fdata-sections -Wl,--gc-sections"
@@ -26,6 +27,12 @@ MACRO(ST_SET_DEFAULT_GCC_FLAGS)
 		CHECK_CXX_ACCEPTS_FLAG("-Werror=return-type" werror_return_type_supported_)
 		IF(werror_return_type_supported_)
 			SET(werror_return_type_cflags_ "-Werror=return-type")
+		ENDIF()
+
+		# This one silences a warning coming from a Khronos OpenCL header.
+		CHECK_CXX_ACCEPTS_FLAG("-Wno-comment" wno_comment_supported_)
+		IF(wno_comment_supported_)
+			SET(wno_comment_cflags_ "-Wno-comment")
 		ENDIF()
 		
 		IF(MINGW)
@@ -59,7 +66,8 @@ MACRO(ST_SET_DEFAULT_GCC_FLAGS)
 			# Flags common for all build configurations.
 			SET(
 				CMAKE_C_FLAGS
-				"-Wall -Wno-unused ${werror_return_type_cflags_} -ffast-math ${no_inline_dllexport_cflags_}"
+				"-Wall -Wno-unused ${werror_return_type_cflags_} ${wno_comment_cflags_} \
+ -ffast-math ${no_inline_dllexport_cflags_}"
 				CACHE STRING "Common C flags for all build configurations." FORCE
 			)
 			SET(

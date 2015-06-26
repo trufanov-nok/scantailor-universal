@@ -107,6 +107,7 @@ Section "Uninstall"
   # Remove program files.
   Delete "$INSTDIR\scantailor.exe"
   Delete "$INSTDIR\scantailor-cli.exe"
+  Delete "$INSTDIR\opencl_plugin.dll"
   Delete "$INSTDIR\mingwm10.dll"
   Delete "$INSTDIR\libgcc_*.dll"
   Delete "$INSTDIR\CrashReporter.exe"

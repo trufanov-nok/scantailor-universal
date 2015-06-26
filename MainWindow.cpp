@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@
 #include "filters/output/Filter.h"
 #include "filters/output/Task.h"
 #include "filters/output/CacheDrivenTask.h"
+#include "acceleration/DefaultAccelerationProvider.h"
 #include "LoadFileTask.h"
 #include "CompositeCacheDrivenTask.h"
 #include "ScopedIncDec.h"
@@ -157,6 +158,7 @@ MainWindow::MainWindow()
 	m_ptrStages(new StageSequence(m_ptrPages, newPageSelectionAccessor())),
 	m_ptrWorkerThread(new WorkerThread),
 	m_ptrInteractiveQueue(new ProcessingTaskQueue(ProcessingTaskQueue::RANDOM_ORDER)),
+	m_pAccelerationProvider(new DefaultAccelerationProvider(this)),
 	m_ptrOutOfMemoryDialog(new OutOfMemoryDialog),
 	m_curFilter(0),
 	m_ignoreSelectionChanges(0),
@@ -169,12 +171,6 @@ MainWindow::MainWindow()
 	
 	setupUi(this);
 	sortOptions->setVisible(false);
-
-#if !defined(ENABLE_OPENGL)
-	// Right now the only setting is 3D acceleration, so get rid of
-	// the whole Settings dialog, if it's inaccessible.
-	actionSettings->setVisible(false);
-#endif
 
 	createBatchProcessingWidget();
 	m_ptrProcessingIndicationWidget.reset(new ProcessingIndicationWidget);
@@ -321,6 +317,8 @@ MainWindow::~MainWindow()
 	removeWidgetsFromLayout(m_pImageFrameLayout);
 	removeWidgetsFromLayout(m_pOptionsFrameLayout);
 	m_ptrTabbedDebugImages->clear();
+
+	m_pAccelerationProvider->releaseResources();
 }
 
 PageSequence
@@ -1460,6 +1458,8 @@ MainWindow::openSettingsDialog()
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowModality(Qt::WindowModal);
 	dialog->show();
+
+	m_pAccelerationProvider->processUpdatedConfiguration();
 }
 
 void
@@ -2035,7 +2035,8 @@ MainWindow::createCompositeTask(
 	return BackgroundTaskPtr(
 		new LoadFileTask(
 			batch ? BackgroundTask::BATCH : BackgroundTask::INTERACTIVE,
-			page, m_ptrThumbnailCache, m_ptrPages, fix_orientation_task
+			page, m_pAccelerationProvider->getOperations(),
+			m_ptrThumbnailCache, m_ptrPages, fix_orientation_task
 		)
 	);
 }

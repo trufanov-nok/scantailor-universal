@@ -20,8 +20,10 @@
 #include "config.h"
 #include <QSettings>
 #ifdef ENABLE_OPENGL
-#include <QGLFormat>
-#include <QGLWidget>
+#include <QSurfaceFormat>
+#include <QOpenGLContext>
+#include <QOpenGLFunctions>
+#include <QOffscreenSurface>
 #endif
 
 bool
@@ -30,28 +32,39 @@ OpenGLSupport::supported()
 #ifndef ENABLE_OPENGL
 	return false;
 #else
-	if (!QGLFormat::hasOpenGL()) {
+	QSurfaceFormat format;
+	format.setSamples(2);
+	format.setAlphaBufferSize(8);
+
+	QOpenGLContext context;
+	context.setFormat(format);
+	if (!context.create()) {
 		return false;
 	}
+	format = context.format();
 
-	QGLFormat format;
-	format.setSampleBuffers(true);
-	format.setStencil(true);
-	format.setAlpha(true);
-
-	QGLWidget widget(format);
-	format = widget.format();
-
-	if (!format.sampleBuffers()) {
+	if (format.samples() < 2) {
 		return false;
 	}
-	if (!format.stencil()) {
-		return false;
-	}
-	if (!format.alpha()) {
+	if (!format.hasAlpha()) {
 		return false;
 	}
 
 	return true;
 #endif
+}
+
+QString
+OpenGLSupport::deviceName()
+{
+	QString name;
+#ifdef ENABLE_OPENGL
+	QOpenGLContext context;
+	QOffscreenSurface surface;
+	if (context.create() && (surface.create(), true) && context.makeCurrent(&surface)) {
+		name = QString::fromUtf8((char const*)context.functions()->glGetString(GL_RENDERER));
+		context.doneCurrent();
+	}
+#endif
+	return name;
 }

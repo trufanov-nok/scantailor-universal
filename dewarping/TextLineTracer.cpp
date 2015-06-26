@@ -53,11 +53,12 @@ namespace dewarping
 void
 TextLineTracer::trace(
 	AffineTransformedImage const& input, DistortionModelBuilder& output,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg)
 {
 	using namespace boost::lambda;
 
-	auto polylines = TextLineSegmenter::process(input, output, status, dbg);
+	auto polylines = TextLineSegmenter::process(input, output, accel_ops, status, dbg);
 
 	if (output.verticalBounds().first.isNull() || output.verticalBounds().second.isNull()) {
 		return;

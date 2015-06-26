@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include "PngMetadataLoader.h"
 #include "TiffMetadataLoader.h"
 #include "JpegMetadataLoader.h"
+#include <boost/range/adaptor/reversed.hpp>
 #include <QMetaType>
 #include <QtPlugin>
 #include <QLocale>
@@ -152,21 +153,45 @@ int main(int argc, char** argv)
 	QString const translation("scantailor_"+QLocale::system().name());
 	QTranslator translator;
 	
-	// Try loading from the current directory.
-	if (!translator.load(translation)) {
-		// Now try loading from where it's supposed to be.
-		QString path(QString::fromUtf8(TRANSLATIONS_DIR_ABS));
-		path += QChar('/');
-		path += translation;
-		if (!translator.load(path)) {
-			path = QString::fromUtf8(TRANSLATIONS_DIR_REL);
-			path += QChar('/');
-			path += translation;
-			translator.load(path);
+	// Try loading translations from different paths.
+	QStringList const translation_dirs(
+		QString::fromUtf8(TRANSLATION_DIRS).split(QChar(':'), QString::SkipEmptyParts)
+	);
+	for (QString const& path : translation_dirs) {
+		QString absolute_path;
+		if (QDir::isAbsolutePath(path)) {
+			absolute_path = path;
+		} else {
+			absolute_path = app.applicationDirPath();
+			absolute_path += QChar('/');
+			absolute_path += path;
+		}
+		absolute_path += QChar('/');
+		absolute_path += translation;
+
+		if (translator.load(absolute_path)) {
+			break;
 		}
 	}
 	
 	app.installTranslator(&translator);
+
+	// Plugin search paths.
+	QStringList const plugin_dirs(
+		QString::fromUtf8(PLUGIN_DIRS).split(QChar(':'), QString::SkipEmptyParts)
+	);
+	// Reversing, as QCoreApplication::addLibraryPath() prepends the new path to the list.
+	for (QString const& path : boost::adaptors::reverse(plugin_dirs)) {
+		QString absolute_path;
+		if (QDir::isAbsolutePath(path)) {
+			absolute_path = path;
+		} else {
+			absolute_path = app.applicationDirPath();
+			absolute_path += QChar('/');
+			absolute_path += path;
+		}
+		app.addLibraryPath(absolute_path);
+	}
 	
 	// This information is used by QSettings.
 	app.setApplicationName("Scan Tailor");

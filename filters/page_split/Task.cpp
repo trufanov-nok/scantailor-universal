@@ -113,7 +113,9 @@ Task::~Task()
 
 FilterResultPtr
 Task::process(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	AffineImageTransform const& orig_image_transform,
 	OrthogonalRotation const& rotation)
@@ -192,7 +194,7 @@ Task::process(
 			)
 		);
 		return m_ptrNextTask->process(
-			status, orig_image, gray_orig_image_factory,
+			status, accel_ops, orig_image, gray_orig_image_factory,
 			cropping_transform, rotation
 		);
 	} else {

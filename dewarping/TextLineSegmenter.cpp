@@ -116,6 +116,7 @@ std::list<std::vector<QPointF>>
 TextLineSegmenter::process(
 	AffineTransformedImage const& image,
 	DistortionModelBuilder& model_builder,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg)
 {
 	status.throwIfCancelled();
@@ -144,7 +145,9 @@ TextLineSegmenter::process(
 		dbg->add(downscaled_image, "downscaled");
 	}
 
-	auto polylines = processDownscaled(downscaled_image, downscaled_crop_area, status, dbg);
+	auto polylines = processDownscaled(
+		downscaled_image, downscaled_crop_area, accel_ops, status, dbg
+	);
 
 	// Find the vertical boundaries (in downscaled coordinates).
 	std::vector<QLineF> chords;
@@ -199,6 +202,7 @@ TextLineSegmenter::process(
 std::list<std::vector<QPointF>>
 TextLineSegmenter::processDownscaled(
 	GrayImage const& image, QPolygonF const& crop_area,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg)
 {
 	using namespace boost::lambda;
@@ -216,13 +220,7 @@ TextLineSegmenter::processDownscaled(
 
 	status.throwIfCancelled();
 
-	struct Sigmas
-	{
-		float dir_sigma;
-		float ortho_dir_sigma;
-	};
-
-	Sigmas const sigmas[] = {
+	std::vector<Vec2f> const sigmas = {
 		{ 10.f, 0.5f },
 		{ 20.f, 0.5f },
 		{ 10.f, 1.f },
@@ -231,72 +229,32 @@ TextLineSegmenter::processDownscaled(
 		{ 20.f, 2.f }
 	};
 
-	double const base_angle_rad = findSkewAngleRad(image, status, dbg);
+	float const base_angle_rad = findSkewAngleRad(image, status, dbg);
 
 	status.throwIfCancelled();
 
-	std::vector<Vec2d> directions;
+	std::vector<Vec2f> directions;
 	directions.emplace_back(std::cos(base_angle_rad) , std::sin(base_angle_rad));
 	double const angle_step_deg = 2.0;
 	for (double delta_angle_deg = angle_step_deg;
 			delta_angle_deg <= 40.0; delta_angle_deg += angle_step_deg) {
-		double const angle1_rad = base_angle_rad + delta_angle_deg * constants::DEG2RAD;
-		double const angle2_rad = base_angle_rad - delta_angle_deg * constants::DEG2RAD;
+		float const angle1_rad = base_angle_rad + delta_angle_deg * constants::DEG2RAD;
+		float const angle2_rad = base_angle_rad - delta_angle_deg * constants::DEG2RAD;
 		directions.emplace_back(std::cos(angle1_rad), std::sin(angle1_rad));
 		directions.emplace_back(std::cos(angle2_rad), std::sin(angle2_rad));
 	}
 
-	Grid<float> accum(width, height, /*padding=*/0);
-	accum.initInterior(-std::numeric_limits<float>::max());
-
-	for (Sigmas const s : sigmas) {
-		for (Vec2f const& dir : directions) {
-
-			status.throwIfCancelled();
-
-			Grid<float> blurred(width, height, /*padding=*/0);
-			anisotropicGaussBlurGeneric(
-				image.size(), dir[0], dir[1], s.dir_sigma, s.ortho_dir_sigma,
-				src.data(), src.stride(), _1, blurred.data(), blurred.stride(), _1 = _2
-			);
-
-			QPointF jump_f(dir[1], -dir[0]);
-			jump_f *= s.ortho_dir_sigma * 6.f;
-			QPoint const jump_i(jump_f.toPoint());
-			QRect const rect(image.rect());
-
-			rasterOpGenericXY(
-				[rect, jump_i, &blurred](float& accum, float px, int x, int y) {
-					QPoint const origin(x, y);
-					QPoint const pt1(origin + jump_i);
-					QPoint const pt2(origin - jump_i);
-					float val = -px;
-					if (rect.contains(pt1)) {
-						val -= -0.5f * blurred(pt1.x(), pt1.y());
-					} else {
-						val -= -0.5f * px;
-					}
-					if (rect.contains(pt2)) {
-						val -= -0.5f * blurred(pt2.x(), pt2.y());
-					} else {
-						val -= -0.5f * px;
-					}
-					accum = std::max(accum, val);
-				},
-				accum, blurred
-			);
-		}
-	}
+	Grid<float> filterbank = accel_ops->textFilterBank(src, directions, sigmas, 6.f);
 
 	status.throwIfCancelled();
 
 	if (dbg) {
-		dbg->add(visualizeGrid(accum), "filterbank");
+		dbg->add(visualizeGrid(filterbank), "filterbank");
 	}
 
 	// Range of values.
 	MinMaxAccumulator<float> range;
-	rasterOpGeneric([&range](float val) { range(val); }, accum);
+	rasterOpGeneric([&range](float val) { range(val); }, filterbank);
 
 	status.throwIfCancelled();
 
@@ -311,13 +269,13 @@ TextLineSegmenter::processDownscaled(
 		[scale, bias](float& val) {
 			val = std::log(val * scale + bias);
 		},
-		accum
+		filterbank
 	);
 
 	status.throwIfCancelled();
 
 	if (dbg) {
-		dbg->add(visualizeGrid(accum), "log(filterbank)");
+		dbg->add(visualizeGrid(filterbank), "log(filterbank)");
 	}
 
 	// Find local maximas in log(filterbank)
@@ -326,13 +284,13 @@ TextLineSegmenter::processDownscaled(
 		[](float v1, float v2) { return std::min(v1, v2); },
 		[](float v) { return std::nextafter(v, std::numeric_limits<float>::max()); },
 		QSize(9, 5), std::numeric_limits<float>::max(),
-		accum.data(), accum.stride(), image.size()
+		filterbank.data(), filterbank.stride(), image.size()
 	);
 
 	status.throwIfCancelled();
 
 	if (dbg) {
-		QImage canvas(visualizeGrid(accum).convertToFormat(QImage::Format_ARGB32_Premultiplied));
+		QImage canvas(visualizeGrid(filterbank).convertToFormat(QImage::Format_ARGB32_Premultiplied));
 		{
 			QPainter painter(&canvas);
 			painter.drawImage(0, 0, dilateBrick(peaks, QSize(3, 3)).toAlphaMask(Qt::blue));
@@ -340,7 +298,7 @@ TextLineSegmenter::processDownscaled(
 		dbg->add(canvas, "peaks");
 	}
 
-	ConnectivityMap cmap(initialSegmentation(image, accum, peaks.release(), status, dbg));
+	ConnectivityMap cmap(initialSegmentation(image, filterbank, peaks.release(), status, dbg));
 
 	status.throwIfCancelled();
 

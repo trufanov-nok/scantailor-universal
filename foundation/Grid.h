@@ -22,6 +22,7 @@
 #include "GridAccessor.h"
 #include <boost/scoped_array.hpp>
 #include <utility>
+#include <cstddef>
 
 template<typename Node>
 class Grid
@@ -114,6 +115,14 @@ public:
 	 * Returns the number of padding layers from each side.
 	 */
 	int padding() const { return m_padding; }
+
+	/**
+	 * Returns the total number of bytes in memory occupied by this grid,
+	 * assuming Node is a POD type.
+	 */
+	size_t totalBytes() const {
+		return sizeof(Node) * size_t(m_stride) * size_t(m_height + m_padding * 2);
+	}
 
 	void swap(Grid& other);
 private:

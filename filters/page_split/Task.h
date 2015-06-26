@@ -25,6 +25,7 @@
 #include "IntrusivePtr.h"
 #include "PageInfo.h"
 #include "CachingFactory.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <memory>
 
 class TaskStatus;
@@ -66,7 +67,9 @@ public:
 	virtual ~Task();
 	
 	FilterResultPtr process(
-		TaskStatus const& status, QImage const& orig_image,
+		TaskStatus const& status,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 		AffineImageTransform const& orig_image_transform,
 		OrthogonalRotation const& rotation);

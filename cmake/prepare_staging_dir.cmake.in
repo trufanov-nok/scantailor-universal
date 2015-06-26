@@ -41,10 +41,14 @@ SET(COPY_TO_STAGING_DIR_RelWithDebInfo "@COPY_TO_BUILD_DIR_RelWithDebInfo@")
 SET(EXTRA_BINARIES ${COPY_TO_STAGING_DIR_${CFG}})
 
 # These are passed at runtime, not at configure time.
-SET(EXECUTABLES "${SCANTAILOR_EXE}" "${SCANTAILOR_CLI_EXE}" "${CRASHREPORTER_EXE}")
+SET(
+	BUILT_BINARIES
+	"${SCANTAILOR_EXE}" "${SCANTAILOR_CLI_EXE}"
+	"${CRASHREPORTER_EXE}" "${OPENCL_PLUGIN_DLL}"
+)
 
 # Strip executables and DLLs.
-FOREACH(src_file ${EXECUTABLES} ${EXTRA_BINARIES})
+FOREACH(src_file ${BUILT_BINARIES} ${EXTRA_BINARIES})
 	SET(subdir "")
 	IF(src_file MATCHES ".*=>.*")
 		STRING(REGEX REPLACE ".*=>(.*)" "/\\1" subdir "${src_file}")

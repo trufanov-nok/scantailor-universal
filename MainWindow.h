@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@
 
 class AbstractFilter;
 class AbstractRelinker;
+class DefaultAccelerationProvider;
 class ThumbnailPixmapCache;
 class ProjectPages;
 class PageSequence;
@@ -275,6 +276,7 @@ private:
 	std::auto_ptr<WorkerThread> m_ptrWorkerThread;
 	std::auto_ptr<ProcessingTaskQueue> m_ptrBatchQueue;
 	std::auto_ptr<ProcessingTaskQueue> m_ptrInteractiveQueue;
+	DefaultAccelerationProvider* m_pAccelerationProvider;
 	QStackedLayout* m_pImageFrameLayout;
 	QStackedLayout* m_pOptionsFrameLayout;
 	QPointer<FilterOptionsWidget> m_ptrOptionsWidget;

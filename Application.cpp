@@ -33,6 +33,6 @@ Application::notify(QObject* receiver, QEvent* e)
 		return QApplication::notify(receiver, e);
 	} catch (std::bad_alloc const&) {
 		OutOfMemoryHandler::instance().handleOutOfMemorySituation();
-        return false;
-    }
+		return false;
+	}
 }

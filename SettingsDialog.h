@@ -22,6 +22,8 @@
 #include "ui_SettingsDialog.h"
 #include <QDialog>
 
+class AccelerationPlugin;
+
 class SettingsDialog : public QDialog
 {
 	Q_OBJECT
@@ -33,6 +35,7 @@ private slots:
 	void commitChanges();
 private:
 	Ui::SettingsDialog ui;
+	AccelerationPlugin* m_pOpenCLPlugin;
 };
 
 #endif

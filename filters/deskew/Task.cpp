@@ -183,7 +183,9 @@ Task::~Task()
 
 FilterResultPtr
 Task::process(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	AffineImageTransform const& orig_image_transform,
 	OrthogonalRotation const& pre_rotation)
@@ -211,22 +213,22 @@ Task::process(
 	switch (params->distortionType().get()) {
 		case DistortionType::NONE:
 			return processNoDistortion(
-				status, orig_image, gray_orig_image_factory,
+				status, accel_ops, orig_image, gray_orig_image_factory,
 				orig_image_transform, *params
 			);
 		case DistortionType::ROTATION:
 			return processRotationDistortion(
-				status, orig_image, gray_orig_image_factory,
+				status, accel_ops, orig_image, gray_orig_image_factory,
 				orig_image_transform, *params
 			);
 		case DistortionType::PERSPECTIVE:
 			return processPerspectiveDistortion(
-				status, orig_image, gray_orig_image_factory,
+				status, accel_ops, orig_image, gray_orig_image_factory,
 				orig_image_transform, *params
 			);
 		case DistortionType::WARP:
 			return processWarpDistortion(
-				status, orig_image, gray_orig_image_factory,
+				status, accel_ops, orig_image, gray_orig_image_factory,
 				orig_image_transform, *params
 			);
 	} // switch
@@ -236,13 +238,15 @@ Task::process(
 
 FilterResultPtr
 Task::processNoDistortion(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	AffineImageTransform const& orig_image_transform, Params& params)
 {
 	if (m_ptrNextTask) {
 		return m_ptrNextTask->process(
-			status, orig_image, gray_orig_image_factory,
+			status, accel_ops, orig_image, gray_orig_image_factory,
 			std::make_shared<AffineImageTransform>(orig_image_transform)
 		);
 	} else {
@@ -258,7 +262,9 @@ Task::processNoDistortion(
 
 FilterResultPtr
 Task::processRotationDistortion(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	AffineImageTransform const& orig_image_transform, Params& params)
 {
@@ -307,7 +313,7 @@ Task::processRotationDistortion(
 	if (m_ptrNextTask) {
 		double const angle = params.rotationParams().compensationAngleDeg();
 		return m_ptrNextTask->process(
-			status, orig_image, gray_orig_image_factory,
+			status, accel_ops, orig_image, gray_orig_image_factory,
 			std::make_shared<AffineImageTransform>(
 				orig_image_transform.adjusted(
 					[angle](AffineImageTransform& xform) {
@@ -329,7 +335,9 @@ Task::processRotationDistortion(
 
 FilterResultPtr
 Task::processPerspectiveDistortion(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	AffineImageTransform const& orig_image_transform, Params& params)
 {
@@ -340,7 +348,7 @@ Task::processPerspectiveDistortion(
 
 		TextLineTracer::trace(
 			AffineTransformedImage(gray_orig_image_factory(), orig_image_transform),
-			model_builder, status, m_ptrDbg.get()
+			model_builder, accel_ops, status, m_ptrDbg.get()
 		);
 
 		TopBottomEdgeTracer::trace(
@@ -412,7 +420,7 @@ Task::processPerspectiveDistortion(
 			)
 		);
 		return m_ptrNextTask->process(
-			status, orig_image, gray_orig_image_factory, perspective_transform
+			status, accel_ops, orig_image, gray_orig_image_factory, perspective_transform
 		);
 	} else {
 		return FilterResultPtr(
@@ -427,7 +435,9 @@ Task::processPerspectiveDistortion(
 
 FilterResultPtr
 Task::processWarpDistortion(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	AffineImageTransform const& orig_image_transform, Params& params)
 {
@@ -438,7 +448,7 @@ Task::processWarpDistortion(
 
 		TextLineTracer::trace(
 			AffineTransformedImage(gray_orig_image_factory(), orig_image_transform),
-			model_builder, status, m_ptrDbg.get()
+			model_builder, accel_ops, status, m_ptrDbg.get()
 		);
 
 		TopBottomEdgeTracer::trace(
@@ -470,7 +480,7 @@ Task::processWarpDistortion(
 			)
 		);
 		return m_ptrNextTask->process(
-			status, orig_image, gray_orig_image_factory, dewarping_transform
+			status, accel_ops, orig_image, gray_orig_image_factory, dewarping_transform
 		);
 	} else {
 		return FilterResultPtr(

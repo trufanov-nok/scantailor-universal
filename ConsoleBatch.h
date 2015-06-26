@@ -39,6 +39,7 @@
 #include "PageSelectionAccessor.h"
 #include "ProjectReader.h"
 
+class DefaultAccelerationProvider;
 
 class ConsoleBatch
 {
@@ -56,6 +57,7 @@ public:
 private:
 	bool batch;
 	bool debug;
+	DefaultAccelerationProvider* m_pAccelerationProvider;
 	IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
 	IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<StageSequence> m_ptrStages;

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
 #include "FilterResult.h"
 #include "IntrusivePtr.h"
 #include "ImageId.h"
+#include "acceleration/AcceleratableOperations.h"
+#include <memory>
 
 class TaskStatus;
 
@@ -59,7 +61,9 @@ public:
 	virtual ~Task();
 	
 	FilterResultPtr process(
-		TaskStatus const& status, QImage const& orig_image,
+		TaskStatus const& status,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 		AffineImageTransform const& orig_image_transform);
 private:

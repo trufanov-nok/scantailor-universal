@@ -21,11 +21,13 @@
 
 #include "Grid.h"
 #include "VecNT.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QPointF>
 #include <QLineF>
 #include <vector>
 #include <list>
 #include <utility>
+#include <memory>
 
 class QImage;
 class AffineTransformedImage;
@@ -47,6 +49,7 @@ class TextLineTracer
 public:
 	static void trace(
 		AffineTransformedImage const& input, DistortionModelBuilder& output,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		TaskStatus const& status, DebugImages* dbg = nullptr);
 private:
 	static float attractionForceAt(

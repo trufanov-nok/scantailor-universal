@@ -21,7 +21,9 @@
 #include <QApplication>
 #include <QTranslator>
 #include <QStringList>
+#include <QString>
 #include <QLocale>
+#include <QDir>
 
 int main(int argc, char** argv)
 {
@@ -30,17 +32,24 @@ int main(int argc, char** argv)
 	QString const translation("crashreporter_"+QLocale::system().name());
 	QTranslator translator;
 	
-	// Try loading from the current directory.
-	if (!translator.load(translation)) {
-		// Now try loading from where it's supposed to be.
-		QString path(QString::fromUtf8(TRANSLATIONS_DIR_ABS));
-		path += QChar('/');
-		path += translation;
-		if (!translator.load(path)) {
-			path = QString::fromUtf8(TRANSLATIONS_DIR_REL);
-			path += QChar('/');
-			path += translation;
-			translator.load(path);
+	// Try loading translations from different paths.
+	QStringList const translation_dirs(
+		QString::fromUtf8(TRANSLATION_DIRS).split(QChar(':'), QString::SkipEmptyParts)
+	);
+	for (QString const& path : translation_dirs) {
+		QString absolute_path;
+		if (QDir::isAbsolutePath(path)) {
+			absolute_path = path;
+		} else {
+			absolute_path = app.applicationDirPath();
+			absolute_path += QChar('/');
+			absolute_path += path;
+		}
+		absolute_path += QChar('/');
+		absolute_path += translation;
+
+		if (translator.load(absolute_path)) {
+			break;
 		}
 	}
 	
