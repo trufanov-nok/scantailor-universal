@@ -17,7 +17,6 @@
 */
 
 #include "VectorFieldImageView.h"
-#include "VectorFieldImageView.moc"
 #include "ImagePresentation.h"
 #include "ImagePixmapUnion.h"
 #include "InteractionState.h"

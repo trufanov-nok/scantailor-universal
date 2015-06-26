@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,9 +17,7 @@
 */
 
 #include "RelinkablePathVisualization.h"
-#include "RelinkablePathVisualization.moc"
 #include "RelinkablePath.h"
-#include "QtSignalForwarder.h"
 #include <QHBoxLayout>
 #include <QLayoutItem>
 #include <QStringList>
@@ -140,8 +138,8 @@ RelinkablePathVisualization::setPath(RelinkablePath const& path, bool clickable)
 		}
 		stylePathComponentButton(btn, path_component.exists);
 		
-		new QtSignalForwarder(
-			btn, SIGNAL(clicked()), boost::bind(
+		connect(
+			btn, &QAbstractButton::clicked, boost::bind(
 				&RelinkablePathVisualization::onClicked, this,
 				component_idx, path_component.prefixPath,
 				path_component.suffixPath, path_component.type

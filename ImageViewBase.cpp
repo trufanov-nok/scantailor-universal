@@ -17,7 +17,6 @@
 */
 
 #include "ImageViewBase.h"
-#include "ImageViewBase.moc"
 #include "NonCopyable.h"
 #include "ImagePresentation.h"
 #include "OpenGLSupport.h"

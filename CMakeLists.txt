@@ -5,18 +5,6 @@ IF(POLICY CMP0003)
 	CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF()
 
-IF(POLICY CMP0020)
-	# Disable auto-linking to qtmain. This feature appeared in Qt 5.1, but
-	# we want to keep compatibility with Qt 5.0, so we link to qtmain manually.
-	CMAKE_POLICY(SET CMP0020 OLD)
-ENDIF()
-
-IF(POLICY CMP0043)
-	# Don't ignore COMPILE_DEFINITIONS_{CONFIG} directives, as these are used
-	# by Qt.
-	CMAKE_POLICY(SET CMP0043 OLD)
-ENDIF()
-
 IF(POLICY CMP0048)
 	# When PROJECT() is missing the VERSION argument, set the corresponding
 	# CMake variables to zero.
@@ -329,22 +317,9 @@ ELSEIF(WIN32)
 	ADD_DEFINITIONS(-DNOMINMAX)
 ENDIF(UNIX)
 
-CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
-IF(NOT HAVE_STDINT_H)
-	CONFIGURE_FILE(compat/pstdint.h "${CMAKE_CURRENT_BINARY_DIR}/stdint.h" COPYONLY)
-	INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
-ELSE(NOT HAVE_STDINT_H)
-	FILE(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/stdint.h")
-ENDIF(NOT HAVE_STDINT_H)
-
 ADD_DEFINITIONS(-DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
 
-SET(MAYBE_QTMAIN_LIBRARIES "")
 IF(WIN32)
-	GET_TARGET_PROPERTY(winmaind Qt5::WinMain LOCATION_DEBUG)
-	GET_TARGET_PROPERTY(winmain Qt5::WinMain LOCATION_RELEASE)
-	SET(MAYBE_QTMAIN_LIBRARIES debug ${winmaind} optimized ${winmain})
-
 	LIST(APPEND EXTRA_LIBS winmm imm32 ws2_32 ole32 oleaut32 uuid gdi32 comdlg32 winspool)
 ENDIF()
 
@@ -353,7 +328,7 @@ LIST(APPEND EXTRA_LIBS ${TIFF_LIBRARY} ${PNG_LIBRARY} ${ZLIB_LIBRARY} ${JPEG_LIB
 SET(MAYBE_QT_OPENGL_MODULE "")
 IF(ENABLE_OPENGL)
 	LIST(APPEND EXTRA_LIBS ${OPENGL_LIBRARIES})
-	SET(MAYBE_QT_OPENGL_MODULE OpenGL)
+	SET(MAYBE_QT_OPENGL_MODULE Qt5::OpenGL)
 ENDIF()
 
 # Crash reporter, only Windows + MSVC supported for now.
@@ -464,7 +439,7 @@ SET(
 	OrthogonalRotation.cpp OrthogonalRotation.h
 	WorkerThread.cpp WorkerThread.h
 	LoadFileTask.cpp LoadFileTask.h
-	FilterOptionsWidget.cpp FilterOptionsWidget.h
+	FilterOptionsWidget.h
 	TaskStatus.h FilterUiInterface.h
 	ProjectReader.cpp ProjectReader.h
 	ProjectWriter.cpp ProjectWriter.h
@@ -555,7 +530,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 ADD_LIBRARY(stcore STATIC ${common_sources} ${common_ui_sources})
-QT5_USE_MODULES(stcore Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
+TARGET_LINK_LIBRARIES(stcore Qt5::Widgets Qt5::Xml ${MAYBE_QT_OPENGL_MODULE})
 ADD_DEPENDENCIES(stcore toplevel_ui_sources)
 
 ADD_EXECUTABLE(
@@ -568,24 +543,16 @@ TARGET_LINK_LIBRARIES(
 	scantailor
 	acceleration page_layout output
 	fix_orientation page_split deskew select_content stcore
-	dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
+	dewarping zones interaction imageproc math foundation
+	${EXTRA_LIBS}
 )
 TARGET_LINK_LIBRARIES(
 	scantailor-cli
 	acceleration page_layout output
 	fix_orientation page_split deskew select_content stcore
-	dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
+	dewarping zones interaction imageproc math foundation
+	${EXTRA_LIBS}
 )
-
-QT5_USE_MODULES(scantailor Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
-
-# Widgets module is used statically but not at runtime.
-QT5_USE_MODULES(scantailor-cli Widgets Xml)
-
-IF(EXTRA_LIBS)
-	TARGET_LINK_LIBRARIES(scantailor ${EXTRA_LIBS})
-	TARGET_LINK_LIBRARIES(scantailor-cli ${EXTRA_LIBS})
-ENDIF()
 
 INSTALL(TARGETS scantailor scantailor-cli RUNTIME DESTINATION bin)
 

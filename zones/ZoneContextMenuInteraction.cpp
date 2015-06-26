@@ -1,6 +1,6 @@
 /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,11 +17,9 @@
 */
 
 #include "ZoneContextMenuInteraction.h"
-#include "ZoneContextMenuInteraction.moc"
 #include "ZoneInteractionContext.h"
 #include "ImageViewBase.h"
 #include "EditableZoneSet.h"
-#include "QtSignalForwarder.h"
 #include <QRectF>
 #include <QPolygonF>
 #include <QMenu>
@@ -36,7 +34,6 @@
 #include <QtGlobal> // For Q_OS_*
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
 #include <vector>
 #include <assert.h>
 
@@ -148,13 +145,10 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
 
 		BOOST_FOREACH(ZoneContextMenuItem const& item, menu_customizer(*it, std_items)) {
 			QAction* action = m_ptrMenu->addAction(pixmap, item.label());
-			new QtSignalForwarder(
-				action, SIGNAL(triggered()),
-				boost::bind(
-					&ZoneContextMenuInteraction::menuItemTriggered,
-					this, boost::ref(interaction), item.callback()
-				)
-			);
+			auto callback = item.callback();
+			connect(action, &QAction::triggered, [&interaction, callback, this]() {
+				this->menuItemTriggered(interaction, callback);
+			});
 			
 			hover_map->setMapping(action, i);
 			connect(action, SIGNAL(hovered()), hover_map, SLOT(map()));

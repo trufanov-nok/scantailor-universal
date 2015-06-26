@@ -59,6 +59,6 @@ SET(
 SOURCE_GROUP(Sources FILES ${sources})
 
 ADD_LIBRARY(imageproc STATIC ${sources})
-QT5_USE_MODULES(imageproc Core Gui)
+TARGET_LINK_LIBRARIES(imageproc Qt5::Core Qt5::Gui)
 
 ADD_SUBDIRECTORY(tests)

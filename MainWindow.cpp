@@ -17,7 +17,6 @@
 */
 
 #include "MainWindow.h"
-#include "MainWindow.moc"
 #include "NewOpenProjectPanel.h"
 #include "RecentProjects.h"
 #include "WorkerThread.h"
@@ -63,7 +62,6 @@
 #include "RelinkingDialog.h"
 #include "OutOfMemoryHandler.h"
 #include "OutOfMemoryDialog.h"
-#include "QtSignalForwarder.h"
 #include "filters/fix_orientation/Filter.h"
 #include "filters/fix_orientation/Task.h"
 #include "filters/fix_orientation/CacheDrivenTask.h"
@@ -855,10 +853,9 @@ MainWindow::showRelinkingDialog()
 	m_ptrPages->listRelinkablePaths(dialog->pathCollector());
 	dialog->pathCollector()(RelinkablePath(m_outFileNameGen.outDir(), RelinkablePath::Dir));
 	
-	new QtSignalForwarder(
-		dialog, SIGNAL(accepted()),
-		boost::lambda::bind(&MainWindow::performRelinking, this, dialog->relinker())
-	);
+	connect(dialog, &QDialog::accepted, [this, dialog]() {
+		this->performRelinking(dialog->relinker());
+	});
 
 	dialog->show();
 }

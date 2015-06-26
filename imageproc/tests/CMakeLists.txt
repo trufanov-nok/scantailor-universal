@@ -26,12 +26,12 @@ SOURCE_GROUP("Sources" FILES ${sources})
 
 SET(
 	libs
-	imageproc math foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+	imageproc math foundation Qt5::Widgets Qt5::Xml
+	${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
 	${Boost_PRG_EXECUTION_MONITOR_LIBRARY} ${EXTRA_LIBS}
 )
 
 ADD_EXECUTABLE(imageproc_tests ${sources})
-QT5_USE_MODULES(imageproc_tests Widgets Xml)
 TARGET_LINK_LIBRARIES(imageproc_tests ${libs})
 
 # We want the executable located where we copy all the DLLs.

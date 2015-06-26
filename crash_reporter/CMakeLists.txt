@@ -41,9 +41,9 @@ IF(ENABLE_CRASH_REPORTER)
 	QT5_WRAP_UI(ui_sources ${ui_files})
 
 	ADD_EXECUTABLE(CrashReporter WIN32 ${crash_reporter_sources} ${ui_sources})
-	QT5_USE_MODULES(CrashReporter Widgets Xml Network)
 	TARGET_LINK_LIBRARIES(
-		CrashReporter ${MAYBE_QTMAIN_LIBRARIES} ${PNG_LIBRARY} ${JPEG_LIBRARY} winmm imm32 ws2_32
+		CrashReporter Qt5::Widgets Qt5::Xml Qt5::Network
+		${PNG_LIBRARY} ${JPEG_LIBRARY} winmm imm32 ws2_32
 	)
 ENDIF()
 

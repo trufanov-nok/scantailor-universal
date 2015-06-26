@@ -17,7 +17,6 @@
 */
 
 #include "OptionsWidget.h"
-#include "OptionsWidget.moc"
 #include "ApplyDialog.h"
 #include "Settings.h"
 #include "Params.h"
