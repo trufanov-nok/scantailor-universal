@@ -39,6 +39,8 @@
 #include <QColor>
 #include <QDebug>
 #include <boost/foreach.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 #include <algorithm>
 #include <exception>
 #include <iterator>
@@ -188,10 +190,13 @@ DistortionModelBuilder::tryBuildModel(DebugImages* dbg, QImage const* dbg_backgr
 	// Select the best pair using RANSAC.
 	RansacAlgo ransac(ordered_curves);
 
-	// First let's try to combine each of the 3 top-most lines
+	ransac.buildAndAssessModel(&ordered_curves.front(), &ordered_curves.back());
+
+	// First let's try to combine each of the 5 top-most lines
 	// with each of the 3 bottom-most ones.
-	for (int i = 0; i < std::min<int>(3, num_curves); ++i) {
-		for (int j = std::max<int>(0, num_curves - 3); j < num_curves; ++j) {
+	int const exhaustive_search_threshold = 5;
+	for (int i = 0; i < std::min<int>(exhaustive_search_threshold, num_curves); ++i) {
+		for (int j = std::max<int>(0, num_curves - exhaustive_search_threshold); j < num_curves; ++j) {
 			if (i < j) {
 				ransac.buildAndAssessModel(&ordered_curves[i], &ordered_curves[j]);
 			}
@@ -199,11 +204,15 @@ DistortionModelBuilder::tryBuildModel(DebugImages* dbg, QImage const* dbg_backgr
 	}
 
 	// Continue by throwing in some random pairs of lines.
-	qsrand(0); // Repeatablity is important.
-	int random_pairs_remaining = 10;
+
+	// Repeatablity is important, so don't seed the RNG.
+	boost::random::mt19937 rng;
+	boost::random::uniform_int_distribution<> rng_dist(0, num_curves - 1);
+	int random_pairs_remaining = num_curves <= exhaustive_search_threshold
+		? 0 : exhaustive_search_threshold * exhaustive_search_threshold;
 	while (random_pairs_remaining-- > 0) {
-		int i = qrand() % num_curves;
-		int j = qrand() % num_curves;
+		int i = rng_dist(rng);
+		int j = rng_dist(rng);
 		if (i > j) {
 			std::swap(i, j);
 		}
@@ -479,6 +488,13 @@ try {
 		top_curve->extendedPolyline, bottom_curve->extendedPolyline, depth_perception
 	);
 
+	// CylindricalSurfaceDewarper maps the curved quadrilateral to a unit
+	// square. We introduce additional scaling to map it to a 1000x1000
+	// square, so that sqrt() applied on distances has a more familiar effect.
+	auto dewarp = [&dewarper](QPointF const& pt) {
+		return dewarper.mapToDewarpedSpace(pt) * 1000.0;
+	};
+
 	double total_error = 0;
 	for (TracedCurve const& curve : m_rAllCurves) {
 		size_t const polyline_size = curve.trimmedPolyline.size();
@@ -486,7 +502,7 @@ try {
 
 		// We want to penalize the line both for being not straight and also
 		// for being non-horizontal. The penalty metric we use is:
-		// sqrt(max_y(dewarped_points) - min_y(dewarped_points))
+		// sqrt(max_y(dewarped_points) - min_y(dewarped_points) + 1.0) - 1.0
 		// The square root is necessary to de-emphasize outliers.
 
 		double min_y = std::numeric_limits<double>::max();
@@ -494,14 +510,41 @@ try {
 
 		for (QPointF const& warped_pt : curve.trimmedPolyline) {
 			// TODO: add another signature with hint for efficiency.
-			QPointF const dewarped_pt(dewarper.mapToDewarpedSpace(warped_pt));
+			QPointF const dewarped_pt(dewarp(warped_pt));
 
 			min_y = std::min<double>(min_y, dewarped_pt.y());
 			max_y = std::max<double>(max_y, dewarped_pt.y());
 		}
 
-		total_error += std::sqrt(max_y - min_y);
+		total_error += std::sqrt(max_y - min_y + 1.0) - 1.0;
 	}
+
+	// We want to promote curves that reach to the vertical boundaries
+	// over those that had to be extended. To do that, we add a square
+	// root of extension distance to total_error.
+
+	auto get_dewarped_distance = [dewarp](QPointF const& warped_pt1, QPointF const& warped_pt2) {
+		QPointF const dewarped_pt1 = dewarp(warped_pt1);
+		QPointF const dewarped_pt2 = dewarp(warped_pt2);
+		return Vec2d(dewarped_pt1 - dewarped_pt2).norm();
+	};
+
+	auto get_extension_distance = [get_dewarped_distance](TracedCurve const* curve) {
+		auto const& extended = curve->extendedPolyline;
+		auto const& trimmed = curve->trimmedPolyline;
+		double const front = get_dewarped_distance(extended.front(), trimmed.front());
+		double const back = get_dewarped_distance(extended.back(), trimmed.back());
+		return front + back;
+	};
+
+	double const top_curve_extension = get_extension_distance(top_curve);
+	double const bottom_curve_extension = get_extension_distance(bottom_curve);
+	double const extension_importance_factor = 1.0;
+
+	total_error += extension_importance_factor * (
+		std::sqrt(top_curve_extension + 1.0) - 1.0 +
+		std::sqrt(bottom_curve_extension + 1.0) - 1.0
+	);
 
 	if (total_error < m_bestModel.totalError) {
 		m_bestModel.topCurve = top_curve;
