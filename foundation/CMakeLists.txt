@@ -30,9 +30,8 @@ SET(
 	MinMaxAccumulator.h
 	NumericTraits.h
 	VecNT.h
-	VecT.h
-	MatMNT.h
-	MatT.h
+	ToVec.h
+	ToPoint.h
 	PriorityQueue.h
 	Grid.h
 	GridAccessor.h

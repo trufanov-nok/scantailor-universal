@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@
 #ifndef IMAGEPROC_POLYNOMIAL_LINE_H_
 #define IMAGEPROC_POLYNOMIAL_LINE_H_
 
-#include "VecT.h"
+#include "ValueConv.h"
+#include <Eigen/Core>
 #include <limits>
 #include <math.h>
 
@@ -90,69 +91,21 @@ public:
 	template<typename T, typename PostProcessor>
 	void output(T* values, int num_values, int step, PostProcessor pp) const;
 private:
-	template<typename T>
-	class StaticCastPostProcessor
-	{
-	public:
-		T operator()(double val) const;
-	};
-	
-	template<typename T>
-	class RoundAndClipPostProcessor
-	{
-	public:
-		RoundAndClipPostProcessor();
-		
-		T operator()(double val) const;
-	private:
-		T m_min;
-		T m_max;
-	};
-	
 	template<typename T, bool IsInteger>
-	struct DefaultPostProcessor : public StaticCastPostProcessor<T> {};
+	struct DefaultPostProcessor : public StaticCastValueConv<T> {};
 	
 	template<typename T>
-	struct DefaultPostProcessor<T, true>
-	: public RoundAndClipPostProcessor<T> {};
+	struct DefaultPostProcessor<T, true> : public RoundAndClipValueConv<T> {};
 	
 	static void validateArguments(int degree, int num_values);
 	
 	static double calcScale(int num_values);
 	
-	static void doLeastSquares(VecT<double> const& data_points, VecT<double>& coeffs);
+	static Eigen::VectorXd doLeastSquares(Eigen::VectorXd const& data_points, int num_terms);
 	
-	VecT<double> m_coeffs;
+	Eigen::VectorXd m_coeffs;
 };
 
-
-template<typename T>
-inline T
-PolynomialLine::StaticCastPostProcessor<T>::operator()(double const val) const
-{
-	return static_cast<T>(val);
-}
-
-template<typename T>
-PolynomialLine::RoundAndClipPostProcessor<T>::RoundAndClipPostProcessor()
-:	m_min(std::numeric_limits<T>::min()),
-	m_max(std::numeric_limits<T>::max())
-{
-}
-
-template<typename T>
-inline T
-PolynomialLine::RoundAndClipPostProcessor<T>::operator()(double const val) const
-{
-	double const rounded = floor(val + 0.5);
-	if (rounded < m_min) {
-		return m_min;
-	} else if (rounded > m_max) {
-		return m_max;
-	} else {
-		return static_cast<T>(rounded);
-	}
-}
 
 template<typename T>
 PolynomialLine::PolynomialLine(
@@ -167,13 +120,12 @@ PolynomialLine::PolynomialLine(
 	
 	int const num_terms = degree + 1;
 	
-	VecT<double> data_points(num_values);
+	Eigen::VectorXd data_points(num_values);
 	for (int i = 0; i < num_values; ++i, values += step) {
 		data_points[i] = *values;
 	}
 
-	VecT<double>(num_terms).swap(m_coeffs);
-	doLeastSquares(data_points, m_coeffs);
+	m_coeffs = doLeastSquares(data_points, num_terms);
 }
 
 template<typename T>
@@ -197,6 +149,7 @@ PolynomialLine::output(
 	
 	// Pretend that data points are positioned in range of [0, 1].
 	double const scale = calcScale(num_values);
+
 	for (int i = 0; i < num_values; ++i, values += step) {
 		double const position = i * scale;
 		double sum = 0.0;

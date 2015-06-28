@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +19,11 @@
 #ifndef HOMOGRAPHIC_TRANSFORM_H_
 #define HOMOGRAPHIC_TRANSFORM_H_
 
-#include "VecNT.h"
-#include "MatrixCalc.h"
-#include <stddef.h>
+#include <Eigen/Core>
+#include <Eigen/LU>
+#include <cstddef>
+#include <stdexcept>
+#include <string>
 
 template<size_t N, typename T> class HomographicTransform;
 
@@ -29,11 +31,12 @@ template<size_t N, typename T>
 class HomographicTransformBase
 {
 public:
-	typedef VecNT<N, T> Vec;
-	typedef VecNT<(N+1)*(N+1), T> Mat;
+	typedef Eigen::Matrix<T, N, 1> Vec;
+	typedef Eigen::Matrix<T, N+1, N+1> Mat;
 
 	explicit HomographicTransformBase(Mat const& mat) : m_mat(mat) {}
 
+	/** @throw std::runtime_error if not invertible. */
 	HomographicTransform<N, T> inv() const;
 
 	Vec operator()(Vec const& from) const;
@@ -73,9 +76,14 @@ template<size_t N, typename T>
 HomographicTransform<N, T>
 HomographicTransformBase<N, T>::inv() const
 {
-	StaticMatrixCalc<T, 4*(N+1)*(N+1), N+1> mc;
-	Mat inv_mat;
-	mc(m_mat, N+1, N+1).inv().write(inv_mat);
+	Eigen::Matrix<T, N+1, N+1> inv_mat;
+	bool invertible = false;
+
+	m_mat.computeInverseWithCheck(inv_mat, invertible);
+	if (!invertible) {
+		throw std::runtime_error("Attempt to invert a non-invertible HomographicTransform");
+	}
+
 	return HomographicTransform<N, T>(inv_mat);
 }
 
@@ -83,13 +91,11 @@ template<size_t N, typename T>
 typename HomographicTransformBase<N, T>::Vec
 HomographicTransformBase<N, T>::operator()(Vec const& from) const
 {
-	StaticMatrixCalc<T, N+1, 1> mc;
-	VecNT<N+1, T> const hsrc(from, T(1));
-	VecNT<N+1, T> hdst;
-	(mc(m_mat, N+1, N+1)*mc(hsrc, N+1, 1)).write(hdst);
-	VecNT<N, T> res(&hdst[0]);
-	res /= hdst[N];
-	return res;
+	Eigen::Matrix<T, N+1, 1> hsrc;
+	hsrc << from, T(1);
+
+	Eigen::Matrix<T, N+1, 1> const hdst(m_mat * hsrc);
+	return hdst.topLeftCorner(N, 1) / hdst[N];
 }
 
 template<typename T>
@@ -97,8 +103,8 @@ T
 HomographicTransform<1, T>::operator()(T from) const
 {
 	// Optimized version for 1D case.
-	T const* m = this->mat().data();
-	return (from * m[0] + m[2]) / (from * m[1] + m[3]);
+	auto const& m = this->mat();
+	return (from * m(0, 0) + m(0, 1)) / (from * m(1, 0) + m(1, 1));
 }
 
 #endif

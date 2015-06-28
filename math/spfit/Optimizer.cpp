@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,23 +17,29 @@
 */
 
 #include "Optimizer.h"
-#include "MatrixCalc.h"
+#include <Eigen/Core>
+#include <Eigen/QR>
 #include <boost/foreach.hpp>
 #include <stdexcept>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
+
+using namespace Eigen;
 
 namespace spfit
 {
 
 Optimizer::Optimizer(size_t num_vars)
-: m_numVars(num_vars)
-, m_A(num_vars, num_vars)
-, m_b(num_vars)
-, m_x(num_vars)
-, m_externalForce(num_vars)
-, m_internalForce(num_vars)
+:	m_numVars(num_vars)
+,	m_A(num_vars, num_vars)
+,	m_b(num_vars)
+,	m_x(num_vars)
+,	m_externalForce(num_vars)
+,	m_internalForce(num_vars)
 {
+	m_A.setZero();
+	m_b.setZero();
+	m_x.setZero();
 }
 
 void
@@ -42,8 +48,10 @@ Optimizer::setConstraints(std::list<LinearFunction> const& constraints)
 	size_t const num_constraints = constraints.size();
 	size_t const num_dimensions = m_numVars + num_constraints;
 
-	MatT<double> A(num_dimensions, num_dimensions);
-	VecT<double> b(num_dimensions);
+	MatrixXd A(num_dimensions, num_dimensions);
+	A.setZero();
+	VectorXd b(num_dimensions);
+	b.setZero();
 	// Matrix A and vector b will have the following layout:
 	//     |N N N L L|      |-D|
 	//     |N N N L L|      |-D|
@@ -65,7 +73,8 @@ Optimizer::setConstraints(std::list<LinearFunction> const& constraints)
 		}
 	}
 
-	VecT<double>(num_dimensions).swap(m_x);
+	m_x.resize(num_dimensions);
+	m_x.setZero();
 	m_A.swap(A);
 	m_b.swap(b);
 }
@@ -131,18 +140,17 @@ Optimizer::optimize(double internal_force_weight)
 	}
 
 	double const total_force_before = m_internalForce.c;
-	DynamicMatrixCalc<double> mc;
 
-	try {
-		mc(m_A).solve(mc(m_b)).write(m_x.data());
-	} catch (std::runtime_error const&) {
+	auto qr = m_A.colPivHouseholderQr();
+	if (!qr.isInvertible()) {
 		m_externalForce.reset();
 		m_internalForce.reset();
-		m_x.fill(0); // To make undoLastStep() work as expected.
+		m_x.setZero(); // To make undoLastStep() work as expected.
 		return OptimizationResult(total_force_before, total_force_before);
 	}
 
-	double const total_force_after = m_internalForce.evaluate(m_x.data());
+	m_x = qr.solve(m_b).head(m_numVars);
+	double const total_force_after = m_internalForce.evaluate(m_x);
 	m_externalForce.reset(); // Now it's finally safe to reset these.
 	m_internalForce.reset();
 

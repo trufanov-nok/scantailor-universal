@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef SPFIT_FRENET_FRAME_H_
 #define SPFIT_FRENET_FRAME_H_
 
-#include "VecNT.h"
+#include <Eigen/Core>
 
 namespace spfit
 {
@@ -44,17 +44,18 @@ public:
 	 * relative to the X axis direction in the coordinate system from which we derive
 	 * the curvature.  For 2D computer graphics, the right direction is Y_POINTS_DOWN.
 	 */
-	FrenetFrame(Vec2d const& origin, Vec2d const& tangent_vector, YAxisDirection ydir = Y_POINTS_DOWN);
+	FrenetFrame(Eigen::Vector2d const& origin,
+		Eigen::Vector2d const& tangent_vector, YAxisDirection ydir = Y_POINTS_DOWN);
 
-	Vec2d const& origin() const { return m_origin; }
+	Eigen::Vector2d const& origin() const { return m_origin; }
 
-	Vec2d const& unitTangent() const { return m_unitTangent; }
+	Eigen::Vector2d const& unitTangent() const { return m_unitTangent; }
 
-	Vec2d const& unitNormal() const { return m_unitNormal; }
+	Eigen::Vector2d const& unitNormal() const { return m_unitNormal; }
 private:
-	Vec2d m_origin;
-	Vec2d m_unitTangent;
-	Vec2d m_unitNormal;
+	Eigen::Vector2d m_origin;
+	Eigen::Vector2d m_unitTangent;
+	Eigen::Vector2d m_unitNormal;
 };
 
 } // namespace spfit

@@ -1,6 +1,6 @@
  /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,12 +18,17 @@
 
 #include "InteractiveXSpline.h"
 #include "Proximity.h"
-#include "VecNT.h"
-#include "MatrixCalc.h"
+#include "ToVec.h"
+#include "ToPoint.h"
+#include <Eigen/LU>
 #include <QCursor>
 #include <QMouseEvent>
 #include <Qt>
 #include <boost/bind.hpp>
+#include <stdexcept>
+#include <string>
+
+using namespace Eigen;
 
 struct InteractiveXSpline::NoOp
 {
@@ -238,14 +243,12 @@ InteractiveXSpline::controlPointMoveRequest(int idx, QPointF const& pos)
 		int const origin_idx = idx == 0 ? num_control_points - 1 : 0;
 		QPointF const origin(m_spline.controlPointPosition(origin_idx));
 		QPointF const old_pos(m_spline.controlPointPosition(idx));
-		if (Vec2d(old_pos - origin).squaredNorm() > 1.0) {
+		if (toVec(old_pos - origin).squaredNorm() > 1.0) {
 			// rotationAndScale() would throw an exception if old_pos == origin.
-			Vec4d const mat(rotationAndScale(old_pos - origin, storage_pt - origin));
+			Matrix2d const mat(rotationAndScale(old_pos - origin, storage_pt - origin));
 			for (int i = 0; i < num_control_points; ++i) {
-				Vec2d pt(m_spline.controlPointPosition(i) - origin);
-				MatrixCalc<double> mc;
-				(mc(mat, 2, 2)*mc(pt, 2, 1)).write(pt);
-				m_spline.moveControlPoint(i, pt + origin);
+				Vector2d pt(toVec(m_spline.controlPointPosition(i) - origin));
+				m_spline.moveControlPoint(i, toPoint(Vector2d(mat * pt)) + origin);
 			}
 		} else {
 			// Move the endpoint and distribute midpoints uniformly.
@@ -266,24 +269,28 @@ InteractiveXSpline::dragFinished()
 	m_dragFinishedCallback();
 }
 
-Vec4d
+Matrix2d
 InteractiveXSpline::rotationAndScale(QPointF const& from, QPointF const& to)
 {
-	Vec4d A;
-	A[0] = from.x();
-	A[1] = from.y();
-	A[2] = from.y();
-	A[3] = -from.x();
+	Matrix2d A;
+	A <<
+		from.x(), from.y(),
+		from.y(), -from.x();
 
-	Vec2d B(to.x(), to.y());
+	Matrix2d invA;
+	bool invertible = false;
 
-	Vec2d x;
-	MatrixCalc<double> mc;
-	mc(A, 2, 2).solve(mc(B, 2, 1)).write(x);
+	A.computeInverseWithCheck(invA, invertible);
+	if (!invertible) {
+		throw std::runtime_error("InteractiveXSpline: rotationAndScale() failed");
+	}
+
+	Vector2d const b(to.x(), to.y());
+	Vector2d const x(invA * b);
 	
-	A[0] = x[0];
-	A[1] = -x[1];
-	A[2] = x[1];
-	A[3] = x[0];
+	A <<
+		x[0], x[1],
+		-x[1], x[0];
+
 	return A;
 }

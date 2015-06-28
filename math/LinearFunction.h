@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 #ifndef LINEAR_FUNCTION_H_
 #define LINEAR_FUNCTION_H_
 
-#include "VecT.h"
-#include <stddef.h>
+#include <Eigen/Core>
+#include <cstddef>
 
 /**
  * A linear function from arbitrary number of variables
@@ -33,7 +33,7 @@ class LinearFunction
 {
 	// Member-wise copying is OK.
 public:
-	VecT<double> a;
+	Eigen::VectorXd a;
 	double b;
 
 	/**
@@ -52,7 +52,7 @@ public:
 	/**
 	 * Evaluates a^T * x + b
 	 */
-	double evaluate(double const* x) const;
+	double evaluate(Eigen::VectorXd const& x) const;
 
 	void swap(LinearFunction& other);
 

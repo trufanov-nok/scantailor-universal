@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,14 +17,17 @@
 */
 
 #include "SqDistApproximant.h"
-#include "VecNT.h"
 #include "ToLineProjector.h"
+#include "ToVec.h"
+#include <Eigen/Core>
 #include <QPointF>
 #include <QLineF>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <stdlib.h>
 #include <math.h>
+
+using namespace Eigen;
 
 namespace spfit
 {
@@ -45,10 +48,10 @@ static double frand(double from, double to)
 BOOST_AUTO_TEST_CASE(test_point_distance)
 {
 	for (int i = 0; i < 100; ++i) {
-		Vec2d const origin(frand(-50, 50), frand(-50, 50));
+		Vector2d const origin(frand(-50, 50), frand(-50, 50));
 		SqDistApproximant const approx(SqDistApproximant::pointDistance(origin));
 		for (int j = 0; j < 10; ++j) {
-			Vec2d const pt(frand(-50, 50),  frand(-50, 50));
+			Vector2d const pt(frand(-50, 50),  frand(-50, 50));
 			double const control = (pt - origin).squaredNorm();
 			BOOST_REQUIRE_CLOSE(approx.evaluate(pt), control, 1e-06);
 		}
@@ -67,7 +70,7 @@ BOOST_AUTO_TEST_CASE(test_line_distance)
 		for (int j = 0; j < 10; ++j) {
 			Vec2d const pt(frand(-50, 50), frand(-50, 50));
 			double const control = proj.projectionSqDist(pt);
-			BOOST_REQUIRE_CLOSE(approx.evaluate(pt), control, 1e-06);
+			BOOST_REQUIRE_CLOSE(approx.evaluate(pt.toEigen()), control, 1e-06);
 		}
 	}
 }
@@ -85,14 +88,14 @@ BOOST_AUTO_TEST_CASE(test_general_case)
 		double const m = frand(0, 3);
 		double const n = frand(0, 3);
 
-		SqDistApproximant const approx(origin, u, v, m, n);
+		SqDistApproximant const approx(origin.toEigen(), u.toEigen(), v.toEigen(), m, n);
 
 		for (int j = 0; j < 10; ++j) {
 			Vec2d const pt(frand(-50, 50), frand(-50, 50));
 			double const u_proj = u.dot(pt - origin);
 			double const v_proj = v.dot(pt - origin);
 			double const control = m * u_proj * u_proj + n * v_proj * v_proj;
-			BOOST_REQUIRE_CLOSE(approx.evaluate(pt), control, 1e-06);
+			BOOST_REQUIRE_CLOSE(approx.evaluate(pt.toEigen()), control, 1e-06);
 		}
 	}
 }

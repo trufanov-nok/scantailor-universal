@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 */
 
 #include "PolynomialLine.h"
-#include "MatT.h"
-#include "MatrixCalc.h"
-#include <stdexcept>
+#include <Eigen/Core>
+#include <Eigen/Cholesky>
+
+using namespace Eigen;
 
 namespace imageproc
 {
@@ -46,20 +47,22 @@ PolynomialLine::calcScale(int const num_values)
 	}
 }
 
-void
-PolynomialLine::doLeastSquares(VecT<double> const& data_points, VecT<double>& coeffs)
-{	
-	int const num_terms = coeffs.size();
+VectorXd
+PolynomialLine::doLeastSquares(VectorXd const& data_points, int const num_terms)
+{
 	int const num_values = data_points.size();
 
 	// The least squares equation is A^T*A*x = A^T*b
 	// We will be building A^T*A and A^T*b incrementally.
 	// This allows us not to build matrix A at all.
-	MatT<double> AtA(num_terms, num_terms);
-	VecT<double> Atb(num_terms);
+	MatrixXd AtA(num_terms, num_terms);
+	AtA.setZero();
+
+	VectorXd Atb(num_terms);
+	Atb.setZero();
 
 	// 1, x, x^2, x^3, ...
-	VecT<double> powers(num_terms);
+	VectorXd powers(num_terms);
 
 	// Pretend that data points are positioned in range of [0, 1].
 	double const scale = calcScale(num_values);
@@ -78,7 +81,10 @@ PolynomialLine::doLeastSquares(VecT<double> const& data_points, VecT<double>& co
 		for (int i = 0; i < num_terms; ++i) {
 			double const i_val = powers[i];
 			Atb[i] += i_val * data_point;
-			for (int j = 0; j < num_terms; ++j) {
+
+			// Only updating the upper triangular part as this matrix
+			// is symmetric and we'll be using selfadjointView() on it.
+			for (int j = i; j < num_terms; ++j) {
 				double const j_val = powers[j];
 				AtA(i, j) += i_val * j_val;
 			}
@@ -90,10 +96,7 @@ PolynomialLine::doLeastSquares(VecT<double> const& data_points, VecT<double>& co
 		AtA(i, i) += 1e-5; // Add a small value to the diagonal.
 	}
 
-	try {
-		DynamicMatrixCalc<double> mc;
-		mc(AtA).solve(mc(Atb)).write(coeffs.data());
-	} catch (std::runtime_error const&) {}
+	return AtA.selfadjointView<Upper>().ldlt().solve(Atb);
 }
 
 } // namespace imageproc

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,11 +23,9 @@
 #include "FittableSpline.h"
 #include "SqDistApproximant.h"
 #include "VirtualFunction.h"
-#include "VecNT.h"
-#include "MatT.h"
-#include "VecT.h"
 #include "LinearFunction.h"
 #include "QuadraticFunction.h"
+#include <Eigen/Core>
 #include <vector>
 #include <list>
 
@@ -87,9 +85,9 @@ private:
 	void adjustConstraints(double direction);
 
 	size_t m_numVars;
-	MatT<double> m_A;
-	VecT<double> m_b;
-	VecT<double> m_x;
+	Eigen::MatrixXd m_A;
+	Eigen::VectorXd m_b;
+	Eigen::VectorXd m_x;
 	QuadraticFunction m_externalForce;
 	QuadraticFunction m_internalForce;
 };

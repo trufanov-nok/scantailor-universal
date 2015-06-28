@@ -20,7 +20,6 @@
 #include "ImagePresentation.h"
 #include "AffineTransformedImage.h"
 #include "VecNT.h"
-#include "MatrixCalc.h"
 #include "NumericTraits.h"
 #include "ToLineProjector.h"
 #include "XSpline.h"

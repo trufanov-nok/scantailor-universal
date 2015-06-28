@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,14 +21,15 @@
 #include "BinaryImage.h"
 #include "GrayImage.h"
 #include "Grayscale.h"
-#include "MatT.h"
-#include "VecT.h"
-#include "MatrixCalc.h"
+#include <Eigen/Core>
+#include <Eigen/Cholesky>
 #include <stdexcept>
 #include <algorithm>
 #include <math.h>
 #include <stdint.h>
 #include <assert.h>
+
+using namespace Eigen;
 
 namespace imageproc
 {
@@ -51,28 +52,25 @@ PolynomialSurface::PolynomialSurface(
 	if (num_data_points == 0) {
 		m_horDegree = 0;
 		m_vertDegree = 0;
-		VecT<double>(1, 0.0).swap(m_coeffs);
+		m_coeffs.setZero(1);
 		return;
 	}
 	
 	maybeReduceDegrees(num_data_points);
 	
 	int const num_terms = calcNumTerms();
-	VecT<double>(num_terms, 0.0).swap(m_coeffs);
 
-	// The least squares equation is A^T*A*x = A^T*b
-	// We will be building A^T*A and A^T*b incrementally.
+	// The least squares equation is A'*A*x = A'*b
+	// We will be building A'*A and A'*b incrementally.
 	// This allows us not to build matrix A at all.
-	MatT<double> AtA(num_terms, num_terms);
-	VecT<double> Atb(num_terms);
+	MatrixXd AtA(num_terms, num_terms);
+	AtA.setZero();
+	VectorXd Atb(num_terms);
+	Atb.setZero();
 	prepareDataForLeastSquares(src, AtA, Atb, m_horDegree, m_vertDegree);
 
 	fixSquareMatrixRankDeficiency(AtA);
-
-	try {
-		DynamicMatrixCalc<double> mc;
-		mc(AtA).solve(mc(Atb)).write(m_coeffs.data());
-	} catch (std::runtime_error const&) {}
+	m_coeffs = AtA.selfadjointView<Upper>().ldlt().solve(Atb);
 }
 
 PolynomialSurface::PolynomialSurface(
@@ -97,28 +95,25 @@ PolynomialSurface::PolynomialSurface(
 	if (num_data_points == 0) {
 		m_horDegree = 0;
 		m_vertDegree = 0;
-		VecT<double>(1, 0.0).swap(m_coeffs);
+		m_coeffs.setZero(1);
 		return;
 	}
 	
 	maybeReduceDegrees(num_data_points);
 	
 	int const num_terms = calcNumTerms();
-	VecT<double>(num_terms, 0.0).swap(m_coeffs);
 
-	// The least squares equation is A^T*A*x = A^T*b
-	// We will be building A^T*A and A^T*b incrementally.
+	// The least squares equation is A'*A*x = A'*b
+	// We will be building A'*A and A'*b incrementally.
 	// This allows us not to build matrix A at all.
-	MatT<double> AtA(num_terms, num_terms);
-	VecT<double> Atb(num_terms);
-	prepareDataForLeastSquares(src, mask, AtA, Atb, m_horDegree, m_vertDegree);
+	MatrixXd AtA(num_terms, num_terms);
+	AtA.setZero();
+	VectorXd Atb(num_terms);
+	Atb.setZero();
+	prepareDataForLeastSquares(src, AtA, Atb, m_horDegree, m_vertDegree);
 
 	fixSquareMatrixRankDeficiency(AtA);
-
-	try {
-		DynamicMatrixCalc<double> mc;
-		mc(AtA).solve(mc(Atb)).write(m_coeffs.data());
-	} catch (std::runtime_error const&) {}
+	m_coeffs = AtA.selfadjointView<Upper>().ldlt().solve(Atb);
 }
 
 GrayImage
@@ -214,12 +209,9 @@ PolynomialSurface::calcScale(int const dimension)
 }
 
 void PolynomialSurface::prepareDataForLeastSquares(
-	GrayImage const& image, MatT<double>& AtA, VecT<double>& Atb,
+	GrayImage const& image, MatrixXd& AtA, VectorXd& Atb,
 	int const h_degree, int const v_degree)
 {
-	double* const AtA_data = AtA.data();
-	double* const Atb_data = Atb.data();
-
 	int const width = image.width();
 	int const height = image.height();
 	int const num_terms = Atb.size();
@@ -236,11 +228,11 @@ void PolynomialSurface::prepareDataForLeastSquares(
 	double const data_scale = 1.0 / 255.0;
 
 	// 1, y, y^2, y^3, ...
-	VecT<double> y_powers(v_degree + 1); // Initialized to 0.
+	VectorXd y_powers(v_degree + 1); // Uninitialized so far.
 
 	// Same as y_powers, except y_powers correspond to a given y,
 	// while x_powers are computed for all possible x values.
-	MatT<double> x_powers(h_degree + 1, width); // Initialized to 0.
+	MatrixXd x_powers(h_degree + 1, width); // Uninitialized so far.
 	for (int x = 0; x < width; ++x) {
 		double const x_adjusted = xscale * x;
 		double x_power = 1.0;
@@ -250,7 +242,7 @@ void PolynomialSurface::prepareDataForLeastSquares(
 		}
 	}
 
-	VecT<double> full_powers(num_terms);
+	VectorXd full_powers(num_terms); // Uninitialized so far.
 
 	for (int y = 0; y < height; ++y, line += stride) {
 		double const y_adjusted = yscale * y;
@@ -271,15 +263,15 @@ void PolynomialSurface::prepareDataForLeastSquares(
 				}
 			}
 
-			double* p_AtA = AtA_data;
 			for (int i = 0; i < num_terms; ++i) {
 				double const i_val = full_powers[i];
-				Atb_data[i] += i_val * data_point;
+				Atb[i] += i_val * data_point;
 
-				for (int j = 0; j < num_terms; ++j) {
+				// Only updating the upper triangular part as this matrix
+				// is symmetric and we'll be using selfadjointView() on it.
+				for (int j = i; j < num_terms; ++j) {
 					double const j_val = full_powers[j];
-					*p_AtA += i_val * j_val;
-					++p_AtA;
+					AtA(i, j) += i_val * j_val;
 				}
 			}
 		}
@@ -288,12 +280,9 @@ void PolynomialSurface::prepareDataForLeastSquares(
 
 void PolynomialSurface::prepareDataForLeastSquares(
 	GrayImage const& image, BinaryImage const& mask,
-	MatT<double>& AtA, VecT<double>& Atb,
+	MatrixXd& AtA, VectorXd& Atb,
 	int const h_degree, int const v_degree)
 {
-	double* const AtA_data = AtA.data();
-	double* const Atb_data = Atb.data();
-
 	int const width = image.width();
 	int const height = image.height();
 	int const num_terms = Atb.size();
@@ -313,11 +302,11 @@ void PolynomialSurface::prepareDataForLeastSquares(
 	double const data_scale = 1.0 / 255.0;
 
 	// 1, y, y^2, y^3, ...
-	VecT<double> y_powers(v_degree + 1); // Initialized to 0.
+	VectorXd y_powers(v_degree + 1); // Uninitialized so far.
 
 	// Same as y_powers, except y_powers correspond to a given y,
 	// while x_powers are computed for all possible x values.
-	MatT<double> x_powers(h_degree + 1, width); // Initialized to 0.
+	MatrixXd x_powers(h_degree + 1, width); // Uninitialized so far.
 	for (int x = 0; x < width; ++x) {
 		double const x_adjusted = xscale * x;
 		double x_power = 1.0;
@@ -327,7 +316,7 @@ void PolynomialSurface::prepareDataForLeastSquares(
 		}
 	}
 
-	VecT<double> full_powers(num_terms);
+	VectorXd full_powers(num_terms); // Uninitialized so far.
 
 	uint32_t const msb = uint32_t(1) << 31;
 	for (int y = 0; y < height; ++y) {
@@ -353,15 +342,15 @@ void PolynomialSurface::prepareDataForLeastSquares(
 				}
 			}
 
-			double* p_AtA = AtA_data;
 			for (int i = 0; i < num_terms; ++i) {
 				double const i_val = full_powers[i];
-				Atb_data[i] += i_val * data_point;
+				Atb[i] += i_val * data_point;
 
+				// Only updating the upper triangular part as this matrix
+				// is symmetric and we'll be using selfadjointView() on it.
 				for (int j = 0; j < num_terms; ++j) {
 					double const j_val = full_powers[j];
-					*p_AtA += i_val * j_val;
-					++p_AtA;
+					AtA(i, j) += i_val * j_val;
 				}
 			}
 		}
@@ -372,7 +361,7 @@ void PolynomialSurface::prepareDataForLeastSquares(
 }
 
 void
-PolynomialSurface::fixSquareMatrixRankDeficiency(MatT<double>& mat)
+PolynomialSurface::fixSquareMatrixRankDeficiency(MatrixXd& mat)
 {
 	assert(mat.cols() == mat.rows());
 

@@ -18,12 +18,13 @@
 
 #include "Function.h"
 #include "SparseMap.h"
-#include "MatT.h"
-#include "VecT.h"
+#include <Eigen/Core>
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <stdlib.h>
 #include <math.h>
+
+using namespace Eigen;
 
 namespace adiff
 {
@@ -43,8 +44,8 @@ BOOST_AUTO_TEST_CASE(test1)
 	Function<2> const x(0, 3, sparse_map);
 	Function<2> const res(x * x);
 
-	VecT<double> const gradient(res.gradient(sparse_map));
-	MatT<double> const hessian(res.hessian(sparse_map));
+	VectorXd const gradient(res.gradient(sparse_map));
+	MatrixXd const hessian(res.hessian(sparse_map));
 
 	// F = 9
 	// Fx = 2 * x = 6
@@ -65,8 +66,8 @@ BOOST_AUTO_TEST_CASE(test2)
 	Function<2> const x(0, 3, sparse_map);
 	Function<2> const res(x * x);
 
-	VecT<double> const gradient(res.gradient(sparse_map));
-	MatT<double> const hessian(res.hessian(sparse_map));
+	VectorXd const gradient(res.gradient(sparse_map));
+	MatrixXd const hessian(res.hessian(sparse_map));
 
 	// F = 9
 	// Fx = 2 * x = 6
@@ -97,8 +98,8 @@ BOOST_AUTO_TEST_CASE(test3)
 	Function<2> const yy(y * y);
 	Function<2> const res(xxx * yy);
 
-	VecT<double> const gradient(res.gradient(sparse_map));
-	MatT<double> const hessian(res.hessian(sparse_map));
+	VectorXd const gradient(res.gradient(sparse_map));
+	MatrixXd const hessian(res.hessian(sparse_map));
 
 	// F = 72
 	// Fx = 3 * x^2 * y^2 = 108

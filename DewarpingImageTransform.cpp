@@ -20,8 +20,10 @@
 #include "AffineImageTransform.h"
 #include "AffineTransformedImage.h"
 #include "RoundingHasher.h"
-#include "VecNT.h"
+#include "ToVec.h"
 #include "dewarping/RasterDewarper.h"
+#include <Eigen/Core>
+#include <Eigen/LU>
 #include <QImage>
 #include <QPointF>
 #include <QRect>
@@ -39,6 +41,7 @@
 #include <math.h>
 #include <assert.h>
 
+using namespace Eigen;
 using namespace dewarping;
 
 DewarpingImageTransform::DewarpingImageTransform(
@@ -222,27 +225,27 @@ DewarpingImageTransform::setupPostScale()
 	// Fraction of width or height of dewarping quardilateral.
 	double const epsilon = 0.01;
 
-	Vec2d const top_left_p1(m_topPolyline.front());
-	Vec2d const top_left_p2(m_dewarper.mapToWarpedSpace(QPointF(epsilon, 0)));
-	Vec2d const top_left_p3(m_dewarper.mapToWarpedSpace(QPointF(0, epsilon)));
+	Vector2d const top_left_p1(toVec(m_topPolyline.front()));
+	Vector2d const top_left_p2(toVec(m_dewarper.mapToWarpedSpace(QPointF(epsilon, 0))));
+	Vector2d const top_left_p3(toVec(m_dewarper.mapToWarpedSpace(QPointF(0, epsilon))));
 
-	Vec2d const top_right_p1(m_topPolyline.back());
-	Vec2d const top_right_p2(m_dewarper.mapToWarpedSpace(QPointF(1 - epsilon, 0)));
-	Vec2d const top_right_p3(m_dewarper.mapToWarpedSpace(QPointF(1, epsilon)));
+	Vector2d const top_right_p1(toVec(m_topPolyline.back()));
+	Vector2d const top_right_p2(toVec(m_dewarper.mapToWarpedSpace(QPointF(1 - epsilon, 0))));
+	Vector2d const top_right_p3(toVec(m_dewarper.mapToWarpedSpace(QPointF(1, epsilon))));
 
-	Vec2d const bottom_left_p1(m_bottomPolyline.front());
-	Vec2d const bottom_left_p2(m_dewarper.mapToWarpedSpace(QPointF(epsilon, 1)));
-	Vec2d const bottom_left_p3(m_dewarper.mapToWarpedSpace(QPointF(0, 1 - epsilon)));
+	Vector2d const bottom_left_p1(toVec(m_bottomPolyline.front()));
+	Vector2d const bottom_left_p2(toVec(m_dewarper.mapToWarpedSpace(QPointF(epsilon, 1))));
+	Vector2d const bottom_left_p3(toVec(m_dewarper.mapToWarpedSpace(QPointF(0, 1 - epsilon))));
 
-	Vec2d const bottom_right_p1(m_bottomPolyline.back());
-	Vec2d const bottom_right_p2(m_dewarper.mapToWarpedSpace(QPointF(1 - epsilon, 1)));
-	Vec2d const bottom_right_p3(m_dewarper.mapToWarpedSpace(QPointF(1, 1 - epsilon)));
+	Vector2d const bottom_right_p1(toVec(m_bottomPolyline.back()));
+	Vector2d const bottom_right_p2(toVec(m_dewarper.mapToWarpedSpace(QPointF(1 - epsilon, 1))));
+	Vector2d const bottom_right_p3(toVec(m_dewarper.mapToWarpedSpace(QPointF(1, 1 - epsilon))));
 
-	std::pair<Vec2d, Vec2d> corners[4];
-	corners[0] = std::make_pair(top_left_p2 - top_left_p1, top_left_p3 - top_left_p1);
-	corners[1] = std::make_pair(top_right_p2 - top_right_p1, top_right_p3 - top_right_p1);
-	corners[2] = std::make_pair(bottom_left_p2 - bottom_left_p1, bottom_left_p3 - bottom_left_p1);
-	corners[3] = std::make_pair(bottom_right_p2 - bottom_right_p1, bottom_right_p3 - bottom_right_p1);
+	Matrix2d corners[4];
+	corners[0] << top_left_p2 - top_left_p1, top_left_p3 - top_left_p1;
+	corners[1] << top_right_p2 - top_right_p1, top_right_p3 - top_right_p1;
+	corners[2] << bottom_left_p2 - bottom_left_p1, bottom_left_p3 - bottom_left_p1;
+	corners[3] << bottom_right_p2 - bottom_right_p1, bottom_right_p3 - bottom_right_p1;
 
 	// We assume a small square at a corner of a dewarped image maps
 	// to a lozenge-shaped area in warped coordinates. That's not necessarily
@@ -252,9 +255,7 @@ DewarpingImageTransform::setupPostScale()
 	double largest_area = -1;
 	for (int i = 0; i < 4; ++i)
 	{
-		Vec2d const v1(corners[i].first);
-		Vec2d const v2(corners[i].second);
-		double const area = fabs(v1[0]*v2[1] - v1[1]*v2[0]);
+		double const area = fabs(corners[i].determinant());
 		if (area > largest_area) {
 			largest_area = area;
 			best_corner = i;
@@ -263,8 +264,8 @@ DewarpingImageTransform::setupPostScale()
 
 	// See the comments in the beginning of the function on how
 	// we define pixel densities.
-	double const warped_h_density = corners[best_corner].first.norm();
-	double const warped_v_density = corners[best_corner].second.norm();
+	double const warped_h_density = corners[best_corner].col(0).norm();
+	double const warped_v_density = corners[best_corner].col(1).norm();
 
 	// CylindricalSurfaceDewarper maps a curved quadrilateral into a unit square.
 	// Therefore, without post scaling, dewarped pixel density is exactly

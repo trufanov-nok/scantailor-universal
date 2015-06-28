@@ -23,7 +23,7 @@
 #include "DraggablePoint.h"
 #include "ObjectDragHandler.h"
 #include "InteractionState.h"
-#include "VecNT.h"
+#include <Eigen/Core>
 #include <QPointF>
 #include <QCoreApplication>
 #include <boost/function.hpp>
@@ -98,7 +98,7 @@ private:
 
 	void dragFinished();
 
-	static Vec4d rotationAndScale(QPointF const& from, QPointF const& to);
+	static Eigen::Matrix2d rotationAndScale(QPointF const& from, QPointF const& to);
 
 	ModifiedCallback m_modifiedCallback;
 	DragFinishedCallback m_dragFinishedCallback;

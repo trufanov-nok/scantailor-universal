@@ -19,11 +19,11 @@
 #ifndef IMAGEPROC_HOUGH_TRANSFORM_H_
 #define IMAGEPROC_HOUGH_TRANSFORM_H_
 
-#include "VecNT.h"
 #include "Grid.h"
 #include "Constants.h"
 #include <QSize>
 #include <QPoint>
+#include <QPointF>
 #include <QLineF>
 #include <vector>
 #include <cmath>
@@ -35,7 +35,7 @@ namespace imageproc
 class HoughAngle
 {
 public:
-	HoughAngle(Vec2d const& unit_normal) : m_unitNormal(unit_normal) {}
+	HoughAngle(QPointF const& unit_normal) : m_unitNormal(unit_normal) {}
 
 	/**
 	 * \brief Unit length vector, perpendicular to our angle.
@@ -43,9 +43,9 @@ public:
 	 * The exact direction (+90 or -90 degrees) doesn't matter,
 	 * provided it's used consistently.
 	 */
-	Vec2d const& unitNormal() const { return m_unitNormal; }
+	QPointF const& unitNormal() const { return m_unitNormal; }
 private:
-	Vec2d m_unitNormal;
+	QPointF m_unitNormal;
 };
 
 
@@ -116,9 +116,10 @@ public:
 	 * \param distance_step Spatial distance covered by a single column in Hough space.
 	 * \param angles A range of angles to look for. Each of those will correspond
 	 *        to a row in Hough space.
+	 * \param hough_space_initial_value The value to initialize the Hough space to.
 	 */
 	HoughTransform(QSize const& spatial_size, double distance_step,
-		HoughAngleCollection<Angle> const& angles);
+		HoughAngleCollection<Angle> const& angles, T hough_space_initial_value = T());
 
 	QSize const& spatialSize() const { return m_spatialSize; }
 
@@ -198,7 +199,7 @@ public:
 
 	QLineF houghToSpatial(QPoint hough_pt) const { return houghToSpatial(hough_pt.x(), hough_pt.y()); }
 
-	Vec2d const& spatialOrigin() const { return m_spatialOrigin; }
+	QPointF const& spatialOrigin() const { return m_spatialOrigin; }
 
 	Angle const& angleForRow(int row) const { return m_angles[row]; }
 
@@ -222,7 +223,7 @@ private:
 	Grid<T> m_houghSpace;
 	std::vector<Angle> m_angles;
 	QSize m_spatialSize;
-	Vec2d m_spatialOrigin;
+	QPointF m_spatialOrigin;
 	double m_distanceStep;
 
 	/** Column in m_houghSpace corresponding to zero distance from m_spatialOrigin. */
@@ -243,7 +244,7 @@ HoughAngleCollection<HoughAngle>::HoughAngleCollection(
 		int const offset = i - (num_angles >> 1);
 		double const degrees = mid_angle_deg + offset * angle_step_deg;
 		double const radians = degrees * constants::DEG2RAD;
-		Vec2d const unit_normal(-sin(radians), cos(radians));
+		QPointF const unit_normal(-sin(radians), cos(radians));
 		angles.push_back(HoughAngle(unit_normal));
 	}
 }
@@ -251,7 +252,8 @@ HoughAngleCollection<HoughAngle>::HoughAngleCollection(
 template<typename T, typename Angle>
 HoughTransform<T, Angle>::HoughTransform(
 	QSize const& spatial_size, double distance_step,
-	HoughAngleCollection<Angle> const& angles)
+	HoughAngleCollection<Angle> const& angles,
+	T const hough_space_initial_value)
 :	m_angles(angles.angles)
 ,	m_spatialSize(spatial_size)
 ,	m_spatialOrigin(0.5 * spatial_size.width(), 0.5 * spatial_size.height())
@@ -259,10 +261,17 @@ HoughTransform<T, Angle>::HoughTransform(
 {
 	using namespace std;
 
-	double const max_distance = sqrt(m_spatialOrigin.squaredNorm());
+	double const max_distance = sqrt(
+		m_spatialOrigin.x() * m_spatialOrigin.x() +
+		m_spatialOrigin.y() * m_spatialOrigin.y()
+	);
 	m_zeroDistanceCol = (int)ceil(max_distance / distance_step);
 	int const num_distance_steps = 1 + 2 * m_zeroDistanceCol;
-	Grid<T>(num_distance_steps, m_angles.size(), 0).swap(m_houghSpace);
+
+	Grid<T> hough_space(num_distance_steps, m_angles.size());
+	hough_space.initInterior(hough_space_initial_value);
+
+	hough_space.swap(m_houghSpace);
 }
 
 template<typename T, typename Angle>
@@ -298,7 +307,9 @@ HoughTransform<T, Angle>::processSample3(int x, int y, F update_op)
 	int const num_angles = m_angles.size();
 	for (int i = 0; i < num_angles; ++i, hough_line += hough_stride) {
 		Angle const& angle = m_angles[i];
-		double const distance = angle.unitNormal().dot(Vec2d(x, y) - m_spatialOrigin);
+		double const distance = QPointF::dotProduct(
+			angle.unitNormal(), QPointF(x, y) - m_spatialOrigin
+		);
 		int const distance_col = m_zeroDistanceCol + (int)floor(distance / m_distanceStep + 0.5);
 		assert(distance_col >= 0);
 		assert(distance_col < m_houghSpace.width());

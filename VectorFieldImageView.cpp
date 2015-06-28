@@ -20,10 +20,10 @@
 #include "ImagePresentation.h"
 #include "ImagePixmapUnion.h"
 #include "InteractionState.h"
-#include "MatMNT.h"
 #include "VecNT.h"
 #include <QPointF>
 #include <QRectF>
+#include <QTransform>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPen>
@@ -97,18 +97,12 @@ VectorFieldImageView::onPaint(QPainter& painter, InteractionState const& interac
 	
 	// Now we will be drawing  the > part of the arrow.
 
-	float const sin45 = 0.707106781f;
-	float const cos45 = sin45;
+	QTransform rot45;
+	rot45.rotate(45);
 	
-	Mat22f R;
-	R(0, 0) = cos45;
-	R(1, 1) = cos45;
-	R(0, 1) = sin45;
-	R(1, 0) = -sin45;
-	
-	QLineF arrow_line1(arrow_tip, arrow_tip - R * vec);
-	std::swap(R(0, 1), R(1, 0)); // Rotate the other way.
-	QLineF arrow_line2(arrow_tip, arrow_tip - R * vec);
+	QLineF arrow_line1(arrow_tip, arrow_tip - rot45.map(vec));
+	rot45.rotate(-90); // Rotate the other way.
+	QLineF arrow_line2(arrow_tip, arrow_tip - rot45.map(vec));
 
 	// Draw in widget coordinates;
 	painter.setWorldTransform(QTransform());

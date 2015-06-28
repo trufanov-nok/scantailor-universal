@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,16 +18,26 @@
 
 #include "SqDistApproximant.h"
 #include "FrenetFrame.h"
-#include "MatrixCalc.h"
+#include "ToVec.h"
 #include <limits>
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
+
+using namespace Eigen;
 
 namespace spfit
 {
 
+SqDistApproximant::SqDistApproximant()
+:	A(Matrix2d::Zero())
+,	b(Vector2d::Zero())
+,	c(0)
+{
+}
+
 SqDistApproximant::SqDistApproximant(
-	Vec2d const& origin, Vec2d const& u, Vec2d const& v, double m, double n)
+	Vector2d const& origin, Vector2d const& u,
+	Vector2d const& v, double m, double n)
 {
 	assert(fabs(u.squaredNorm() - 1.0) < 1e-06 && "u is not normalized");
 	assert(fabs(v.squaredNorm() - 1.0) < 1e-06 && "v is not normalized");
@@ -42,13 +52,13 @@ SqDistApproximant::SqDistApproximant(
 	
 	// R = | u1 u2 |
 	//     | v1 v2 |
-	Mat22d R;
-	R(0, 0) = u[0];  R(0, 1) = u[1];
-	R(1, 0) = v[0];  R(1, 1) = v[1];
+	Matrix2d R;
+	R <<
+		u[0], u[1],
+		v[0], v[1];
 
-	StaticMatrixCalc<double, 4> mc;
-	Vec2d t; // Translation component.
-	(-(mc(R) * mc(origin, 2, 1))).write(t);
+	// Translation component.
+	Vector2d t(R * -origin);
 
 	A(0, 0) = m * R(0, 0) * R(0, 0) + n * R(1, 0) * R(1, 0);
 	A(0, 1) = A(1, 0) = m * R(0, 0) * R(0, 1) + n * R(1, 0) * R(1, 1);
@@ -59,15 +69,15 @@ SqDistApproximant::SqDistApproximant(
 }
 
 SqDistApproximant
-SqDistApproximant::pointDistance(Vec2d const& pt)
+SqDistApproximant::pointDistance(Vector2d const& pt)
 {
 	return weightedPointDistance(pt, 1);
 }
 
 SqDistApproximant
-SqDistApproximant::weightedPointDistance(Vec2d const& pt, double weight)
+SqDistApproximant::weightedPointDistance(Vector2d const& pt, double weight)
 {
-	return SqDistApproximant(pt, Vec2d(1, 0), Vec2d(0, 1), weight, weight);
+	return SqDistApproximant(pt, Vector2d(1, 0), Vector2d(0, 1), weight, weight);
 }
 
 SqDistApproximant
@@ -79,39 +89,39 @@ SqDistApproximant::lineDistance(QLineF const& line)
 SqDistApproximant
 SqDistApproximant::weightedLineDistance(QLineF const& line, double weight)
 {
-	Vec2d u(line.p2() - line.p1());
+	Vector2d u(toVec(line.p2() - line.p1()));
 	double const sqlen = u.squaredNorm();
 	if (sqlen > 1e-6) {
 		u /= sqrt(sqlen);
 	} else {
-		return pointDistance(line.p1());
+		return pointDistance(toVec(line.p1()));
 	}
 
 	// Unit normal to line.
-	Vec2d const v(-u[1], u[0]);
+	Vector2d const v(-u[1], u[0]);
 
-	return SqDistApproximant(line.p1(), u, v, 0, weight);
+	return SqDistApproximant(toVec(line.p1()), u, v, 0, weight);
 }
 
 SqDistApproximant
 SqDistApproximant::curveDistance(
-	Vec2d const& reference_point, FrenetFrame const& frenet_frame, double signed_curvature)
+	Vector2d const& reference_point, FrenetFrame const& frenet_frame, double signed_curvature)
 {
 	return weightedCurveDistance(reference_point, frenet_frame, signed_curvature, 1);
 }
 
 SqDistApproximant
 SqDistApproximant::weightedCurveDistance(
-	Vec2d const& reference_point, FrenetFrame const& frenet_frame,
+	Vector2d const& reference_point, FrenetFrame const& frenet_frame,
 	double const signed_curvature, double const weight)
 {
 	double const abs_curvature = fabs(signed_curvature);
 	double m = 0;
 
 	if (abs_curvature > std::numeric_limits<double>::epsilon()) {
-		Vec2d const to_reference_point(reference_point - frenet_frame.origin());
+		Vector2d const to_reference_point(reference_point - frenet_frame.origin());
 		double const p = 1.0 / abs_curvature;
-		double const d = fabs(frenet_frame.unitNormal().dot(to_reference_point));
+		double const d = std::abs(frenet_frame.unitNormal().dot(to_reference_point));
 		m = d / (d + p); // Formula 7 in [2].
 	}
 
@@ -122,10 +132,9 @@ SqDistApproximant::weightedCurveDistance(
 }
 
 double
-SqDistApproximant::evaluate(Vec2d const& pt) const
+SqDistApproximant::evaluate(Vector2d const& pt) const
 {
-	StaticMatrixCalc<double, 8, 1> mc;
-	return (mc(pt, 1, 2)*mc(A)*mc(pt, 2, 1) + mc(b, 1, 2)*mc(pt, 2, 1)).rawData()[0] + c;
+	return (pt.transpose() * A * pt + b.transpose() * pt).value() + c;
 }
 
 } // namespace spfit

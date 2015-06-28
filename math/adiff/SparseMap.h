@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef ADIFF_SPARSITY_H_
 #define ADIFF_SPARSITY_H_
 
-#include "MatT.h"
+#include <Eigen/Core>
 #include <stddef.h>
 
 namespace adiff
@@ -83,7 +83,7 @@ public:
 private:
 	size_t m_numVars;
 	size_t m_numNonZeroElements;
-	MatT<size_t> m_map;
+	Eigen::Matrix<size_t, Eigen::Dynamic, Eigen::Dynamic> m_map;
 };
 
 } // namespace adiff

@@ -25,14 +25,14 @@
 #include "XSpline.h"
 #include "DebugImages.h"
 #include "VecNT.h"
-#include "MatMNT.h"
-#include "MatrixCalc.h"
+#include "ToVec.h"
 #include "spfit/FrenetFrame.h"
 #include "spfit/SqDistApproximant.h"
 #include "spfit/PolylineModelShape.h"
 #include "spfit/SplineFitter.h"
 #include "spfit/LinearForceBalancer.h"
 #include "spfit/ConstraintSet.h"
+#include <Eigen/Core>
 #include <QTransform>
 #include <QImage>
 #include <QPainter>
@@ -47,6 +47,7 @@
 #include <math.h>
 #include <assert.h>
 
+using namespace Eigen;
 using namespace imageproc;
 
 namespace dewarping
@@ -395,9 +396,11 @@ DistortionModelBuilder::fitExtendedSpline(
 			
 			if ((polyline_flags & (POLYLINE_FRONT|POLYLINE_BACK)) &&
 				(sample_flags & (FittableSpline::HEAD_SAMPLE|FittableSpline::TAIL_SAMPLE))) {
-				return SqDistApproximant::weightedCurveDistance(pt, frenet_frame, signed_curvature, 100.0);
+				return SqDistApproximant::weightedCurveDistance(
+					toVec(pt), frenet_frame, signed_curvature, 100.0
+				);
 			} else {
-				return SqDistApproximant::curveDistance(pt, frenet_frame, signed_curvature);
+				return SqDistApproximant::curveDistance(toVec(pt), frenet_frame, signed_curvature);
 			}
 		}
 	};
@@ -487,53 +490,35 @@ try {
 		double const r_reference_height = 1.0 / 1.0; //calcReferenceHeight(dewarper, curve.centroid);
 
 		// We are going to approximate the dewarped polyline by a straight line
-		// using linear least-squares: At*A*x = At*B -> x = (At*A)-1 * At*B
-		std::vector<double> At;
-		At.reserve(polyline_size * 2);
-		std::vector<double> B;
-		B.reserve(polyline_size);
+		// using linear least-squares: A'*A*x = A'*b -> x = (A'*A)^-1 * A'*b
+		MatrixXd A(polyline_size, 2);
+		VectorXd b(polyline_size);
 
+		int i = 0;
 		BOOST_FOREACH(QPointF const& warped_pt, curve.trimmedPolyline) {
 			// TODO: add another signature with hint for efficiency.
 			QPointF const dewarped_pt(dewarper.mapToDewarpedSpace(warped_pt));
 
 			// ax + b = y  <-> x * a + 1 * b = y 
-			At.push_back(dewarped_pt.x());
-			At.push_back(1);
-			B.push_back(dewarped_pt.y());
+			A.row(i) << dewarped_pt.x(), 1;
+			b[i] = dewarped_pt.y();
+			++i;
 		}
 
-		DynamicMatrixCalc<double> mc;
-		
-		// A = Att
-		boost::scoped_array<double> A(new double[polyline_size * 2]);
-		mc(&At[0], 2, polyline_size).transWrite(&A[0]);
+		// As in "y = ax + b".
+		// At * A * ab = At * b
+		VectorXd const ab((A.transpose() * A).lu().solve(A.transpose() * b));
+		VectorXd const errvec(b - A * ab);
 
-		try {
-			boost::scoped_array<double> errvec(new double[polyline_size]);
-			double ab[2]; // As in "y = ax + b".
-
-			// errvec = B - A * (At*A)-1 * At * B
-			// ab = (At*A)-1 * At * B
-			(
-				mc(&B[0], polyline_size, 1) - mc(&A[0], polyline_size, 2)
-				*((mc(&At[0], 2, polyline_size)*mc(&A[0], polyline_size, 2)).inv()
-				*(mc(&At[0], 2, polyline_size)*mc(&B[0], polyline_size, 1))).write(ab)
-			).write(&errvec[0]);
-
-			double sum_abs_err = 0;
-			for (size_t i = 0; i < polyline_size; ++i) {
-				sum_abs_err += fabs(errvec[i]) * r_reference_height;
-			}
-
-			// Penalty for not being straight.
-			error += sum_abs_err / polyline_size;
-
-			// TODO: penalty for not being horizontal.
-		} catch (std::runtime_error const&) {
-			// Strictly vertical line?
-			error += 1000;
+		double sum_abs_err = 0;
+		for (size_t i = 0; i < polyline_size; ++i) {
+			sum_abs_err += fabs(errvec[i]) * r_reference_height;
 		}
+
+		// Penalty for not being straight.
+		error += sum_abs_err / polyline_size;
+
+		// TODO: penalty for not being horizontal.
 	}
 
 	if (error < m_bestModel.totalError) {

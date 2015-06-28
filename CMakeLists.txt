@@ -22,6 +22,8 @@ SET(
 
 PROJECT("Scan Tailor")
 
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
 IF(MSVC)
 	# Disable checked iterators for extra performance.
 	ADD_DEFINITIONS(-D_SECURE_SCL=0)
@@ -94,9 +96,6 @@ ENDIF(CMAKE_COMPILER_IS_GNUCC)
 GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/.." ABSOLUTE)
 GET_FILENAME_COMPONENT(build_outer_dir "${PROJECT_BINARY_DIR}/.." ABSOLUTE)
 
-SET(STAGING_LIBS_DIR "")
-
-
 INCLUDE(FindOpenGL)
 CMAKE_DEPENDENT_OPTION(
 	ENABLE_OPENGL "OpenGL may be used for UI acceleration" ON
@@ -109,8 +108,18 @@ CMAKE_DEPENDENT_OPTION(
 	"OpenCL_FOUND" OFF
 )
 
+SET(STAGING_LIBS_DIR "")
 
 IF(WIN32)
+	FILE(GLOB eigen_dirs1 "${build_outer_dir}/eigen-*")
+	FILE(GLOB eigen_dirs2 "${source_outer_dir}/eigen-*")
+
+	FIND_PATH(
+		EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
+		PATHS ${eigen_dirs1} ${eigen_dirs2}
+		DOC "Path to Eigen include directory (containing \"Eigen\" subdirectory)"
+	)
+
 	FIND_PATH(
 		DEPS_BUILD_DIR export-vars.cmake
 		HINTS "${build_outer_dir}/scantailor-deps-build"
@@ -137,6 +146,18 @@ IF(WIN32)
 		SET(Qt5LinguistTools_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5LinguistTools")
 	ENDIF()
 ENDIF()
+
+FIND_PACKAGE(Eigen3)
+IF(NOT EIGEN3_FOUND)
+	MESSAGE(FATAL_ERROR
+		"Could not find Eigen (version 3) headers.\n"
+		"You may need to install Eigen3 or set EIGEN3_INCLUDE_DIR manually."
+	)
+ENDIF()
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
+
+# Once Eigen starts using C++11 alignas() feature, this can be removed.
+ADD_DEFINITIONS(-DEIGEN_DONT_ALIGN_STATICALLY)
 
 SET(CMAKE_AUTOMOC ON)
 SET(qt_min_version 5.3)

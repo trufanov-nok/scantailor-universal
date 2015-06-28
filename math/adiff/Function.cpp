@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include <math.h>
 #include <assert.h>
 
+using namespace Eigen;
+
 namespace adiff
 {
 
@@ -29,29 +31,35 @@ namespace adiff
 // 2. sparse_map(i, j) corresponds to l(i, j) in [1].
 
 Function<2>::Function(size_t num_non_zero_vars)
-: value()
-, firstDerivs(num_non_zero_vars)
-, secondDerivs(num_non_zero_vars)
+:	value()
+,	firstDerivs(num_non_zero_vars)
+,	secondDerivs(num_non_zero_vars)
 {
+	firstDerivs.setZero();
+	secondDerivs.setZero();
 }
 
 Function<2>::Function(SparseMap<2> const& sparse_map)
-: value()
-, firstDerivs(sparse_map.numNonZeroElements())
-, secondDerivs(sparse_map.numNonZeroElements())
+:	value()
+,	firstDerivs(sparse_map.numNonZeroElements())
+,	secondDerivs(sparse_map.numNonZeroElements())
 {
+	firstDerivs.setZero();
+	secondDerivs.setZero();
 }
 
 Function<2>::Function(size_t arg_idx, double val, SparseMap<2> const& sparse_map)
-: value(val)
-, firstDerivs(sparse_map.numNonZeroElements())
-, secondDerivs(sparse_map.numNonZeroElements())
+:	value(val)
+,	firstDerivs(sparse_map.numNonZeroElements())
+,	secondDerivs(sparse_map.numNonZeroElements())
 {
 	// An argument Xi is represented as a function:
 	// f(X1, X2, ..., Xi, ...) = Xi
 	// Derivatives are calculated accordingly.
 
 	size_t const num_vars = sparse_map.numVars();
+	firstDerivs.setZero();
+	secondDerivs.setZero();
 
 	// arg_idx row
 	for (size_t i = 0; i < num_vars; ++i) {
@@ -70,15 +78,17 @@ Function<2>::Function(size_t arg_idx, double val, SparseMap<2> const& sparse_map
 	}
 }
 
-VecT<double>
+VectorXd
 Function<2>::gradient(SparseMap<2> const& sparse_map) const
 {
 	size_t const num_vars = sparse_map.numVars();
-	VecT<double> grad(num_vars);
+	VectorXd grad(num_vars);
 
 	for (size_t i = 0; i < num_vars; ++i) {
 		size_t const u = sparse_map.nonZeroElementIdx(i, i);
-		if (u != sparse_map.ZERO_ELEMENT) {
+		if (u == sparse_map.ZERO_ELEMENT) {
+			grad[i] = 0;
+		} else {
 			grad[i] = firstDerivs[u];
 		}
 	}
@@ -86,22 +96,22 @@ Function<2>::gradient(SparseMap<2> const& sparse_map) const
 	return grad;
 }
 
-MatT<double>
+MatrixXd
 Function<2>::hessian(SparseMap<2> const& sparse_map) const
 {
 	size_t const num_vars = sparse_map.numVars();
-	MatT<double> hess(num_vars, num_vars);
+	MatrixXd hess(num_vars, num_vars);
 	
 	for (size_t i = 0; i < num_vars; ++i) {
 		for (size_t j = 0; j < num_vars; ++j) {
 			double Fij = 0;
-                        size_t const ij = sparse_map.nonZeroElementIdx(i, j);
+			size_t const ij = sparse_map.nonZeroElementIdx(i, j);
 			if (ij != sparse_map.ZERO_ELEMENT) {
 				if (i == j) {
 					Fij = secondDerivs[ij];
 				} else {
-                                        size_t const ii = sparse_map.nonZeroElementIdx(i, i);
-                                        size_t const jj = sparse_map.nonZeroElementIdx(j, j);
+					size_t const ii = sparse_map.nonZeroElementIdx(i, i);
+					size_t const jj = sparse_map.nonZeroElementIdx(j, j);
 					assert(ii != sparse_map.ZERO_ELEMENT && jj != sparse_map.ZERO_ELEMENT);
 					Fij = 0.5 * (secondDerivs[ij] - (secondDerivs[ii] + secondDerivs[jj]));
 				}
@@ -124,49 +134,26 @@ Function<2>::swap(Function<2>& other)
 Function<2>&
 Function<2>::operator+=(Function<2> const& other)
 {
-	size_t const p = firstDerivs.size();
-	assert(secondDerivs.size() == p);
-	assert(other.firstDerivs.size() == p);
-	assert(other.secondDerivs.size() == p);
-
 	value += other.value;
-	
-	for (size_t u = 0; u < p; ++u) {
-		firstDerivs[u] += other.firstDerivs[u];
-		secondDerivs[u] += other.secondDerivs[u];
-	}
-
+	firstDerivs += other.firstDerivs;
+	secondDerivs += other.secondDerivs;
 	return *this;
 }
 
 Function<2>&
 Function<2>::operator-=(Function<2> const& other)
 {
-	size_t const p = firstDerivs.size();
-	assert(secondDerivs.size() == p);
-	assert(other.firstDerivs.size() == p);
-	assert(other.secondDerivs.size() == p);
-
 	value -= other.value;
-	
-	for (size_t u = 0; u < p; ++u) {
-		firstDerivs[u] -= other.firstDerivs[u];
-		secondDerivs[u] -= other.secondDerivs[u];
-	}
-
+	firstDerivs -= other.firstDerivs;
+	secondDerivs -= other.secondDerivs;
 	return *this;
 }
 
 Function<2>&
 Function<2>::operator*=(double scalar)
 {
-	size_t const p = firstDerivs.size();
 	value *= scalar;
-
-	for (size_t u = 0; u < p; ++u) {
-		firstDerivs[u] *= scalar;
-	}
-
+	firstDerivs *= scalar;
 	return *this;
 }
 

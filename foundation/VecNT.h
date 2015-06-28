@@ -20,6 +20,7 @@
 #define VEC_NT_H_
 
 #include "CopyableByMemcpy.h"
+#include <Eigen/Core>
 #include <QPointF>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <cmath>
@@ -113,12 +114,22 @@ public:
 	VecNT(QPointF const& pt);
 
 	/**
+	 * \brief Construction from a single column Eigen::Matrix.
+	 */
+	VecNT(Eigen::Matrix<T, N, 1> const& vec);
+
+	/**
 	 * \brief Implicit conversion to QPointF.
 	 *
 	 * Will not compile for N != 2.  Will compile for any T's that
 	 * are convertable to qreal by a static cast.
 	 */
 	operator QPointF() const; 
+
+	/**
+	 * \brief Explicit conversion to a column Eigen::Matrix.
+	 */
+	Eigen::Matrix<T, N, 1> toEigen() const;
 
 	/**
 	 * \brief Assignment from a vector of same dimension but another type.
@@ -291,9 +302,28 @@ VecNT<N, T>::VecNT(QPointF const& pt)
 }
 
 template<size_t N, typename T>
+VecNT<N, T>::VecNT(Eigen::Matrix<T, N, 1> const& vec)
+{
+	for (size_t i = 0; i < N; ++i) {
+		m_data[i] = vec[i];
+	}
+}
+
+template<size_t N, typename T>
 VecNT<N, T>::operator QPointF() const
 {
 	return vecnt::SizeSpecific<N, T>::toQPointF(m_data);
+}
+
+template<size_t N, typename T>
+Eigen::Matrix<T, N, 1>
+VecNT<N, T>::toEigen() const
+{
+	Eigen::Matrix<T, N, 1> res;
+	for (size_t i = 0; i < N; ++i) {
+		res[i] = m_data[i];
+	}
+	return res;
 }
 
 template<size_t N, typename T>

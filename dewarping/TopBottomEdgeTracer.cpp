@@ -25,7 +25,6 @@
 #include "ToLineProjector.h"
 #include "LineBoundedByRect.h"
 #include "GridLineTraverser.h"
-#include "MatrixCalc.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Scale.h"
 #include "imageproc/Constants.h"

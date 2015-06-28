@@ -19,11 +19,14 @@
 #include "FrenetFrame.h"
 #include <math.h>
 
+using namespace Eigen;
+
 namespace spfit
 {
 
-FrenetFrame::FrenetFrame(Vec2d const& origin, Vec2d const& tangent_vector, YAxisDirection ydir)
-: m_origin(origin)
+FrenetFrame::FrenetFrame(
+	Vector2d const& origin, Vector2d const& tangent_vector, YAxisDirection ydir)
+:	m_origin(origin)
 {
 	double const sqlen = tangent_vector.squaredNorm();
 	if (sqlen > 1e-6) {

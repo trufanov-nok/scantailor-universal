@@ -4,7 +4,6 @@ SET(
 	sources
 	main.cpp TestContentSpanFinder.cpp
 	TestSmartFilenameOrdering.cpp
-	TestMatrixCalc.cpp
 	../ContentSpanFinder.cpp ../ContentSpanFinder.h
 	../SmartFilenameOrdering.cpp ../SmartFilenameOrdering.h
 )

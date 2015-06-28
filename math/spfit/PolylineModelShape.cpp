@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include "XSpline.h"
 #include "VecNT.h"
 #include "ToLineProjector.h"
+#include "ToVec.h"
 #include <QDebug>
 #include <boost/foreach.hpp>
 #include <stdexcept>
@@ -109,7 +110,7 @@ PolylineModelShape::localSqDistApproximant(
 
 		XSpline::PointAndDerivs const& pd1 = m_vertices[segment_idx];
 		XSpline::PointAndDerivs const& pd2 = m_vertices[segment_idx + 1];
-		FrenetFrame const frenet_frame(best_foot_point, pd2.point - pd1.point);
+		FrenetFrame const frenet_frame(toVec(best_foot_point), toVec(pd2.point - pd1.point));
 
 		double const k1 = pd1.signedCurvature();
 		double const k2 = pd2.signedCurvature();
@@ -121,7 +122,7 @@ PolylineModelShape::localSqDistApproximant(
 		assert(vertex_idx != -1);
 
 		XSpline::PointAndDerivs const& pd = m_vertices[vertex_idx];
-		FrenetFrame const frenet_frame(best_foot_point, pd.firstDeriv);
+		FrenetFrame const frenet_frame(toVec(best_foot_point), toVec(pd.firstDeriv));
 
 		Flags polyline_flags = DEFAULT_FLAGS;
 		if (vertex_idx == 0) {
@@ -144,7 +145,7 @@ PolylineModelShape::calcApproximant(
 	if (sample_flags & (FittableSpline::HEAD_SAMPLE|FittableSpline::TAIL_SAMPLE)) {
 		return SqDistApproximant::pointDistance(frenet_frame.origin());
 	} else {
-		return SqDistApproximant::curveDistance(pt, frenet_frame, signed_curvature);
+		return SqDistApproximant::curveDistance(toVec(pt), frenet_frame, signed_curvature);
 	}
 }
 

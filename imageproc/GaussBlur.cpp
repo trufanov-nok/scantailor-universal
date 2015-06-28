@@ -19,8 +19,7 @@
 #include "GaussBlur.h"
 #include "GrayImage.h"
 #include "Constants.h"
-#include "MatMNT.h"
-#include "VecNT.h"
+#include <Eigen/Core>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <algorithm>
@@ -28,6 +27,8 @@
 #include <cmath>
 #include <cstring>
 #include <cstdint>
+
+using namespace Eigen;
 
 namespace imageproc
 {
@@ -60,7 +61,7 @@ calcBackwardPassInitialConditions(FilterParams const& p, float* w_end, float fut
 	float const v_plus = u_plus / p.B;
 
 	// Formula 3 in [2].
-	Mat33f M;
+	Matrix3f M;
 	M(0, 0) = -p.a3 * p.a1 + 1.0 - p.a3 * p.a3 - p.a2;
 	M(0, 1) = (p.a3 + p.a1) * (p.a2 + p.a3 * p.a1);
 	M(0, 2) = p.a3 * (p.a1 + p.a3 * p.a2);
@@ -73,12 +74,12 @@ calcBackwardPassInitialConditions(FilterParams const& p, float* w_end, float fut
 	M(2, 2) = p.a3 * (p.a1 + p.a3 * p.a2);
 	M /= (1.0f + p.a1 - p.a2 + p.a3) * p.B * (1.0f + p.a2 + (p.a1 - p.a3) * p.a3);
 
-	Vec3f u(w_end[-1], w_end[-2], w_end[-3]);
-	u -= u_plus;
+	Vector3f u(w_end[-1], w_end[-2], w_end[-3]);
+	u -= Vector3f::Constant(u_plus);
 
 	// Formula 14 in [2].
-	Vec3f result(M * u);
-	result += v_plus;
+	Vector3f result(M * u);
+	result += Vector3f::Constant(v_plus);
 
 	w_end[0] = result[0];
 	w_end[1] = result[1];

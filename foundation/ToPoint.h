@@ -16,52 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "LinearFunction.h"
-#include <algorithm>
-#include <cstddef>
-#include <cassert>
+#ifndef TO_POINT_H_
+#define TO_POINT_H_
 
-using namespace Eigen;
+#include <Eigen/Core>
+#include <QPoint>
+#include <QPointF>
 
-LinearFunction::LinearFunction(size_t num_vars)
-:	a(num_vars)
-,	b(0)
+inline QPoint toPoint(Eigen::Vector2i const& vec)
 {
-	a.setZero();
+	return QPoint(vec[0], vec[1]);
 }
 
-void
-LinearFunction::reset()
+inline QPointF toPoint(Eigen::Vector2f const& vec)
 {
-	a.setZero();
-	b = 0;
+	return QPointF(vec[0], vec[1]);
 }
 
-double
-LinearFunction::evaluate(VectorXd const& x) const
+inline QPointF toPoint(Eigen::Vector2d const& vec)
 {
-	return a.dot(x) + b;
+	return QPointF(vec[0], vec[1]);
 }
 
-void
-LinearFunction::swap(LinearFunction& other)
-{
-	a.swap(other.a);
-	std::swap(b, other.b);
-}
-
-LinearFunction&
-LinearFunction::operator+=(LinearFunction const& other)
-{
-	a += other.a;
-	b += other.b;
-	return *this;
-}
-
-LinearFunction&
-LinearFunction::operator*=(double scalar)
-{
-	a *= scalar;
-	b *= scalar;
-	return *this;
-}
+#endif

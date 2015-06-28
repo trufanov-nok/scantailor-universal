@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,10 +24,11 @@ namespace adiff
 size_t const SparseMap<2>::ZERO_ELEMENT = ~size_t(0);
 
 SparseMap<2>::SparseMap(size_t num_vars)
-: m_numVars(num_vars)
-, m_numNonZeroElements(0)
-, m_map(num_vars, num_vars, ZERO_ELEMENT)
+:	m_numVars(num_vars)
+,	m_numNonZeroElements(0)
+,	m_map(num_vars, num_vars)
 {
+	m_map.fill(ZERO_ELEMENT);
 }
 
 void

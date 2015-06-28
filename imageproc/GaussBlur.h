@@ -49,7 +49,7 @@
 #include "ValueConv.h"
 #include "GridAccessor.h"
 #include "RasterOpGeneric.h"
-#include "VecNT.h"
+#include <Eigen/Core>
 #include <QSize>
 #include <boost/scoped_array.hpp>
 #include <algorithm>
@@ -240,7 +240,7 @@ public:
 	HorizontalDecompositionParams(
 		float dir_x, float dir_y, float dir_sigma, float ortho_dir_sigma) {
 
-		Vec2f cos_sin(dir_x, dir_y);
+		Eigen::Vector2f cos_sin(dir_x, dir_y);
 		cos_sin.normalize();
 
 		// Constraining sigma_u and sigma_v to be slightly positive

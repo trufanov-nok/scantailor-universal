@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,14 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "LinearSolver.h"
+#ifndef TO_VEC_H_
+#define TO_VEC_H_
 
-LinearSolver::LinearSolver(size_t rows_AB, size_t cols_A_rows_X, size_t cols_BX)
-:	m_rowsAB(rows_AB),
-	m_colsArowsX(cols_A_rows_X),
-	m_colsBX(cols_BX)
+#include <Eigen/Core>
+#include <QPoint>
+#include <QPointF>
+
+inline Eigen::Vector2i toVec(QPoint const& pt)
 {
-	if (m_rowsAB < m_colsArowsX) {
-		throw std::runtime_error("LinearSolver: can's solve underdetermined systems");
-	}
+	return Eigen::Vector2i(pt.x(), pt.y());
 }
+
+inline Eigen::Vector2d toVec(QPointF const& pt)
+{
+	return Eigen::Vector2d(pt.x(), pt.y());
+}
+
+#endif

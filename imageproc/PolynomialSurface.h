@@ -19,8 +19,7 @@
 #ifndef IMAGEPROC_POLYNOMIAL_SURFACE_H_
 #define IMAGEPROC_POLYNOMIAL_SURFACE_H_
 
-#include "MatT.h"
-#include "VecT.h"
+#include <Eigen/Core>
 #include <QSize>
 #include <stdint.h>
 
@@ -93,15 +92,17 @@ private:
 	static double calcScale(int dimension);
 
 	static void prepareDataForLeastSquares(
-		GrayImage const& image, MatT<double>& AtA, VecT<double>& Atb, int h_degree, int v_degree);
+		GrayImage const& image, Eigen::MatrixXd& AtA,
+		Eigen::VectorXd& Atb, int h_degree, int v_degree);
 
 	static void prepareDataForLeastSquares(
 		GrayImage const& image, BinaryImage const& mask,
-		MatT<double>& AtA, VecT<double>& Atb, int h_degree, int v_degree);
+		Eigen::MatrixXd& AtA, Eigen::VectorXd& Atb,
+		int h_degree, int v_degree);
 	
-	static void fixSquareMatrixRankDeficiency(MatT<double>& mat);
+	static void fixSquareMatrixRankDeficiency(Eigen::MatrixXd& mat);
 	
-	VecT<double> m_coeffs;
+	Eigen::VectorXd m_coeffs;
 	int m_horDegree;
 	int m_vertDegree;
 };

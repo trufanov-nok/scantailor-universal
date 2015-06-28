@@ -466,7 +466,7 @@ void dewarpGeneric(
 			distortion_model.mapGeneratrix(model_x, state)
 		);
 
-		HomographicTransform<1, float> const homog(generatrix.pln2img.mat());
+		HomographicTransform<1, float> const homog(generatrix.pln2img.mat().cast<float>());
 		Vec2f const origin(generatrix.imgLine.p1());
 		Vec2f const vec(generatrix.imgLine.p2() - generatrix.imgLine.p1());
 		for (int dst_y = 0; dst_y <= dst_height; ++dst_y) {

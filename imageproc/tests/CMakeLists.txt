@@ -8,6 +8,7 @@ SET(
 	TestConnCompEraser.cpp TestConnCompEraserExt.cpp
 	TestGaussBlur.cpp
 	TestGrayscale.cpp
+	TestHoughTransform.cpp
 	TestRasterOp.cpp TestShear.cpp
 	TestOrthogonalRotation.cpp
 	TestSkewFinder.cpp

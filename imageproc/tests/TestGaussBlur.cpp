@@ -21,9 +21,8 @@
 #include "GrayImage.h"
 #include "Constants.h"
 #include "Grid.h"
-#include "MatMNT.h"
-#include "VecNT.h"
-#include "MatrixCalc.h"
+#include <Eigen/Core>
+#include <Eigen/LU>
 #include <QSize>
 #include <QPoint>
 #include <QString>
@@ -31,13 +30,15 @@
 #include <boost/test/auto_unit_test.hpp>
 #include <cmath>
 
+using namespace Eigen;
+
 namespace imageproc
 {
 
 namespace tests
 {
 
-static float calcAnalyticalPeakImpulseResponse(Vec2f const& sigmas)
+static float calcAnalyticalPeakImpulseResponse(Vector2f const& sigmas)
 {
 	float const detCov = sigmas[0] * sigmas[0] * sigmas[1] * sigmas[1];
 	return 0.5 / (constants::PI * std::sqrt(detCov));
@@ -46,29 +47,22 @@ static float calcAnalyticalPeakImpulseResponse(Vec2f const& sigmas)
 
 static Grid<float> computeAnalyticalImpulseResponse(
 	float const scale, QSize const& size, QPoint const& center,
-	Vec2f const& direction, Vec2f const& sigmas)
+	Vector2f const& direction, Vector2f const& sigmas)
 {
 	Grid<float> impulse_response(size.width(), size.height());
 
-	Mat22d R;
-	R(0, 0) = direction[0];  // cos
-	R(1, 0) = direction[1];  // sin
-	R(0, 1) = -direction[1]; // -sin
-	R(1, 1) = direction[0];  // cos
+	Matrix2d R;
+	R <<
+		direction[0], -direction[1],
+		direction[1], direction[0];
 
-	Mat22d L;
-	L(0, 0) = sigmas[0] * sigmas[0];
-	L(0, 1) = 0.0;
-	L(1, 0) = 0.0;
-	L(1, 1) = sigmas[1] * sigmas[1];
+	Matrix2d L;
+	L <<
+		sigmas[0] * sigmas[0], 0.0,
+		0.0, sigmas[1] * sigmas[1];
 
-	Mat22d cov; // Covariance matrix.
-	Mat22d invCov;
-
-	{
-		MatrixCalc<double> mc;
-		(mc(R)*mc(L)*mc(R).trans()).write(cov.data()).inv().write(invCov.data());
-	}
+	Matrix2d const cov(R * L * R.transpose()); // Covariance matrix.
+	Matrix2d const invCov(cov.inverse());
 
 	// Rotation doesn't affect the determinant.
 	double const detCov = sigmas[0] * sigmas[0] * sigmas[1] * sigmas[1];
@@ -79,13 +73,8 @@ static Grid<float> computeAnalyticalImpulseResponse(
 			// From Wikipedia:
 			// response = ((2*pi)^(-k/2))*(det(cov)^-0.5)*exp(-0.5*(x - mu)'*inv(cov)*(x - mu))
 
-			MatMNT<2, 1, double> v;
-			v(0, 0) = x - center.x();
-			v(1, 0) = y - center.y();
-			double proximity = 0;
-
-			MatrixCalc<double> mc;
-			(mc(v).trans()*mc(invCov)*mc(v)).write(&proximity);
+			Vector2d const v(x - center.x(), y - center.y());
+			double const proximity = v.transpose() * invCov * v;
 
 			response = response_normalizer * std::exp(-0.5 * proximity);
 		},
@@ -130,7 +119,7 @@ BOOST_AUTO_TEST_CASE(test_aligned_gaussian)
 {
 	QSize const size(101, 101);
 	QPoint const center(size.width() / 2, size.height() / 2);
-	Vec2f const sigmas(15.f, 7.f);
+	Vector2f const sigmas(15.f, 7.f);
 	float const scale = 1.f / calcAnalyticalPeakImpulseResponse(sigmas);
 
 	Grid<float> impulse(size.width(), size.height(), /*padding=*/0);
@@ -147,7 +136,7 @@ BOOST_AUTO_TEST_CASE(test_aligned_gaussian)
 	);
 
 	Grid<float> const analytical_response(
-		computeAnalyticalImpulseResponse(scale, size, center, Vec2f(1.f, 0.f), sigmas)
+		computeAnalyticalImpulseResponse(scale, size, center, Vector2f(1.f, 0.f), sigmas)
 	);
 
 	//saveImpulseResponse(impulse_response, "/path/to/image.png");
@@ -165,16 +154,16 @@ BOOST_AUTO_TEST_CASE(test_oriented_gaussians)
 	impulse.initInterior(0.f);
 	Grid<float> impulse_response(size.width(), size.height(), /*padding=*/0);
 
-	std::vector<Vec2f> const sigmas{
-		Vec2f{ 10.f, 0.5f },
-		Vec2f{ 20.f, 0.5f },
-		Vec2f{ 10.f, 1.f },
-		Vec2f{ 20.f, 1.f },
-		Vec2f{ 10.f, 2.f },
-		Vec2f{ 20.f, 2.f }
+	std::vector<Vector2f> const sigmas{
+		{ 10.f, 0.5f },
+		{ 20.f, 0.5f },
+		{ 10.f, 1.f },
+		{ 20.f, 1.f },
+		{ 10.f, 2.f },
+		{ 20.f, 2.f }
 	};
 
-	std::vector<Vec2f> directions;
+	std::vector<Vector2f> directions;
 	for (int angle_deg = 0; angle_deg < 360; angle_deg += 6) {
 		float const angle_rad = angle_deg * constants::DEG2RAD;
 		directions.emplace_back(std::cos(angle_rad), std::sin(angle_rad));
@@ -184,8 +173,8 @@ BOOST_AUTO_TEST_CASE(test_oriented_gaussians)
 	double mean_rmse = 0;
 	double worst_rmse = 0;
 
-	for (Vec2f const& s : sigmas) {
-		for (Vec2f const& direction : directions) {
+	for (Vector2f const& s : sigmas) {
+		for (Vector2f const& direction : directions) {
 			float const scale = 1.f / calcAnalyticalPeakImpulseResponse(s);
 			impulse(center.x(), center.y()) = scale;
 

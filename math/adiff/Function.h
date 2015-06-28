@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,9 +20,8 @@
 #define ADIFF_FUNCTION_H_
 
 #include "SparseMap.h"
-#include "MatT.h"
-#include "VecT.h"
-#include <stddef.h>
+#include <Eigen/Core>
+#include <cstddef>
 
 namespace adiff
 {
@@ -46,13 +45,13 @@ public:
 	 * First directional derivatives in the direction
 	 * of u = i + j for every non-zero Hessian element at i, j.
 	 */
-	VecT<double> firstDerivs;
+	Eigen::VectorXd firstDerivs;
 
 	/**
 	 * Second directional derivatives in the direction
 	 * of u = i + j for every non-zero Hessian element at i, j.
 	 */
-	VecT<double> secondDerivs;
+	Eigen::VectorXd secondDerivs;
 
 	/**
 	 * Constructs the "f(x1, x2, ...) = 0" function.
@@ -73,9 +72,9 @@ public:
 	 */
 	Function(size_t arg_idx, double val, SparseMap<2> const& sparse_map);
 
-	VecT<double> gradient(SparseMap<2> const& sparse_map) const;
+	Eigen::VectorXd gradient(SparseMap<2> const& sparse_map) const;
 
-	MatT<double> hessian(SparseMap<2> const& sparse_map) const;
+	Eigen::MatrixXd hessian(SparseMap<2> const& sparse_map) const;
 
 	void swap(Function& other);
 

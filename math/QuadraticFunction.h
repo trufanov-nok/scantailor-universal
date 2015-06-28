@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +19,8 @@
 #ifndef QUADRATIC_FUNCTION_H_
 #define QUADRATIC_FUNCTION_H_
 
-#include "MatT.h"
-#include "VecT.h"
-#include <stddef.h>
+#include <Eigen/Core>
+#include <cstddef>
 
 /**
  * A quadratic function from arbitrary number of variables
@@ -48,19 +47,16 @@ public:
 	class Gradient
 	{
 	public:
-		MatT<double> A;
-		VecT<double> b;
+		Eigen::MatrixXd A;
+		Eigen::VectorXd b;
 	};
 
-	/**
-	 * Matrix A has column-major data storage, so that it can be used with MatrixCalc.
-	 */
-	MatT<double> A;
-	VecT<double> b;
+	Eigen::MatrixXd A;
+	Eigen::VectorXd b;
 	double c;
 
 	/**
-	 * Constructs a quadratic functiono of the given number of variables,
+	 * Constructs a quadratic function of the given number of variables,
 	 * initializing everything to zero.
 	 */
 	QuadraticFunction(size_t num_vars = 0);
@@ -75,7 +71,7 @@ public:
 	/**
 	 * Evaluates x^T * A * x + b^T * x + c
 	 */
-	double evaluate(double const* x) const;
+	double evaluate(Eigen::VectorXd const& x) const;
 
 	Gradient gradient() const;
 

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,7 @@
 #ifndef SQDIST_APPROXIMANT_H_
 #define SQDIST_APPROXIMANT_H_
 
-#include "VecNT.h"
-#include "MatMNT.h"
+#include <Eigen/Core>
 #include <QLineF>
 
 namespace spfit
@@ -46,15 +45,15 @@ class FrenetFrame;
  */
 struct SqDistApproximant
 {
-	Mat22d A;
-	Vec2d b;
+	Eigen::Matrix2d A;
+	Eigen::Vector2d b;
 	double c;
 
 	/**
 	 * Constructs a distance function that always evaluates to zero.
 	 * Passing it to Optimizer::addSample() will have no effect.
 	 */
-	SqDistApproximant() : c(0) {}
+	SqDistApproximant();
 
 	/**
 	 * \brief The general case constructor.
@@ -70,23 +69,25 @@ struct SqDistApproximant
 	 * j = (p - origin) . v;
 	 * \endcode
 	 */
-	SqDistApproximant(Vec2d const& origin, Vec2d const& u, Vec2d const& v, double m, double n);
+	SqDistApproximant(Eigen::Vector2d const& origin,
+		Eigen::Vector2d const& u, Eigen::Vector2d const& v, double m, double n);
 
-	static SqDistApproximant pointDistance(Vec2d const& pt);
+	static SqDistApproximant pointDistance(Eigen::Vector2d const& pt);
 
-	static SqDistApproximant weightedPointDistance(Vec2d const& pt, double weight);
+	static SqDistApproximant weightedPointDistance(
+		Eigen::Vector2d const& pt, double weight);
 
 	static SqDistApproximant lineDistance(QLineF const& line);
 
 	static SqDistApproximant weightedLineDistance(QLineF const& line, double weight);
 
-	static SqDistApproximant curveDistance(
-		Vec2d const& reference_point, FrenetFrame const& frenet_frame, double signed_curvature);
+	static SqDistApproximant curveDistance(Eigen::Vector2d const& reference_point,
+		FrenetFrame const& frenet_frame, double signed_curvature);
 
-	static SqDistApproximant weightedCurveDistance(
-		Vec2d const& reference_point, FrenetFrame const& frenet_frame, double signed_curvature, double weight);
+	static SqDistApproximant weightedCurveDistance(Eigen::Vector2d const& reference_point,
+		FrenetFrame const& frenet_frame, double signed_curvature, double weight);
 
-	double evaluate(Vec2d const& pt) const;
+	double evaluate(Eigen::Vector2d const& pt) const;
 };
 
 } // namespace spfit

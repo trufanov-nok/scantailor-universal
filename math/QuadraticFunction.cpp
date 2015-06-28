@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,55 +18,38 @@
 
 #include "QuadraticFunction.h"
 #include <algorithm>
-#include <stddef.h>
-#include <assert.h>
+#include <cstddef>
+#include <cassert>
+
+using namespace Eigen;
 
 QuadraticFunction::QuadraticFunction(size_t num_vars)
 :	A(num_vars, num_vars),
 	b(num_vars),
 	c(0)
 {
+	A.setZero();
+	b.setZero();
 }
 
 void
 QuadraticFunction::reset()
 {
-	A.fill(0);
-	b.fill(0);
+	A.setZero();
+	b.setZero();
 	c = 0;
 }
 
 double
-QuadraticFunction::evaluate(double const* x) const
+QuadraticFunction::evaluate(VectorXd const& x) const
 {
-	size_t const num_vars = numVars();
-
-	double sum = c;
-	for (size_t i = 0; i < num_vars; ++i) {
-		sum += b[i] * x[i];
-		for (size_t j = 0; j < num_vars; ++j) {
-			sum += x[i] * x[j] * A(i, j); 
-		}
-	}
-	
-	return sum;
+	return (x.transpose() * A * x + b.transpose() * x).value() + c;
 }
 
 QuadraticFunction::Gradient
 QuadraticFunction::gradient() const
 {
-	size_t const num_vars = numVars();
-	Gradient grad;
-	
-	MatT<double>(num_vars, num_vars).swap(grad.A);
-	for (size_t i = 0; i < num_vars; ++i) {
-		for (size_t j = 0; j < num_vars; ++j) {
-			grad.A(i, j) = A(i, j) + A(j, i);
-		}
-	}
-
-	grad.b = b;
-	return grad;
+	return Gradient{ A.transpose() + A, b };
 }
 
 void

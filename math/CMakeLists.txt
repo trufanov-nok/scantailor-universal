@@ -4,8 +4,6 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 SET(
 	GENERIC_SOURCES
-	LinearSolver.cpp LinearSolver.h
-	MatrixCalc.h
 	HomographicTransform.h
 	SidesOfLine.cpp SidesOfLine.h
 	ToLineProjector.cpp ToLineProjector.h
