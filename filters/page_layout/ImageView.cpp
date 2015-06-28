@@ -51,7 +51,7 @@ ImageView::ImageView(
 	IntrusivePtr<Settings> const& settings, PageId const& page_id,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image,
-	ContentBox const& adapted_content_box,
+	ContentBox const& content_box,
 	OptionsWidget const& opt_widget)
 :	ImageViewBase(
 		affine_transformed_image.origImage(), ImagePixmapUnion(),
@@ -66,7 +66,7 @@ ImageView::ImageView(
 	m_ptrSettings(settings),
 	m_pageId(page_id),
 	m_unscaledAffineTransform(affine_transformed_image.xform()),
-	m_unscaledContentRect(adapted_content_box.toTransformedRect(*orig_transform)),
+	m_unscaledContentRect(content_box.toTransformedRect(*orig_transform)),
 	m_affineImageContentTopLeft(
 		m_unscaledAffineTransform.transform().inverted().map(
 			m_unscaledContentRect.topLeft()

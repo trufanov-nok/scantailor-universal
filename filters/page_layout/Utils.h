@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,8 +24,6 @@ class QPointF;
 class QSizeF;
 class QRectF;
 class QMarginsF;
-class AbstractImageTransform;
-class ContentBox;
 
 namespace page_layout
 {
@@ -36,17 +34,6 @@ class Alignment;
 class Utils
 {
 public:
-	/**
-	 * \brief Replace an invalid content box with a tiny centered one.
-	 *
-	 * If the content box is invalid (no content on the page), it
-	 * creates various problems for us.	So, we replace it with a tiny
-	 * box centered in the page's crop area.
-	 */
-	static ContentBox adaptContentBox(
-		AbstractImageTransform const& image_transform,
-		ContentBox const& content_box);
-	
 	/**
 	 * \brief Calculates margins to extend hard_size_px to aggregate_hard_size_px.
 	 *

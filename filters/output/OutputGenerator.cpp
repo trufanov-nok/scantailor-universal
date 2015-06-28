@@ -233,6 +233,15 @@ OutputGenerator::OutputGenerator(
 ,	m_despeckleLevel(despeckle_level)
 {
 	m_outRect = outer_rect.toRect();
+
+	// An empty outer_rect may be a result of all pages having no content box.
+	if (m_outRect.width() <= 0) {
+		m_outRect.setWidth(1);
+	}
+	if (m_outRect.height() <= 0) {
+		m_outRect.setHeight(1);
+	}
+
 	m_contentRect = content_rect.translated(-m_outRect.topLeft()).toRect();
 
 	// Note that QRect::contains(<empty rect>) always returns false, so we don't use it here.
@@ -272,6 +281,29 @@ OutputGenerator::process(
 	DebugImages* const dbg) const
 {
 	assert(!orig_image.isNull());
+
+	if (m_contentRect.isEmpty()) {
+		// This page doesn't have a content box. Output a blank white image.
+
+		QImage res(m_outRect.size(), QImage::Format_Mono);
+		res.fill(1);
+
+		if (out_auto_picture_mask) {
+			if (out_auto_picture_mask->size() != m_outRect.size()) {
+				BinaryImage(m_outRect.size()).swap(*out_auto_picture_mask);
+			}
+			out_auto_picture_mask->fill(BLACK); // Not a picture.
+		}
+
+		if (out_speckles_image) {
+			if (out_speckles_image->size() != m_outRect.size()) {
+				BinaryImage(m_outRect.size()).swap(*out_speckles_image);
+			}
+			out_speckles_image->fill(WHITE); // No speckles.
+		}
+
+		return res;
+	}
 
 	RenderParams const render_params(m_colorParams);
 
@@ -374,7 +406,7 @@ OutputGenerator::process(
 	status.throwIfCancelled();
 
 	if (render_params.binaryOutput() || m_outRect.isEmpty()) {
-		BinaryImage dst(m_outRect.size().expandedTo(QSize(1, 1)), WHITE);
+		BinaryImage dst(m_outRect.size(), WHITE);
 
 		if (!m_contentRect.isEmpty()) {
 			dst = binarize(maybe_smoothed, QRectF(m_contentRect));
@@ -410,8 +442,6 @@ OutputGenerator::process(
 		return dst.toQImage();
 	}
 
-	QSize const target_size(m_outRect.size().expandedTo(QSize(1, 1)));
-
 	BinaryImage bw_mask;
 	if (render_params.mixedOutput()) {
 		// This block should go before the block with
@@ -424,8 +454,8 @@ OutputGenerator::process(
 		}
 
 		if (out_auto_picture_mask) {
-			if (out_auto_picture_mask->size() != target_size) {
-				BinaryImage(target_size).swap(*out_auto_picture_mask);
+			if (out_auto_picture_mask->size() != m_outRect.size()) {
+				BinaryImage(m_outRect.size()).swap(*out_auto_picture_mask);
 			}
 			out_auto_picture_mask->fill(BLACK);
 
@@ -518,12 +548,10 @@ OutputGenerator::process(
 
 	status.throwIfCancelled();
 
-	assert(!target_size.isEmpty());
-
 	QImage dst(maybe_normalized);
 
 	if (render_params.whiteMargins()) {
-		dst = QImage(target_size, maybe_normalized.format());
+		dst = QImage(m_outRect.size(), maybe_normalized.format());
 
 		if (dst.format() == QImage::Format_Indexed8) {
 			dst.setColorTable(createGrayscalePalette());

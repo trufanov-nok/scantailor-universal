@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -364,13 +364,21 @@ Settings::Item::Item(
 double
 Settings::Item::hardWidth() const
 {
-	return hardMargins.extendContentSize(contentSize).width();
+	if (contentSize.isEmpty()) {
+		return 0.0;
+	} else {
+		return hardMargins.extendContentSize(contentSize).width();
+	}
 }
 
 double
 Settings::Item::hardHeight() const
 {
-	return hardMargins.extendContentSize(contentSize).height();
+	if (contentSize.isEmpty()) {
+		return 0.0;
+	} else {
+		return hardMargins.extendContentSize(contentSize).height();
+	}
 }
 
 double

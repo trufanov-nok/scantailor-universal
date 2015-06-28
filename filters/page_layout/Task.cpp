@@ -26,6 +26,7 @@
 #include "FilterUiInterface.h"
 #include "TaskStatus.h"
 #include "ImageView.h"
+#include "BasicImageView.h"
 #include "AffineTransformedImage.h"
 #include "ContentBox.h"
 #include "PageLayout.h"
@@ -50,7 +51,7 @@ public:
 		PageId const& page_id,
 		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 		AffineTransformedImage const& affine_transformed_image,
-		ContentBox const& adapted_content_box,
+		ContentBox const& content_box,
 		bool agg_size_changed, bool batch);
 	
 	virtual void updateUI(FilterUiInterface* ui);
@@ -62,7 +63,7 @@ private:
 	PageId m_pageId;
 	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
 	AffineTransformedImage m_affineTransformedImage;
-	ContentBox m_adaptedContentBox;
+	ContentBox m_contentBox;
 	bool m_aggSizeChanged;
 	bool m_batchProcessing;
 };
@@ -105,10 +106,6 @@ Task::process(
 		)
 	);
 
-	ContentBox const adapted_content_box(
-		Utils::adaptContentBox(*orig_image_transform, content_box)
-	);
-
 	if (m_ptrNextTask) {
 		QRectF const unscaled_content_rect(
 			content_box.toTransformedRect(*orig_image_transform)
@@ -141,7 +138,7 @@ Task::process(
 		return FilterResultPtr(
 			new UiUpdater(
 				m_ptrFilter, m_ptrSettings, m_pageId,
-				orig_image_transform, *pre_transformed_image, adapted_content_box,
+				orig_image_transform, *pre_transformed_image, content_box,
 				agg_hard_size_before != agg_hard_size_after,
 				m_batchProcessing
 			)
@@ -160,14 +157,14 @@ Task::UiUpdater::UiUpdater(
 	PageId const& page_id,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image,
-	ContentBox const& adapted_content_box,
+	ContentBox const& content_box,
 	bool agg_size_changed, bool batch)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
 	m_pageId(page_id),
 	m_ptrOrigTransform(orig_transform),
 	m_affineTransformedImage(affine_transformed_image),
-	m_adaptedContentBox(adapted_content_box),
+	m_contentBox(content_box),
 	m_aggSizeChanged(agg_size_changed),
 	m_batchProcessing(batch)
 {
@@ -177,9 +174,11 @@ void
 Task::UiUpdater::updateUI(FilterUiInterface* ui)
 {
 	// This function is executed from the GUI thread.
-	
+
+	bool const have_content_box = m_contentBox.isValid();
 	OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
-	opt_widget->postUpdateUI();
+
+	opt_widget->postUpdateUI(have_content_box);
 	ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 	
 	if (m_aggSizeChanged) {
@@ -192,49 +191,60 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 	
-	ImageView* view = new ImageView(
-		m_ptrSettings, m_pageId,
-		m_ptrOrigTransform, m_affineTransformedImage,
-		m_adaptedContentBox, *opt_widget
-	);
+	ImageViewBase* view;
+
+	if (!have_content_box) {
+		// TODO: build a downscaled image in the background thread.
+		view = new BasicImageView(m_affineTransformedImage);
+	} else {
+		view = new ImageView(
+			m_ptrSettings, m_pageId,
+			m_ptrOrigTransform, m_affineTransformedImage,
+			m_contentBox, *opt_widget
+		);
+	}
+
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
 	
-	QObject::connect(
-		view, SIGNAL(invalidateThumbnail(PageId const&)),
-		opt_widget, SIGNAL(invalidateThumbnail(PageId const&))
-	);
-	QObject::connect(
-		view, SIGNAL(invalidateAllThumbnails()),
-		opt_widget, SIGNAL(invalidateAllThumbnails())
-	);
-	QObject::connect(
-		view, SIGNAL(marginsSetLocally(RelativeMargins const&)),
-		opt_widget, SLOT(marginsSetExternally(RelativeMargins const&))
-	);
-	QObject::connect(
-		opt_widget, SIGNAL(marginsSetLocally(RelativeMargins const&)),
-		view, SLOT(marginsSetExternally(RelativeMargins const&))
-	);
-	QObject::connect(
-		opt_widget, SIGNAL(topBottomLinkToggled(bool)),
-		view, SLOT(topBottomLinkToggled(bool))
-	);
-	QObject::connect(
-		opt_widget, SIGNAL(leftRightLinkToggled(bool)),
-		view, SLOT(leftRightLinkToggled(bool))
-	);
-	QObject::connect(
-		opt_widget, SIGNAL(matchSizeModeChanged(MatchSizeMode const&)),
-		view, SLOT(matchSizeModeChanged(MatchSizeMode const&))
-	);
-	QObject::connect(
-		opt_widget, SIGNAL(alignmentChanged(Alignment const&)),
-		view, SLOT(alignmentChanged(Alignment const&))
-	);
-	QObject::connect(
-		opt_widget, SIGNAL(aggregateHardSizeChanged()),
-		view, SLOT(aggregateHardSizeChanged())
-	);
+	if (have_content_box) {
+
+		QObject::connect(
+			view, SIGNAL(invalidateThumbnail(PageId const&)),
+			opt_widget, SIGNAL(invalidateThumbnail(PageId const&))
+		);
+		QObject::connect(
+			view, SIGNAL(invalidateAllThumbnails()),
+			opt_widget, SIGNAL(invalidateAllThumbnails())
+		);
+		QObject::connect(
+			view, SIGNAL(marginsSetLocally(RelativeMargins const&)),
+			opt_widget, SLOT(marginsSetExternally(RelativeMargins const&))
+		);
+		QObject::connect(
+			opt_widget, SIGNAL(marginsSetLocally(RelativeMargins const&)),
+			view, SLOT(marginsSetExternally(RelativeMargins const&))
+		);
+		QObject::connect(
+			opt_widget, SIGNAL(topBottomLinkToggled(bool)),
+			view, SLOT(topBottomLinkToggled(bool))
+		);
+		QObject::connect(
+			opt_widget, SIGNAL(leftRightLinkToggled(bool)),
+			view, SLOT(leftRightLinkToggled(bool))
+		);
+		QObject::connect(
+			opt_widget, SIGNAL(matchSizeModeChanged(MatchSizeMode const&)),
+			view, SLOT(matchSizeModeChanged(MatchSizeMode const&))
+		);
+		QObject::connect(
+			opt_widget, SIGNAL(alignmentChanged(Alignment const&)),
+			view, SLOT(alignmentChanged(Alignment const&))
+		);
+		QObject::connect(
+			opt_widget, SIGNAL(aggregateHardSizeChanged()),
+			view, SLOT(aggregateHardSizeChanged())
+		);
+	}
 }
 
 } // namespace page_layout

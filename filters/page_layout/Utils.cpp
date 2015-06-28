@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2015  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,31 +19,14 @@
 #include "Utils.h"
 #include "MatchSizeMode.h"
 #include "Alignment.h"
-#include "AbstractImageTransform.h"
-#include "ContentBox.h"
 #include <QColor>
 #include <QPointF>
 #include <QSizeF>
 #include <QRectF>
-#include <QPolygonF>
 #include <QMarginsF>
 
 namespace page_layout
 {
-
-ContentBox
-Utils::adaptContentBox(
-	AbstractImageTransform const& image_transform,
-	ContentBox const& content_box)
-{
-	if (content_box.isValid()) {
-		return content_box;
-	}
-
-	QPointF const center(image_transform.transformedCropArea().boundingRect().center());
-	QPointF const delta(0.01, 0.01);
-	return ContentBox(image_transform, QRectF(center - delta, center + delta));
-}
 
 QMarginsF
 Utils::calcSoftMarginsPx(

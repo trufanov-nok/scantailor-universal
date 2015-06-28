@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +38,12 @@ PageLayout::PageLayout(
 	m_innerRect = unscaled_content_rect;
 	m_scaleFactor = 1.0;
 
-	if (match_size_mode == MatchSizeMode::SCALE) {
+	// An empty unscaled_content_rect is a special case to indicate
+	// a missing content box. In this case, we want the geometry
+	// we would get with zero hard margins and MatchSizeMode::GROW_MARGINS.
+	bool const have_content_box = !unscaled_content_rect.isEmpty();
+
+	if (have_content_box && match_size_mode.get() == MatchSizeMode::SCALE) {
 		// aggregate_size = content_size * scale + margins * width * scale
 		// Solving for scale:
 		// scale = aggregate_size / (content_size + margins * width)
@@ -57,7 +62,11 @@ PageLayout::PageLayout(
 		m_innerRect.setHeight(m_innerRect.height() * m_scaleFactor);
 	}
 
-	m_middleRect = margins.extendContentRect(m_innerRect);
+	if (have_content_box) {
+		m_middleRect = margins.extendContentRect(m_innerRect);
+	} else {
+		m_middleRect = m_innerRect;
+	}
 
 	QMarginsF const soft_margins(
 		Utils::calcSoftMarginsPx(

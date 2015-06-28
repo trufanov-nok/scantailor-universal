@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>272</width>
-    <height>564</height>
+    <width>267</width>
+    <height>639</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -631,6 +631,35 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="missingContentBoxGroup">
+     <property name="title">
+      <string>Missing content box</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="warningIconLabel">
+        <property name="text">
+         <string notr="true">Image</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>As there is no content box, the output will be a blank white page with size matching that of other pages.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -669,7 +698,7 @@
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="alignmentButtonGroup"/>
   <buttongroup name="matchSizeButtonGroup"/>
+  <buttongroup name="alignmentButtonGroup"/>
  </buttongroups>
 </ui>

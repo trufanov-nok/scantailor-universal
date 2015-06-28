@@ -25,6 +25,9 @@
 #include "PageId.h"
 #include "imageproc/Constants.h"
 #include <boost/foreach.hpp>
+#include <QApplication>
+#include <QStyle>
+#include <QIcon>
 #include <QPixmap>
 #include <QString>
 #include <QSettings>
@@ -60,6 +63,10 @@ OptionsWidget::OptionsWidget(
 	);
 	
 	setupUi(this);
+
+	QIcon warningIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning));
+	warningIconLabel->setPixmap(warningIcon.pixmap(48, 48));
+
 	updateLinkDisplay(topBottomLink, m_topBottomLinked);
 	updateLinkDisplay(leftRightLink, m_leftRightLinked);
 	enableDisableAlignmentButtons();
@@ -200,15 +207,23 @@ OptionsWidget::preUpdateUI(
 	updateLinkDisplay(topBottomLink, m_topBottomLinked);
 	updateLinkDisplay(leftRightLink, m_leftRightLinked);
 	
+	marginsGroup->setVisible(true);
+	alignmentGroup->setVisible(true);
 	marginsGroup->setEnabled(false);
 	alignmentGroup->setEnabled(false);
+	missingContentBoxGroup->setVisible(false);
 }
 
 void
-OptionsWidget::postUpdateUI()
+OptionsWidget::postUpdateUI(bool have_content_box)
 {
+	marginsGroup->setVisible(have_content_box);
+	alignmentGroup->setVisible(have_content_box);
+
 	marginsGroup->setEnabled(true);
 	alignmentGroup->setEnabled(true);
+
+	missingContentBoxGroup->setVisible(!have_content_box);
 }
 
 void

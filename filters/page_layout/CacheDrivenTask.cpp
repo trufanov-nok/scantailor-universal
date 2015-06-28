@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -97,16 +97,29 @@ CacheDrivenTask::process(
 	
 	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 		
-		thumb_col->processThumbnail(
-			std::auto_ptr<QGraphicsItem>(
+		std::auto_ptr<QGraphicsItem> thumb;
+
+		if (content_box.isValid()) {
+			thumb.reset(
 				new Thumbnail(
 					thumb_col->thumbnailCache(),
 					thumb_col->maxLogicalThumbSize(),
 					page_info.id(), *params,
 					*adjusted_transform, page_layout
 				)
-			)
-		);
+			);
+		} else {
+			thumb.reset(
+				new ThumbnailBase(
+					thumb_col->thumbnailCache(),
+					thumb_col->maxLogicalThumbSize(),
+					page_info.id(),
+					*full_size_image_transform
+				)
+			);
+		}
+
+		thumb_col->processThumbnail(thumb);
 	}
 }
 
