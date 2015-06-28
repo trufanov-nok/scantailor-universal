@@ -1614,10 +1614,6 @@ MainWindow::loadPageInteractive(PageInfo const& page)
 	if (isOutputFilter() && !checkReadyForOutput(&page.id())) {
 		filterList->setBatchProcessingPossible(false);
 		
-		// Switch to the first page - the user will need
-		// to process all pages in batch mode.
-		m_ptrThumbSequence->setSelection(m_ptrThumbSequence->firstPage().id());
-		
 		QString const err_text(
 			tr("Output is not yet possible, as the final size"
 			" of pages is not yet known.\nTo determine it,"
