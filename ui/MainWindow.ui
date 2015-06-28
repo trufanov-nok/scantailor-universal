@@ -146,12 +146,6 @@
       </item>
       <item>
        <widget class="QGraphicsView" name="thumbView">
-        <property name="maximumSize">
-         <size>
-          <width>249</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="statusTip">
          <string>Use Home, End, PgUp (or Q), PgDown (or W) to navigate between pages.</string>
         </property>

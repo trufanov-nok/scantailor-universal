@@ -515,7 +515,7 @@ MainWindow::setupThumbView()
 		inner_width -= thumbView->frameWidth() * 2;
 	}
 	int const delta_x = thumbView->size().width() - inner_width;
-	thumbView->setMinimumWidth((int)ceil(m_maxLogicalThumbSize.width() + delta_x));
+	thumbView->setFixedWidth((int)ceil(m_maxLogicalThumbSize.width() + delta_x));
 	
 	thumbView->setBackgroundBrush(palette().color(QPalette::Window));
 	m_ptrThumbSequence->attachView(thumbView);
