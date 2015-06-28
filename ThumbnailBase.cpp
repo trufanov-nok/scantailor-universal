@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -179,7 +179,7 @@ ThumbnailBase::paint(QPainter* painter,
 	temp_painter.setWorldTransform(temp_adjustment);
 
 	QPainterPath outer_path;
-	outer_path.addRect(display_rect);
+	outer_path.addRect(display_rect.adjusted(-1, -1, 1, 1));
 
 	QPainterPath inner_path;
 	inner_path.addPolygon(
