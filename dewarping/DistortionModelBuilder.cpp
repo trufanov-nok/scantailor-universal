@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@
 #include "spfit/SplineFitter.h"
 #include "spfit/LinearForceBalancer.h"
 #include "spfit/ConstraintSet.h"
-#include <Eigen/Core>
 #include <QTransform>
 #include <QImage>
 #include <QPainter>
@@ -44,10 +43,9 @@
 #include <exception>
 #include <iterator>
 #include <limits>
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
-using namespace Eigen;
 using namespace imageproc;
 
 namespace dewarping
@@ -181,12 +179,9 @@ DistortionModelBuilder::tryBuildModel(DebugImages* dbg, QImage const* dbg_backgr
 		}
 	}
 	num_curves = ordered_curves.size();
-	if (num_curves == 0) {
+	if (num_curves < 2) {
 		return DistortionModel();
 	}
-	//if (num_curves < 2) {
-	//	return DistortionModel();
-	//}
 
 	std::sort(ordered_curves.begin(), ordered_curves.end());
 
@@ -484,47 +479,34 @@ try {
 		top_curve->extendedPolyline, bottom_curve->extendedPolyline, depth_perception
 	);
 
-	double error = 0;
-	BOOST_FOREACH(TracedCurve const& curve, m_rAllCurves) {
+	double total_error = 0;
+	for (TracedCurve const& curve : m_rAllCurves) {
 		size_t const polyline_size = curve.trimmedPolyline.size();
-		double const r_reference_height = 1.0 / 1.0; //calcReferenceHeight(dewarper, curve.centroid);
+		assert(polyline_size > 0); // Guaranteed by addHorizontalCurve().
 
-		// We are going to approximate the dewarped polyline by a straight line
-		// using linear least-squares: A'*A*x = A'*b -> x = (A'*A)^-1 * A'*b
-		MatrixXd A(polyline_size, 2);
-		VectorXd b(polyline_size);
+		// We want to penalize the line both for being not straight and also
+		// for being non-horizontal. The penalty metric we use is:
+		// sqrt(max_y(dewarped_points) - min_y(dewarped_points))
+		// The square root is necessary to de-emphasize outliers.
 
-		int i = 0;
-		BOOST_FOREACH(QPointF const& warped_pt, curve.trimmedPolyline) {
+		double min_y = std::numeric_limits<double>::max();
+		double max_y = std::numeric_limits<double>::min();
+
+		for (QPointF const& warped_pt : curve.trimmedPolyline) {
 			// TODO: add another signature with hint for efficiency.
 			QPointF const dewarped_pt(dewarper.mapToDewarpedSpace(warped_pt));
 
-			// ax + b = y  <-> x * a + 1 * b = y 
-			A.row(i) << dewarped_pt.x(), 1;
-			b[i] = dewarped_pt.y();
-			++i;
+			min_y = std::min<double>(min_y, dewarped_pt.y());
+			max_y = std::max<double>(max_y, dewarped_pt.y());
 		}
 
-		// As in "y = ax + b".
-		// At * A * ab = At * b
-		VectorXd const ab((A.transpose() * A).lu().solve(A.transpose() * b));
-		VectorXd const errvec(b - A * ab);
-
-		double sum_abs_err = 0;
-		for (size_t i = 0; i < polyline_size; ++i) {
-			sum_abs_err += fabs(errvec[i]) * r_reference_height;
-		}
-
-		// Penalty for not being straight.
-		error += sum_abs_err / polyline_size;
-
-		// TODO: penalty for not being horizontal.
+		total_error += std::sqrt(max_y - min_y);
 	}
 
-	if (error < m_bestModel.totalError) {
+	if (total_error < m_bestModel.totalError) {
 		m_bestModel.topCurve = top_curve;
 		m_bestModel.bottomCurve = bottom_curve;
-		m_bestModel.totalError = error;
+		m_bestModel.totalError = total_error;
 	}
 } catch (std::runtime_error const&) {
 	// Probably CylindricalSurfaceDewarper didn't like something.
