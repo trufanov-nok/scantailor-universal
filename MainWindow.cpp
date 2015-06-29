@@ -1454,9 +1454,12 @@ MainWindow::openSettingsDialog()
 	SettingsDialog* dialog = new SettingsDialog(this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowModality(Qt::WindowModal);
-	dialog->show();
 
-	m_pAccelerationProvider->processUpdatedConfiguration();
+	connect(dialog, &SettingsDialog::settingsUpdated, [this] {
+		m_pAccelerationProvider->processUpdatedConfiguration();
+	});
+
+	dialog->show();
 }
 
 void

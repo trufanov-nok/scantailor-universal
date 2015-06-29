@@ -31,6 +31,12 @@ public:
 	SettingsDialog(QWidget* parent = 0);
 	
 	virtual ~SettingsDialog();
+signals:
+	/**
+	 * This signal should be used by clients instead of accepted(),
+	 * as settings are actually updated from a slot connected to accepted().
+	 */
+	void settingsUpdated();
 private slots:
 	void commitChanges();
 private:

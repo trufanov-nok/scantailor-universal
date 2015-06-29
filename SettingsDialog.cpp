@@ -109,17 +109,21 @@ SettingsDialog::~SettingsDialog()
 void
 SettingsDialog::commitChanges()
 {
-	QSettings settings;
+	{
+		QSettings settings;
 
 #ifdef ENABLE_OPENGL
-	settings.setValue("settings/enable_opengl", ui.enableOpenglCb->isChecked());
+		settings.setValue("settings/enable_opengl", ui.enableOpenglCb->isChecked());
 #endif
 
 #ifdef ENABLE_OPENCL
-	settings.setValue("settings/enable_opencl", ui.enableOpenclCb->isChecked());
-	if (m_pOpenCLPlugin) {
-		QByteArray const device = ui.openclDeviceCombo->currentData().toByteArray();
-		m_pOpenCLPlugin->selectDevice(std::string(device.data(), device.size()));
-	}
+		settings.setValue("settings/enable_opencl", ui.enableOpenclCb->isChecked());
+		if (m_pOpenCLPlugin) {
+			QByteArray const device = ui.openclDeviceCombo->currentData().toByteArray();
+			m_pOpenCLPlugin->selectDevice(std::string(device.data(), device.size()));
+		}
 #endif
+	}
+
+	emit settingsUpdated();
 }
