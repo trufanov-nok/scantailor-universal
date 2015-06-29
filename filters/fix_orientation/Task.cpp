@@ -52,6 +52,12 @@ private:
 	 */
 	AffineTransformedImage m_transformedImage;
 
+	/**
+	 * A downscaled version of m_transformedImage.origImage().
+	 * @see ImageViewBase::createDownscaledImage()
+	 */
+	QImage m_downscaledImage;
+
 	OrthogonalRotation m_rotation;
 	ImageId m_imageId;
 	bool m_batchProcessing;
@@ -121,6 +127,7 @@ Task::UiUpdater::UiUpdater(
 	bool const batch_processing)
 :	m_ptrFilter(filter),
 	m_transformedImage(transformed_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(m_transformedImage.origImage())),
 	m_rotation(rotation),
 	m_imageId(image_id),
 	m_batchProcessing(batch_processing)
@@ -141,7 +148,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 	
-	ImageView* view = new ImageView(m_transformedImage);
+	ImageView* view = new ImageView(m_transformedImage, m_downscaledImage);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
 	QObject::connect(
 		opt_widget, SIGNAL(rotated(OrthogonalRotation)),

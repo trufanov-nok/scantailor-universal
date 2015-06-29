@@ -20,6 +20,7 @@
 #define PAGE_LAYOUT_IMAGEVIEW_H_
 
 #include "ImageViewBase.h"
+#include "ImagePixmapUnion.h"
 #include "AffineImageTransform.h"
 #include "InteractionHandler.h"
 #include "DragHandler.h"
@@ -57,6 +58,7 @@ public:
 		IntrusivePtr<Settings> const& settings, PageId const& page_id,
 		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 		AffineTransformedImage const& affine_transformed_image,
+		ImagePixmapUnion const& downscaled_image,
 		ContentBox const& content_box,
 		OptionsWidget const& opt_widget);
 	

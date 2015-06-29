@@ -25,10 +25,11 @@
 #include "OutputParams.h"
 #include "OutputImageParams.h"
 #include "OutputFileParams.h"
+#include "OutputMargins.h"
 #include "RenderParams.h"
 #include "FilterUiInterface.h"
 #include "TaskStatus.h"
-#include "ImageView.h"
+#include "BasicImageView.h"
 #include "ImageViewTab.h"
 #include "TabbedImageView.h"
 #include "PictureZoneComparator.h"
@@ -484,7 +485,7 @@ Task::UiUpdater::UiUpdater(
 	m_outputImage(output_image),
 	m_origToOutput(orig_to_output),
 	m_outputToOrig(output_to_orig),
-	m_downscaledOutputImage(ImageView::createDownscaledImage(output_image)),
+	m_downscaledOutputImage(ImageViewBase::createDownscaledImage(output_image)),
 	m_pictureMask(picture_mask),
 	m_cachedTransformedOrigImage(cached_transformed_orig_image),
 	m_cachedDownscaledTransformedOrigImage(cached_downscaled_transformed_orig_image),
@@ -511,7 +512,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 
 	std::auto_ptr<ImageViewBase> image_view(
-		new ImageView(m_outputImage, m_downscaledOutputImage)
+		new BasicImageView(m_outputImage, m_downscaledOutputImage, OutputMargins())
 	);
 
 	std::auto_ptr<QWidget> picture_zone_editor;

@@ -62,6 +62,7 @@ private:
 	std::auto_ptr<DebugImages> m_ptrDbg;
 	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
 	AffineTransformedImage m_affineTransformedImage;
+	QImage m_downscaledImage;
 	bool m_batchProcessing;
 };
 
@@ -178,6 +179,7 @@ Task::UiUpdater::UiUpdater(
 	m_ptrDbg(dbg),
 	m_ptrOrigTransform(orig_transform),
 	m_affineTransformedImage(affine_transformed_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(affine_transformed_image.origImage())),
 	m_batchProcessing(batch)
 {
 }
@@ -198,7 +200,8 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	ImageView* view = new ImageView(
-		m_ptrOrigTransform, m_affineTransformedImage, m_params.contentBox()
+		m_ptrOrigTransform, m_affineTransformedImage,
+		m_downscaledImage, m_params.contentBox()
 	);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());
 	

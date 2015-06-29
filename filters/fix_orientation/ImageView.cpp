@@ -27,9 +27,10 @@
 namespace fix_orientation
 {
 
-ImageView::ImageView(AffineTransformedImage const& full_size_image)
+ImageView::ImageView(AffineTransformedImage const& full_size_image,
+	ImagePixmapUnion const& downscaled_image)
 :	ImageViewBase(
-		full_size_image.origImage(), ImagePixmapUnion(),
+		full_size_image.origImage(), downscaled_image,
 		ImagePresentation(
 			full_size_image.xform().transform(),
 			full_size_image.xform().transformedCropArea()

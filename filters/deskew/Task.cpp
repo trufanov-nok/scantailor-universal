@@ -92,6 +92,7 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	std::auto_ptr<DebugImages> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
+	QImage m_downscaledImage;
 	PageId m_pageId;
 	Params m_pageParams;
 	bool m_batchProcessing;
@@ -114,6 +115,7 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	std::auto_ptr<DebugImages> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
+	QImage m_downscaledImage;
 	PageId m_pageId;
 	Params m_pageParams;
 	bool m_batchProcessing;
@@ -135,6 +137,7 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	std::auto_ptr<DebugImages> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
+	QImage m_downscaledImage;
 	PageId m_pageId;
 	Params m_pageParams;
 	bool m_batchProcessing;
@@ -156,6 +159,7 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	std::auto_ptr<DebugImages> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
+	QImage m_downscaledImage;
 	PageId m_pageId;
 	Params m_pageParams;
 	bool m_batchProcessing;
@@ -543,6 +547,7 @@ Task::NoDistortionUiUpdater::NoDistortionUiUpdater(
 :	m_ptrFilter(filter),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -564,7 +569,7 @@ Task::NoDistortionUiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 
-	QWidget* view = new BasicImageView(m_fullSizeImage);
+	QWidget* view = new BasicImageView(m_fullSizeImage, m_downscaledImage);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());
 }
 
@@ -581,6 +586,7 @@ Task::RotationUiUpdater::RotationUiUpdater(
 :	m_ptrFilter(filter),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -603,7 +609,7 @@ Task::RotationUiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	double const angle = m_pageParams.rotationParams().compensationAngleDeg();
-	ImageView* view = new ImageView(m_fullSizeImage, angle);
+	ImageView* view = new ImageView(m_fullSizeImage, m_downscaledImage, angle);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());
 	
 	QObject::connect(
@@ -628,6 +634,7 @@ Task::PerspectiveUiUpdater::PerspectiveUiUpdater(
 :	m_ptrFilter(filter),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -670,7 +677,7 @@ Task::PerspectiveUiUpdater::updateUI(FilterUiInterface* ui)
 	distortion_model.setBottomCurve(Curve(bottom_curve));
 
 	DewarpingView* view = new DewarpingView(
-		m_fullSizeImage, ImagePixmapUnion(), m_pageId, distortion_model,
+		m_fullSizeImage, m_downscaledImage, m_pageId, distortion_model,
 
 		// Doesn't matter when curves are flat.
 		DepthPerception(),
@@ -699,6 +706,7 @@ Task::DewarpingUiUpdater::DewarpingUiUpdater(
 :	m_ptrFilter(filter),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -721,7 +729,7 @@ Task::DewarpingUiUpdater::updateUI(FilterUiInterface* ui)
 	}
 
 	DewarpingView* view = new DewarpingView(
-		m_fullSizeImage, ImagePixmapUnion(), m_pageId,
+		m_fullSizeImage, m_downscaledImage, m_pageId,
 		m_pageParams.dewarpingParams().distortionModel(),
 		m_pageParams.dewarpingParams().depthPerception(),
 		/*fixed_number_of_control_points=*/false

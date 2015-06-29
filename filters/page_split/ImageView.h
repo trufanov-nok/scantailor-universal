@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #define PAGE_SPLIT_IMAGEVIEW_H_
 
 #include "ImageViewBase.h"
+#include "ImagePixmapUnion.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
 #include "ObjectDragHandler.h"
@@ -49,6 +50,7 @@ class ImageView :
 public:
 	ImageView(
 		AffineTransformedImage const& full_size_image,
+		ImagePixmapUnion const& downscaled_image,
 		PageLayout const& layout, IntrusivePtr<ProjectPages> const& pages,
 		ImageId const& image_id, bool left_half_removed, bool right_half_removed);
 	

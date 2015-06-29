@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #define SELECT_CONTENT_IMAGEVIEW_H_
 
 #include "ImageViewBase.h"
+#include "ImagePixmapUnion.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
 #include "DraggablePoint.h"
@@ -56,6 +57,7 @@ public:
 	ImageView(
 		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 		AffineTransformedImage const& affine_transformed_image,
+		ImagePixmapUnion const& downscaled_image,
 		ContentBox const& content_box);
 	
 	virtual ~ImageView();

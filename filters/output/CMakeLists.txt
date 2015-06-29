@@ -5,7 +5,6 @@ INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
 SET(
 	sources
 	ApplyColorsDialog.cpp ApplyColorsDialog.h
-	ImageView.cpp ImageView.h
 	ImageViewTab.h
 	TabbedImageView.cpp TabbedImageView.h
 	Filter.cpp Filter.h

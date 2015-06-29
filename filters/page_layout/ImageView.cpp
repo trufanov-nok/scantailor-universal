@@ -51,10 +51,11 @@ ImageView::ImageView(
 	IntrusivePtr<Settings> const& settings, PageId const& page_id,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image,
+	ImagePixmapUnion const& downscaled_image,
 	ContentBox const& content_box,
 	OptionsWidget const& opt_widget)
 :	ImageViewBase(
-		affine_transformed_image.origImage(), ImagePixmapUnion(),
+		affine_transformed_image.origImage(), downscaled_image,
 		ImagePresentation(
 			affine_transformed_image.xform().transform(),
 			affine_transformed_image.xform().transformedCropArea()

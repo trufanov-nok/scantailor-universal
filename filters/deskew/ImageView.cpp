@@ -47,9 +47,10 @@ int const ImageView::m_cellSize = 20;
 
 ImageView::ImageView(
 	AffineTransformedImage const& full_size_image,
-	double rotation_angle_deg)
+	ImagePixmapUnion const& downscaled_image,
+	double const rotation_angle_deg)
 :	ImageViewBase(
-		full_size_image.origImage(), ImagePixmapUnion(),
+		full_size_image.origImage(), downscaled_image,
 		ImagePresentation(
 			full_size_image.xform().transform(),
 			full_size_image.xform().transformedCropArea()

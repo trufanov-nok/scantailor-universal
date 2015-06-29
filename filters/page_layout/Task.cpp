@@ -63,6 +63,7 @@ private:
 	PageId m_pageId;
 	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
 	AffineTransformedImage m_affineTransformedImage;
+	QImage m_downscaledImage;
 	ContentBox m_contentBox;
 	bool m_aggSizeChanged;
 	bool m_batchProcessing;
@@ -157,13 +158,13 @@ Task::UiUpdater::UiUpdater(
 	PageId const& page_id,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image,
-	ContentBox const& content_box,
-	bool agg_size_changed, bool batch)
+	ContentBox const& content_box, bool agg_size_changed, bool batch)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
 	m_pageId(page_id),
 	m_ptrOrigTransform(orig_transform),
 	m_affineTransformedImage(affine_transformed_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(affine_transformed_image.origImage())),
 	m_contentBox(content_box),
 	m_aggSizeChanged(agg_size_changed),
 	m_batchProcessing(batch)
@@ -194,12 +195,11 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	ImageViewBase* view;
 
 	if (!have_content_box) {
-		// TODO: build a downscaled image in the background thread.
-		view = new BasicImageView(m_affineTransformedImage);
+		view = new BasicImageView(m_affineTransformedImage, m_downscaledImage);
 	} else {
 		view = new ImageView(
-			m_ptrSettings, m_pageId,
-			m_ptrOrigTransform, m_affineTransformedImage,
+			m_ptrSettings, m_pageId, m_ptrOrigTransform,
+			m_affineTransformedImage, m_downscaledImage,
 			m_contentBox, *opt_widget
 		);
 	}

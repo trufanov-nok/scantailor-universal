@@ -68,6 +68,7 @@ private:
 	IntrusivePtr<ProjectPages> m_ptrPages;
 	std::auto_ptr<DebugImages> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
+	QImage m_downscaledImage;
 	PageInfo m_pageInfo;
 	Params m_params;
 	bool m_layoutTypeAutoDetected;
@@ -226,6 +227,7 @@ Task::UiUpdater::UiUpdater(
 	m_ptrPages(pages),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
+	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
 	m_pageInfo(page_info),
 	m_params(params),
 	m_layoutTypeAutoDetected(layout_type_auto_detected),
@@ -249,7 +251,8 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	ImageView* view = new ImageView(
-		m_fullSizeImage, m_params.pageLayout(), m_ptrPages, m_pageInfo.imageId(),
+		m_fullSizeImage, m_downscaledImage,
+		m_params.pageLayout(), m_ptrPages, m_pageInfo.imageId(),
 		m_pageInfo.leftHalfRemoved(), m_pageInfo.rightHalfRemoved()
 	);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());

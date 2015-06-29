@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #define DESKEW_IMAGEVIEW_H_
 
 #include "ImageViewBase.h"
+#include "ImagePixmapUnion.h"
 #include "AffineImageTransform.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
@@ -46,13 +47,14 @@ class ImageView :
 	Q_OBJECT
 public:
 	/**
-	 * @param full_size_image Original, full size image.
-	 * @param full_size_image_transform Logical transformation applied
-	 *        to \p full_size_image. This transform doesn't include rotation
-	 *        by \p rotation_angle_deg.
+	 * @param full_size_image The original, full size image plus a transformation
+	 *        excluding the rotation that's done at this stage.
+	 * @param downscaled_image A downscaled version of full_size_image.origImage().
+	 *        @see ImageViewBase::createDownscaledImage()
 	 * @param rotation_angle_deg Initial rotation angle, in degrees.
 	 */
 	ImageView(AffineTransformedImage const& full_size_image,
+		ImagePixmapUnion const& downscaled_image,
 		double rotation_angle_deg);
 	
 	virtual ~ImageView();
