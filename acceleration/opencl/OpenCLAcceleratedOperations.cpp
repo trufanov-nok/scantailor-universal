@@ -85,6 +85,57 @@ OpenCLAcceleratedOperations::~OpenCLAcceleratedOperations()
 }
 
 Grid<float>
+OpenCLAcceleratedOperations::gaussBlur(
+	Grid<float> const& src, float h_sigma, float v_sigma) const
+{
+	try {
+		return gaussBlurUnguarded(src, h_sigma, v_sigma);
+	} catch (cl::Error const& e) {
+		if (e.err() == CL_OUT_OF_HOST_MEMORY) {
+			throw std::bad_alloc();
+		}
+		qDebug() << "OpenCL error: " << e.what();
+		return m_ptrFallback->gaussBlur(src, h_sigma, v_sigma);
+	}
+}
+
+Grid<float>
+OpenCLAcceleratedOperations::gaussBlurUnguarded(
+	Grid<float> const& src, float h_sigma, float v_sigma) const
+{
+	if (src.isNull()) {
+		// OpenCL doesn't like zero-size buffers.
+		return Grid<float>();
+	}
+
+	std::vector<cl::Event> deps;
+	cl::Event evt;
+
+	cl::Buffer const src_buffer(m_context, CL_MEM_READ_ONLY, src.totalBytes());
+	OpenCLGrid<float> src_grid(src_buffer, src);
+
+	m_commandQueue.enqueueWriteBuffer(
+		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &deps, &evt
+	);
+	deps.clear();
+	deps.push_back(std::move(evt));
+
+	auto dst_grid = ::gaussBlur(
+		m_commandQueue, m_program, src_grid, h_sigma, v_sigma, &deps, &evt
+	);
+
+	Grid<float> dst(dst_grid.toUninitializedHostGrid());
+
+	m_commandQueue.enqueueReadBuffer(
+		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &deps, &evt
+	);
+
+	evt.wait();
+
+	return std::move(dst);
+}
+
+Grid<float>
 OpenCLAcceleratedOperations::anisotropicGaussBlur(
 	Grid<float> const& src, float dir_x, float dir_y,
 	float dir_sigma, float ortho_dir_sigma) const

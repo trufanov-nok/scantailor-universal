@@ -28,6 +28,21 @@
 using namespace imageproc;
 
 Grid<float>
+NonAcceleratedOperations::gaussBlur(
+	Grid<float> const& src, float h_sigma, float v_sigma) const
+{
+	Grid<float> dst(src.width(), src.height());
+
+	gaussBlurGeneric(
+		QSize(src.width(), src.height()), h_sigma, v_sigma,
+		src.data(), src.stride(), [](float val) { return val; },
+		dst.data(), dst.stride(), [](float& dst, float src) { dst = src; }
+	);
+
+	return dst;
+}
+
+Grid<float>
 NonAcceleratedOperations::anisotropicGaussBlur(
 	Grid<float> const& src, float dir_x, float dir_y,
 	float dir_sigma, float ortho_dir_sigma) const

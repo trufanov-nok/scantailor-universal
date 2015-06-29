@@ -34,6 +34,9 @@ class NonAcceleratedOperations : public AcceleratableOperations
 public:
 	NonAcceleratedOperations() = default;
 
+	virtual Grid<float> gaussBlur(
+		Grid<float> const& src, float h_sigma, float v_sigma) const;
+
 	virtual Grid<float> anisotropicGaussBlur(
 		Grid<float> const& src, float dir_x, float dir_y,
 		float dir_sigma, float ortho_dir_sigma) const;

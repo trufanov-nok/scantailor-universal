@@ -37,6 +37,9 @@ public:
 
 	virtual ~OpenCLAcceleratedOperations();
 
+	virtual Grid<float> gaussBlur(
+		Grid<float> const& src, float h_sigma, float v_sigma) const;
+
 	virtual Grid<float> anisotropicGaussBlur(
 		Grid<float> const& src, float dir_x, float dir_y,
 		float dir_sigma, float ortho_dir_sigma) const;
@@ -45,7 +48,10 @@ public:
 		Grid<float> const& src, std::vector<Vec2f> const& directions,
 		std::vector<Vec2f> const& sigmas, float shoulder_length) const;
 private:
-	virtual Grid<float> anisotropicGaussBlurUnguarded(
+	Grid<float> gaussBlurUnguarded(
+		Grid<float> const& src, float h_sigma, float v_sigma) const;
+
+	Grid<float> anisotropicGaussBlurUnguarded(
 		Grid<float> const& src, float dir_x, float dir_y,
 		float dir_sigma, float ortho_dir_sigma) const;
 

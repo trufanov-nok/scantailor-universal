@@ -36,7 +36,6 @@
 #include "imageproc/GrayImage.h"
 #include "imageproc/Transform.h"
 #include "imageproc/RasterOpGeneric.h"
-#include "imageproc/GaussBlur.h"
 #include "imageproc/Sobel.h"
 #include "imageproc/Constants.h"
 #include <boost/lambda/lambda.hpp>
@@ -149,19 +148,11 @@ TextLineTracer::trace(
 
 		status.throwIfCancelled();
 
-		gaussBlurGeneric(
-			downscaled_image.size(), sigmas[0], sigmas[1],
-			dir_deriv_pos.data(), dir_deriv_pos.stride(), _1,
-			dir_deriv_pos.data(), dir_deriv_pos.stride(), _1 = _2
-		);
+		dir_deriv_pos = accel_ops->gaussBlur(dir_deriv_pos, sigmas[0], sigmas[1]);
 
 		status.throwIfCancelled();
 
-		gaussBlurGeneric(
-			downscaled_image.size(), sigmas[0], sigmas[1],
-			dir_deriv_neg.data(), dir_deriv_neg.stride(), _1,
-			dir_deriv_neg.data(), dir_deriv_neg.stride(), _1 = _2
-		);
+		dir_deriv_neg = accel_ops->gaussBlur(dir_deriv_neg, sigmas[0], sigmas[1]);
 
 		status.throwIfCancelled();
 

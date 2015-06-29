@@ -25,6 +25,28 @@
 #include <vector>
 
 /**
+ * @brief Applies an axis-aligned 2D gaussian filter to a float-valued grid.
+ *
+ * @param command_queue The command queue to use.
+ * @param program The pre-built OpenCL code.
+ * @param src_grid The grid to apply gaussian filtering to.
+ * @param h_sigma The standard deviation in horizontal direction.
+ * @param v_sigma The standard deviation in vertical direction.
+ * @param wait_for If provided, the kernels enqueued by this function will
+ *        on the events provided.
+ * @param event If provided, this event will be initialised to enable waiting
+ *        for this operation to complete.
+ * @return The filtered grid.
+ */
+OpenCLGrid<float> gaussBlur(
+	cl::CommandQueue const& command_queue,
+	cl::Program const& program,
+	OpenCLGrid<float> const& src_grid,
+	float h_sigma, float v_sigma,
+	std::vector<cl::Event>* wait_for = nullptr,
+	cl::Event* event = nullptr);
+
+/**
  * @brief Applies an oriented 2D gaussian filter to a float-valued grid.
  *
  * @param command_queue The command queue to use.

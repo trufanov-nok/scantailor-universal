@@ -37,6 +37,17 @@ public:
 	virtual ~AcceleratableOperations() {}
 
 	/**
+	 * @brief Applies an axis-aligned 2D gaussian filter to a grid of float values.
+	 *
+	 * @param src The grid to apply gaussian filtering to.
+	 * @param h_sigma The standard deviation in horizontal direction.
+	 * @param h_sigma The standard deviation in vertical direction.
+	 * @return The blurred grid.
+	 */
+	virtual Grid<float> gaussBlur(
+		Grid<float> const& src, float h_sigma, float v_sigma) const = 0;
+
+	/**
 	 * @brief Applies an oriented 2D gaussian filter to a grid of float values.
 	 *
 	 * @param src The grid to apply gaussian filtering to.

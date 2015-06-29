@@ -22,6 +22,101 @@
 
 using namespace imageproc::gauss_blur_impl;
 
+OpenCLGrid<float> gaussBlur(
+	cl::CommandQueue const& command_queue,
+	cl::Program const& program,
+	OpenCLGrid<float> const& src_grid,
+	float h_sigma, float v_sigma,
+	std::vector<cl::Event>* wait_for,
+	cl::Event* event)
+{
+	int const width = src_grid.width();
+	int const height = src_grid.height();
+	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
+
+	std::vector<cl::Event> deps;
+	if (wait_for) {
+		deps.insert(deps.end(), wait_for->begin(), wait_for->end());
+	}
+
+	cl::Event evt;
+
+	// dst_buffer is used both as a horizontal pass destination and
+	// as a final destination.
+	cl::Buffer dst_buffer(
+		context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(0)
+	);
+	OpenCLGrid<float> dst_grid(src_grid.withDifferentPadding(dst_buffer, 0));
+
+	{
+		// Horizontal pass.
+		FilterParams const p(h_sigma);
+
+		cl::Kernel kernel(program, "gauss_blur_1d");
+		int idx = 0;
+		kernel.setArg(idx++, cl_int(width));
+		kernel.setArg(idx++, src_grid.buffer());
+		kernel.setArg(idx++, src_grid.offset());
+		kernel.setArg(idx++, src_grid.stride());
+		kernel.setArg(idx++, cl_int(1));
+		kernel.setArg(idx++, dst_grid.buffer());
+		kernel.setArg(idx++, dst_grid.offset());
+		kernel.setArg(idx++, dst_grid.stride());
+		kernel.setArg(idx++, cl_int(1));
+		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, cl_float(1.f / p.B));
+		kernel.setArg(idx++, cl_float(p.B * p.B));
+
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(height),
+			cl::NullRange,
+			&deps,
+			&evt
+		);
+		deps.clear();
+		deps.push_back(std::move(evt));
+	}
+
+	{
+		// Vertical pass, from dst to itself.
+		FilterParams const p(v_sigma);
+
+		cl::Kernel kernel(program, "gauss_blur_1d");
+		int idx = 0;
+		kernel.setArg(idx++, cl_int(height));
+		kernel.setArg(idx++, dst_grid.buffer());
+		kernel.setArg(idx++, dst_grid.offset());
+		kernel.setArg(idx++, cl_int(1));
+		kernel.setArg(idx++, dst_grid.stride());
+		kernel.setArg(idx++, dst_grid.buffer());
+		kernel.setArg(idx++, dst_grid.offset());
+		kernel.setArg(idx++, cl_int(1));
+		kernel.setArg(idx++, dst_grid.stride());
+		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, cl_float(1.f / p.B));
+		kernel.setArg(idx++, cl_float(p.B * p.B));
+
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(width),
+			cl::NullRange,
+			&deps,
+			&evt
+		);
+		deps.clear();
+		deps.push_back(std::move(evt));
+	}
+
+	if (event) {
+		*event = std::move(evt);
+	}
+
+	return dst_grid;
+}
+
 OpenCLGrid<float> anisotropicGaussBlur(
 	cl::CommandQueue const& command_queue,
 	cl::Program const& program,
