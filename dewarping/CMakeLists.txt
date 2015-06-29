@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 SET(
 	sources
 	Curve.cpp Curve.h
+	DetectVerticalBounds.cpp DetectVerticalBounds.h
 	DepthPerception.cpp DepthPerception.h
 	DistortionModel.cpp DistortionModel.h
 	DistortionModelBuilder.cpp DistortionModelBuilder.h

@@ -47,7 +47,7 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 	// source files. Note that we don't use #include directives
 	// in OpenCL kernel code.
 	static char const* const device_sources[] = {
-		"fill_float_grid.cl",
+		"fill_grid.cl",
 		"copy_1px_padding.cl",
 		"gauss_blur.cl",
 		"text_filter_bank_combine.cl"
@@ -138,7 +138,7 @@ OpenCLAcceleratedOperations::anisotropicGaussBlurUnguarded(
 	return std::move(dst);
 }
 
-Grid<float>
+std::pair<Grid<float>, Grid<uint8_t>>
 OpenCLAcceleratedOperations::textFilterBank(
 	Grid<float> const& src, std::vector<Vec2f> const& directions,
 	std::vector<Vec2f> const& sigmas, float shoulder_length) const
@@ -154,14 +154,14 @@ OpenCLAcceleratedOperations::textFilterBank(
 	}
 }
 
-Grid<float>
+std::pair<Grid<float>, Grid<uint8_t>>
 OpenCLAcceleratedOperations::textFilterBankUnguarded(
 	Grid<float> const& src, std::vector<Vec2f> const& directions,
 	std::vector<Vec2f> const& sigmas, float shoulder_length) const
 {
 	if (src.isNull()) {
 		// OpenCL doesn't like zero-size buffers.
-		return Grid<float>();
+		return std::make_pair(Grid<float>(), Grid<uint8_t>());
 	}
 
 	std::vector<cl::Event> deps;
@@ -176,18 +176,27 @@ OpenCLAcceleratedOperations::textFilterBankUnguarded(
 	deps.clear();
 	deps.push_back(std::move(evt));
 
-	auto dst_grid = ::textFilterBank(
+	std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> dst = ::textFilterBank(
 		m_commandQueue, m_program, src_grid,
 		directions, sigmas, shoulder_length, &deps, &evt
 	);
 
-	Grid<float> dst(dst_grid.toUninitializedHostGrid());
+	Grid<float> accum(dst.first.toUninitializedHostGrid());
 
 	m_commandQueue.enqueueReadBuffer(
-		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &deps, &evt
+		dst.first.buffer(), CL_FALSE, 0, accum.totalBytes(), accum.paddedData(), &deps, &evt
 	);
+	deps.clear();
+	deps.push_back(std::move(evt));
 
+	Grid<uint8_t> direction_map(dst.second.toUninitializedHostGrid());
+
+	m_commandQueue.enqueueReadBuffer(
+		dst.second.buffer(), CL_FALSE, 0, direction_map.totalBytes(),
+		direction_map.paddedData(), &deps, &evt
+	);
+	deps.clear();
 	evt.wait();
 
-	return std::move(dst);
+	return std::make_pair(std::move(accum), std::move(direction_map));
 }

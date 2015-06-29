@@ -23,9 +23,10 @@
 #include "VecNT.h"
 #include <CL/cl.hpp>
 #include <vector>
+#include <cstdint>
 
 /** @see AcceleratableOperations::textFilterBank() */
-OpenCLGrid<float> textFilterBank(
+std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	cl::CommandQueue const& command_queue,
 	cl::Program const& program,
 	OpenCLGrid<float> const& src_grid,

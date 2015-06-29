@@ -43,17 +43,22 @@ NonAcceleratedOperations::anisotropicGaussBlur(
 	return dst;
 }
 
-Grid<float>
+std::pair<Grid<float>, Grid<uint8_t>>
 NonAcceleratedOperations::textFilterBank(
 	Grid<float> const& src, std::vector<Vec2f> const& directions,
 	std::vector<Vec2f> const& sigmas, float shoulder_length) const
 {
-	Grid<float> accum(src.width(), src.height(), /*padding=*/0);
+	Grid<float> accum(src.width(), src.height());
 	accum.initInterior(-std::numeric_limits<float>::max());
+
+	Grid<uint8_t> direction_map(src.width(), src.height());
+	direction_map.initInterior(0);
+
 	QRect const rect(0, 0, src.width(), src.height());
 
 	for (Vec2f const& s : sigmas) {
-		for (Vec2f const& dir : directions) {
+		for (size_t dir_idx = 0; dir_idx < directions.size(); ++dir_idx) {
+			Vec2f const& dir = directions[dir_idx];
 
 			//status.throwIfCancelled();
 
@@ -69,7 +74,10 @@ NonAcceleratedOperations::textFilterBank(
 			QPoint const shoulder_i(shoulder_f.toPoint());
 
 			rasterOpGenericXY(
-				[rect, shoulder_i, &blurred](float& accum, float const origin_px, int x, int y) {
+				[rect, shoulder_i, &blurred, dir_idx](
+						float& accum, uint8_t& direction_idx,
+						float const origin_px, int x, int y) {
+
 					QPoint const origin(x, y);
 					QPoint const pt1(origin + shoulder_i);
 					QPoint const pt2(origin - shoulder_i);
@@ -85,12 +93,15 @@ NonAcceleratedOperations::textFilterBank(
 					}
 
 					float const response = 0.5f * (pt1_px + pt2_px) - origin_px;
-					accum = std::max(accum, response);
+					if (response > accum) {
+						accum = response;
+						direction_idx = dir_idx;
+					}
 				},
-				accum, blurred
+				accum, direction_map, blurred
 			);
 		}
 	}
 
-	return accum;
+	return std::make_pair(std::move(accum), std::move(direction_map));
 }

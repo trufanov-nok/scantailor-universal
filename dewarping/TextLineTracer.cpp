@@ -19,6 +19,7 @@
 #include "TextLineTracer.h"
 #include "TextLineRefiner.h"
 #include "TextLineSegmenter.h"
+#include "DetectVerticalBounds.h"
 #include "AffineTransformedImage.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
@@ -27,10 +28,6 @@
 #include "Grid.h"
 #include "DistortionModelBuilder.h"
 #include "Curve.h"
-#include "ObjectSwapper.h"
-#include "ObjectSwapperFactory.h"
-#include "ObjectSwapperImplGrid.h"
-#include "VectorFieldImageView.h"
 #include "math/ToLineProjector.h"
 #include "math/SidesOfLine.h"
 #include "math/LineBoundedByRect.h"
@@ -44,6 +41,8 @@
 #include "imageproc/Constants.h"
 #include <boost/lambda/lambda.hpp>
 #include <QPainter>
+#include <QPen>
+#include <QColor>
 
 using namespace imageproc;
 
@@ -58,14 +57,11 @@ TextLineTracer::trace(
 {
 	using namespace boost::lambda;
 
-	auto polylines = TextLineSegmenter::process(input, output, accel_ops, status, dbg);
+	TextLineSegmenter::Result segmentation(
+		TextLineSegmenter::process(input, accel_ops, status, dbg)
+	);
 
-	if (output.verticalBounds().first.isNull() || output.verticalBounds().second.isNull()) {
-		return;
-	}
-
-	filterShortCurves(polylines, output.verticalBounds().first, output.verticalBounds().second);
-	filterOutOfBoundsCurves(polylines, output.verticalBounds().first, output.verticalBounds().second);
+	status.throwIfCancelled();
 
 	AffineTransformedImage const downscaled = input.withAdjustedTransform(
 		[](AffineImageTransform& xform) {
@@ -76,11 +72,25 @@ TextLineTracer::trace(
 		}
 	);
 
-	for (auto& polyline : polylines) {
+	status.throwIfCancelled();
+
+	// Transform traced curves into downscaled coordinates.
+	for (auto& polyline : segmentation.tracedCurves) {
 		for (QPointF& pt : polyline) {
 			pt = downscaled.xform().transform().map(pt);
 		}
 	}
+
+	// Detect vertical bounds. The reason we do it in downscaled coordinates
+	// is that we can hardcode the distance threshold in this case, as we
+	// roughly know the size of the image.
+	auto const vert_bounds = detectVerticalBounds(segmentation.tracedCurves, 10.0);
+	if (vert_bounds.first.isNull() || vert_bounds.second.isNull()) {
+		return;
+	}
+
+	filterShortCurves(segmentation.tracedCurves, vert_bounds.first, vert_bounds.second);
+	filterOutOfBoundsCurves(segmentation.tracedCurves, vert_bounds.first, vert_bounds.second);
 
 	QPolygonF const downscaled_crop_area(downscaled.xform().transformedCropArea());
 	QRect const downscaled_rect(downscaled_crop_area.boundingRect().toRect());
@@ -92,16 +102,25 @@ TextLineTracer::trace(
 			downscaled_rect, OutsidePixels::assumeWeakNearest()
 		)
 	);
+
+	status.throwIfCancelled();
+
 	downscaled_image = GrayImage(binarizeGatos(downscaled_image, QSize(21, 21), 3.0).toQImage());
 
+	status.throwIfCancelled();
+
 	Grid<Vec2f> gradient(calcGradient(downscaled_image, dbg));
-	Grid<Vec2f> direction_map(calcDirectionMap(downscaled_image, gradient, dbg));
-	Grid<float> dir_deriv(calcDirectionalDerivative(gradient, direction_map));
+
+	status.throwIfCancelled();
+
+	Grid<float> dir_deriv(calcDirectionalDerivative(gradient, segmentation.flowDirectionMap));
+
+	status.throwIfCancelled();
 
 	Grid<float> dir_deriv_pos(downscaled_image.width(), downscaled_image.height(), 0);
 	Grid<float> dir_deriv_neg(downscaled_image.width(), downscaled_image.height(), 0);
 
-	TextLineRefiner refiner(polylines, Vec2f(0, 1));
+	TextLineRefiner refiner(segmentation.tracedCurves, Vec2f(0, 1));
 
 	static float const blur_sigmas[][2] = {
 		{ 4.0f, 4.0f }, // h_sigma, v_sigma
@@ -118,6 +137,9 @@ TextLineTracer::trace(
 			},
 			dir_deriv_pos, dir_deriv
 		);
+
+		status.throwIfCancelled();
+
 		rasterOpGeneric(
 			[](float& neg, float dir_deriv) {
 				neg = std::max(0.0f, dir_deriv);
@@ -125,17 +147,23 @@ TextLineTracer::trace(
 			dir_deriv_neg, dir_deriv
 		);
 
+		status.throwIfCancelled();
+
 		gaussBlurGeneric(
 			downscaled_image.size(), sigmas[0], sigmas[1],
 			dir_deriv_pos.data(), dir_deriv_pos.stride(), _1,
 			dir_deriv_pos.data(), dir_deriv_pos.stride(), _1 = _2
 		);
 
+		status.throwIfCancelled();
+
 		gaussBlurGeneric(
 			downscaled_image.size(), sigmas[0], sigmas[1],
 			dir_deriv_neg.data(), dir_deriv_neg.stride(), _1,
 			dir_deriv_neg.data(), dir_deriv_neg.stride(), _1 = _2
 		);
+
+		status.throwIfCancelled();
 
 		if (dbg) {
 			dbg->add(
@@ -164,6 +192,8 @@ TextLineTracer::trace(
 			/*iterations=*/100, TextLineRefiner::ON_CONVERGENCE_GO_FINER
 		);
 
+		status.throwIfCancelled();
+
 		if (dbg) {
 			auto bounds = output.verticalBounds();
 			bounds.first = downscaled.xform().transform().map(bounds.first);
@@ -174,6 +204,12 @@ TextLineTracer::trace(
 	}
 
 	QTransform const upscale_xform(downscaled.xform().transform().inverted());
+
+	output.setVerticalBounds(
+		upscale_xform.map(vert_bounds.first),
+		upscale_xform.map(vert_bounds.second)
+	);
+
 	for (auto& polyline : refiner.refinedPolylines()) {
 		for (QPointF& pt : polyline) {
 			pt = upscale_xform.map(pt);
@@ -245,89 +281,32 @@ TextLineTracer::calcGradient(
 	return std::move(grad);
 }
 
-Grid<Vec2f>
-TextLineTracer::calcDirectionMap(
-	imageproc::GrayImage const& image, Grid<Vec2f> const& gradient, DebugImages* dbg)
-{
-	int const width = image.width();
-	int const height = image.height();
-	QSize const size(image.size());
-	Grid<Vec2f> direction_map(width, height, 0);
-
-	// Flip the gradient vectors if necessary, to make them point downwards.
-	// We need that to prevent opposite vectors cancelling each other during
-	// blurring.
-	rasterOpGeneric(
-		[](Vec2f& direction, Vec2f const& gradient) {
-			direction = gradient[1] >= 0 ? gradient : -gradient;
-		},
-		direction_map, gradient
-	);
-
-	gaussBlurGeneric(
-		size, 12.0f, 12.0f,
-		direction_map.data(), direction_map.stride(),
-		[](Vec2f const& dir) { return dir[0]; },
-		direction_map.data(), direction_map.stride(),
-		[](Vec2f& dir, float val) { dir[0] = val; }
-	);
-	gaussBlurGeneric(
-		size, 12.0f, 12.0f,
-		direction_map.data(), direction_map.stride(),
-		[](Vec2f const& dir) { return dir[1]; },
-		direction_map.data(), direction_map.stride(),
-		[](Vec2f& dir, float val) { dir[1] = val; }
-	);
-
-	if (dbg) {
-		Grid<float> magnitude_image(width, height, 0);
-		float max_magnitude = 0;
-		rasterOpGeneric(
-			[&](Vec2f const& dir, float& magnitude) {
-				magnitude = dir.norm();
-				if (magnitude > max_magnitude) {
-					max_magnitude = magnitude;
-				}
-			},
-			direction_map, magnitude_image
-		);
-		ObjectSwapperFactory factory(Utils::swappingDir());
-		ObjectSwapper<QImage> image_swapper(factory(visualizeGradient(image, magnitude_image)));
-		ObjectSwapper<Grid<Vec2f> > vector_field_swapper(factory(direction_map));
-		dbg->add(
-			"blurred_gradient",
-			[=]() {
-				return new VectorFieldImageView(
-					image_swapper.constObject(), vector_field_swapper.constObject(),
-					max_magnitude
-				);
-			},
-			[=]() mutable { image_swapper.swapIn(); vector_field_swapper.swapIn(); },
-			[=]() mutable { image_swapper.swapOut(); vector_field_swapper.swapOut(); }
-		);
-	}
-
-	// Normalize vectors in direction_map.
-	rasterOpGeneric([](Vec2f& vec) { vec.normalize(); }, direction_map);
-
-	return std::move(direction_map);
-}
-
 Grid<float>
 TextLineTracer::calcDirectionalDerivative(
-	Grid<Vec2f> const& gradient, Grid<Vec2f> const& direction_map)
+	Grid<Vec2f> const& gradient, Grid<Vec2f> const& downscaled_direction_map)
 {
-	int const width = direction_map.width();
-	int const height = direction_map.height();
-	assert(gradient.width() == width);
-	assert(gradient.height() == height);
+	int const width = gradient.width();
+	int const height = gradient.height();
 
-	Grid<float> dir_deriv(width, height, 0);
-	rasterOpGeneric(
-		[](Vec2f const& direction, Vec2f const& gradient, float& deriv) {
-			deriv = direction.dot(gradient);
+	double const x_downscale_factor = double(downscaled_direction_map.width() - 1) / double(width - 1);
+	double const y_downscale_factor = double(downscaled_direction_map.height() - 1) / double(height - 1);
+
+	Grid<float> dir_deriv(width, height);
+	rasterOpGenericXY(
+		[&downscaled_direction_map, x_downscale_factor, y_downscale_factor]
+				(Vec2f const& gradient, float& deriv, int x, int y) {
+
+			int const downscaled_x = std::lround(x * x_downscale_factor);
+			int const downscaled_y = std::lround(y * y_downscale_factor);
+			Vec2f dir = downscaled_direction_map(downscaled_x, downscaled_y);
+
+			// dir points roughly to the right. We want it to point roughly down.
+			std::swap(dir[0], dir[1]);
+			dir[0] = -dir[0];
+
+			deriv = dir.dot(gradient);
 		},
-		direction_map, gradient, dir_deriv
+		gradient, dir_deriv
 	);
 
 	return std::move(dir_deriv);

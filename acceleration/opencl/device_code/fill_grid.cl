@@ -16,12 +16,22 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+kernel void fill_byte_grid(
+	global uchar* grid, int const grid_offset, int const grid_stride,
+	uchar const value)
+{
+	int const x = get_global_id(0);
+	int const y = get_global_id(1);
+
+	grid[grid_offset + x + y * grid_stride] = value;
+}
+
 kernel void fill_float_grid(
 	global float* grid, int const grid_offset, int const grid_stride,
 	float const value)
 {
-	int const width = get_global_id(0);
-	int const height = get_global_id(1);
+	int const x = get_global_id(0);
+	int const y = get_global_id(1);
 
-	grid[grid_offset + width + height * grid_stride] = value;
+	grid[grid_offset + x + y * grid_stride] = value;
 }

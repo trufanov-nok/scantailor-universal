@@ -44,24 +44,38 @@ namespace imageproc
 namespace dewarping
 {
 
-class DistortionModelBuilder;
-
 class TextLineSegmenter
 {
 	DECLARE_NON_COPYABLE(TextLineSegmenter);
 public:
-	/**
-	 * Returns a list polylines in image.origImage() coordinates.
-	 */
-	static std::list<std::vector<QPointF>> process(
+	struct Result
+	{
+		/**
+		 * @brief Roughly traced text lines or other long
+		 *        horizontal features in original image coordinates.
+		 *
+		 * Lines are sampled from left to right (when mapped to the
+		 * transformed coordinates) and rather densely.
+		 */
+		std::list<std::vector<QPointF>> tracedCurves;
+
+		/**
+		 * @brief A vector field corresponding to a downscaled version of
+		 *        the transformed image, containing flow directions for
+		 *        every pixel.
+		 *
+		 * Directions are normalized to a unit L2 norm and point along
+		 * the direction of a nearby line, from left to right.
+		 */
+		Grid<Vec2f> flowDirectionMap;
+	};
+
+	static Result process(
 		AffineTransformedImage const& image,
-		DistortionModelBuilder& model_builder,
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		TaskStatus const& status, DebugImages* dbg = nullptr);
 private:
-	enum LeftRightSide { LEFT_SIDE, RIGHT_SIDE };
-
-	static std::list<std::vector<QPointF>> processDownscaled(
+	static Result processDownscaled(
 		imageproc::GrayImage const& image, QPolygonF const& crop_area,
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		TaskStatus const& status, DebugImages* dbg);
@@ -80,9 +94,6 @@ private:
 	static std::list<std::vector<QPointF>> refineSegmentation(
 		imageproc::GrayImage const& image, QPolygonF const& crop_area,
 		imageproc::ConnectivityMap& cmap, TaskStatus const& status, DebugImages* dbg);
-
-	static QLineF findVerticalBound(
-		std::vector<QLineF> const& chords, LeftRightSide side);
 
 	static imageproc::BinaryImage calcPageMask(
 		imageproc::GrayImage const& no_content,

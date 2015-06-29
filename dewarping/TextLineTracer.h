@@ -57,11 +57,8 @@ private:
 
 	static Grid<Vec2f> calcGradient(imageproc::GrayImage const& image, DebugImages* dbg);
 
-	static Grid<Vec2f> calcDirectionMap(
-		imageproc::GrayImage const& image, Grid<Vec2f> const& gradient, DebugImages* dbg);
-
 	static Grid<float> calcDirectionalDerivative(
-		Grid<Vec2f> const& gradient, Grid<Vec2f> const& direction_map);
+		Grid<Vec2f> const& gradient, Grid<Vec2f> const& downscaled_direction_map);
 
 	static void filterOutOfBoundsCurves(
 		std::list<std::vector<QPointF>>& polylines,

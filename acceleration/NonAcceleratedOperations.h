@@ -25,6 +25,8 @@
 #include "VecNT.h"
 #include <vector>
 #include <memory>
+#include <cstdint>
+#include <utility>
 
 class NonAcceleratedOperations : public AcceleratableOperations
 {
@@ -32,13 +34,13 @@ class NonAcceleratedOperations : public AcceleratableOperations
 public:
 	NonAcceleratedOperations() = default;
 
-	virtual Grid<float> textFilterBank(Grid<float> const& src,
-		std::vector<Vec2f> const& directions,
-		std::vector<Vec2f> const& sigmas, float shoulder_length) const;
-
 	virtual Grid<float> anisotropicGaussBlur(
 		Grid<float> const& src, float dir_x, float dir_y,
 		float dir_sigma, float ortho_dir_sigma) const;
+
+	virtual std::pair<Grid<float>, Grid<uint8_t>> textFilterBank(
+		Grid<float> const& src, std::vector<Vec2f> const& directions,
+		std::vector<Vec2f> const& sigmas, float shoulder_length) const;
 };
 
 #endif

@@ -17,7 +17,6 @@
 */
 
 #include "TextLineSegmenter.h"
-#include "DistortionModelBuilder.h"
 #include "AffineTransformedImage.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
@@ -27,6 +26,10 @@
 #include "ToLineProjector.h"
 #include "LineIntersectionScalar.h"
 #include "LineBoundedByRect.h"
+#include "VectorFieldImageView.h"
+#include "ObjectSwapper.h"
+#include "ObjectSwapperImplGrid.h"
+#include "ObjectSwapperFactory.h"
 #include "imageproc/Grayscale.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Transform.h"
@@ -50,6 +53,7 @@
 #include "imageproc/WienerFilter.h"
 #include "imageproc/WatershedSegmentation.h"
 #include "imageproc/PlugHoles.h"
+#include "imageproc/IntegralImage.h"
 #include <boost/dynamic_bitset.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <QPoint>
@@ -112,10 +116,9 @@ QImage visualizeGrid(Grid<float> const& grid)
 namespace dewarping
 {
 
-std::list<std::vector<QPointF>>
+TextLineSegmenter::Result
 TextLineSegmenter::process(
 	AffineTransformedImage const& image,
-	DistortionModelBuilder& model_builder,
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg)
 {
@@ -145,61 +148,22 @@ TextLineSegmenter::process(
 		dbg->add(downscaled_image, "downscaled");
 	}
 
-	auto polylines = processDownscaled(
+	Result result = processDownscaled(
 		downscaled_image, downscaled_crop_area, accel_ops, status, dbg
 	);
 
-	// Find the vertical boundaries (in downscaled coordinates).
-	std::vector<QLineF> chords;
-	for (auto const& polyline : polylines) {
-		chords.push_back(QLineF(polyline.front(), polyline.back()));
-	}
-	QLineF const left_bound(findVerticalBound(chords, LEFT_SIDE));
-	QLineF const right_bound(findVerticalBound(chords, RIGHT_SIDE));
-
-	if (dbg) {
-		QImage canvas(downscaled_image.toQImage().convertToFormat(QImage::Format_ARGB32_Premultiplied));
-		QLineF left(left_bound);
-		QLineF right(right_bound);
-		lineBoundedByRect(left, canvas.rect());
-		lineBoundedByRect(right, canvas.rect());
-
-		{
-			QPainter painter(&canvas);
-			painter.setRenderHint(QPainter::Antialiasing);
-
-			QPen pen(QColor(0, 255, 0, 140));
-			pen.setWidthF(1.5);
-			painter.setPen(pen);
-
-			painter.drawLine(left);
-			painter.drawLine(right);
-
-			pen.setColor(QColor(0, 0, 255, 140));
-			painter.setPen(pen);
-
-			for (std::vector<QPointF> const& polyline : polylines) {
-				painter.drawPolyline(polyline.data(), polyline.size());
-			}
-		}
-
-		dbg->add(canvas, "vert_bounds");
-	}
-
 	// Transform from downscaled_image to image.origImage() coordinates.
 	QTransform const transform(downscaled.xform().transform().inverted());
-	for (auto& polyline : polylines) {
+	for (auto& polyline : result.tracedCurves) {
 		for (QPointF& pt : polyline) {
 			pt = transform.map(pt);
 		}
 	}
 
-	model_builder.setVerticalBounds(transform.map(left_bound), transform.map(right_bound));
-
-	return polylines;
+	return std::move(result);
 }
 
-std::list<std::vector<QPointF>>
+TextLineSegmenter::Result
 TextLineSegmenter::processDownscaled(
 	GrayImage const& image, QPolygonF const& crop_area,
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
@@ -244,17 +208,92 @@ TextLineSegmenter::processDownscaled(
 		directions.emplace_back(std::cos(angle2_rad), std::sin(angle2_rad));
 	}
 
-	Grid<float> filterbank = accel_ops->textFilterBank(src, directions, sigmas, 6.f);
+	std::pair<Grid<float>, Grid<uint8_t>> filterbank(
+		accel_ops->textFilterBank(src, directions, sigmas, 6.f)
+	);
+	Grid<float>& blurred = filterbank.first;
+	Grid<uint8_t>& direction_idx_map = filterbank.second;
 
 	status.throwIfCancelled();
 
-	if (dbg) {
-		dbg->add(visualizeGrid(filterbank), "filterbank");
+	Grid<Vec2f> direction_map(width, height);
+	{
+		IntegralImage<Vec2f> direction_int_image(width, height);
+		IntegralImage<float> weight_int_image(width, height);
+
+		float const* blurred_line = blurred.data();
+		int const blurred_stride = blurred.stride();
+		uint8_t const* direction_idx_line = direction_idx_map.data();
+		int const direction_idx_stride = direction_idx_map.stride();
+
+		for (int y = 0; y < height; ++y) {
+			direction_int_image.beginRow();
+			weight_int_image.beginRow();
+
+			for (int x = 0; x < width; ++x) {
+				Vec2f const direction(directions[direction_idx_line[x]]);
+				float const weight = std::max<float>(0.f, blurred_line[x]);
+
+				direction_int_image.push(direction * weight);
+				weight_int_image.push(weight);
+			}
+
+			blurred_line += blurred_stride;
+			direction_idx_line += direction_idx_stride;
+		}
+
+		QRect const bounding_rect(0, 0, width, height);
+		rasterOpGenericXY(
+			[&direction_int_image, &weight_int_image, bounding_rect](Vec2f& direction, int x, int y) {
+				QRect r(0, 0, 25, 25);
+				r.moveCenter(QPoint(x, y));
+				r &= bounding_rect;
+				float const weight = weight_int_image.sum(r);
+				if (weight > 1e-6) {
+					direction = (direction_int_image.sum(r) / weight).normalized();
+				} else {
+					direction = Vec2f(1.f, 0.f);
+				}
+			},
+			direction_map
+		);
 	}
+
+	direction_idx_map = Grid<uint8_t>(); // Save memory.
+
+	if (dbg) {
+		float max_squared_magnitude = 0;
+		rasterOpGeneric(
+			[&max_squared_magnitude](Vec2f const& dir) {
+				float const squared_norm = dir.squaredNorm();
+				if (squared_norm > max_squared_magnitude) {
+					max_squared_magnitude = squared_norm;
+				}
+			},
+			direction_map
+		);
+
+		ObjectSwapperFactory factory(Utils::swappingDir());
+		ObjectSwapper<QImage> image_swapper(factory(visualizeGrid(blurred)));
+		ObjectSwapper<Grid<Vec2f>> vector_field_swapper(factory(direction_map));
+		dbg->add(
+			"filterbank",
+			[=]() {
+				return new VectorFieldImageView(
+					image_swapper.constObject(), vector_field_swapper.constObject(),
+					std::sqrt(max_squared_magnitude)
+				);
+			},
+			[=]() mutable { image_swapper.swapIn(); vector_field_swapper.swapIn(); },
+			[=]() mutable { image_swapper.swapOut(); vector_field_swapper.swapOut(); }
+		);
+	}
+
+	status.throwIfCancelled();
 
 	// Range of values.
 	MinMaxAccumulator<float> range;
-	rasterOpGeneric([&range](float val) { range(val); }, filterbank);
+	rasterOpGeneric([&range](float val) { range(val); }, blurred);
 
 	status.throwIfCancelled();
 
@@ -262,20 +301,20 @@ TextLineSegmenter::processDownscaled(
 	float const scale = 1.f / (range.max() - range.min());
 	float const bias = 1.f - range.min() * scale;
 	if (!std::isfinite(scale)) {
-		return std::list<std::vector<QPointF>>();
+		return Result{std::list<std::vector<QPointF>>(), direction_map};
 	}
 
 	rasterOpGeneric(
 		[scale, bias](float& val) {
 			val = std::log(val * scale + bias);
 		},
-		filterbank
+		blurred
 	);
 
 	status.throwIfCancelled();
 
 	if (dbg) {
-		dbg->add(visualizeGrid(filterbank), "log(filterbank)");
+		dbg->add(visualizeGrid(blurred), "log(filterbank)");
 	}
 
 	// Find local maximas in log(filterbank)
@@ -284,13 +323,13 @@ TextLineSegmenter::processDownscaled(
 		[](float v1, float v2) { return std::min(v1, v2); },
 		[](float v) { return std::nextafter(v, std::numeric_limits<float>::max()); },
 		QSize(9, 5), std::numeric_limits<float>::max(),
-		filterbank.data(), filterbank.stride(), image.size()
+		blurred.data(), blurred.stride(), image.size()
 	);
 
 	status.throwIfCancelled();
 
 	if (dbg) {
-		QImage canvas(visualizeGrid(filterbank).convertToFormat(QImage::Format_ARGB32_Premultiplied));
+		QImage canvas(visualizeGrid(blurred).convertToFormat(QImage::Format_ARGB32_Premultiplied));
 		{
 			QPainter painter(&canvas);
 			painter.drawImage(0, 0, dilateBrick(peaks, QSize(3, 3)).toAlphaMask(Qt::blue));
@@ -298,11 +337,17 @@ TextLineSegmenter::processDownscaled(
 		dbg->add(canvas, "peaks");
 	}
 
-	ConnectivityMap cmap(initialSegmentation(image, filterbank, peaks.release(), status, dbg));
+	ConnectivityMap cmap(initialSegmentation(image, blurred, peaks.release(), status, dbg));
 
 	status.throwIfCancelled();
 
-	return refineSegmentation(image, crop_area, cmap, status, dbg);
+	blurred = Grid<float>(); // Save memory.
+
+	Result result;
+	result.tracedCurves = refineSegmentation(image, crop_area, cmap, status, dbg);
+	result.flowDirectionMap = std::move(direction_map);
+
+	return std::move(result);
 }
 
 double
@@ -1075,73 +1120,6 @@ TextLineSegmenter::refineSegmentation(
 	maskTextLines(trimmed_lines, image, page_mask, status, dbg);
 
 	return trimmed_lines;
-}
-
-QLineF
-TextLineSegmenter::findVerticalBound(
-	std::vector<QLineF> const& chords, LeftRightSide const side)
-{
-	// Lines between 90 - N and 90 + N degrees will be considered.
-	double const max_degrees_from_vertical = 15.0;
-	double const min_angle_tan = std::tan((90.0 - max_degrees_from_vertical)*constants::DEG2RAD);
-	assert(min_angle_tan > 0);
-
-	int const target_idx = side == LEFT_SIDE ? 0 : 1;
-	int const opposite_idx = side == LEFT_SIDE ? 1 : 0;
-	QLineF best_vert_line;
-	double best_score = NumericTraits<double>::min();
-
-	for (int ransac_iteration = 0; ransac_iteration < 2000; ++ransac_iteration) {
-		int const i1 = qrand() % chords.size();
-		int const i2 = qrand() % chords.size();
-		if (i1 == i2) {
-			continue;
-		}
-
-		QPointF const pts1[] = { chords[i1].p1(), chords[i1].p2() };
-		QPointF const pts2[] = { chords[i2].p1(), chords[i2].p2() };
-		QLineF const candidate_line(pts1[target_idx], pts2[target_idx]);
-
-		// Check if the angle is within range.
-		QPointF const vec(candidate_line.p2() - candidate_line.p1());
-		if (std::abs(vec.y()) * min_angle_tan < std::abs(vec.x())) {
-			continue;
-		}
-
-		ToLineProjector const proj(candidate_line);
-
-		double score = 0.0;
-
-		int num_support_points = 0;
-		for (QLineF const& chord : chords) {
-			QPointF const pts[] = { chord.p1(), chord.p2() };
-			QPointF const pt(pts[target_idx]);
-			double const dist = proj.projectionDist(pt);
-			double const dist_threshold = 5.0;
-			if (dist < 5.0) {
-				double const relative_dist = dist / dist_threshold;
-				double const decay = std::exp(-relative_dist*relative_dist);
-				score += decay * chord.length() * chord.length();
-				++num_support_points;
-			}
-
-			double s = 0.0;
-			if (lineIntersectionScalar(QLineF(pts[opposite_idx], pts[target_idx]), candidate_line, s)) {
-				if (s < 1.0) {
-					// Some part of that line is further to the target side.
-					double const frac = std::min(1.0, 1.0 - s);
-					score -= frac * frac * chord.length() * chord.length();
-				}
-			}
-		}
-
-		if (num_support_points > 3 && score > best_score) {
-			best_vert_line = candidate_line;
-			best_score = score;
-		}
-	}
-
-	return best_vert_line;
 }
 
 BinaryImage

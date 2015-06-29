@@ -22,6 +22,8 @@
 #include "Grid.h"
 #include "VecNT.h"
 #include <vector>
+#include <cstdint>
+#include <utility>
 
 /**
  * @brief A collection of heavy-weight operations that may be accelerated by
@@ -57,7 +59,9 @@ public:
 	 *
 	 * @param src The image to apply gaussian filtering to.
 	 * @param directions The list of blurring directions to try. Directions have to be
-	 *        normalized, that is directions[i].norm() has to be 1.
+	 *        normalized, that is directions[i].norm() has to be 1. The maximum size of
+	 *        this vector is 256, as we return a map of indexes into this vector as
+	 *        Grid<uint8_t>.
 	 * @param sigmas The list of blur intensities to try. The first element in a Vec2f
 	 *        is the standard deviation along the specified direction. The second element
 	 *        is the standard deviation in the orthogonal direction.
@@ -76,10 +80,13 @@ public:
 	 *        @endcode
 	 *        This parameter specifies the shoulder length in standard deviation units
 	 *        in direction orthogonal to the principal direction of the gaussian.
-	 * @return A filtered image.
+	 * @return A pair consisting of the filtered image and a map of directions for each pixel.
+	 *         A direction is represented by an index into the @p directions argument.
+	 *         Because the index is uint8_t, the maximum length of the @p directions argument
+	 *         is 256.
 	 */
-	virtual Grid<float> textFilterBank(Grid<float> const& src,
-		std::vector<Vec2f> const& directions,
+	virtual std::pair<Grid<float>, Grid<uint8_t>> textFilterBank(
+		Grid<float> const& src, std::vector<Vec2f> const& directions,
 		std::vector<Vec2f> const& sigmas, float shoulder_length) const = 0;
 };
 

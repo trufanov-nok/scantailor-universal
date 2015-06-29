@@ -19,10 +19,12 @@
 kernel void text_filter_bank_combine(
 	global float const* blurred, int const blurred_offset, int const blurred_stride,
 	global float* accum, int const accum_offset, int const accum_stride,
-	int2 const shoulder)
+	global uchar* dir_map, int const dir_map_offset, int const dir_map_stride,
+	int2 const shoulder, uchar const direction_idx)
 {
 	blurred += blurred_offset;
 	accum += accum_offset;
+	dir_map += dir_map_offset;
 
 	int const width = get_global_size(0);
 	int const height = get_global_size(1);
@@ -44,5 +46,8 @@ kernel void text_filter_bank_combine(
 
 	float const response = 0.5f * (pt1_px + pt2_px) - origin_px;
 	global float* p_accum = accum + origin.x + origin.y * accum_stride;
-	*p_accum = max(*p_accum, response);
+	if (response > *p_accum) {
+		*p_accum = response;
+		dir_map[origin.x + origin.y * dir_map_stride] = direction_idx;
+	}
 }

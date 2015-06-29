@@ -23,9 +23,10 @@
 #include <utility>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 
 /** @see AcceleratableOperations::textFilterBank() */
-OpenCLGrid<float> textFilterBank(
+std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	cl::CommandQueue const& command_queue,
 	cl::Program const& program,
 	OpenCLGrid<float> const& src_grid,
@@ -47,7 +48,7 @@ OpenCLGrid<float> textFilterBank(
 	);
 	OpenCLGrid<float> accum_grid(src_grid.withDifferentPadding(accum_buffer, 0));
 
-	{ // Fill grid kernel scope.
+	{ // Fill accum_buffer kernel scope.
 
 		cl::Kernel kernel(program, "fill_float_grid");
 		int idx = 0;
@@ -68,8 +69,35 @@ OpenCLGrid<float> textFilterBank(
 		deps.push_back(std::move(evt));
 	}
 
+	cl::Buffer dir_map_buffer(
+		context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding<uint8_t>(0)
+	);
+	OpenCLGrid<uint8_t> dir_map_grid(src_grid.withDifferentPadding<uint8_t>(dir_map_buffer, 0));
+
+	{ // Fill grid kernel scope.
+
+		cl::Kernel kernel(program, "fill_byte_grid");
+		int idx = 0;
+		kernel.setArg(idx++, dir_map_grid.buffer());
+		kernel.setArg(idx++, dir_map_grid.offset());
+		kernel.setArg(idx++, dir_map_grid.stride());
+		kernel.setArg(idx++, cl_uchar(0));
+
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(dir_map_grid.width(), dir_map_grid.height()),
+			cl::NullRange,
+			&deps,
+			&evt
+		);
+		deps.clear();
+		deps.push_back(std::move(evt));
+	}
+
 	for (Vec2f const& s : sigmas) {
-		for (Vec2f const& dir : directions) {
+		for (size_t dir_idx = 0; dir_idx < directions.size(); ++dir_idx) {
+			Vec2f const& dir = directions[dir_idx];
 			assert(std::abs(dir.squaredNorm() - 1.f) < 1e-5);
 
 			OpenCLGrid<float> blurred_grid = anisotropicGaussBlur(
@@ -88,7 +116,11 @@ OpenCLGrid<float> textFilterBank(
 			kernel.setArg(idx++, accum_grid.buffer());
 			kernel.setArg(idx++, accum_grid.offset());
 			kernel.setArg(idx++, accum_grid.stride());
+			kernel.setArg(idx++, dir_map_grid.buffer());
+			kernel.setArg(idx++, dir_map_grid.offset());
+			kernel.setArg(idx++, dir_map_grid.stride());
 			kernel.setArg(idx++, cl_int2{shoulder_i.x(), shoulder_i.y()});
+			kernel.setArg(idx++, cl_uchar(dir_idx));
 
 			command_queue.enqueueNDRangeKernel(
 				kernel,
@@ -105,5 +137,5 @@ OpenCLGrid<float> textFilterBank(
 		}
 	}
 
-	return accum_grid;
+	return std::make_pair(std::move(accum_grid), std::move(dir_map_grid));
 }
