@@ -76,7 +76,7 @@ OpenCLGrid<float> gaussBlur(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 	}
 
 	{
@@ -107,11 +107,11 @@ OpenCLGrid<float> gaussBlur(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 	}
 
 	if (event) {
-		*event = std::move(evt);
+		*event = evt;
 	}
 
 	return dst_grid;
@@ -175,7 +175,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 	} else {
 		// Vertical pass.
 		FilterParams const p(vdp.sigma_y);
@@ -204,7 +204,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 	}
 
 	{ // Padding of dst grid scope.
@@ -226,7 +226,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 	}
 
 #if 0
@@ -314,7 +314,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 
 		kernel = cl::Kernel(program, "gauss_blur_h_decomp_stage2");
 		idx = 0;
@@ -334,6 +334,8 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			&deps,
 			&evt
 		);
+		deps.clear();
+		deps.push_back(evt);
 	} else {
 		// Traverse the phi-oriented line with a unit step in x direction.
 
@@ -410,7 +412,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 
 		kernel = cl::Kernel(program, "gauss_blur_v_decomp_stage2");
 		idx = 0;
@@ -430,10 +432,12 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			&deps,
 			&evt
 		);
+		deps.clear();
+		deps.push_back(evt);
 	}
 
 	if (event) {
-		*event = std::move(evt);
+		*event = evt;
 	}
 
 	return dst_grid;

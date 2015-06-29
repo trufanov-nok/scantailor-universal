@@ -118,17 +118,21 @@ OpenCLAcceleratedOperations::gaussBlurUnguarded(
 		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &deps, &evt
 	);
 	deps.clear();
-	deps.push_back(std::move(evt));
+	deps.push_back(evt);
 
 	auto dst_grid = ::gaussBlur(
 		m_commandQueue, m_program, src_grid, h_sigma, v_sigma, &deps, &evt
 	);
+	deps.clear();
+	deps.push_back(evt);
 
 	Grid<float> dst(dst_grid.toUninitializedHostGrid());
 
 	m_commandQueue.enqueueReadBuffer(
 		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &deps, &evt
 	);
+	deps.clear();
+	deps.push_back(evt);
 
 	evt.wait();
 
@@ -171,18 +175,22 @@ OpenCLAcceleratedOperations::anisotropicGaussBlurUnguarded(
 		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &deps, &evt
 	);
 	deps.clear();
-	deps.push_back(std::move(evt));
+	deps.push_back(evt);
 
 	auto dst_grid = ::anisotropicGaussBlur(
 		m_commandQueue, m_program, src_grid,
 		dir_x, dir_y, dir_sigma, ortho_dir_sigma, &deps, &evt
 	);
+	deps.clear();
+	deps.push_back(evt);
 
 	Grid<float> dst(dst_grid.toUninitializedHostGrid());
 
 	m_commandQueue.enqueueReadBuffer(
 		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &deps, &evt
 	);
+	deps.clear();
+	deps.push_back(evt);
 
 	evt.wait();
 
@@ -225,12 +233,14 @@ OpenCLAcceleratedOperations::textFilterBankUnguarded(
 		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &deps, &evt
 	);
 	deps.clear();
-	deps.push_back(std::move(evt));
+	deps.push_back(evt);
 
 	std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> dst = ::textFilterBank(
 		m_commandQueue, m_program, src_grid,
 		directions, sigmas, shoulder_length, &deps, &evt
 	);
+	deps.clear();
+	deps.push_back(evt);
 
 	Grid<float> accum(dst.first.toUninitializedHostGrid());
 
@@ -238,7 +248,7 @@ OpenCLAcceleratedOperations::textFilterBankUnguarded(
 		dst.first.buffer(), CL_FALSE, 0, accum.totalBytes(), accum.paddedData(), &deps, &evt
 	);
 	deps.clear();
-	deps.push_back(std::move(evt));
+	deps.push_back(evt);
 
 	Grid<uint8_t> direction_map(dst.second.toUninitializedHostGrid());
 
@@ -247,6 +257,8 @@ OpenCLAcceleratedOperations::textFilterBankUnguarded(
 		direction_map.paddedData(), &deps, &evt
 	);
 	deps.clear();
+	deps.push_back(evt);
+
 	evt.wait();
 
 	return std::make_pair(std::move(accum), std::move(direction_map));

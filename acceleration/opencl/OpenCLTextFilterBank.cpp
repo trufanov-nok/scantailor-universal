@@ -66,7 +66,7 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 	}
 
 	cl::Buffer dir_map_buffer(
@@ -92,7 +92,7 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 			&evt
 		);
 		deps.clear();
-		deps.push_back(std::move(evt));
+		deps.push_back(evt);
 	}
 
 	for (Vec2f const& s : sigmas) {
@@ -131,10 +131,14 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 				&evt
 			);
 			deps.clear();
-			deps.push_back(std::move(evt));
+			deps.push_back(evt);
 
 			evt.wait(); // Prevent excessive resource consumption.
 		}
+	}
+
+	if (event) {
+		*event = evt;
 	}
 
 	return std::make_pair(std::move(accum_grid), std::move(dir_map_grid));
