@@ -22,6 +22,31 @@
 
 using namespace imageproc::gauss_blur_impl;
 
+namespace
+{
+
+/**
+ * @see imageproc::gauss_blur_impl::calcBackwardPassInitialConditions()
+ */
+void initHistoryUpdateMatrix(FilterParams const& p, cl_float3& m1, cl_float3& m2, cl_float3& m3)
+{
+	float const normalizer = 1.f /
+		((1.f + p.a1 - p.a2 + p.a3) * (1.f + p.a2 + (p.a1 - p.a3) * p.a3));
+
+	m1.s[0] = normalizer * (-p.a3 * p.a1 + 1.f - p.a3 * p.a3 - p.a2);
+	m2.s[0] = normalizer * (p.a3 + p.a1) * (p.a2 + p.a3 * p.a1);
+	m3.s[0] = normalizer * p.a3 * (p.a1 + p.a3 * p.a2);
+	m1.s[1] = normalizer * (p.a1 + p.a3 * p.a2);
+	m2.s[1] = normalizer * -(p.a2 - 1.f) * (p.a2 + p.a3 * p.a1);
+	m3.s[1] = normalizer * -(p.a3 * p.a1 + p.a3 * p.a3 + p.a2 - 1.f) * p.a3;
+	m1.s[2] = normalizer * (p.a3 * p.a1 + p.a2 + p.a1 * p.a1 - p.a2 * p.a2);
+	m2.s[2] = normalizer * (p.a1 * p.a2 + p.a3 * p.a2 * p.a2 - p.a1 * p.a3 * p.a3
+			- p.a3 * p.a3 * p.a3 - p.a3 * p.a2 + p.a3);
+	m3.s[2] = normalizer * p.a3 * (p.a1 + p.a3 * p.a2);
+}
+
+} // anonymous namespace
+
 OpenCLGrid<float> gaussBlur(
 	cl::CommandQueue const& command_queue,
 	cl::Program const& program,
@@ -52,6 +77,9 @@ OpenCLGrid<float> gaussBlur(
 		// Horizontal pass.
 		FilterParams const p(h_sigma);
 
+		cl_float3 m1, m2, m3;
+		initHistoryUpdateMatrix(p, m1, m2, m3);
+
 		cl::Kernel kernel(program, "gauss_blur_1d");
 		int idx = 0;
 		kernel.setArg(idx++, cl_int(width));
@@ -63,9 +91,10 @@ OpenCLGrid<float> gaussBlur(
 		kernel.setArg(idx++, dst_grid.offset());
 		kernel.setArg(idx++, dst_grid.stride());
 		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, cl_float(1.f / p.B));
-		kernel.setArg(idx++, cl_float(p.B * p.B));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
 		command_queue.enqueueNDRangeKernel(
 			kernel,
@@ -83,6 +112,9 @@ OpenCLGrid<float> gaussBlur(
 		// Vertical pass, from dst to itself.
 		FilterParams const p(v_sigma);
 
+		cl_float3 m1, m2, m3;
+		initHistoryUpdateMatrix(p, m1, m2, m3);
+
 		cl::Kernel kernel(program, "gauss_blur_1d");
 		int idx = 0;
 		kernel.setArg(idx++, cl_int(height));
@@ -94,9 +126,10 @@ OpenCLGrid<float> gaussBlur(
 		kernel.setArg(idx++, dst_grid.offset());
 		kernel.setArg(idx++, cl_int(1));
 		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, cl_float(1.f / p.B));
-		kernel.setArg(idx++, cl_float(p.B * p.B));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
 		command_queue.enqueueNDRangeKernel(
 			kernel,
@@ -151,6 +184,9 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		// Horizontal pass.
 		FilterParams const p(hdp.sigma_x);
 
+		cl_float3 m1, m2, m3;
+		initHistoryUpdateMatrix(p, m1, m2, m3);
+
 		cl::Kernel kernel(program, "gauss_blur_1d");
 		int idx = 0;
 		kernel.setArg(idx++, cl_int(width));
@@ -162,9 +198,10 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		kernel.setArg(idx++, dst_grid.offset());
 		kernel.setArg(idx++, dst_grid.stride());
 		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, cl_float(1.f / p.B));
-		kernel.setArg(idx++, cl_float(p.B * p.B));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
 		command_queue.enqueueNDRangeKernel(
 			kernel,
@@ -180,6 +217,9 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		// Vertical pass.
 		FilterParams const p(vdp.sigma_y);
 
+		cl_float3 m1, m2, m3;
+		initHistoryUpdateMatrix(p, m1, m2, m3);
+
 		cl::Kernel kernel(program, "gauss_blur_1d");
 		int idx = 0;
 		kernel.setArg(idx++, cl_int(height));
@@ -191,9 +231,10 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		kernel.setArg(idx++, dst_grid.offset());
 		kernel.setArg(idx++, cl_int(1));
 		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, cl_float(1.f / p.B));
-		kernel.setArg(idx++, cl_float(p.B * p.B));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
 		command_queue.enqueueNDRangeKernel(
 			kernel,
@@ -254,6 +295,9 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dx*dx);
 		FilterParams const p(adjusted_sigma_phi);
 
+		cl_float3 m1, m2, m3;
+		initHistoryUpdateMatrix(p, m1, m2, m3);
+
 		// In the CPU version of this code we build a reference skewed line,
 		// which is an array of InterpolatedCoord structures indexed by y.
 		// In OpenCL version we don't construct that array explicitly, but
@@ -301,9 +345,10 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		kernel.setArg(idx++, intermediate_grid.stride());
 		kernel.setArg(idx++, cl_int(min_x_offset));
 		kernel.setArg(idx++, cl_float(dx));
-		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, cl_float(1.f / p.B));
-		kernel.setArg(idx++, cl_float(p.B * p.B));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
 		command_queue.enqueueNDRangeKernel(
 			kernel,
@@ -352,6 +397,9 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dy*dy);
 		FilterParams const p(adjusted_sigma_phi);
 
+		cl_float3 m1, m2, m3;
+		initHistoryUpdateMatrix(p, m1, m2, m3);
+
 		// In the CPU version of this code we build a reference skewed line,
 		// which is an array of InterpolatedCoord structures indexed by x.
 		// In OpenCL version we don't construct that array explicitly, but
@@ -399,9 +447,10 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		kernel.setArg(idx++, intermediate_grid.stride());
 		kernel.setArg(idx++, cl_int(min_y_offset));
 		kernel.setArg(idx++, cl_float(dy));
-		kernel.setArg(idx++, cl_float3{p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, cl_float(1.f / p.B));
-		kernel.setArg(idx++, cl_float(p.B * p.B));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
 		command_queue.enqueueNDRangeKernel(
 			kernel,

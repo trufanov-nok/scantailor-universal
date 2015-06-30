@@ -111,6 +111,7 @@ OpenCLPlugin::getOperations(
 	}
 
 	try {
+		qDebug() << "Selected OpenCL device: " << m_selectedDevice.getInfo<CL_DEVICE_NAME>().c_str();
 		cl::Context context(std::vector<cl::Device>(1, m_selectedDevice));
 		m_ptrCachedOps = std::make_shared<OpenCLAcceleratedOperations>(context, fallback);
 		return m_ptrCachedOps;

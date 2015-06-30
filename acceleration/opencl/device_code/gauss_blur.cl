@@ -16,32 +16,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-static float3 updateHistoryForBackwardPass(
-	float3 const history, float3 const a, float const B_recip, float const pixel)
+static float4 updateHistoryForBackwardPass(
+	float4 const history, float const pixel,
+	float3 const m1, float3 const m2, float3 const m3)
 {
-	float const u_plus = pixel * B_recip;
-	float const v_plus = u_plus * B_recip;
-
-	// OpenCL doesn't have matrix types, so we represent
-	// this matrix as individual columns.
-	float3 m1, m2, m3;
-
-	m1.x = -a.z * a.x + 1.f - a.z * a.z - a.y;
-	m2.x = (a.z + a.x) * (a.y + a.z * a.x);
-	m3.x = a.z * (a.x + a.z * a.y);
-	m1.y = a.x + a.z * a.y;
-	m2.y = -(a.y - 1.f) * (a.y + a.z * a.x);
-	m3.y = -(a.z * a.x + a.z * a.z + a.y - 1.f) * a.z;
-	m1.z = a.z * a.x + a.y + a.x * a.x - a.y * a.y;
-	m2.z = a.x * a.y + a.z * a.y * a.y - a.x * a.z * a.z
-			- a.z * a.z * a.z - a.z * a.y + a.z;
-	m3.z = a.z * (a.x + a.z * a.y);
-
-	float const normalizer = B_recip /
-		((1.f + a.x - a.y + a.z) * (1.f + a.y + (a.x - a.z) * a.z));
-
-	float3 const u = history - u_plus;
-	return (m1 * u.x + m2 * u.y + m3 * u.z) * normalizer + v_plus;
+	float4 const u = history - pixel;
+	return (float4)(m1 * u.s0 + m2 * u.s1 + m3 * u.s2 + pixel, 0.f);
 }
 
 /**
@@ -49,8 +29,8 @@ static float3 updateHistoryForBackwardPass(
  *
  * @param signal_length If working on rows, the row length (image width),
  *        otherwise the column length (image height).
- * @param src Pointer to the source image data. If the image has padding
- *        pixels, @p src will point to padding data rather than inner data.
+ * @param src Pointer to the source image datb. If the image has padding
+ *        pixels, @p src will point to padding data rather than inner datb.
  * @param src_offset Zero when the source image doesn't have any padding.
  *        otherwise, src + src_offset will point to the first (top-left)
  *        non-padding pixel.
@@ -64,13 +44,15 @@ static float3 updateHistoryForBackwardPass(
  * @param src_sample_delta The distance between adjacent pixels in filtering
  *        direction. That is, when filtering rows, it's normally 1 and when
  *        filtering columns, it's the image stride.
- * @param dst The destination image data. @see src.
+ * @param dst The destination image datb. @see src.
  * @param dst_offset @see src_offset.
- * @param dst_id_delta @see src_id_delta.
- * @param dst_sample_delta @see src_sample_delta.
- * @param a The vector of filter coefficients. @see imageproc::gauss_blur_impl::FilterParams.
- * @param B_recip One over B, where B is yet another filter coefficient. @see a.
- * @param B_square B squared, where B is yet another filter coefficient. @see a.
+ * @param dst_id_delta @see src_id_deltb.
+ * @param dst_sample_delta @see src_sample_deltb.
+ * @param b The vector of filter coefficients. @see imageproc::gauss_blur_impl::FilterParams.
+ * @param m1 The first column of the history update matrix.
+ *        @see imageproc::gaus_blur_impl::calcBackwardPassInitialConditions()
+ * @param m2 @see m1
+ * @param m3 @see m1
  *
  * @note This kernel supports in-place operation, where src == dst, provided the
  *       offsets and strides either match or are set up in such a way that read
@@ -82,23 +64,25 @@ kernel void gauss_blur_1d(
 	int const src_id_delta, int const src_sample_delta,
 	global float* const dst, int const dst_offset,
 	int const dst_id_delta, int const dst_sample_delta,
-	float3 const a, float const B_recip, float const B_square)
+	float4 const b, float3 const m1, float3 const m2, float3 const m3)
 {
 	int const id = get_global_id(0);
 
 	// Forward pass.
 	global float const* p_src = src + src_offset + id * src_id_delta;
 	global float* p_dst = dst + dst_offset + id * dst_id_delta;
-	float const initial = *p_src * B_recip;
-	float3 history = (float3)(initial, initial, initial);
+	float pixel = *p_src;
+	float4 history = (float4)(pixel, pixel, pixel, pixel);
 	for (int i = 0; i < signal_length; ++i) {
-		float const out = *p_src + dot(a, history);
+		// Shift history.
+		history = history.s0012; // Shift history.
 
-		// Update history.
-		history = history.s001;
-		history.x = out;
+		pixel = *p_src;
 
-		*p_dst = out * B_square;
+		// Calculate the next output value and put it to history.s0.
+		history.s0 = pixel;
+		history.s0 = dot(b, history);
+		*p_dst = history.s0;
 
 		// Advance pointers.
 		p_src += src_sample_delta;
@@ -106,18 +90,19 @@ kernel void gauss_blur_1d(
 	}
 
 	p_src -= src_sample_delta;
-	history = updateHistoryForBackwardPass(history, a, B_recip, *p_src) * B_square;
+	history = updateHistoryForBackwardPass(history, pixel, m1, m2, m3);
 
 	// Backward pass.
 	for (int i = 0; i < signal_length; ++i) {
 		p_dst -= dst_sample_delta;
-		float const out = *p_dst + dot(a, history);
 
-		// Update history.
-		history = history.s001;
-		history.x = out;
+		// Shift history.
+		history = history.s0012;
 
-		*p_dst = out;
+		// Calculate the next output value and put it to history.s0.
+		history.s0 = *p_dst;
+		history.s0 = dot(b, history);
+		*p_dst = history.s0;
 	}
 }
 
@@ -140,7 +125,7 @@ kernel void gauss_blur_h_decomp_stage1(
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
 	int const min_x_offset, float const dx,
-	float3 const a, float const B_recip, float const B_square)
+	float4 const b, float3 const m1, float3 const m2, float3 const m3)
 {
 	int const dst_x = get_global_id(0);
 	int const x_offset = min_x_offset + dst_x;
@@ -173,12 +158,14 @@ kernel void gauss_blur_h_decomp_stage1(
 
 	float pixel = (1.f - coord.alpha) * src_line[coord.lower_bound + x_offset]
 		+ coord.alpha * src_line[coord.lower_bound + x_offset + 1];
-	float const initial = pixel * B_recip;
-	float3 history = (float3)(initial, initial, initial);
+	float4 history = (float4)(pixel, pixel, pixel, pixel);
 
 	// Forward pass.
 	int y = y0; // Note that y corresponds to both src and dst images.
 	for (; y < src_height; ++y) {
+		// Shift history.
+		history = history.s0012;
+
 		coord = get_interpolated_coord(y, dx);
 		int const x0 = coord.lower_bound + x_offset;
 		int const x1 = x0 + 1;
@@ -187,35 +174,33 @@ kernel void gauss_blur_h_decomp_stage1(
 		}
 
 		pixel = (1.f - coord.alpha) * src_line[x0] + coord.alpha * src_line[x1];
-		float const out = pixel + dot(a, history);
 
-		// Update history.
-		history = history.s001;
-		history.s0 = out;
-
-		// Write out the scaled result.
-		dst_line[x0] = out * B_square;
+		// Calculate the next output value and put it to history.s0.
+		history.s0 = pixel;
+		history.s0 = dot(b, history);
+		dst_line[x0] = history.s0;
 
 		// Move to the next line.
 		src_line += src_stride;
 		dst_line += dst_stride;
 	}
 
-	history = updateHistoryForBackwardPass(history, a, B_recip, pixel) * B_square;
+	history = updateHistoryForBackwardPass(history, pixel, m1, m2, m3);
 
 	// Backward pass.
 	for (--y; y >= y0; --y) {
+		// Move to previous line.
 		dst_line -= dst_stride;
+
+		// Shift history.
+		history = history.s0012;
+
 		int const x0 = get_interpolated_coord(y, dx).lower_bound + x_offset;
 
-		float const out = dst_line[x0] + dot(a, history);
-
-		// Update history.
-		history = history.s001;
-		history.s0 = out;
-
-		// Write out the result.
-		dst_line[x0] = out;
+		// Calculate the next output value and put it to history.s0.
+		history.s0 = dst_line[x0];
+		history.s0 = dot(b, history);
+		dst_line[x0] = history.s0;
 	}
 }
 
@@ -224,7 +209,7 @@ kernel void gauss_blur_v_decomp_stage1(
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
 	int const min_y_offset, float const dy,
-	float3 const a, float const B_recip, float const B_square)
+	float4 const b, float3 const m1, float3 const m2, float3 const m3)
 {
 	int const dst_y = get_global_id(0);
 	int const y_offset = min_y_offset + dst_y;
@@ -257,12 +242,14 @@ kernel void gauss_blur_v_decomp_stage1(
 
 	float pixel = (1.f - coord.alpha) * p_src[(coord.lower_bound + y_offset) * src_stride]
 		+ coord.alpha * p_src[(coord.lower_bound + y_offset + 1) * src_stride];
-	float const initial = pixel * B_recip;
-	float3 history = (float3)(initial, initial, initial);
+	float4 history = (float4)(pixel, pixel, pixel, pixel);
 
 	// Forward pass.
 	int x = x0; // Note that x corresponds to both src and dst images.
 	for (; x < src_width; ++x) {
+		// Shift history.
+		history = history.s0012;
+
 		coord = get_interpolated_coord(x, dy);
 		int const y0 = coord.lower_bound + y_offset;
 		int const y1 = y0 + 1;
@@ -272,35 +259,33 @@ kernel void gauss_blur_v_decomp_stage1(
 
 		pixel = (1.f - coord.alpha) * p_src[y0 * src_stride]
 			+ coord.alpha * p_src[y1 * src_stride];
-		float const out = pixel + dot(a, history);
 
-		// Update history.
-		history = history.s001;
-		history.s0 = out;
-
-		// Write out the scaled result.
-		p_dst[y0 * dst_stride] = out * B_square;
+		// Calculate the next output value and put it to history.s0.
+		history.s0 = pixel;
+		history.s0 = dot(b, history);
+		p_dst[y0 * dst_stride] = history.s0;
 
 		// Move to the next column.
 		++p_src;
 		++p_dst;
 	}
 
-	history = updateHistoryForBackwardPass(history, a, B_recip, pixel) * B_square;
+	history = updateHistoryForBackwardPass(history, pixel, m1, m2, m3);
 
 	// Backward pass.
 	for (--x; x >= x0; --x) {
+		// Move to previous column.
 		--p_dst;
+
+		// Shift history.
+		history = history.s0012;
+
 		int const y0 = get_interpolated_coord(x, dy).lower_bound + y_offset;
 
-		float const out = p_dst[y0 * dst_stride] + dot(a, history);
-
-		// Update history.
-		history = history.s001;
-		history.s0 = out;
-
-		// Write out the result.
-		p_dst[y0 * dst_stride] = out;
+		// Calculate the next output value and put it to history.s0.
+		history.s0 = p_dst[y0 * dst_stride];
+		history.s0 = dot(b, history);
+		p_dst[y0 * dst_stride] = history.s0;
 	}
 }
 

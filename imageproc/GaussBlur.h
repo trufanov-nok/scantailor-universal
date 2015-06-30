@@ -210,7 +210,7 @@ public:
 
 		// Formula 8c in [1].
 		float const b0 = 1.57825f + 2.44413f * q + 1.4281f * q2 + 0.422205f * q3;
-		float const b1 = 2.44413f * q + 2.85619f * q2 + 1.26661 * q3;
+		float const b1 = 2.44413f * q + 2.85619f * q2 + 1.26661f * q3;
 		float const b2 = -1.4281f * q2 - 1.26661f * q3;
 		float const b3 = 0.422205f * q3;
 		assert(b0 > 0); // Because q is > 0
