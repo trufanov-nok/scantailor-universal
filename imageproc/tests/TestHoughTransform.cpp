@@ -18,6 +18,8 @@
 
 #include "HoughTransform.h"
 #include "ToLineProjector.h"
+#include "Utils.h"
+#include <QApplication>
 #include <QImage>
 #include <QSize>
 #include <QPoint>
@@ -38,7 +40,16 @@ namespace imageproc
 namespace tests
 {
 
-BOOST_AUTO_TEST_SUITE(HoughTransformTestSuite);
+class HoughTransformFixture
+{
+public:
+	HoughTransformFixture() : m_ptrApp(utils::createApplication()) {}
+protected:
+	// In Qt5, using QPainter requires an instance of QApplication.
+	std::unique_ptr<QApplication> m_ptrApp;
+};
+
+BOOST_FIXTURE_TEST_SUITE(HoughTransformTestSuite, HoughTransformFixture);
 
 BOOST_AUTO_TEST_CASE(test_line_detection)
 {
