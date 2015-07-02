@@ -73,36 +73,41 @@ kernel void gauss_blur_1d(
 	global float* p_dst = dst + dst_offset + id * dst_id_delta;
 	float pixel = *p_src;
 	float4 history = (float4)(pixel, pixel, pixel, pixel);
-	for (int i = 0; i < signal_length; ++i) {
-		// Shift history.
-		history = history.s0012; // Shift history.
-
-		pixel = *p_src;
-
-		// Calculate the next output value and put it to history.s0.
-		history.s0 = pixel;
+	for (int i = 0;;) {
+		// Calculate and write out the next output value.
 		history.s0 = dot(b, history);
 		*p_dst = history.s0;
 
-		// Advance pointers.
+		if (++i >= signal_length) {
+			break;
+		}
+
+		// Move to the next sample.
 		p_src += src_sample_delta;
 		p_dst += dst_sample_delta;
+
+		// Read the next input pixel.
+		pixel = *p_src;
+
+		// Update history.
+		history = history.s0012;
+		history.s0 = pixel;
 	}
 
-	p_src -= src_sample_delta;
 	history = updateHistoryForBackwardPass(history, pixel, m1, m2, m3);
 
 	// Backward pass.
 	for (int i = 0; i < signal_length; ++i) {
-		p_dst -= dst_sample_delta;
-
 		// Shift history.
 		history = history.s0012;
 
-		// Calculate the next output value and put it to history.s0.
+		// Calculate the next output value, put it to history.s0 and write it out.
 		history.s0 = *p_dst;
 		history.s0 = dot(b, history);
 		*p_dst = history.s0;
+
+		// Move to the previous sample.
+		p_dst -= dst_sample_delta;
 	}
 }
 
@@ -132,8 +137,10 @@ kernel void gauss_blur_h_decomp_stage1(
 
 	int y0 = 0;
 	InterpolatedCoord coord = get_interpolated_coord(y0, dx);
-	// Note that -1 and src_height are the valid y coordinates thanks to the padding of src.
-	if (coord.lower_bound + x_offset < -1 || coord.lower_bound + x_offset + 1 > src_width) {
+	// Note that -1 and src_width are the valid x coordinates thanks to the padding of src.
+	bool within_bounds = coord.lower_bound + x_offset >= -1
+			&& coord.lower_bound + x_offset + 1 <= src_width;
+	if (!within_bounds) {
 		// src_x = x_offset + y * dx
 		// y = (src_x - x_offset) / dx
 		// src_x is either -1 - E or (width + E), where E is some small number.
@@ -145,9 +152,11 @@ kernel void gauss_blur_h_decomp_stage1(
 
 		// The above calculation for y0 may produce y0 where the corresponding x
 		// is still outside of the image. In this case, we just move a bit forward.
-		for (; y0 < src_height; ++y0) {
+		for (;; ++y0) {
 			coord = get_interpolated_coord(y0, dx);
-			if (coord.lower_bound + x_offset >= -1 && coord.lower_bound + x_offset + 1 <= src_width) {
+			within_bounds = coord.lower_bound + x_offset >= -1
+					&& coord.lower_bound + x_offset + 1 <= src_width;
+			if (within_bounds) {
 				break;
 			}
 		}
@@ -156,51 +165,56 @@ kernel void gauss_blur_h_decomp_stage1(
 	global float const* src_line = src + src_offset + src_stride * y0;
 	global float* dst_line = dst + dst_offset + dst_stride * y0;
 
-	float pixel = (1.f - coord.alpha) * src_line[coord.lower_bound + x_offset]
-		+ coord.alpha * src_line[coord.lower_bound + x_offset + 1];
+	int x0 = coord.lower_bound + x_offset;
+	int x1 = x0 + 1;
+	float pixel = (1.f - coord.alpha) * src_line[x0] + coord.alpha * src_line[x1];
 	float4 history = (float4)(pixel, pixel, pixel, pixel);
 
 	// Forward pass.
 	int y = y0; // Note that y corresponds to both src and dst images.
-	for (; y < src_height; ++y) {
-		// Shift history.
-		history = history.s0012;
-
-		coord = get_interpolated_coord(y, dx);
-		int const x0 = coord.lower_bound + x_offset;
-		int const x1 = x0 + 1;
-		if (x0 < -1 || x1 > src_width) {
-			break;
-		}
-
-		pixel = (1.f - coord.alpha) * src_line[x0] + coord.alpha * src_line[x1];
-
-		// Calculate the next output value and put it to history.s0.
-		history.s0 = pixel;
+	for (;;) {
+		// Calculate and write out the next output value.
 		history.s0 = dot(b, history);
 		dst_line[x0] = history.s0;
 
-		// Move to the next line.
+		// Initiate moving to the next line.
+		++y;
+		coord = get_interpolated_coord(y, dx);
+		x0 = coord.lower_bound + x_offset;
+		x1 = x0 + 1;
+		within_bounds = y < src_height && x0 >= -1 && x1 <= src_width;
+		if (!within_bounds) {
+			break;
+		}
+
+		// Complete moving to the next line.
 		src_line += src_stride;
 		dst_line += dst_stride;
+
+		// Read the next input pixel.
+		pixel = (1.f - coord.alpha) * src_line[x0] + coord.alpha * src_line[x1];
+
+		// Update history.
+		history = history.s0012;
+		history.s0 = pixel;
 	}
 
 	history = updateHistoryForBackwardPass(history, pixel, m1, m2, m3);
 
 	// Backward pass.
 	for (--y; y >= y0; --y) {
-		// Move to previous line.
-		dst_line -= dst_stride;
-
 		// Shift history.
 		history = history.s0012;
 
-		int const x0 = get_interpolated_coord(y, dx).lower_bound + x_offset;
+		x0 = get_interpolated_coord(y, dx).lower_bound + x_offset;
 
-		// Calculate the next output value and put it to history.s0.
+		// Calculate the next output value, put it to history.s0 and write it out.
 		history.s0 = dst_line[x0];
 		history.s0 = dot(b, history);
 		dst_line[x0] = history.s0;
+
+		// Move to the previous line.
+		dst_line -= dst_stride;
 	}
 }
 
@@ -217,7 +231,9 @@ kernel void gauss_blur_v_decomp_stage1(
 	int x0 = 0;
 	InterpolatedCoord coord = get_interpolated_coord(x0, dy);
 	// Note that -1 and src_height are the valid y coordinates thanks to the padding of src.
-	if (coord.lower_bound + y_offset < -1 || coord.lower_bound + y_offset + 1 > src_height) {
+	bool within_bounds = coord.lower_bound + y_offset >= -1
+			&& coord.lower_bound + y_offset + 1 <= src_height;
+	if (!within_bounds) {
 		// src_y = y_offset + x * dy
 		// x = (src_y - y_offset) / dy
 		// src_y is either -1 - E or (height + E), where E is some small number.
@@ -229,9 +245,11 @@ kernel void gauss_blur_v_decomp_stage1(
 
 		// The above calculation for x0 may produce x0 where the corresponding y
 		// is still outside of the image. In this case, we just move a bit forward.
-		for (; x0 < src_width; ++x0) {
+		for (;; ++x0) {
 			coord = get_interpolated_coord(x0, dy);
-			if (coord.lower_bound + y_offset >= -1 && coord.lower_bound + y_offset + 1 <= src_height) {
+			within_bounds = coord.lower_bound + y_offset >= -1
+					&& coord.lower_bound + y_offset + 1 <= src_height;
+			if (within_bounds) {
 				break;
 			}
 		}
@@ -240,52 +258,58 @@ kernel void gauss_blur_v_decomp_stage1(
 	global float const* p_src = src + src_offset + x0;
 	global float* p_dst = dst + dst_offset + x0;
 
-	float pixel = (1.f - coord.alpha) * p_src[(coord.lower_bound + y_offset) * src_stride]
-		+ coord.alpha * p_src[(coord.lower_bound + y_offset + 1) * src_stride];
+	int y0 = coord.lower_bound + y_offset;
+	int y1 = y0 + 1;
+	float pixel = (1.f - coord.alpha) * p_src[y0 * src_stride]
+			+ coord.alpha * p_src[y1 * src_stride];
 	float4 history = (float4)(pixel, pixel, pixel, pixel);
 
 	// Forward pass.
 	int x = x0; // Note that x corresponds to both src and dst images.
-	for (; x < src_width; ++x) {
-		// Shift history.
-		history = history.s0012;
-
-		coord = get_interpolated_coord(x, dy);
-		int const y0 = coord.lower_bound + y_offset;
-		int const y1 = y0 + 1;
-		if (y0 < -1 || y1 > src_height) {
-			break;
-		}
-
-		pixel = (1.f - coord.alpha) * p_src[y0 * src_stride]
-			+ coord.alpha * p_src[y1 * src_stride];
-
-		// Calculate the next output value and put it to history.s0.
-		history.s0 = pixel;
+	for (;;) {
+		// Calculate and write out the next output value.
 		history.s0 = dot(b, history);
 		p_dst[y0 * dst_stride] = history.s0;
 
-		// Move to the next column.
+		// Initiate moving to the next column.
+		++x;
+		coord = get_interpolated_coord(x, dy);
+		y0 = coord.lower_bound + y_offset;
+		y1 = y0 + 1;
+		within_bounds = x < src_width && y0 >= -1 && y1 <= src_height;
+		if (!within_bounds) {
+			break;
+		}
+
+		// Complete moving to the next column.
 		++p_src;
 		++p_dst;
+
+		// Read the next input pixel.
+		pixel = (1.f - coord.alpha) * p_src[y0 * src_stride]
+				+ coord.alpha * p_src[y1 * src_stride];
+
+		// Update history.
+		history = history.s0012;
+		history.s0 = pixel;
 	}
 
 	history = updateHistoryForBackwardPass(history, pixel, m1, m2, m3);
 
 	// Backward pass.
 	for (--x; x >= x0; --x) {
-		// Move to previous column.
-		--p_dst;
-
 		// Shift history.
 		history = history.s0012;
 
-		int const y0 = get_interpolated_coord(x, dy).lower_bound + y_offset;
+		y0 = get_interpolated_coord(x, dy).lower_bound + y_offset;
 
-		// Calculate the next output value and put it to history.s0.
+		// Calculate the next output value, put it to history.s0 and write it out.
 		history.s0 = p_dst[y0 * dst_stride];
 		history.s0 = dot(b, history);
 		p_dst[y0 * dst_stride] = history.s0;
+
+		// Move to the previous column.
+		--p_dst;
 	}
 }
 
