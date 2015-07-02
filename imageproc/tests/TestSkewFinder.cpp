@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include "SkewFinder.h"
 #include "BinaryImage.h"
+#include "Utils.h"
 #include <QApplication>
 #include <QImage>
 #include <QPainter>
@@ -25,6 +26,7 @@
 #include <QColor>
 #include <QString>
 #include <boost/test/auto_unit_test.hpp>
+#include <memory>
 #include <math.h>
 #include <stdlib.h>
 
@@ -34,14 +36,18 @@ namespace imageproc
 namespace tests
 {
 
-BOOST_AUTO_TEST_SUITE(SkewFinderTestSuite);
+class SkewFinderFixture
+{
+public:
+	SkewFinderFixture() : m_ptrApp(utils::createApplication()) {}
+protected:
+	std::unique_ptr<QApplication> m_ptrApp;
+};
+
+BOOST_FIXTURE_TEST_SUITE(SkewFinderTestSuite, SkewFinderFixture);
 
 BOOST_AUTO_TEST_CASE(test_positive_detection)
 {
-	int argc = 1;
-	char argv0[] = "test";
-	char* argv[1] = { argv0 };
-	QApplication app(argc, argv);
 	QImage image(1000, 800, QImage::Format_ARGB32_Premultiplied);
 	image.fill(0xffffffff);
 	{

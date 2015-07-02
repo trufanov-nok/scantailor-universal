@@ -38,9 +38,10 @@ namespace utils
 
 std::unique_ptr<QApplication> createApplication()
 {
-	int argc = 1;
-	char argv0[] = "executable";
-	char* argv[] = { argv0, nullptr };
+	// QApplication stores references to argc and argv and accesses them later.
+	static int argc = 1;
+	static char argv0[] = "executable";
+	static char* argv[] = { argv0, nullptr };
 	return std::unique_ptr<QApplication>(new QApplication(argc, argv));
 }
 
