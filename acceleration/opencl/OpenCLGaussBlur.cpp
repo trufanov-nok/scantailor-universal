@@ -308,7 +308,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		int min_x_offset, max_x_offset; // These don't change once computed.
 		{
 			int const x0 = 0;
-			int const x1 = static_cast<int>(std::floor(height - 1) * dx);
+			int const x1 = static_cast<int>(std::floor(float(height - 1) * dx));
 			if (x0 < x1) {
 				// '\'-like skewed line
 
@@ -410,7 +410,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		int min_y_offset, max_y_offset; // These don't change once computed.
 		{
 			int const y0 = 0;
-			int const y1 = static_cast<int>(std::floor(width - 1) * dy);
+			int const y1 = static_cast<int>(std::floor(float(width - 1) * dy));
 			if (y0 < y1) {
 				// '\'-like skewed line
 
