@@ -12,11 +12,19 @@ SET(
 	OpenCLGrid.h
 	OpenCLGaussBlur.cpp OpenCLGaussBlur.h
 	OpenCLTextFilterBank.cpp OpenCLTextFilterBank.h
+	Transpose.cpp Transpose.h
+	Copy.cpp Copy.h
+	Utils.cpp Utils.h
+)
+
+SET(
+	plugin_sources
 	OpenCLAcceleratedOperations.cpp OpenCLAcceleratedOperations.h
 	OpenCLPlugin.cpp OpenCLPlugin.h
 )
-SOURCE_GROUP("Sources" FILES ${host_sources})
-TRANSLATION_SOURCES(scantailor ${host_sources})
+
+SOURCE_GROUP("Sources" FILES ${host_sources} ${plugin_sources})
+TRANSLATION_SOURCES(scantailor ${plugin_sources})
 
 FILE(GLOB device_sources device_code/*.cl)
 SOURCE_GROUP("Sources\\Device" "${device_sources}")
@@ -29,11 +37,11 @@ IF(ENABLE_OPENCL)
 	QT5_ADD_RESOURCES(resource_sources resources.qrc)
 	SOURCE_GROUP("Generated" FILES ${resource_sources})
 
-	ADD_LIBRARY(
-		opencl_plugin MODULE
-		${host_sources} ${device_sources} ${resource_sources} resources.qrc
-	)
-	TARGET_LINK_LIBRARIES(opencl_plugin Qt5::Core Qt5::Gui ${OpenCL_LIBRARIES})
+	ADD_LIBRARY(opencl STATIC ${host_sources} ${device_sources})
+	TARGET_LINK_LIBRARIES(opencl Qt5::Core Qt5::Gui ${OpenCL_LIBRARIES})
+
+	ADD_LIBRARY(opencl_plugin MODULE ${plugin_sources} ${resource_sources} resources.qrc)
+	TARGET_LINK_LIBRARIES(opencl_plugin opencl)
 
 	# Output to the root of the build directory, where it can be found by QPluginLoader.
 	SET_TARGET_PROPERTIES(
@@ -42,4 +50,6 @@ IF(ENABLE_OPENCL)
 	)
 
 	INSTALL(TARGETS opencl_plugin LIBRARY DESTINATION lib/scantailor)
+
+	ADD_SUBDIRECTORY(tests)
 ENDIF()

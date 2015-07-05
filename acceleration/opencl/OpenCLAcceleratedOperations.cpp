@@ -48,6 +48,8 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 	// in OpenCL kernel code.
 	static char const* const device_sources[] = {
 		"fill_grid.cl",
+		"copy_grid.cl",
+		"transpose_grid.cl",
 		"copy_1px_padding.cl",
 		"gauss_blur.cl",
 		"text_filter_bank_combine.cl"

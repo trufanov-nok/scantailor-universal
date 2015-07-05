@@ -16,34 +16,17 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-kernel void fill_byte_grid(
+kernel void copy_float_grid(
 	int const width, int const height,
-	global uchar* grid, int const grid_offset, int const grid_stride,
-	uchar const value)
+	global float const* const src, int const src_offset, int const src_stride,
+	global float* const dst, int const dst_offset, int const dst_stride)
 {
 	int const x = get_global_id(0);
 	int const y = get_global_id(1);
-
 	bool const outside_bounds = (x >= width) | (y >= height);
 	if (outside_bounds) {
 		return;
 	}
 
-	grid[grid_offset + x + y * grid_stride] = value;
-}
-
-kernel void fill_float_grid(
-	int const width, int const height,
-	global float* grid, int const grid_offset, int const grid_stride,
-	float const value)
-{
-	int const x = get_global_id(0);
-	int const y = get_global_id(1);
-
-	bool const outside_bounds = (x >= width) | (y >= height);
-	if (outside_bounds) {
-		return;
-	}
-
-	grid[grid_offset + x + y * grid_stride] = value;
+	dst[dst_offset + dst_stride * y + x] = src[src_offset + src_stride * y + x];
 }

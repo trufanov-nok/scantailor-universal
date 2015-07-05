@@ -60,6 +60,7 @@ static float4 updateHistoryForBackwardPass(
  */
 kernel void gauss_blur_1d(
 	int const signal_length,
+	int const num_signals,
 	global float const* const src, int const src_offset,
 	int const src_id_delta, int const src_sample_delta,
 	global float* const dst, int const dst_offset,
@@ -67,6 +68,9 @@ kernel void gauss_blur_1d(
 	float4 const b, float3 const m1, float3 const m2, float3 const m3)
 {
 	int const id = get_global_id(0);
+	if (id >= num_signals) {
+		return;
+	}
 
 	// Forward pass.
 	global float const* p_src = src + src_offset + id * src_id_delta;
@@ -129,11 +133,14 @@ kernel void gauss_blur_h_decomp_stage1(
 	int const src_width, int const src_height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
-	int const min_x_offset, float const dx,
+	int const min_x_offset, int const max_x_offset, float const dx,
 	float4 const b, float3 const m1, float3 const m2, float3 const m3)
 {
 	int const dst_x = get_global_id(0);
 	int const x_offset = min_x_offset + dst_x;
+	if (x_offset > max_x_offset) {
+		return;
+	}
 
 	int y0 = 0;
 	InterpolatedCoord coord = get_interpolated_coord(y0, dx);
@@ -222,11 +229,14 @@ kernel void gauss_blur_v_decomp_stage1(
 	int const src_width, int const src_height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
-	int const min_y_offset, float const dy,
+	int const min_y_offset, int const max_y_offset, float const dy,
 	float4 const b, float3 const m1, float3 const m2, float3 const m3)
 {
 	int const dst_y = get_global_id(0);
 	int const y_offset = min_y_offset + dst_y;
+	if (y_offset > max_y_offset) {
+		return;
+	}
 
 	int x0 = 0;
 	InterpolatedCoord coord = get_interpolated_coord(x0, dy);
@@ -314,12 +324,17 @@ kernel void gauss_blur_v_decomp_stage1(
 }
 
 kernel void gauss_blur_h_decomp_stage2(
+	int const width, int const height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
 	float const dx)
 {
 	int const x = get_global_id(0);
 	int const y = get_global_id(1);
+	bool const outside_bounds = (x >= width) | (y >= height);
+	if (outside_bounds) {
+		return;
+	}
 
 	global float const* const src_line = src + src_offset + y * src_stride;
 	global float* const dst_line = dst + dst_offset + y * dst_stride;
@@ -338,12 +353,17 @@ kernel void gauss_blur_h_decomp_stage2(
 }
 
 kernel void gauss_blur_v_decomp_stage2(
+	int const width, int const height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
 	float const dy)
 {
 	int const x = get_global_id(0);
 	int const y = get_global_id(1);
+	bool const outside_bounds = (x >= width) | (y >= height);
+	if (outside_bounds) {
+		return;
+	}
 
 	global float const* const p_src = src + src_offset + x;
 	global float* const p_dst = dst + dst_offset + x;

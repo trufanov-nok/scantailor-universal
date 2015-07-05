@@ -17,8 +17,10 @@
 */
 
 #include "OpenCLGaussBlur.h"
+#include "Transpose.h"
+#include "Utils.h"
+#include "PerformanceTimer.h"
 #include "imageproc/GaussBlur.h"
-#include <QDebug>
 
 using namespace imageproc::gauss_blur_impl;
 
@@ -45,6 +47,332 @@ void initHistoryUpdateMatrix(FilterParams const& p, cl_float3& m1, cl_float3& m2
 	m3.s[2] = normalizer * p.a3 * (p.a1 + p.a3 * p.a2);
 }
 
+void horizontalPass(
+	cl::CommandQueue const& command_queue, cl::Program const& program,
+	OpenCLGrid<float> const& src_grid, OpenCLGrid<float> const& dst_grid,
+	float const sigma, std::vector<cl::Event>& deps, cl::Event& evt)
+{
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+
+	FilterParams const p(sigma);
+
+	cl_float3 m1, m2, m3;
+	initHistoryUpdateMatrix(p, m1, m2, m3);
+
+	cl::Kernel kernel(program, "gauss_blur_1d");
+	int idx = 0;
+	kernel.setArg(idx++, src_grid.width());
+	kernel.setArg(idx++, src_grid.height());
+	kernel.setArg(idx++, src_grid.buffer());
+	kernel.setArg(idx++, src_grid.offset());
+	kernel.setArg(idx++, src_grid.stride());
+	kernel.setArg(idx++, cl_int(1));
+	kernel.setArg(idx++, dst_grid.buffer());
+	kernel.setArg(idx++, dst_grid.offset());
+	kernel.setArg(idx++, dst_grid.stride());
+	kernel.setArg(idx++, cl_int(1));
+	kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+	kernel.setArg(idx++, m1);
+	kernel.setArg(idx++, m2);
+	kernel.setArg(idx++, m3);
+
+	command_queue.enqueueNDRangeKernel(
+		kernel,
+		cl::NullRange,
+		cl::NDRange(thisOrNextMultipleOf(src_grid.height(), max_wg_size)),
+		cl::NDRange(max_wg_size),
+		&deps,
+		&evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+}
+
+void verticalPass(
+	cl::CommandQueue const& command_queue, cl::Program const& program,
+	OpenCLGrid<float> const& src_grid, OpenCLGrid<float> const& dst_grid,
+	float const sigma, std::vector<cl::Event>& deps, cl::Event& evt)
+{
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+
+	FilterParams const p(sigma);
+
+	cl_float3 m1, m2, m3;
+	initHistoryUpdateMatrix(p, m1, m2, m3);
+
+	cl::Kernel kernel(program, "gauss_blur_1d");
+	int idx = 0;
+	kernel.setArg(idx++, src_grid.height());
+	kernel.setArg(idx++, src_grid.width());
+	kernel.setArg(idx++, src_grid.buffer());
+	kernel.setArg(idx++, src_grid.offset());
+	kernel.setArg(idx++, cl_int(1));
+	kernel.setArg(idx++, src_grid.stride());
+	kernel.setArg(idx++, dst_grid.buffer());
+	kernel.setArg(idx++, dst_grid.offset());
+	kernel.setArg(idx++, cl_int(1));
+	kernel.setArg(idx++, dst_grid.stride());
+	kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+	kernel.setArg(idx++, m1);
+	kernel.setArg(idx++, m2);
+	kernel.setArg(idx++, m3);
+
+	command_queue.enqueueNDRangeKernel(
+		kernel,
+		cl::NullRange,
+		cl::NDRange(thisOrNextMultipleOf(src_grid.width(), max_wg_size)),
+		cl::NDRange(max_wg_size),
+		&deps,
+		&evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+}
+
+void copy1PxPadding(
+	cl::CommandQueue const& command_queue, cl::Program const& program,
+	OpenCLGrid<float>& grid, std::vector<cl::Event>& deps, cl::Event& evt)
+{
+	cl::Kernel kernel(program, "copy_1px_padding");
+	int idx = 0;
+	kernel.setArg(idx++, grid.width());
+	kernel.setArg(idx++, grid.height());
+	kernel.setArg(idx++, grid.buffer());
+	kernel.setArg(idx++, grid.offset());
+	kernel.setArg(idx++, grid.stride());
+
+	command_queue.enqueueNDRangeKernel(
+		kernel,
+		cl::NullRange,
+		cl::NDRange((grid.width() + grid.height())*2 + 4),
+		cl::NullRange,
+		&deps,
+		&evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+}
+
+void verticallyTraversedSkewedPassInPlace(
+	cl::CommandQueue const& command_queue, cl::Program const& program,
+	OpenCLGrid<float>& grid, float const sigma, float const dx,
+	std::vector<cl::Event>& deps, cl::Event& evt)
+{
+	int const width = grid.width();
+	int const height = grid.height();
+	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
+
+	FilterParams const p(sigma);
+	cl_float3 m1, m2, m3;
+	initHistoryUpdateMatrix(p, m1, m2, m3);
+
+	copy1PxPadding(command_queue, program, grid, deps, evt);
+
+	// In the CPU version of this code we build a reference skewed line,
+	// which is an array of InterpolatedCoord structures indexed by y.
+	// In OpenCL version we don't construct that array explicitly, but
+	// instead build its elements on demand (see get_interpolated_coord()
+	// in gauss_blur.cl). We then "move" that line by adding values in
+	// [min_x_offset, max_x_offset] range to InterpolatedCoord::lower_bound.
+	// Now let's calculate that range.
+	int min_x_offset, max_x_offset; // These don't change once computed.
+	{
+		int const x0 = 0;
+		int const x1 = static_cast<int>(std::floor(float(height - 1) * dx));
+		if (x0 < x1) {
+			// '\'-like skewed line
+
+			// x1 + min_x_offset == -1
+			min_x_offset = -1 - x1;
+
+			// x0 + 1 + max_x_offset == width
+			max_x_offset = width - 1 - x0;
+		} else {
+			// '/'-like skewed line
+
+			// x0 + min_x_offset == -1
+			min_x_offset = -1 - x0;
+
+			// x1 + 1 + max_x_offset == width
+			max_x_offset = width - 1 - x1;
+		}
+	}
+
+	cl::Buffer intermediate_buffer(
+		context, CL_MEM_READ_WRITE, grid.totalBytesWithDifferentPadding(1)
+	);
+	OpenCLGrid<float> intermediate_grid(grid.withDifferentPadding(intermediate_buffer, 1));
+
+	cl::Kernel kernel(program, "gauss_blur_h_decomp_stage1");
+	int idx = 0;
+	kernel.setArg(idx++, cl_int(width));
+	kernel.setArg(idx++, cl_int(height));
+	kernel.setArg(idx++, grid.buffer());
+	kernel.setArg(idx++, grid.offset());
+	kernel.setArg(idx++, grid.stride());
+	kernel.setArg(idx++, intermediate_grid.buffer());
+	kernel.setArg(idx++, intermediate_grid.offset());
+	kernel.setArg(idx++, intermediate_grid.stride());
+	kernel.setArg(idx++, cl_int(min_x_offset));
+	kernel.setArg(idx++, cl_int(max_x_offset));
+	kernel.setArg(idx++, cl_float(dx));
+	kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+	kernel.setArg(idx++, m1);
+	kernel.setArg(idx++, m2);
+	kernel.setArg(idx++, m3);
+
+	command_queue.enqueueNDRangeKernel(
+		kernel,
+		cl::NullRange,
+		cl::NDRange(thisOrNextMultipleOf(max_x_offset - min_x_offset + 1, max_wg_size)),
+		cl::NDRange(max_wg_size),
+		&deps,
+		&evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+
+	kernel = cl::Kernel(program, "gauss_blur_h_decomp_stage2");
+	idx = 0;
+	kernel.setArg(idx++, cl_int(width));
+	kernel.setArg(idx++, cl_int(height));
+	kernel.setArg(idx++, intermediate_grid.buffer());
+	kernel.setArg(idx++, intermediate_grid.offset());
+	kernel.setArg(idx++, intermediate_grid.stride());
+	kernel.setArg(idx++, grid.buffer());
+	kernel.setArg(idx++, grid.offset());
+	kernel.setArg(idx++, grid.stride());
+	kernel.setArg(idx++, cl_float(dx));
+
+	size_t const h_wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
+	size_t const v_wg_size = max_wg_size / h_wg_size;
+
+	command_queue.enqueueNDRangeKernel(
+		kernel,
+		cl::NullRange,
+		cl::NDRange(thisOrNextMultipleOf(width, h_wg_size), thisOrNextMultipleOf(height, v_wg_size)),
+		cl::NDRange(h_wg_size, v_wg_size),
+		&deps,
+		&evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+}
+
+void horizontallyTraversedSkewedPassInPlace(
+	cl::CommandQueue const& command_queue, cl::Program const& program,
+	OpenCLGrid<float>& grid, float const sigma, float const dy,
+	std::vector<cl::Event>& deps, cl::Event& evt)
+{
+	int const width = grid.width();
+	int const height = grid.height();
+	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
+
+	FilterParams const p(sigma);
+	cl_float3 m1, m2, m3;
+	initHistoryUpdateMatrix(p, m1, m2, m3);
+
+	copy1PxPadding(command_queue, program, grid, deps, evt);
+
+	// In the CPU version of this code we build a reference skewed line,
+	// which is an array of InterpolatedCoord structures indexed by x.
+	// In OpenCL version we don't construct that array explicitly, but
+	// instead build its elements on demand (see get_interpolated_coord()
+	// in gauss_blur.cl). We then "move" that line by adding values in
+	// [min_y_offset, max_y_offset] range to InterpolatedCoord::lower_bound.
+	// Now let's calculate that range.
+	int min_y_offset, max_y_offset; // These don't change once computed.
+	{
+		int const y0 = 0;
+		int const y1 = static_cast<int>(std::floor(float(width - 1) * dy));
+		if (y0 < y1) {
+			// '\'-like skewed line
+
+			// y1 + min_y_offset == -1
+			min_y_offset = -1 - y1;
+
+			// y0 + 1 + max_y_offset == height
+			max_y_offset = height - 1 - y0;
+		} else {
+			// '/'-like skewed line
+
+			// y0 + min_y_offset == -1
+			min_y_offset = -1 - y0;
+
+			// y1 + 1 + max_y_offset == height
+			max_y_offset = height - 1 - y1;
+		}
+	}
+
+	cl::Buffer intermediate_buffer(
+		context, CL_MEM_READ_WRITE, grid.totalBytesWithDifferentPadding(1)
+	);
+	OpenCLGrid<float> intermediate_grid(grid.withDifferentPadding(intermediate_buffer, 1));
+
+	cl::Kernel kernel(program, "gauss_blur_v_decomp_stage1");
+	int idx = 0;
+	kernel.setArg(idx++, cl_int(width));
+	kernel.setArg(idx++, cl_int(height));
+	kernel.setArg(idx++, grid.buffer());
+	kernel.setArg(idx++, grid.offset());
+	kernel.setArg(idx++, grid.stride());
+	kernel.setArg(idx++, intermediate_grid.buffer());
+	kernel.setArg(idx++, intermediate_grid.offset());
+	kernel.setArg(idx++, intermediate_grid.stride());
+	kernel.setArg(idx++, cl_int(min_y_offset));
+	kernel.setArg(idx++, cl_int(max_y_offset));
+	kernel.setArg(idx++, cl_float(dy));
+	kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+	kernel.setArg(idx++, m1);
+	kernel.setArg(idx++, m2);
+	kernel.setArg(idx++, m3);
+
+	command_queue.enqueueNDRangeKernel(
+		kernel,
+		cl::NullRange,
+		cl::NDRange(thisOrNextMultipleOf(max_y_offset - min_y_offset + 1, max_wg_size)),
+		cl::NDRange(max_wg_size),
+		&deps,
+		&evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+
+	kernel = cl::Kernel(program, "gauss_blur_v_decomp_stage2");
+	idx = 0;
+	kernel.setArg(idx++, cl_int(width));
+	kernel.setArg(idx++, cl_int(height));
+	kernel.setArg(idx++, intermediate_grid.buffer());
+	kernel.setArg(idx++, intermediate_grid.offset());
+	kernel.setArg(idx++, intermediate_grid.stride());
+	kernel.setArg(idx++, grid.buffer());
+	kernel.setArg(idx++, grid.offset());
+	kernel.setArg(idx++, grid.stride());
+	kernel.setArg(idx++, cl_float(dy));
+
+	size_t const h_wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
+	size_t const v_wg_size = max_wg_size / h_wg_size;
+
+	command_queue.enqueueNDRangeKernel(
+		kernel,
+		cl::NullRange,
+		cl::NDRange(thisOrNextMultipleOf(width, h_wg_size), thisOrNextMultipleOf(height, v_wg_size)),
+		cl::NDRange(h_wg_size, v_wg_size),
+		&deps,
+		&evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+}
+
 } // anonymous namespace
 
 OpenCLGrid<float> gaussBlur(
@@ -55,9 +383,8 @@ OpenCLGrid<float> gaussBlur(
 	std::vector<cl::Event>* wait_for,
 	cl::Event* event)
 {
-	int const width = src_grid.width();
-	int const height = src_grid.height();
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 
 	std::vector<cl::Event> deps;
 	if (wait_for) {
@@ -66,81 +393,34 @@ OpenCLGrid<float> gaussBlur(
 
 	cl::Event evt;
 
-	// dst_buffer is used both as a horizontal pass destination and
-	// as a final destination.
 	cl::Buffer dst_buffer(
 		context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(0)
 	);
 	OpenCLGrid<float> dst_grid(src_grid.withDifferentPadding(dst_buffer, 0));
 
-	{
-		// Horizontal pass.
-		FilterParams const p(h_sigma);
+	if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
+		// horizontalPass() is going to be slow, but without fast local memory
+		// there is no way to accelerate it.
 
-		cl_float3 m1, m2, m3;
-		initHistoryUpdateMatrix(p, m1, m2, m3);
+		horizontalPass(command_queue, program, src_grid, dst_grid, h_sigma, deps, evt);
+		verticalPass(command_queue, program, dst_grid, dst_grid, v_sigma, deps, evt);
+	} else {
+		// This device has fast local memory, so we avoid a slow horizontalPass()
+		// by doing transpose() -> verticalPass() -> transpose()
 
-		cl::Kernel kernel(program, "gauss_blur_1d");
-		int idx = 0;
-		kernel.setArg(idx++, cl_int(width));
-		kernel.setArg(idx++, src_grid.buffer());
-		kernel.setArg(idx++, src_grid.offset());
-		kernel.setArg(idx++, src_grid.stride());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, m1);
-		kernel.setArg(idx++, m2);
-		kernel.setArg(idx++, m3);
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(height),
-			cl::NullRange,
-			&deps,
-			&evt
+		OpenCLGrid<float> transposed = opencl::transpose(
+			command_queue, program, src_grid, /*dst_padding=*/0, &deps, &evt
 		);
 		deps.clear();
 		deps.push_back(evt);
-	}
 
-	{
-		// Vertical pass, from dst to itself.
-		FilterParams const p(v_sigma);
+		verticalPass(command_queue, program, transposed, transposed, h_sigma, deps, evt);
 
-		cl_float3 m1, m2, m3;
-		initHistoryUpdateMatrix(p, m1, m2, m3);
-
-		cl::Kernel kernel(program, "gauss_blur_1d");
-		int idx = 0;
-		kernel.setArg(idx++, cl_int(height));
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, m1);
-		kernel.setArg(idx++, m2);
-		kernel.setArg(idx++, m3);
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(width),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
+		opencl::transpose(command_queue, program, transposed, dst_grid, &deps, &evt);
 		deps.clear();
 		deps.push_back(evt);
+
+		verticalPass(command_queue, program, dst_grid, dst_grid, v_sigma, deps, evt);
 	}
 
 	if (event) {
@@ -161,6 +441,9 @@ OpenCLGrid<float> anisotropicGaussBlur(
 	int const width = src_grid.width();
 	int const height = src_grid.height();
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const max_work_group_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
 
 	std::vector<cl::Event> deps;
 	if (wait_for) {
@@ -169,105 +452,42 @@ OpenCLGrid<float> anisotropicGaussBlur(
 
 	cl::Event evt;
 
-	// dst_buffer is used both as a horizontal pass destination and
-	// as a final destination.
 	cl::Buffer dst_buffer(
 		context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(1)
 	);
-	OpenCLGrid<float> dst_grid(src_grid.withDifferentPadding(dst_buffer, 1));
+	OpenCLGrid<float> dst_grid = src_grid.withDifferentPadding(dst_buffer, 1);
 
 	HorizontalDecompositionParams const hdp(dir_x, dir_y, dir_sigma, ortho_dir_sigma);
 	VerticalDecompositionParams const vdp(dir_x, dir_y, dir_sigma, ortho_dir_sigma);
 	bool const horizontal_decomposition = hdp.sigma_x > vdp.sigma_y;
 
-	if (horizontal_decomposition) {
-		// Horizontal pass.
-		FilterParams const p(hdp.sigma_x);
-
-		cl_float3 m1, m2, m3;
-		initHistoryUpdateMatrix(p, m1, m2, m3);
-
-		cl::Kernel kernel(program, "gauss_blur_1d");
-		int idx = 0;
-		kernel.setArg(idx++, cl_int(width));
-		kernel.setArg(idx++, src_grid.buffer());
-		kernel.setArg(idx++, src_grid.offset());
-		kernel.setArg(idx++, src_grid.stride());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, m1);
-		kernel.setArg(idx++, m2);
-		kernel.setArg(idx++, m3);
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(height),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
-		deps.clear();
-		deps.push_back(evt);
+	if (!horizontal_decomposition) {
+		verticalPass(command_queue, program, src_grid, dst_grid, vdp.sigma_y, deps, evt);
 	} else {
-		// Vertical pass.
-		FilterParams const p(vdp.sigma_y);
+		if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
+			// horizontalPass() is going to be slow, but without fast local memory
+			// there is no way to accelerate it.
+			cl::Buffer dst_buffer(
+				context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(1)
+			);
+			dst_grid = src_grid.withDifferentPadding(dst_buffer, 1);
+			horizontalPass(command_queue, program, src_grid, dst_grid, hdp.sigma_x, deps, evt);
+		} else {
+			// This device has fast local memory, so we avoid a slow horizontalPass()
+			// by doing transpose() -> verticalPass() -> transpose()
 
-		cl_float3 m1, m2, m3;
-		initHistoryUpdateMatrix(p, m1, m2, m3);
+			OpenCLGrid<float> transposed = opencl::transpose(
+				command_queue, program, src_grid, /*dst_padding=*/0, &deps, &evt
+			);
+			deps.clear();
+			deps.push_back(evt);
 
-		cl::Kernel kernel(program, "gauss_blur_1d");
-		int idx = 0;
-		kernel.setArg(idx++, cl_int(height));
-		kernel.setArg(idx++, src_grid.buffer());
-		kernel.setArg(idx++, src_grid.offset());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, src_grid.stride());
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, cl_int(1));
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, m1);
-		kernel.setArg(idx++, m2);
-		kernel.setArg(idx++, m3);
+			verticalPass(command_queue, program, transposed, transposed, hdp.sigma_x, deps, evt);
 
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(width),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
-		deps.clear();
-		deps.push_back(evt);
-	}
-
-	{ // Padding of dst grid scope.
-
-		cl::Kernel kernel(program, "copy_1px_padding");
-		int idx = 0;
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.width());
-		kernel.setArg(idx++, dst_grid.height());
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, dst_grid.offset());
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange((width + height)*2 + 4),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
-		deps.clear();
-		deps.push_back(evt);
+			opencl::transpose(command_queue, program, transposed, dst_grid, &deps, &evt);
+			deps.clear();
+			deps.push_back(evt);
+		}
 	}
 
 #if 0
@@ -280,8 +500,6 @@ OpenCLGrid<float> anisotropicGaussBlur(
 #else
 	if (horizontal_decomposition) {
 #endif
-		// Traverse the phi-oriented line with a unit step in y direction.
-
 		float dx; // The step in x direction.
 		float sigma_phi;
 		if (horizontal_decomposition) {
@@ -291,99 +509,12 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			dx = 1.f / vdp.tan_phi;
 			sigma_phi = vdp.sigma_phi;
 		}
-
 		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dx*dx);
-		FilterParams const p(adjusted_sigma_phi);
 
-		cl_float3 m1, m2, m3;
-		initHistoryUpdateMatrix(p, m1, m2, m3);
-
-		// In the CPU version of this code we build a reference skewed line,
-		// which is an array of InterpolatedCoord structures indexed by y.
-		// In OpenCL version we don't construct that array explicitly, but
-		// instead build its elements on demand (see get_interpolated_coord()
-		// in gauss_blur.cl). We then "move" that line by adding values in
-		// [min_x_offset, max_x_offset] range to InterpolatedCoord::lower_bound.
-		// Now let's calculate that range.
-		int min_x_offset, max_x_offset; // These don't change once computed.
-		{
-			int const x0 = 0;
-			int const x1 = static_cast<int>(std::floor(float(height - 1) * dx));
-			if (x0 < x1) {
-				// '\'-like skewed line
-
-				// x1 + min_x_offset == -1
-				min_x_offset = -1 - x1;
-
-				// x0 + 1 + max_x_offset == width
-				max_x_offset = width - 1 - x0;
-			} else {
-				// '/'-like skewed line
-
-				// x0 + min_x_offset == -1
-				min_x_offset = -1 - x0;
-
-				// x1 + 1 + max_x_offset == width
-				max_x_offset = width - 1 - x1;
-			}
-		}
-
-		cl::Buffer intermediate_buffer(
-			context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(1)
+		verticallyTraversedSkewedPassInPlace(
+			command_queue, program, dst_grid, adjusted_sigma_phi, dx, deps, evt
 		);
-		OpenCLGrid<float> intermediate_grid(src_grid.withDifferentPadding(intermediate_buffer, 1));
-
-		cl::Kernel kernel(program, "gauss_blur_h_decomp_stage1");
-		int idx = 0;
-		kernel.setArg(idx++, cl_int(width));
-		kernel.setArg(idx++, cl_int(height));
-		kernel.setArg(idx++, dst_grid.buffer()); // dst_grid plays the role of a source here.
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, intermediate_grid.buffer());
-		kernel.setArg(idx++, intermediate_grid.offset());
-		kernel.setArg(idx++, intermediate_grid.stride());
-		kernel.setArg(idx++, cl_int(min_x_offset));
-		kernel.setArg(idx++, cl_float(dx));
-		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, m1);
-		kernel.setArg(idx++, m2);
-		kernel.setArg(idx++, m3);
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(max_x_offset - min_x_offset + 1),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
-		deps.clear();
-		deps.push_back(evt);
-
-		kernel = cl::Kernel(program, "gauss_blur_h_decomp_stage2");
-		idx = 0;
-		kernel.setArg(idx++, intermediate_grid.buffer());
-		kernel.setArg(idx++, intermediate_grid.offset());
-		kernel.setArg(idx++, intermediate_grid.stride());
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_float(dx));
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(width, height),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
-		deps.clear();
-		deps.push_back(evt);
 	} else {
-		// Traverse the phi-oriented line with a unit step in x direction.
-
 		float dy; // The step in y direction.
 		float sigma_phi;
 		if (horizontal_decomposition) {
@@ -393,96 +524,33 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			dy = vdp.tan_phi;
 			sigma_phi = vdp.sigma_phi;
 		}
-
 		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dy*dy);
-		FilterParams const p(adjusted_sigma_phi);
 
-		cl_float3 m1, m2, m3;
-		initHistoryUpdateMatrix(p, m1, m2, m3);
+		if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
+			// horizontalPass() is going to be slow, but without fast local memory
+			// there is no way to accelerate it.
 
-		// In the CPU version of this code we build a reference skewed line,
-		// which is an array of InterpolatedCoord structures indexed by x.
-		// In OpenCL version we don't construct that array explicitly, but
-		// instead build its elements on demand (see get_interpolated_coord()
-		// in gauss_blur.cl). We then "move" that line by adding values in
-		// [min_y_offset, max_y_offset] range to InterpolatedCoord::lower_bound.
-		// Now let's calculate that range.
-		int min_y_offset, max_y_offset; // These don't change once computed.
-		{
-			int const y0 = 0;
-			int const y1 = static_cast<int>(std::floor(float(width - 1) * dy));
-			if (y0 < y1) {
-				// '\'-like skewed line
+			horizontallyTraversedSkewedPassInPlace(
+				command_queue, program, dst_grid, adjusted_sigma_phi, dy, deps, evt
+			);
+		} else {
+			// This device has fast local memory, so we avoid a slow horizontallyTraversedSkewedPass()
+			// by doing transpose() -> verticallyTraversedSkewedPass() -> transpose()
 
-				// y1 + min_y_offset == -1
-				min_y_offset = -1 - y1;
+			OpenCLGrid<float> transposed = opencl::transpose(
+				command_queue, program, dst_grid, /*dst_padding=*/1, &deps, &evt
+			);
+			deps.clear();
+			deps.push_back(evt);
 
-				// y0 + 1 + max_y_offset == height
-				max_y_offset = height - 1 - y0;
-			} else {
-				// '/'-like skewed line
+			verticallyTraversedSkewedPassInPlace(
+				command_queue, program, transposed, adjusted_sigma_phi, dy, deps, evt
+			);
 
-				// y0 + min_y_offset == -1
-				min_y_offset = -1 - y0;
-
-				// y1 + 1 + max_y_offset == height
-				max_y_offset = height - 1 - y1;
-			}
+			opencl::transpose(command_queue, program, transposed, dst_grid, &deps, &evt);
+			deps.clear();
+			deps.push_back(evt);
 		}
-
-		cl::Buffer intermediate_buffer(
-			context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(1)
-		);
-		OpenCLGrid<float> intermediate_grid(src_grid.withDifferentPadding(intermediate_buffer, 1));
-
-		cl::Kernel kernel(program, "gauss_blur_v_decomp_stage1");
-		int idx = 0;
-		kernel.setArg(idx++, cl_int(width));
-		kernel.setArg(idx++, cl_int(height));
-		kernel.setArg(idx++, dst_grid.buffer()); // dst_grid plays the role of a source here.
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, intermediate_grid.buffer());
-		kernel.setArg(idx++, intermediate_grid.offset());
-		kernel.setArg(idx++, intermediate_grid.stride());
-		kernel.setArg(idx++, cl_int(min_y_offset));
-		kernel.setArg(idx++, cl_float(dy));
-		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-		kernel.setArg(idx++, m1);
-		kernel.setArg(idx++, m2);
-		kernel.setArg(idx++, m3);
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(max_y_offset - min_y_offset + 1),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
-		deps.clear();
-		deps.push_back(evt);
-
-		kernel = cl::Kernel(program, "gauss_blur_v_decomp_stage2");
-		idx = 0;
-		kernel.setArg(idx++, intermediate_grid.buffer());
-		kernel.setArg(idx++, intermediate_grid.offset());
-		kernel.setArg(idx++, intermediate_grid.stride());
-		kernel.setArg(idx++, dst_grid.buffer());
-		kernel.setArg(idx++, dst_grid.offset());
-		kernel.setArg(idx++, dst_grid.stride());
-		kernel.setArg(idx++, cl_float(dy));
-
-		command_queue.enqueueNDRangeKernel(
-			kernel,
-			cl::NullRange,
-			cl::NDRange(width, height),
-			cl::NullRange,
-			&deps,
-			&evt
-		);
-		deps.clear();
-		deps.push_back(evt);
 	}
 
 	if (event) {

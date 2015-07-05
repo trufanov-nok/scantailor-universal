@@ -20,18 +20,18 @@
  * @brief Take an image with at least 1 pixel padding layer and copy the outermost
  *        layer of image pixels into the innermost padding layer.
  *
- * @param data Points to the first padding pixel.
  * @param width Width of the image, counting only inner (non-padding) pixels.
  * @param height Height of the image, counting only inner (non-padding) pixels.
- * @param stride The distance between a pixel and the one directly below it.
+ * @param data Points to the first padding pixel.
  * @param inner_offset data[inner_offset] points to the first non-padding pixel.
+ * @param stride The distance between a pixel and the one directly below it.
  *
  * @note This kernel is parametrised by a 1D range of [0, 2*width+2*height+4).
  */
 kernel void copy_1px_padding(
-	global float* const data,
 	int const width, int const height,
-	int const stride, int const inner_offset)
+	global float* const data,
+	int const inner_offset, int const stride)
 {
 	int offset = get_global_id(0);
 
@@ -61,7 +61,7 @@ kernel void copy_1px_padding(
 
 	offset -= 1;
 
-	if (offset < height << 1) {
+	if (offset < (height << 1)) {
 		int const y = offset >> 1;
 		int const x = (offset & 1) * (width - 1);
 		int const dx = ((offset & 1) << 1) - 1;
@@ -86,6 +86,9 @@ kernel void copy_1px_padding(
 		return;
 	}
 
-	// Bottom-right corner.
-	inner_data[width + stride] = inner_data[width - 1];
+	if (offset == width) {
+		// Bottom-right corner.
+		inner_data[width + stride] = inner_data[width - 1];
+		return;
+	}
 }

@@ -18,6 +18,7 @@
 
 #include "OpenCLTextFilterBank.h"
 #include "OpenCLGaussBlur.h"
+#include "Utils.h"
 #include <QPoint>
 #include <QPointF>
 #include <utility>
@@ -35,6 +36,12 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	std::vector<cl::Event>* wait_for, cl::Event* event)
 {
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const max_work_group_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
+
+	size_t const h_wg_size = std::min<size_t>(max_work_group_size, cacheline_size / sizeof(float));
+	size_t const v_wg_size = max_work_group_size / h_wg_size;
 
 	std::vector<cl::Event> deps;
 	if (wait_for) {
@@ -52,6 +59,8 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 
 		cl::Kernel kernel(program, "fill_float_grid");
 		int idx = 0;
+		kernel.setArg(idx++, accum_grid.width());
+		kernel.setArg(idx++, accum_grid.height());
 		kernel.setArg(idx++, accum_grid.buffer());
 		kernel.setArg(idx++, accum_grid.offset());
 		kernel.setArg(idx++, accum_grid.stride());
@@ -60,8 +69,11 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 		command_queue.enqueueNDRangeKernel(
 			kernel,
 			cl::NullRange,
-			cl::NDRange(accum_grid.width(), accum_grid.height()),
-			cl::NullRange,
+			cl::NDRange(
+				thisOrNextMultipleOf(accum_grid.width(), h_wg_size),
+				thisOrNextMultipleOf(accum_grid.height(), v_wg_size)
+			),
+			cl::NDRange(h_wg_size, v_wg_size),
 			&deps,
 			&evt
 		);
@@ -78,6 +90,8 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 
 		cl::Kernel kernel(program, "fill_byte_grid");
 		int idx = 0;
+		kernel.setArg(idx++, dir_map_grid.width());
+		kernel.setArg(idx++, dir_map_grid.height());
 		kernel.setArg(idx++, dir_map_grid.buffer());
 		kernel.setArg(idx++, dir_map_grid.offset());
 		kernel.setArg(idx++, dir_map_grid.stride());
@@ -86,8 +100,11 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 		command_queue.enqueueNDRangeKernel(
 			kernel,
 			cl::NullRange,
-			cl::NDRange(dir_map_grid.width(), dir_map_grid.height()),
-			cl::NullRange,
+			cl::NDRange(
+				thisOrNextMultipleOf(dir_map_grid.width(), h_wg_size),
+				thisOrNextMultipleOf(dir_map_grid.height(), v_wg_size)
+			),
+			cl::NDRange(h_wg_size, v_wg_size),
 			&deps,
 			&evt
 		);
@@ -110,6 +127,8 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 
 			cl::Kernel kernel(program, "text_filter_bank_combine");
 			int idx = 0;
+			kernel.setArg(idx++, src_grid.width());
+			kernel.setArg(idx++, src_grid.height());
 			kernel.setArg(idx++, blurred_grid.buffer());
 			kernel.setArg(idx++, blurred_grid.offset());
 			kernel.setArg(idx++, blurred_grid.stride());
@@ -125,8 +144,11 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 			command_queue.enqueueNDRangeKernel(
 				kernel,
 				cl::NullRange,
-				cl::NDRange(src_grid.width(), src_grid.height()),
-				cl::NullRange,
+				cl::NDRange(
+					thisOrNextMultipleOf(src_grid.width(), h_wg_size),
+					thisOrNextMultipleOf(src_grid.height(), v_wg_size)
+				),
+				cl::NDRange(h_wg_size, v_wg_size),
 				&deps,
 				&evt
 			);

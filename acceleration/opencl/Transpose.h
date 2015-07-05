@@ -16,63 +16,59 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPENCL_GAUSS_BLUR_H_
-#define OPENCL_GAUSS_BLUR_H_
+#ifndef OPENCL_TRANSPOSE_H_
+#define OPENCL_TRANSPOSE_H_
 
 #include "OpenCLGrid.h"
-#include "VecNT.h"
 #include <CL/cl.hpp>
-#include <vector>
+
+namespace opencl
+{
 
 /**
- * @brief Applies an axis-aligned 2D gaussian filter to a float-valued grid.
+ * @brief Transponse the grid of float values but not the padding.
+ *
+ * This version takes the destination grid padding and returns the destination
+ * grid itself.
  *
  * @param command_queue The command queue to use.
- * @param program The pre-built OpenCL code.
- * @param src_grid The grid to apply gaussian filtering to.
- * @param h_sigma The standard deviation in horizontal direction.
- * @param v_sigma The standard deviation in vertical direction.
+ * @param program Pre-built kernel-space code.
+ * @param src_grid The source grid.
+ * @param dst_padding The padding the destination grid will have.
+ *        The padding will be left uninitialized.
  * @param wait_for If provided, the kernels enqueued by this function will be
  *        made to depend on the events provided.
  * @param event If provided, this event will be initialised to enable waiting
  *        for this operation to complete.
- * @return The filtered grid.
+ * @return The transposed grid.
  */
-OpenCLGrid<float> gaussBlur(
-	cl::CommandQueue const& command_queue,
-	cl::Program const& program,
-	OpenCLGrid<float> const& src_grid,
-	float h_sigma, float v_sigma,
+OpenCLGrid<float> transpose(
+	cl::CommandQueue const& command_queue, cl::Program const& program,
+	OpenCLGrid<float> const& src_grid, int dst_padding,
 	std::vector<cl::Event>* wait_for = nullptr,
 	cl::Event* event = nullptr);
 
 /**
- * @brief Applies an oriented 2D gaussian filter to a float-valued grid.
+ * @brief Transponse the grid of float values but not the padding.
+ *
+ * This version takes the destination grid as a parameter.
  *
  * @param command_queue The command queue to use.
- * @param program The pre-built OpenCL code.
- * @param src_grid The grid to apply gaussian filtering to.
- * @param dir_x (dir_x, dir_y) vector is a principal direction of a gaussian.
- *        The other principal direction is the one orthogonal to (dir_x, dir_y).
- *        The (dir_x, dir_y) vector doesn't have to be normalized, yet it can't
- *        be a zero vector.
- * @param dir_y @see dir_x
- * @param dir_sigma The standard deviation in (dir_x, dir_y) direction.
- * @param ortho_dir_sigma The standard deviation in a direction orthogonal
- *        to (dir_x, dir_y).
+ * @param program Pre-built kernel-space code.
+ * @param src_grid The source grid.
+ * @param dst_grid The destination grid.
  * @param wait_for If provided, the kernels enqueued by this function will be
  *        made to depend on the events provided.
  * @param event If provided, this event will be initialised to enable waiting
  *        for this operation to complete.
- * @return The filtered grid.
+ * @return The transposed grid.
  */
-OpenCLGrid<float> anisotropicGaussBlur(
-	cl::CommandQueue const& command_queue,
-	cl::Program const& program,
-	OpenCLGrid<float> const& src_grid,
-	float dir_x, float dir_y,
-	float dir_sigma, float ortho_dir_sigma,
+void transpose(
+	cl::CommandQueue const& command_queue, cl::Program const& program,
+	OpenCLGrid<float> const& src_grid, OpenCLGrid<float>& dst_grid,
 	std::vector<cl::Event>* wait_for = nullptr,
 	cl::Event* event = nullptr);
+
+} // namespace opencl
 
 #endif

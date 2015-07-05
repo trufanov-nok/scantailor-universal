@@ -4,5 +4,7 @@
         <file>device_code/gauss_blur.cl</file>
         <file>device_code/text_filter_bank_combine.cl</file>
         <file>device_code/fill_grid.cl</file>
+        <file>device_code/transpose_grid.cl</file>
+        <file>device_code/copy_grid.cl</file>
     </qresource>
 </RCC>
