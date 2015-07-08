@@ -129,7 +129,7 @@ static InterpolatedCoord get_interpolated_coord(int const other_coord, float con
 	return coord;
 }
 
-kernel void gauss_blur_h_decomp_stage1(
+kernel void gauss_blur_skewed_vert_traversal_stage1(
 	int const src_width, int const src_height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
@@ -145,9 +145,9 @@ kernel void gauss_blur_h_decomp_stage1(
 	int y0 = 0;
 	InterpolatedCoord coord = get_interpolated_coord(y0, dx);
 	// Note that -1 and src_width are the valid x coordinates thanks to the padding of src.
-	bool within_bounds = coord.lower_bound + x_offset >= -1
-			&& coord.lower_bound + x_offset + 1 <= src_width;
-	if (!within_bounds) {
+	bool out_of_bounds = (coord.lower_bound + x_offset < -1) |
+			(coord.lower_bound + x_offset + 1 > src_width);
+	if (out_of_bounds) {
 		// src_x = x_offset + y * dx
 		// y = (src_x - x_offset) / dx
 		// src_x is either -1 - E or (width + E), where E is some small number.
@@ -161,9 +161,9 @@ kernel void gauss_blur_h_decomp_stage1(
 		// is still outside of the image. In this case, we just move a bit forward.
 		for (;; ++y0) {
 			coord = get_interpolated_coord(y0, dx);
-			within_bounds = coord.lower_bound + x_offset >= -1
-					&& coord.lower_bound + x_offset + 1 <= src_width;
-			if (within_bounds) {
+			out_of_bounds = (coord.lower_bound + x_offset < -1) |
+					(coord.lower_bound + x_offset + 1 > src_width);
+			if (!out_of_bounds) {
 				break;
 			}
 		}
@@ -189,8 +189,8 @@ kernel void gauss_blur_h_decomp_stage1(
 		coord = get_interpolated_coord(y, dx);
 		x0 = coord.lower_bound + x_offset;
 		x1 = x0 + 1;
-		within_bounds = y < src_height && x0 >= -1 && x1 <= src_width;
-		if (!within_bounds) {
+		out_of_bounds = (y >= src_height) | (x0 < -1) | (x1 > src_width);
+		if (out_of_bounds) {
 			break;
 		}
 
@@ -225,7 +225,7 @@ kernel void gauss_blur_h_decomp_stage1(
 	}
 }
 
-kernel void gauss_blur_v_decomp_stage1(
+kernel void gauss_blur_skewed_hor_traversal_stage1(
 	int const src_width, int const src_height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
@@ -238,12 +238,15 @@ kernel void gauss_blur_v_decomp_stage1(
 		return;
 	}
 
+	int const y_offset0 = min_y_offset + get_group_id(0) * get_local_size(0);
+	int const y_offset1 = y_offset0 + get_local_size(0) - 1;
+
 	int x0 = 0;
 	InterpolatedCoord coord = get_interpolated_coord(x0, dy);
 	// Note that -1 and src_height are the valid y coordinates thanks to the padding of src.
-	bool within_bounds = coord.lower_bound + y_offset >= -1
-			&& coord.lower_bound + y_offset + 1 <= src_height;
-	if (!within_bounds) {
+	bool out_of_bounds = (coord.lower_bound + y_offset < -1) |
+			(coord.lower_bound + y_offset + 1 > src_height);
+	if (out_of_bounds) {
 		// src_y = y_offset + x * dy
 		// x = (src_y - y_offset) / dy
 		// src_y is either -1 - E or (height + E), where E is some small number.
@@ -257,9 +260,9 @@ kernel void gauss_blur_v_decomp_stage1(
 		// is still outside of the image. In this case, we just move a bit forward.
 		for (;; ++x0) {
 			coord = get_interpolated_coord(x0, dy);
-			within_bounds = coord.lower_bound + y_offset >= -1
-					&& coord.lower_bound + y_offset + 1 <= src_height;
-			if (within_bounds) {
+			out_of_bounds = (coord.lower_bound + y_offset < -1) |
+					(coord.lower_bound + y_offset + 1 > src_height);
+			if (!out_of_bounds) {
 				break;
 			}
 		}
@@ -286,8 +289,8 @@ kernel void gauss_blur_v_decomp_stage1(
 		coord = get_interpolated_coord(x, dy);
 		y0 = coord.lower_bound + y_offset;
 		y1 = y0 + 1;
-		within_bounds = x < src_width && y0 >= -1 && y1 <= src_height;
-		if (!within_bounds) {
+		out_of_bounds = (x >= src_width) | (y0 < -1) | (y1 > src_height);
+		if (out_of_bounds) {
 			break;
 		}
 
@@ -323,7 +326,7 @@ kernel void gauss_blur_v_decomp_stage1(
 	}
 }
 
-kernel void gauss_blur_h_decomp_stage2(
+kernel void gauss_blur_skewed_vert_traversal_stage2(
 	int const width, int const height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,
@@ -352,7 +355,7 @@ kernel void gauss_blur_h_decomp_stage2(
 	dst_line[x] = src_line[x - 1] * alpha + src_line[x] * (1.f - alpha);
 }
 
-kernel void gauss_blur_v_decomp_stage2(
+kernel void gauss_blur_skewed_hor_traversal_stage2(
 	int const width, int const height,
 	global float const* const src, int const src_offset, int const src_stride,
 	global float* const dst, int const dst_offset, int const dst_stride,

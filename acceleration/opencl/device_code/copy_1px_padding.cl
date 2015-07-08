@@ -16,9 +16,22 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+kernel void copy_1px_column(
+	int const height, global float* data,
+	int const offset, int const stride, int const dx)
+{
+	int const y = get_global_id(0);
+	if (y >= height) {
+		return;
+	}
+
+	data += mad24(y, stride, offset);
+	data[dx] = data[0];
+}
+
 /**
- * @brief Take an image with at least 1 pixel padding layer and copy the outermost
- *        layer of image pixels into the innermost padding layer.
+ * @brief Take an image with at least 1 pixel padding layer and copy the 4 corner
+ *        pixels of the inner area into the diagonally-adjacent padding pixels.
  *
  * @param width Width of the image, counting only inner (non-padding) pixels.
  * @param height Height of the image, counting only inner (non-padding) pixels.
@@ -26,69 +39,20 @@
  * @param inner_offset data[inner_offset] points to the first non-padding pixel.
  * @param stride The distance between a pixel and the one directly below it.
  *
- * @note This kernel is parametrised by a 1D range of [0, 2*width+2*height+4).
+ * @note This kernel needs to be enqueued as a task.
  */
-kernel void copy_1px_padding(
+kernel void copy_padding_corners(
 	int const width, int const height,
 	global float* const data,
 	int const inner_offset, int const stride)
 {
-	int offset = get_global_id(0);
-
 	global float* inner_data = data + inner_offset;
 
-	if (offset == 0) {
-		// Top-left pixel.
-		inner_data[-1 - stride] = inner_data[0];
-		return;
-	}
+	inner_data[-1 - stride] = inner_data[0];
+	inner_data[width - stride] = inner_data[width - 1];
 
-	offset -= 1;
-
-	if (offset < width) {
-		// Top row.
-		inner_data[offset - stride] = inner_data[offset];
-		return;
-	}
-
-	offset -= width;
-
-	if (offset == 0) {
-		// Top-right pixel.
-		inner_data[width - stride] = inner_data[width - 1];
-		return;
-	}
-
-	offset -= 1;
-
-	if (offset < (height << 1)) {
-		int const y = offset >> 1;
-		int const x = (offset & 1) * (width - 1);
-		int const dx = ((offset & 1) << 1) - 1;
-		inner_data[y * stride + x + dx] = inner_data[y * stride + x];
-		return;
-	}
-
-	offset -= height << 1;
 	inner_data += (height - 1) * stride;
 
-	if (offset == 0) {
-		// Bottom-left pixel.
-		inner_data[-1 + stride] = inner_data[0];
-		return;
-	}
-
-	offset -= 1;
-
-	if (offset < width) {
-		// Bottom row.
-		inner_data[offset + stride] = inner_data[offset];
-		return;
-	}
-
-	if (offset == width) {
-		// Bottom-right corner.
-		inner_data[width + stride] = inner_data[width - 1];
-		return;
-	}
+	inner_data[-1 + stride] = inner_data[0];
+	inner_data[width + stride] = inner_data[width - 1];
 }

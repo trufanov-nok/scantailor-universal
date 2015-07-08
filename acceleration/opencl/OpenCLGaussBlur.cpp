@@ -53,7 +53,9 @@ void horizontalPass(
 	float const sigma, std::vector<cl::Event>& deps, cl::Event& evt)
 {
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
 	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+	size_t const wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
 
 	FilterParams const p(sigma);
 
@@ -80,8 +82,8 @@ void horizontalPass(
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(src_grid.height(), max_wg_size)),
-		cl::NDRange(max_wg_size),
+		cl::NDRange(thisOrNextMultipleOf(src_grid.height(), wg_size)),
+		cl::NDRange(wg_size),
 		&deps,
 		&evt
 	);
@@ -95,7 +97,9 @@ void verticalPass(
 	float const sigma, std::vector<cl::Event>& deps, cl::Event& evt)
 {
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
 	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+	size_t const wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
 
 	FilterParams const p(sigma);
 
@@ -122,8 +126,8 @@ void verticalPass(
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(src_grid.width(), max_wg_size)),
-		cl::NDRange(max_wg_size),
+		cl::NDRange(thisOrNextMultipleOf(src_grid.width(), wg_size)),
+		cl::NDRange(wg_size),
 		&deps,
 		&evt
 	);
@@ -135,24 +139,94 @@ void copy1PxPadding(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float>& grid, std::vector<cl::Event>& deps, cl::Event& evt)
 {
-	cl::Kernel kernel(program, "copy_1px_padding");
-	int idx = 0;
-	kernel.setArg(idx++, grid.width());
-	kernel.setArg(idx++, grid.height());
-	kernel.setArg(idx++, grid.buffer());
-	kernel.setArg(idx++, grid.offset());
-	kernel.setArg(idx++, grid.stride());
+	assert(grid.padding() > 0);
 
-	command_queue.enqueueNDRangeKernel(
-		kernel,
-		cl::NullRange,
-		cl::NDRange((grid.width() + grid.height())*2 + 4),
-		cl::NullRange,
-		&deps,
-		&evt
+	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+
+	// Copy the top outer layer.
+	command_queue.enqueueCopyBuffer(
+		grid.buffer(), grid.buffer(),
+		grid.offset() * sizeof(float),
+		(grid.offset() - grid.stride()) * sizeof(float),
+		grid.width() * sizeof(float),
+		&deps, &evt
 	);
 	deps.clear();
 	deps.push_back(evt);
+
+	// Copy the bottom outer layer.
+	command_queue.enqueueCopyBuffer(
+		grid.buffer(), grid.buffer(),
+		(grid.offset() + (grid.height() - 1) * grid.stride()) * sizeof(float),
+		(grid.offset() + grid.height() * grid.stride()) * sizeof(float),
+		grid.width() * sizeof(float),
+		&deps, &evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+
+	// Copy the left outer layer.
+	{
+		cl::Kernel kernel(program, "copy_1px_column");
+		int idx = 0;
+		kernel.setArg(idx++, grid.height());
+		kernel.setArg(idx++, grid.buffer());
+		kernel.setArg(idx++, grid.offset());
+		kernel.setArg(idx++, grid.stride());
+		kernel.setArg(idx++, -1);
+
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(thisOrNextMultipleOf(grid.height(), max_wg_size)),
+			cl::NDRange(max_wg_size),
+			&deps,
+			&evt
+		);
+		deps.clear();
+		deps.push_back(evt);
+	}
+
+	// Copy the right outer layer.
+	{
+		cl::Kernel kernel(program, "copy_1px_column");
+		int idx = 0;
+		kernel.setArg(idx++, grid.height());
+		kernel.setArg(idx++, grid.buffer());
+		kernel.setArg(idx++, grid.offset() + grid.width() - 1);
+		kernel.setArg(idx++, grid.stride());
+		kernel.setArg(idx++, 1);
+
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(thisOrNextMultipleOf(grid.height(), max_wg_size)),
+			cl::NDRange(max_wg_size),
+			&deps,
+			&evt
+		);
+		deps.clear();
+		deps.push_back(evt);
+	}
+
+	{
+		cl::Kernel kernel(program, "copy_padding_corners");
+		int idx = 0;
+		kernel.setArg(idx++, grid.width());
+		kernel.setArg(idx++, grid.height());
+		kernel.setArg(idx++, grid.buffer());
+		kernel.setArg(idx++, grid.offset());
+		kernel.setArg(idx++, grid.stride());
+
+		command_queue.enqueueTask(
+			kernel,
+			&deps,
+			&evt
+		);
+		deps.clear();
+		deps.push_back(evt);
+	}
 }
 
 void verticallyTraversedSkewedPassInPlace(
@@ -164,8 +238,8 @@ void verticallyTraversedSkewedPassInPlace(
 	int const height = grid.height();
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
+	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 
 	FilterParams const p(sigma);
 	cl_float3 m1, m2, m3;
@@ -208,7 +282,7 @@ void verticallyTraversedSkewedPassInPlace(
 	);
 	OpenCLGrid<float> intermediate_grid(grid.withDifferentPadding(intermediate_buffer, 1));
 
-	cl::Kernel kernel(program, "gauss_blur_h_decomp_stage1");
+	cl::Kernel kernel(program, "gauss_blur_skewed_vert_traversal_stage1");
 	int idx = 0;
 	kernel.setArg(idx++, cl_int(width));
 	kernel.setArg(idx++, cl_int(height));
@@ -226,18 +300,20 @@ void verticallyTraversedSkewedPassInPlace(
 	kernel.setArg(idx++, m2);
 	kernel.setArg(idx++, m3);
 
+	size_t const wg_size_1d = std::min<size_t>(max_wg_size, 16);
+
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(max_x_offset - min_x_offset + 1, max_wg_size)),
-		cl::NDRange(max_wg_size),
+		cl::NDRange(thisOrNextMultipleOf(max_x_offset - min_x_offset + 1, wg_size_1d)),
+		cl::NDRange(wg_size_1d),
 		&deps,
 		&evt
 	);
 	deps.clear();
 	deps.push_back(evt);
 
-	kernel = cl::Kernel(program, "gauss_blur_h_decomp_stage2");
+	kernel = cl::Kernel(program, "gauss_blur_skewed_vert_traversal_stage2");
 	idx = 0;
 	kernel.setArg(idx++, cl_int(width));
 	kernel.setArg(idx++, cl_int(height));
@@ -273,8 +349,8 @@ void horizontallyTraversedSkewedPassInPlace(
 	int const height = grid.height();
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
+	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 
 	FilterParams const p(sigma);
 	cl_float3 m1, m2, m3;
@@ -317,7 +393,7 @@ void horizontallyTraversedSkewedPassInPlace(
 	);
 	OpenCLGrid<float> intermediate_grid(grid.withDifferentPadding(intermediate_buffer, 1));
 
-	cl::Kernel kernel(program, "gauss_blur_v_decomp_stage1");
+	cl::Kernel kernel(program, "gauss_blur_skewed_hor_traversal_stage1");
 	int idx = 0;
 	kernel.setArg(idx++, cl_int(width));
 	kernel.setArg(idx++, cl_int(height));
@@ -335,18 +411,20 @@ void horizontallyTraversedSkewedPassInPlace(
 	kernel.setArg(idx++, m2);
 	kernel.setArg(idx++, m3);
 
+	size_t const wg_size_1d = std::min<size_t>(max_wg_size, 16);
+
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(max_y_offset - min_y_offset + 1, max_wg_size)),
-		cl::NDRange(max_wg_size),
+		cl::NDRange(thisOrNextMultipleOf(max_y_offset - min_y_offset + 1, wg_size_1d)),
+		cl::NDRange(wg_size_1d),
 		&deps,
 		&evt
 	);
 	deps.clear();
 	deps.push_back(evt);
 
-	kernel = cl::Kernel(program, "gauss_blur_v_decomp_stage2");
+	kernel = cl::Kernel(program, "gauss_blur_skewed_hor_traversal_stage2");
 	idx = 0;
 	kernel.setArg(idx++, cl_int(width));
 	kernel.setArg(idx++, cl_int(height));
@@ -438,12 +516,8 @@ OpenCLGrid<float> anisotropicGaussBlur(
 	float const dir_sigma, float const ortho_dir_sigma,
 	std::vector<cl::Event>* wait_for, cl::Event* event)
 {
-	int const width = src_grid.width();
-	int const height = src_grid.height();
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_work_group_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
-	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
 
 	std::vector<cl::Event> deps;
 	if (wait_for) {
@@ -527,8 +601,8 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dy*dy);
 
 		if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
-			// horizontalPass() is going to be slow, but without fast local memory
-			// there is no way to accelerate it.
+			// horizontallyTraversedSkewedPassInPlace() is going to be slow, but without
+			// fast local memory there is no way to accelerate it.
 
 			horizontallyTraversedSkewedPassInPlace(
 				command_queue, program, dst_grid, adjusted_sigma_phi, dy, deps, evt
