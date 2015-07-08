@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@
 void
 PerformanceTimer::print(char const* prefix)
 {
-	clock_t const now = clock();
-	double const sec = double(now - m_start) / CLOCKS_PER_SEC;
-	if (sec > 10.0) {
-		qDebug() << prefix << (long)sec << " sec";
-	} else if (sec > 0.01) {
-		qDebug() << prefix << (long)(sec * 1000) << " msec";
+	timer::time_point const now = timer::now();
+	uint64_t const usec = std::chrono::duration_cast<std::chrono::microseconds>(now - m_start).count();
+	if (usec < 10000) {
+		qDebug() << prefix << usec << "usec";
+	} else if (usec < 10000000) {
+		qDebug() << prefix << (usec / 1000) << "msec";
 	} else {
-		qDebug() << prefix << (long)(sec * 1000000) << " usec";
+		qDebug() << prefix << (usec / 1000000) << "sec";
 	}
 }

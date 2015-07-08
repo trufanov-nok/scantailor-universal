@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,16 +19,18 @@
 #ifndef PERFORMANCETIMER_H_
 #define PERFORMANCETIMER_H_
 
-#include <time.h>
+#include <chrono>
 
 class PerformanceTimer
 {
+private:
+	using timer = std::chrono::high_resolution_clock;
 public:
-	PerformanceTimer() : m_start(clock()) {}
+	PerformanceTimer() : m_start(timer::now()) {}
 	
 	void print(char const* prefix = "");
 private:
-	clock_t const m_start;
+	timer::time_point const m_start;
 };
 
 #endif
