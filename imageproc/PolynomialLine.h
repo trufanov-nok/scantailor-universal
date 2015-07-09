@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_POLYNOMIAL_LINE_H_
 #define IMAGEPROC_POLYNOMIAL_LINE_H_
 
+#include "imageproc_config.h"
 #include "ValueConv.h"
 #include <Eigen/Core>
 #include <limits>
@@ -30,7 +31,7 @@ namespace imageproc
 /**
  * \brief A polynomial function describing a sequence of numbers.
  */
-class PolynomialLine
+class IMAGEPROC_EXPORT PolynomialLine
 {
 	// Member-wise copying is OK.
 public:

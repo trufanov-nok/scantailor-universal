@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_CONNCOMP_H_
 #define IMAGEPROC_CONNCOMP_H_
 
+#include "imageproc_config.h"
 #include <QRect>
 
 namespace imageproc
@@ -27,7 +28,7 @@ namespace imageproc
 /**
  * \brief Represents a connected group of pixels.
  */
-class ConnComp
+class IMAGEPROC_EXPORT ConnComp
 {
 public:
 	ConnComp() : m_pixCount(0) {}

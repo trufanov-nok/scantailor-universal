@@ -26,7 +26,10 @@
 #include "ZoomHandler.h"
 #include <QSizeF>
 
-class AffineTransformedImage;
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 namespace fix_orientation
 {
@@ -35,7 +38,7 @@ class ImageView : public ImageViewBase
 {
 	Q_OBJECT
 public:
-	ImageView(AffineTransformedImage const& full_size_image,
+	ImageView(imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image);
 	
 	virtual ~ImageView();

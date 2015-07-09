@@ -19,6 +19,7 @@
 #ifndef SPFIT_OPTIMIZER_H_
 #define SPFIT_OPTIMIZER_H_
 
+#include "math_config.h"
 #include "OptimizationResult.h"
 #include "FittableSpline.h"
 #include "SqDistApproximant.h"
@@ -32,7 +33,7 @@
 namespace spfit
 {
 
-class Optimizer
+class MATH_EXPORT Optimizer
 {
 	// Member-wise copying is OK.
 public:

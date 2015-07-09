@@ -19,6 +19,7 @@
 #ifndef TO_VEC_H_
 #define TO_VEC_H_
 
+#include "foundation_config.h"
 #include <Eigen/Core>
 #include <QPoint>
 #include <QPointF>

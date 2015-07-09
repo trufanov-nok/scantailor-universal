@@ -28,16 +28,17 @@
 #include <memory>
 
 class TaskStatus;
-class AffineImageTransform;
 class OrthogonalRotation;
 class QImage;
 class QSize;
-class DebugImages;
+class DebugImagesImpl;
 
 namespace imageproc
 {
 	class BinaryImage;
 	class GrayImage;
+	class AffineImageTransform;
+	class AffineTransformedImage;
 };
 
 namespace select_content
@@ -68,7 +69,7 @@ public:
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		AffineImageTransform const& orig_image_transform,
+		imageproc::AffineImageTransform const& orig_image_transform,
 		OrthogonalRotation const& pre_rotation);
 private:
 	class NoDistortionUiUpdater;
@@ -81,35 +82,35 @@ private:
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		AffineImageTransform const& orig_image_transform, Params& params);
+		imageproc::AffineImageTransform const& orig_image_transform, Params& params);
 
 	FilterResultPtr processRotationDistortion(
 		TaskStatus const& status,
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		AffineImageTransform const& orig_image_transform, Params& params);
+		imageproc::AffineImageTransform const& orig_image_transform, Params& params);
 
 	FilterResultPtr processPerspectiveDistortion(
 		TaskStatus const& status,
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		AffineImageTransform const& orig_image_transform, Params& params);
+		imageproc::AffineImageTransform const& orig_image_transform, Params& params);
 
 	FilterResultPtr processWarpDistortion(
 		TaskStatus const& status,
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		AffineImageTransform const& orig_image_transform, Params& params);
+		imageproc::AffineImageTransform const& orig_image_transform, Params& params);
 
 	static void cleanup(TaskStatus const& status, imageproc::BinaryImage& img);
 	
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<select_content::Task> m_ptrNextTask;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	PageId m_pageId;
 	bool m_batchProcessing;
 };

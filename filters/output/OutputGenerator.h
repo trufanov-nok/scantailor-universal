@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,10 +19,10 @@
 #ifndef OUTPUT_OUTPUTGENERATOR_H_
 #define OUTPUT_OUTPUTGENERATOR_H_
 
-#include "AbstractImageTransform.h"
 #include "ColorParams.h"
 #include "DespeckleLevel.h"
 #include "CachingFactory.h"
+#include "imageproc/AbstractImageTransform.h"
 #include <boost/optional.hpp>
 #include <QSize>
 #include <QRect>
@@ -64,7 +64,7 @@ class OutputGenerator
 {
 public:
 	OutputGenerator(
-		std::shared_ptr<AbstractImageTransform const> const& image_transform,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& image_transform,
 		QRectF const& content_rect, QRectF const& outer_rect,
 		ColorParams const& color_params,
 		DespeckleLevel despeckle_level);
@@ -199,7 +199,7 @@ private:
 
 	void applyFillZonesInPlace(imageproc::BinaryImage& img, ZoneSet const& zones) const;
 	
-	std::shared_ptr<AbstractImageTransform const> m_ptrImageTransform;
+	std::shared_ptr<imageproc::AbstractImageTransform const> m_ptrImageTransform;
 	ColorParams m_colorParams;
 
 	/**

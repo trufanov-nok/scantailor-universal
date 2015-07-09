@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,31 @@
 #include <QSizeF>
 #include <QPointF>
 #include <QTransform>
+#include <QDomDocument>
+#include <QDomElement>
+#include <QString>
 #include <assert.h>
+
+OrthogonalRotation::OrthogonalRotation(QDomElement const& el)
+:	m_degrees(0)
+{
+	int const degrees = el.attribute("degrees").toInt();
+	switch (degrees) {
+		case 0:
+		case 90:
+		case 180:
+		case 270:
+			m_degrees = degrees;
+	}
+}
+
+QDomElement
+OrthogonalRotation::toXml(QDomDocument& doc, QString const& name) const
+{
+	QDomElement el(doc.createElement(name));
+	el.setAttribute("degrees", m_degrees);
+	return el;
+}
 
 void
 OrthogonalRotation::nextClockwiseDirection()

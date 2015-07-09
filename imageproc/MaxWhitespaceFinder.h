@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_MAX_WHITESPACE_FINDER_H_
 #define IMAGEPROC_MAX_WHITESPACE_FINDER_H_
 
+#include "imageproc_config.h"
 #include "NonCopyable.h"
 #include "BinaryImage.h"
 #include "IntegralImage.h"
@@ -42,7 +43,7 @@ namespace max_whitespace_finder
 /**
  * \brief Finds white rectangles in a binary image starting from the largest ones.
  */
-class MaxWhitespaceFinder
+class IMAGEPROC_EXPORT MaxWhitespaceFinder
 {
 	DECLARE_NON_COPYABLE(MaxWhitespaceFinder)
 	friend class max_whitespace_finder::PriorityStorage;
@@ -123,7 +124,7 @@ public:
 	 */
 	QRect next(ObstacleMode obstacle_mode = AUTO_OBSTACLES, int max_iterations = 1000);
 private:
-	class Region
+	class IMAGEPROC_EXPORT Region
 	{
 	public:
 		Region(unsigned known_new_obstacles, QRect const& bounds);
@@ -184,7 +185,7 @@ private:
 namespace max_whitespace_finder
 {
 
-class PriorityStorage
+class IMAGEPROC_EXPORT PriorityStorage
 {
 protected:
 	typedef MaxWhitespaceFinder::Region Region;

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,9 +23,13 @@
 #include "IntrusivePtr.h"
 
 class QSizeF;
-class AffineImageTransform;
 class ThumbnailPixmapCache;
 class PageId;
+
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 namespace deskew
 {
@@ -35,7 +39,7 @@ class RotationThumbnail : public ThumbnailBase
 public:
 	RotationThumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
 		QSizeF const& max_display_size, PageId const& page_id,
-		AffineImageTransform const& full_size_image_transform,
+		imageproc::AffineImageTransform const& full_size_image_transform,
 		double compensation_angle_deg, bool draw_grid);
 	
 	virtual void paintOverImage(

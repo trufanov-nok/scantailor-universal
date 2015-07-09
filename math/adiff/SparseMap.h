@@ -19,6 +19,7 @@
 #ifndef ADIFF_SPARSITY_H_
 #define ADIFF_SPARSITY_H_
 
+#include "math_config.h"
 #include <Eigen/Core>
 #include <stddef.h>
 
@@ -36,7 +37,7 @@ template<int ORD> class SparseMap;
  * matrix are non-zero.
  */
 template<>
-class SparseMap<2>
+class MATH_EXPORT SparseMap<2>
 {
 	// Member-wise copying is OK.
 public:

@@ -33,6 +33,8 @@
 #include <QPolygonF>
 #include <memory>
 
+using namespace imageproc;
+
 namespace page_layout
 {
 
@@ -51,7 +53,7 @@ CacheDrivenTask::~CacheDrivenTask()
 void
 CacheDrivenTask::process(
 	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+	std::shared_ptr<imageproc::AbstractImageTransform const> const& full_size_image_transform,
 	ContentBox const& content_box)
 {
 	std::auto_ptr<Params> const params(

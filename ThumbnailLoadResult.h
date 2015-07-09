@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef THUMBNAILLOADRESULT_H_
 #define THUMBNAILLOADRESULT_H_
 
-#include "AffineImageTransform.h"
+#include "imageproc/AffineImageTransform.h"
 #include <QPixmap>
 #include <boost/optional.hpp>
 #include <assert.h>
@@ -69,7 +69,7 @@ public:
 	}
 
 	ThumbnailLoadResult(Status status, QPixmap const& pixmap,
-		boost::optional<AffineImageTransform> const& pixmap_transform)
+		boost::optional<imageproc::AffineImageTransform> const& pixmap_transform)
 	: m_pixmap(pixmap), m_pixmapTransform(pixmap_transform), m_status(status) {}
 	
 	Status status() const { return m_status; }
@@ -80,12 +80,12 @@ public:
 	 * @see ThumbnailPixmapCache::Item::pixmapTransform
 	 * @note Guaranteed to be set if status() is LOADED.
 	 */
-	boost::optional<AffineImageTransform> const& pixmapTransform() const {
+	boost::optional<imageproc::AffineImageTransform> const& pixmapTransform() const {
 		return m_pixmapTransform;
 	}
 private:
 	QPixmap m_pixmap;
-	boost::optional<AffineImageTransform> m_pixmapTransform;
+	boost::optional<imageproc::AffineImageTransform> m_pixmapTransform;
 	Status m_status;
 };
 

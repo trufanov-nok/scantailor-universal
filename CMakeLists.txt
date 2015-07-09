@@ -22,6 +22,14 @@ SET(
 
 PROJECT("Scan Tailor")
 
+# Keep the paths outside of the build directory in RPATH
+# when installing. That's useful for building with say
+# a custom build of Qt.
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# Scan Tailor needs to find its shared libraries.
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/scantailor")
+
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 IF(MSVC)
@@ -402,7 +410,6 @@ SOURCE_GROUP("Generated" FILES ${resource_sources})
 
 SET(
 	common_sources
-	RoundingHasher.cpp RoundingHasher.h
 	BackgroundExecutor.cpp BackgroundExecutor.h
 	OpenGLSupport.cpp OpenGLSupport.h
 	PixmapRenderer.cpp PixmapRenderer.h
@@ -422,10 +429,6 @@ SET(
 	PageSelectionAccessor.cpp PageSelectionAccessor.h
 	PageSelectionProvider.h
 	ContentSpanFinder.cpp ContentSpanFinder.h
-	AbstractImageTransform.h
-	AffineImageTransform.cpp AffineImageTransform.h
-	DewarpingImageTransform.cpp DewarpingImageTransform.h
-	AffineTransformedImage.cpp AffineTransformedImage.h
 	ImagePixmapUnion.h
 	ImageViewBase.cpp ImageViewBase.h
 	BasicImageView.cpp BasicImageView.h
@@ -439,7 +442,7 @@ SET(
 	IncompleteThumbnail.cpp IncompleteThumbnail.h
 	ContentBoxPropagator.cpp ContentBoxPropagator.h
 	PageOrientationPropagator.cpp PageOrientationPropagator.h
-	DebugImages.cpp DebugImages.h
+	DebugImagesImpl.cpp DebugImagesImpl.h
 	DebugViewFactory.h
 	ImageId.cpp ImageId.h
 	PageId.cpp PageId.h
@@ -464,8 +467,6 @@ SET(
 	TaskStatus.h FilterUiInterface.h
 	ProjectReader.cpp ProjectReader.h
 	ProjectWriter.cpp ProjectWriter.h
-	XmlMarshaller.cpp XmlMarshaller.h
-	XmlUnmarshaller.cpp XmlUnmarshaller.h
 	AtomicFileOverwriter.cpp AtomicFileOverwriter.h
 	EstimateBackground.cpp EstimateBackground.h
 	Despeckle.cpp Despeckle.h
@@ -482,7 +483,6 @@ SET(
 	BeforeOrAfter.h
 	FilterResult.h
 	CompositeCacheDrivenTask.h
-	RelativeMargins.h
 	ChangedStateItemDelegate.h
 	PageOrderProvider.h
 	PageOrderOption.h

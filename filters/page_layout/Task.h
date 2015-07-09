@@ -23,20 +23,20 @@
 #include "RefCountable.h"
 #include "FilterResult.h"
 #include "PageId.h"
-#include "AffineTransformedImage.h"
 #include "CachingFactory.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "acceleration/AcceleratableOperations.h"
 #include <boost/optional.hpp>
 #include <memory>
 
 class TaskStatus;
 class ContentBox;
-class AbstractImageTransform;
 class QImage;
 
 namespace imageproc
 {
 	class GrayImage;
+	class AbstractImageTransform;
 }
 
 namespace output
@@ -66,8 +66,8 @@ public:
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
-		boost::optional<AffineTransformedImage> pre_transformed_image,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_image_transform,
+		boost::optional<imageproc::AffineTransformedImage> pre_transformed_image,
 		ContentBox const& content_box);
 private:
 	class UiUpdater;

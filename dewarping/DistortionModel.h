@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef DEWARPING_DISTORTION_MODEL_H_
 #define DEWARPING_DISTORTION_MODEL_H_
 
+#include "dewarping_config.h"
 #include "Curve.h"
 
 class QDomDocument;
@@ -32,7 +33,7 @@ namespace dewarping
 
 class CylindricalSurfaceDewarper;
 
-class DistortionModel
+class DEWARPING_EXPORT DistortionModel
 {
 public:
 	/**

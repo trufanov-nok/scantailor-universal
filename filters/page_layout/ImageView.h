@@ -21,7 +21,6 @@
 
 #include "ImageViewBase.h"
 #include "ImagePixmapUnion.h"
-#include "AffineImageTransform.h"
 #include "InteractionHandler.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
@@ -31,6 +30,7 @@
 #include "Alignment.h"
 #include "IntrusivePtr.h"
 #include "PageId.h"
+#include "imageproc/AffineImageTransform.h"
 #include <QTransform>
 #include <QSizeF>
 #include <QRectF>
@@ -38,9 +38,13 @@
 #include <QPoint>
 #include <memory>
 
-class AffineTransformedImage;
 class ContentBox;
 class RelativeMargins;
+
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 namespace page_layout
 {
@@ -56,8 +60,8 @@ class ImageView :
 public:
 	ImageView(
 		IntrusivePtr<Settings> const& settings, PageId const& page_id,
-		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
-		AffineTransformedImage const& affine_transformed_image,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_transform,
+		imageproc::AffineTransformedImage const& affine_transformed_image,
 		ImagePixmapUnion const& downscaled_image,
 		ContentBox const& content_box,
 		OptionsWidget const& opt_widget);
@@ -164,7 +168,7 @@ private:
 	 * AffineImageTransform extracted from \p affine_transformed_image constructor parameter.
 	 * This doesn't take image scaling as a result of MatchSizeMode::SCALE into account.
 	 */
-	AffineImageTransform const m_unscaledAffineTransform;
+	imageproc::AffineImageTransform const m_unscaledAffineTransform;
 
 	/**
 	 * ContentBox in virtual image coordinates, prior to scaling by MatchSizeMode::SCALE.

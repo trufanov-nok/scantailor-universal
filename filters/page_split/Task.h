@@ -29,15 +29,16 @@
 #include <memory>
 
 class TaskStatus;
-class AffineImageTransform;
 class OrthogonalRotation;
-class DebugImages;
+class DebugImagesImpl;
 class ProjectPages;
 class QImage;
 
 namespace imageproc
 {
 	class GrayImage;
+	class AffineImageTransform;
+	class AffineTransformedImage;
 }
 
 namespace deskew
@@ -71,7 +72,7 @@ public:
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		AffineImageTransform const& orig_image_transform,
+		imageproc::AffineImageTransform const& orig_image_transform,
 		OrthogonalRotation const& rotation);
 private:
 	class UiUpdater;
@@ -80,7 +81,7 @@ private:
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<deskew::Task> m_ptrNextTask;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	PageInfo m_pageInfo;
 	bool m_batchProcessing;
 };

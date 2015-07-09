@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,11 @@ class QDomDocument;
 class QDomElement;
 class QString;
 class QRectF;
-class AbstractImageTransform;
+
+namespace imageproc
+{
+	class AbstractImageTransform;
+}
 
 /**
  * @brief A rectangle in arbitrarily transformed space.
@@ -44,7 +48,7 @@ public:
 	 * @param transform Pre-transformation of the original image.
 	 * @param transformed_rect Content box in transformed space.
 	 */
-	ContentBox(AbstractImageTransform const& transform,
+	ContentBox(imageproc::AbstractImageTransform const& transform,
 		QRectF const& transformed_rect);
 	
 	ContentBox(QDomElement const& el);
@@ -67,7 +71,7 @@ public:
 	 * @brief Convert the internal representation to a rectangle
 	 *        in transformed space.
 	 */
-	QRectF toTransformedRect(AbstractImageTransform const& transform) const;
+	QRectF toTransformedRect(imageproc::AbstractImageTransform const& transform) const;
 private:
 	QPointF m_topEdgeMidPoint;
 	QPointF m_bottomEdgeMidPoint;

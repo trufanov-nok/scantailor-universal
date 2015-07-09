@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_TRANSFORM_H_
 #define IMAGEPROC_TRANSFORM_H_
 
+#include "imageproc_config.h"
 #include <QSizeF>
 #include <QColor>
 #include <stdint.h>
@@ -32,7 +33,7 @@ namespace imageproc
 
 class GrayImage;
 
-class OutsidePixels
+class IMAGEPROC_EXPORT OutsidePixels
 {
 	// Member-wise copying is OK.
 public:
@@ -107,7 +108,7 @@ private:
  *         be transformed to Format_RGB32, if the source image
  *         contains colors other than shades of gray.
  */
-QImage transform(
+IMAGEPROC_EXPORT QImage transform(
 	QImage const& src, QTransform const& xform,
 	QRect const& dst_rect, OutsidePixels outside_pixels,
 	QSizeF const& min_mapping_area = QSizeF(0.9, 0.9));
@@ -118,7 +119,7 @@ QImage transform(
  * Same as transform(), except the source image image is converted
  * to grayscale before transforming it.
  */
-GrayImage transformToGray(
+IMAGEPROC_EXPORT GrayImage transformToGray(
 	QImage const& src, QTransform const& xform,
 	QRect const& dst_rect, OutsidePixels outside_pixels,
 	QSizeF const& min_mapping_area = QSizeF(0.9, 0.9));

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_GRAYRASTEROP_H_
 #define IMAGEPROC_GRAYRASTEROP_H_
 
+#include "imageproc_config.h"
 #include "Grayscale.h"
 #include "GrayImage.h"
 #include <QPoint>

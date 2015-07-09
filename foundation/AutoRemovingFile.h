@@ -1,6 +1,6 @@
 /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C) Joseph Artsimovich <joseph_a@mail.ru>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef AUTO_REMOVING_FILE_H_
 #define AUTO_REMOVING_FILE_H_
 
+#include "foundation_config.h"
 #include <QString>
 
 /**
@@ -27,7 +28,7 @@
  * Just like std::auto_ptr deleting its object when it goes out of scope,
  * this class deletes a file.  auto_ptr's copying semantics is also preserved.
  */
-class AutoRemovingFile
+class FOUNDATION_EXPORT AutoRemovingFile
 {
 private:
 	struct CopyHelper

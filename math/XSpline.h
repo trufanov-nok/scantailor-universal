@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef XSPLINE_H_
 #define XSPLINE_H_
 
+#include "math_config.h"
 #include "spfit/FittableSpline.h"
 #include "QuadraticFunction.h"
 #include "VirtualFunction.h"
@@ -30,13 +31,14 @@
 /**
  * \brief An open X-Spline.
  *
- * [1] Blanc, C., Schlick, C.: X-splines: a spline model designed for the end-user.
- * http://scholar.google.com/scholar?cluster=2002168279173394147&hl=en&as_sdt=0,5
+ * [1] Blanc, Carole, and Christophe Schlick. "X-splines: A spline model designed
+ * for the end-user." Proceedings of the 22nd annual conference on Computer graphics
+ * and interactive techniques. ACM, 1995.
  */
-class XSpline : public spfit::FittableSpline
+class MATH_EXPORT XSpline : public spfit::FittableSpline
 {
 public:
-	struct PointAndDerivs
+	struct MATH_EXPORT PointAndDerivs
 	{
 		QPointF point; /**< Point on a spline. */
 		QPointF firstDeriv; /**< First derivative with respect to t. */

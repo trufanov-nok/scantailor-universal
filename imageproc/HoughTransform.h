@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_HOUGH_TRANSFORM_H_
 #define IMAGEPROC_HOUGH_TRANSFORM_H_
 
+#include "imageproc_config.h"
 #include "Grid.h"
 #include "Constants.h"
 #include <QSize>

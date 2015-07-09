@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef DEWARPING_CURVE_H_
 #define DEWARPING_CURVE_H_
 
+#include "dewarping_config.h"
 #include <QPointF>
 #include "XSpline.h"
 #include <vector>
@@ -30,7 +31,7 @@ class QString;
 namespace dewarping
 {
 
-class Curve
+class DEWARPING_EXPORT Curve
 {
 public:
 	Curve();

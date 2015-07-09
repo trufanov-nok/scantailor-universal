@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,15 +19,16 @@
 #ifndef POLYLINE_INTERSECTOR_H_
 #define POLYLINE_INTERSECTOR_H_
 
+#include "math_config.h"
 #include "VecNT.h"
 #include <QPointF>
 #include <QLineF>
 #include <vector>
 
-class PolylineIntersector
+class MATH_EXPORT PolylineIntersector
 {
 public:
-	class Hint
+	class MATH_EXPORT Hint
 	{
 		friend class PolylineIntersector;
 	public:

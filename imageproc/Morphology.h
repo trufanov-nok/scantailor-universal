@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_MORPHOLOGY_H_
 #define IMAGEPROC_MORPHOLOGY_H_
 
+#include "imageproc_config.h"
 #include "BWColor.h"
 #include <vector>
 
@@ -32,7 +33,7 @@ namespace imageproc
 class BinaryImage;
 class GrayImage;
 
-class Brick
+class IMAGEPROC_EXPORT Brick
 {
 public:
 	/**
@@ -114,14 +115,14 @@ private:
  * \param src_surroundings The color of pixels that are assumed to
  *        surround the source image.
  */
-BinaryImage dilateBrick(
+IMAGEPROC_EXPORT BinaryImage dilateBrick(
 	BinaryImage const& src, Brick const& brick,
 	QRect const& dst_area, BWColor src_surroundings = WHITE);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-BinaryImage dilateBrick(
+IMAGEPROC_EXPORT BinaryImage dilateBrick(
 	BinaryImage const& src, Brick const& brick,
 	BWColor src_surroundings = WHITE);
 
@@ -136,14 +137,14 @@ BinaryImage dilateBrick(
  * \param src_surroundings The color of pixels that are assumed to
  *        surround the source image.
  */
-GrayImage dilateGray(
+IMAGEPROC_EXPORT GrayImage dilateGray(
 	GrayImage const& src, Brick const& brick,
 	QRect const& dst_area, unsigned char src_surroundings = 0xff);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-GrayImage dilateGray(
+IMAGEPROC_EXPORT GrayImage dilateGray(
 	GrayImage const& src, Brick const& brick,
 	unsigned char src_surroundings = 0xff);
 
@@ -158,14 +159,14 @@ GrayImage dilateGray(
  * \param src_surroundings The color of pixels that are assumed to
  *        surround the source image.
  */
-BinaryImage erodeBrick(
+IMAGEPROC_EXPORT BinaryImage erodeBrick(
 	BinaryImage const& src, Brick const& brick,
 	QRect const& dst_area, BWColor src_surroundings = BLACK);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-BinaryImage erodeBrick(
+IMAGEPROC_EXPORT BinaryImage erodeBrick(
 	BinaryImage const& src, Brick const& brick,
 	BWColor src_surroundings = BLACK);
 
@@ -180,14 +181,14 @@ BinaryImage erodeBrick(
  * \param src_surroundings The color of pixels that are assumed to
  *        surround the source image.
  */
-GrayImage erodeGray(
+IMAGEPROC_EXPORT GrayImage erodeGray(
 	GrayImage const& src, Brick const& brick,
 	QRect const& dst_area, unsigned char src_surroundings = 0x00);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-GrayImage erodeGray(
+IMAGEPROC_EXPORT GrayImage erodeGray(
 	GrayImage const& src, Brick const& brick,
 	unsigned char src_surroundings = 0x00);
 
@@ -204,14 +205,14 @@ GrayImage erodeGray(
  *        to fit by going partially off-screen (off the source
  *        image area actually).
  */
-BinaryImage openBrick(
+IMAGEPROC_EXPORT BinaryImage openBrick(
 	BinaryImage const& src, QSize const& brick,
 	QRect const& dst_area, BWColor src_surroundings = WHITE);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-BinaryImage openBrick(
+IMAGEPROC_EXPORT BinaryImage openBrick(
 	BinaryImage const& src, QSize const& brick,
 	BWColor src_surroundings = WHITE);
 
@@ -226,14 +227,14 @@ BinaryImage openBrick(
  * \param src_surroundings The color of pixels that are assumed to
  *        surround the source image.
  */
-GrayImage openGray(
+IMAGEPROC_EXPORT GrayImage openGray(
 	GrayImage const& src, QSize const& brick,
 	QRect const& dst_area, unsigned char src_surroundings);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-GrayImage openGray(
+IMAGEPROC_EXPORT GrayImage openGray(
 	GrayImage const& src, QSize const& brick,
 	unsigned char src_surroundings);
 
@@ -250,14 +251,14 @@ GrayImage openGray(
  *        to fit by going partially off-screen (off the source
  *        image area actually).
  */
-BinaryImage closeBrick(
+IMAGEPROC_EXPORT BinaryImage closeBrick(
 	BinaryImage const& src, QSize const& brick,
 	QRect const& dst_area, BWColor src_surroundings = WHITE);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-BinaryImage closeBrick(
+IMAGEPROC_EXPORT BinaryImage closeBrick(
 	BinaryImage const& src, QSize const& brick,
 	BWColor src_surroundings = WHITE);
 
@@ -272,14 +273,14 @@ BinaryImage closeBrick(
  * \param src_surroundings The color of pixels that are assumed to
  *        surround the source image.
  */
-GrayImage closeGray(
+IMAGEPROC_EXPORT GrayImage closeGray(
 	GrayImage const& src, QSize const& brick,
 	QRect const& dst_area, unsigned char src_surroundings);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
-GrayImage closeGray(
+IMAGEPROC_EXPORT GrayImage closeGray(
 	GrayImage const& src, QSize const& brick,
 	unsigned char src_surroundings);
 
@@ -293,7 +294,7 @@ GrayImage closeGray(
  * \param misses Offsets to miss positions relative to the origin point.
  * \return A binary image where black pixels indicate a successful pattern match.
  */
-BinaryImage hitMissMatch(
+IMAGEPROC_EXPORT BinaryImage hitMissMatch(
 	BinaryImage const& src, BWColor src_surroundings,
 	std::vector<QPoint> const& hits,
 	std::vector<QPoint> const& misses);
@@ -319,7 +320,7 @@ BinaryImage hitMissMatch(
  *        to place a mark if the pattern matches.
  * \return A binary image where black pixels indicate a successful pattern match.
  */
-BinaryImage hitMissMatch(
+IMAGEPROC_EXPORT BinaryImage hitMissMatch(
 	BinaryImage const& src, BWColor src_surroundings,
 	char const* pattern,
 	int pattern_width, int pattern_height,
@@ -348,7 +349,7 @@ BinaryImage hitMissMatch(
  * \param pattern_height The height of the pattern.
  * \return The result of a match-and-replace operation.
  */
-BinaryImage hitMissReplace(
+IMAGEPROC_EXPORT BinaryImage hitMissReplace(
 	BinaryImage const& src, BWColor src_surroundings,
 	char const* pattern, int pattern_width, int pattern_height);
 
@@ -374,7 +375,7 @@ BinaryImage hitMissReplace(
  * \param pattern_width The width of the pattern.
  * \param pattern_height The height of the pattern.
  */
-void hitMissReplaceInPlace(
+IMAGEPROC_EXPORT void hitMissReplaceInPlace(
 	BinaryImage& img, BWColor src_surroundings,
 	char const* pattern, int pattern_width, int pattern_height);
 

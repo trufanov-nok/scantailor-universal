@@ -30,10 +30,9 @@
 #include <QColor>
 #include <memory>
 
-class DebugImages;
+class DebugImagesImpl;
 class TaskStatus;
 class ThumbnailPixmapCache;
-class AbstractImageTransform;
 class QPolygonF;
 class QSize;
 class QRectF;
@@ -43,6 +42,7 @@ namespace imageproc
 {
 	class BinaryImage;
 	class GrayImage;
+	class AbstractImageTransform;
 }
 
 namespace output
@@ -68,7 +68,7 @@ public:
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_image_transform,
 		QRectF const& content_rect, QRectF const& outer_rect);
 private:
 	class UiUpdater;
@@ -76,7 +76,7 @@ private:
 	FilterResultPtr processScaled(
 		TaskStatus const& status, QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_image_transform,
 		QRectF const& content_rect, QRectF const& outer_rect);
 
 	void deleteMutuallyExclusiveOutputFiles();
@@ -84,7 +84,7 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	PageId m_pageId;
 	OutputFileNameGenerator m_outFileNameGen;
 	ImageViewTab m_lastTab;

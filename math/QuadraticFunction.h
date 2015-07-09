@@ -19,6 +19,7 @@
 #ifndef QUADRATIC_FUNCTION_H_
 #define QUADRATIC_FUNCTION_H_
 
+#include "math_config.h"
 #include <Eigen/Core>
 #include <cstddef>
 
@@ -34,7 +35,7 @@
  * b: vector of N coefficients.\n
  * c: constant component.\n
  */
-class QuadraticFunction
+class MATH_EXPORT QuadraticFunction
 {
 	// Member-wise copying is OK.
 public:
@@ -44,7 +45,7 @@ public:
 	 * nabla F(x) = A * x + b
 	 * \endcode
 	 */
-	class Gradient
+	class MATH_EXPORT Gradient
 	{
 	public:
 		Eigen::MatrixXd A;

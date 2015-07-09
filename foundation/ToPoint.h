@@ -19,6 +19,7 @@
 #ifndef TO_POINT_H_
 #define TO_POINT_H_
 
+#include "foundation_config.h"
 #include <Eigen/Core>
 #include <QPoint>
 #include <QPointF>

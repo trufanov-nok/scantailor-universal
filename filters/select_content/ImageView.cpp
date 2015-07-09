@@ -17,10 +17,10 @@
 */
 
 #include "ImageView.h"
-#include "AbstractImageTransform.h"
-#include "AffineTransformedImage.h"
 #include "ImagePresentation.h"
 #include "ContentBox.h"
+#include "imageproc/AbstractImageTransform.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <QMouseEvent>
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -36,6 +36,8 @@
 #include <boost/bind.hpp>
 #include <algorithm>
 #include <assert.h>
+
+using namespace imageproc;
 
 namespace select_content
 {

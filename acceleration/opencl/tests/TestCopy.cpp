@@ -22,9 +22,6 @@
 #include "Utils.h"
 #include "PerformanceTimer.h"
 #include <CL/cl.hpp>
-#include <QString>
-#include <QByteArray>
-#include <QFile>
 #include <boost/test/auto_unit_test.hpp>
 #include <string>
 #include <vector>
@@ -35,20 +32,24 @@ namespace opencl
 namespace tests
 {
 
-BOOST_FIXTURE_TEST_SUITE(CopyTestSuite, DeviceListFixture);
+class CopyFixture : protected DeviceListFixture, protected ProgramBuilderFixture
+{
+public:
+	CopyFixture() {
+		addSource("copy_grid.cl");
+	}
+};
+
+BOOST_FIXTURE_TEST_SUITE(CopyTestSuite, CopyFixture);
 
 #define LOG_PERFORMANCE 0
 
 BOOST_AUTO_TEST_CASE(test)
 {
-	QFile file(":/device_code/copy_grid.cl");
-	BOOST_REQUIRE(file.open(QIODevice::ReadOnly));
-	QByteArray const kernel_source(file.readAll());
-
 	for (cl::Device const& device : m_devices) {
 		cl::Context context(device);
 		cl::CommandQueue command_queue(context, device);
-		cl::Program program(context, std::string(kernel_source.data(), kernel_source.size()));
+		cl::Program program(buildProgram(context));
 		try {
 			program.build();
 		} catch (cl::Error const&) {

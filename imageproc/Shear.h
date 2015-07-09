@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #ifndef IMAGEPROC_SHEAR_H_
 #define IMAGEPROC_SHEAR_H_
 
+#include "imageproc_config.h"
 #include "BWColor.h"
 
 namespace imageproc
@@ -40,7 +41,7 @@ class BinaryImage;
  *        in the source image.
  * \note The source and destination images must have the same size.
  */
-void hShearFromTo(
+IMAGEPROC_EXPORT void hShearFromTo(
 	BinaryImage const& src, BinaryImage& dst, double shear,
 	double y_origin, BWColor background_color);
 
@@ -57,7 +58,7 @@ void hShearFromTo(
  *        in the source image.
  * \note The source and destination images must have the same size.
  */
-void vShearFromTo(
+IMAGEPROC_EXPORT void vShearFromTo(
 	BinaryImage const& src, BinaryImage& dst, double shear,
 	double x_origin, BWColor background_color);
 
@@ -66,7 +67,7 @@ void vShearFromTo(
  *
  * Same as hShearFromTo(), but creates and returns the destination image.
  */
-BinaryImage hShear(
+IMAGEPROC_EXPORT BinaryImage hShear(
 	BinaryImage const& src, double shear,
 	double y_origin, BWColor background_color);
 
@@ -75,7 +76,7 @@ BinaryImage hShear(
  *
  * Same as vShearFromTo(), but creates and returns the destination image.
  */
-BinaryImage vShear(
+IMAGEPROC_EXPORT BinaryImage vShear(
 	BinaryImage const& src, double shear,
 	double x_origin, BWColor background_color);
 
@@ -84,7 +85,7 @@ BinaryImage vShear(
  *
  * Same as hShearFromTo() with src and dst being the same image.
  */
-void hShearInPlace(
+IMAGEPROC_EXPORT void hShearInPlace(
 	BinaryImage& image, double shear,
 	double y_origin, BWColor background_color);
 
@@ -93,7 +94,7 @@ void hShearInPlace(
  *
  * Same as vShearFromTo() with src and dst being the same image.
  */
-void vShearInPlace(
+IMAGEPROC_EXPORT void vShearInPlace(
 	BinaryImage& image, double shear,
 	double x_origin, BWColor background_color);
 

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 #ifndef SPFIT_LINEAR_FORCE_BALANCER_H_
 #define SPFIT_LINEAR_FORCE_BALANCER_H_
 
+#include "math_config.h"
+
 namespace spfit
 {
 
@@ -28,7 +30,7 @@ namespace spfit
  * The strategy is starting with some value and linearly changing it (usually decreasing)
 *  over time.
  */
-class LinearForceBalancer
+class MATH_EXPORT LinearForceBalancer
 {
 	// Member-wise copying is OK.
 public:

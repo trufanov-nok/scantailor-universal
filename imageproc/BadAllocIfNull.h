@@ -19,6 +19,8 @@
 #ifndef IMAGEPROC_BAD_ALLOC_IF_NULL_H_
 #define IMAGEPROC_BAD_ALLOC_IF_NULL_H_
 
+#include "imageproc_config.h"
+
 class QImage;
 
 namespace imageproc
@@ -37,7 +39,7 @@ namespace imageproc
  * @param image The image to test.
  * @return The image passed as the argument.
  */
-QImage const& badAllocIfNull(QImage const& image);
+IMAGEPROC_EXPORT QImage const& badAllocIfNull(QImage const& image);
 
 } // namespace imageproc
 

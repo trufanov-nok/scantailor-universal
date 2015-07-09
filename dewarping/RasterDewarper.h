@@ -19,6 +19,7 @@
 #ifndef DEWARPING_RASTER_DEWARPER_H_
 #define DEWARPING_RASTER_DEWARPER_H_
 
+#include "dewarping_config.h"
 #include <QSizeF>
 
 class QImage;
@@ -31,7 +32,7 @@ namespace dewarping
 
 class CylindricalSurfaceDewarper;
 
-class RasterDewarper
+class DEWARPING_EXPORT RasterDewarper
 {
 public:
 	/**

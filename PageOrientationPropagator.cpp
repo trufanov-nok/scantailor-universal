@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,17 +19,19 @@
 #include "PageOrientationPropagator.h"
 #include "CompositeCacheDrivenTask.h"
 #include "OrthogonalRotation.h"
-#include "AffineImageTransform.h"
 #include "ProjectPages.h"
 #include "PageSequence.h"
 #include "PageView.h"
 #include "PageInfo.h"
+#include "imageproc/AffineImageTransform.h"
 #include "filters/page_split/Filter.h"
 #include "filter_dc/PageOrientationCollector.h"
 #include <QPointF>
 #include <QSizeF>
 #include <QRectF>
 #include <QPolygonF>
+
+using namespace imageproc;
 
 class PageOrientationPropagator::Collector : public PageOrientationCollector
 {

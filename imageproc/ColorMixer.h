@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_COLOR_MIXER_H_
 #define IMAGEPROC_COLOR_MIXER_H_
 
+#include "imageproc_config.h"
 #include <limits>
 #include <cstdint>
 #include <cassert>

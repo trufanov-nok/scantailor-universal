@@ -19,6 +19,7 @@
 #ifndef NON_ACCELERATED_OPERATIONS_H_
 #define NON_ACCELERATED_OPERATIONS_H_
 
+#include "acceleration_config.h"
 #include "AcceleratableOperations.h"
 #include "NonCopyable.h"
 #include "Grid.h"
@@ -28,7 +29,7 @@
 #include <cstdint>
 #include <utility>
 
-class NonAcceleratedOperations : public AcceleratableOperations
+class ACCELERATION_EXPORT NonAcceleratedOperations : public AcceleratableOperations
 {
 	DECLARE_NON_COPYABLE(NonAcceleratedOperations)
 public:

@@ -19,9 +19,10 @@
 #ifndef PERFORMANCETIMER_H_
 #define PERFORMANCETIMER_H_
 
+#include "foundation_config.h"
 #include <chrono>
 
-class PerformanceTimer
+class FOUNDATION_EXPORT PerformanceTimer
 {
 private:
 	using timer = std::chrono::high_resolution_clock;

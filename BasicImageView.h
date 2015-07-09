@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,11 @@
 #include <QMarginsF>
 
 class QImage;
-class AffineTransformedImage;
+
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 class BasicImageView : public ImageViewBase
 {
@@ -38,7 +42,7 @@ public:
 		QMarginsF const& margins = QMarginsF());
 
 	BasicImageView(
-		AffineTransformedImage const& full_size_image,
+		imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
 		QMarginsF const& margins = QMarginsF());
 	

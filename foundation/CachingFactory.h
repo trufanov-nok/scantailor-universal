@@ -19,6 +19,7 @@
 #ifndef CACHING_FACTORY_H_
 #define CACHING_FACTORY_H_
 
+#include "foundation_config.h"
 #include <boost/optional.hpp>
 #include <functional>
 #include <memory>

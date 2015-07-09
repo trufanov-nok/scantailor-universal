@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,8 +28,12 @@
 class QRectF;
 class QPolygonF;
 class PageInfo;
-class AbstractImageTransform;
 class AbstractFilterDataCollector;
+
+namespace imageproc
+{
+	class AbstractImageTransform;
+}
 
 namespace page_layout
 {
@@ -53,13 +57,13 @@ public:
 
 	void process(
 		PageInfo const& page_info,
-		std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& full_size_image_transform,
 		QRectF const& content_rect, QRectF const& outer_rect,
 		AbstractFilterDataCollector* collector);
 private:
 	void processScaled(
 		PageInfo const& page_info,
-		std::shared_ptr<AbstractImageTransform const> const& full_size_image_transform,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& full_size_image_transform,
 		QRectF const& content_rect, QRectF const& outer_rect,
 		AbstractFilterDataCollector* collector);
 

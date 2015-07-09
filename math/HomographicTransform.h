@@ -19,6 +19,7 @@
 #ifndef HOMOGRAPHIC_TRANSFORM_H_
 #define HOMOGRAPHIC_TRANSFORM_H_
 
+#include "math_config.h"
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <cstddef>

@@ -20,8 +20,21 @@
 #include <QString>
 #include <QFile>
 #include <QDebug>
+#include <QtGlobal>
 #include <stdexcept>
 #include <utility>
+
+static void initQtResources()
+{
+	// Q_INIT_RESOURCE has to be invoked from global namespace.
+	Q_INIT_RESOURCE(resources);
+}
+
+static void cleanupQtResources()
+{
+	// Q_CLEANUP_RESOURCE has to be invoked from global namespace.
+	Q_CLEANUP_RESOURCE(resources);
+}
 
 namespace opencl
 {
@@ -38,6 +51,16 @@ DeviceListFixture::DeviceListFixture()
 		platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 		m_devices.insert(m_devices.end(), devices.begin(), devices.end());
 	}
+}
+
+ProgramBuilderFixture::ProgramBuilderFixture()
+{
+	initQtResources();
+}
+
+ProgramBuilderFixture::~ProgramBuilderFixture()
+{
+	cleanupQtResources();
 }
 
 void

@@ -17,7 +17,6 @@
 */
 
 #include "TextLineSegmenter.h"
-#include "AffineTransformedImage.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
 #include "Grid.h"
@@ -26,10 +25,7 @@
 #include "ToLineProjector.h"
 #include "LineIntersectionScalar.h"
 #include "LineBoundedByRect.h"
-#include "VectorFieldImageView.h"
-#include "ObjectSwapper.h"
-#include "ObjectSwapperImplGrid.h"
-#include "ObjectSwapperFactory.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "imageproc/Grayscale.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Transform.h"
@@ -262,31 +258,7 @@ TextLineSegmenter::processDownscaled(
 	direction_idx_map = Grid<uint8_t>(); // Save memory.
 
 	if (dbg) {
-		float max_squared_magnitude = 0;
-		rasterOpGeneric(
-			[&max_squared_magnitude](Vec2f const& dir) {
-				float const squared_norm = dir.squaredNorm();
-				if (squared_norm > max_squared_magnitude) {
-					max_squared_magnitude = squared_norm;
-				}
-			},
-			direction_map
-		);
-
-		ObjectSwapperFactory factory(Utils::swappingDir());
-		ObjectSwapper<QImage> image_swapper(factory(visualizeGrid(blurred)));
-		ObjectSwapper<Grid<Vec2f>> vector_field_swapper(factory(direction_map));
-		dbg->add(
-			"filterbank",
-			[=]() {
-				return new VectorFieldImageView(
-					image_swapper.constObject(), vector_field_swapper.constObject(),
-					std::sqrt(max_squared_magnitude)
-				);
-			},
-			[=]() mutable { image_swapper.swapIn(); vector_field_swapper.swapIn(); },
-			[=]() mutable { image_swapper.swapOut(); vector_field_swapper.swapOut(); }
-		);
+		dbg->addVectorFieldView(visualizeGrid(blurred), direction_map, "filterbank");
 	}
 
 	status.throwIfCancelled();

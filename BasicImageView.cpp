@@ -17,11 +17,11 @@
 */
 
 #include "BasicImageView.h"
-#include "AffineTransformedImage.h"
 #include "ImagePresentation.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <QImage>
 
-class QMarginsF;
+using namespace imageproc;
 
 BasicImageView::BasicImageView(
 	QImage const& full_size_image,

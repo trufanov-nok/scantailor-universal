@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 #ifndef IMAGEPROC_SAVGOLFILTER_H_
 #define IMAGEPROC_SAVGOLFILTER_H_
+
+#include "imageproc_config.h"
 
 class QImage;
 class QSize;
@@ -48,7 +50,7 @@ namespace imageproc
  * \endcode
  * Good results for 300 dpi scans are achieved with 7x7 window and 4x4 degree.
  */
-QImage savGolFilter(
+IMAGEPROC_EXPORT QImage savGolFilter(
 	QImage const& src, QSize const& window_size,
 	int hor_degree, int vert_degree);
 

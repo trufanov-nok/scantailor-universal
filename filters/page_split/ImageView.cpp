@@ -18,10 +18,10 @@
 
 #include "ImageView.h"
 #include "ImagePresentation.h"
-#include "AffineTransformedImage.h"
 #include "Proximity.h"
 #include "PageId.h"
 #include "ProjectPages.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <QPainter>
 #include <QPen>
 #include <QBrush>
@@ -36,7 +36,7 @@ namespace page_split
 {
 
 ImageView::ImageView(
-	AffineTransformedImage const& full_size_image,
+	imageproc::AffineTransformedImage const& full_size_image,
 	ImagePixmapUnion const& downscaled_image,
 	PageLayout const& layout, IntrusivePtr<ProjectPages> const& pages,
 	ImageId const& image_id, bool left_half_removed, bool right_half_removed)

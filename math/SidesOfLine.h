@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef SIDES_OF_LINE_H_
 #define SIDES_OF_LINE_H_
 
+#include "math_config.h"
 #include <QPointF>
 #include <QLineF>
 
@@ -35,6 +36,6 @@
  *       not a line segment.  If the line is really a point, zero will
  *       always be returned.
  */
-qreal sidesOfLine(QLineF const& line, QPointF const& p1, QPointF const& p2);
+MATH_EXPORT qreal sidesOfLine(QLineF const& line, QPointF const& p1, QPointF const& p2);
 
 #endif

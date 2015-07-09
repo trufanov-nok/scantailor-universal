@@ -17,11 +17,11 @@
 */
 
 #include "DewarpingImageTransform.h"
-#include "AffineImageTransform.h"
-#include "AffineTransformedImage.h"
+#include "RasterDewarper.h"
 #include "RoundingHasher.h"
 #include "ToVec.h"
-#include "dewarping/RasterDewarper.h"
+#include "imageproc/AffineImageTransform.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <QImage>
@@ -42,7 +42,10 @@
 #include <assert.h>
 
 using namespace Eigen;
-using namespace dewarping;
+using namespace imageproc;
+
+namespace dewarping
+{
 
 DewarpingImageTransform::DewarpingImageTransform(
 	QSize const& orig_size,
@@ -277,3 +280,5 @@ DewarpingImageTransform::setupPostScale()
 	m_postScaleX = warped_h_density / dewarped_h_density;
 	m_postScaleY = warped_v_density / dewarped_v_density;
 }
+
+} // namespace dewarping

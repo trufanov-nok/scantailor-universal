@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,13 +19,14 @@
 #ifndef COPYABLE_BY_MEMCPY_H_
 #define COPYABLE_BY_MEMCPY_H_
 
-#include <boost/type_traits/is_arithmetic.hpp>
+#include "foundation_config.h"
+#include <type_traits>
 
 /** To be specialized for other types, as done in VecNT.h */
 template<typename T>
 struct CopyableByMemcpy
 {
-	static bool const value = boost::is_arithmetic<T>::value;
+	static bool const value = std::is_arithmetic<T>::value;
 };
 
 #endif

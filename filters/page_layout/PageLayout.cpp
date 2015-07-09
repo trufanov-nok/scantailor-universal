@@ -20,12 +20,14 @@
 #include "MatchSizeMode.h"
 #include "Alignment.h"
 #include "RelativeMargins.h"
-#include "AbstractImageTransform.h"
 #include "Utils.h"
+#include "imageproc/AbstractImageTransform.h"
 #include <QTransform>
 #include <QtGlobal>
 #include <QMarginsF>
 #include <algorithm>
+
+using namespace imageproc;
 
 namespace page_layout
 {

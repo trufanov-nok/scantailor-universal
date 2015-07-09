@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_SEEDFILL_GENERIC_H_
 #define IMAGEPROC_SEEDFILL_GENERIC_H_
 
+#include "imageproc_config.h"
 #include "Connectivity.h"
 #include "FastQueue.h"
 #include "BinaryImage.h"
@@ -65,9 +66,9 @@ struct Position
 	: seed(seed_), mask(mask_), x(x_), y(y_) {}
 };
 
-void initHorTransitions(std::vector<HTransition>& transitions, int width);
+IMAGEPROC_EXPORT void initHorTransitions(std::vector<HTransition>& transitions, int width);
 
-void initVertTransitions(std::vector<VTransition>& transitions, int height);
+IMAGEPROC_EXPORT void initVertTransitions(std::vector<VTransition>& transitions, int height);
 
 template<typename T, typename SpreadOp, typename MaskOp>
 void seedFillSingleLine(

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_SEEDFILL_H_
 #define IMAGEPROC_SEEDFILL_H_
 
+#include "imageproc_config.h"
 #include "BinaryImage.h"
 #include "Connectivity.h"
 
@@ -42,7 +43,7 @@ class GrayImage;
  * The underlying code implements Luc Vincent's iterative seed-fill
  * algorithm: http://www.vincent-net.com/luc/papers/93ieeeip_recons.pdf
  */
-BinaryImage seedFill(
+IMAGEPROC_EXPORT BinaryImage seedFill(
 	BinaryImage const& seed, BinaryImage const& mask,
 	Connectivity connectivity);
 
@@ -59,13 +60,13 @@ BinaryImage seedFill(
  * The underlying code implements Luc Vincent's hybrid seed-fill algorithm:
  * http://www.vincent-net.com/luc/papers/93ieeeip_recons.pdf
  */
-GrayImage seedFillGray(
+IMAGEPROC_EXPORT GrayImage seedFillGray(
 	GrayImage const& seed, GrayImage const& mask, Connectivity connectivity);
 
 /**
  * \brief A faster, in-place version of seedFillGray().
  */
-void seedFillGrayInPlace(
+IMAGEPROC_EXPORT void seedFillGrayInPlace(
 	GrayImage& seed, GrayImage const& mask, Connectivity connectivity);
 
 /**
@@ -74,7 +75,7 @@ void seedFillGrayInPlace(
  * This function should not be used for anything but testing the correctness
  * of the fast and complex implementation that is seedFillGray().
  */
-GrayImage seedFillGraySlow(
+IMAGEPROC_EXPORT GrayImage seedFillGraySlow(
 	GrayImage const& seed, GrayImage const& mask, Connectivity connectivity);
 
 } // namespace imageproc

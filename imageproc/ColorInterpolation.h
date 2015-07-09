@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_COLORINTERPOLATION_H_
 #define IMAGEPROC_COLORINTERPOLATION_H_
 
+#include "imageproc_config.h"
 #include <QColor>
 
 namespace imageproc
@@ -30,7 +31,7 @@ namespace imageproc
  * Returns a color between \p from and \p to according to \p dist.
  * \p dist 0 corresponds to \p from, while \p dist 1 corresponds to \p to.
  */
-QColor colorInterpolation(QColor const& from, QColor const& to, double dist);
+IMAGEPROC_EXPORT QColor colorInterpolation(QColor const& from, QColor const& to, double dist);
 
 } // namespace imageproc
 

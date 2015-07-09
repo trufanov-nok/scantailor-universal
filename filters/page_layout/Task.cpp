@@ -27,10 +27,10 @@
 #include "TaskStatus.h"
 #include "ImageView.h"
 #include "BasicImageView.h"
-#include "AffineTransformedImage.h"
 #include "ContentBox.h"
 #include "PageLayout.h"
 #include "filters/output/Task.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <QSizeF>
 #include <QRectF>
 #include <QLineF>
@@ -39,6 +39,8 @@
 #include <QObject>
 
 #include "CommandLine.h"
+
+using namespace imageproc;
 
 namespace page_layout
 {

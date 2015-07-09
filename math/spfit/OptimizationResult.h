@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,12 +19,13 @@
 #ifndef SPFIT_OPTIMIZATION_RESULT_H_
 #define SPFIT_OPTIMIZATION_RESULT_H_
 
+#include "math_config.h"
 #include <limits>
 
 namespace spfit
 {
 
-class OptimizationResult
+class MATH_EXPORT OptimizationResult
 {
 public:
 	OptimizationResult(double force_before, double force_after);

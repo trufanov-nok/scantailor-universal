@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 #ifndef IMAGEPROC_DRAWOVER_H_
 #define IMAGEPROC_DRAWOVER_H_
+
+#include "imageproc_config.h"
 
 class QImage;
 class QRect;
@@ -40,7 +42,7 @@ namespace imageproc
  *        within the source image, and its size must match the
  *        size of \p dst_rect.
  */
-void drawOver(
+IMAGEPROC_EXPORT void drawOver(
 	QImage& dst, QRect const& dst_rect,
 	QImage const& src, QRect const& src_rect);
 

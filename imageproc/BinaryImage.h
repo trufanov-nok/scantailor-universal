@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_BINARYIMAGE_H_
 #define IMAGEPROC_BINARYIMAGE_H_
 
+#include "imageproc_config.h"
 #include "BWColor.h"
 #include "BWPixelProxy.h"
 #include "BinaryThreshold.h"
@@ -51,7 +52,7 @@ namespace imageproc
  * Additionally, unlinke QImage, BinaryImage doesn't have a palette,
  * so black pixels are always represented as ones and white pixels as zeros.
  */
-class BinaryImage
+class IMAGEPROC_EXPORT BinaryImage
 {
 public:
 	/**
@@ -298,7 +299,7 @@ private:
 
 
 /** Provides integration of BinaryImage into rasterOpGeneric. */
-class ConstBinaryImageLineAccessor
+class IMAGEPROC_EXPORT ConstBinaryImageLineAccessor
 {
 public:
 	explicit ConstBinaryImageLineAccessor(BinaryImage const& image)
@@ -316,7 +317,7 @@ private:
 
 
 /** Provides integration of BinaryImage into rasterOpGeneric. */
-class MutableBinaryImageLineAccessor
+class IMAGEPROC_EXPORT MutableBinaryImageLineAccessor
 {
 public:
 	explicit MutableBinaryImageLineAccessor(BinaryImage& image)
@@ -364,7 +365,7 @@ BinaryImage::release()
 /**
  * \brief Compares image data.
  */
-bool operator==(BinaryImage const& lhs, BinaryImage const& rhs);
+IMAGEPROC_EXPORT bool operator==(BinaryImage const& lhs, BinaryImage const& rhs);
 
 /**
  * \brief Compares image data.

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 #include "NonCopyable.h"
 #include "PageId.h"
 #include "IntrusivePtr.h"
-#include "AbstractImageTransform.h"
-#include "AffineImageTransform.h"
 #include "ThumbnailPixmapCache.h"
 #include "ThumbnailLoadResult.h"
+#include "imageproc/AbstractImageTransform.h"
+#include "imageproc/AffineImageTransform.h"
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 #include <QTransform>
@@ -53,7 +53,7 @@ public:
 	ThumbnailBase(
 		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
 		QSizeF const& max_display_size, PageId const& page_id,
-		AbstractImageTransform const& full_size_image_transform,
+		imageproc::AbstractImageTransform const& full_size_image_transform,
 		boost::optional<QRectF> const& transformed_viewport = boost::none);
 	
 	virtual ~ThumbnailBase();
@@ -89,7 +89,7 @@ protected:
 		QPainter& painter, QTransform const& transformed_to_display,
 		QTransform const& thumb_to_display) {}
 
-	AbstractImageTransform const& fullSizeImageTransform() const {
+	imageproc::AbstractImageTransform const& fullSizeImageTransform() const {
 		return *m_ptrFullSizeImageTransform;
 	}
 
@@ -110,7 +110,7 @@ private:
 	 *        transform.transformedCropArea().boundingRect() will be used instead.
 	 */
 	void setFullSizeToVirtualTransform(
-		AbstractImageTransform const& transform,
+		imageproc::AbstractImageTransform const& transform,
 		boost::optional<QRectF> const& transformed_viewport);
 
 	void handleLoadResult(ThumbnailLoadResult::Status status);
@@ -118,7 +118,7 @@ private:
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
 	QSizeF m_maxDisplaySize; /**< Maximum thumbnail size on screen. */
 	PageId m_pageId;
-	std::unique_ptr<AbstractImageTransform> m_ptrFullSizeImageTransform;
+	std::unique_ptr<imageproc::AbstractImageTransform> m_ptrFullSizeImageTransform;
 	QRectF m_transformedViewport;
 
 	/** @see QGraphicsItem::boundingRect() */

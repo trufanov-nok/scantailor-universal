@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_BINARIZE_H_
 #define IMAGEPROC_BINARIZE_H_
 
+#include "imageproc_config.h"
 #include <QSize>
 
 class QImage;
@@ -35,7 +36,7 @@ class GrayImage;
  * N. Otsu (1979). "A threshold selection method from gray-level histograms".
  * http://en.wikipedia.org/wiki/Otsu%27s_method
  */
-BinaryImage binarizeOtsu(QImage const& src);
+IMAGEPROC_EXPORT BinaryImage binarizeOtsu(QImage const& src);
 
 /**
  * \brief Image binarization using Mokji's global thresholding method.
@@ -50,7 +51,7 @@ BinaryImage binarizeOtsu(QImage const& src);
  * \param min_edge_magnitude The minimum color difference in a gradient.
  * \return A black and white image.
  */
-BinaryImage binarizeMokji(
+IMAGEPROC_EXPORT BinaryImage binarizeMokji(
 	QImage const& src, unsigned max_edge_width = 3,
 	unsigned min_edge_magnitude = 20);
 
@@ -60,7 +61,7 @@ BinaryImage binarizeMokji(
   * Niblack, W.: An Introduction to Digital Image Processing.
   * Englewood Cliffs, N. J., Prentice Hall (1986) 115-116
   */
-BinaryImage binarizeNiblack(GrayImage const& src, QSize window_size);
+IMAGEPROC_EXPORT BinaryImage binarizeNiblack(GrayImage const& src, QSize window_size);
 
 /**
  * \brief Image binarization using Gatos' local thresholding method.
@@ -72,7 +73,7 @@ BinaryImage binarizeNiblack(GrayImage const& src, QSize window_size);
  * This implementation doesn't include the post-processing steps from
  * the above paper.
  */
-BinaryImage binarizeGatos(
+IMAGEPROC_EXPORT BinaryImage binarizeGatos(
     GrayImage const& src, QSize window_size, double noise_sigma);
 
 /**
@@ -81,7 +82,7 @@ BinaryImage binarizeGatos(
  * Sauvola, J. and M. Pietikainen. 2000. "Adaptive document image binarization".
  * http://www.mediateam.oulu.fi/publications/pdf/24.pdf
  */
-BinaryImage binarizeSauvola(QImage const& src, QSize window_size);
+IMAGEPROC_EXPORT BinaryImage binarizeSauvola(QImage const& src, QSize window_size);
 
 /**
  * \brief Image binarization using Wolf's local thresholding method.
@@ -95,7 +96,7 @@ BinaryImage binarizeSauvola(QImage const& src, QSize window_size);
  * \param lower_bound The minimum possible gray level that can be made white.
  * \param upper_bound The maximum possible gray level that can be made black.
  */
-BinaryImage binarizeWolf(
+IMAGEPROC_EXPORT BinaryImage binarizeWolf(
 	QImage const& src, QSize window_size,
 	unsigned char lower_bound = 1, unsigned char upper_bound = 254);
 

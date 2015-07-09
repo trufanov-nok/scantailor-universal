@@ -19,6 +19,7 @@
 #ifndef DEWARPING_TEXT_LINE_TRACER_H_
 #define DEWARPING_TEXT_LINE_TRACER_H_
 
+#include "dewarping_config.h"
 #include "Grid.h"
 #include "VecNT.h"
 #include "acceleration/AcceleratableOperations.h"
@@ -30,13 +31,13 @@
 #include <memory>
 
 class QImage;
-class AffineTransformedImage;
 class TaskStatus;
 class DebugImages;
 
 namespace imageproc
 {
 	class GrayImage;
+	class AffineTransformedImage;
 }
 
 namespace dewarping
@@ -44,11 +45,12 @@ namespace dewarping
 
 class DistortionModelBuilder;
 
-class TextLineTracer
+class DEWARPING_EXPORT TextLineTracer
 {
 public:
 	static void trace(
-		AffineTransformedImage const& input, DistortionModelBuilder& output,
+		imageproc::AffineTransformedImage const& input,
+		DistortionModelBuilder& output,
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		TaskStatus const& status, DebugImages* dbg = nullptr);
 private:

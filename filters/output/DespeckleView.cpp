@@ -26,7 +26,7 @@
 #include "BasicImageView.h"
 #include "OutputMargins.h"
 #include "ProcessingIndicationWidget.h"
-#include "DebugImages.h"
+#include "DebugImagesImpl.h"
 #include "TabbedDebugImages.h"
 #include "AutoRemovingFile.h"
 #include "TaskStatus.h"
@@ -78,7 +78,7 @@ private:
 	QPointer<DespeckleView> m_ptrOwner;
 	DespeckleState m_despeckleState;
 	IntrusivePtr<TaskCancelHandle> m_ptrCancelHandle;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	DespeckleLevel m_despeckleLevel;
 };
 
@@ -91,14 +91,14 @@ public:
 		IntrusivePtr<TaskCancelHandle> const& cancel_handle,
 		DespeckleState const& despeckle_state,
 		DespeckleVisualization const& visualization,
-		std::auto_ptr<DebugImages> debug_images);
+		std::auto_ptr<DebugImagesImpl> debug_images);
 
 	// This method is called from the main thread.
 	virtual void operator()();
 private:
 	QPointer<DespeckleView> m_ptrOwner;
 	IntrusivePtr<TaskCancelHandle> m_ptrCancelHandle;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	DespeckleState m_despeckleState;
 	DespeckleVisualization m_visualization;
 };
@@ -197,7 +197,7 @@ DespeckleView::initiateDespeckling(AnimationAction const anim_action)
 void
 DespeckleView::despeckleDone(
 	DespeckleState const& despeckle_state,
-	DespeckleVisualization const& visualization, DebugImages* dbg)
+	DespeckleVisualization const& visualization, DebugImagesImpl* dbg)
 {
 	assert(!visualization.isNull());
 
@@ -259,7 +259,7 @@ DespeckleView::DespeckleTask::DespeckleTask(
 	m_despeckleLevel(level)
 {
 	if (debug) {
-		m_ptrDbg.reset(new DebugImages);
+		m_ptrDbg.reset(new DebugImagesImpl);
 	}
 }
 
@@ -298,7 +298,7 @@ DespeckleView::DespeckleResult::DespeckleResult(
 	IntrusivePtr<TaskCancelHandle> const& cancel_handle,
 	DespeckleState const& despeckle_state,
 	DespeckleVisualization const& visualization,
-	std::auto_ptr<DebugImages> debug_images)
+	std::auto_ptr<DebugImagesImpl> debug_images)
 :	m_ptrOwner(owner),
 	m_ptrCancelHandle(cancel_handle),
 	m_ptrDbg(debug_images),

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 #ifndef IMAGEPROC_ADJUST_BRIGHTNESS_H_
 #define IMAGEPROC_ADJUST_BRIGHTNESS_H_
+
+#include "imageproc_config.h"
 
 class QImage;
 
@@ -45,7 +47,7 @@ namespace imageproc
  * \endcode
  * This function takes wr and wb arguments, and calculates wg as 1.0 - wr - wb.
  */
-void adjustBrightness(
+IMAGEPROC_EXPORT void adjustBrightness(
 	QImage& rgb_image, QImage const& brightness, double wr, double wb);
 
 /**
@@ -54,7 +56,7 @@ void adjustBrightness(
  * Same as adjustBrightness(), but the weighting factors used in the YUV
  * color space are assumed.
  */
-void adjustBrightnessYUV(QImage& rgb_image, QImage const& brightness);
+IMAGEPROC_EXPORT void adjustBrightnessYUV(QImage& rgb_image, QImage const& brightness);
 
 /**
  * \brief A custom version of adjustBrightness().
@@ -62,7 +64,7 @@ void adjustBrightnessYUV(QImage& rgb_image, QImage const& brightness);
  * Same as adjustBrightness(), but the weighting factors used by
  * toGrayscale() and qGray() are assumed.
  */
-void adjustBrightnessGrayscale(QImage& rgb_image, QImage const& brightness);
+IMAGEPROC_EXPORT void adjustBrightnessGrayscale(QImage& rgb_image, QImage const& brightness);
 
 } // namespace imageproc
 

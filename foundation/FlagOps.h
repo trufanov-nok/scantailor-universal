@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
 #ifndef FLAGOPS_H_
 #define FLAGOPS_H_
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "foundation_config.h"
 
 #define DEFINE_FLAG_OPS(type) \
 inline type operator&(type lhs, type rhs) \

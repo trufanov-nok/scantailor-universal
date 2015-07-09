@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_WATERSHED_SEGMENTATION_H_
 #define IMAGEPROC_WATERSHED_SEGMENTATION_H_
 
+#include "imageproc_config.h"
 #include "Grid.h"
 #include "Connectivity.h"
 #include <QSize>
@@ -34,7 +35,7 @@ class GrayImage;
 /**
  * \brief Labels pixels into groups according to the watershed principle.
  */
-class WatershedSegmentation
+class IMAGEPROC_EXPORT WatershedSegmentation
 {
 public:
 	/**

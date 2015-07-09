@@ -28,6 +28,9 @@
 #include <QCryptographicHash>
 #include <assert.h>
 
+namespace imageproc
+{
+
 AffineImageTransform::AffineImageTransform(QSize const& orig_size)
 :	m_origSize(orig_size)
 ,	m_origCropArea(QRectF(QPointF(0, 0), orig_size))
@@ -167,3 +170,5 @@ AffineImageTransform::backwardMapper() const
 		return inverted.map(pt);
 	};
 }
+
+} // namespace imageproc

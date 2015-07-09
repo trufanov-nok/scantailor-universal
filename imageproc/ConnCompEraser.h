@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_CONNCOMPERASER_H_
 #define IMAGEPROC_CONNCOMPERASER_H_
 
+#include "imageproc_config.h"
 #include "NonCopyable.h"
 #include "Connectivity.h"
 #include "ConnComp.h"
@@ -34,7 +35,7 @@ class ConnComp;
 /**
  * \brief Erases connected components one by one and returns their bounding boxes.
  */
-class ConnCompEraser
+class IMAGEPROC_EXPORT ConnCompEraser
 {
 	DECLARE_NON_COPYABLE(ConnCompEraser)
 public:

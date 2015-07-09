@@ -1,0 +1,12 @@
+#ifndef ACCELERATION_CONFIG_H_
+#define ACCELERATION_CONFIG_H_
+
+#include <QtGlobal>
+
+#if defined(BUILDING_ACCELERATION)
+#	define ACCELERATION_EXPORT Q_DECL_EXPORT
+#else
+#	define ACCELERATION_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif

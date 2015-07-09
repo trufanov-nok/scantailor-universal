@@ -19,6 +19,7 @@
 #ifndef LINEAR_FUNCTION_H_
 #define LINEAR_FUNCTION_H_
 
+#include "math_config.h"
 #include <Eigen/Core>
 #include <cstddef>
 
@@ -29,7 +30,7 @@
  * F(x) = a^T * x + b
  * \endcode
  */
-class LinearFunction
+class MATH_EXPORT LinearFunction
 {
 	// Member-wise copying is OK.
 public:

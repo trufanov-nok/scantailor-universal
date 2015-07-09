@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,15 +17,17 @@
 */
 
 #include "ThumbnailFactory.h"
-#include "AffineImageTransform.h"
 #include "CompositeCacheDrivenTask.h"
 #include "PageInfo.h"
+#include "imageproc/AffineImageTransform.h"
 #include "filter_dc/ThumbnailCollector.h"
 #include <QGraphicsItem>
 #include <QPointF>
 #include <QSizeF>
 #include <QRectF>
 #include <QPolygonF>
+
+using namespace imageproc;
 
 class ThumbnailFactory::Collector : public ThumbnailCollector
 {

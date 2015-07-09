@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_INFLUENCE_MAP_H_
 #define IMAGEPROC_INFLUENCE_MAP_H_
 
+#include "imageproc_config.h"
 #include <QSize>
 #include <vector>
 #include <stdint.h>
@@ -38,16 +39,16 @@ class ConnectivityMap;
  * Extension is done in such a way that two different labels meet at
  * a location equidistant from the initial areas of those two labels.
  */
-class InfluenceMap
+class IMAGEPROC_EXPORT InfluenceMap
 {
 public:
-	struct Vector
+	struct IMAGEPROC_EXPORT Vector
 	{
 		int16_t x;
 		int16_t y;
 	};
 	
-	struct Cell
+	struct IMAGEPROC_EXPORT Cell
 	{
 		/**
 		 * The label from the connectivity map.

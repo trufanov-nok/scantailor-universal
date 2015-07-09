@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_GRAYSCALE_H_
 #define IMAGEPROC_GRAYSCALE_H_
 
+#include "imageproc_config.h"
 #include "GrayImage.h"
 #include <QVector>
 #include <QColor>
@@ -31,7 +32,7 @@ namespace imageproc
 
 class BinaryImage;
 
-class GrayscaleHistogram
+class IMAGEPROC_EXPORT GrayscaleHistogram
 {
 public:
 	explicit GrayscaleHistogram(QImage const& img);
@@ -60,7 +61,7 @@ private:
 /**
  * \brief Create a 256-element grayscale palette.
  */
-QVector<QRgb> createGrayscalePalette();
+IMAGEPROC_EXPORT QVector<QRgb> createGrayscalePalette();
 
 /**
  * \brief Convert an image from any format to grayscale.
@@ -69,7 +70,7 @@ QVector<QRgb> createGrayscalePalette();
  * \return A grayscale image with proper palette.  Null will be returned
  *         if \p src was null.
  */
-QImage toGrayscale(QImage const& src);
+IMAGEPROC_EXPORT QImage toGrayscale(QImage const& src);
 
 /**
  * \brief Stetch the distribution of gray levels to cover the whole range.
@@ -82,8 +83,8 @@ QImage toGrayscale(QImage const& src);
  *        clipped to 255 (white).
  * \return A grayscale image, or a null image, if \p src was null.
  */
-GrayImage stretchGrayRange(GrayImage const& src, double black_clip_fraction = 0.0,
-	double white_clip_fraction = 0.0);
+IMAGEPROC_EXPORT GrayImage stretchGrayRange(GrayImage const& src,
+	double black_clip_fraction = 0.0, double white_clip_fraction = 0.0);
 
 /**
  * \brief Create a grayscale image consisting of a 1 pixel frame and an inner area.
@@ -93,7 +94,7 @@ GrayImage stretchGrayRange(GrayImage const& src, double black_clip_fraction = 0.
  * \param frame_color The gray level of the frame area.  Defaults to black.
  * \return The resulting image.
  */
-GrayImage createFramedImage(
+IMAGEPROC_EXPORT GrayImage createFramedImage(
 	QSize const& size, unsigned char inner_color = 0xff,
 	unsigned char frame_color = 0x00);
 
@@ -104,7 +105,7 @@ GrayImage createFramedImage(
  *        be returned as the darkest image.  If it's not grayscale,
  *        a grayscale copy will be created.
  */
-unsigned char darkestGrayLevel(QImage const& image);
+IMAGEPROC_EXPORT unsigned char darkestGrayLevel(QImage const& image);
 
 } // namespace imageproc
 

@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_CONNECTIVITY_MAP_H_
 #define IMAGEPROC_CONNECTIVITY_MAP_H_
 
+#include "imageproc_config.h"
 #include "Connectivity.h"
 #include "FastQueue.h"
 #include "GridAccessor.h"
@@ -46,7 +47,7 @@ class InfluenceMap;
  * Background (white) pixels are assigned the label of zero, and the remaining
  * labels are guaranteed not to have gaps.
  */
-class ConnectivityMap
+class IMAGEPROC_EXPORT ConnectivityMap
 {
 public:
 	/**

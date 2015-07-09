@@ -18,7 +18,7 @@
 
 #include "Task.h"
 #include "Filter.h"
-#include "DebugImages.h"
+#include "DebugImagesImpl.h"
 #include "OptionsWidget.h"
 #include "AutoManualMode.h"
 #include "Dependencies.h"
@@ -29,15 +29,17 @@
 #include "FilterUiInterface.h"
 #include "ImageView.h"
 #include "OrthogonalRotation.h"
-#include "AbstractImageTransform.h"
-#include "AffineImageTransform.h"
-#include "AffineTransformedImage.h"
+#include "imageproc/AbstractImageTransform.h"
+#include "imageproc/AffineImageTransform.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "filters/page_layout/Task.h"
 #include <QObject>
 #include <QTransform>
 #include <QDebug>
 #include <boost/optional.hpp>
 #include <assert.h>
+
+using namespace imageproc;
 
 namespace select_content
 {
@@ -47,7 +49,7 @@ class Task::UiUpdater : public FilterResult
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
 		PageId const& page_id, Params const& params,
-		std::auto_ptr<DebugImages> dbg,
+		std::auto_ptr<DebugImagesImpl> dbg,
 		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 		AffineTransformedImage const& affine_transformed_image,
 		bool batch);
@@ -59,7 +61,7 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	PageId m_pageId;
 	Params m_params;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
 	AffineTransformedImage m_affineTransformedImage;
 	QImage m_downscaledImage;
@@ -78,7 +80,7 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 	m_batchProcessing(batch)
 {
 	if (debug) {
-		m_ptrDbg.reset(new DebugImages);
+		m_ptrDbg.reset(new DebugImagesImpl);
 	}
 }
 
@@ -170,7 +172,7 @@ Task::process(
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter, PageId const& page_id,
-	Params const& params, std::auto_ptr<DebugImages> dbg,
+	Params const& params, std::auto_ptr<DebugImagesImpl> dbg,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image, bool const batch)
 :	m_ptrFilter(filter),

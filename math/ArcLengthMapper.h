@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef ARC_LENGTH_MAPPER_H_
 #define ARC_LENGTH_MAPPER_H_
 
+#include "math_config.h"
 #include <vector>
 
 /**
@@ -32,11 +33,11 @@
  * to be monotonously increasing, that is we consider adjacent samples
  * to be connected by straight lines.
  */
-class ArcLengthMapper
+class MATH_EXPORT ArcLengthMapper
 {
 	// Member-wise copying is OK.
 public:
-	class Hint
+	class MATH_EXPORT Hint
 	{
 		friend class ArcLengthMapper;
 	public:

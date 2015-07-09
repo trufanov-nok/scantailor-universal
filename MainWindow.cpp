@@ -38,7 +38,7 @@
 #include "FilterOptionsWidget.h"
 #include "ErrorWidget.h"
 #include "AutoRemovingFile.h"
-#include "DebugImages.h"
+#include "DebugImagesImpl.h"
 #include "DebugImageView.h"
 #include "TabbedDebugImages.h"
 #include "BasicImageView.h"
@@ -760,7 +760,7 @@ MainWindow::setOptionsWidget(FilterOptionsWidget* widget, Ownership const owners
 void
 MainWindow::setImageWidget(
 	QWidget* widget, Ownership const ownership,
-	DebugImages* debug_images)
+	DebugImagesImpl* debug_images)
 {
 	if (isBatchProcessingInProgress() && widget != m_ptrBatchProcessingWidget.get()) {
 		if (ownership == TRANSFER_OWNERSHIP) {

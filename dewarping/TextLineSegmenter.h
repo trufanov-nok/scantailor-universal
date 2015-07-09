@@ -19,6 +19,7 @@
 #ifndef DEWARPING_TEXT_LINE_SEGMENTER_H_
 #define DEWARPING_TEXT_LINE_SEGMENTER_H_
 
+#include "dewarping_config.h"
 #include "NonCopyable.h"
 #include "Grid.h"
 #include "acceleration/AcceleratableOperations.h"
@@ -28,7 +29,6 @@
 #include <memory>
 
 class DebugImages;
-class AffineTransformedImage;
 class TaskStatus;
 class QImage;
 class QPolygonF;
@@ -39,16 +39,17 @@ namespace imageproc
 	class GrayImage;
 	class BinaryImage;
 	class ConnectivityMap;
+	class AffineTransformedImage;
 }
 
 namespace dewarping
 {
 
-class TextLineSegmenter
+class DEWARPING_EXPORT TextLineSegmenter
 {
 	DECLARE_NON_COPYABLE(TextLineSegmenter);
 public:
-	struct Result
+	struct DEWARPING_EXPORT Result
 	{
 		/**
 		 * @brief Roughly traced text lines or other long
@@ -71,7 +72,7 @@ public:
 	};
 
 	static Result process(
-		AffineTransformedImage const& image,
+		imageproc::AffineTransformedImage const& image,
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		TaskStatus const& status, DebugImages* dbg = nullptr);
 private:

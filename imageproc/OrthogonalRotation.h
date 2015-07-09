@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 #ifndef IMAGEPROC_ORTHOGONAL_ROTATION_H_
 #define IMAGEPROC_ORTHOGONAL_ROTATION_H_
+
+#include "imageproc_config.h"
 
 class QRect;
 
@@ -40,7 +42,7 @@ class BinaryImage;
  *         of the returned image will correspond to \p src_rect,
  *         possibly with width and height swapped.
  */
-BinaryImage orthogonalRotation(
+IMAGEPROC_EXPORT BinaryImage orthogonalRotation(
 	BinaryImage const& src, QRect const& src_rect, int degrees);
 
 /**
@@ -49,7 +51,7 @@ BinaryImage orthogonalRotation(
  * This is an overload provided for convenience.
  * It rotates the whole image, not a portion of it.
  */
-BinaryImage orthogonalRotation(BinaryImage const& src, int degrees);
+IMAGEPROC_EXPORT BinaryImage orthogonalRotation(BinaryImage const& src, int degrees);
 
 } // namespace imageproc
 

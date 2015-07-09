@@ -12,12 +12,13 @@ SOURCE_GROUP("Sources" FILES ${sources})
 
 SET(
 	libs
-	opencl imageproc foundation Qt5::Core ${OpenCL_LIBRARIES}
+	opencl dewarping imageproc math foundation
+	Qt5::Core ${OpenCL_LIBRARIES}
 	${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
 	${Boost_PRG_EXECUTION_MONITOR_LIBRARY} ${EXTRA_LIBS}
 )
 
-ADD_EXECUTABLE(opencl_tests ${sources} ${resource_sources})
+ADD_EXECUTABLE(opencl_tests ${sources})
 TARGET_LINK_LIBRARIES(opencl_tests ${libs})
 
 # We want the executable located where we copy all the DLLs.

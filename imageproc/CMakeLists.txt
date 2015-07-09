@@ -2,12 +2,13 @@ PROJECT(imageproc)
 
 SET(
 	sources
+	imageproc_config.h
 	Constants.h Constants.cpp
 	BadAllocIfNull.cpp BadAllocIfNull.h
 	BinaryImage.cpp BinaryImage.h
 	BinaryThreshold.cpp BinaryThreshold.h
 	SlicedHistogram.cpp SlicedHistogram.h
-	ByteOrder.h BWColor.h BWPixelProxy.h
+	BWColor.h BWPixelProxy.h
 	ConnComp.h Connectivity.h
 	BitOps.cpp BitOps.h
 	SeedFill.cpp SeedFill.h
@@ -23,6 +24,9 @@ SET(
 	OrthogonalRotation.cpp OrthogonalRotation.h
 	Scale.cpp Scale.h
 	Transform.cpp Transform.h
+	AbstractImageTransform.h
+	AffineImageTransform.cpp AffineImageTransform.h
+	AffineTransformedImage.cpp AffineTransformedImage.h
 	Morphology.cpp Morphology.h
 	IntegralImage.h
 	Binarize.cpp Binarize.h
@@ -58,7 +62,16 @@ SET(
 
 SOURCE_GROUP(Sources FILES ${sources})
 
-ADD_LIBRARY(imageproc STATIC ${sources})
-TARGET_LINK_LIBRARIES(imageproc Qt5::Core Qt5::Gui)
+ADD_DEFINITIONS(-DBUILDING_IMAGEPROC)
+ADD_LIBRARY(imageproc SHARED ${sources})
+TARGET_LINK_LIBRARIES(imageproc foundation Qt5::Core Qt5::Gui)
+
+# We want the DLL located where executables can find it.
+SET_TARGET_PROPERTIES(
+	imageproc PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+
+INSTALL(TARGETS imageproc DESTINATION lib/scantailor)
 
 ADD_SUBDIRECTORY(tests)

@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_BW_PIXEL_PROXY_H_
 #define IMAGEPROC_BW_PIXEL_PROXY_H_
 
+#include "imageproc_config.h"
 #include <cstdint>
 #include <cassert>
 
@@ -29,7 +30,7 @@ namespace imageproc
  * @brief Used as a proxy type to represent a pixel from a BinaryImage
  *        in rasterOpGeneric().
  */
-class BWPixelProxy
+class IMAGEPROC_EXPORT BWPixelProxy
 {
 	// Member-wise copying is OK.
 public:

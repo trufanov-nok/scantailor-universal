@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_TRAVERSE_BORDERS_H_
 #define IMAGEPROC_TRAVERSE_BORDERS_H_
 
+#include "imageproc_config.h"
 #include "GridAccessor.h"
 
 namespace imageproc

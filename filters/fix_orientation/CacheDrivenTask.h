@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,8 +24,12 @@
 #include "IntrusivePtr.h"
 
 class PageInfo;
-class AffineImageTransform;
 class AbstractFilterDataCollector;
+
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 namespace page_split
 {
@@ -48,7 +52,7 @@ public:
 	virtual ~CacheDrivenTask();
 	
 	virtual void process(
-		PageInfo const& page_info, AffineImageTransform const& image_transform,
+		PageInfo const& page_info, imageproc::AffineImageTransform const& image_transform,
 		AbstractFilterDataCollector* collector);
 private:
 	IntrusivePtr<page_split::CacheDrivenTask> m_ptrNextTask;

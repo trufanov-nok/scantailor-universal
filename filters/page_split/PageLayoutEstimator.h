@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,9 +28,13 @@
 class QRect;
 class QPoint;
 class QImage;
-class AffineTransformedImage;
 class DebugImages;
 class Span;
+
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 namespace imageproc
 {
@@ -60,14 +64,14 @@ public:
 	 *         requested layout type.
 	 */
 	static PageLayout estimatePageLayout(LayoutType layout_type,
-		AffineTransformedImage const& image, DebugImages* dbg = 0);
+		imageproc::AffineTransformedImage const& image, DebugImages* dbg = 0);
 private:
 	static std::auto_ptr<PageLayout> tryCutAtFoldingLine(
-		LayoutType layout_type, AffineTransformedImage const& image,
+		LayoutType layout_type, imageproc::AffineTransformedImage const& image,
 		DebugImages* dbg);
 		
 	static PageLayout cutAtWhitespace(
-		LayoutType layout_type, AffineTransformedImage const& image,
+		LayoutType layout_type, imageproc::AffineTransformedImage const& image,
 		DebugImages* dbg);
 	
 	static PageLayout cutAtWhitespaceDeskewed150(
@@ -76,7 +80,7 @@ private:
 		bool left_offcut, bool right_offcut, DebugImages* dbg);
 	
 	static imageproc::BinaryImage binarize(
-		AffineTransformedImage const& image);
+		imageproc::AffineTransformedImage const& image);
 	
 	static imageproc::BinaryImage removeGarbageAnd2xDownscale(
 		imageproc::BinaryImage const& image, DebugImages* dbg);

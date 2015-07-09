@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
 #ifndef INTRUSIVEPTR_H_
 #define INTRUSIVEPTR_H_
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "foundation_config.h"
 
 template<typename T>
 class IntrusivePtr

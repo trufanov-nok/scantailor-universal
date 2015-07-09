@@ -22,10 +22,13 @@
 #include <QVariant>
 #include <QByteArray>
 #include <QDebug>
+#include <QtGlobal>
 #include <exception>
 
 OpenCLPlugin::OpenCLPlugin()
 {
+	Q_INIT_RESOURCE(resources);
+
 	QByteArray const selected_device(
 		QSettings().value("opencl/device", QByteArray()).toByteArray()
 	);
@@ -57,6 +60,7 @@ OpenCLPlugin::OpenCLPlugin()
 
 OpenCLPlugin::~OpenCLPlugin()
 {
+	Q_CLEANUP_RESOURCE(resources);
 }
 
 std::vector<std::string>

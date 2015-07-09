@@ -19,6 +19,7 @@
 #ifndef INDEX_SEQUENCE_H_
 #define INDEX_SEQUENCE_H_
 
+#include "foundation_config.h"
 #include <cstddef>
 
 /**

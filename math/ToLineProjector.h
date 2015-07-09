@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef TO_LINE_PROJECTOR_H_
 #define TO_LINE_PROJECTOR_H_
 
+#include "math_config.h"
 #include "VecNT.h"
 #include <QPointF>
 #include <QLineF>
@@ -29,7 +30,7 @@
  * Projecting means finding the point on a line that is closest
  * to the given point.
  */
-class ToLineProjector
+class MATH_EXPORT ToLineProjector
 {
 public:
 	/**

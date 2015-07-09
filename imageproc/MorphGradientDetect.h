@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 
 #ifndef IMAGEPROC_MORPHGRADIENTDETECT_H_
 #define IMAGEPROC_MORPHGRADIENTDETECT_H_
+
+#include "imageproc_config.h"
 
 class QSize;
 
@@ -41,7 +43,7 @@ class GrayImage;
  * Smoothing the image before calling this function is often a good idea,
  * especially for black and white images.
  */
-GrayImage morphGradientDetectDarkSide(GrayImage const& image, QSize const& area);
+IMAGEPROC_EXPORT GrayImage morphGradientDetectDarkSide(GrayImage const& image, QSize const& area);
 
 /**
  * \brief Morphological gradient detection.
@@ -58,7 +60,7 @@ GrayImage morphGradientDetectDarkSide(GrayImage const& image, QSize const& area)
  * Smoothing the image before calling this function is often a good idea,
  * especially for black and white images.
  */
-GrayImage morphGradientDetectLightSide(GrayImage const& image, QSize const& area);
+IMAGEPROC_EXPORT GrayImage morphGradientDetectLightSide(GrayImage const& image, QSize const& area);
 
 } // namespace imageproc
 

@@ -17,8 +17,6 @@
 */
 
 #include "LoadFileTask.h"
-#include "AffineImageTransform.h"
-#include "AffineTransformedImage.h"
 #include "CachingFactory.h"
 #include "TaskStatus.h"
 #include "FilterResult.h"
@@ -30,6 +28,8 @@
 #include "ProjectPages.h"
 #include "PageInfo.h"
 #include "ImageLoader.h"
+#include "imageproc/AffineImageTransform.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "imageproc/GrayImage.h"
 #include "filters/fix_orientation/Task.h"
 #include <QCoreApplication>

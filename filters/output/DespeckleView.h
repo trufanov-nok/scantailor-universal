@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <QStackedWidget>
 #include <QImage>
 
-class DebugImages;
+class DebugImagesImpl;
 class ProcessingIndicationWidget;
 
 namespace output
@@ -67,7 +67,7 @@ private:
 	void initiateDespeckling(AnimationAction anim_action);
 
 	void despeckleDone(DespeckleState const& despeckle_state,
-		DespeckleVisualization const& visualization, DebugImages* dbg);
+		DespeckleVisualization const& visualization, DebugImagesImpl* dbg);
 
 	void cancelBackgroundTask();
 

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,45 +19,47 @@
 #ifndef IMAGEPROC_CONSTANTS_H_
 #define IMAGEPROC_CONSTANTS_H_
 
+#include "imageproc_config.h"
+
 namespace imageproc
 {
 
 namespace constants
 {
 
-extern double const PI;
+IMAGEPROC_EXPORT extern double const PI;
 
-extern double const SQRT_2;
+IMAGEPROC_EXPORT extern double const SQRT_2;
 
 /**
  * angle_rad = angle_deg * RED2RAD
  */
-extern double const DEG2RAD;
+IMAGEPROC_EXPORT extern double const DEG2RAD;
 
 /**
  * angle_deg = angle_rad * RAD2DEG
  */
-extern double const RAD2DEG;
+IMAGEPROC_EXPORT extern double const RAD2DEG;
 
 /**
  * mm = inch * INCH2MM
  */
-extern double const INCH2MM;
+IMAGEPROC_EXPORT extern double const INCH2MM;
 
 /**
  * inch = mm * MM2INCH
  */
-extern double const MM2INCH;
+IMAGEPROC_EXPORT extern double const MM2INCH;
 
 /**
  * dots_per_meter = dots_per_inch * DPI2DPM
  */
-extern double const DPI2DPM;
+IMAGEPROC_EXPORT extern double const DPI2DPM;
 
 /**
  * dots_per_inch = dots_per_meter * DPM2DPI
  */
-extern double const DPM2DPI;
+IMAGEPROC_EXPORT extern double const DPM2DPI;
 
 } // namespace constants
 

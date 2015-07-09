@@ -44,7 +44,7 @@
 #include "PageId.h"
 #include "Utils.h"
 #include "ThumbnailPixmapCache.h"
-#include "DebugImages.h"
+#include "DebugImagesImpl.h"
 #include "OutputGenerator.h"
 #include "CachingFactory.h"
 #include "TiffWriter.h"
@@ -79,7 +79,7 @@ class Task::UiUpdater : public FilterResult
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
 		IntrusivePtr<Settings> const& settings,
-		std::auto_ptr<DebugImages> dbg_img,
+		std::auto_ptr<DebugImagesImpl> dbg_img,
 		Params const& params,
 		PageId const& page_id,
 		QImage const& orig_image,
@@ -99,7 +99,7 @@ public:
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	Params m_params;
 	PageId m_pageId;
 	QImage m_origImage;
@@ -133,7 +133,7 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 	m_debug(debug)
 {
 	if (debug) {
-		m_ptrDbg.reset(new DebugImages);
+		m_ptrDbg.reset(new DebugImagesImpl);
 	}
 }
 
@@ -463,7 +463,7 @@ Task::deleteMutuallyExclusiveOutputFiles()
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<Settings> const& settings,
-	std::auto_ptr<DebugImages> dbg_img,
+	std::auto_ptr<DebugImagesImpl> dbg_img,
 	Params const& params,
 	PageId const& page_id,
 	QImage const& orig_image,

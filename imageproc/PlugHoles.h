@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_PLUG_HOLES_H_
 #define IMAGEPROC_PLUG_HOLES_H_
 
+#include "imageproc_config.h"
 #include "GridAccessor.h"
 #include "Connectivity.h"
 #include "TraverseBorders.h"

@@ -30,13 +30,13 @@
 #include <memory>
 
 class TaskStatus;
-class DebugImages;
-class AbstractImageTransform;
+class DebugImagesImpl;
 class QImage;
 
 namespace imageproc
 {
 	class GrayImage;
+	class AbstractImageTransform;
 }
 
 namespace page_layout
@@ -66,14 +66,14 @@ public:
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		std::shared_ptr<AbstractImageTransform const> const& orig_image_transform);
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_image_transform);
 private:
 	class UiUpdater;
 	
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<page_layout::Task> m_ptrNextTask;
 	IntrusivePtr<Settings> m_ptrSettings;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	PageId m_pageId;
 	bool m_batchProcessing;
 };

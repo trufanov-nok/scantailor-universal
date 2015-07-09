@@ -18,7 +18,6 @@
 
 #include "DewarpingView.h"
 #include "ImagePresentation.h"
-#include "AffineTransformedImage.h"
 #include "VecNT.h"
 #include "NumericTraits.h"
 #include "ToLineProjector.h"
@@ -30,6 +29,7 @@
 #include "spfit/PolylineModelShape.h"
 #include "spfit/LinearForceBalancer.h"
 #include "spfit/OptimizationResult.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "imageproc/Constants.h"
 #include <QCursor>
 #include <QLineF>

@@ -18,8 +18,8 @@
 
 #include "ImageView.h"
 #include "ImagePresentation.h"
-#include "AffineTransformedImage.h"
 #include "InteractionState.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "imageproc/Constants.h"
 #include <QRect>
 #include <QRectF>
@@ -35,6 +35,8 @@
 #include <boost/bind.hpp>
 #include <algorithm>
 #include <math.h>
+
+using namespace imageproc;
 
 namespace deskew
 {

@@ -16,16 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DebugImages.h"
+#include "DebugImagesImpl.h"
 #include "ObjectSwapper.h"
+#include "ObjectSwapperFactory.h"
 #include "ObjectSwapperImplQImage.h"
+#include "ObjectSwapperImplGrid.h"
 #include "BasicImageView.h"
+#include "VectorFieldImageView.h"
 #include "imageproc/BinaryImage.h"
+#include "imageproc/RasterOpGeneric.h"
 #include <QImage>
 #include <QDir>
 #include <QDebug>
 
-DebugImages::DebugImages(QString const& swap_dir, bool ensure_exists)
+using namespace imageproc;
+
+DebugImagesImpl::DebugImagesImpl(QString const& swap_dir, bool ensure_exists)
 :	m_swapDir(swap_dir)
 {
 	if (ensure_exists) {
@@ -35,8 +41,14 @@ DebugImages::DebugImages(QString const& swap_dir, bool ensure_exists)
 	}
 }
 
+QString
+DebugImagesImpl::swappingDir() const
+{
+	return m_swapDir;
+}
+
 void
-DebugImages::add(QImage const& image, QString const& label)
+DebugImagesImpl::add(QImage const& image, QString const& label)
 {
 	class Factory : public DebugViewFactory
 	{
@@ -61,13 +73,45 @@ DebugImages::add(QImage const& image, QString const& label)
 }
 
 void
-DebugImages::add(imageproc::BinaryImage const& image, QString const& label)
+DebugImagesImpl::add(imageproc::BinaryImage const& image, QString const& label)
 {
 	add(image.toQImage(), label);
 }
 
 void
-DebugImages::add(QString const& label,
+DebugImagesImpl::addVectorFieldView(
+	QImage const& image, Grid<Vec2f> const& vector_field,
+	QString const& label)
+{
+	float max_squared_magnitude = 0;
+	rasterOpGeneric(
+		[&max_squared_magnitude](Vec2f const& dir) {
+			float const squared_norm = dir.squaredNorm();
+			if (squared_norm > max_squared_magnitude) {
+				max_squared_magnitude = squared_norm;
+			}
+		},
+		vector_field
+	);
+
+	ObjectSwapperFactory factory(m_swapDir);
+	ObjectSwapper<QImage> image_swapper(factory(image));
+	ObjectSwapper<Grid<Vec2f>> vector_field_swapper(factory(vector_field));
+	add(
+		label,
+		[=]() {
+			return new VectorFieldImageView(
+				image_swapper.constObject(), vector_field_swapper.constObject(),
+				std::sqrt(max_squared_magnitude)
+			);
+		},
+		[=]() mutable { image_swapper.swapIn(); vector_field_swapper.swapIn(); },
+		[=]() mutable { image_swapper.swapOut(); vector_field_swapper.swapOut(); }
+	);
+}
+
+void
+DebugImagesImpl::add(QString const& label,
 	boost::function<QWidget* ()> const& image_view_factory,
 	boost::function<void()> const& swap_in_action,
 	boost::function<void()> const& swap_out_action, bool swap_out_now)
@@ -108,7 +152,7 @@ DebugImages::add(QString const& label,
 }
 
 IntrusivePtr<DebugViewFactory>
-DebugImages::retrieveNext(QString* label)
+DebugImagesImpl::retrieveNext(QString* label)
 {
 	IntrusivePtr<DebugViewFactory> factory;
 

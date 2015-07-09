@@ -17,8 +17,8 @@
 */
 
 #include "Thumbnail.h"
-#include "AbstractImageTransform.h"
 #include "Utils.h"
+#include "imageproc/AbstractImageTransform.h"
 #include <QApplication>
 #include <QPalette>
 #include <QPolygonF>
@@ -27,6 +27,8 @@
 #include <QPen>
 #include <QBrush>
 #include <QColor>
+
+using namespace imageproc;
 
 namespace page_layout
 {

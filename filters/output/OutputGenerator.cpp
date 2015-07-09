@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 */
 
 #include "OutputGenerator.h"
-#include "AffineImageTransform.h"
 #include "TaskStatus.h"
 #include "Utils.h"
 #include "DebugImages.h"
@@ -30,6 +29,7 @@
 #include "FillColorProperty.h"
 #include "dewarping/DistortionModel.h"
 #include "dewarping/RasterDewarper.h"
+#include "imageproc/AffineImageTransform.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/BinaryThreshold.h"

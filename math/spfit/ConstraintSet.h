@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef SPFIT_CONSTRAINT_SET_H_
 #define SPFIT_CONSTRAINT_SET_H_
 
+#include "math_config.h"
 #include "LinearFunction.h"
 #include <QPointF>
 #include <QLineF>
@@ -30,7 +31,7 @@ namespace spfit
 
 class FittableSpline;
 
-class ConstraintSet
+class MATH_EXPORT ConstraintSet
 {
 	// Member-wise copying is OK.
 public:

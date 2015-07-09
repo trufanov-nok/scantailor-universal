@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 #ifndef IMAGEPROC_SCALE_H_
 #define IMAGEPROC_SCALE_H_
 
+#include "imageproc_config.h"
+
 class QSize;
 
 namespace imageproc
@@ -36,7 +38,7 @@ class GrayImage;
  * This function is a faster replacement for QImage::scaled(), when
  * dealing with grayscale images.
  */
-GrayImage scaleToGray(GrayImage const& src, QSize const& dst_size);
+IMAGEPROC_EXPORT GrayImage scaleToGray(GrayImage const& src, QSize const& dst_size);
 
 } // namespace imageproc
 

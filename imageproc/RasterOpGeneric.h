@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_RASTER_OP_GENERIC_H_
 #define IMAGEPROC_RASTER_OP_GENERIC_H_
 
+#include "imageproc_config.h"
 #include "IndexSequence.h"
 #include "GridAccessor.h"
 #include <cstddef>

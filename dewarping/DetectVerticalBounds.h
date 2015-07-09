@@ -19,6 +19,7 @@
 #ifndef DEWARPING_DETECT_VERTICAL_BOUNDS_H_
 #define DEWARPING_DETECT_VERTICAL_BOUNDS_H_
 
+#include "dewarping_config.h"
 #include <QPointF>
 #include <QLineF>
 #include <utility>
@@ -42,7 +43,7 @@ namespace dewarping
  *         in a pair corresponds to head endpoints of curves. In case of a
  *         failure, one or both of the returned lines will be null.
  */
-std::pair<QLineF, QLineF> detectVerticalBounds(
+DEWARPING_EXPORT std::pair<QLineF, QLineF> detectVerticalBounds(
 	std::list<std::vector<QPointF>> const& curves, double dist_threshold);
 
 } // namespace dewarping

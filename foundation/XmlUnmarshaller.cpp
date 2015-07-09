@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 */
 
 #include "XmlUnmarshaller.h"
-#include "OrthogonalRotation.h"
 #include "RelativeMargins.h"
 #include <QString>
 #include <QSize>
@@ -49,20 +48,6 @@ XmlUnmarshaller::sizeF(QDomElement const& el)
 	double const width = el.attribute("width").toDouble();
 	double const height = el.attribute("height").toDouble();
 	return QSizeF(width, height);
-}
-
-OrthogonalRotation
-XmlUnmarshaller::rotation(QDomElement const& el)
-{
-	int const degrees = el.attribute("degrees").toInt();
-	OrthogonalRotation rotation;
-	for (int i = 0; i < 4; ++i) {
-		if (rotation.toDegrees() == degrees) {
-			break;
-		}
-		rotation.nextClockwiseDirection();
-	}
-	return rotation;
 }
 
 RelativeMargins

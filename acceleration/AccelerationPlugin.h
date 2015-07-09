@@ -19,6 +19,7 @@
 #ifndef ACCELERATION_PLUGIN_H_
 #define ACCELERATION_PLUGIN_H_
 
+#include "acceleration_config.h"
 #include "AcceleratableOperations.h"
 #include <string>
 #include <vector>
@@ -31,7 +32,7 @@
 /**
  * @note This interface is not thread-safe.
  */
-class AccelerationPlugin
+class ACCELERATION_EXPORT AccelerationPlugin
 {
 public:
 	virtual ~AccelerationPlugin() {}

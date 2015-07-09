@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,11 +19,12 @@
 #ifndef XMLUNMARSHALLER_H_
 #define XMLUNMARSHALLER_H_
 
+#include "foundation_config.h"
+
 class QString;
 class QDomElement;
 class QSize;
 class QSizeF;
-class OrthogonalRotation;
 class RelativeMargins;
 class QPointF;
 class QLineF;
@@ -31,7 +32,7 @@ class QRect;
 class QRectF;
 class QPolygonF;
 
-class XmlUnmarshaller
+class FOUNDATION_EXPORT XmlUnmarshaller
 {
 public:
 	static QString string(QDomElement const& el);
@@ -39,8 +40,6 @@ public:
 	static QSize size(QDomElement const& el);
 	
 	static QSizeF sizeF(QDomElement const& el);
-	
-	static OrthogonalRotation rotation(QDomElement const& el);
 	
 	static RelativeMargins relativeMargins(QDomElement const& el);
 	

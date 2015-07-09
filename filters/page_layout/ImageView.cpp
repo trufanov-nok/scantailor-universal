@@ -21,10 +21,10 @@
 #include "RelativeMargins.h"
 #include "Settings.h"
 #include "ContentBox.h"
-#include "AffineTransformedImage.h"
 #include "ImagePresentation.h"
 #include "PageLayout.h"
 #include "Utils.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <QPointF>
 #include <QLineF>
 #include <QPolygonF>
@@ -43,6 +43,8 @@
 #include <algorithm>
 #include <math.h>
 #include <assert.h>
+
+using namespace imageproc;
 
 namespace page_layout
 {

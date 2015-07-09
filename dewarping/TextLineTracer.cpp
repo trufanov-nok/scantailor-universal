@@ -20,7 +20,6 @@
 #include "TextLineRefiner.h"
 #include "TextLineSegmenter.h"
 #include "DetectVerticalBounds.h"
-#include "AffineTransformedImage.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
 #include "NumericTraits.h"
@@ -31,6 +30,7 @@
 #include "math/ToLineProjector.h"
 #include "math/SidesOfLine.h"
 #include "math/LineBoundedByRect.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "imageproc/Binarize.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/GrayImage.h"
@@ -42,6 +42,9 @@
 #include <QPainter>
 #include <QPen>
 #include <QColor>
+#include <QDebug>
+
+#include "PerformanceTimer.h"
 
 using namespace imageproc;
 
@@ -55,6 +58,8 @@ TextLineTracer::trace(
 	TaskStatus const& status, DebugImages* dbg)
 {
 	using namespace boost::lambda;
+
+	PerformanceTimer ptimer;
 
 	TextLineSegmenter::Result segmentation(
 		TextLineSegmenter::process(input, accel_ops, status, dbg)
@@ -207,6 +212,8 @@ TextLineTracer::trace(
 		}
 		output.addHorizontalCurve(polyline);
 	}
+
+	ptimer.print("Traced: ");
 }
 
 float

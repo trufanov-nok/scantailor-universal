@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -136,12 +136,7 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
 			continue;
 		}
 		
-		OrthogonalRotation const rotation(
-			XmlUnmarshaller::rotation(
-				el.namedItem("rotation").toElement()
-			)
-		);
-		
+		OrthogonalRotation const rotation(el.namedItem("rotation").toElement());
 		m_ptrSettings->applyRotation(image_id, rotation);
 	}
 }
@@ -183,7 +178,7 @@ Filter::writeImageSettings(
 	
 	QDomElement image_el(doc.createElement("image"));
 	image_el.setAttribute("id", numeric_id);
-	image_el.appendChild(marshaller.rotation(rotation, "rotation"));
+	image_el.appendChild(rotation.toXml(doc, "rotation"));
 	filter_el.appendChild(image_el);
 }
 

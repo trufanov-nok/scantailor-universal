@@ -21,12 +21,12 @@
 
 #include "NonCopyable.h"
 #include "RefCountable.h"
-#include "AffineImageTransform.h"
 #include "CachingFactory.h"
 #include "FilterResult.h"
 #include "IntrusivePtr.h"
 #include "ImageId.h"
 #include "acceleration/AcceleratableOperations.h"
+#include "imageproc/AffineImageTransform.h"
 #include <memory>
 
 class TaskStatus;
@@ -65,7 +65,7 @@ public:
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-		AffineImageTransform const& orig_image_transform);
+		imageproc::AffineImageTransform const& orig_image_transform);
 private:
 	class UiUpdater;
 	

@@ -19,6 +19,7 @@
 #ifndef ADIFF_FUNCTION_H_
 #define ADIFF_FUNCTION_H_
 
+#include "math_config.h"
 #include "SparseMap.h"
 #include <Eigen/Core>
 #include <cstddef>
@@ -34,7 +35,7 @@ namespace adiff
  */
 template<int ORD> class Function;
 
-template<> class Function<2>
+template<> class MATH_EXPORT Function<2>
 {
 	// Member-wise copying is OK.
 public:
@@ -90,17 +91,17 @@ inline void swap(Function<2>& f1, Function<2>& f2)
 	f1.swap(f2);
 }
 
-Function<2> operator+(Function<2> const& f1, Function<2> const& f2);
+MATH_EXPORT Function<2> operator+(Function<2> const& f1, Function<2> const& f2);
 
-Function<2> operator-(Function<2> const& f1, Function<2> const& f2);
+MATH_EXPORT Function<2> operator-(Function<2> const& f1, Function<2> const& f2);
 
-Function<2> operator*(Function<2> const& f1, Function<2> const& f2);
+MATH_EXPORT Function<2> operator*(Function<2> const& f1, Function<2> const& f2);
 
-Function<2> operator*(Function<2> const& f, double scalar);
+MATH_EXPORT Function<2> operator*(Function<2> const& f, double scalar);
 
-Function<2> operator*(double scalar, Function<2> const& f);
+MATH_EXPORT Function<2> operator*(double scalar, Function<2> const& f);
 
-Function<2> operator/(Function<2> const& num, Function<2> const& den);
+MATH_EXPORT Function<2> operator/(Function<2> const& num, Function<2> const& den);
 
 } // namespace adiff
 

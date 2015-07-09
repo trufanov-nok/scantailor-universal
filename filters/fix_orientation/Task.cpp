@@ -20,14 +20,16 @@
 #include "Filter.h"
 #include "OptionsWidget.h"
 #include "Settings.h"
-#include "AffineImageTransform.h"
-#include "AffineTransformedImage.h"
 #include "filters/page_split/Task.h"
 #include "TaskStatus.h"
 #include "ImageView.h"
 #include "FilterUiInterface.h"
+#include "imageproc/AffineImageTransform.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <QSize>
 #include <iostream>
+
+using namespace imageproc;
 
 namespace fix_orientation
 {
@@ -36,7 +38,7 @@ class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
-		AffineTransformedImage const& transformed_image,
+		imageproc::AffineTransformedImage const& transformed_image,
 		OrthogonalRotation const& rotation,
 		ImageId const& image_id, bool batch_processing);
 	

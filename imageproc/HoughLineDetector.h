@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_HOUGHLINEDETECTOR_H_
 #define IMAGEPROC_HOUGHLINEDETECTOR_H_
 
+#include "imageproc_config.h"
 #include <QPointF>
 #include <vector>
 
@@ -39,7 +40,7 @@ class BinaryImage;
  * In other words, unit_vector * distance is a point on the line and
  * unit_vector is the normal vector for that line.
  */
-class HoughLine
+class IMAGEPROC_EXPORT HoughLine
 {
 public:
 	HoughLine() : m_normUnitVector(), m_distance(), m_quality() {}
@@ -73,7 +74,7 @@ private:
 };
 	
 
-class HoughLineDetector
+class IMAGEPROC_EXPORT HoughLineDetector
 {
 public:
 	/**

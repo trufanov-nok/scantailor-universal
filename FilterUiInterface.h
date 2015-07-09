@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "AbstractCommand.h"
 #include "IntrusivePtr.h"
 
-class DebugImages;
+class DebugImagesImpl;
 class FilterOptionsWidget;
 class QWidget;
 
@@ -42,7 +42,7 @@ public:
 	
 	virtual void setImageWidget(
 		QWidget* widget, Ownership ownership,
-		DebugImages* debug_images = 0) = 0;
+		DebugImagesImpl* debug_images = 0) = 0;
 	
 	virtual void invalidateThumbnail(PageId const& page_id) = 0;
 	

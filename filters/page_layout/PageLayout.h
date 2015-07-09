@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,11 @@
 
 class QSizeF;
 class RelativeMargins;
-class AbstractImageTransform;
+
+namespace imageproc
+{
+	class AbstractImageTransform;
+}
 
 namespace page_layout
 {
@@ -52,7 +56,7 @@ public:
 	 * and then recalculates the 3 rectangles to remain in the transformed space
 	 * of the provided transform, following its update.
 	 */
-	void absorbScalingIntoTransform(AbstractImageTransform& transform);
+	void absorbScalingIntoTransform(imageproc::AbstractImageTransform& transform);
 private:
 	/** Content rectangle, in transformed coordinates. */
 	QRectF m_innerRect;

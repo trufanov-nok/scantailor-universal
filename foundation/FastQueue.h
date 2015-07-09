@@ -1,6 +1,6 @@
 /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef FAST_QUEUE_H_
 #define FAST_QUEUE_H_
 
+#include "foundation_config.h"
 #include "NonCopyable.h"
 #include <boost/intrusive/list.hpp>
 #include <boost/type_traits/alignment_of.hpp>

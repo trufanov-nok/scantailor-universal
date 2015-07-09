@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef LINE_BOUNDED_BY_RECT_H_
 #define LINE_BOUNDED_BY_RECT_H_
 
+#include "math_config.h"
 #include <QLineF>
 #include <QRectF>
 
@@ -28,6 +29,6 @@
  * and returns true.  Otherwise returns false and leaves
  * \p line unmodified.
  */
-bool lineBoundedByRect(QLineF& line, QRectF const& rect);
+MATH_EXPORT bool lineBoundedByRect(QLineF& line, QRectF const& rect);
 
 #endif

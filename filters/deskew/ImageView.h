@@ -21,11 +21,11 @@
 
 #include "ImageViewBase.h"
 #include "ImagePixmapUnion.h"
-#include "AffineImageTransform.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
 #include "ObjectDragHandler.h"
 #include "DraggablePoint.h"
+#include "imageproc/AffineImageTransform.h"
 #include <QPolygonF>
 #include <QPoint>
 #include <QPointF>
@@ -35,7 +35,11 @@
 #include <utility>
 
 class QRect;
-class AffineTransformedImage;
+
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 namespace deskew
 {
@@ -53,7 +57,7 @@ public:
 	 *        @see ImageViewBase::createDownscaledImage()
 	 * @param rotation_angle_deg Initial rotation angle, in degrees.
 	 */
-	ImageView(AffineTransformedImage const& full_size_image,
+	ImageView(imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image,
 		double rotation_angle_deg);
 	
@@ -90,7 +94,7 @@ private:
 	ObjectDragHandler m_handleInteractors[2];
 	DragHandler m_dragHandler;
 	ZoomHandler m_zoomHandler;
-	AffineImageTransform m_beforeRotationTransform;
+	imageproc::AffineImageTransform m_beforeRotationTransform;
 	double m_rotationAngleDeg;
 };
 

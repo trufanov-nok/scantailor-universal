@@ -31,10 +31,14 @@
 #include <QString>
 #include <memory>
 
-class AbstractImageTransform;
-class AffineTransformedImage;
 class ContentBox;
 class QMenu;
+
+namespace imageproc
+{
+	class AbstractImageTransform;
+	class AffineTransformedImage;
+}
 
 namespace select_content
 {
@@ -55,8 +59,8 @@ public:
 	 *        space of \p orig_transform.
 	 */
 	ImageView(
-		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
-		AffineTransformedImage const& affine_transformed_image,
+		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_transform,
+		imageproc::AffineTransformedImage const& affine_transformed_image,
 		ImagePixmapUnion const& downscaled_image,
 		ContentBox const& content_box);
 	
@@ -106,7 +110,7 @@ private:
 	 */
 	QMenu* m_pHaveContentMenu;
 	
-	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
+	std::shared_ptr<imageproc::AbstractImageTransform const> m_ptrOrigTransform;
 
 	QRectF m_contentRect;
 

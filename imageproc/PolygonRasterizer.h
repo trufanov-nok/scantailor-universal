@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_POLYGONRASTERIZER_H_
 #define IMAGEPROC_POLYGONRASTERIZER_H_
 
+#include "imageproc_config.h"
 #include "BWColor.h"
 #include <Qt>
 
@@ -31,7 +32,7 @@ namespace imageproc
 class BinaryImage;
 class GrayImage;
 
-class PolygonRasterizer
+class IMAGEPROC_EXPORT PolygonRasterizer
 {
 public:
 	static void fill(

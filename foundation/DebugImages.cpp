@@ -16,23 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AffineTransformedImage.h"
-#include <QSize>
-#include <cmath>
-#include <assert.h>
+#include "foundation_config.h"
+#include "DebugImages.h"
 
-AffineTransformedImage::AffineTransformedImage(QImage const& image)
-:	m_origImage(image)
-,	m_xform(image.size())
+DebugImages::~DebugImages()
 {
-	assert(!m_origImage.isNull());
-}
-
-AffineTransformedImage::AffineTransformedImage(
-	QImage const& image, AffineImageTransform const& xform)
-:	m_origImage(image)
-,	m_xform(xform)
-{
-	assert(!m_origImage.isNull());
-	assert(m_xform.origSize() == m_origImage.size());
 }

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_SKEWFINDER_H_
 #define IMAGEPROC_SKEWFINDER_H_
 
+#include "imageproc_config.h"
 #include "NonCopyable.h"
 
 namespace imageproc
@@ -30,7 +31,7 @@ class BinaryImage;
  * \brief The result of the "find skew" operation.
  * \see SkewFinder
  */
-class Skew
+class IMAGEPROC_EXPORT Skew
 {
 public:
 	/**
@@ -65,7 +66,7 @@ private:
 };
 
 
-class SkewFinder
+class IMAGEPROC_EXPORT SkewFinder
 {
 	DECLARE_NON_COPYABLE(SkewFinder)
 public:

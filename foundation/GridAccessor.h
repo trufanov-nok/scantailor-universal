@@ -19,6 +19,8 @@
 #ifndef GRID_ACCESSOR_H_
 #define GRID_ACCESSOR_H_
 
+#include "foundation_config.h"
+
 template<typename T>
 class GridAccessor
 {

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,12 +27,16 @@
 #include <memory>
 
 class PageId;
-class AbstractImageTransform;
-class AffineImageTransform;
 class QImage;
 class QPixmap;
 class QString;
 class QSize;
+
+namespace imageproc
+{
+	class AbstractImageTransform;
+	class AffineImageTransform;
+}
 
 class ThumbnailPixmapCache : public RefCountable
 {
@@ -95,7 +99,7 @@ public:
 	 *        thumbnail loading into cache will still happen.
 	 */
 	ThumbnailLoadResult loadRequest(PageId const& page_id,
-		AbstractImageTransform const& full_size_image_transform,
+		imageproc::AbstractImageTransform const& full_size_image_transform,
 		boost::weak_ptr<CompletionHandler> const& completion_handler);
 	
 	/**
@@ -114,7 +118,7 @@ public:
 	 */
 	void ensureThumbnailExists(
 		PageId const& page_id, QImage const& full_size_image,
-		AbstractImageTransform const& full_size_image_transform);
+		imageproc::AbstractImageTransform const& full_size_image_transform);
 
 	/**
 	 * \brief Re-create the thumbnail, replacing the existing one.
@@ -131,7 +135,7 @@ public:
 	 */
 	void recreateThumbnail(
 		PageId const& page_id, QImage const& full_size_image,
-		AbstractImageTransform const& full_size_image_transform);
+		imageproc::AbstractImageTransform const& full_size_image_transform);
 private:
 	struct ThumbId;
 	class Item;

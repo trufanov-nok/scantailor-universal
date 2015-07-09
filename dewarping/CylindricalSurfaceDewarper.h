@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef DEWARPING_CYLINDRICAL_SURFACE_DEWARPER_H_
 #define DEWARPING_CYLINDRICAL_SURFACE_DEWARPER_H_
 
+#include "dewarping_config.h"
 #include "HomographicTransform.h"
 #include "PolylineIntersector.h"
 #include "ArcLengthMapper.h"
@@ -31,10 +32,10 @@
 namespace dewarping
 {
 
-class CylindricalSurfaceDewarper
+class DEWARPING_EXPORT CylindricalSurfaceDewarper
 {
 public:
-	class State
+	class DEWARPING_EXPORT State
 	{
 		friend class CylindricalSurfaceDewarper;
 	private:
@@ -43,7 +44,7 @@ public:
 		ArcLengthMapper::Hint m_arcLengthHint;
 	};
 
-	struct Generatrix
+	struct DEWARPING_EXPORT Generatrix
 	{
 		QLineF imgLine;
 		HomographicTransform<1, double> pln2img;

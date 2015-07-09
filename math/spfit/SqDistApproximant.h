@@ -19,6 +19,7 @@
 #ifndef SQDIST_APPROXIMANT_H_
 #define SQDIST_APPROXIMANT_H_
 
+#include "math_config.h"
 #include <Eigen/Core>
 #include <QLineF>
 
@@ -43,7 +44,7 @@ class FrenetFrame;
  *
  * \see Eq 8 in [1], Fig 4, 5 in [2].
  */
-struct SqDistApproximant
+struct MATH_EXPORT SqDistApproximant
 {
 	Eigen::Matrix2d A;
 	Eigen::Vector2d b;

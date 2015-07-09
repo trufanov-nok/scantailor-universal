@@ -19,6 +19,7 @@
 #ifndef DEFAULT_ACCELERATION_PROVIDER_H_
 #define DEFAULT_ACCELERATION_PROVIDER_H_
 
+#include "acceleration_config.h"
 #include "AcceleratableOperations.h"
 #include <memory>
 #include <QObject>
@@ -30,7 +31,7 @@ class AccelerationPlugin;
  *
  * @note This class is not thread-safe.
  */
-class DefaultAccelerationProvider : public QObject
+class ACCELERATION_EXPORT DefaultAccelerationProvider : public QObject
 {
 	Q_OBJECT
 public:

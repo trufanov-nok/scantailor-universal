@@ -19,6 +19,7 @@
 #ifndef GRID_H_
 #define GRID_H_
 
+#include "foundation_config.h"
 #include "GridAccessor.h"
 #include <boost/scoped_array.hpp>
 #include <utility>

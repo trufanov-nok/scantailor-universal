@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_RAST_LINE_FINDER_H_
 #define IMAGEPROC_RAST_LINE_FINDER_H_
 
+#include "imageproc_config.h"
 #include "PriorityQueue.h"
 #include <QPointF>
 #include <QLineF>
@@ -30,7 +31,7 @@
 namespace imageproc
 {
 
-class RastLineFinderParams
+class IMAGEPROC_EXPORT RastLineFinderParams
 {
 public:
 	RastLineFinderParams();
@@ -130,7 +131,7 @@ private:
  * Pattern Recognition, 29(1):167-178, 1996.\n
  * http://infoscience.epfl.ch/record/82286/files/93-11.pdf?version=1
  */
-class RastLineFinder
+class IMAGEPROC_EXPORT RastLineFinder
 {
 private:
 	class SearchSpace;

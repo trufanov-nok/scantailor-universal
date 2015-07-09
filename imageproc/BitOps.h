@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,14 +19,16 @@
 #ifndef IMAGEPROC_BITOPS_H_
 #define IMAGEPROC_BITOPS_H_
 
+#include "imageproc_config.h"
+
 namespace imageproc
 {
 
 namespace detail
 {
 
-extern unsigned char const bitCounts[256];
-extern unsigned char const reversedBits[256];
+IMAGEPROC_EXPORT extern unsigned char const bitCounts[256];
+IMAGEPROC_EXPORT extern unsigned char const reversedBits[256];
 
 template<typename T, int BytesRemaining>
 class NonZeroBits

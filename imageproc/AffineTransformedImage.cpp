@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,13 +16,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAGEPROC_BYTEORDER_H_
-#define IMAGEPROC_BYTEORDER_H_
+#include "AffineTransformedImage.h"
+#include <QSize>
+#include <cmath>
+#include <assert.h>
 
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <netinet/in.h>
-#endif
+namespace imageproc
+{
 
-#endif
+AffineTransformedImage::AffineTransformedImage(QImage const& image)
+:	m_origImage(image)
+,	m_xform(image.size())
+{
+	assert(!m_origImage.isNull());
+}
+
+AffineTransformedImage::AffineTransformedImage(
+	QImage const& image, AffineImageTransform const& xform)
+:	m_origImage(image)
+,	m_xform(xform)
+{
+	assert(!m_origImage.isNull());
+	assert(m_xform.origSize() == m_origImage.size());
+}
+
+} // namespace imageproc

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef ROUNDING_HASHER_H_
 #define ROUNDING_HASHER_H_
 
+#include "foundation_config.h"
 #include <QCryptographicHash>
 
 class QByteArray;
@@ -40,7 +41,7 @@ class QPolygonF;
  * used for serializing to XML. That way the hash will still be valid
  * after saving and re-loading the project.
  */
-class RoundingHasher
+class FOUNDATION_EXPORT RoundingHasher
 {
 	// Member-wise copying is OK.
 public:

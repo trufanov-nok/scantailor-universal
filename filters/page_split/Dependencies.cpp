@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ Dependencies::Dependencies()
 
 Dependencies::Dependencies(QDomElement const& el)
 :	m_imageSize(XmlUnmarshaller::size(el.namedItem("size").toElement())),
-	m_rotation(XmlUnmarshaller::rotation(el.namedItem("rotation").toElement())),
+	m_rotation(el.namedItem("rotation").toElement()),
 	m_layoutType(
 		layoutTypeFromString(
 			XmlUnmarshaller::string(el.namedItem("layoutType").toElement())
@@ -91,7 +91,7 @@ Dependencies::toXml(QDomDocument& doc, QString const& tag_name) const
 	XmlMarshaller marshaller(doc);
 	
 	QDomElement el(doc.createElement(tag_name));
-	el.appendChild(marshaller.rotation(m_rotation, "rotation"));
+	el.appendChild(m_rotation.toXml(doc, "rotation"));
 	el.appendChild(marshaller.size(m_imageSize, "size"));
 	el.appendChild(marshaller.string(layoutTypeToString(m_layoutType), "layoutType"));
 	

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,13 +19,10 @@
 #ifndef REFCOUNTABLE_H_
 #define REFCOUNTABLE_H_
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
+#include "foundation_config.h"
 #include <QAtomicInt>
 
-class RefCountable
+class FOUNDATION_EXPORT RefCountable
 {
 public:
 	RefCountable() : m_refCounter(0) {}

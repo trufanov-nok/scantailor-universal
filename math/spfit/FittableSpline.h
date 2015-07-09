@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef SPFIT_FITTABLE_SPLINE_H_
 #define SPFIT_FITTABLE_SPLINE_H_
 
+#include "math_config.h"
 #include "VirtualFunction.h"
 #include "NumericTraits.h"
 #include "FlagOps.h"
@@ -31,7 +32,7 @@ namespace spfit
 /**
  * \brief Implementing this interface allows a spline to be fitted to a polyline.
  */
-class FittableSpline
+class MATH_EXPORT FittableSpline
 {
 public:
 	enum SampleFlags {
@@ -50,7 +51,7 @@ public:
 	 * This class represents a single linear coefficient assiciated with
 	 * a particular control point.
 	 */
-	struct LinearCoefficient
+	struct MATH_EXPORT LinearCoefficient
 	{
 		double coeff;
 		int controlPointIdx;
@@ -60,7 +61,7 @@ public:
 		LinearCoefficient(int cp_idx, double cf) : coeff(cf), controlPointIdx(cp_idx) {}
 	};
 
-	struct SamplingParams
+	struct MATH_EXPORT SamplingParams
 	{
 		/**
 		 * The maximum distance from any point on the polyline that's the

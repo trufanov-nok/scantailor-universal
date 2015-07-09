@@ -16,15 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ABSTRACT_IMAGE_TRANSFORM_H_
-#define ABSTRACT_IMAGE_TRANSFORM_H_
+#ifndef IMAGEPROC_ABSTRACT_IMAGE_TRANSFORM_H_
+#define IMAGEPROC_ABSTRACT_IMAGE_TRANSFORM_H_
 
+#include "imageproc_config.h"
 #include <QtGlobal>
 #include <memory>
 #include <functional>
 
-class AffineImageTransform;
-class AffineTransformedImage;
 class QColor;
 class QImage;
 class QSize;
@@ -34,7 +33,13 @@ class QPolygonF;
 class QTransform;
 class QString;
 
-class AbstractImageTransform
+namespace imageproc
+{
+
+class AffineImageTransform;
+class AffineTransformedImage;
+
+class IMAGEPROC_EXPORT AbstractImageTransform
 {
 	// Member-wise copying is OK.
 public:
@@ -117,5 +122,7 @@ public:
 	 */
 	virtual std::function<QPointF(QPointF const&)> backwardMapper() const = 0;
 };
+
+} // namespace imageproc
 
 #endif

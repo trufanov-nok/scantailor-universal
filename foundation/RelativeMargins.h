@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C) 2007-2015 Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2007-2015 Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef RELATIVE_MARGINS_H_
 #define RELATIVE_MARGINS_H_
 
+#include "foundation_config.h"
 #include <QRectF>
 #include <QSizeF>
 #include <cmath>
@@ -28,7 +29,7 @@
  * as fractions of content box width. We are not using content box
  * height, as it's quite common to have partially filled pages.
  */
-class RelativeMargins
+class FOUNDATION_EXPORT RelativeMargins
 {
 public:
 	RelativeMargins() : m_top(), m_bottom(), m_left(), m_right() {}

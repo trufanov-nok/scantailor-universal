@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,11 +45,7 @@ Dependencies::Dependencies(QDomElement const& deps_el)
 			deps_el.namedItem("page-outline").toElement()
 		)
 	),
-	m_rotation(
-		XmlUnmarshaller::rotation(
-			deps_el.namedItem("rotation").toElement()
-		)
-	)
+	m_rotation(deps_el.namedItem("rotation").toElement())
 {
 }
 
@@ -75,7 +71,7 @@ Dependencies::toXml(QDomDocument& doc, QString const& name) const
 	XmlMarshaller marshaller(doc);
 	
 	QDomElement el(doc.createElement(name));
-	el.appendChild(marshaller.rotation(m_rotation, "rotation"));
+	el.appendChild(m_rotation.toXml(doc, "rotation"));
 	el.appendChild(marshaller.polygonF(m_pageOutline, "page-outline"));
 	
 	return el;

@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_GRAYIMAGE_H_
 #define IMAGEPROC_GRAYIMAGE_H_
 
+#include "imageproc_config.h"
 #include "GridAccessor.h"
 #include <QImage>
 #include <QSize>
@@ -31,7 +32,7 @@ namespace imageproc
 /**
  * \brief A wrapper class around QImage that is always guaranteed to be 8-bit grayscale.
  */
-class GrayImage
+class IMAGEPROC_EXPORT GrayImage
 {
 public:
 	/**

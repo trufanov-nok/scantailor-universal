@@ -19,6 +19,8 @@
 #ifndef IMAGEPROC_WIENER_FILTER_H_
 #define IMAGEPROC_WIENER_FILTER_H_
 
+#include "imageproc_config.h"
+
 class QSize;
 
 namespace imageproc
@@ -34,14 +36,14 @@ class GrayImage;
  * @param noise_sigma The standard deviation of noise in the image.
  * @return The filtered image.
  */
-GrayImage wienerFilter(
+IMAGEPROC_EXPORT GrayImage wienerFilter(
     GrayImage const& image, QSize const& window_size, double noise_sigma);
 
 /**
  * @brief An in-place version of wienerFilter().
  * @see wienerFilter()
  */
-void wienerFilterInPlace(
+IMAGEPROC_EXPORT void wienerFilterInPlace(
     GrayImage& image, QSize const& window_size, double noise_sigma);
 
 } // namespace imageproc

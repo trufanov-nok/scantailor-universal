@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,12 +23,16 @@
 #include "IntrusivePtr.h"
 #include <QPainterPath>
 
-class AbstractImageTransform;
 class ThumbnailPixmapCache;
 class PageId;
 class QSize;
 class QSizeF;
 class QRectF;
+
+namespace imageproc
+{
+	class AbstractImageTransform;
+}
 
 /**
  * \brief A thumbnail represeting a page not completely processed.
@@ -48,7 +52,7 @@ public:
 	IncompleteThumbnail(
 		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
 		QSizeF const& max_display_size, PageId const& page_id,
-		AbstractImageTransform const& full_size_image_transform);
+		imageproc::AbstractImageTransform const& full_size_image_transform);
 	
 	virtual ~IncompleteThumbnail();
 	

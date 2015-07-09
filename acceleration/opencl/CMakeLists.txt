@@ -32,16 +32,17 @@ SOURCE_GROUP("Resources" FILES resources.qrc)
 
 INCLUDE_DIRECTORIES(khronos)
 ADD_DEFINITIONS(-D__CL_ENABLE_EXCEPTIONS)
+REMOVE_DEFINITIONS(-DBUILDING_ACCELERATION)
 
 IF(ENABLE_OPENCL)
 	QT5_ADD_RESOURCES(resource_sources resources.qrc)
 	SOURCE_GROUP("Generated" FILES ${resource_sources})
 
-	ADD_LIBRARY(opencl STATIC ${host_sources} ${device_sources})
-	TARGET_LINK_LIBRARIES(opencl Qt5::Core Qt5::Gui ${OpenCL_LIBRARIES})
+	ADD_LIBRARY(opencl STATIC ${host_sources} ${device_sources} ${resource_sources})
+	TARGET_LINK_LIBRARIES(opencl acceleration Qt5::Core Qt5::Gui ${OpenCL_LIBRARIES})
 
-	ADD_LIBRARY(opencl_plugin MODULE ${plugin_sources} ${resource_sources} resources.qrc)
-	TARGET_LINK_LIBRARIES(opencl_plugin opencl)
+	ADD_LIBRARY(opencl_plugin MODULE ${plugin_sources} resources.qrc)
+	TARGET_LINK_LIBRARIES(opencl_plugin opencl dewarping imageproc)
 
 	# Output to the root of the build directory, where it can be found by QPluginLoader.
 	SET_TARGET_PROPERTIES(

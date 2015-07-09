@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,7 +36,10 @@
 #include <QPolygonF>
 #include <vector>
 
-class AffineTransformedImage;
+namespace imageproc
+{
+	class AffineTransformedImage;
+}
 
 namespace deskew
 {
@@ -54,7 +57,7 @@ public:
 	 *       DepthPerception instance may be used.
 	 */
 	DewarpingView(
-		AffineTransformedImage const& full_size_image,
+		imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image,
 		PageId const& page_id,
 		dewarping::DistortionModel const& distortion_model,

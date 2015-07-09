@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef GRID_LINE_TRAVERSER_H_
 #define GRID_LINE_TRAVERSER_H_
 
+#include "foundation_config.h"
 #include <QLineF>
 
 /**
@@ -26,7 +27,7 @@
  *
  * Think about drawing a line on an image.
  */
-class GridLineTraverser
+class FOUNDATION_EXPORT GridLineTraverser
 {
 	// Member-wise copying is OK.
 public:

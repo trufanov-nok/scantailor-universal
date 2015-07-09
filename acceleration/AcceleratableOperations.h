@@ -30,6 +30,8 @@
  *        something like OpenCL.
  *
  * @note Methods of this class may be called from multiple threads concurrently.
+ * @note This interface is completely inline and is not DLL-exported. That's done
+ *       to avoid a circular dependency involving imageproc and acceleration modules.
  */
 class AcceleratableOperations
 {

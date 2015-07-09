@@ -19,6 +19,7 @@
 #ifndef SPFIT_FRENET_FRAME_H_
 #define SPFIT_FRENET_FRAME_H_
 
+#include "math_config.h"
 #include <Eigen/Core>
 
 namespace spfit
@@ -27,7 +28,7 @@ namespace spfit
 /**
  * Origin + unit tangent + unit normal vectors.
  */
-class FrenetFrame
+class MATH_EXPORT FrenetFrame
 {
 	// Member-wise copying is OK.
 public:

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,11 +22,13 @@
 #include "ProjectPages.h"
 #include "PageSequence.h"
 #include "PageInfo.h"
-#include "AbstractImageTransform.h"
-#include "AffineImageTransform.h"
+#include "imageproc/AbstractImageTransform.h"
+#include "imageproc/AffineImageTransform.h"
 #include "filters/page_layout/Filter.h"
 #include "filter_dc/ContentBoxCollector.h"
 #include <QRectF>
+
+using namespace imageproc;
 
 class ContentBoxPropagator::Collector : public ContentBoxCollector
 {
@@ -34,7 +36,7 @@ public:
 	Collector();
 	
 	virtual void process(
-		AbstractImageTransform const& xform,
+		imageproc::AbstractImageTransform const& xform,
 		ContentBox const& content_box);
 	
 	bool collected() const { return m_collected; }

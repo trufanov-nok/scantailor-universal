@@ -16,15 +16,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AFFINE_TRANSFORMED_IMAGE_H_
-#define AFFINE_TRANSFORMED_IMAGE_H_
+#ifndef IMAGEPROC_AFFINE_TRANSFORMED_IMAGE_H_
+#define IMAGEPROC_AFFINE_TRANSFORMED_IMAGE_H_
 
+#include "imageproc_config.h"
 #include "AffineImageTransform.h"
 #include <QImage>
 #include <QSizeF>
 #include <Qt>
 
-class AffineTransformedImage
+namespace imageproc
+{
+
+class IMAGEPROC_EXPORT AffineTransformedImage
 {
 	// Member-wise copying is OK.
 public:
@@ -73,5 +77,7 @@ AffineTransformedImage::withAdjustedTransform(T adjuster) const
 {
 	return AffineTransformedImage(m_origImage, m_xform.adjusted(adjuster));
 }
+
+} // namespace imageproc
 
 #endif

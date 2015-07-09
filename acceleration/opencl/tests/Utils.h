@@ -40,6 +40,10 @@ protected:
 
 class ProgramBuilderFixture
 {
+public:
+	ProgramBuilderFixture();
+
+	~ProgramBuilderFixture();
 protected:
 	void addSource(char const* source_fname);
 

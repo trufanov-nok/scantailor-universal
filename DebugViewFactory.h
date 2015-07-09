@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ public:
 	 * Implementations will sandwich this code between swapIn() and swapOut()
 	 * in case swap in is required. Otherwise, no swapIn() or swapOut() is called.
 	 */
-	virtual std::auto_ptr<QWidget> newInstance() = 0;	
+	virtual std::auto_ptr<QWidget> newInstance() = 0;
 };
 
 #endif

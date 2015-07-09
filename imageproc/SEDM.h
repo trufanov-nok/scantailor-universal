@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef IMAGEPROC_SEDM_H_
 #define IMAGEPROC_SEDM_H_
 
+#include "imageproc_config.h"
 #include "foundation/FlagOps.h"
 #include <vector>
 #include <QSize>
@@ -42,7 +43,7 @@ class ConnectivityMap;
  * In Proceedings of the 5th International Conference on Mathematical
  * Morphology and its Applications to Image and Signal Processing.
  */
-class SEDM
+class IMAGEPROC_EXPORT SEDM
 {
 public:
 	/**

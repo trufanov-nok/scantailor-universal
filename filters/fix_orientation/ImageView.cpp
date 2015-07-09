@@ -18,8 +18,8 @@
 
 #include "ImageView.h"
 #include "ImagePresentation.h"
-#include "AffineImageTransform.h"
-#include "AffineTransformedImage.h"
+#include "imageproc/AffineImageTransform.h"
+#include "imageproc/AffineTransformedImage.h"
 #include <QRect>
 #include <QRectF>
 #include <QPolygonF>
@@ -27,7 +27,7 @@
 namespace fix_orientation
 {
 
-ImageView::ImageView(AffineTransformedImage const& full_size_image,
+ImageView::ImageView(imageproc::AffineTransformedImage const& full_size_image,
 	ImagePixmapUnion const& downscaled_image)
 :	ImageViewBase(
 		full_size_image.origImage(), downscaled_image,

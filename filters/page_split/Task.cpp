@@ -30,11 +30,11 @@
 #include "Dependencies.h"
 #include "Params.h"
 #include "ImageMetadata.h"
-#include "AffineTransformedImage.h"
 #include "OrthogonalRotation.h"
 #include "ImageView.h"
 #include "FilterUiInterface.h"
-#include "DebugImages.h"
+#include "DebugImagesImpl.h"
+#include "imageproc/AffineTransformedImage.h"
 #include "imageproc/GrayImage.h"
 #include "filters/deskew/Task.h"
 #include <QImage>
@@ -42,6 +42,8 @@
 #include <QDebug>
 #include <memory>
 #include <assert.h>
+
+using namespace imageproc;
 
 namespace page_split
 {
@@ -53,8 +55,8 @@ class Task::UiUpdater : public FilterResult
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
 		IntrusivePtr<ProjectPages> const& pages,
-		std::auto_ptr<DebugImages> dbg_img,
-		AffineTransformedImage const& full_size_image,
+		std::auto_ptr<DebugImagesImpl> dbg_img,
+		imageproc::AffineTransformedImage const& full_size_image,
 		PageInfo const& page_info,
 		Params const& params,
 		bool layout_type_auto_detected,
@@ -66,8 +68,8 @@ public:
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<ProjectPages> m_ptrPages;
-	std::auto_ptr<DebugImages> m_ptrDbg;
-	AffineTransformedImage m_fullSizeImage;
+	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
+	imageproc::AffineTransformedImage m_fullSizeImage;
 	QImage m_downscaledImage;
 	PageInfo m_pageInfo;
 	Params m_params;
@@ -104,7 +106,7 @@ Task::Task(
 	m_batchProcessing(batch_processing)
 {
 	if (debug) {
-		m_ptrDbg.reset(new DebugImages);
+		m_ptrDbg.reset(new DebugImagesImpl);
 	}
 }
 
@@ -118,7 +120,7 @@ Task::process(
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
-	AffineImageTransform const& orig_image_transform,
+	imageproc::AffineImageTransform const& orig_image_transform,
 	OrthogonalRotation const& rotation)
 {
 	status.throwIfCancelled();
@@ -217,7 +219,7 @@ Task::process(
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<ProjectPages> const& pages,
-	std::auto_ptr<DebugImages> dbg_img,
+	std::auto_ptr<DebugImagesImpl> dbg_img,
 	AffineTransformedImage const& full_size_image,
 	PageInfo const& page_info,
 	Params const& params,

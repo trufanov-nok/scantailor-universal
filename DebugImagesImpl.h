@@ -16,21 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUG_IMAGES_H_
-#define DEBUG_IMAGES_H_
+#ifndef DEBUG_IMAGES_IMPL_H_
+#define DEBUG_IMAGES_IMPL_H_
 
+#include "DebugImages.h"
 #include "RefCountable.h"
 #include "IntrusivePtr.h"
 #include "DebugViewFactory.h"
 #include "Utils.h"
+#include "Grid.h"
+#include "VecNT.h"
 #include <boost/function.hpp>
 #include <QString>
-#include <QWidget>
 #include <deque>
 #include <utility>
 #include <memory>
 
 class QImage;
+class QWidget;
 
 namespace imageproc
 {
@@ -40,14 +43,20 @@ namespace imageproc
 /**
  * \brief A sequence of image + label pairs.
  */
-class DebugImages
+class DebugImagesImpl : public DebugImages
 {
 public:
-	explicit DebugImages(QString const& swap_dir = Utils::swappingDir(), bool ensure_exists = true);
+	explicit DebugImagesImpl(
+		QString const& swap_dir = Utils::swappingDir(), bool ensure_exists = true);
 
-	void add(QImage const& image, QString const& label);
+	virtual QString swappingDir() const;
+
+	virtual void add(QImage const& image, QString const& label);
 	
-	void add(imageproc::BinaryImage const& image, QString const& label);
+	virtual void add(imageproc::BinaryImage const& image, QString const& label);
+
+	virtual void addVectorFieldView(
+		QImage const& image, Grid<Vec2f> const& vector_field, QString const& label);
 
 	/**
 	 * \brief The most general add() function.
@@ -71,7 +80,7 @@ public:
 	 * );
 	 * \endcode
 	 */
-	void add(QString const& label,
+	virtual void add(QString const& label,
 		boost::function<QWidget*()> const& image_view_factory,
 		boost::function<void()> const& swap_in_action,
 		boost::function<void()> const& swap_out_action, bool swap_out_now = true);

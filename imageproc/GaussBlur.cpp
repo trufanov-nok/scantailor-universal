@@ -36,6 +36,72 @@ namespace imageproc
 namespace gauss_blur_impl
 {
 
+FilterParams::FilterParams(float sigma)
+{
+	float const q = sigmaToQ(sigma);
+	float const q2 = q * q;
+	float const q3 = q2 * q;
+	assert(q > 0); // Guaranteed by sigmaToQ()
+
+	// Formula 8c in [1].
+	float const b0 = 1.57825f + 2.44413f * q + 1.4281f * q2 + 0.422205f * q3;
+	float const b1 = 2.44413f * q + 2.85619f * q2 + 1.26661f * q3;
+	float const b2 = -1.4281f * q2 - 1.26661f * q3;
+	float const b3 = 0.422205f * q3;
+	assert(b0 > 0); // Because q is > 0
+
+	a1 = b1 / b0;
+	a2 = b2 / b0;
+	a3 = b3 / b0;
+	B = 1.0f - (a1 + a2 + a3);
+}
+
+float
+FilterParams::sigmaToQ(float sigma)
+{
+	// Formula 11b in [1].
+	if (sigma >= 2.5f) {
+		return 0.98711f * sigma - 0.9633f;
+	} else {
+		return 3.97156f - 4.14554f * std::sqrt(1.f - 0.26891f * std::max<float>(sigma, 0.5f));
+	}
+}
+
+HorizontalDecompositionParams::HorizontalDecompositionParams(
+	float dir_x, float dir_y, float dir_sigma, float ortho_dir_sigma)
+{
+	Eigen::Vector2f cos_sin(dir_x, dir_y);
+	cos_sin.normalize();
+
+	// Constraining sigma_u and sigma_v to be slightly positive
+	// prevents sum_squares below from being zero.
+	float const sigma_u = std::max<float>(0.01f, dir_sigma);
+	float const sigma_v = std::max<float>(0.01f, ortho_dir_sigma);
+	float const sigma2_u = sigma_u * sigma_u;
+	float const sigma2_v = sigma_v * sigma_v;
+	float const cos2 = cos_sin[0] * cos_sin[0];
+	float const sin2 = cos_sin[1] * cos_sin[1];
+	float const sum_squares = sigma2_v * cos2 + sigma2_u * sin2;
+
+	// Formula 9 in [3].
+	sigma_x = sigma_u * sigma_v / std::sqrt(sum_squares);
+
+	// Formula 11 in [3], except we calculate cotangent rather than tangent.
+	cot_phi = ((sigma2_u - sigma2_v) * cos_sin[0] * cos_sin[1]) / sum_squares;
+
+	// Equivalent to formula 10 in [3], except it avoids a negative sigma.
+	sigma_phi = std::sqrt((cot_phi * cot_phi + 1.0f) * sum_squares);
+}
+
+VerticalDecompositionParams::VerticalDecompositionParams(
+	float dir_x, float dir_y, float dir_sigma, float ortho_dir_sigma)
+{
+	HorizontalDecompositionParams const p(dir_y, -dir_x, dir_sigma, ortho_dir_sigma);
+	sigma_y = p.sigma_x;
+	sigma_phi = p.sigma_phi;
+	tan_phi = -p.cot_phi;
+}
+
 /**
  * The second application of an LTI system involves a 3-step look-ahead into the
  * output signal. That is, we need 3 values from the future of our output signal
