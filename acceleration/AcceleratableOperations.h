@@ -21,6 +21,12 @@
 
 #include "Grid.h"
 #include "VecNT.h"
+#include "dewarping/CylindricalSurfaceDewarper.h"
+#include <QImage>
+#include <QSize>
+#include <QSizeF>
+#include <QRectF>
+#include <QColor>
 #include <vector>
 #include <cstdint>
 #include <utility>
@@ -101,6 +107,26 @@ public:
 	virtual std::pair<Grid<float>, Grid<uint8_t>> textFilterBank(
 		Grid<float> const& src, std::vector<Vec2f> const& directions,
 		std::vector<Vec2f> const& sigmas, float shoulder_length) const = 0;
+
+	/**
+	 * @brief Performs a dewarping operation.
+	 *
+	 * @param src The warped image. Can't be null.
+	 * @param dst_size The dimensions of the output image.
+	 * @param distortion_model A curved quadrilateral in source image coordinates.
+	 * @param model_domain The rectangle in output image coordinates that the
+	 *        curved quadrilateral will map to.
+	 * @param background_color The color to use for pixels outside of source image boundaries.
+	 * @param min_mapping_area Defines the minimum rectangle in the source image
+	 *        that maps to a destination pixel.  This can be used to control
+	 *        smoothing.
+	 * @return The dewarped image.
+	 */
+	virtual QImage dewarp(
+		QImage const& src, QSize const& dst_size,
+		dewarping::CylindricalSurfaceDewarper const& distortion_model,
+		QRectF const& model_domain, QColor const& background_color,
+		QSizeF const& min_mapping_area = QSizeF(0.9, 0.9)) const = 0;
 };
 
 #endif

@@ -66,6 +66,10 @@ BOOST_AUTO_TEST_CASE(test_axis_aligned_gauss_blur)
 		}
 	}
 
+#if LOG_PERFORMANCE
+	PerformanceTimer ptimer2;
+#endif
+
 	Grid<float> control(input.width(), input.height());
 	imageproc::gaussBlurGeneric(
 		QSize(input.width(), input.height()), h_sigma, v_sigma,
@@ -74,8 +78,6 @@ BOOST_AUTO_TEST_CASE(test_axis_aligned_gauss_blur)
 	);
 
 #if LOG_PERFORMANCE
-	PerformanceTimer ptimer2;
-
 	for (int i = 0; i < 99; ++i) {
 		imageproc::gaussBlurGeneric(
 			QSize(input.width(), input.height()), h_sigma, v_sigma,

@@ -12,6 +12,7 @@ SET(
 	OpenCLGrid.h
 	OpenCLGaussBlur.cpp OpenCLGaussBlur.h
 	OpenCLTextFilterBank.cpp OpenCLTextFilterBank.h
+	OpenCLDewarp.cpp OpenCLDewarp.h
 	Transpose.cpp Transpose.h
 	Copy.cpp Copy.h
 	Utils.cpp Utils.h

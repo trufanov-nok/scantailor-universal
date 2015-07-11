@@ -125,8 +125,7 @@ Task::process(
 
 	if (!params.get()) {
 		dewarped = orig_image_transform->toAffine(
-			orig_image.convertToFormat(QImage::Format_ARGB32),
-			QColor(0, 0, 0, 0) // Transparent black.
+			orig_image, Qt::transparent, accel_ops
 		);
 
 		QRectF const content_rect(
@@ -153,8 +152,7 @@ Task::process(
 	} else {
 		if (!dewarped) {
 			dewarped = orig_image_transform->toAffine(
-				orig_image.convertToFormat(QImage::Format_ARGB32),
-				QColor(0, 0, 0, 0) // Transparent black
+				orig_image, Qt::transparent, accel_ops
 			);
 		}
 

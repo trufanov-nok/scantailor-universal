@@ -133,8 +133,7 @@ Task::process(
 		if (!pre_transformed_image)
 		{
 			pre_transformed_image = orig_image_transform->toAffine(
-				orig_image.convertToFormat(QImage::Format_ARGB32),
-				QColor(0, 0, 0, 0) // Transparent black.
+				orig_image, Qt::transparent, accel_ops
 			);
 		}
 

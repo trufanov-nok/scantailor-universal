@@ -28,7 +28,6 @@
 #include "PictureLayerProperty.h"
 #include "FillColorProperty.h"
 #include "dewarping/DistortionModel.h"
-#include "dewarping/RasterDewarper.h"
 #include "imageproc/AffineImageTransform.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/BinaryImage.h"
@@ -273,7 +272,9 @@ OutputGenerator::outputToOrigMapper() const
 
 QImage
 OutputGenerator::process(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	ZoneSet const& picture_zones, ZoneSet const& fill_zones,
 	imageproc::BinaryImage* out_auto_picture_mask,
@@ -313,7 +314,7 @@ OutputGenerator::process(
 	QColor const bg_color(dominant_gray, dominant_gray, dominant_gray);
 
 	QImage transformed_image(
-		m_ptrImageTransform->materialize(orig_image, m_outRect, bg_color)
+		m_ptrImageTransform->materialize(orig_image, m_outRect, bg_color, accel_ops)
 	);
 	if (transformed_image.hasAlphaChannel()) {
 		// We don't handle ARGB32_Premultiplied below.
@@ -374,7 +375,7 @@ OutputGenerator::process(
 		QRect const downscaled_out_rect(downscale_only_transform.mapRect(m_outRect));
 		GrayImage const transformed_for_bg_estimation(
 			downscaled_transform->materialize(
-				gray_orig_image_factory(), downscaled_out_rect, Qt::black
+				gray_orig_image_factory(), downscaled_out_rect, Qt::black, accel_ops
 			)
 		);
 		QPolygonF const downscaled_region_of_intereset(

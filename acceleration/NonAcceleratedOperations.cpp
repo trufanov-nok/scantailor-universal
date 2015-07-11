@@ -19,6 +19,7 @@
 #include "NonAcceleratedOperations.h"
 #include "imageproc/RasterOpGeneric.h"
 #include "imageproc/GaussBlur.h"
+#include "dewarping/RasterDewarper.h"
 #include <QPoint>
 #include <QPointF>
 #include <QRect>
@@ -119,4 +120,16 @@ NonAcceleratedOperations::textFilterBank(
 	}
 
 	return std::make_pair(std::move(accum), std::move(direction_map));
+}
+
+QImage
+NonAcceleratedOperations::dewarp(
+	QImage const& src, QSize const& dst_size,
+	dewarping::CylindricalSurfaceDewarper const& distortion_model,
+	QRectF const& model_domain, QColor const& background_color,
+	QSizeF const& min_mapping_area) const
+{
+	return dewarping::RasterDewarper::dewarp(
+		src, dst_size, distortion_model, model_domain, background_color, min_mapping_area
+	);
 }

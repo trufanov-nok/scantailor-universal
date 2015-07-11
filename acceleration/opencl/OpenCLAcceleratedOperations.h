@@ -23,6 +23,12 @@
 #include "NonCopyable.h"
 #include "Grid.h"
 #include "VecNT.h"
+#include "dewarping/CylindricalSurfaceDewarper.h"
+#include <QImage>
+#include <QSize>
+#include <QSizeF>
+#include <QRectF>
+#include <QColor>
 #include <CL/cl.hpp>
 #include <vector>
 #include <memory>
@@ -47,6 +53,12 @@ public:
 	virtual std::pair<Grid<float>, Grid<uint8_t>> textFilterBank(
 		Grid<float> const& src, std::vector<Vec2f> const& directions,
 		std::vector<Vec2f> const& sigmas, float shoulder_length) const;
+
+	virtual QImage dewarp(
+		QImage const& src, QSize const& dst_size,
+		dewarping::CylindricalSurfaceDewarper const& distortion_model,
+		QRectF const& model_domain, QColor const& background_color,
+		QSizeF const& min_mapping_area) const;
 private:
 	Grid<float> gaussBlurUnguarded(
 		Grid<float> const& src, float h_sigma, float v_sigma) const;
@@ -58,6 +70,12 @@ private:
 	std::pair<Grid<float>, Grid<uint8_t>> textFilterBankUnguarded(
 		Grid<float> const& src, std::vector<Vec2f> const& directions,
 		std::vector<Vec2f> const& sigmas, float shoulder_length) const;
+
+	virtual QImage dewarpUnguarded(
+		QImage const& src, QSize const& dst_size,
+		dewarping::CylindricalSurfaceDewarper const& distortion_model,
+		QRectF const& model_domain, QColor const& background_color,
+		QSizeF const& min_mapping_area) const;
 
 	cl::Context m_context;
 	std::vector<cl::Device> m_devices;

@@ -127,7 +127,8 @@ AffineImageTransform::rotate(qreal degrees)
 }
 
 AffineTransformedImage
-AffineImageTransform::toAffine(QImage const& image, QColor const&) const
+AffineImageTransform::toAffine(QImage const& image, QColor const& /*outside_color*/,
+	std::shared_ptr<AcceleratableOperations> const& /*accel_ops*/) const
 {
 	assert(!image.isNull());
 	assert(image.size() == m_origSize);
@@ -142,7 +143,8 @@ AffineImageTransform::toAffine() const
 
 QImage
 AffineImageTransform::materialize(QImage const& image,
-	QRect const& target_rect, QColor const& outside_color) const
+	QRect const& target_rect, QColor const& outside_color,
+	std::shared_ptr<AcceleratableOperations> const& /*accel_ops*/) const
 {
 	assert(!image.isNull());
 	assert(!target_rect.isEmpty());

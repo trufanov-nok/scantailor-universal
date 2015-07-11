@@ -24,6 +24,12 @@
 #include "NonCopyable.h"
 #include "Grid.h"
 #include "VecNT.h"
+#include "dewarping/CylindricalSurfaceDewarper.h"
+#include <QImage>
+#include <QSize>
+#include <QSizeF>
+#include <QRectF>
+#include <QColor>
 #include <vector>
 #include <memory>
 #include <cstdint>
@@ -45,6 +51,12 @@ public:
 	virtual std::pair<Grid<float>, Grid<uint8_t>> textFilterBank(
 		Grid<float> const& src, std::vector<Vec2f> const& directions,
 		std::vector<Vec2f> const& sigmas, float shoulder_length) const;
+
+	virtual QImage dewarp(
+		QImage const& src, QSize const& dst_size,
+		dewarping::CylindricalSurfaceDewarper const& distortion_model,
+		QRectF const& model_domain, QColor const& background_color,
+		QSizeF const& min_mapping_area) const;
 };
 
 #endif

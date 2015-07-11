@@ -84,13 +84,13 @@ ConsoleBatch::ConsoleBatch(std::vector<ImageFileInfo> const& images, QString con
 	PageSelectionAccessor const accessor((IntrusivePtr<PageSelectionProvider>())); // Won't really be used anyway.
 	m_ptrStages = IntrusivePtr<StageSequence>(new StageSequence(m_ptrPages, accessor));
 
-	//m_ptrThumbnailCache = IntrusivePtr<ThumbnailPixmapCache>(new ThumbnailPixmapCache(output_dir+"/cache/thumbs", QSize(200,200), 40, 5));
-	m_ptrThumbnailCache = Utils::createThumbnailCache(output_directory);
+	m_ptrThumbnailCache = Utils::createThumbnailCache(output_directory, m_pAccelerationProvider->getOperations());
 	m_outFileNameGen = OutputFileNameGenerator(m_ptrDisambiguator, output_directory, m_ptrPages->layoutDirection());
 }
 
 ConsoleBatch::ConsoleBatch(QString const project_file)
-:   batch(true), debug(true)
+:   batch(true), debug(true),
+	m_pAccelerationProvider(new DefaultAccelerationProvider(QCoreApplication::instance()))
 {
 	QFile file(project_file);
 	if (!file.open(QIODevice::ReadOnly)) {
@@ -119,8 +119,7 @@ ConsoleBatch::ConsoleBatch(QString const project_file)
 		output_directory = cli.outputDirectory();
 	}
 
-	//m_ptrThumbnailCache = IntrusivePtr<ThumbnailPixmapCache>(new ThumbnailPixmapCache(output_directory+"/cache/thumbs", QSize(200,200), 40, 5));
-	m_ptrThumbnailCache = Utils::createThumbnailCache(output_directory);
+	m_ptrThumbnailCache = Utils::createThumbnailCache(output_directory, m_pAccelerationProvider->getOperations());
 	m_outFileNameGen = OutputFileNameGenerator(m_ptrDisambiguator, output_directory, m_ptrPages->layoutDirection());
 }
 

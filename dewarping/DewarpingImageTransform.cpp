@@ -17,7 +17,6 @@
 */
 
 #include "DewarpingImageTransform.h"
-#include "RasterDewarper.h"
 #include "RoundingHasher.h"
 #include "ToVec.h"
 #include "imageproc/AffineImageTransform.h"
@@ -116,7 +115,8 @@ DewarpingImageTransform::scale(qreal xscale, qreal yscale)
 
 AffineTransformedImage
 DewarpingImageTransform::toAffine(
-	QImage const& image, QColor const& outside_color) const
+	QImage const& image, QColor const& outside_color,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops) const
 {
 	assert(!image.isNull());
 
@@ -127,10 +127,8 @@ DewarpingImageTransform::toAffine(
 		-dewarped_rect.topLeft(), QSizeF(m_postScaleX, m_postScaleY)
 	);
 
-	QImage const dewarped_image(
-		RasterDewarper::dewarp(
-			image, dst_size, m_dewarper, model_domain, outside_color
-		)
+	QImage const dewarped_image = accel_ops->dewarp(
+		image, dst_size, m_dewarper, model_domain, outside_color
 	);
 
 	AffineImageTransform affine_transform(dst_size);
@@ -170,7 +168,8 @@ DewarpingImageTransform::toAffine() const
 
 QImage
 DewarpingImageTransform::materialize(QImage const& image,
-	QRect const& target_rect, QColor const& outside_color) const
+	QRect const& target_rect, QColor const& outside_color,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops) const
 {
 	assert(!image.isNull());
 	assert(!target_rect.isEmpty());
@@ -178,7 +177,7 @@ DewarpingImageTransform::materialize(QImage const& image,
 	QRectF model_domain(0, 0, m_postScaleX, m_postScaleY);
 	model_domain.translate(-target_rect.topLeft());
 
-	return RasterDewarper::dewarp(
+	return accel_ops->dewarp(
 		image, target_rect.size(), m_dewarper, model_domain, outside_color
 	);
 }

@@ -23,6 +23,7 @@
 #include "RefCountable.h"
 #include "ThumbnailLoadResult.h"
 #include "AbstractCommand.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <boost/weak_ptr.hpp>
 #include <memory>
 
@@ -49,6 +50,7 @@ public:
 	 *
 	 * \param thumb_dir The directory to store thumbnails in.  If the
 	 *        provided directory doesn't exist, it will be created.
+	 * \param accel_ops Provides access to OpenCL-acceleratable operations.
 	 * \param max_size The maximum width and height for thumbnails.
 	 *        The actual thumbnail size is going to depend on its aspect
 	 *        ratio, but it won't exceed the provided maximum.
@@ -62,8 +64,9 @@ public:
 	 *
 	 * \see ThumbnailLoadResult::REQUEST_EXPIRED
 	 */
-	ThumbnailPixmapCache(QString const& thumb_dir, QSize const& max_size,
-		int max_cached_pixmaps, int expiration_threshold);
+	ThumbnailPixmapCache(QString const& thumb_dir,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		QSize const& max_size, int max_cached_pixmaps, int expiration_threshold);
 	
 	/**
 	 * \brief Destructor.  To be called from the GUI thread only.
@@ -71,6 +74,8 @@ public:
 	virtual ~ThumbnailPixmapCache();
 	
 	void setThumbDir(QString const& thumb_dir);
+
+	void setAccelOps(std::shared_ptr<AcceleratableOperations> const& accel_ops);
 
 	/**
 	 * \brief Take the pixmap from cache or schedule a load request.

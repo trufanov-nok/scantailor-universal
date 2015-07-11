@@ -206,12 +206,15 @@ private:
 class ThumbnailPixmapCache::Impl : public QThread
 {
 public:
-	Impl(QString const& thumb_dir, QSize const& max_thumb_size,
-		int max_cached_pixmaps, int expiration_threshold);
+	Impl(QString const& thumb_dir,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		QSize const& max_thumb_size, int max_cached_pixmaps, int expiration_threshold);
 	
 	~Impl();
 
 	void setThumbDir(QString const& thumb_dir);
+
+	void setAccelOps(std::shared_ptr<AcceleratableOperations> const& accel_ops);
 	
 	ThumbnailLoadResult request(ThumbId const& thumb_id,
 		AbstractImageTransform const& full_size_image_transform,
@@ -268,13 +271,15 @@ private:
 	static boost::optional<AffineTransformedImage>
 	loadSaveThumbnail(ThumbId const& thumb_id,
 		AbstractImageTransform const& full_size_image_transform,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QString const& thumb_dir, QSize const& max_thumb_size);
 	
 	static void saveThumbnail(QImage const& thumb, QString const& thumb_file_path);
 	
 	static boost::optional<AffineTransformedImage> makeThumbnail(
 		QSize const& max_thumb_size, QImage const& full_size_image,
-		AbstractImageTransform const& full_size_image_transform);
+		AbstractImageTransform const& full_size_image_transform,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops);
 
 	static QImage downscaleImage(
 		QImage const& image, QSize const& max_thumb_size);
@@ -311,8 +316,16 @@ private:
 
 	/** Don't call directly. To be called by transitionFromCurrentStatusLocked(). */
 	void prepareTransitionFromLoadedStatusLocked(Item const& item);
-	
+
 	mutable QMutex m_mutex;
+
+	/**
+	 * @note Accessing this smart pointer does require m_mutex protection while
+	 *       using the pointee doesn't. In other words, you can make a copy while
+	 *       being protected by m_mutex and then use the copy without the mutex.
+	 */
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
+
 	BackgroundLoader m_backgroundLoader;
 	Container m_items;
 	ItemsByKey& m_itemsByKey; /**< ThumbId => Item mapping */
@@ -389,12 +402,14 @@ public:
 /*========================== ThumbnailPixmapCache ===========================*/
 
 ThumbnailPixmapCache::ThumbnailPixmapCache(
-	QString const& thumb_dir, QSize const& max_thumb_size,
+	QString const& thumb_dir,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QSize const& max_thumb_size,
 	int const max_cached_pixmaps, int const expiration_threshold)
 :	m_ptrImpl(
 		new Impl(
-			RelinkablePath::normalize(thumb_dir), max_thumb_size,
-			max_cached_pixmaps, expiration_threshold
+			RelinkablePath::normalize(thumb_dir), accel_ops,
+			max_thumb_size, max_cached_pixmaps, expiration_threshold
 		)
 	)
 {
@@ -408,6 +423,12 @@ void
 ThumbnailPixmapCache::setThumbDir(QString const& thumb_dir)
 {
 	m_ptrImpl->setThumbDir(RelinkablePath::normalize(thumb_dir));
+}
+
+void
+ThumbnailPixmapCache::setAccelOps(std::shared_ptr<AcceleratableOperations> const& accel_ops)
+{
+	m_ptrImpl->setAccelOps(accel_ops);
 }
 
 ThumbnailLoadResult
@@ -448,9 +469,12 @@ ThumbnailPixmapCache::recreateThumbnail(
 /*======================= ThumbnailPixmapCache::Impl ========================*/
 
 ThumbnailPixmapCache::Impl::Impl(
-	QString const& thumb_dir, QSize const& max_thumb_size,
+	QString const& thumb_dir,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QSize const& max_thumb_size,
 	int const max_cached_pixmaps, int const expiration_threshold)
-:	m_backgroundLoader(*this),
+:	m_ptrAccelOps(accel_ops),
+	m_backgroundLoader(*this),
 	m_items(),
 	m_itemsByKey(m_items.get<ItemsByKeyTag>()),
 	m_loadQueue(m_items.get<LoadQueueTag>()),
@@ -509,6 +533,13 @@ ThumbnailPixmapCache::Impl::setThumbDir(QString const& thumb_dir)
 			item.precedingLoadAttempts + m_expirationThreshold + 1
 		);
 	}
+}
+
+void
+ThumbnailPixmapCache::Impl::setAccelOps(std::shared_ptr<AcceleratableOperations> const& accel_ops)
+{
+	QMutexLocker locker(&m_mutex);
+	m_ptrAccelOps = accel_ops;
 }
 
 ThumbnailLoadResult
@@ -666,6 +697,7 @@ ThumbnailPixmapCache::Impl::ensureThumbnailExists(
 
 	QString const thumb_dir(m_thumbDir);
 	QSize const max_thumb_size(m_maxThumbSize);
+	std::shared_ptr<AcceleratableOperations> const accel_ops(m_ptrAccelOps);
 
 	locker.unlock();
 	
@@ -678,7 +710,7 @@ ThumbnailPixmapCache::Impl::ensureThumbnailExists(
 	}
 
 	boost::optional<AffineTransformedImage> const thumb(
-		makeThumbnail(max_thumb_size, full_size_image, full_size_image_transform)
+		makeThumbnail(max_thumb_size, full_size_image, full_size_image_transform, accel_ops)
 	);
 	if (!thumb) {
 		return;
@@ -735,6 +767,7 @@ ThumbnailPixmapCache::Impl::backgroundProcessing()
 			std::shared_ptr<AbstractImageTransform const> full_size_image_transform;
 			QString thumb_dir;
 			QSize max_thumb_size;
+			std::shared_ptr<AcceleratableOperations> accel_ops;
 
 			{
 				QMutexLocker const locker(&m_mutex);
@@ -782,13 +815,14 @@ ThumbnailPixmapCache::Impl::backgroundProcessing()
 				// Copy those while holding the mutex.
 				thumb_dir = m_thumbDir;
 				max_thumb_size = m_maxThumbSize;
+				accel_ops = m_ptrAccelOps;
 			} // mutex scope
 
 			assert(full_size_image_transform);
 
 			boost::optional<AffineTransformedImage> const thumb(
 				loadSaveThumbnail(
-					thumb_id, *full_size_image_transform,
+					thumb_id, *full_size_image_transform, accel_ops,
 					thumb_dir, max_thumb_size
 				)
 			);
@@ -881,6 +915,7 @@ ThumbnailPixmapCache::Impl::validateThumbnailOnDisk(
 boost::optional<AffineTransformedImage>
 ThumbnailPixmapCache::Impl::loadSaveThumbnail(ThumbId const& thumb_id,
 	AbstractImageTransform const& full_size_image_transform,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	QString const& thumb_dir, QSize const& max_thumb_size)
 {
 	QString const thumb_file_path(getThumbFilePath(thumb_id, thumb_dir));
@@ -905,7 +940,7 @@ ThumbnailPixmapCache::Impl::loadSaveThumbnail(ThumbId const& thumb_id,
 	}
 
 	boost::optional<AffineTransformedImage> const thumb(
-		makeThumbnail(max_thumb_size, full_size_image, full_size_image_transform)
+		makeThumbnail(max_thumb_size, full_size_image, full_size_image_transform, accel_ops)
 	);
 
 	// Save thumbnail image.
@@ -919,7 +954,8 @@ ThumbnailPixmapCache::Impl::loadSaveThumbnail(ThumbId const& thumb_id,
 boost::optional<AffineTransformedImage>
 ThumbnailPixmapCache::Impl::makeThumbnail(
 	QSize const& max_thumb_size, QImage const& full_size_image,
-	AbstractImageTransform const& full_size_image_transform)
+	AbstractImageTransform const& full_size_image_transform,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops)
 {
 	AffineImageTransform thumb_transform(full_size_image_transform.toAffine());
 
@@ -950,8 +986,7 @@ ThumbnailPixmapCache::Impl::makeThumbnail(
 
 	AffineTransformedImage thumb(
 		downscaling_transform->toAffine(
-			full_size_image.convertToFormat(QImage::Format_ARGB32),
-			Qt::transparent
+			full_size_image, Qt::transparent, accel_ops
 		)
 	);
 

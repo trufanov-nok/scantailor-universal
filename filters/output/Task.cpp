@@ -155,14 +155,16 @@ Task::process(
 	QTransform const post_scale_xform(scaled_transform->scale(scaling_factor, scaling_factor));
 
 	return processScaled(
-		status, orig_image, gray_orig_image_factory, scaled_transform,
+		status, accel_ops, orig_image, gray_orig_image_factory, scaled_transform,
 		post_scale_xform.mapRect(content_rect), post_scale_xform.mapRect(outer_rect)
 	);
 }
 
 FilterResultPtr
 Task::processScaled(
-	TaskStatus const& status, QImage const& orig_image,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	QImage const& orig_image,
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	std::shared_ptr<AbstractImageTransform const> const& orig_image_transform,
 	QRectF const& content_rect, QRectF const& outer_rect)
@@ -308,7 +310,7 @@ Task::processScaled(
 		speckles_img = BinaryImage();
 
 		out_img = generator.process(
-			status, orig_image, gray_orig_image_factory,
+			status, accel_ops, orig_image, gray_orig_image_factory,
 			new_picture_zones, new_fill_zones,
 			write_automask ? &automask_img : nullptr,
 			write_speckles_file ? &speckles_img : nullptr,
@@ -393,8 +395,8 @@ Task::processScaled(
 
 	QRect const out_rect(generator.outputImageRect());
 
-	auto transform_orig_image = [orig_image, orig_image_transform, out_rect]() {
-		return orig_image_transform->materialize(orig_image, out_rect, Qt::transparent);
+	auto transform_orig_image = [orig_image, orig_image_transform, out_rect, accel_ops]() {
+		return orig_image_transform->materialize(orig_image, out_rect, Qt::transparent, accel_ops);
 	};
 	auto cached_transform_orig_image = cachingFactory<QImage>(transform_orig_image);
 

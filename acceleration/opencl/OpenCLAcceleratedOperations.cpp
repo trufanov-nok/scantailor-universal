@@ -20,6 +20,7 @@
 #include "OpenCLGrid.h"
 #include "OpenCLGaussBlur.h"
 #include "OpenCLTextFilterBank.h"
+#include "OpenCLDewarp.h"
 #include "VecNT.h"
 #include <QFile>
 #include <QString>
@@ -52,7 +53,9 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 		"transpose_grid.cl",
 		"copy_1px_padding.cl",
 		"gauss_blur.cl",
-		"text_filter_bank_combine.cl"
+		"text_filter_bank_combine.cl",
+		"rgba_color_mixer.cl",
+		"dewarp.cl"
 	};
 
 	std::deque<QByteArray> sources;
@@ -264,4 +267,41 @@ OpenCLAcceleratedOperations::textFilterBankUnguarded(
 	evt.wait();
 
 	return std::make_pair(std::move(accum), std::move(direction_map));
+}
+
+QImage
+OpenCLAcceleratedOperations::dewarp(
+	QImage const& src, QSize const& dst_size,
+	dewarping::CylindricalSurfaceDewarper const& distortion_model,
+	QRectF const& model_domain, QColor const& background_color,
+	QSizeF const& min_mapping_area) const
+{
+	try {
+		return dewarpUnguarded(
+			src, dst_size, distortion_model,
+			model_domain, background_color, min_mapping_area
+		);
+	} catch (cl::Error const& e) {
+		if (e.err() == CL_OUT_OF_HOST_MEMORY) {
+			throw std::bad_alloc();
+		}
+		qDebug() << "OpenCL error: " << e.what();
+		return m_ptrFallback->dewarp(
+			src, dst_size, distortion_model,
+			model_domain, background_color, min_mapping_area
+		);
+	}
+}
+
+QImage
+OpenCLAcceleratedOperations::dewarpUnguarded(
+	QImage const& src, QSize const& dst_size,
+	dewarping::CylindricalSurfaceDewarper const& distortion_model,
+	QRectF const& model_domain, QColor const& background_color,
+	QSizeF const& min_mapping_area) const
+{
+	return opencl::dewarp(
+		m_commandQueue, m_program, src, dst_size,
+		distortion_model, model_domain, background_color, min_mapping_area
+	);
 }

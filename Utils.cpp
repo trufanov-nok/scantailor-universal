@@ -76,13 +76,14 @@ Utils::outputDirToThumbDir(QString const& output_dir)
 }
 
 IntrusivePtr<ThumbnailPixmapCache>
-Utils::createThumbnailCache(QString const& output_dir)
+Utils::createThumbnailCache(QString const& output_dir,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops)
 {
 	QSize const max_pixmap_size(200, 200);
 	QString const thumbs_cache_path(outputDirToThumbDir(output_dir));
 	
 	return IntrusivePtr<ThumbnailPixmapCache>(
-		new ThumbnailPixmapCache(thumbs_cache_path, max_pixmap_size, 40, 5)
+		new ThumbnailPixmapCache(thumbs_cache_path, accel_ops, max_pixmap_size, 40, 5)
 	);
 }
 

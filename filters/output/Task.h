@@ -74,7 +74,9 @@ private:
 	class UiUpdater;
 	
 	FilterResultPtr processScaled(
-		TaskStatus const& status, QImage const& orig_image,
+		TaskStatus const& status,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		QImage const& orig_image,
 		CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_image_transform,
 		QRectF const& content_rect, QRectF const& outer_rect);

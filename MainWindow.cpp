@@ -416,7 +416,9 @@ MainWindow::switchToNewProject(
 	if (out_dir.isEmpty()) {
 		m_ptrThumbnailCache.reset();
 	} else {
-		m_ptrThumbnailCache = Utils::createThumbnailCache(m_outFileNameGen.outDir());
+		m_ptrThumbnailCache = Utils::createThumbnailCache(
+			m_outFileNameGen.outDir(), m_pAccelerationProvider->getOperations()
+		);
 	}
 	resetThumbSequence(currentPageOrderProvider());
 
@@ -1457,6 +1459,9 @@ MainWindow::openSettingsDialog()
 
 	connect(dialog, &SettingsDialog::settingsUpdated, [this] {
 		m_pAccelerationProvider->processUpdatedConfiguration();
+		if (ThumbnailPixmapCache* thumb_cache = m_ptrThumbnailCache.get()) {
+			thumb_cache->setAccelOps(m_pAccelerationProvider->getOperations());
+		}
 	});
 
 	dialog->show();

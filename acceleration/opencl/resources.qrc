@@ -6,5 +6,7 @@
         <file>device_code/fill_grid.cl</file>
         <file>device_code/transpose_grid.cl</file>
         <file>device_code/copy_grid.cl</file>
+        <file>device_code/dewarp.cl</file>
+        <file>device_code/rgba_color_mixer.cl</file>
     </qresource>
 </RCC>

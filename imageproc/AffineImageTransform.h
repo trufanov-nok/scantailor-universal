@@ -93,12 +93,14 @@ public:
 	AffineImageTransform adjusted(T adjuster) const;
 
 	virtual AffineTransformedImage toAffine(
-		QImage const& image, QColor const& outside_color) const;
+		QImage const& image, QColor const& outside_color,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops) const;
 
 	virtual AffineImageTransform toAffine() const;
 
 	virtual QImage materialize(QImage const& image,
-		QRect const& target_rect, QColor const& outside_color) const;
+		QRect const& target_rect, QColor const& outside_color,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops) const;
 
 	virtual std::function<QPointF(QPointF const&)> forwardMapper() const;
 

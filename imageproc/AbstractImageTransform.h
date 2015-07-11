@@ -20,6 +20,7 @@
 #define IMAGEPROC_ABSTRACT_IMAGE_TRANSFORM_H_
 
 #include "imageproc_config.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QtGlobal>
 #include <memory>
 #include <functional>
@@ -94,7 +95,8 @@ public:
 	 * @endcode
 	 */
 	virtual AffineTransformedImage toAffine(
-		QImage const& image, QColor const& outside_color) const = 0;
+		QImage const& image, QColor const& outside_color,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops) const = 0;
 
 	/**
 	 * This version of toAffine() can be viewed as a dry run for the full version.
@@ -108,7 +110,8 @@ public:
 	 * exactly, without requiring a follow-up transformation.
 	 */
 	virtual QImage materialize(QImage const& image,
-		QRect const& target_rect, QColor const& outside_color) const = 0;
+		QRect const& target_rect, QColor const& outside_color,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops) const = 0;
 
 	/**
 	 * @brief Returns a function for mapping points from original image coordinates
