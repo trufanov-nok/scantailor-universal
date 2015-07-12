@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(test_mixing_identical_colors)
 	RgbColorMixer<unsigned> rgb_mixer;
 	rgb_mixer.add(qRgb(99, 100, 101), 20);
 	rgb_mixer.add(qRgb(99, 100, 101), 10);
-	BOOST_CHECK((rgb_mixer.mix(30) & 0xffffff) == (qRgb(99, 100, 101) & 0xffffff));
+	BOOST_CHECK(rgb_mixer.mix(30) == qRgb(99, 100, 101));
 
 	ArgbColorMixer<unsigned> argb_mixer;
 	argb_mixer.add(qRgba(99, 100, 101, 50), 20);
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(test_mixing_similar_colors_integer)
 	RgbColorMixer<unsigned> rgb_mixer;
 	rgb_mixer.add(qRgb(99, 100, 101), 10);
 	rgb_mixer.add(qRgb(101, 102, 103), 10);
-	BOOST_CHECK((rgb_mixer.mix(20) & 0xffffff) == (qRgb(100, 101, 102) & 0xffffff));
+	BOOST_CHECK(rgb_mixer.mix(20) == qRgb(100, 101, 102));
 
 	ArgbColorMixer<unsigned> argb_mixer;
 	argb_mixer.add(qRgba(99, 100, 101, 50), 10);
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(test_mixing_similar_colors_float)
 	RgbColorMixer<float> rgb_mixer;
 	rgb_mixer.add(qRgb(99, 100, 101), 10);
 	rgb_mixer.add(qRgb(101, 102, 103), 10);
-	BOOST_CHECK((rgb_mixer.mix(20) & 0xffffff) == (qRgb(100, 101, 102) & 0xffffff));
+	BOOST_CHECK(rgb_mixer.mix(20) == qRgb(100, 101, 102));
 
 	ArgbColorMixer<float> argb_mixer;
 	argb_mixer.add(qRgba(99, 100, 101, 50), 10);

@@ -39,8 +39,16 @@ namespace opencl
 namespace
 {
 
-std::pair<QImage, cl::ImageFormat> convertImage(QImage const& src, QColor const& bg_color)
+struct AdaptedImage
 {
+	QImage image;
+	cl::ImageFormat clFormat;
+};
+
+AdaptedImage adaptImage(QImage const& src, QColor const& bg_color)
+{
+	AdaptedImage adapted;
+
 	auto is_opaque_gray = [](QRgb rgba) {
 		return qAlpha(rgba) == 0xff && qRed(rgba) == qBlue(rgba) && qRed(rgba) == qGreen(rgba);
 	};
@@ -52,26 +60,25 @@ std::pair<QImage, cl::ImageFormat> convertImage(QImage const& src, QColor const&
 		case QImage::Format_Mono:
 		case QImage::Format_MonoLSB:
 			if (src.allGray() && is_opaque_gray(bg_color.rgba())) {
-				return std::make_pair(
-					toGrayscale(src), cl::ImageFormat(CL_LUMINANCE, CL_UNORM_INT8)
-				);
+				adapted.image = toGrayscale(src);
+				adapted.clFormat = cl::ImageFormat(CL_LUMINANCE, CL_UNORM_INT8);
+				break;
 			}
 			// fall through
 		default:
-			cl_channel_order const rgba_order =
-					QSysInfo::ByteOrder == QSysInfo::BigEndian ? CL_ARGB : CL_BGRA;
 			if (!src.hasAlphaChannel() && qAlpha(bg_color.rgba()) == 0xff) {
-				return std::make_pair(
-					badAllocIfNull(src.convertToFormat(QImage::Format_RGB32)),
-					cl::ImageFormat(rgba_order, CL_UNORM_INT8)
-				);
+				// Note that Qt stores RGB32 as 0xffRRGGBB, so it can be interpreted
+				// as ARGB by OpenCL.
+				adapted.image = badAllocIfNull(src.convertToFormat(QImage::Format_RGB32));
 			} else {
-				return std::make_pair(
-					badAllocIfNull(src.convertToFormat(QImage::Format_ARGB32)),
-					cl::ImageFormat(rgba_order, CL_UNORM_INT8)
-				);
+				adapted.image = badAllocIfNull(src.convertToFormat(QImage::Format_ARGB32));
 			}
+			cl_channel_order const order = QSysInfo::BigEndian ? CL_ARGB : CL_BGRA;
+			adapted.clFormat = cl::ImageFormat(order, CL_UNORM_INT8);
+			break;
 	}
+
+	return adapted;
 }
 
 struct Generatrix
@@ -113,27 +120,27 @@ QImage dewarp(
 	size_t const v_wg_size = std::sqrt((double)max_wg_size);
 	size_t const h_wg_size = max_wg_size / v_wg_size;
 
-	auto const converted_image = convertImage(src, background_color);
+	auto const adapted = adaptImage(src, background_color);
 
 	// Create source and destination images on the device.
 	cl::Image2D src_image(
 		context, CL_MEM_READ_ONLY,
-		converted_image.second, src.width(), src.height()
+		adapted.clFormat, src.width(), src.height()
 	);
 	cl::Image2D dst_image(
 		context, CL_MEM_WRITE_ONLY,
-		converted_image.second, dst_size.width(), dst_size.height()
+		adapted.clFormat, dst_size.width(), dst_size.height()
 	);
 
-	// Writhe the source image to device memory.
+	// Write the source image to device memory.
 	cl::size_t<3> const origin;
 	cl::size_t<3> region;
 	region[0] = src.width();
 	region[1] = src.height();
 	region[2] = 1;
 	command_queue.enqueueWriteImage(
-		src_image, CL_TRUE, origin, region, converted_image.first.bytesPerLine(), 0,
-		(void*)converted_image.first.bits()
+		src_image, CL_TRUE, origin, region, adapted.image.bytesPerLine(), 0,
+		(void*)adapted.image.bits()
 	);
 
 	// Create host and device buffers for storing Generatrix structures.
@@ -189,7 +196,7 @@ QImage dewarp(
 		kernel.setArg(idx++, cl_float4{
 			(float)background_color.redF(), (float)background_color.greenF(),
 			(float)background_color.blueF(), (float)background_color.alphaF()
-		}),
+		});
 		kernel.setArg(idx++, cl_float2{
 			(float)min_mapping_area.width(), (float)min_mapping_area.height()
 		});
@@ -209,7 +216,7 @@ QImage dewarp(
 		evt.wait();
 	}
 
-	QImage dst(dst_size, converted_image.first.format());
+	QImage dst(dst_size, adapted.image.format());
 	badAllocIfNull(dst);
 	region[0] = dst.width();
 	region[1] = dst.height();

@@ -152,7 +152,7 @@ private:
 		uint32_t const r = uint32_t(AccumType(0.5) + m_redAccum * scale);
 		uint32_t const g = uint32_t(AccumType(0.5) + m_greenAccum * scale);
 		uint32_t const b = uint32_t(AccumType(0.5) + m_blueAccum * scale);
-		return (r << 16) | (g << 8) | b;
+		return uint32_t(0xff000000) | (r << 16) | (g << 8) | b;
 	};
 
 	uint32_t integerMix(AccumType total_weight) const {
@@ -161,7 +161,7 @@ private:
 		uint32_t const r = uint32_t((m_redAccum + half_weight) / total_weight);
 		uint32_t const g = uint32_t((m_greenAccum + half_weight) / total_weight);
 		uint32_t const b = uint32_t((m_blueAccum + half_weight) / total_weight);
-		return (r << 16) | (g << 8) | b;
+		return uint32_t(0xff000000) | (r << 16) | (g << 8) | b;
 	};
 
 	AccumType m_redAccum;

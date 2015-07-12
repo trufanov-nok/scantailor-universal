@@ -74,7 +74,7 @@ public:
 
 	QRgb rgba() const { return m_rgba; }
 
-	QRgb rgb() const { return m_rgba & 0x00ffffff; }
+	QRgb rgb() const { return m_rgba | 0xff000000; }
 
 	uint8_t grayLevel() const { return static_cast<uint8_t>(qGray(m_rgba)); }
 private:
