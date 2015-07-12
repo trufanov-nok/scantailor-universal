@@ -26,6 +26,7 @@
 #include "DraggablePoint.h"
 #include "DraggableLineSegment.h"
 #include "ObjectDragHandler.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QRectF>
 #include <QSizeF>
 #include <QString>
@@ -50,6 +51,7 @@ class ImageView :
 	Q_OBJECT
 public:
 	/**
+	 * @param accel_ops OpenCL-acceleratable operations.
 	 * @param orig_transform Transformation from original image to virtual
 	 *        coordinate system.
 	 * @param affine_transformed_image Either the original image or a dewarped
@@ -59,6 +61,7 @@ public:
 	 *        space of \p orig_transform.
 	 */
 	ImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_transform,
 		imageproc::AffineTransformedImage const& affine_transformed_image,
 		ImagePixmapUnion const& downscaled_image,

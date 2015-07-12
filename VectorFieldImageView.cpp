@@ -33,9 +33,10 @@
 #include <stddef.h>
 
 VectorFieldImageView::VectorFieldImageView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	QImage const& image, Grid<Vec2f> const& directions, float representative_dir_magnitude)
 :	ImageViewBase(
-		image, ImagePixmapUnion(),
+		accel_ops, image, ImagePixmapUnion(),
 		ImagePresentation(QTransform(), QRectF(image.rect()))
 	)
 ,	m_dragHandler(*this)

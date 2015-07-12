@@ -24,8 +24,10 @@
 #include "DespeckleState.h"
 #include "IntrusivePtr.h"
 #include "imageproc/BinaryImage.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QStackedWidget>
 #include <QImage>
+#include <memory>
 
 class DebugImagesImpl;
 class ProcessingIndicationWidget;
@@ -40,13 +42,16 @@ class DespeckleView : public QStackedWidget
 	Q_OBJECT
 public:
 	/**
+	 * \param accel_ops OpenCL-acceleratable operations.
 	 * \param despeckle_state Describes a particular despeckling.
 	 * \param visualization Optional despeckle visualization.
 	 *        If null, it will be reconstructed from \p despeckle_state
 	 *        when this widget becomes visible.
 	 * \param debug Indicates whether debugging is turned on.
 	 */
-	DespeckleView(DespeckleState const& despeckle_state,
+	DespeckleView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		DespeckleState const& despeckle_state,
 		DespeckleVisualization const& visualization, bool debug);
 
 	virtual ~DespeckleView();
@@ -73,6 +78,7 @@ private:
 
 	void removeImageViewWidget();
 
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	DespeckleState m_despeckleState;
 	IntrusivePtr<TaskCancelHandle> m_ptrCancelHandle;
 	ProcessingIndicationWidget* m_pProcessingIndicator;

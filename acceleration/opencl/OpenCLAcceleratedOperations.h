@@ -62,6 +62,11 @@ public:
 		dewarping::CylindricalSurfaceDewarper const& distortion_model,
 		QRectF const& model_domain, QColor const& background_color,
 		QSizeF const& min_mapping_area) const;
+
+	virtual QImage affineTransform(
+		QImage const& src, QTransform const& xform,
+		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
+		QSizeF const& min_mapping_area) const;
 private:
 	Grid<float> gaussBlurUnguarded(
 		Grid<float> const& src, float h_sigma, float v_sigma) const;
@@ -74,10 +79,15 @@ private:
 		Grid<float> const& src, std::vector<Vec2f> const& directions,
 		std::vector<Vec2f> const& sigmas, float shoulder_length) const;
 
-	virtual QImage dewarpUnguarded(
+	QImage dewarpUnguarded(
 		QImage const& src, QSize const& dst_size,
 		dewarping::CylindricalSurfaceDewarper const& distortion_model,
 		QRectF const& model_domain, QColor const& background_color,
+		QSizeF const& min_mapping_area) const;
+
+	QImage affineTransformUnguarded(
+		QImage const& src, QTransform const& xform,
+		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
 		QSizeF const& min_mapping_area) const;
 
 	cl::Context m_context;

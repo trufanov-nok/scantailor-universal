@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef OUTPUT_ON_DEMAND_PICTURE_ZONE_EDITOR_H_
 #define OUTPUT_ON_DEMAND_PICTURE_ZONE_EDITOR_H_
 
@@ -25,9 +24,11 @@
 #include "Settings.h"
 #include "CachingFactory.h"
 #include "imageproc/BinaryImage.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QStackedWidget>
 #include <QImage>
 #include <functional>
+#include <memory>
 
 class ProcessingIndicationWidget;
 
@@ -46,6 +47,7 @@ public:
 	 * @see PictureZoneEditor::PictureZoneEditor()
 	 */
 	OnDemandPictureZoneEditor(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		CachingFactory<QImage> const& cached_transformed_orig_image,
 		CachingFactory<QImage> const& cached_downscaled_transformed_orig_image,
 		imageproc::BinaryImage const& output_picture_mask,
@@ -62,6 +64,7 @@ private:
 
 	void buildRealPictureZoneEditor();
 
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	CachingFactory<QImage> m_cachedTransformedOrigImage;
 	CachingFactory<QImage> m_cachedDownscaledTransformedOrigImage;
 	imageproc::BinaryImage m_outputPictureMask;

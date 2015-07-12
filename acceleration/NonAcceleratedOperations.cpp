@@ -19,6 +19,7 @@
 #include "NonAcceleratedOperations.h"
 #include "imageproc/RasterOpGeneric.h"
 #include "imageproc/GaussBlur.h"
+#include "imageproc/AffineTransform.h"
 #include "dewarping/RasterDewarper.h"
 #include <QPoint>
 #include <QPointF>
@@ -132,4 +133,13 @@ NonAcceleratedOperations::dewarp(
 	return dewarping::RasterDewarper::dewarp(
 		src, dst_size, distortion_model, model_domain, background_color, min_mapping_area
 	);
+}
+
+QImage
+NonAcceleratedOperations::affineTransform(
+	QImage const& src, QTransform const& xform,
+	QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
+	QSizeF const& min_mapping_area) const
+{
+	return imageproc::affineTransform(src, xform, dst_rect, outside_pixels, min_mapping_area);
 }

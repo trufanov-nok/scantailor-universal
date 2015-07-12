@@ -43,12 +43,13 @@ namespace select_content
 {
 
 ImageView::ImageView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image,
 	ImagePixmapUnion const& downscaled_image,
 	ContentBox const& content_box)
 :	ImageViewBase(
-		affine_transformed_image.origImage(), downscaled_image,
+		accel_ops, affine_transformed_image.origImage(), downscaled_image,
 		ImagePresentation(
 			affine_transformed_image.xform().transform(),
 			affine_transformed_image.xform().transformedCropArea()

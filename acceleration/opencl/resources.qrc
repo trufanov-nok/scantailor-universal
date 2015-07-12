@@ -8,5 +8,6 @@
         <file>device_code/copy_grid.cl</file>
         <file>device_code/dewarp.cl</file>
         <file>device_code/rgba_color_mixer.cl</file>
+        <file>device_code/affine_transform.cl</file>
     </qresource>
 </RCC>

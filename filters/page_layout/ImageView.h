@@ -31,6 +31,7 @@
 #include "IntrusivePtr.h"
 #include "PageId.h"
 #include "imageproc/AffineImageTransform.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QTransform>
 #include <QSizeF>
 #include <QRectF>
@@ -59,6 +60,7 @@ class ImageView :
 	Q_OBJECT
 public:
 	ImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		IntrusivePtr<Settings> const& settings, PageId const& page_id,
 		std::shared_ptr<imageproc::AbstractImageTransform const> const& orig_transform,
 		imageproc::AffineTransformedImage const& affine_transformed_image,

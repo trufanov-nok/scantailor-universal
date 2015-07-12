@@ -30,7 +30,9 @@
 #include "UnremoveButton.h"
 #include "ImageId.h"
 #include "IntrusivePtr.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QPixmap>
+#include <memory>
 
 class ProjectPages;
 class PageInfo;
@@ -53,6 +55,7 @@ class ImageView :
 	Q_OBJECT
 public:
 	ImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image,
 		PageLayout const& layout, IntrusivePtr<ProjectPages> const& pages,

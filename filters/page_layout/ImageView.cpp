@@ -50,6 +50,7 @@ namespace page_layout
 {
 
 ImageView::ImageView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	IntrusivePtr<Settings> const& settings, PageId const& page_id,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image,
@@ -57,7 +58,7 @@ ImageView::ImageView(
 	ContentBox const& content_box,
 	OptionsWidget const& opt_widget)
 :	ImageViewBase(
-		affine_transformed_image.origImage(), downscaled_image,
+		accel_ops, affine_transformed_image.origImage(), downscaled_image,
 		ImagePresentation(
 			affine_transformed_image.xform().transform(),
 			affine_transformed_image.xform().transformedCropArea()

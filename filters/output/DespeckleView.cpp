@@ -69,13 +69,16 @@ class DespeckleView::DespeckleTask :
 {
 public:
 	DespeckleTask(
-		DespeckleView* owner, DespeckleState const& despeckle_state,
+		DespeckleView* owner,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		DespeckleState const& despeckle_state,
 		IntrusivePtr<TaskCancelHandle> const& cancel_handle,
 		DespeckleLevel new_level, bool debug);
 
 	virtual BackgroundExecutor::TaskResultPtr operator()();
 private:
 	QPointer<DespeckleView> m_ptrOwner;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	DespeckleState m_despeckleState;
 	IntrusivePtr<TaskCancelHandle> m_ptrCancelHandle;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
@@ -107,9 +110,11 @@ private:
 /*============================ DespeckleView ==============================*/
 
 DespeckleView::DespeckleView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	DespeckleState const& despeckle_state,
 	DespeckleVisualization const& visualization, bool debug)
-:	m_despeckleState(despeckle_state),
+:	m_ptrAccelOps(accel_ops),
+	m_despeckleState(despeckle_state),
 	m_pProcessingIndicator(new ProcessingIndicationWidget(this)),
 	m_despeckleLevel(despeckle_state.level()),
 	m_debug(debug)
@@ -119,7 +124,7 @@ DespeckleView::DespeckleView(
 	if (!visualization.isNull()) {
 		// Create the image view.
 		std::auto_ptr<QWidget> widget(
-			new BasicImageView(visualization.image(), visualization.downscaledImage())
+			new BasicImageView(accel_ops, visualization.image(), visualization.downscaledImage())
 		);
 		setCurrentIndex(addWidget(widget.release()));
 	}
@@ -187,8 +192,8 @@ DespeckleView::initiateDespeckling(AnimationAction const anim_action)
 
 	BackgroundExecutor::TaskPtr const task(
 		new DespeckleTask(
-			this, m_despeckleState, m_ptrCancelHandle,
-			m_despeckleLevel, m_debug
+			this, m_ptrAccelOps, m_despeckleState,
+			m_ptrCancelHandle, m_despeckleLevel, m_debug
 		)
 	);
 	ImageViewBase::backgroundExecutor().enqueueTask(task);
@@ -207,7 +212,8 @@ DespeckleView::despeckleDone(
 
 	std::auto_ptr<QWidget> widget(
 		new BasicImageView(
-			visualization.image(), visualization.downscaledImage(), OutputMargins()
+			m_ptrAccelOps, visualization.image(),
+			visualization.downscaledImage(), OutputMargins()
 		)
 	);
 
@@ -250,10 +256,13 @@ DespeckleView::removeImageViewWidget()
 /*============================= DespeckleTask ==========================*/
 
 DespeckleView::DespeckleTask::DespeckleTask(
-	DespeckleView* owner, DespeckleState const& despeckle_state,
+	DespeckleView* owner,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	DespeckleState const& despeckle_state,
 	IntrusivePtr<TaskCancelHandle> const& cancel_handle,
 	DespeckleLevel const level, bool const debug)
 :	m_ptrOwner(owner),
+	m_ptrAccelOps(accel_ops),
 	m_despeckleState(despeckle_state),
 	m_ptrCancelHandle(cancel_handle),
 	m_despeckleLevel(level)
@@ -275,7 +284,7 @@ DespeckleView::DespeckleTask::operator()()
 
 		m_ptrCancelHandle->throwIfCancelled();
 
-		DespeckleVisualization visualization(m_despeckleState.visualize());
+		DespeckleVisualization visualization(m_despeckleState.visualize(m_ptrAccelOps));
 		
 		m_ptrCancelHandle->throwIfCancelled();
 

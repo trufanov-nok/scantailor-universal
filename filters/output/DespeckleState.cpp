@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,9 +40,9 @@ DespeckleState::DespeckleState(
 }
 
 DespeckleVisualization
-DespeckleState::visualize() const
+DespeckleState::visualize(std::shared_ptr<AcceleratableOperations> const& accel_ops) const
 {
-	return DespeckleVisualization(m_everythingMixed, m_speckles);
+	return DespeckleVisualization(accel_ops, m_everythingMixed, m_speckles);
 }
 
 DespeckleState

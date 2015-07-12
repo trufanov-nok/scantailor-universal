@@ -27,10 +27,12 @@
 namespace fix_orientation
 {
 
-ImageView::ImageView(imageproc::AffineTransformedImage const& full_size_image,
+ImageView::ImageView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	imageproc::AffineTransformedImage const& full_size_image,
 	ImagePixmapUnion const& downscaled_image)
 :	ImageViewBase(
-		full_size_image.origImage(), downscaled_image,
+		accel_ops, full_size_image.origImage(), downscaled_image,
 		ImagePresentation(
 			full_size_image.xform().transform(),
 			full_size_image.xform().transformedCropArea()

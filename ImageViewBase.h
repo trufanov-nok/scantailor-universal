@@ -23,6 +23,7 @@
 #include "InteractionHandler.h"
 #include "InteractionState.h"
 #include "ImagePixmapUnion.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QTimer>
 #include <QWidget>
 #include <QAbstractScrollArea>
@@ -36,10 +37,12 @@
 #include <QRectF>
 #include <QMarginsF>
 #include <Qt>
+#include <memory>
 
 class QPainter;
 class BackgroundExecutor;
 class ImagePresentation;
+class AcceleratableOperations;
 
 /**
  * \brief The base class for widgets that display and manipulate images.
@@ -66,6 +69,7 @@ public:
 	/**
 	 * \brief ImageViewBase constructor.
 	 *
+	 * \param accel_ops OpenCL-acceleratable operations.
 	 * \param image The image to display.
 	 * \param downscaled_version The downscaled version of \p image.
 	 *        If it's null, it will be created automatically.
@@ -82,6 +86,7 @@ public:
 	 *        be used for custom drawing or custom controls.
 	 */
 	ImageViewBase(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& image, ImagePixmapUnion const& downscaled_version,
 		ImagePresentation const& presentation,
 		QMarginsF const& margins = QMarginsF());
@@ -109,9 +114,11 @@ public:
 	 * can't.
 	 *
 	 * \param image The input image, not null, and with DPI set correctly.
+	 * \param accel_ops OpenCL-acceleratable operations.
 	 * \return The image downscaled by an unspecified degree.
 	 */
-	static QImage createDownscaledImage(QImage const& image);
+	static QImage createDownscaledImage(
+		QImage const& image, std::shared_ptr<AcceleratableOperations> const& accel_ops);
 
 	InteractionHandler& rootInteractionHandler() { return m_rootInteractionHandler; }
 
@@ -298,6 +305,8 @@ private:
 
 	void maybeQueueRedraw();
 	
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
+
 	InteractionHandler m_rootInteractionHandler;
 
 	InteractionState m_interactionState;

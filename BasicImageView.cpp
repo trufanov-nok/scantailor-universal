@@ -24,10 +24,11 @@
 using namespace imageproc;
 
 BasicImageView::BasicImageView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	QImage const& full_size_image,
 	ImagePixmapUnion const& downscaled_image, QMarginsF const& margins)
 :	ImageViewBase(
-		full_size_image, downscaled_image,
+		accel_ops, full_size_image, downscaled_image,
 		ImagePresentation(QTransform(), QRectF(full_size_image.rect())),
 		margins
 	),
@@ -39,10 +40,11 @@ BasicImageView::BasicImageView(
 }
 
 BasicImageView::BasicImageView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	AffineTransformedImage const& full_size_image,
 	ImagePixmapUnion const& downscaled_image, QMarginsF const& margins)
 :	ImageViewBase(
-		full_size_image.origImage(), downscaled_image,
+		accel_ops, full_size_image.origImage(), downscaled_image,
 		ImagePresentation(
 			full_size_image.xform().transform(),
 			full_size_image.xform().transformedCropArea()

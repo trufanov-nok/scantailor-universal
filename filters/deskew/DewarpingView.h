@@ -28,6 +28,7 @@
 #include "DewarpingMode.h"
 #include "dewarping/DistortionModel.h"
 #include "dewarping/DepthPerception.h"
+#include "acceleration/AcceleratableOperations.h"
 #include "Settings.h"
 #include "PageId.h"
 #include <QTransform>
@@ -35,6 +36,7 @@
 #include <QRectF>
 #include <QPolygonF>
 #include <vector>
+#include <memory>
 
 namespace imageproc
 {
@@ -57,6 +59,7 @@ public:
 	 *       DepthPerception instance may be used.
 	 */
 	DewarpingView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image,
 		PageId const& page_id,

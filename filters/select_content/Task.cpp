@@ -48,6 +48,7 @@ class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		PageId const& page_id, Params const& params,
 		std::auto_ptr<DebugImagesImpl> dbg,
 		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
@@ -59,6 +60,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	PageId m_pageId;
 	Params m_params;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
@@ -158,7 +160,7 @@ Task::process(
 
 		return FilterResultPtr(
 			new UiUpdater(
-				m_ptrFilter, m_pageId, *params, m_ptrDbg,
+				m_ptrFilter, accel_ops, m_pageId, *params, m_ptrDbg,
 				orig_image_transform, *dewarped, m_batchProcessing
 			)
 		);
@@ -169,17 +171,22 @@ Task::process(
 /*============================ Task::UiUpdater ==========================*/
 
 Task::UiUpdater::UiUpdater(
-	IntrusivePtr<Filter> const& filter, PageId const& page_id,
+	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	PageId const& page_id,
 	Params const& params, std::auto_ptr<DebugImagesImpl> dbg,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image, bool const batch)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_pageId(page_id),
 	m_params(params),
 	m_ptrDbg(dbg),
 	m_ptrOrigTransform(orig_transform),
 	m_affineTransformedImage(affine_transformed_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(affine_transformed_image.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(affine_transformed_image.origImage(), accel_ops)
+	),
 	m_batchProcessing(batch)
 {
 }
@@ -200,7 +207,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	ImageView* view = new ImageView(
-		m_ptrOrigTransform, m_affineTransformedImage,
+		m_ptrAccelOps, m_ptrOrigTransform, m_affineTransformedImage,
 		m_downscaledImage, m_params.contentBox()
 	);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());

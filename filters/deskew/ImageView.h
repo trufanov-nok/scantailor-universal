@@ -26,6 +26,7 @@
 #include "ObjectDragHandler.h"
 #include "DraggablePoint.h"
 #include "imageproc/AffineImageTransform.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QPolygonF>
 #include <QPoint>
 #include <QPointF>
@@ -33,6 +34,7 @@
 #include <QPixmap>
 #include <QString>
 #include <utility>
+#include <memory>
 
 class QRect;
 
@@ -51,13 +53,16 @@ class ImageView :
 	Q_OBJECT
 public:
 	/**
+	 * @param accel_ops OpenCL-acceleratable operations.
 	 * @param full_size_image The original, full size image plus a transformation
 	 *        excluding the rotation that's done at this stage.
 	 * @param downscaled_image A downscaled version of full_size_image.origImage().
 	 *        @see ImageViewBase::createDownscaledImage()
 	 * @param rotation_angle_deg Initial rotation angle, in degrees.
 	 */
-	ImageView(imageproc::AffineTransformedImage const& full_size_image,
+	ImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image,
 		double rotation_angle_deg);
 	

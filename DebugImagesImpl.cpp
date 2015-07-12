@@ -25,6 +25,7 @@
 #include "VectorFieldImageView.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/RasterOpGeneric.h"
+#include "acceleration/NonAcceleratedOperations.h"
 #include <QImage>
 #include <QDir>
 #include <QDebug>
@@ -61,7 +62,8 @@ DebugImagesImpl::add(QImage const& image, QString const& label)
 		virtual void swapOut() { m_swapper.swapOut(); }
 
 		virtual std::auto_ptr<QWidget> newInstance() {
-			return std::auto_ptr<QWidget>(new BasicImageView(m_swapper.constObject()));
+			auto accel_ops = std::make_shared<NonAcceleratedOperations>();
+			return std::auto_ptr<QWidget>(new BasicImageView(accel_ops, m_swapper.constObject()));
 		}
 	private:
 		ObjectSwapper<QImage> m_swapper;
@@ -100,8 +102,9 @@ DebugImagesImpl::addVectorFieldView(
 	add(
 		label,
 		[=]() {
+			auto accel_ops = std::make_shared<NonAcceleratedOperations>();
 			return new VectorFieldImageView(
-				image_swapper.constObject(), vector_field_swapper.constObject(),
+				accel_ops, image_swapper.constObject(), vector_field_swapper.constObject(),
 				std::sqrt(max_squared_magnitude)
 			);
 		},

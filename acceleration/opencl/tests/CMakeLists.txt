@@ -7,6 +7,7 @@ SET(
 	TestTranspose.cpp
 	TestGaussBlur.cpp
 	TestDewarp.cpp
+	TestAffineTransform.cpp
 	Utils.cpp Utils.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})

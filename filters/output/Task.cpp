@@ -78,6 +78,7 @@ class Task::UiUpdater : public FilterResult
 	Q_DECLARE_TR_FUNCTIONS(output::Task::UiUpdater)
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		IntrusivePtr<Settings> const& settings,
 		std::auto_ptr<DebugImagesImpl> dbg_img,
 		Params const& params,
@@ -98,6 +99,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	IntrusivePtr<Settings> m_ptrSettings;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	Params m_params;
@@ -386,7 +388,7 @@ Task::processScaled(
 		// Because constructing DespeckleVisualization takes a noticeable
 		// amount of time, we only do it if we are sure we'll need it.
 		// Otherwise it will get constructed on demand.
-		despeckle_visualization = despeckle_state.visualize();
+		despeckle_visualization = despeckle_state.visualize(accel_ops);
 	}
 
 	if (!CommandLine::get().isGui()) {
@@ -400,8 +402,8 @@ Task::processScaled(
 	};
 	auto cached_transform_orig_image = cachingFactory<QImage>(transform_orig_image);
 
-	auto downscaled_transform_orig_image = [cached_transform_orig_image]() {
-		return ImageViewBase::createDownscaledImage(cached_transform_orig_image());
+	auto downscaled_transform_orig_image = [cached_transform_orig_image, accel_ops]() {
+		return ImageViewBase::createDownscaledImage(cached_transform_orig_image(), accel_ops);
 	};
 	auto cached_downscaled_transform_orig_image = cachingFactory<QImage>(
 		downscaled_transform_orig_image
@@ -417,7 +419,7 @@ Task::processScaled(
 
 	return FilterResultPtr(
 		new UiUpdater(
-			m_ptrFilter, m_ptrSettings, m_ptrDbg, params,
+			m_ptrFilter, accel_ops, m_ptrSettings, m_ptrDbg, params,
 			m_pageId, orig_image, out_img,
 			generator.origToOutputMapper(),
 			generator.outputToOrigMapper(),
@@ -464,6 +466,7 @@ Task::deleteMutuallyExclusiveOutputFiles()
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	IntrusivePtr<Settings> const& settings,
 	std::auto_ptr<DebugImagesImpl> dbg_img,
 	Params const& params,
@@ -479,6 +482,7 @@ Task::UiUpdater::UiUpdater(
 	DespeckleVisualization const& despeckle_visualization,
 	bool const batch, bool const debug)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_ptrSettings(settings),
 	m_ptrDbg(dbg_img),
 	m_params(params),
@@ -487,7 +491,7 @@ Task::UiUpdater::UiUpdater(
 	m_outputImage(output_image),
 	m_origToOutput(orig_to_output),
 	m_outputToOrig(output_to_orig),
-	m_downscaledOutputImage(ImageViewBase::createDownscaledImage(output_image)),
+	m_downscaledOutputImage(ImageViewBase::createDownscaledImage(output_image, accel_ops)),
 	m_pictureMask(picture_mask),
 	m_cachedTransformedOrigImage(cached_transformed_orig_image),
 	m_cachedDownscaledTransformedOrigImage(cached_downscaled_transformed_orig_image),
@@ -514,7 +518,10 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 
 	std::auto_ptr<ImageViewBase> image_view(
-		new BasicImageView(m_outputImage, m_downscaledOutputImage, OutputMargins())
+		new BasicImageView(
+			m_ptrAccelOps, m_outputImage,
+			m_downscaledOutputImage, OutputMargins()
+		)
 	);
 
 	std::auto_ptr<QWidget> picture_zone_editor;
@@ -525,6 +532,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	} else {
 		picture_zone_editor.reset(
 			new OnDemandPictureZoneEditor(
+				m_ptrAccelOps,
 				m_cachedTransformedOrigImage,
 				m_cachedDownscaledTransformedOrigImage,
 				m_pictureMask, m_pageId, m_ptrSettings,
@@ -539,7 +547,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 
 	std::unique_ptr<QWidget> fill_zone_editor(
 		new FillZoneEditor(
-			m_outputImage, m_downscaledOutputImage,
+			m_ptrAccelOps, m_outputImage, m_downscaledOutputImage,
 			m_origToOutput, m_outputToOrig, m_pageId, m_ptrSettings
 		)
 	);
@@ -556,7 +564,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	} else {
 		despeckle_view.reset(
 			new DespeckleView(
-				m_despeckleState, m_despeckleVisualization, m_debug
+				m_ptrAccelOps, m_despeckleState, m_despeckleVisualization, m_debug
 			)
 		);
 		QObject::connect(

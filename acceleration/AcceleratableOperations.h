@@ -25,11 +25,18 @@
 #include <QImage>
 #include <QSize>
 #include <QSizeF>
+#include <QRect>
 #include <QRectF>
 #include <QColor>
+#include <QTransform>
 #include <vector>
 #include <cstdint>
 #include <utility>
+
+namespace imageproc
+{
+	class OutsidePixels;
+}
 
 /**
  * @brief A collection of heavy-weight operations that may be accelerated by
@@ -126,6 +133,28 @@ public:
 		QImage const& src, QSize const& dst_size,
 		dewarping::CylindricalSurfaceDewarper const& distortion_model,
 		QRectF const& model_domain, QColor const& background_color,
+		QSizeF const& min_mapping_area = QSizeF(0.9, 0.9)) const = 0;
+
+	/**
+	 * \brief Apply an affine transformation to the image.
+	 *
+	 * \param src The source image.
+	 * \param xform The transformation from source to destination.
+	 *        Only affine transformations are supported.
+	 * \param dst_rect The area in source image coordinates to return
+	 *        as a destination image.
+	 * \param outside_pixels Configures handling of pixels outside of the source image.
+	 * \param min_mapping_area Defines the minimum rectangle in the source image
+	 *        that maps to a destination pixel.  This can be used to control
+	 *        smoothing.
+	 * \return The transformed image.  It's format may differ from the
+	 *         source image format, for example Format_Indexed8 may
+	 *         be transformed to Format_RGB32, if the source image
+	 *         contains colors other than shades of gray.
+	 */
+	virtual QImage affineTransform(
+		QImage const& src, QTransform const& xform,
+		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
 		QSizeF const& min_mapping_area = QSizeF(0.9, 0.9)) const = 0;
 };
 

@@ -49,6 +49,7 @@ class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		IntrusivePtr<Settings> const& settings,
 		PageId const& page_id,
 		std::shared_ptr<AbstractImageTransform const> const& orig_transform,
@@ -61,6 +62,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageId m_pageId;
 	std::shared_ptr<AbstractImageTransform const> m_ptrOrigTransform;
@@ -139,7 +141,7 @@ Task::process(
 
 		return FilterResultPtr(
 			new UiUpdater(
-				m_ptrFilter, m_ptrSettings, m_pageId,
+				m_ptrFilter, accel_ops, m_ptrSettings, m_pageId,
 				orig_image_transform, *pre_transformed_image, content_box,
 				agg_hard_size_before != agg_hard_size_after,
 				m_batchProcessing
@@ -155,17 +157,21 @@ Task::process(
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	IntrusivePtr<Settings> const& settings,
 	PageId const& page_id,
 	std::shared_ptr<AbstractImageTransform const> const& orig_transform,
 	AffineTransformedImage const& affine_transformed_image,
 	ContentBox const& content_box, bool agg_size_changed, bool batch)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_ptrSettings(settings),
 	m_pageId(page_id),
 	m_ptrOrigTransform(orig_transform),
 	m_affineTransformedImage(affine_transformed_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(affine_transformed_image.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(affine_transformed_image.origImage(), accel_ops)
+	),
 	m_contentBox(content_box),
 	m_aggSizeChanged(agg_size_changed),
 	m_batchProcessing(batch)
@@ -196,10 +202,10 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	ImageViewBase* view;
 
 	if (!have_content_box) {
-		view = new BasicImageView(m_affineTransformedImage, m_downscaledImage);
+		view = new BasicImageView(m_ptrAccelOps, m_affineTransformedImage, m_downscaledImage);
 	} else {
 		view = new ImageView(
-			m_ptrSettings, m_pageId, m_ptrOrigTransform,
+			m_ptrAccelOps, m_ptrSettings, m_pageId, m_ptrOrigTransform,
 			m_affineTransformedImage, m_downscaledImage,
 			m_contentBox, *opt_widget
 		);

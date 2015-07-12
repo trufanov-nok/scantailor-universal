@@ -53,6 +53,7 @@ namespace deskew
 using namespace imageproc;
 
 DewarpingView::DewarpingView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	AffineTransformedImage const& full_size_image,
 	ImagePixmapUnion const& downscaled_image,
 	PageId const& page_id,
@@ -60,7 +61,7 @@ DewarpingView::DewarpingView(
 	dewarping::DepthPerception const& depth_perception,
 	bool const fixed_number_of_control_points)
 :	ImageViewBase(
-		full_size_image.origImage(), downscaled_image,
+		accel_ops, full_size_image.origImage(), downscaled_image,
 		ImagePresentation(
 			full_size_image.xform().transform(),
 			full_size_image.xform().transformedCropArea()
@@ -71,7 +72,7 @@ DewarpingView::DewarpingView(
 	m_distortionModel(distortion_model),
 	m_depthPerception(depth_perception),
 	m_dragHandler(*this),
-	m_zoomHandler(*this)	
+	m_zoomHandler(*this)
 {
 	setMouseTracking(true);
 	

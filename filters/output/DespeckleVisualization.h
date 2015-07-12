@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef OUTPUT_DESPECKLE_VISUALIZATION_H_
 #define OUTPUT_DESPECKLE_VISUALIZATION_H_
 
+#include "acceleration/AcceleratableOperations.h"
 #include <QImage>
+#include <memory>
 
 namespace imageproc
 {
@@ -39,12 +40,14 @@ public:
 	DespeckleVisualization() {}
 
 	/**
+	 * \param accel_ops OpenCL-acceleratable operations.
 	 * \param output The output file, as produced by OutputGenerator::process().
 	 *        If this one is null, the visualization will be null as well.
 	 * \param speckles Speckles detected in the image.
 	 *        If this one is null, it is considered no speckles were detected.
 	 */
 	DespeckleVisualization(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& output, imageproc::BinaryImage const& speckles);
 
 	bool isNull() const { return m_image.isNull(); }

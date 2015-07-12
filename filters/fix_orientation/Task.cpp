@@ -38,6 +38,7 @@ class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		imageproc::AffineTransformedImage const& transformed_image,
 		OrthogonalRotation const& rotation,
 		ImageId const& image_id, bool batch_processing);
@@ -47,6 +48,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 
 	/**
 	 * The transformation associated with m_transformedImage doesn't
@@ -111,7 +113,8 @@ Task::process(
 	} else {
 		return FilterResultPtr(
 			new UiUpdater(
-				m_ptrFilter, AffineTransformedImage(orig_image, orig_image_transform),
+				m_ptrFilter, accel_ops,
+				AffineTransformedImage(orig_image, orig_image_transform),
 				rotation, m_imageId, m_batchProcessing
 			)
 		);
@@ -123,13 +126,17 @@ Task::process(
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	AffineTransformedImage const& transformed_image,
 	OrthogonalRotation const& rotation,
 	ImageId const& image_id,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_transformedImage(transformed_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(m_transformedImage.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(transformed_image.origImage(), accel_ops)
+	),
 	m_rotation(rotation),
 	m_imageId(image_id),
 	m_batchProcessing(batch_processing)
@@ -150,7 +157,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 	
-	ImageView* view = new ImageView(m_transformedImage, m_downscaledImage);
+	ImageView* view = new ImageView(m_ptrAccelOps, m_transformedImage, m_downscaledImage);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
 	QObject::connect(
 		opt_widget, SIGNAL(rotated(OrthogonalRotation)),

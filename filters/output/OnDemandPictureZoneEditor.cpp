@@ -65,13 +65,15 @@ private:
 /*========================== OnDemandPictureZoneEditor ==========================*/
 
 OnDemandPictureZoneEditor::OnDemandPictureZoneEditor(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	CachingFactory<QImage> const& cached_transformed_orig_image,
 	CachingFactory<QImage> const& cached_downscaled_transformed_orig_image,
 	imageproc::BinaryImage const& output_picture_mask,
 	PageId const& page_id, IntrusivePtr<Settings> const& settings,
 	std::function<QPointF(QPointF const&)> const& orig_to_output,
 	std::function<QPointF(QPointF const&)> const& output_to_orig)
-:	m_cachedTransformedOrigImage(cached_transformed_orig_image)
+:	m_ptrAccelOps(accel_ops)
+,	m_cachedTransformedOrigImage(cached_transformed_orig_image)
 ,	m_cachedDownscaledTransformedOrigImage(cached_downscaled_transformed_orig_image)
 ,	m_outputPictureMask(output_picture_mask)
 ,	m_pageId(page_id)
@@ -110,6 +112,7 @@ OnDemandPictureZoneEditor::buildRealPictureZoneEditor()
 {
 	std::unique_ptr<QWidget> widget(
 		new PictureZoneEditor(
+			m_ptrAccelOps,
 			m_cachedTransformedOrigImage(),
 			m_cachedDownscaledTransformedOrigImage(),
 			m_outputPictureMask, m_pageId, m_ptrSettings,

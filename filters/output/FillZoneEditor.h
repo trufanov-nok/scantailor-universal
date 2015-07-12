@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,7 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 
 #ifndef OUTPUT_FILL_ZONE_EDITOR_H_
 #define OUTPUT_FILL_ZONE_EDITOR_H_
@@ -32,10 +31,12 @@
 #include "EditableZoneSet.h"
 #include "ZoomHandler.h"
 #include "DragHandler.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <boost/function.hpp>
 #include <QPoint>
 #include <QPointF>
 #include <QColor>
+#include <memory>
 
 class InteractionState;
 class QPainter;
@@ -51,6 +52,7 @@ class FillZoneEditor : public ImageViewBase, private InteractionHandler
 	Q_OBJECT
 public:
 	FillZoneEditor(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& image, ImagePixmapUnion const& downscaled_version,
 		boost::function<QPointF(QPointF const&)> const& orig_to_image,
 		boost::function<QPointF(QPointF const&)> const& image_to_orig,

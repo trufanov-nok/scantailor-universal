@@ -57,6 +57,11 @@ public:
 		dewarping::CylindricalSurfaceDewarper const& distortion_model,
 		QRectF const& model_domain, QColor const& background_color,
 		QSizeF const& min_mapping_area) const;
+
+	virtual QImage affineTransform(
+		QImage const& src, QTransform const& xform,
+		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
+		QSizeF const& min_mapping_area) const;
 };
 
 #endif

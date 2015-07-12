@@ -25,14 +25,18 @@
 #include "ZoomHandler.h"
 #include "Grid.h"
 #include "VecNT.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QPoint>
 #include <QRect>
+#include <memory>
 
 class VectorFieldImageView : public ImageViewBase, public InteractionHandler
 {
 	Q_OBJECT
 public:
-	VectorFieldImageView(QImage const& image, Grid<Vec2f> const& directions, float max_dir_magnitude);
+	VectorFieldImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		QImage const& image, Grid<Vec2f> const& directions, float max_dir_magnitude);
 	
 	virtual ~VectorFieldImageView();
 protected:

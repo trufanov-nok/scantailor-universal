@@ -54,6 +54,7 @@ class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		IntrusivePtr<ProjectPages> const& pages,
 		std::auto_ptr<DebugImagesImpl> dbg_img,
 		imageproc::AffineTransformedImage const& full_size_image,
@@ -67,6 +68,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	IntrusivePtr<ProjectPages> m_ptrPages;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	imageproc::AffineTransformedImage m_fullSizeImage;
@@ -203,7 +205,7 @@ Task::process(
 	} else {
 		return FilterResultPtr(
 			new UiUpdater(
-				m_ptrFilter, m_ptrPages, m_ptrDbg,
+				m_ptrFilter, accel_ops, m_ptrPages, m_ptrDbg,
 				AffineTransformedImage(orig_image, orig_image_transform),
 				m_pageInfo, *record.params(),
 				record.combinedLayoutType() == AUTO_LAYOUT_TYPE,
@@ -218,6 +220,7 @@ Task::process(
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	IntrusivePtr<ProjectPages> const& pages,
 	std::auto_ptr<DebugImagesImpl> dbg_img,
 	AffineTransformedImage const& full_size_image,
@@ -226,10 +229,13 @@ Task::UiUpdater::UiUpdater(
 	bool const layout_type_auto_detected,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_ptrPages(pages),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(full_size_image.origImage(), accel_ops)
+	),
 	m_pageInfo(page_info),
 	m_params(params),
 	m_layoutTypeAutoDetected(layout_type_auto_detected),
@@ -253,7 +259,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	ImageView* view = new ImageView(
-		m_fullSizeImage, m_downscaledImage,
+		m_ptrAccelOps, m_fullSizeImage, m_downscaledImage,
 		m_params.pageLayout(), m_ptrPages, m_pageInfo.imageId(),
 		m_pageInfo.leftHalfRemoved(), m_pageInfo.rightHalfRemoved()
 	);

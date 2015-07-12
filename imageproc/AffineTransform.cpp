@@ -191,6 +191,7 @@ static void affineTransformGeneric(
 			if (outside_flags & OutsidePixels::WEAK) {
 				background_area = 0;
 			} else {
+				assert(outside_flags & OutsidePixels::COLOR);
 				mixer.add(outside_color, background_area);
 			}
 			

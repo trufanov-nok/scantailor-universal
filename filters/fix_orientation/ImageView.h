@@ -24,7 +24,9 @@
 #include "OrthogonalRotation.h"
 #include "DragHandler.h"
 #include "ZoomHandler.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QSizeF>
+#include <memory>
 
 namespace imageproc
 {
@@ -38,7 +40,9 @@ class ImageView : public ImageViewBase
 {
 	Q_OBJECT
 public:
-	ImageView(imageproc::AffineTransformedImage const& full_size_image,
+	ImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image);
 	
 	virtual ~ImageView();

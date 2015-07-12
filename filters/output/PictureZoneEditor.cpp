@@ -59,6 +59,7 @@ class PictureZoneEditor::MaskTransformTask :
 public:
 	MaskTransformTask(
 		PictureZoneEditor* zone_editor,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		BinaryImage const& orig_mask, QTransform const& xform,
 		QSize const& target_size);
 
@@ -87,6 +88,7 @@ private:
 		QAtomicInt m_cancelFlag;
 	};
 
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	IntrusivePtr<Result> m_ptrResult;
 	BinaryImage m_origMask;
 	QTransform m_xform;
@@ -95,6 +97,7 @@ private:
 
 
 PictureZoneEditor::PictureZoneEditor(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	QImage const& transformed_orig_image,
 	ImagePixmapUnion const& downscaled_transformed_orig_image,
 	imageproc::BinaryImage const& output_picture_mask,
@@ -102,10 +105,11 @@ PictureZoneEditor::PictureZoneEditor(
 	std::function<QPointF(QPointF const&)> const& orig_to_output,
 	std::function<QPointF(QPointF const&)> const& output_to_orig)
 :	ImageViewBase(
-		transformed_orig_image, downscaled_transformed_orig_image,
+		accel_ops, transformed_orig_image, downscaled_transformed_orig_image,
 		ImagePresentation(QTransform(), QRectF(transformed_orig_image.rect())),
 		OutputMargins()
 	),
+	m_ptrAccelOps(accel_ops),
 	m_context(*this, m_zones),
 	m_dragHandler(*this),
 	m_zoomHandler(*this),
@@ -229,7 +233,9 @@ PictureZoneEditor::initiateBuildingScreenPictureMask()
 
 	QTransform const xform(virtualToWidget());
 	IntrusivePtr<MaskTransformTask> const task(
-		new MaskTransformTask(this, m_outputPictureMask, xform, viewport()->size())
+		new MaskTransformTask(
+			this, m_ptrAccelOps, m_outputPictureMask, xform, viewport()->size()
+		)
 	);
 
 	backgroundExecutor().enqueueTask(task);
@@ -339,9 +345,11 @@ PictureZoneEditor::updateRequested()
 
 PictureZoneEditor::MaskTransformTask::MaskTransformTask(
 	PictureZoneEditor* zone_editor,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	BinaryImage const& mask, QTransform const& xform,
 	QSize const& target_size)
 :	m_ptrResult(new Result(zone_editor)),
+	m_ptrAccelOps(accel_ops),
 	m_origMask(mask),
 	m_xform(xform),
 	m_targetSize(target_size)
@@ -363,8 +371,8 @@ PictureZoneEditor::MaskTransformTask::operator()()
 		)
 	);
 
-	QImage gray_mask(
-		affineTransformToGray(
+	GrayImage gray_mask(
+		m_ptrAccelOps->affineTransform(
 			m_origMask.toQImage(), m_xform, target_rect,
 			OutsidePixels::assumeWeakColor(Qt::black), QSizeF(0.0, 0.0)
 		)

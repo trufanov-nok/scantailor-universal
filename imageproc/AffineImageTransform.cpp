@@ -144,12 +144,12 @@ AffineImageTransform::toAffine() const
 QImage
 AffineImageTransform::materialize(QImage const& image,
 	QRect const& target_rect, QColor const& outside_color,
-	std::shared_ptr<AcceleratableOperations> const& /*accel_ops*/) const
+	std::shared_ptr<AcceleratableOperations> const& accel_ops) const
 {
 	assert(!image.isNull());
 	assert(!target_rect.isEmpty());
 
-	return imageproc::affineTransform(
+	return accel_ops->affineTransform(
 		image, m_transform, target_rect,
 		imageproc::OutsidePixels::assumeColor(outside_color)
 	);

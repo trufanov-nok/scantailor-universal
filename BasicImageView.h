@@ -23,7 +23,9 @@
 #include "DragHandler.h"
 #include "ZoomHandler.h"
 #include "ImagePixmapUnion.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QMarginsF>
+#include <memory>
 
 class QImage;
 
@@ -37,11 +39,13 @@ class BasicImageView : public ImageViewBase
 	Q_OBJECT
 public:
 	BasicImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
 		QMarginsF const& margins = QMarginsF());
 
 	BasicImageView(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		imageproc::AffineTransformedImage const& full_size_image,
 		ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
 		QMarginsF const& margins = QMarginsF());

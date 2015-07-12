@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,13 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef OUTPUT_DESPECKLE_STATE_H_
 #define OUTPUT_DESPECKLE_STATE_H_
 
 #include "DespeckleLevel.h"
 #include "imageproc/BinaryImage.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QImage>
+#include <memory>
 
 class TaskStatus;
 class DebugImages;
@@ -45,7 +46,8 @@ public:
 
 	DespeckleLevel level() const { return m_despeckleLevel; }
 
-	DespeckleVisualization visualize() const;
+	DespeckleVisualization visualize(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops) const;
 
 	DespeckleState redespeckle(DespeckleLevel level,
 		TaskStatus const& status, DebugImages* dbg = 0) const;

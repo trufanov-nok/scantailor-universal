@@ -134,8 +134,8 @@ TextLineSegmenter::process(
 	assert(downscaled_rect.topLeft() == QPoint(0, 0));
 
 	GrayImage downscaled_image(
-		affineTransformToGray(
-			downscaled.origImage(), downscaled.xform().transform(),
+		accel_ops->affineTransform(
+			GrayImage(downscaled.origImage()), downscaled.xform().transform(),
 			downscaled_rect, OutsidePixels::assumeWeakNearest()
 		)
 	);

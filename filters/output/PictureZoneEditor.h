@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,11 +32,13 @@
 #include "DragHandler.h"
 #include "ImagePixmapUnion.h"
 #include "imageproc/BinaryImage.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QTransform>
 #include <QPoint>
 #include <QTimer>
 #include <QPixmap>
 #include <functional>
+#include <memory>
 
 class InteractionState;
 class QPainter;
@@ -53,6 +55,7 @@ class PictureZoneEditor : public ImageViewBase, private InteractionHandler
 	Q_OBJECT
 public:
 	/**
+	 * @param accel_ops OpenCL-acceleratable operations.
 	 * @param transformed_orig_image The original image transformed
 	 *        into output image coordinates.
 	 * @param downscaled_transformed_orig_image A downscaled version of
@@ -66,6 +69,7 @@ public:
 	 * @param output_to_orig Mapper from output to original image coordinates.
 	 */
 	PictureZoneEditor(
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& transformed_orig_image,
 		ImagePixmapUnion const& downscaled_transformed_orig_image,
 		imageproc::BinaryImage const& output_picture_mask,
@@ -98,6 +102,8 @@ private:
 	void paintOverPictureMask(QPainter& painter);
 
 	void showPropertiesDialog(EditableZoneSet::Zone const& zone);
+
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 
 	EditableZoneSet m_zones;
 

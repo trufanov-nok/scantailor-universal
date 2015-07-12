@@ -44,8 +44,6 @@
 #include <QColor>
 #include <QDebug>
 
-#include "PerformanceTimer.h"
-
 using namespace imageproc;
 
 namespace dewarping
@@ -58,8 +56,6 @@ TextLineTracer::trace(
 	TaskStatus const& status, DebugImages* dbg)
 {
 	using namespace boost::lambda;
-
-	PerformanceTimer ptimer;
 
 	TextLineSegmenter::Result segmentation(
 		TextLineSegmenter::process(input, accel_ops, status, dbg)
@@ -101,8 +97,8 @@ TextLineTracer::trace(
 	assert(downscaled_rect.topLeft() == QPoint(0, 0));
 
 	GrayImage downscaled_image(
-		affineTransformToGray(
-			downscaled.origImage(), downscaled.xform().transform(),
+		accel_ops->affineTransform(
+			GrayImage(downscaled.origImage()), downscaled.xform().transform(),
 			downscaled_rect, OutsidePixels::assumeWeakNearest()
 		)
 	);
@@ -212,8 +208,6 @@ TextLineTracer::trace(
 		}
 		output.addHorizontalCurve(polyline);
 	}
-
-	ptimer.print("Traced: ");
 }
 
 float

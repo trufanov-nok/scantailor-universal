@@ -21,6 +21,7 @@
 #include "OpenCLGaussBlur.h"
 #include "OpenCLTextFilterBank.h"
 #include "OpenCLDewarp.h"
+#include "OpenCLAffineTransform.h"
 #include "VecNT.h"
 #include <QFile>
 #include <QString>
@@ -58,6 +59,7 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 		"gauss_blur.cl",
 		"text_filter_bank_combine.cl",
 		"rgba_color_mixer.cl",
+		"affine_transform.cl",
 		"dewarp.cl"
 	};
 
@@ -306,6 +308,38 @@ OpenCLAcceleratedOperations::dewarpUnguarded(
 	return opencl::dewarp(
 		m_commandQueue, m_program, src, dst_size,
 		distortion_model, model_domain, background_color, min_mapping_area
+	);
+}
+
+QImage
+OpenCLAcceleratedOperations::affineTransform(
+	QImage const& src, QTransform const& xform,
+	QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
+	QSizeF const& min_mapping_area) const
+{
+	try {
+		return affineTransformUnguarded(
+			src, xform, dst_rect, outside_pixels, min_mapping_area
+		);
+	} catch (cl::Error const& e) {
+		if (e.err() == CL_OUT_OF_HOST_MEMORY) {
+			throw std::bad_alloc();
+		}
+		qDebug() << "OpenCL error: " << e.what();
+		return m_ptrFallback->affineTransform(
+			src, xform, dst_rect, outside_pixels, min_mapping_area
+		);
+	}
+}
+
+QImage
+OpenCLAcceleratedOperations::affineTransformUnguarded(
+	QImage const& src, QTransform const& xform,
+	QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
+	QSizeF const& min_mapping_area) const
+{
+	return opencl::affineTransform(
+		m_commandQueue, m_program, src, xform, dst_rect, outside_pixels, min_mapping_area
 	);
 }
 

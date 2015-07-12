@@ -79,6 +79,7 @@ class Task::NoDistortionUiUpdater : public FilterResult
 {
 public:
 	NoDistortionUiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		std::auto_ptr<DebugImagesImpl> dbg_img,
 		AffineTransformedImage const& transformed_image,
 		PageId const& page_id,
@@ -90,6 +91,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
 	QImage m_downscaledImage;
@@ -102,6 +104,7 @@ class Task::RotationUiUpdater : public FilterResult
 {
 public:
 	RotationUiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		std::auto_ptr<DebugImagesImpl> dbg_img,
 		AffineTransformedImage const& full_size_image,
 		PageId const& page_id,
@@ -113,6 +116,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
 	QImage m_downscaledImage;
@@ -125,6 +129,7 @@ class Task::PerspectiveUiUpdater : public FilterResult
 {
 public:
 	PerspectiveUiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		std::auto_ptr<DebugImagesImpl> dbg_img,
 		AffineTransformedImage const& full_size_image,
 		PageId const& page_id, Params const& page_params,
@@ -135,6 +140,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
 	QImage m_downscaledImage;
@@ -147,6 +153,7 @@ class Task::DewarpingUiUpdater : public FilterResult
 {
 public:
 	DewarpingUiUpdater(IntrusivePtr<Filter> const& filter,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		std::auto_ptr<DebugImagesImpl> dbg_img,
 		AffineTransformedImage const& full_size_image,
 		PageId const& page_id, Params const& page_params,
@@ -157,6 +164,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	std::auto_ptr<DebugImagesImpl> m_ptrDbg;
 	AffineTransformedImage m_fullSizeImage;
 	QImage m_downscaledImage;
@@ -256,7 +264,7 @@ Task::processNoDistortion(
 	} else {
 		return FilterResultPtr(
 			new NoDistortionUiUpdater(
-				m_ptrFilter, m_ptrDbg,
+				m_ptrFilter, accel_ops, m_ptrDbg,
 				AffineTransformedImage(orig_image, orig_image_transform),
 				m_pageId, params, m_batchProcessing
 			)
@@ -281,7 +289,7 @@ Task::processRotationDistortion(
 
 		if (transformed_crop_rect.isValid()) {
 			BinaryImage bw_image(
-				affineTransformToGray(
+				accel_ops->affineTransform(
 					gray_orig_image_factory(), orig_image_transform.transform(),
 					transformed_crop_rect, OutsidePixels::assumeColor(Qt::white)
 				),
@@ -329,7 +337,7 @@ Task::processRotationDistortion(
 	} else {
 		return FilterResultPtr(
 			new RotationUiUpdater(
-				m_ptrFilter, m_ptrDbg,
+				m_ptrFilter, accel_ops, m_ptrDbg,
 				AffineTransformedImage(orig_image, orig_image_transform),
 				m_pageId, params, m_batchProcessing
 			)
@@ -429,7 +437,7 @@ Task::processPerspectiveDistortion(
 	} else {
 		return FilterResultPtr(
 			new PerspectiveUiUpdater(
-				m_ptrFilter, m_ptrDbg,
+				m_ptrFilter, accel_ops, m_ptrDbg,
 				AffineTransformedImage(orig_image, orig_image_transform),
 				m_pageId, params, m_batchProcessing
 			)
@@ -489,7 +497,7 @@ Task::processWarpDistortion(
 	} else {
 		return FilterResultPtr(
 			new DewarpingUiUpdater(
-				m_ptrFilter, m_ptrDbg,
+				m_ptrFilter, accel_ops, m_ptrDbg,
 				AffineTransformedImage(orig_image, orig_image_transform),
 				m_pageId, params, m_batchProcessing
 			)
@@ -539,15 +547,19 @@ Task::cleanup(TaskStatus const& status, BinaryImage& image)
 
 Task::NoDistortionUiUpdater::NoDistortionUiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	std::auto_ptr<DebugImagesImpl> dbg_img,
 	AffineTransformedImage const& full_size_image,
 	PageId const& page_id,
 	Params const& page_params,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(full_size_image.origImage(), accel_ops)
+	),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -569,7 +581,7 @@ Task::NoDistortionUiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 
-	QWidget* view = new BasicImageView(m_fullSizeImage, m_downscaledImage);
+	QWidget* view = new BasicImageView(m_ptrAccelOps, m_fullSizeImage, m_downscaledImage);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());
 }
 
@@ -578,15 +590,19 @@ Task::NoDistortionUiUpdater::updateUI(FilterUiInterface* ui)
 
 Task::RotationUiUpdater::RotationUiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	std::auto_ptr<DebugImagesImpl> dbg_img,
 	AffineTransformedImage const& full_size_image,
 	PageId const& page_id,
 	Params const& page_params,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(full_size_image.origImage(), accel_ops)
+	),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -609,7 +625,7 @@ Task::RotationUiUpdater::updateUI(FilterUiInterface* ui)
 	}
 	
 	double const angle = m_pageParams.rotationParams().compensationAngleDeg();
-	ImageView* view = new ImageView(m_fullSizeImage, m_downscaledImage, angle);
+	ImageView* view = new ImageView(m_ptrAccelOps, m_fullSizeImage, m_downscaledImage, angle);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());
 	
 	QObject::connect(
@@ -626,15 +642,19 @@ Task::RotationUiUpdater::updateUI(FilterUiInterface* ui)
 
 Task::PerspectiveUiUpdater::PerspectiveUiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	std::auto_ptr<DebugImagesImpl> dbg_img,
 	AffineTransformedImage const& full_size_image,
 	PageId const& page_id,
 	Params const& page_params,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(full_size_image.origImage(), accel_ops)
+	),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -677,7 +697,7 @@ Task::PerspectiveUiUpdater::updateUI(FilterUiInterface* ui)
 	distortion_model.setBottomCurve(Curve(bottom_curve));
 
 	DewarpingView* view = new DewarpingView(
-		m_fullSizeImage, m_downscaledImage, m_pageId, distortion_model,
+		m_ptrAccelOps, m_fullSizeImage, m_downscaledImage, m_pageId, distortion_model,
 
 		// Doesn't matter when curves are flat.
 		DepthPerception(),
@@ -698,15 +718,19 @@ Task::PerspectiveUiUpdater::updateUI(FilterUiInterface* ui)
 
 Task::DewarpingUiUpdater::DewarpingUiUpdater(
 	IntrusivePtr<Filter> const& filter,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	std::auto_ptr<DebugImagesImpl> dbg_img,
 	AffineTransformedImage const& full_size_image,
 	PageId const& page_id,
 	Params const& page_params,
 	bool const batch_processing)
 :	m_ptrFilter(filter),
+	m_ptrAccelOps(accel_ops),
 	m_ptrDbg(dbg_img),
 	m_fullSizeImage(full_size_image),
-	m_downscaledImage(ImageViewBase::createDownscaledImage(full_size_image.origImage())),
+	m_downscaledImage(
+		ImageViewBase::createDownscaledImage(full_size_image.origImage(), accel_ops)
+	),
 	m_pageId(page_id),
 	m_pageParams(page_params),
 	m_batchProcessing(batch_processing)
@@ -729,7 +753,7 @@ Task::DewarpingUiUpdater::updateUI(FilterUiInterface* ui)
 	}
 
 	DewarpingView* view = new DewarpingView(
-		m_fullSizeImage, m_downscaledImage, m_pageId,
+		m_ptrAccelOps, m_fullSizeImage, m_downscaledImage, m_pageId,
 		m_pageParams.dewarpingParams().distortionModel(),
 		m_pageParams.dewarpingParams().depthPerception(),
 		/*fixed_number_of_control_points=*/false

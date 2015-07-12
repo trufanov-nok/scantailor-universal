@@ -25,6 +25,7 @@
 #include "ScopedIncDec.h"
 #include "imageproc/PolygonUtils.h"
 #include "imageproc/AffineTransform.h"
+#include "acceleration/AcceleratableOperations.h"
 #include "config.h"
 #include <QScrollBar>
 #include <QPointer>
@@ -64,6 +65,7 @@ class ImageViewBase::HqTransformTask :
 public:
 	HqTransformTask(
 		ImageViewBase* image_view,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		QImage const& image, QTransform const& xform,
 		QRect const& target_rect);
 	
@@ -91,6 +93,7 @@ private:
 		QAtomicInt m_cancelFlag;
 	};
 	
+	std::shared_ptr<AcceleratableOperations> m_ptrAccelOps;
 	IntrusivePtr<Result> m_ptrResult;
 	QImage m_image;
 	QTransform m_xform;
@@ -142,9 +145,11 @@ private:
 
 
 ImageViewBase::ImageViewBase(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	QImage const& image, ImagePixmapUnion const& downscaled_version,
 	ImagePresentation const& presentation, QMarginsF const& margins)
-:	m_image(image),
+:	m_ptrAccelOps(accel_ops),
+	m_image(image),
 	m_virtualImageCropArea(presentation.cropArea()),
 	m_virtualDisplayArea(presentation.displayArea()),
 	m_imageToVirtual(presentation.transform()),
@@ -189,7 +194,7 @@ ImageViewBase::ImageViewBase(
 	viewport()->setFocusPolicy(Qt::WheelFocus);
 
 	if (downscaled_version.isNull()) {
-		m_pixmap = QPixmap::fromImage(createDownscaledImage(image));
+		m_pixmap = QPixmap::fromImage(createDownscaledImage(image, accel_ops));
 	} else if (downscaled_version.pixmap().isNull()) {
 		m_pixmap = QPixmap::fromImage(downscaled_version.image());
 	} else {
@@ -250,7 +255,8 @@ ImageViewBase::hqTransformSetEnabled(bool const enabled)
 }
 
 QImage
-ImageViewBase::createDownscaledImage(QImage const& image)
+ImageViewBase::createDownscaledImage(
+	QImage const& image, std::shared_ptr<AcceleratableOperations> const& accel_ops)
 {
 	assert(!image.isNull());
 
@@ -268,7 +274,7 @@ ImageViewBase::createDownscaledImage(QImage const& image)
 		(double)scaled_size.height() / image.height()
 	);
 
-	return affineTransform(
+	return accel_ops->affineTransform(
 		image, xform, QRect(QPoint(0, 0), scaled_size),
 		OutsidePixels::assumeColor(Qt::white)
 	);
@@ -1048,7 +1054,7 @@ ImageViewBase::initiateBuildingHqVersion()
 	);
 
 	IntrusivePtr<HqTransformTask> const task(
-		new HqTransformTask(this, m_image, xform, target_rect)
+		new HqTransformTask(this, m_ptrAccelOps, m_image, xform, target_rect)
 	);
 	
 	backgroundExecutor().enqueueTask(task);
@@ -1114,9 +1120,11 @@ ImageViewBase::backgroundExecutor()
 
 ImageViewBase::HqTransformTask::HqTransformTask(
 	ImageViewBase* image_view,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	QImage const& image, QTransform const& xform,
 	QRect const& target_rect)
-:	m_ptrResult(new Result(image_view)),
+:	m_ptrAccelOps(accel_ops),
+	m_ptrResult(new Result(image_view)),
 	m_image(image),
 	m_xform(xform),
 	m_targetRect(target_rect)
@@ -1131,7 +1139,7 @@ ImageViewBase::HqTransformTask::operator()()
 	}
 
 	QImage hq_image(
-		affineTransform(
+		m_ptrAccelOps->affineTransform(
 			m_image, m_xform, m_targetRect,
 			OutsidePixels::assumeColor(Qt::transparent), QSizeF(0.0, 0.0)
 		)

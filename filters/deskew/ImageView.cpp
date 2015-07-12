@@ -48,11 +48,12 @@ double const ImageView::m_maxRotationSin = sin(
 int const ImageView::m_cellSize = 20;
 
 ImageView::ImageView(
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	AffineTransformedImage const& full_size_image,
 	ImagePixmapUnion const& downscaled_image,
 	double const rotation_angle_deg)
 :	ImageViewBase(
-		full_size_image.origImage(), downscaled_image,
+		accel_ops, full_size_image.origImage(), downscaled_image,
 		ImagePresentation(
 			full_size_image.xform().transform(),
 			full_size_image.xform().transformedCropArea()
