@@ -22,6 +22,9 @@
 #include "Grid.h"
 #include <CL/cl.hpp>
 
+namespace opencl
+{
+
 template<typename Node>
 class OpenCLGrid
 {
@@ -146,5 +149,7 @@ OpenCLGrid<Node>::withDifferentPadding(cl::Buffer const& buffer, int padding) co
 {
 	return OpenCLGrid<OtherNode>(buffer, m_width, m_height, padding);
 }
+
+} // namespace opencl
 
 #endif

@@ -24,6 +24,9 @@
 
 using namespace imageproc::gauss_blur_impl;
 
+namespace opencl
+{
+
 namespace
 {
 
@@ -633,3 +636,5 @@ OpenCLGrid<float> anisotropicGaussBlur(
 
 	return dst_grid;
 }
+
+} // namespace opencl

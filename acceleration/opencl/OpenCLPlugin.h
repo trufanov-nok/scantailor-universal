@@ -28,6 +28,9 @@
 #include <memory>
 #include <cstddef>
 
+namespace opencl
+{
+
 class OpenCLPlugin : public QObject, public AccelerationPlugin
 {
 	Q_OBJECT
@@ -53,5 +56,7 @@ private:
 	cl::Device m_selectedDevice;
 	std::shared_ptr<AcceleratableOperations> m_ptrCachedOps;
 };
+
+} // namespace opencl
 
 #endif

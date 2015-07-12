@@ -26,6 +26,9 @@
 #include <cmath>
 #include <cstdint>
 
+namespace opencl
+{
+
 /** @see AcceleratableOperations::textFilterBank() */
 std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	cl::CommandQueue const& command_queue,
@@ -165,3 +168,5 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 
 	return std::make_pair(std::move(accum_grid), std::move(dir_map_grid));
 }
+
+} // namespace opencl

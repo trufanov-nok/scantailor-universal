@@ -24,6 +24,9 @@
 #include <CL/cl.hpp>
 #include <vector>
 
+namespace opencl
+{
+
 /**
  * @brief Applies an axis-aligned 2D gaussian filter to a float-valued grid.
  *
@@ -74,5 +77,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 	float dir_sigma, float ortho_dir_sigma,
 	std::vector<cl::Event>* wait_for = nullptr,
 	cl::Event* event = nullptr);
+
+} // namespace opencl
 
 #endif

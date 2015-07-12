@@ -33,6 +33,9 @@
 #include <vector>
 #include <memory>
 
+namespace opencl
+{
+
 class OpenCLAcceleratedOperations : public AcceleratableOperations
 {
 	DECLARE_NON_COPYABLE(OpenCLAcceleratedOperations)
@@ -83,5 +86,7 @@ private:
 	cl::Program m_program;
 	std::shared_ptr<AcceleratableOperations> m_ptrFallback;
 };
+
+} // namespace opencl
 
 #endif

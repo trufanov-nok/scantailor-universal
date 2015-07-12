@@ -25,9 +25,24 @@
 #include <QtGlobal>
 #include <exception>
 
+static void initQtResources()
+{
+	// Q_INIT_RESOURCE has to be invoked from global namespace.
+	Q_INIT_RESOURCE(resources);
+}
+
+static void cleanupQtResources()
+{
+	// Q_CLEANUP_RESOURCE has to be invoked from global namespace.
+	Q_CLEANUP_RESOURCE(resources);
+}
+
+namespace opencl
+{
+
 OpenCLPlugin::OpenCLPlugin()
 {
-	Q_INIT_RESOURCE(resources);
+	initQtResources();
 
 	QByteArray const selected_device(
 		QSettings().value("opencl/device", QByteArray()).toByteArray()
@@ -60,7 +75,7 @@ OpenCLPlugin::OpenCLPlugin()
 
 OpenCLPlugin::~OpenCLPlugin()
 {
-	Q_CLEANUP_RESOURCE(resources);
+	cleanupQtResources();
 }
 
 std::vector<std::string>
@@ -132,3 +147,5 @@ OpenCLPlugin::releaseResources()
 	m_devices.clear();
 	m_selectedDevice = cl::Device();
 }
+
+} // namespace opencl

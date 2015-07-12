@@ -21,8 +21,13 @@
 
 #include <cstddef>
 
+namespace opencl
+{
+
 size_t thisOrNextMultipleOf(size_t value, size_t factor);
 
 size_t thisOrPrevMultipleOf(size_t value, size_t factor);
+
+} // namespace opencl
 
 #endif

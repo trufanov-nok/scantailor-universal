@@ -25,6 +25,9 @@
 #include <vector>
 #include <cstdint>
 
+namespace opencl
+{
+
 /** @see AcceleratableOperations::textFilterBank() */
 std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	cl::CommandQueue const& command_queue,
@@ -34,5 +37,7 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	std::vector<Vec2f> const& sigmas, float shoulder_length,
 	std::vector<cl::Event>* wait_for = nullptr,
 	cl::Event* event = nullptr);
+
+} // namespace opencl
 
 #endif

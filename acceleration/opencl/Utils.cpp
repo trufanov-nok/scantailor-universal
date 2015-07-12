@@ -18,6 +18,9 @@
 
 #include "Utils.h"
 
+namespace opencl
+{
+
 size_t thisOrNextMultipleOf(size_t value, size_t factor)
 {
 	return thisOrPrevMultipleOf(value + factor - 1, factor);
@@ -27,3 +30,5 @@ size_t thisOrPrevMultipleOf(size_t value, size_t factor)
 {
 	return value - value % factor;
 }
+
+} // namespace opencl

@@ -32,6 +32,9 @@
 #include <cstddef>
 #include <utility>
 
+namespace opencl
+{
+
 /**
  * @note This constructor reports problems by throwing an exception.
  */
@@ -125,7 +128,7 @@ OpenCLAcceleratedOperations::gaussBlurUnguarded(
 	deps.clear();
 	deps.push_back(evt);
 
-	auto dst_grid = ::gaussBlur(
+	auto dst_grid = opencl::gaussBlur(
 		m_commandQueue, m_program, src_grid, h_sigma, v_sigma, &deps, &evt
 	);
 	deps.clear();
@@ -182,7 +185,7 @@ OpenCLAcceleratedOperations::anisotropicGaussBlurUnguarded(
 	deps.clear();
 	deps.push_back(evt);
 
-	auto dst_grid = ::anisotropicGaussBlur(
+	auto dst_grid = opencl::anisotropicGaussBlur(
 		m_commandQueue, m_program, src_grid,
 		dir_x, dir_y, dir_sigma, ortho_dir_sigma, &deps, &evt
 	);
@@ -240,7 +243,7 @@ OpenCLAcceleratedOperations::textFilterBankUnguarded(
 	deps.clear();
 	deps.push_back(evt);
 
-	std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> dst = ::textFilterBank(
+	std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> dst = opencl::textFilterBank(
 		m_commandQueue, m_program, src_grid,
 		directions, sigmas, shoulder_length, &deps, &evt
 	);
@@ -305,3 +308,5 @@ OpenCLAcceleratedOperations::dewarpUnguarded(
 		distortion_model, model_domain, background_color, min_mapping_area
 	);
 }
+
+} // namespace opencl
