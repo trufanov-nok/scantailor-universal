@@ -18,8 +18,8 @@
 
 #include "AffineImageTransform.h"
 #include "AffineTransformedImage.h"
+#include "AffineTransform.h"
 #include "RoundingHasher.h"
-#include "imageproc/Transform.h"
 #include <QSizeF>
 #include <QRectF>
 #include <QLineF>
@@ -149,7 +149,7 @@ AffineImageTransform::materialize(QImage const& image,
 	assert(!image.isNull());
 	assert(!target_rect.isEmpty());
 
-	return imageproc::transform(
+	return imageproc::affineTransform(
 		image, m_transform, target_rect,
 		imageproc::OutsidePixels::assumeColor(outside_color)
 	);

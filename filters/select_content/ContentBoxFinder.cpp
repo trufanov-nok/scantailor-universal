@@ -28,7 +28,7 @@
 #include "imageproc/Connectivity.h"
 #include "imageproc/ConnComp.h"
 #include "imageproc/ConnCompEraserExt.h"
-#include "imageproc/Transform.h"
+#include "imageproc/AffineTransform.h"
 #include "imageproc/RasterOp.h"
 #include "imageproc/GrayRasterOp.h"
 #include "imageproc/SeedFill.h"
@@ -126,7 +126,7 @@ ContentBoxFinder::findContentBox(TaskStatus const& status,
 	QColor const outside_color(darkest_gray_level, darkest_gray_level, darkest_gray_level);
 
 	QImage gray150(
-		transformToGray(
+		affineTransformToGray(
 			image.origImage(), downscaled_transform.transform(),
 			downscaled_rect, OutsidePixels::assumeColor(outside_color)
 		)

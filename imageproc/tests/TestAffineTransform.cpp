@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Transform.h"
+#include "AffineTransform.h"
 #include "Grayscale.h"
 #include "Utils.h"
 #include <QImage>
@@ -34,7 +34,7 @@ namespace tests
 
 using namespace utils;
 
-BOOST_AUTO_TEST_SUITE(TransformTestSuite);
+BOOST_AUTO_TEST_SUITE(AffineTransformTestSuite);
 
 BOOST_AUTO_TEST_CASE(test_null_image)
 {
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_null_image)
 	QRect const unit_rect(0, 0, 1, 1);
 	QColor const bgcolor(0xff, 0xff, 0xff);
 	OutsidePixels const outside_pixels(OutsidePixels::assumeColor(bgcolor));
-	BOOST_CHECK(transformToGray(null_img, null_xform, unit_rect, outside_pixels).isNull());
+	BOOST_CHECK(affineTransformToGray(null_img, null_xform, unit_rect, outside_pixels).isNull());
 }
 
 BOOST_AUTO_TEST_CASE(test_random_image)
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(test_random_image)
 	OutsidePixels const outside_pixels(OutsidePixels::assumeColor(bgcolor));
 	
 	QTransform const null_xform;
-	BOOST_CHECK(transformToGray(img, null_xform, img.rect(), outside_pixels) == img);
+	BOOST_CHECK(affineTransformToGray(img, null_xform, img.rect(), outside_pixels) == img);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

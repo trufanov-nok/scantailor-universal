@@ -108,7 +108,7 @@ private:
  *         be transformed to Format_RGB32, if the source image
  *         contains colors other than shades of gray.
  */
-IMAGEPROC_EXPORT QImage transform(
+IMAGEPROC_EXPORT QImage affineTransform(
 	QImage const& src, QTransform const& xform,
 	QRect const& dst_rect, OutsidePixels outside_pixels,
 	QSizeF const& min_mapping_area = QSizeF(0.9, 0.9));
@@ -119,7 +119,7 @@ IMAGEPROC_EXPORT QImage transform(
  * Same as transform(), except the source image image is converted
  * to grayscale before transforming it.
  */
-IMAGEPROC_EXPORT GrayImage transformToGray(
+IMAGEPROC_EXPORT GrayImage affineTransformToGray(
 	QImage const& src, QTransform const& xform,
 	QRect const& dst_rect, OutsidePixels outside_pixels,
 	QSizeF const& min_mapping_area = QSizeF(0.9, 0.9));

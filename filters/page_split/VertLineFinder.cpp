@@ -19,7 +19,7 @@
 #include "VertLineFinder.h"
 #include "DebugImages.h"
 #include "imageproc/AffineTransformedImage.h"
-#include "imageproc/Transform.h"
+#include "imageproc/AffineTransform.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Grayscale.h"
 #include "imageproc/GrayRasterOp.h"
@@ -64,7 +64,7 @@ VertLineFinder::findLines(
 
 	// From now on we work with ~100 DPI images.
 	GrayImage const gray100(
-		transformToGray(
+		affineTransformToGray(
 			image.origImage(), downscaled_xform.transform(), bounding_rect,
 			OutsidePixels::assumeWeakColor(Qt::black), QSizeF(5.0, 5.0)
 		)

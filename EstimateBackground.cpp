@@ -23,7 +23,7 @@
 #include "imageproc/BinaryImage.h"
 #include "imageproc/BWColor.h"
 #include "imageproc/BitOps.h"
-#include "imageproc/Transform.h"
+#include "imageproc/AffineTransform.h"
 #include "imageproc/Scale.h"
 #include "imageproc/Morphology.h"
 #include "imageproc/Connectivity.h"

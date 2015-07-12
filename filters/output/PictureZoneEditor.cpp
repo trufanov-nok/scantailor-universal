@@ -30,7 +30,7 @@
 #include "PixmapRenderer.h"
 #include "BackgroundExecutor.h"
 #include "AbstractCommand.h"
-#include "imageproc/Transform.h"
+#include "imageproc/AffineTransform.h"
 #include "imageproc/Constants.h"
 #include "imageproc/GrayImage.h"
 #include <QPointer>
@@ -364,7 +364,7 @@ PictureZoneEditor::MaskTransformTask::operator()()
 	);
 
 	QImage gray_mask(
-		transformToGray(
+		affineTransformToGray(
 			m_origMask.toQImage(), m_xform, target_rect,
 			OutsidePixels::assumeWeakColor(Qt::black), QSizeF(0.0, 0.0)
 		)

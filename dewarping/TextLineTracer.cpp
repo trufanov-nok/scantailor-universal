@@ -31,10 +31,10 @@
 #include "math/SidesOfLine.h"
 #include "math/LineBoundedByRect.h"
 #include "imageproc/AffineTransformedImage.h"
+#include "imageproc/AffineTransform.h"
 #include "imageproc/Binarize.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/GrayImage.h"
-#include "imageproc/Transform.h"
 #include "imageproc/RasterOpGeneric.h"
 #include "imageproc/Sobel.h"
 #include "imageproc/Constants.h"
@@ -101,7 +101,7 @@ TextLineTracer::trace(
 	assert(downscaled_rect.topLeft() == QPoint(0, 0));
 
 	GrayImage downscaled_image(
-		transformToGray(
+		affineTransformToGray(
 			downscaled.origImage(), downscaled.xform().transform(),
 			downscaled_rect, OutsidePixels::assumeWeakNearest()
 		)

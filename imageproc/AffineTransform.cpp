@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Transform.h"
+#include "AffineTransform.h"
 #include "GrayImage.h"
 #include "ColorMixer.h"
 #include "BadAllocIfNull.h"
@@ -79,7 +79,7 @@ static QSizeF calcSrcUnitSize(QTransform const& xform, QSizeF const& min)
 }
 
 template<typename StorageUnit, typename Mixer>
-static void transformGeneric(
+static void affineTransformGeneric(
 	StorageUnit const* const src_data, int const src_stride, QSize const src_size,
 	StorageUnit* const dst_data, int const dst_stride, QTransform const& xform,
 	QRect const& dst_rect, StorageUnit const outside_color, int const outside_flags,
@@ -315,7 +315,7 @@ static void transformGeneric(
 
 } // anonymous namespace
 
-QImage transform(
+QImage affineTransform(
 	QImage const& src, QTransform const& xform,
 	QRect const& dst_rect, OutsidePixels const outside_pixels,
 	QSizeF const& min_mapping_area)
@@ -325,11 +325,11 @@ QImage transform(
 	}
 	
 	if (!xform.isAffine()) {
-		throw std::invalid_argument("transform: only affine transformations are supported");
+		throw std::invalid_argument("affineTransform: only affine transformations are supported");
 	}
 	
 	if (!dst_rect.isValid()) {
-		throw std::invalid_argument("transform: dst_rect is invalid");
+		throw std::invalid_argument("affineTransform: dst_rect is invalid");
 	}
 
 	auto is_opaque_gray = [](QRgb rgba) {
@@ -347,7 +347,7 @@ QImage transform(
 				GrayImage gray_dst(dst_rect.size());
 
 				typedef uint32_t AccumType;
-				transformGeneric<uint8_t, GrayColorMixer<AccumType>>(
+				affineTransformGeneric<uint8_t, GrayColorMixer<AccumType>>(
 					gray_src.data(), gray_src.stride(), src.size(),
 					gray_dst.data(), gray_dst.stride(), xform, dst_rect,
 					outside_pixels.grayLevel(), outside_pixels.flags(),
@@ -366,7 +366,7 @@ QImage transform(
 				badAllocIfNull(dst);
 
 				typedef uint32_t AccumType;
-				transformGeneric<uint32_t, RgbColorMixer<AccumType>>(
+				affineTransformGeneric<uint32_t, RgbColorMixer<AccumType>>(
 					(uint32_t const*)src_rgb32.bits(), src_rgb32.bytesPerLine() / 4, src_rgb32.size(),
 					(uint32_t*)dst.bits(), dst.bytesPerLine() / 4, xform, dst_rect,
 					outside_pixels.rgb(), outside_pixels.flags(), min_mapping_area
@@ -385,7 +385,7 @@ QImage transform(
 				 * better performance, at least on my machine.
 				 */
 				typedef float AccumType;
-				transformGeneric<uint32_t, ArgbColorMixer<AccumType>>(
+				affineTransformGeneric<uint32_t, ArgbColorMixer<AccumType>>(
 					(uint32_t const*)src_argb32.bits(),
 					src_argb32.bytesPerLine() / 4, src_argb32.size(),
 					(uint32_t*)dst.bits(), dst.bytesPerLine() / 4, xform, dst_rect,
@@ -396,7 +396,7 @@ QImage transform(
 	}
 }
 
-GrayImage transformToGray(
+GrayImage affineTransformToGray(
 	QImage const& src, QTransform const& xform,
 	QRect const& dst_rect, OutsidePixels const outside_pixels,
 	QSizeF const& min_mapping_area)
@@ -406,18 +406,18 @@ GrayImage transformToGray(
 	}
 	
 	if (!xform.isAffine()) {
-		throw std::invalid_argument("transformToGray: only affine transformations are supported");
+		throw std::invalid_argument("affineTransformToGray: only affine transformations are supported");
 	}
 	
 	if (!dst_rect.isValid()) {
-		throw std::invalid_argument("transformToGray: dst_rect is invalid");
+		throw std::invalid_argument("affineTransformToGray: dst_rect is invalid");
 	}
 	
 	GrayImage const gray_src(src);
 	GrayImage dst(dst_rect.size());
 	
 	typedef unsigned AccumType;
-	transformGeneric<uint8_t, GrayColorMixer<AccumType>>(
+	affineTransformGeneric<uint8_t, GrayColorMixer<AccumType>>(
 		gray_src.data(), gray_src.stride(), gray_src.size(),
 		dst.data(), dst.stride(), xform, dst_rect,
 		outside_pixels.grayLevel(), outside_pixels.flags(),

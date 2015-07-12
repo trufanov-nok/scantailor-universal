@@ -23,7 +23,7 @@ SET(
 	SkewFinder.cpp SkewFinder.h
 	OrthogonalRotation.cpp OrthogonalRotation.h
 	Scale.cpp Scale.h
-	Transform.cpp Transform.h
+	AffineTransform.cpp AffineTransform.h
 	AbstractImageTransform.h
 	AffineImageTransform.cpp AffineImageTransform.h
 	AffineTransformedImage.cpp AffineTransformedImage.h

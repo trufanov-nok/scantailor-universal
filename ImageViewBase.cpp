@@ -24,7 +24,7 @@
 #include "BackgroundExecutor.h"
 #include "ScopedIncDec.h"
 #include "imageproc/PolygonUtils.h"
-#include "imageproc/Transform.h"
+#include "imageproc/AffineTransform.h"
 #include "config.h"
 #include <QScrollBar>
 #include <QPointer>
@@ -268,7 +268,7 @@ ImageViewBase::createDownscaledImage(QImage const& image)
 		(double)scaled_size.height() / image.height()
 	);
 
-	return transform(
+	return affineTransform(
 		image, xform, QRect(QPoint(0, 0), scaled_size),
 		OutsidePixels::assumeColor(Qt::white)
 	);
@@ -1131,7 +1131,7 @@ ImageViewBase::HqTransformTask::operator()()
 	}
 
 	QImage hq_image(
-		transform(
+		affineTransform(
 			m_image, m_xform, m_targetRect,
 			OutsidePixels::assumeColor(Qt::transparent), QSizeF(0.0, 0.0)
 		)

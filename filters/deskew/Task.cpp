@@ -37,6 +37,7 @@
 #include "dewarping/TopBottomEdgeTracer.h"
 #include "imageproc/AffineImageTransform.h"
 #include "imageproc/AffineTransformedImage.h"
+#include "imageproc/AffineTransform.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/BinaryThreshold.h"
 #include "imageproc/BWColor.h"
@@ -49,7 +50,6 @@
 #include "imageproc/SeedFill.h"
 #include "imageproc/Connectivity.h"
 #include "imageproc/Morphology.h"
-#include "imageproc/Transform.h"
 #include "math/LineBoundedByRect.h"
 #include "math/XSpline.h"
 #include <QImage>
@@ -281,7 +281,7 @@ Task::processRotationDistortion(
 
 		if (transformed_crop_rect.isValid()) {
 			BinaryImage bw_image(
-				transformToGray(
+				affineTransformToGray(
 					gray_orig_image_factory(), orig_image_transform.transform(),
 					transformed_crop_rect, OutsidePixels::assumeColor(Qt::white)
 				),

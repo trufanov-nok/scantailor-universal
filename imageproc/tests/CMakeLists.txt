@@ -13,7 +13,7 @@ SET(
 	TestOrthogonalRotation.cpp
 	TestSkewFinder.cpp
 	TestScale.cpp
-	TestTransform.cpp
+	TestAffineTransform.cpp
 	TestMorphology.cpp
 	TestBinarize.cpp
 	TestPolygonRasterizer.cpp

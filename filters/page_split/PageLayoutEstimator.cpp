@@ -26,6 +26,7 @@
 #include "DebugImages.h"
 #include "foundation/Span.h"
 #include "imageproc/AffineTransformedImage.h"
+#include "imageproc/AffineTransform.h"
 #include "imageproc/Binarize.h"
 #include "imageproc/BinaryThreshold.h"
 #include "imageproc/BWColor.h"
@@ -42,7 +43,6 @@
 #include "imageproc/OrthogonalRotation.h"
 #include "imageproc/Scale.h"
 #include "imageproc/SlicedHistogram.h"
-#include "imageproc/Transform.h"
 #include "imageproc/Grayscale.h"
 #include "imageproc/GrayRasterOp.h"
 #include "imageproc/PolygonRasterizer.h"
@@ -537,7 +537,7 @@ PageLayoutEstimator::binarize(AffineTransformedImage const& image)
 	);
 
 	return BinaryImage(
-		transformToGray(
+		affineTransformToGray(
 			image.origImage(), image.xform().transform(),
 			image.xform().transformedCropArea().boundingRect().toRect(),
 			OutsidePixels::assumeColor(Qt::white)
