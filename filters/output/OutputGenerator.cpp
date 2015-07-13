@@ -792,22 +792,22 @@ OutputGenerator::detectPictures(
 QImage
 OutputGenerator::smoothToGrayscale(QImage const& src)
 {
-	//int const min_dpi = std::min(dpi.horizontal(), dpi.vertical());
+	int const min_dim = std::min(src.width(), src.height());
 	int window;
 	int degree;
-	//if (min_dpi <= 200) {
-	//	window = 5;
-	//	degree = 3;
-	//} else if (min_dpi <= 400) {
+	if (min_dim <= 1250) {
+		window = 5;
+		degree = 3;
+	} else if (min_dim <= 2500) {
 		window = 7;
 		degree = 4;
-	//} else if (min_dpi <= 800) {
-	//	window = 11;
-	//	degree = 4;
-	//} else {
-	//	window = 11;
-	//	degree = 2;
-	//}
+	} else if (min_dim <= 5000) {
+		window = 11;
+		degree = 4;
+	} else {
+		window = 11;
+		degree = 2;
+	}
 	return savGolFilter(src, QSize(window, window), degree, degree);
 }
 
