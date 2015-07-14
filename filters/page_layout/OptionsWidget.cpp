@@ -393,8 +393,9 @@ OptionsWidget::applyAlignment(std::set<PageId> const& pages)
 		return;
 	}
 	
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id : pages) {
 		m_ptrSettings->setPageAlignment(page_id, m_alignment);
+		m_ptrSettings->setMatchSizeMode(page_id, m_matchSizeMode);
 	}
 	
 	emit invalidateAllThumbnails();
