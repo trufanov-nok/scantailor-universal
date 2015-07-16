@@ -256,6 +256,9 @@ Task::processNoDistortion(
 	CachingFactory<imageproc::GrayImage> const& gray_orig_image_factory,
 	AffineImageTransform const& orig_image_transform, Params& params)
 {
+	// Necessary to update dependencies.
+	m_ptrSettings->setPageParams(m_pageId, params);
+
 	if (m_ptrNextTask) {
 		return m_ptrNextTask->process(
 			status, accel_ops, orig_image, gray_orig_image_factory,
