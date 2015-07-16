@@ -282,8 +282,8 @@ unsigned char darkestGrayLevel(QImage const& image)
 	int const width = image.width();
 	int const height = image.height();
 	
-	unsigned char const* line = image.bits();
-	int const bpl = image.bytesPerLine();
+	unsigned char const* line = gray.bits();
+	int const bpl = gray.bytesPerLine();
 	
 	unsigned char darkest = 0xff;
 	
