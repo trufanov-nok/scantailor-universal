@@ -20,6 +20,8 @@
 #define SELECT_CONTENT_CONTENTBOXFINDER_H_
 
 #include "imageproc/BinaryThreshold.h"
+#include "acceleration/AcceleratableOperations.h"
+#include <memory>
 
 class TaskStatus;
 class DebugImages;
@@ -42,6 +44,7 @@ class ContentBoxFinder
 public:
 	static QRectF findContentBox(
 		TaskStatus const& status,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		imageproc::AffineTransformedImage const& image,
 		DebugImages* dbg = 0);
 private:

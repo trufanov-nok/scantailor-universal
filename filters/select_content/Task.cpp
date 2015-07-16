@@ -131,7 +131,7 @@ Task::process(
 		);
 
 		QRectF const content_rect(
-			ContentBoxFinder::findContentBox(status, *dewarped, m_ptrDbg.get())
+			ContentBoxFinder::findContentBox(status, accel_ops, *dewarped, m_ptrDbg.get())
 		);
 
 		params.reset(

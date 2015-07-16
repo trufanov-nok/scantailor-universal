@@ -110,6 +110,7 @@ struct PreferVertical
 
 QRectF
 ContentBoxFinder::findContentBox(TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	AffineTransformedImage const& image, DebugImages* dbg)
 {
 	AffineImageTransform downscaled_transform(image.xform());
@@ -122,12 +123,14 @@ ContentBoxFinder::findContentBox(TaskStatus const& status,
 		return QRectF();
 	}
 	
-	uint8_t const darkest_gray_level = darkestGrayLevel(image.origImage());
+	GrayImage const gray_orig_image(image.origImage());
+
+	uint8_t const darkest_gray_level = darkestGrayLevel(gray_orig_image);
 	QColor const outside_color(darkest_gray_level, darkest_gray_level, darkest_gray_level);
 
 	QImage gray150(
-		affineTransformToGray(
-			image.origImage(), downscaled_transform.transform(),
+		accel_ops->affineTransform(
+			gray_orig_image, downscaled_transform.transform(),
 			downscaled_rect, OutsidePixels::assumeColor(outside_color)
 		)
 	);
