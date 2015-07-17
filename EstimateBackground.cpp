@@ -203,8 +203,8 @@ imageproc::PolynomialSurface estimateBackground(
 		dbg->add(mask, "region_of_intereset");
 	}
 	
-	uint32_t* mask_data = mask.data();
-	int mask_stride = mask.wordsPerLine();
+	uint32_t* const mask_data = mask.data();
+	int const mask_stride = mask.wordsPerLine();
 	
 	std::vector<uint8_t> line(std::max(width, height), 0);
 	uint32_t const msb = uint32_t(1) << 31;
@@ -254,70 +254,6 @@ imageproc::PolynomialSurface estimateBackground(
 	
 	if (dbg) {
 		dbg->add(mask, "mask");
-	}
-	
-	status.throwIfCancelled();
-	
-	mask = erodeBrick(mask, QSize(3, 3));
-	if (dbg) {
-		dbg->add(mask, "eroded");
-	}
-	
-	status.throwIfCancelled();
-	
-	// Update those because mask was overwritten.
-	mask_data = mask.data();
-	mask_stride = mask.wordsPerLine();
-	
-	// Check each horizontal line.  If it's mostly
-	// white (ignored), then make it completely white.
-	int const last_word_idx = (width - 1) >> 5;
-	uint32_t const last_word_mask = ~uint32_t(0) << (
-		32 - width - (last_word_idx << 5)
-	);
-	mask_line = mask_data;
-	for (int y = 0; y < height; ++y, mask_line += mask_stride) {
-		int black_count = 0;
-		int i = 0;
-		
-		// Complete words.
-		for (; i < last_word_idx; ++i) {
-			black_count += countNonZeroBits(mask_line[i]);
-		}
-		
-		// The last (possible incomplete) word.
-		black_count += countNonZeroBits(mask_line[i] & last_word_mask);
-		
-		if (black_count < width / 4) {
-			memset(mask_line, 0,
-				(last_word_idx + 1) * sizeof(*mask_line));
-		}
-	}
-	
-	status.throwIfCancelled();
-	
-	// Check each vertical line.  If it's mostly
-	// white (ignored), then make it completely white.
-	for (int x = 0; x < width; ++x) {
-		uint32_t const mask = msb >> (x & 31);
-		uint32_t* p_mask = mask_data + (x >> 5);
-		int black_count = 0;
-		for (int y = 0; y < height; ++y) {
-			if (*p_mask & mask) {
-				++black_count;
-			}
-			p_mask += mask_stride;
-		}
-		if (black_count < height / 4) {
-			for (int y = height - 1; y >= 0; --y) {
-				p_mask -= mask_stride;
-				*p_mask &= ~mask;
-			}
-		}
-	}
-	
-	if (dbg) {
-		dbg->add(mask, "lines_extended");
 	}
 	
 	status.throwIfCancelled();
