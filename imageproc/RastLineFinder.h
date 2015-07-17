@@ -126,10 +126,7 @@ private:
 /**
  * \brief Finds lines in point clouds.
  *
- * This class implements the following algorithm:\n
- * Thomas M. Breuel. Finding Lines under Bounded Error.\n
- * Pattern Recognition, 29(1):167-178, 1996.\n
- * http://infoscience.epfl.ch/record/82286/files/93-11.pdf?version=1
+ * \see Help -> About -> References -> [14]
  */
 class IMAGEPROC_EXPORT RastLineFinder
 {

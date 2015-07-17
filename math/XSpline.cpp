@@ -38,7 +38,7 @@ struct XSpline::TensionDerivedParams
 	static double const t2;
 	static double const t3;
 
-	// These correspond to Tk- and Tk+ in [1].
+	// These correspond to Tk- and Tk+ in [18].
 	double T0p;
 	double T1p;
 	double T2m;
@@ -833,7 +833,7 @@ XSpline::TensionDerivedParams::TensionDerivedParams(
 	q[2] = s_1;
 	q[3] = s_2;
 
-	// Formula 17 in [1]:
+	// Formula 17 in [18]:
 	p[0] = 2.0 * square(t0 - T0p);
 	p[1] = 2.0 * square(t1 - T1p);
 	p[2] = 2.0 * square(t2 - T2m);
@@ -844,7 +844,7 @@ XSpline::TensionDerivedParams::TensionDerivedParams(
 /*========================== GBlendFunc ==========================*/
 
 XSpline::GBlendFunc::GBlendFunc(double q, double p)
-:	m_c1(q), // See formula 20 in [1].
+:	m_c1(q), // See formula 20 in [18].
 	m_c2(2 * q),
 	m_c3(10 - 12 * q - p),
 	m_c4(2 * p + 14 * q - 15),
@@ -886,7 +886,7 @@ XSpline::GBlendFunc::secondDerivative(double u) const
 /*========================== HBlendFunc ==========================*/
 
 XSpline::HBlendFunc::HBlendFunc(double q)
-:	m_c1(q), // See formula 20 in [1].
+:	m_c1(q), // See formula 20 in [18].
 	m_c2(2 * q),
 	m_c4(-2 * q),
 	m_c5(-q)

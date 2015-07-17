@@ -40,8 +40,8 @@ class GrayImage;
  * \p seed is allowed to contain black pixels that are not in \p mask.
  * They will be ignored and will not appear in the resulting image.
  * \par
- * The underlying code implements Luc Vincent's iterative seed-fill
- * algorithm: http://www.vincent-net.com/luc/papers/93ieeeip_recons.pdf
+ *
+ * \see Help -> About -> References -> [15]
  */
 IMAGEPROC_EXPORT BinaryImage seedFill(
 	BinaryImage const& seed, BinaryImage const& mask,
@@ -57,8 +57,8 @@ IMAGEPROC_EXPORT BinaryImage seedFill(
  * \p seed is allowed to contain pixels darker than the corresponding pixels
  * in \p mask.  Such pixels will be made equal to their mask values.
  * \par
- * The underlying code implements Luc Vincent's hybrid seed-fill algorithm:
- * http://www.vincent-net.com/luc/papers/93ieeeip_recons.pdf
+ *
+ * \see Help -> About -> References -> [15]
  */
 IMAGEPROC_EXPORT GrayImage seedFillGray(
 	GrayImage const& seed, GrayImage const& mask, Connectivity connectivity);

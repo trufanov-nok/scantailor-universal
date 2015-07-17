@@ -32,6 +32,13 @@
 namespace dewarping
 {
 
+/**
+ * @brief A model for mapping a curved quadrilateral into a rectangle.
+ *
+ * Implements a model from [17] plus a homographic transform on top.
+ *
+ * @see Help -> About -> References -> [17]
+ */
 class DEWARPING_EXPORT CylindricalSurfaceDewarper
 {
 public:

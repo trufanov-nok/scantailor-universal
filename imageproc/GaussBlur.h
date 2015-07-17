@@ -16,15 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* References:
- * [1] Young, Ian T., and Lucas J. Van Vliet. "Recursive implementation
- * of the Gaussian filter." Signal processing 44.2 (1995): 139-151.
- * [2] Triggs, Bill, and Michael Sdika. "Boundary conditions for
- * Young-van Vliet recursive filtering." Signal Processing,
- * IEEE Transactions on 54.6 (2006): 2365-2367.
- * [3] Geusebroek, J-M., Arnold WM Smeulders, and Joost Van De Weijer.
- * "Fast anisotropic gauss filtering." Image Processing, IEEE Transactions
- * on 12.8 (2003): 938-943.
+/* See Help -> About -> References -> [1], [2], [3]
  *
  * Paper [1] approximates convolution with a 1D gaussian by applying
  * a certain LTI system to the input signal x, producing an intermediate

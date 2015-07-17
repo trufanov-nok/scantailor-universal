@@ -53,11 +53,6 @@ public:
 	/**
 	 * \brief Image binarization using Mokji's global thresholding method.
 	 *
-	 * M. M. Mokji, S. A. R. Abu-Bakar: Adaptive Thresholding Based on
-	 * Co-occurrence Matrix Edge Information. Asia International Conference on
-	 * Modelling and Simulation 2007: 444-450
-	 * http://www.academypublisher.com/jcp/vol02/no08/jcp02084452.pdf
-	 *
 	 * \param image The source image.  May be in any format.
 	 * \param max_edge_width The maximum gradient length to consider.
 	 * \param min_edge_magnitude The minimum color difference in a gradient.

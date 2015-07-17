@@ -31,9 +31,7 @@
 /**
  * \brief An open X-Spline.
  *
- * [1] Blanc, Carole, and Christophe Schlick. "X-splines: A spline model designed
- * for the end-user." Proceedings of the 22nd annual conference on Computer graphics
- * and interactive techniques. ACM, 1995.
+ * \see Help -> About -> References -> [18]
  */
 class MATH_EXPORT XSpline : public spfit::FittableSpline
 {
@@ -178,7 +176,7 @@ private:
 		QPointF pos;
 
 		/**
-		 * Tension is in range of [-1 .. 1] and corresponds to sk as defined in section 5 of [1],
+		 * Tension is in range of [-1 .. 1] and corresponds to sk as defined in section 5 of [18],
 		 * not to be confused with sk defined in section 4, which has a range of [0 .. 1].
 		 */
 		double tension;

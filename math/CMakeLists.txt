@@ -19,7 +19,6 @@ SOURCE_GROUP("Sources" FILES ${GENERIC_SOURCES})
 
 SET(
 	SPFIT_SOURCES
-	spfit/references.txt
 	spfit/FittableSpline.h
 	spfit/FrenetFrame.cpp spfit/FrenetFrame.h
 	spfit/ConstraintSet.cpp spfit/ConstraintSet.h
@@ -35,7 +34,6 @@ SOURCE_GROUP("Sources\\Spline Fitting Framework" FILES ${SPFIT_SOURCES})
 
 SET(
 	ADIFF_SOURCES
-	adiff/references.txt
 	adiff/SparseMap.cpp adiff/SparseMap.h
 	adiff/Function.cpp adiff/Function.h
 )

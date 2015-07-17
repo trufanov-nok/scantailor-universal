@@ -52,6 +52,8 @@ public:
 	 *       takes forever, so pass a downscaled version here. 300x300
 	 *       pixels will be fine.  Once built, the polynomial surface
 	 *       may then be rendered in the original size, if necessary.
+	 *
+	 * \see Help -> About -> References -> [16]
 	 */
 	PolynomialSurface(
 		int hor_degree, int vert_degree, GrayImage const& src);

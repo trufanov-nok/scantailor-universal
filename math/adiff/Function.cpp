@@ -26,9 +26,10 @@ using namespace Eigen;
 namespace adiff
 {
 
+// See Help -> About -> References -> [4]
 // Note:
-// 1. u in this file has the same meaning as in [1].
-// 2. sparse_map(i, j) corresponds to l(i, j) in [1].
+// 1. u in this file has the same meaning as in [4].
+// 2. sparse_map(i, j) corresponds to l(i, j) in [4].
 
 Function<2>::Function(size_t num_non_zero_vars)
 :	value()

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -345,6 +345,107 @@ font-weight:bold;</string>
               </size>
              </property>
             </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>References</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QScrollArea" name="scrollArea_2">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>-862</y>
+            <width>423</width>
+            <height>1106</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QLabel" name="references">
+             <property name="text">
+              <string>&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Recursive+implementation+of+the+Gaussian+filter&quot;&gt;[1]&lt;/a&gt; Young, Ian T., and Lucas J. Van Vliet. &quot;Recursive implementation of the Gaussian filter.&quot; Signal processing 44.2 (1995): 139-151.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Boundary+conditions+for+Young-van+Vliet+recursive+filtering&quot;&gt;[2]&lt;/a&gt; Triggs, Bill, and Michaël Sdika. &quot;Boundary conditions for Young-van Vliet recursive filtering.&quot; Signal Processing, IEEE Transactions on 54.6 (2006): 2365-2367.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Fast+anisotropic+gauss+filtering&quot;&gt;[3]&lt;/a&gt; Geusebroek, Jan-Mark, Arnold WM Smeulders, and Joost Van de Weijer. &quot;Fast anisotropic gauss filtering.&quot; Image Processing, IEEE Transactions on 12.8 (2003): 938-943.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Structured+second-and+higher-order+derivatives+through+univariate+Taylor+series&quot;&gt;[4]&lt;/a&gt; Bischof, Christian, George Corliss, and Andreas Griewank. &quot;Structured second-and higher-order derivatives through univariate Taylor series.&quot; Optimization Methods and Software 2.3-4 (1993): 211-232.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=A+concept+for+parametric+surface+fitting+which+avoids+the+parametrization+problem&quot;&gt;[5]&lt;/a&gt; Pottmann, Helmut, and Stefan Leopoldseder. &quot;A concept for parametric surface fitting which avoids the parametrization problem.&quot; Computer Aided Geometric Design 20.6 (2003): 343-362.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Fitting+b-spline+curves+to+point+clouds+by+squared+distance+minimization&quot;&gt;[6]&lt;/a&gt; Wang, Wenping, Helmut Pottmann, and Yang Liu. &quot;Fitting b-spline curves to point clouds by squared distance minimization.&quot; Preprint, University of Hong Kong (2004).
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=A+threshold+selection+method+from+gray-level+histograms&quot;&gt;[7]&lt;/a&gt; Otsu, Nobuyuki. &quot;A threshold selection method from gray-level histograms.&quot; Automatica 11.285-296 (1975): 23-27.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Adaptive+thresholding+based+on+co-occurrence+matrix+edge+information&quot;&gt;[8]&lt;/a&gt; Mokji, Musa Mohd, and S. A. R. A. Bakar. &quot;Adaptive thresholding based on co-occurrence matrix edge information.&quot; Modelling &amp;amp; Simulation, 2007. AMS'07. First Asia International Conference on. IEEE, 2007.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Niblack%2C+W.%3A+An+Introduction+to+Digital+Image+Processing.&quot;&gt;[9]&lt;/a&gt; Niblack, Wayne. An introduction to digital image processing. Englewood Cliffs, N. J., Prentice Hall (1986) 115-116
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Adaptive+degraded+document+image+binarization&quot;&gt;[10]&lt;/a&gt; Gatos, Basilios, Ioannis Pratikakis, and Stavros J. Perantonis. &quot;Adaptive degraded document image binarization.&quot; Pattern recognition 39.3 (2006): 317-327.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Adaptive+document+image+binarization&quot;&gt;[11]&lt;/a&gt; Sauvola, Jaakko, and Matti Pietikäinen. &quot;Adaptive document image binarization.&quot; Pattern recognition 33.2 (2000): 225-236.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Text+localization%2C+enhancement+and+binarization+in+multimedia+documents&quot;&gt;[12]&lt;/a&gt; Wolf, Christian, Jean-Michel Jolion, and Francoise Chassaing. &quot;Text localization, enhancement and binarization in multimedia documents.&quot; Pattern Recognition, 2002. Proceedings. 16th International Conference on. Vol. 2. IEEE, 2002.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=A+fast+algorithm+for+local+minimum+and+maximum+filters+on+rectangular+and+octagonal+kernels&quot;&gt;[13]&lt;/a&gt; Van Herk, Marcel. &quot;A fast algorithm for local minimum and maximum filters on rectangular and octagonal kernels.&quot; Pattern Recognition Letters 13.7 (1992): 517-521.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Finding+Lines+under+Bounded+Error&quot;&gt;[14]&lt;/a&gt; Breuel, Thomas M. &quot;Finding lines under bounded error.&quot; Pattern recognition 29.1 (1996): 167-178.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Morphological+grayscale+reconstruction+in+image+analysis%3A+applications+and+efficient+algorithms&quot;&gt;[15]&lt;/a&gt; Vincent, Luc. &quot;Morphological grayscale reconstruction in image analysis: applications and efficient algorithms.&quot; Image Processing, IEEE Transactions on 2.2 (1993): 176-201.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?hl=en&amp;q=Binarization+of+Badly+Illuminated+Document+Images+through+Shading+Estimation+and+Compensation&quot;&gt;[16]&lt;/a&gt; Lu, Shijian, and Chew Lim Tan. &quot;Binarization of badly illuminated document images through shading estimation and compensation.&quot; Document Analysis and Recognition, 2007. ICDAR 2007. Ninth International Conference on. Vol. 1. IEEE, 2007.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Rectifying+the+bound+document+image+captured+by+the+camera%3A+A+model+based+approach#&quot;&gt;[17]&lt;/a&gt; Cao, Huaigu, Xiaoqing Ding, and Changsong Liu. &quot;Rectifying the bound document image captured by the camera: A model based approach.&quot; Document Analysis and Recognition, 2003. Proceedings. Seventh International Conference on. IEEE, 2003.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=X-splines%3A+A+spline+model+designed+for+the+end-user&quot;&gt;[18]&lt;/a&gt; Blanc, Carole, and Christophe Schlick. &quot;X-splines: A spline model designed for the end-user.&quot; Proceedings of the 22nd annual conference on Computer graphics and interactive techniques. ACM, 1995.
+&lt;/p&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

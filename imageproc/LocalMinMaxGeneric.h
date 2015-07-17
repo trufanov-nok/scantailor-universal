@@ -273,9 +273,7 @@ void verticalPass(
  * \param output_stride The size of a row in the output buffer, in terms of the number of T objects.
  *        The output grid is presumed to have the same dimensions as the input grid.
  *
- * This code is an implementation of the following algorithm:\n
- * A fast algorithm for local minimum and maximum filters on rectangular and octagonal kernels,
- * Patt. Recog. Letters, 13, pp. 517-521, 1992
+ * \see Help -> About -> References -> [13]
  *
  * A good description of this algorithm is available online at:
  * http://leptonica.com/grayscale-morphology.html#FAST-IMPLEMENTATION

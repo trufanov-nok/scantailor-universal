@@ -33,23 +33,19 @@ class GrayImage;
 /**
  * \brief Image binarization using Otsu's global thresholding method.
  *
- * N. Otsu (1979). "A threshold selection method from gray-level histograms".
- * http://en.wikipedia.org/wiki/Otsu%27s_method
+ * \see Help -> About -> References -> [7]
  */
 IMAGEPROC_EXPORT BinaryImage binarizeOtsu(QImage const& src);
 
 /**
  * \brief Image binarization using Mokji's global thresholding method.
  *
- * M. M. Mokji, S. A. R. Abu-Bakar: Adaptive Thresholding Based on
- * Co-occurrence Matrix Edge Information. Asia International Conference on
- * Modelling and Simulation 2007: 444-450
- * http://www.academypublisher.com/jcp/vol02/no08/jcp02084452.pdf
- *
  * \param src The source image.  May be in any format.
  * \param max_edge_width The maximum gradient length to consider.
  * \param min_edge_magnitude The minimum color difference in a gradient.
  * \return A black and white image.
+ *
+ * \see Help -> About -> References -> [8]
  */
 IMAGEPROC_EXPORT BinaryImage binarizeMokji(
 	QImage const& src, unsigned max_edge_width = 3,
@@ -58,20 +54,17 @@ IMAGEPROC_EXPORT BinaryImage binarizeMokji(
 /**
   * \brief Image binarization using Niblack's local thresholding method.
   *
-  * Niblack, W.: An Introduction to Digital Image Processing.
-  * Englewood Cliffs, N. J., Prentice Hall (1986) 115-116
+  * \see Help -> About -> References -> [9]
   */
 IMAGEPROC_EXPORT BinaryImage binarizeNiblack(GrayImage const& src, QSize window_size);
 
 /**
  * \brief Image binarization using Gatos' local thresholding method.
  *
- * Gatos, Basilios, Ioannis Pratikakis, and Stavros J. Perantonis.
- * "Adaptive degraded document image binarization."
- * Pattern recognition 39.3 (2006): 317-327.
- *
  * This implementation doesn't include the post-processing steps from
  * the above paper.
+ *
+ * \see Help -> About -> References -> [10]
  */
 IMAGEPROC_EXPORT BinaryImage binarizeGatos(
     GrayImage const& src, QSize window_size, double noise_sigma);
@@ -79,17 +72,14 @@ IMAGEPROC_EXPORT BinaryImage binarizeGatos(
 /**
  * \brief Image binarization using Sauvola's local thresholding method.
  *
- * Sauvola, J. and M. Pietikainen. 2000. "Adaptive document image binarization".
- * http://www.mediateam.oulu.fi/publications/pdf/24.pdf
+ * \see Help -> About -> References -> [11]
  */
 IMAGEPROC_EXPORT BinaryImage binarizeSauvola(QImage const& src, QSize window_size);
 
 /**
  * \brief Image binarization using Wolf's local thresholding method.
  *
- * C. Wolf, J.M. Jolion, F. Chassaing. "Text localization, enhancement and
- * binarization in multimedia documents."
- * http://liris.cnrs.fr/christian.wolf/papers/icpr2002v.pdf
+ * \see Help -> About -> References -> [12]
  *
  * \param src The image to binarize.
  * \param window_size The dimensions of a pixel neighborhood to consider.

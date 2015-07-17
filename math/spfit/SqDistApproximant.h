@@ -42,7 +42,7 @@ class FrenetFrame;
  * of some unspecified point.
  * The iso-curves of the function are rotated ellipses in a general case.
  *
- * \see Eq 8 in [1], Fig 4, 5 in [2].
+ * \see Help -> About -> References -> Eq 8 in [5], Fig 4, 5 in [6].
  */
 struct MATH_EXPORT SqDistApproximant
 {
