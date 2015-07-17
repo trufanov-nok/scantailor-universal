@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,23 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WORKERTHREAD_H_
-#define WORKERTHREAD_H_
+#ifndef WORKERTHREADPOOL_H_
+#define WORKERTHREADPOOL_H_
 
-#include "NonCopyable.h"
 #include "BackgroundTask.h"
 #include "FilterResult.h"
 #include <QObject>
+#include <QSettings>
 #include <memory>
 
-class WorkerThread : public QObject
+class QThreadPool;
+
+class WorkerThreadPool : public QObject
 {
 	Q_OBJECT
-	DECLARE_NON_COPYABLE(WorkerThread)
-public:	
-	WorkerThread(QObject* parent = 0);
+public:
+	WorkerThreadPool(QObject* parent = nullptr);
 	
-	~WorkerThread();
+	virtual ~WorkerThreadPool();
 	
 	/**
 	 * \brief Waits for pending jobs to finish and stop the thread.
@@ -41,19 +42,21 @@ public:
 	 * useful to prematuraly stop task processing.
 	 */
 	void shutdown();
-public slots:
-	void performTask(BackgroundTaskPtr const& task);
+
+	bool hasSpareCapacity() const;
+
+	void submitTask(BackgroundTaskPtr const& task);
 signals:
 	void taskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
 private:
-	void emitTaskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
-	
-	class Impl;
-	class Dispatcher;
-	class PerformTaskEvent;
 	class TaskResultEvent;
 	
-	std::auto_ptr<Impl> m_ptrImpl;
+	virtual void customEvent(QEvent* event) override;
+
+	void updateNumberOfThreads();
+
+	QThreadPool* m_pPool;
+	QSettings m_settings;
 };
 
 #endif

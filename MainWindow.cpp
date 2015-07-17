@@ -19,7 +19,7 @@
 #include "MainWindow.h"
 #include "NewOpenProjectPanel.h"
 #include "RecentProjects.h"
-#include "WorkerThread.h"
+#include "WorkerThreadPool.h"
 #include "ProjectPages.h"
 #include "PageSequence.h"
 #include "PageSelectionAccessor.h"
@@ -154,8 +154,8 @@ private:
 MainWindow::MainWindow()
 :	m_ptrPages(new ProjectPages),
 	m_ptrStages(new StageSequence(m_ptrPages, newPageSelectionAccessor())),
-	m_ptrWorkerThread(new WorkerThread),
-	m_ptrInteractiveQueue(new ProcessingTaskQueue(ProcessingTaskQueue::RANDOM_ORDER)),
+	m_ptrWorkerThreadPool(new WorkerThreadPool),
+	m_ptrInteractiveQueue(new ProcessingTaskQueue),
 	m_pAccelerationProvider(new DefaultAccelerationProvider(this)),
 	m_ptrOutOfMemoryDialog(new OutOfMemoryDialog),
 	m_curFilter(0),
@@ -217,7 +217,7 @@ MainWindow::MainWindow()
 	);
 	
 	connect(
-		m_ptrWorkerThread.get(),
+		m_ptrWorkerThreadPool.get(),
 		SIGNAL(taskResult(BackgroundTaskPtr const&, FilterResultPtr const&)),
 		this, SLOT(filterResult(BackgroundTaskPtr const&, FilterResultPtr const&))
 	);
@@ -310,7 +310,7 @@ MainWindow::~MainWindow()
 	if (m_ptrBatchQueue.get()) {
 		m_ptrBatchQueue->cancelAndClear();
 	}
-	m_ptrWorkerThread->shutdown();
+	m_ptrWorkerThreadPool->shutdown();
 	
 	removeWidgetsFromLayout(m_pImageFrameLayout);
 	removeWidgetsFromLayout(m_pOptionsFrameLayout);
@@ -1157,13 +1157,7 @@ MainWindow::startBatchProcessing()
 
 	m_ptrInteractiveQueue->cancelAndClear();
 	
-	m_ptrBatchQueue.reset(
-		new ProcessingTaskQueue(
-			currentPageOrderProvider().get()
-			? ProcessingTaskQueue::RANDOM_ORDER
-			: ProcessingTaskQueue::SEQUENTIAL_ORDER
-		)
-	);
+	m_ptrBatchQueue.reset(new ProcessingTaskQueue);
 	PageInfo page(m_ptrThumbSequence->selectionLeader());
 	for (; !page.isNull(); page = m_ptrThumbSequence->nextPage(page.id())) {
 		m_ptrBatchQueue->addProcessingTask(
@@ -1177,11 +1171,16 @@ MainWindow::startBatchProcessing()
 	filterList->setBatchProcessingInProgress(true);
 	filterList->setEnabled(false);
 
-	BackgroundTaskPtr const task(m_ptrBatchQueue->takeForProcessing());
-	if (task) {
-		m_ptrWorkerThread->performTask(task);
-	} else {
+	BackgroundTaskPtr task(m_ptrBatchQueue->takeForProcessing());
+	if (!task) {
 		stopBatchProcessing();
+	} else {
+		do {
+			m_ptrWorkerThreadPool->submitTask(task);
+			if (!m_ptrWorkerThreadPool->hasSpareCapacity()) {
+				break;
+			}
+		} while ((task = m_ptrBatchQueue->takeForProcessing()));
 	}
 
 	page = m_ptrBatchQueue->selectedPage();
@@ -1269,10 +1268,13 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
 			return;
 		}
 
-		BackgroundTaskPtr const task(m_ptrBatchQueue->takeForProcessing());
-		if (task) {
-			m_ptrWorkerThread->performTask(task);
-		}
+		do {
+			BackgroundTaskPtr const task(m_ptrBatchQueue->takeForProcessing());
+			if (!task) {
+				break;
+			}
+			m_ptrWorkerThreadPool->submitTask(task);
+		} while (m_ptrWorkerThreadPool->hasSpareCapacity());
 
 		PageInfo const page(m_ptrBatchQueue->selectedPage());
 		if (!page.isNull()) {
@@ -1648,7 +1650,7 @@ MainWindow::loadPageInteractive(PageInfo const& page)
 	m_ptrInteractiveQueue->addProcessingTask(
 		page, createCompositeTask(page, m_curFilter, /*batch=*/false, m_debug)
 	);
-	m_ptrWorkerThread->performTask(m_ptrInteractiveQueue->takeForProcessing());
+	m_ptrWorkerThreadPool->submitTask(m_ptrInteractiveQueue->takeForProcessing());
 }
 
 void

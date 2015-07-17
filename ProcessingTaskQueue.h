@@ -30,14 +30,7 @@ class ProcessingTaskQueue
 {
 	DECLARE_NON_COPYABLE(ProcessingTaskQueue)
 public:
-	/**
-	 * Order only affects the result of selectedPage().
-	 * For single-task queues and for custom-sorted sequences,
-	 * use RANDOM_ORDER, otherwise use SEQUENTIAL_ORDER.
-	 */
-	enum Order { SEQUENTIAL_ORDER, RANDOM_ORDER };
-
-	ProcessingTaskQueue(Order order);
+	ProcessingTaskQueue();
 
 	void addProcessingTask(PageInfo const& page_info, BackgroundTaskPtr const& task);
 
@@ -76,7 +69,6 @@ private:
 
 	std::list<Entry> m_queue;
 	PageInfo m_selectedPage;
-	Order m_order;
 };
 
 #endif

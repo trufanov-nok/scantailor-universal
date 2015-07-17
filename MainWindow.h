@@ -57,7 +57,7 @@ class ProcessingIndicationWidget;
 class ImageInfo;
 class PageInfo;
 class QStackedLayout;
-class WorkerThread;
+class WorkerThreadPool;
 class ProjectReader;
 class DebugImages;
 class ContentBoxPropagator;
@@ -273,7 +273,7 @@ private:
 	OutputFileNameGenerator m_outFileNameGen;
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
 	std::auto_ptr<ThumbnailSequence> m_ptrThumbSequence;
-	std::auto_ptr<WorkerThread> m_ptrWorkerThread;
+	std::auto_ptr<WorkerThreadPool> m_ptrWorkerThreadPool;
 	std::auto_ptr<ProcessingTaskQueue> m_ptrBatchQueue;
 	std::auto_ptr<ProcessingTaskQueue> m_ptrInteractiveQueue;
 	DefaultAccelerationProvider* m_pAccelerationProvider;

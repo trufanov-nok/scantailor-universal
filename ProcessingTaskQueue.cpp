@@ -27,8 +27,7 @@ ProcessingTaskQueue::Entry::Entry(
 {
 }
 
-ProcessingTaskQueue::ProcessingTaskQueue(Order order)
-:   m_order(order)
+ProcessingTaskQueue::ProcessingTaskQueue()
 {
 }
 
@@ -46,10 +45,7 @@ ProcessingTaskQueue::takeForProcessing()
 		if (!ent.takenForProcessing) {
 			ent.takenForProcessing = true;
 			
-			if (m_order == RANDOM_ORDER) {
-				// In this mode we select the most recently submitted for processing page.
-				// This means question marks on selected pages, but at least this avoids
-				// jumps caused by dynamic ordering.
+			if (m_selectedPage.isNull()) {
 				m_selectedPage = ent.pageInfo;
 			}
 
@@ -83,16 +79,16 @@ ProcessingTaskQueue::processingFinished(BackgroundTaskPtr const& task)
 	}
 
 	// If we reached this point, it means we've found our entry and
-	// have <it> pointing to it. 
+	// have <it> pointing to it.
 
-	if (m_order == SEQUENTIAL_ORDER) {
-		// In this mode we select the page that was just processed,
-		// rather than the one currently being processed.  This way
-		// we can avoid question marks on selected pages.
-		m_selectedPage = it->pageInfo;
-	}
-
+	bool const removing_selected_page = (m_selectedPage.id() == it->pageInfo.id());
 	m_queue.erase(it);
+
+	if (removing_selected_page) {
+		if (!m_queue.empty()) {
+			m_selectedPage = m_queue.front().pageInfo;
+		}
+	}
 }
 
 PageInfo
