@@ -234,21 +234,23 @@ int numPages(LayoutType const layout_type, AffineImageTransform const& transform
 
 
 PageLayout
-PageLayoutEstimator::estimatePageLayout(LayoutType const layout_type,
-	AffineTransformedImage const& image, DebugImages* const dbg)
+PageLayoutEstimator::estimatePageLayout(
+	LayoutType const layout_type, AffineTransformedImage const& image,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	DebugImages* const dbg)
 {
 	if (layout_type == SINGLE_PAGE_UNCUT) {
 		return PageLayout(image.xform().transformedCropArea().boundingRect());
 	}
 	
 	std::auto_ptr<PageLayout> layout(
-		tryCutAtFoldingLine(layout_type, image, dbg)
+		tryCutAtFoldingLine(layout_type, image, accel_ops, dbg)
 	);
 	if (layout.get()) {
 		return *layout;
 	}
 	
-	return cutAtWhitespace(layout_type, image, dbg);
+	return cutAtWhitespace(layout_type, image, accel_ops, dbg);
 }
 
 namespace
@@ -283,22 +285,23 @@ private:
  *        something other than AUTO_LAYOUT_TYPE, the returned
  *        layout will have the same type.  The layout type of
  *        SINGLE_PAGE_UNCUT is not handled here.
- * \param input The input image.  Will be converted to grayscale unless
+ * \param image The input image.  Will be converted to grayscale unless
  *        it's already grayscale.
- * \param pre_xform The logical transformation applied to the input image.
- *        The resulting page layout will be in transformed coordinates.
+ * \param accel_ops OpenCL-acceleratable operations.
  * \param dbg An optional sink for debugging images.
  * \return The detected page layout, or a null auto_ptr if page layout
  *         could not be detected.
  */
 std::auto_ptr<PageLayout>
-PageLayoutEstimator::tryCutAtFoldingLine(LayoutType const layout_type,
-	AffineTransformedImage const& image, DebugImages* const dbg)
+PageLayoutEstimator::tryCutAtFoldingLine(
+	LayoutType const layout_type, AffineTransformedImage const& image,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	DebugImages* const dbg)
 {
 	int const num_pages = numPages(layout_type, image.xform());
 	int const max_lines = 8;
 
-	std::vector<QLineF> lines(VertLineFinder::findLines(image, max_lines, dbg));
+	std::vector<QLineF> lines(VertLineFinder::findLines(image, accel_ops, max_lines, dbg));
 	std::sort(lines.begin(), lines.end(), CenterComparator());
 	
 	QRectF const virtual_image_rect(
@@ -358,18 +361,18 @@ PageLayoutEstimator::tryCutAtFoldingLine(LayoutType const layout_type,
  * \param layout_type The type of a layout to detect.  If set to
  *        something other than AUTO_LAYOUT_TYPE, the returned
  *        layout will have the same type.
- * \param input The input image.  Will be converted to grayscale unless
+ * \param image The input image.  Will be converted to grayscale unless
  *        it's already grayscale.
- * \param pre_xform The logical transformation applied to the input image.
- *        The resulting page layout will be in transformed coordinates.
- * \param bw_threshold The global binarization threshold for the input image.
+ * \param accel_ops OpenCL-acceleratable operations.
  * \param dbg An optional sink for debugging images.
  * \return Even if no suitable whitespace was found, this function
  *         will return a PageLayout consistent with the layout_type requested.
  */
 PageLayout
-PageLayoutEstimator::cutAtWhitespace(LayoutType const layout_type,
-	AffineTransformedImage const& image, DebugImages* const dbg)
+PageLayoutEstimator::cutAtWhitespace(
+	LayoutType const layout_type, AffineTransformedImage const& image,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	DebugImages* const dbg)
 {
 	BinaryImage img;
 	QTransform extra_xform;
@@ -380,7 +383,7 @@ PageLayoutEstimator::cutAtWhitespace(LayoutType const layout_type,
 				xform.scaleTo(QSize(3000, 3000), Qt::KeepAspectRatio);
 			}
 		);
-		img = binarize(downscaled);
+		img = binarize(downscaled, accel_ops);
 
 		QSize const size3k(img.size());
 		if (dbg) {
@@ -530,15 +533,16 @@ PageLayoutEstimator::cutAtWhitespaceDeskewed150(
 }
 
 imageproc::BinaryImage
-PageLayoutEstimator::binarize(AffineTransformedImage const& image)
+PageLayoutEstimator::binarize(AffineTransformedImage const& image,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops)
 {
 	BinaryThreshold const bw_threshold(
 		BinaryThreshold::otsuThreshold(image.origImage())
 	);
 
 	return BinaryImage(
-		affineTransformToGray(
-			image.origImage(), image.xform().transform(),
+		accel_ops->affineTransform(
+			GrayImage(image.origImage()), image.xform().transform(),
 			image.xform().transformedCropArea().boundingRect().toRect(),
 			OutsidePixels::assumeColor(Qt::white)
 		), bw_threshold

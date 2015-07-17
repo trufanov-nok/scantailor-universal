@@ -142,7 +142,7 @@ Task::process(
 			new_layout = PageLayoutEstimator::estimatePageLayout(
 				record.combinedLayoutType(),
 				AffineTransformedImage(gray_orig_image_factory(), orig_image_transform),
-				m_ptrDbg.get()
+				accel_ops, m_ptrDbg.get()
 			);
 			status.throwIfCancelled();
 		} else if (params->pageLayout().uncutOutline().isEmpty()) {

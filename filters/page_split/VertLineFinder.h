@@ -19,10 +19,12 @@
 #ifndef PAGE_SPLIT_VERTLINEFINDER_H_
 #define PAGE_SPLIT_VERTLINEFINDER_H_
 
+#include "acceleration/AcceleratableOperations.h"
 #include <QPointF>
 #include <QImage>
 #include <QTransform>
 #include <vector>
+#include <memory>
 
 class QLineF;
 class DebugImages;
@@ -41,6 +43,7 @@ class VertLineFinder
 public:
 	static std::vector<QLineF> findLines(
 		imageproc::AffineTransformedImage const& image,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		int max_lines, DebugImages* dbg = nullptr);
 private:
 	class QualityLine

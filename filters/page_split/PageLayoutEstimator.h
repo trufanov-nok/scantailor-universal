@@ -19,8 +19,9 @@
 #ifndef PAGE_SPLIT_PAGELAYOUTESTIMATOR_H_
 #define PAGE_SPLIT_PAGELAYOUTESTIMATOR_H_
 
-#include "foundation/VirtualFunction.h"
 #include "LayoutType.h"
+#include "foundation/VirtualFunction.h"
+#include "acceleration/AcceleratableOperations.h"
 #include <QLineF>
 #include <deque>
 #include <memory>
@@ -63,15 +64,19 @@ public:
 	 * \return The estimated PageLayout of type consistent with the
 	 *         requested layout type.
 	 */
-	static PageLayout estimatePageLayout(LayoutType layout_type,
-		imageproc::AffineTransformedImage const& image, DebugImages* dbg = 0);
+	static PageLayout estimatePageLayout(
+		LayoutType layout_type, imageproc::AffineTransformedImage const& image,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		DebugImages* dbg = nullptr);
 private:
 	static std::auto_ptr<PageLayout> tryCutAtFoldingLine(
 		LayoutType layout_type, imageproc::AffineTransformedImage const& image,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		DebugImages* dbg);
 		
 	static PageLayout cutAtWhitespace(
 		LayoutType layout_type, imageproc::AffineTransformedImage const& image,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
 		DebugImages* dbg);
 	
 	static PageLayout cutAtWhitespaceDeskewed150(
@@ -80,7 +85,8 @@ private:
 		bool left_offcut, bool right_offcut, DebugImages* dbg);
 	
 	static imageproc::BinaryImage binarize(
-		imageproc::AffineTransformedImage const& image);
+		imageproc::AffineTransformedImage const& image,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops);
 	
 	static imageproc::BinaryImage removeGarbageAnd2xDownscale(
 		imageproc::BinaryImage const& image, DebugImages* dbg);

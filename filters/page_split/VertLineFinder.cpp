@@ -49,6 +49,7 @@ using namespace imageproc;
 std::vector<QLineF>
 VertLineFinder::findLines(
 	AffineTransformedImage const& image,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	int const max_lines, DebugImages* dbg)
 {
 	AffineImageTransform downscaled_xform(image.xform());
@@ -64,8 +65,8 @@ VertLineFinder::findLines(
 
 	// From now on we work with ~100 DPI images.
 	GrayImage const gray100(
-		affineTransformToGray(
-			image.origImage(), downscaled_xform.transform(), bounding_rect,
+		accel_ops->affineTransform(
+			GrayImage(image.origImage()), downscaled_xform.transform(), bounding_rect,
 			OutsidePixels::assumeWeakColor(Qt::black), QSizeF(5.0, 5.0)
 		)
 	);
