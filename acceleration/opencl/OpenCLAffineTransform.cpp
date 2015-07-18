@@ -189,6 +189,9 @@ QImage affineTransform(
 	evt.wait();
 
 	QImage dst(dst_rect.size(), adapted.image.format());
+	if (dst.format() == QImage::Format_Indexed8) {
+		dst.setColorTable(createGrayscalePalette());
+	}
 	badAllocIfNull(dst);
 	region[0] = dst.width();
 	region[1] = dst.height();
