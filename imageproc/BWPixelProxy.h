@@ -41,7 +41,7 @@ public:
 	 *        from the *most significant* bit. That is, a shift of 0 corresponds
 	 *        to the most significant bit in the word.
 	 */
-	BWPixelProxy(uint32_t& word, int shift) : m_pWord(&word), m_shift(shift) {
+	BWPixelProxy(uint32_t& word, int shift) : m_pWord(&word), m_rightShift(31 - shift) {
 		assert((shift & ~31) == 0);
 	}
 
@@ -53,9 +53,8 @@ public:
 	 */
 	BWPixelProxy& operator=(uint32_t bit) {
 		assert(bit <= 1);
-		int const lsb_shift = 31 - m_shift;
-		uint32_t const mask = uint32_t(1) << lsb_shift;
-		*m_pWord = (*m_pWord & ~mask) | (bit << lsb_shift);
+		uint32_t const mask = uint32_t(1) << m_rightShift;
+		*m_pWord = (*m_pWord & ~mask) | (bit << m_rightShift);
 		return *this;
 	}
 
@@ -63,10 +62,15 @@ public:
 	 * Implicit conversion to uint32_t, which takes values 0 or 1, representing
 	 * the state of the particular pixel of intereset.
 	 */
-	operator uint32_t() const { return (*m_pWord >> m_shift) & uint32_t(1); }
+	operator uint32_t() const { return (*m_pWord >> m_rightShift) & uint32_t(1); }
 private:
 	uint32_t* m_pWord;
-	int m_shift;
+
+	/**
+	 * How many positions to shift *m_pWord to the right until the pixel of interest
+	 * is at position 0.
+	 */
+	int m_rightShift;
 };
 
 } // namespace imageproc
