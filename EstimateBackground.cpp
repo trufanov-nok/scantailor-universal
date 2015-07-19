@@ -19,6 +19,7 @@
 #include "EstimateBackground.h"
 #include "TaskStatus.h"
 #include "DebugImages.h"
+#include "acceleration/AcceleratableOperations.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/BWColor.h"
@@ -92,7 +93,9 @@ static void seedFillTopBottomInPlace(GrayImage& image)
 	}
 }
 
-static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg)
+static void morphologicalPreprocessingInPlace(GrayImage& image,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	DebugImages* dbg)
 {
 	using namespace boost::lambda;
 
@@ -133,7 +136,11 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
 	// Approximate the difference using a polynomial function.
 	// If it fits well into our data set, we consider the difference
 	// to be caused by a shadow rather than a picture, and use method1.
-	GrayImage approximated(PolynomialSurface(3, 3, diff).render(diff.size()));
+	GrayImage approximated(
+		accel_ops->renderPolynomialSurface(
+			PolynomialSurface(3, 3, diff), diff.width(), diff.height()
+		)
+	);
 	if (dbg) {
 		dbg->add(approximated, "approx_diff");
 	}
@@ -178,10 +185,11 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
 imageproc::PolynomialSurface estimateBackground(
 	GrayImage const& downscaled_input,
 	boost::optional<QPolygonF> const& region_of_intereset,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg)
 {
 	GrayImage background(downscaled_input);
-	morphologicalPreprocessingInPlace(background, dbg);
+	morphologicalPreprocessingInPlace(background, accel_ops, dbg);
 
 	status.throwIfCancelled();
 	

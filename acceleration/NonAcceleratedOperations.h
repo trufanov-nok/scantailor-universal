@@ -62,6 +62,9 @@ public:
 		QImage const& src, QTransform const& xform,
 		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
 		QSizeF const& min_mapping_area) const;
+
+	virtual imageproc::GrayImage renderPolynomialSurface(
+		imageproc::PolynomialSurface const& surface, int width, int height);
 };
 
 #endif

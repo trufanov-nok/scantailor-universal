@@ -8,6 +8,7 @@ SET(
 	TestGaussBlur.cpp
 	TestDewarp.cpp
 	TestAffineTransform.cpp
+	TestRenderPolynomialSurface.cpp
 	Utils.cpp Utils.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})

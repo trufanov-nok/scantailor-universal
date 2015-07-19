@@ -20,7 +20,9 @@
 #define ESTIMATE_BACKGROUND_H_
 
 #include <boost/optional.hpp>
+#include <memory>
 
+class AcceleratableOperations;
 class TaskStatus;
 class DebugImages;
 class QPolygonF;
@@ -61,6 +63,7 @@ namespace imageproc
 imageproc::PolynomialSurface estimateBackground(
 	imageproc::GrayImage const& downscaled_input,
 	boost::optional<QPolygonF> const& region_of_intereset,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg = 0);
 
 #endif

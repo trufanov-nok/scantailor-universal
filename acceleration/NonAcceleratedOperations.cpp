@@ -143,3 +143,10 @@ NonAcceleratedOperations::affineTransform(
 {
 	return imageproc::affineTransform(src, xform, dst_rect, outside_pixels, min_mapping_area);
 }
+
+GrayImage
+NonAcceleratedOperations::renderPolynomialSurface(
+	PolynomialSurface const& surface, int width, int height)
+{
+	return surface.render(QSize(width, height));
+}

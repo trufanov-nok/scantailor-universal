@@ -16,6 +16,7 @@ SET(
 	OpenCLAffineTransform.cpp OpenCLAffineTransform.h
 	Transpose.cpp Transpose.h
 	Copy.cpp Copy.h
+	RenderPolynomialSurface.cpp RenderPolynomialSurface.h
 	Utils.cpp Utils.h
 )
 

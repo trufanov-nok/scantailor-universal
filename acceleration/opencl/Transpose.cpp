@@ -17,7 +17,6 @@
 */
 
 #include "Transpose.h"
-#include <CL/cl.h>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>

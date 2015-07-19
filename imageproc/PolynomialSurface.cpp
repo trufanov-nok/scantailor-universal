@@ -52,7 +52,7 @@ PolynomialSurface::PolynomialSurface(
 	if (num_data_points == 0) {
 		m_horDegree = 0;
 		m_vertDegree = 0;
-		m_coeffs.setZero(1);
+		m_coeffs.setConstant(1, 1, 1.0);
 		return;
 	}
 	
@@ -70,7 +70,8 @@ PolynomialSurface::PolynomialSurface(
 	prepareDataForLeastSquares(src, AtA, Atb, m_horDegree, m_vertDegree);
 
 	fixSquareMatrixRankDeficiency(AtA);
-	m_coeffs = AtA.selfadjointView<Upper>().ldlt().solve(Atb);
+	VectorXd coeffs = AtA.selfadjointView<Upper>().ldlt().solve(Atb);
+	m_coeffs = Map<MatrixXd>(coeffs.data(), m_vertDegree + 1, m_horDegree + 1);
 }
 
 PolynomialSurface::PolynomialSurface(
@@ -95,7 +96,7 @@ PolynomialSurface::PolynomialSurface(
 	if (num_data_points == 0) {
 		m_horDegree = 0;
 		m_vertDegree = 0;
-		m_coeffs.setZero(1);
+		m_coeffs.setConstant(1, 1, 1.0);
 		return;
 	}
 	
@@ -113,7 +114,8 @@ PolynomialSurface::PolynomialSurface(
 	prepareDataForLeastSquares(src, AtA, Atb, m_horDegree, m_vertDegree);
 
 	fixSquareMatrixRankDeficiency(AtA);
-	m_coeffs = AtA.selfadjointView<Upper>().ldlt().solve(Atb);
+	VectorXd coeffs = AtA.selfadjointView<Upper>().ldlt().solve(Atb);
+	m_coeffs = Map<MatrixXd>(coeffs.data(), m_vertDegree + 1, m_horDegree + 1);
 }
 
 GrayImage
@@ -128,7 +130,7 @@ PolynomialSurface::render(QSize const& size) const
 	int const height = size.height();
 	unsigned char* line = image.data();
 	int const bpl = image.stride();
-	int const num_coeffs = m_coeffs.size();
+	int const num_coeffs = m_coeffs.cols() * m_coeffs.rows();
 	
 	// Pretend that both x and y positions of pixels
 	// lie in range of [0, 1].
@@ -140,10 +142,9 @@ PolynomialSurface::render(QSize const& size) const
 	for (int y = 0; y < height; ++y) {
 		double const y_adjusted = y * yscale;
 		double pow = 1.0;
-		int pos = 0;
 		for (int i = 0; i <= m_vertDegree; ++i) {
-			for (int j = 0; j <= m_horDegree; ++j, ++pos, ++out) {
-				*out = static_cast<float>(m_coeffs[pos] * pow);
+			for (int j = 0; j <= m_horDegree; ++j, ++out) {
+				*out = static_cast<float>(m_coeffs(i, j) * pow);
 			}
 			pow *= y_adjusted;
 		}
@@ -257,9 +258,10 @@ void PolynomialSurface::prepareDataForLeastSquares(
 			double const data_point = data_scale * line[x];
 
 			int pos = 0;
-			for (int i = 0; i <= v_degree; ++i) {
-				for (int j = 0; j <= h_degree; ++j, ++pos) {
-					full_powers[pos] = y_powers[i] * x_powers(j, x);
+			for (int i = 0; i <= h_degree; ++i) {
+				double const x_power = x_powers(i, x);
+				for (int j = 0; j <= v_degree; ++j, ++pos) {
+					full_powers[pos] = y_powers[j] * x_power;
 				}
 			}
 

@@ -21,6 +21,8 @@
 
 #include "Grid.h"
 #include "VecNT.h"
+#include "imageproc/GrayImage.h"
+#include "imageproc/PolynomialSurface.h"
 #include "dewarping/CylindricalSurfaceDewarper.h"
 #include <QImage>
 #include <QSize>
@@ -156,6 +158,17 @@ public:
 		QImage const& src, QTransform const& xform,
 		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
 		QSizeF const& min_mapping_area = QSizeF(0.9, 0.9)) const = 0;
+
+	/**
+	 * @brief Render a polynomial sorface into a grayscale image.
+	 *
+	 * @param surface The surface to render.
+	 * @param width The width of the destination image.
+	 * @param height The height of the destination image.
+	 * @return The rendered surface.
+	 */
+	virtual imageproc::GrayImage renderPolynomialSurface(
+		imageproc::PolynomialSurface const& surface, int width, int height) = 0;
 };
 
 #endif

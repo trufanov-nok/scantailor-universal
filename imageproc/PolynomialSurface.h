@@ -82,6 +82,34 @@ public:
 		GrayImage const& src, BinaryImage const& mask);
 	
 	/**
+	 * \brief Return a matrix of polynomial coefficients.
+	 *
+	 * It's only necessary to use this function when rendering the surface
+	 * by means other than render();
+	 *
+	 * To be used like this:
+	 * \code
+	 * MatrixXd coeffs = surface.coeffs();
+	 * for (int y = 0; y < height; ++y) {
+	 *     double const y_norm = double(y) / (height - 1);
+	 *     for (int x = 0; x < width; ++x) {
+	 *         double const x_norm = double(x) / (width - 1);
+	 *         double intensity = 0;
+	 *         for (int i = 0; i < coeffs.rows(); ++i) {
+	 *             double const y_pow = pow(y_norm, (double)i);
+	 *             for (int j = 0; j < coeffs.cols(); ++j) {
+	 *                 double const x_pow = pow(x_norm, (double)j);
+	 *                 intensity += y_pow * x_pow * coeffs(i, j);
+	 *             }
+	 *         }
+	 *         output_image(x, y) = lround(intensity * 255.0);
+	 *     }
+	 * }
+	 * \endcode
+	 */
+	Eigen::MatrixXd const& coeffs() const { return m_coeffs; }
+
+	/**
 	 * \brief Visualizes the polynomial surface as a grayscale image.
 	 *
 	 * The surface will be stretched / shrinked to fit the new size.
@@ -105,7 +133,7 @@ private:
 	
 	static void fixSquareMatrixRankDeficiency(Eigen::MatrixXd& mat);
 	
-	Eigen::VectorXd m_coeffs;
+	Eigen::MatrixXd m_coeffs;
 	int m_horDegree;
 	int m_vertDegree;
 };

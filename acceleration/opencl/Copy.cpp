@@ -18,7 +18,6 @@
 
 #include "Copy.h"
 #include "Utils.h"
-#include <CL/cl.h>
 #include <cstddef>
 #include <cstdint>
 #include <algorithm>

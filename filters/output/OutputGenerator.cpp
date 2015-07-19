@@ -385,7 +385,8 @@ OutputGenerator::process(
 		);
 
 		maybe_normalized = normalizeIlluminationGray(
-			status, GrayImage(transformed_image), transformed_for_bg_estimation,
+			status, accel_ops, GrayImage(transformed_image),
+			transformed_for_bg_estimation,
 			downscaled_region_of_intereset, dbg
 		);
 	}
@@ -603,6 +604,7 @@ OutputGenerator::outputContentRect() const
  * @brief Equalizes illumination in a grayscale image.
  *
  * @param status Used for task cancellation.
+ * @pstsm accel_ops OpenCL-acceleratable operations.
  * @param input_for_normalization The image to normalize illumination in.
  * @param input_for_estimation There are two key differences between
  *        image_for_normalization and image_for_estimation:
@@ -616,20 +618,24 @@ OutputGenerator::outputContentRect() const
  */
 GrayImage
 OutputGenerator::normalizeIlluminationGray(
-	TaskStatus const& status, GrayImage const& input_for_normalisation,
+	TaskStatus const& status,
+	std::shared_ptr<AcceleratableOperations> const& accel_ops,
+	GrayImage const& input_for_normalisation,
 	GrayImage const& input_for_estimation,
 	boost::optional<QPolygonF> const& estimation_region_of_intereset,
 	DebugImages* const dbg)
 {
 	PolynomialSurface const bg_ps(
 		estimateBackground(
-			input_for_estimation, estimation_region_of_intereset, status, dbg
+			input_for_estimation, estimation_region_of_intereset, accel_ops, status, dbg
 		)
 	);
 	
 	status.throwIfCancelled();
 	
-	GrayImage bg_img(bg_ps.render(input_for_normalisation.size()));
+	GrayImage bg_img = accel_ops->renderPolynomialSurface(
+		bg_ps, input_for_normalisation.width(), input_for_normalisation.height()
+	);
 	if (dbg) {
 		dbg->add(bg_img, "background");
 	}

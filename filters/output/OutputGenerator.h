@@ -129,7 +129,9 @@ private:
 	static QImage convertToRGBorRGBA(QImage const& src);
 
 	static imageproc::GrayImage normalizeIlluminationGray(
-		TaskStatus const& status, imageproc::GrayImage const& input_for_estimation,
+		TaskStatus const& status,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops,
+		imageproc::GrayImage const& input_for_estimation,
 		imageproc::GrayImage const& input_for_normalisation,
 		boost::optional<QPolygonF> const& estimation_region_of_intereset,
 		DebugImages* dbg);

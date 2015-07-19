@@ -22,6 +22,7 @@
 #include "OpenCLTextFilterBank.h"
 #include "OpenCLDewarp.h"
 #include "OpenCLAffineTransform.h"
+#include "RenderPolynomialSurface.h"
 #include "VecNT.h"
 #include <QFile>
 #include <QString>
@@ -60,7 +61,8 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 		"text_filter_bank_combine.cl",
 		"rgba_color_mixer.cl",
 		"affine_transform.cl",
-		"dewarp.cl"
+		"dewarp.cl",
+		"render_polynomial_surface.cl"
 	};
 
 	std::deque<QByteArray> sources;
@@ -340,6 +342,30 @@ OpenCLAcceleratedOperations::affineTransformUnguarded(
 {
 	return opencl::affineTransform(
 		m_commandQueue, m_program, src, xform, dst_rect, outside_pixels, min_mapping_area
+	);
+}
+
+imageproc::GrayImage
+OpenCLAcceleratedOperations::renderPolynomialSurface(
+	imageproc::PolynomialSurface const& surface, int width, int height)
+{
+	try {
+		return renderPolynomialSurfaceUnguarded(surface, width, height);
+	} catch (cl::Error const& e) {
+		if (e.err() == CL_OUT_OF_HOST_MEMORY) {
+			throw std::bad_alloc();
+		}
+		qDebug() << "OpenCL error: " << e.what();
+		return m_ptrFallback->renderPolynomialSurface(surface, width, height);
+	}
+}
+
+imageproc::GrayImage
+OpenCLAcceleratedOperations::renderPolynomialSurfaceUnguarded(
+	imageproc::PolynomialSurface const& surface, int width, int height)
+{
+	return opencl::renderPolynomialSurface(
+		m_commandQueue, m_program, width, height, surface.coeffs()
 	);
 }
 

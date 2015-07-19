@@ -67,6 +67,9 @@ public:
 		QImage const& src, QTransform const& xform,
 		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
 		QSizeF const& min_mapping_area) const;
+
+	virtual imageproc::GrayImage renderPolynomialSurface(
+		imageproc::PolynomialSurface const& surface, int width, int height);
 private:
 	Grid<float> gaussBlurUnguarded(
 		Grid<float> const& src, float h_sigma, float v_sigma) const;
@@ -89,6 +92,9 @@ private:
 		QImage const& src, QTransform const& xform,
 		QRect const& dst_rect, imageproc::OutsidePixels const& outside_pixels,
 		QSizeF const& min_mapping_area) const;
+
+	imageproc::GrayImage renderPolynomialSurfaceUnguarded(
+		imageproc::PolynomialSurface const& surface, int width, int height);
 
 	cl::Context m_context;
 	std::vector<cl::Device> m_devices;

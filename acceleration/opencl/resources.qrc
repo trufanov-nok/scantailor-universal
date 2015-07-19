@@ -9,5 +9,6 @@
         <file>device_code/dewarp.cl</file>
         <file>device_code/rgba_color_mixer.cl</file>
         <file>device_code/affine_transform.cl</file>
+        <file>device_code/render_polynomial_surface.cl</file>
     </qresource>
 </RCC>
