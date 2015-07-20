@@ -346,7 +346,9 @@ MainWindow::switchToNewProject(
 	stopBatchProcessing(CLEAR_MAIN_AREA);
 	m_ptrInteractiveQueue->cancelAndClear();
 
-	Utils::maybeCreateCacheDir(out_dir);
+	if (!out_dir.isEmpty()) {
+		Utils::maybeCreateCacheDir(out_dir);
+	}
 	
 	m_ptrPages = pages;
 	m_projectFile = project_file_path;
