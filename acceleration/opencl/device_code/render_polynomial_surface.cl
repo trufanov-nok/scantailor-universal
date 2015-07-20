@@ -42,5 +42,5 @@ kernel void render_polynomial_surface(
 		}
 	}
 
-	dst[mad24(y, dst_stride, x)] = clamp((int)rint(sum * 255.f + 0.5f), 0, 255);
+	dst[mad24(y, dst_stride, x)] = clamp((int)rint(sum * 255.f), 0, 255);
 }
