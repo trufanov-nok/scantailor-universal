@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Suppress a warning about sscanf()
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "OpenCLPlugin.h"
 #include "OpenCLAcceleratedOperations.h"
 #include <QSettings>
@@ -23,7 +26,10 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QtGlobal>
+#include <QSysInfo>
 #include <exception>
+#include <cstdio>
+#include <utility>
 
 static void initQtResources()
 {
@@ -57,6 +63,31 @@ OpenCLPlugin::OpenCLPlugin()
 			platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
 			for (auto const& device : devices) {
+				if (!device.getInfo<CL_DEVICE_AVAILABLE>()) {
+					continue;
+				}
+				if (!device.getInfo<CL_DEVICE_COMPILER_AVAILABLE>()) {
+					continue;
+				}
+				if (!device.getInfo<CL_DEVICE_IMAGE_SUPPORT>()) {
+					continue;
+				}
+				if (bool(device.getInfo<CL_DEVICE_ENDIAN_LITTLE>()) !=
+						bool(QSysInfo::ByteOrder == QSysInfo::LittleEndian)) {
+					// If the endiannes differs, we would have to convert the buffers
+					// we pass, which we don't currently do.
+					continue;
+				}
+
+				std::string const opencl_version = device.getInfo<CL_DEVICE_VERSION>();
+				int major_version = 0;
+				int minor_version = 0;
+				sscanf(opencl_version.c_str(), "OpenCL %d.%d", &major_version, &minor_version);
+				if (std::make_pair(major_version, minor_version) < std::make_pair(1, 1)) {
+					// Doesn't support OpenCL 1.1
+					continue;
+				}
+
 				m_devices.push_back(device);
 				if (device.getInfo<CL_DEVICE_NAME>() == selected_device_str) {
 					m_selectedDevice = device;
