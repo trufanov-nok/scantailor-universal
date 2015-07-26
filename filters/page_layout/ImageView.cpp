@@ -556,7 +556,7 @@ ImageView::dragFinished()
 void
 ImageView::recalcBoxesAndFit(RelativeMargins const& margins)
 {
-	PageLayout page_layout(
+	PageLayout const page_layout(
 		m_unscaledContentRect, m_aggregateHardSize,
 		m_matchSizeMode, m_alignment, margins
 	);

@@ -60,8 +60,13 @@ PageLayout::PageLayout(
 			m_scaleFactor = std::max(x_scale, y_scale);
 		}
 
-		m_innerRect.setWidth(m_innerRect.width() * m_scaleFactor);
-		m_innerRect.setHeight(m_innerRect.height() * m_scaleFactor);
+		// The rectangle needs to be both shifted and scaled,
+		// as that's what AbstractImageTransform::scale() does,
+		// which we call in absorbScalingIntoTransform().
+		m_innerRect = QRectF(
+			m_innerRect.topLeft() * m_scaleFactor,
+			m_innerRect.bottomRight() * m_scaleFactor
+		);
 	}
 
 	if (have_content_box) {
@@ -83,14 +88,10 @@ PageLayout::PageLayout(
 }
 
 void
-PageLayout::absorbScalingIntoTransform(AbstractImageTransform& transform)
+PageLayout::absorbScalingIntoTransform(AbstractImageTransform& transform) const
 {
 	if (m_scaleFactor != 1.0) {
 		transform.scale(m_scaleFactor, m_scaleFactor);
-		m_innerRect.moveTopLeft(m_innerRect.topLeft() * m_scaleFactor);
-		m_middleRect.moveTopLeft(m_middleRect.topLeft() * m_scaleFactor);
-		m_outerRect.moveTopLeft(m_outerRect.topLeft() * m_scaleFactor);
-		m_scaleFactor = 1.0;
 	}
 }
 

@@ -120,7 +120,7 @@ Task::process(
 			orig_image_transform->clone()
 		);
 
-		PageLayout page_layout(
+		PageLayout const page_layout(
 			unscaled_content_rect, agg_hard_size_after,
 			params.matchSizeMode(), params.alignment(), params.hardMargins()
 		);

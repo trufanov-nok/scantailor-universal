@@ -82,7 +82,7 @@ CacheDrivenTask::process(
 		full_size_image_transform->clone()
 	);
 
-	PageLayout page_layout(
+	PageLayout const page_layout(
 		unscaled_content_rect, m_ptrSettings->getAggregateHardSize(),
 		params->matchSizeMode(), params->alignment(), params->hardMargins()
 	);

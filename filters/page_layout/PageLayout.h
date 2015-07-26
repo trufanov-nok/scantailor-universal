@@ -52,11 +52,9 @@ public:
 	/**
 	 * If match_size_mode passed into the constructor was set to SCALE,
 	 * the 3 rectangles already incorporate the appropriate scaling factor.
-	 * This method incorporates that scaling factor into the provided transform,
-	 * and then recalculates the 3 rectangles to remain in the transformed space
-	 * of the provided transform, following its update.
+	 * This method incorporates that scaling factor into the provided transform.
 	 */
-	void absorbScalingIntoTransform(imageproc::AbstractImageTransform& transform);
+	void absorbScalingIntoTransform(imageproc::AbstractImageTransform& transform) const;
 private:
 	/** Content rectangle, in transformed coordinates. */
 	QRectF m_innerRect;
@@ -67,10 +65,7 @@ private:
 	/** Rectangle around content plus hard and soft margins, in transformed coordinates. */
 	QRectF m_outerRect;
 
-	/**
-	 * Scaling applied as a result of MatchSizeMode::SCALE.
-	 * Gets reset to 1.0 bt absorbScalingIntoTransform().
-	 */
+	/** Scaling applied as a result of MatchSizeMode::SCALE. */
 	qreal m_scaleFactor;
 };
 
