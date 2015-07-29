@@ -99,13 +99,13 @@ Task::process(
 	status.throwIfCancelled();
 	
 	OrthogonalRotation const rotation(m_ptrSettings->getRotationFor(m_imageId));
+	AffineImageTransform const rotated_transform = orig_image_transform.adjusted(
+		[rotation](AffineImageTransform& xform) {
+			xform.rotate(rotation.toDegrees());
+		}
+	);
 
 	if (m_ptrNextTask) {
-		AffineImageTransform const rotated_transform = orig_image_transform.adjusted(
-			[rotation](AffineImageTransform& xform) {
-				xform.rotate(rotation.toDegrees());
-			}
-		);
 		return m_ptrNextTask->process(
 			status, accel_ops, orig_image, gray_orig_image_factory,
 			rotated_transform, rotation
@@ -114,7 +114,7 @@ Task::process(
 		return FilterResultPtr(
 			new UiUpdater(
 				m_ptrFilter, accel_ops,
-				AffineTransformedImage(orig_image, orig_image_transform),
+				AffineTransformedImage(orig_image, rotated_transform),
 				rotation, m_imageId, m_batchProcessing
 			)
 		);

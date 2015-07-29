@@ -42,7 +42,7 @@ class ImageView : public ImageViewBase
 public:
 	ImageView(
 		std::shared_ptr<AcceleratableOperations> const& accel_ops,
-		imageproc::AffineTransformedImage const& full_size_image,
+		imageproc::AffineTransformedImage const& rotated_image,
 		ImagePixmapUnion const& downscaled_image);
 	
 	virtual ~ImageView();

@@ -29,18 +29,18 @@ namespace fix_orientation
 
 ImageView::ImageView(
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
-	imageproc::AffineTransformedImage const& full_size_image,
+	imageproc::AffineTransformedImage const& rotated_image,
 	ImagePixmapUnion const& downscaled_image)
 :	ImageViewBase(
-		accel_ops, full_size_image.origImage(), downscaled_image,
+		accel_ops, rotated_image.origImage(), downscaled_image,
 		ImagePresentation(
-			full_size_image.xform().transform(),
-			full_size_image.xform().transformedCropArea()
+			rotated_image.xform().transform(),
+			rotated_image.xform().transformedCropArea()
 		)
 	),
 	m_dragHandler(*this),
 	m_zoomHandler(*this),
-	m_origImageSize(full_size_image.origImage().size())
+	m_origImageSize(rotated_image.origImage().size())
 {
 	rootInteractionHandler().makeLastFollower(m_dragHandler);
 	rootInteractionHandler().makeLastFollower(m_zoomHandler);
