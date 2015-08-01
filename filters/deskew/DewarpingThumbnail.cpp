@@ -69,7 +69,7 @@ DewarpingThumbnail::paintOverImage(
 	}
 	
 	painter.setRenderHint(QPainter::Antialiasing, true);
-	painter.setTransform(transformed_to_display);
+	painter.setTransform(fullSizeImageTransform().toAffine().transform() * transformed_to_display);
 
 	QPen pen(QColor(0, 0, 255, 150));
 	pen.setWidthF(1.0);
