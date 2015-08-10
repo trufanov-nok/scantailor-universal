@@ -34,11 +34,12 @@
 #include <QTransform>
 #include <QColor>
 #include <QString>
+#include <boost/range/adaptor/reversed.hpp>
 #include <algorithm>
 #include <utility>
 #include <memory>
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 using namespace Eigen;
 using namespace imageproc;
@@ -58,10 +59,12 @@ DewarpingImageTransform::DewarpingImageTransform(
 ,	m_bottomPolyline(bottom_curve)
 ,	m_depthPerception(depth_perception)
 ,	m_dewarper(top_curve, bottom_curve, depth_perception.value())
-,	m_postScaleX(1.0)
-,	m_postScaleY(1.0)
+,	m_intrinsicScaleX(1.0)
+,	m_intrinsicScaleY(1.0)
+,	m_userScaleX(1.0)
+,	m_userScaleY(1.0)
 {
-	setupPostScale();
+	setupIntrinsicScale();
 }
 
 DewarpingImageTransform::~DewarpingImageTransform()
@@ -72,15 +75,21 @@ QString
 DewarpingImageTransform::fingerprint() const
 {
 	RoundingHasher hash(QCryptographicHash::Sha1);
+
 	hash << "DewarpingImageTransform";
 	hash << m_origSize << m_origCropArea << m_depthPerception.value();
+
 	for (QPointF const& pt : m_topPolyline) {
 		hash << pt;
 	}
+
 	for (QPointF const& pt : m_bottomPolyline) {
 		hash << pt;
 	}
-	hash << m_postScaleX << m_postScaleY;
+
+	hash << INTRINSIC_SCALE_ALGO_VERSION;
+	hash << m_userScaleX << m_userScaleY;
+
 	return QString::fromUtf8(hash.result().toHex());
 }
 
@@ -105,8 +114,8 @@ DewarpingImageTransform::transformedCropArea() const
 QTransform
 DewarpingImageTransform::scale(qreal xscale, qreal yscale)
 {
-	m_postScaleX *= xscale;
-	m_postScaleY *= yscale;
+	m_userScaleX *= xscale;
+	m_userScaleY *= yscale;
 
 	QTransform scaling_transform;
 	scaling_transform.scale(xscale, yscale);
@@ -124,7 +133,8 @@ DewarpingImageTransform::toAffine(
 	QRectF const dewarped_rect(transformed_crop_area.boundingRect());
 	QSize const dst_size(dewarped_rect.toRect().size());
 	QRectF const model_domain(
-		-dewarped_rect.topLeft(), QSizeF(m_postScaleX, m_postScaleY)
+		-dewarped_rect.topLeft(),
+		QSizeF(m_intrinsicScaleX * m_userScaleX, m_intrinsicScaleY * m_userScaleY)
 	);
 
 	QImage const dewarped_image = accel_ops->dewarp(
@@ -174,7 +184,7 @@ DewarpingImageTransform::materialize(QImage const& image,
 	assert(!image.isNull());
 	assert(!target_rect.isEmpty());
 
-	QRectF model_domain(0, 0, m_postScaleX, m_postScaleY);
+	QRectF model_domain(0, 0, m_intrinsicScaleX * m_userScaleX, m_intrinsicScaleY * m_userScaleY);
 	model_domain.translate(-target_rect.topLeft());
 
 	return accel_ops->dewarp(
@@ -187,7 +197,7 @@ DewarpingImageTransform::forwardMapper() const
 {
 	auto dewarper(std::make_shared<dewarping::CylindricalSurfaceDewarper>(m_dewarper));
 	QTransform post_transform;
-	post_transform.scale(m_postScaleX, m_postScaleY);
+	post_transform.scale(m_intrinsicScaleX * m_userScaleX, m_intrinsicScaleY * m_userScaleY);
 
 	return [=](QPointF const& pt) {
 		return post_transform.map(dewarper->mapToDewarpedSpace(pt));
@@ -199,7 +209,9 @@ DewarpingImageTransform::backwardMapper() const
 {
 	auto dewarper(std::make_shared<dewarping::CylindricalSurfaceDewarper>(m_dewarper));
 	QTransform pre_transform;
-	pre_transform.scale(1.0 / m_postScaleX, 1.0 / m_postScaleY);
+	qreal const xscale = m_intrinsicScaleX * m_userScaleX;
+	qreal const yscale = m_intrinsicScaleY * m_userScaleY;
+	pre_transform.scale(1.0 / xscale, 1.0 / yscale);
 
 	return [=](QPointF const& pt) {
 		return dewarper->mapToWarpedSpace(pre_transform.map(pt));
@@ -209,20 +221,36 @@ DewarpingImageTransform::backwardMapper() const
 QPointF
 DewarpingImageTransform::postScale(QPointF const& pt) const
 {
-	return QPointF(pt.x() * m_postScaleX, pt.y() * m_postScaleY);
+	qreal const xscale = m_intrinsicScaleX * m_userScaleX;
+	qreal const yscale = m_intrinsicScaleY * m_userScaleY;
+	return QPointF(pt.x() * xscale, pt.y() * yscale);
 }
 
 /**
- * Initializes m_postScaleX and m_postScaleY in such a way that pixel density
- * near the "closest to the camera" corner of dewarping quadrilateral matches
+ * m_intrinsicScale[XY] factors don't participate in transform fingerprint calculation
+ * due to them being derived from the distortion model and associated problems with
+ * RoundingHasher. Still, the way we derive them from the distortion model may change
+ * in the future and we'd like to reflect such changes in transform fingerprint.
+ * This value is to be incremented each time we change the algorithm used to calculate
+ * the intrinsic scale factors.
+ */
+int const DewarpingImageTransform::INTRINSIC_SCALE_ALGO_VERSION = 1;
+
+/**
+ * Initializes m_intrinsicScaleX and m_intrinsicScaleY in such a way that pixel
+ * density near the "closest to the camera" corner of dewarping quadrilateral matches
  * the corresponding pixel density in a transformed image. Since we don't know
  * the physical dimensions of original image, we express pixel density in
  * "pixels / ABSTRACT_PHYSICAL_UNIT" units, where ABSTRACT_PHYSICAL_UNIT is
  * a hardcoded small fraction of either the physical width or the physical
  * height of dewarping quadrilateral.
+ * Unfortunately, the approach above results in huge dewarped images in the presence
+ * of a strong perspective distortion. Therefore, we additionally scale m_intrinsicScaleX
+ * and m_intrinsicScaleY in such a way that the area (in pixels) of the curved quadrilateral
+ * equals the area of the corresponding dewarped rectangle.
  */
 void
-DewarpingImageTransform::setupPostScale()
+DewarpingImageTransform::setupIntrinsicScale()
 {
 	// Fraction of width or height of dewarping quardilateral.
 	double const epsilon = 0.01;
@@ -275,9 +303,32 @@ DewarpingImageTransform::setupPostScale()
 	double const dewarped_h_density = epsilon;
 	double const dewarped_v_density = epsilon;
 
-	// Now we are ready to calculate post scale.
-	m_postScaleX = warped_h_density / dewarped_h_density;
-	m_postScaleY = warped_v_density / dewarped_v_density;
+	// Now we are ready to calculate the initial scale.
+	// We still need to normalize the area though.
+	m_intrinsicScaleX = warped_h_density / dewarped_h_density;
+	m_intrinsicScaleY = warped_v_density / dewarped_v_density;
+
+	// Area of convex polygon formula taken from:
+	// http://mathworld.wolfram.com/PolygonArea.html
+	double area = 0.0;
+	QPointF prev_pt = m_bottomPolyline.front();
+
+	for (QPointF const pt : m_topPolyline) {
+		area += prev_pt.x() * pt.y() - pt.x() * prev_pt.y();
+		prev_pt = pt;
+	}
+
+	for (QPointF const pt : boost::adaptors::reverse(m_bottomPolyline)) {
+		area += prev_pt.x() * pt.y() - pt.x() * prev_pt.y();
+		prev_pt = pt;
+	}
+
+	area = 0.5 * std::abs(area);
+
+	// m_intrinsicScaleX * s * m_intrinsicScaleY * s = area
+	double const s = std::sqrt(area / (m_intrinsicScaleX * m_intrinsicScaleY));
+	m_intrinsicScaleX *= s;
+	m_intrinsicScaleY *= s;
 }
 
 } // namespace dewarping

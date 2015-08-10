@@ -88,9 +88,11 @@ public:
 
 	virtual std::function<QPointF(QPointF const&)> backwardMapper() const;
 private:
-	void setupPostScale();
+	void setupIntrinsicScale();
 
 	QPointF postScale(QPointF const& pt) const;
+
+	static int const INTRINSIC_SCALE_ALGO_VERSION;
 
 	QSize m_origSize;
 	QPolygonF m_origCropArea;
@@ -100,12 +102,28 @@ private:
 	dewarping::CylindricalSurfaceDewarper m_dewarper;
 
 	/**
-	 * CylindricalSurfaceDewarper maps a curved quadrilateral
-	 * into a unit square. Post scaling is applied to map that unit square
-	 * to its final size.
+	 * CylindricalSurfaceDewarper maps a curved quadrilateral into a unit square.
+	 * Two rounds of post scaling are then applied to map that unit square to its
+	 * final size. The first round is intrinsic scaling. Its parameters are derived
+	 * from the distortion model and its purpose is to match the pixel density inside
+	 * the curved and dewarped quadrilaterals. The intrinsic scale factors don't
+	 * participate in transform fingerprint calculation, as they are not free parameters
+	 * but are derived from the distortion model. Because the floating point values
+	 * in the distortion model are rounded when saving to XML, recalculated intrinsic
+	 * scale factors will be a bit off in a way that RoundingHasher (used in transform
+	 * fingerprint calculation) won't be able to compensate.
 	 */
-	qreal m_postScaleX;
-	qreal m_postScaleY;
+	qreal m_intrinsicScaleX;
+	qreal m_intrinsicScaleY;
+
+	/**
+	 * Additional post-scaling is the result of client code calling scale().
+	 * The reason it's separate from m_intrinsicScale[XY] is that m_userScale[XY]
+	 * do participate in transform fingerprint calculation, while m_intrinsicScale[XY]
+	 * don't.
+	 */
+	qreal m_userScaleX;
+	qreal m_userScaleY;
 };
 
 } // namespace dewarping
