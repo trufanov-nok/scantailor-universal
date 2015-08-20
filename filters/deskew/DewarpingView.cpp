@@ -65,7 +65,8 @@ DewarpingView::DewarpingView(
 		ImagePresentation(
 			full_size_image.xform().transform(),
 			full_size_image.xform().transformedCropArea()
-		)
+		),
+		QMarginsF(5.0, 5.0, 5.0, 5.0)
 	),
 	m_pageId(page_id),
 	m_virtDisplayArea(full_size_image.xform().transformedCropArea()),
