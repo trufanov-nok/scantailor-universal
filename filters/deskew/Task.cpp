@@ -475,6 +475,28 @@ Task::processWarpDistortion(
 			model_builder.tryBuildModel(m_ptrDbg.get(), &orig_image)
 		);
 
+		if (!distortion_model.isValid()) {
+			// Set up a trivial transformation.
+			QTransform const to_orig(orig_image_transform.transform().inverted());
+			QRectF const transformed_box(orig_image_transform.transformedCropArea().boundingRect());
+
+			distortion_model.setTopCurve(
+				std::vector<QPointF>{
+					to_orig.map(transformed_box.topLeft()),
+					to_orig.map(transformed_box.topRight())
+				}
+			);
+
+			distortion_model.setBottomCurve(
+				std::vector<QPointF>{
+					to_orig.map(transformed_box.bottomLeft()),
+					to_orig.map(transformed_box.bottomRight())
+				}
+			);
+
+			assert(distortion_model.isValid());
+		}
+
 		params.dewarpingParams().setDistortionModel(distortion_model);
 
 		// Note that we don't reset depth perception, as it's a manual parameter
