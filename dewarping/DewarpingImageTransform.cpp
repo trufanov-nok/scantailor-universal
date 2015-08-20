@@ -19,6 +19,8 @@
 #include "DewarpingImageTransform.h"
 #include "RoundingHasher.h"
 #include "ToVec.h"
+#include "ToLineProjector.h"
+#include "LineIntersectionScalar.h"
 #include "imageproc/AffineImageTransform.h"
 #include "imageproc/AffineTransformedImage.h"
 #include <Eigen/Core>
@@ -34,6 +36,7 @@
 #include <QTransform>
 #include <QColor>
 #include <QString>
+#include <boost/optional.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <algorithm>
 #include <utility>
@@ -54,7 +57,6 @@ DewarpingImageTransform::DewarpingImageTransform(
 	std::vector<QPointF> const& bottom_curve,
 	DepthPerception const& depth_perception)
 :	m_origSize(orig_size)
-,	m_origCropArea(orig_crop_area)
 ,	m_topPolyline(top_curve)
 ,	m_bottomPolyline(bottom_curve)
 ,	m_depthPerception(depth_perception)
@@ -64,6 +66,8 @@ DewarpingImageTransform::DewarpingImageTransform(
 ,	m_userScaleX(1.0)
 ,	m_userScaleY(1.0)
 {
+	// These two lines don't depend on each other and therefore can go in any order.
+	m_origCropArea = constrainCropArea(orig_crop_area);
 	setupIntrinsicScale();
 }
 
@@ -329,6 +333,75 @@ DewarpingImageTransform::setupIntrinsicScale()
 	double const s = std::sqrt(area / (m_intrinsicScaleX * m_intrinsicScaleY));
 	m_intrinsicScaleX *= s;
 	m_intrinsicScaleY *= s;
+}
+
+QPolygonF
+DewarpingImageTransform::constrainCropArea(QPolygonF const& orig_crop_area) const
+{
+	// The point where the vertical bounds intersect is a vanishing point that
+	// can't be mapped into dewarped coordinates. We want to exclude it as well
+	// as anything beyond it from the crop area.
+	QLineF const left_bound(m_topPolyline.front(), m_bottomPolyline.front());
+	QLineF const right_bound(m_topPolyline.back(), m_bottomPolyline.back());
+	boost::optional<QPointF> vanishing_point;
+	double left_bound_isect_scalar = 0.0;
+	if (lineIntersectionScalar(left_bound, right_bound, left_bound_isect_scalar)) {
+		vanishing_point = left_bound.pointAt(left_bound_isect_scalar);
+	}
+
+	// Points on left_bound will have the x coordinate of 0 in normalized dewarped coordinates.
+	// Points on img_right_bound will have x coordinate of 1. We want to allow some area
+	// outside of those bounds to be inside the crop region, yet we don't want to allow
+	// the area too far outside of those bounds.
+	CylindricalSurfaceDewarper::State state;
+	QLineF const extended_left_bound = m_dewarper.mapGeneratrix(-1.0, state).imgLine;
+	QLineF const mid_line = m_dewarper.mapGeneratrix(0.5, state).imgLine;
+	QLineF const extended_right_bound = m_dewarper.mapGeneratrix(2.0, state).imgLine;
+
+	ToLineProjector const mid_line_projector(mid_line);
+	double max_proj = -std::numeric_limits<double>::max();
+	double min_proj = std::numeric_limits<double>::max();
+
+	for (QPointF const& pt : orig_crop_area) {
+		double const proj = mid_line_projector.projectionScalar(pt);
+		min_proj = std::min<double>(proj, min_proj);
+		max_proj = std::max<double>(proj, max_proj);
+	}
+
+	if (vanishing_point) {
+		// Any point that's safe to include into the crop area.
+		QPointF const safe_point(0.5 * (left_bound.pointAt(0.5) + right_bound.pointAt(0.5)));
+
+		double const vanishing_point_proj = mid_line_projector.projectionScalar(*vanishing_point);
+		double const safe_point_proj = mid_line_projector.projectionScalar(safe_point);
+
+		// We exclude the vanishing point and some surrounding area. To be more precise,
+		// we exclude a certain fraction of the distance between the vanishing point and
+		// the furthest away point in the direction of safe_point.
+		double const safety_fraction = 0.04;
+		if (vanishing_point_proj < safe_point_proj) {
+			min_proj = std::max<double>(
+				min_proj, vanishing_point_proj + safety_fraction * (max_proj - vanishing_point_proj)
+			);
+		} else {
+			max_proj = std::min<double>(
+				max_proj, vanishing_point_proj + safety_fraction * (min_proj - vanishing_point_proj)
+			);
+		}
+	}
+
+	QPolygonF extra_crop_area(4);
+	QLineF mid_line_normal(mid_line.normalVector());
+
+	mid_line_normal.translate(mid_line.pointAt(min_proj) - mid_line_normal.p1());
+	mid_line_normal.intersect(extended_left_bound, &extra_crop_area[0]);
+	mid_line_normal.intersect(extended_right_bound, &extra_crop_area[1]);
+
+	mid_line_normal.translate(mid_line.pointAt(max_proj) - mid_line_normal.p1());
+	mid_line_normal.intersect(extended_right_bound, &extra_crop_area[2]);
+	mid_line_normal.intersect(extended_left_bound, &extra_crop_area[3]);
+
+	return orig_crop_area.intersected(extra_crop_area);
 }
 
 } // namespace dewarping

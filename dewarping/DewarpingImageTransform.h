@@ -49,6 +49,10 @@ class DEWARPING_EXPORT DewarpingImageTransform : public imageproc::AbstractImage
 {
 	// Member-wise copying is OK.
 public:
+	/**
+	 * @note The provided crop area in original image coordinates may be cropped further,
+	 *       as some areas of the image may be unsafe to dewarp.
+	 */
 	DewarpingImageTransform(
 		QSize const& orig_size,
 		QPolygonF const& orig_crop_area,
@@ -67,8 +71,6 @@ public:
 	virtual QSize const& origSize() const { return m_origSize; }
 
 	virtual QPolygonF const& origCropArea() const { return m_origCropArea; }
-
-	void setOrigCropArea(QPolygonF const& area) { m_origCropArea = area; }
 
 	virtual QPolygonF transformedCropArea() const;
 
@@ -89,6 +91,8 @@ public:
 	virtual std::function<QPointF(QPointF const&)> backwardMapper() const;
 private:
 	void setupIntrinsicScale();
+
+	QPolygonF constrainCropArea(QPolygonF const& orig_crop_area) const;
 
 	QPointF postScale(QPointF const& pt) const;
 
