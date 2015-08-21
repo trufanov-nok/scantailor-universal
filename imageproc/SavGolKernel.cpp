@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,20 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define _ISOC99SOURCE // For copysign()
-
 #include "SavGolKernel.h"
+#include <Eigen/Core>
+#include <Eigen/Cholesky>
 #include <QSize>
 #include <QPoint>
 #include <stdexcept>
-#include <string.h>
-#include <math.h>
-#include <assert.h>
 
-#ifdef _MSC_VER
-#undef copysign // Just in case.
-#define copysign _copysign
-#endif
+using namespace Eigen;
 
 namespace imageproc
 {
@@ -52,8 +46,7 @@ SavGolKernel::SavGolKernel(
 	m_vertDegree(vert_degree),
 	m_width(size.width()),
 	m_height(size.height()),
-	m_numTerms(calcNumTerms(hor_degree, vert_degree)),
-	m_numDataPoints(size.width() * size.height())
+	m_numTerms(calcNumTerms(hor_degree, vert_degree))
 {
 	if (size.isEmpty()) {
 		throw std::invalid_argument("SavGolKernel: invalid size");
@@ -64,142 +57,67 @@ SavGolKernel::SavGolKernel(
 	if (vert_degree < 0) {
 		throw std::invalid_argument("SavGolKernel: invalid vert_degree");
 	}
-	if (m_numTerms > m_numDataPoints) {
+	if (m_numTerms > m_width * m_height) {
 		throw std::invalid_argument("SavGolKernel: too high degree for this amount of data");
 	}
-	
-	// Allocate memory.
-	m_dataPoints.resize(m_numDataPoints, 0.0);
-	m_coeffs.resize(m_numTerms);
-	AlignedArray<float, 4>(m_numDataPoints).swap(m_kernel);
-	
-	// Prepare equations.
-	m_equations.reserve(m_numTerms * m_numDataPoints);
+
+	VectorXd sample(m_numTerms);
+	MatrixXd AtA;
+	AtA.setZero(m_numTerms, m_numTerms);
+
 	for (int y = 1; y <= m_height; ++y) {
 		for (int x = 1; x <= m_width; ++x) {
-			double pow1 = 1.0;
-			for (int i = 0; i <= m_vertDegree; ++i) {
-				double pow2 = pow1;
-				for (int j = 0; j <= m_horDegree; ++j) {
-					m_equations.push_back(pow2);
-					pow2 *= x;
-				}
-				pow1 *= y;
-			}
-		}
-	}
-	
-	QR();
-	recalcForOrigin(origin);
-}
+			fillSample(sample.data(), x, y, m_horDegree, m_vertDegree);
 
-/**
- * Perform a QR factorization of m_equations by Givens rotations.
- * We store R in place of m_equations, and we don't store Q anywhere,
- * but we do store the rotations in the order they were performed.
- */
-void
-SavGolKernel::QR()
-{
-	m_rotations.clear();
-	m_rotations.reserve(
-		m_numTerms * (m_numTerms - 1) / 2
-		+ (m_numDataPoints - m_numTerms) * m_numTerms
-	);
-	
-	int jj = 0; // j * m_numTerms + j
-	for (int j = 0; j < m_numTerms; ++j, jj += m_numTerms + 1) {
-		int ij = jj + m_numTerms; // i * m_numTerms + j
-		for (int i = j + 1; i < m_numDataPoints; ++i, ij += m_numTerms) {
-			double const a = m_equations[jj];
-			double const b = m_equations[ij];
-			
-			if (b == 0.0) {
-				m_rotations.push_back(Rotation(1.0, 0.0));
-				continue;
-			}
-			
-			double sin, cos;
-			
-			if (a == 0.0) {
-				cos = 0.0;
-				sin = copysign(1.0, b);
-				m_equations[jj] = fabs(b);
-			} else if (fabs(b) > fabs(a)) {
-				double const t = a / b;
-				double const u = copysign(sqrt(1.0 + t*t), b);
-				sin = 1.0 / u;
-				cos = sin * t;
-				m_equations[jj] = b * u;
-			} else {
-				double const t = b / a;
-				double const u = copysign(sqrt(1.0 + t*t), a);
-				cos = 1.0 / u;
-				sin = cos * t;
-				m_equations[jj] = a * u;
-			}
-			m_equations[ij] = 0.0;
-			
-			m_rotations.push_back(Rotation(sin, cos));
-			
-			int ik = ij + 1; // i * m_numTerms + k
-			int jk = jj + 1; // j * m_numTerms + k
-			for (int k = j + 1; k < m_numTerms; ++k, ++ik, ++jk) {
-				double const temp = cos * m_equations[jk] + sin * m_equations[ik];
-				m_equations[ik] = cos * m_equations[ik] - sin * m_equations[jk];
-				m_equations[jk] = temp;
+			for (int i = 0; i < m_numTerms; ++i) {
+				for (int j = 0; j <= i; ++j) {
+					AtA(i, j) += sample[i] * sample[j];
+				}
 			}
 		}
 	}
+
+	m_leastSquaresDecomp.compute(AtA);
+	AlignedArray<float, 4>(m_width * m_height).swap(m_kernel);
+
+	recalcForOrigin(origin);
 }
 
 void
 SavGolKernel::recalcForOrigin(QPoint const& origin)
 {
-	std::fill(m_dataPoints.begin(), m_dataPoints.end(), 0.0);
-	m_dataPoints[origin.y() * m_width + origin.x()] = 1.0;
-	
-	// Rotate data points.
-	double* const dp = &m_dataPoints[0];
-	std::vector<Rotation>::const_iterator rot(m_rotations.begin());
-	for (int j = 0; j < m_numTerms; ++j) {
-		for (int i = j + 1; i < m_numDataPoints; ++i, ++rot) {
-			double const temp = rot->cos * dp[j] + rot->sin * dp[i];
-			dp[i] = rot->cos * dp[i] - rot->sin * dp[j];
-			dp[j] = temp;
-		}
-	}
-	
-	// Solve R*x = d by back-substitution.
-	int ii = m_numTerms * m_numTerms - 1; // i * m_numTerms + i
-	for (int i = m_numTerms - 1; i >= 0; --i, ii -= m_numTerms + 1) {
-		double sum = dp[i];
-		int ik = ii + 1;
-		for (int k = i + 1; k < m_numTerms; ++k, ++ik) {
-			sum -= m_equations[ik] * m_coeffs[k];
-		}
-		
-		assert(m_equations[ii] != 0.0);
-		m_coeffs[i] = sum / m_equations[ii];
-	}
-	
-	int ki = 0;
+	VectorXd AtB(m_numTerms);
+	fillSample(AtB.data(), origin.x() + 1, origin.y() + 1, m_horDegree, m_vertDegree);
+
+	m_leastSquaresDecomp.solveInPlace(AtB);
+
+	VectorXd sample(m_numTerms);
+	float* p_kernel = m_kernel.data();
+
 	for (int y = 1; y <= m_height; ++y) {
 		for (int x = 1; x <= m_width; ++x) {
-			double sum = 0.0;
-			double pow1 = 1.0;
-			int ci = 0;
-			for (int i = 0; i <= m_vertDegree; ++i) {
-				double pow2 = pow1;
-				for (int j = 0; j <= m_horDegree; ++j) {
-					sum += pow2 * m_coeffs[ci];
-					++ci;
-					pow2 *= x;
-				}
-				pow1 *= y;
-			}
-			m_kernel[ki] = (float)sum;
-			++ki;
+			fillSample(sample.data(), x, y, m_horDegree, m_vertDegree);
+			*p_kernel = static_cast<float>(AtB.dot(sample));
+			++p_kernel;
+		}
+	}
+}
+
+/**
+ * Prepare a single row for matrix A to be used to solve Ax = b, except we never
+ * build matrix A but rather incrementally update matrix A'A and vector A'b.
+ *
+ * @note x1 and y1 stand for 1-based (as opposed to zero-based) coordinates in the kernel window.
+ */
+void
+SavGolKernel::fillSample(double* sampleData, double x1, double y1, int hor_degree, int vert_degree)
+{
+	double pow1 = 1.0;
+	for (int i = 0; i <= vert_degree; ++i, pow1 *= y1) {
+		double pow2 = pow1;
+		for (int j = 0; j <= hor_degree; ++j, pow2 *= x1) {
+			*sampleData = pow2;
+			++sampleData;
 		}
 	}
 }
