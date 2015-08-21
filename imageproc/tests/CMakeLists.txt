@@ -21,6 +21,7 @@ SET(
 	TestSEDM.cpp
 	TestRastLineFinder.cpp
 	TestColorMixer.cpp
+	TestSavGolKernel.cpp
 	Utils.cpp Utils.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
