@@ -27,17 +27,18 @@ class QSize;
 namespace imageproc
 {
 
+class GrayImage;
+
 /**
  * \brief Performs a grayscale smoothing using the Savitzky-Golay method.
  *
- * The Savitzky-Golay method is equivalent to fitting a small neighborhood
- * around each pixel to a polynomial, and then recalculating the pixel
- * value from it.  In practice, it achieves the same results without fitting
+ * The Savitzky-Golay method is equivalent to fitting a polynomial surface
+ * to a small neighborhood around each pixel, and then recalculating the pixel
+ * value from it. In practice, it achieves the same results without fitting
  * a polynomial for every pixel, so it performs quite well.
  *
- * \param src The source image.  It doesn't have to be grayscale, but
- *        the resulting image will be grayscale anyway.
- * \param window_size The apperture size.  If it doesn't completely
+ * \param src The source image.
+ * \param window_size The apperture size. If it doesn't completely
  *        fit the image area, no filtering will take place.
  * \param hor_degree The degree of a polynomial in horizontal direction.
  * \param vert_degree The degree of a polynomial in vertical direction.
@@ -50,8 +51,8 @@ namespace imageproc
  * \endcode
  * Good results for 300 dpi scans are achieved with 7x7 window and 4x4 degree.
  */
-IMAGEPROC_EXPORT QImage savGolFilter(
-	QImage const& src, QSize const& window_size,
+IMAGEPROC_EXPORT GrayImage savGolFilter(
+	GrayImage const& src, QSize const& window_size,
 	int hor_degree, int vert_degree);
 
 } // namespace imageproc

@@ -814,7 +814,7 @@ OutputGenerator::smoothToGrayscale(QImage const& src)
 		window = 11;
 		degree = 2;
 	}
-	return savGolFilter(src, QSize(window, window), degree, degree);
+	return savGolFilter(GrayImage(src), QSize(window, window), degree, degree);
 }
 
 BinaryThreshold
