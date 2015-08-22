@@ -169,6 +169,15 @@ public:
 	 */
 	virtual imageproc::GrayImage renderPolynomialSurface(
 		imageproc::PolynomialSurface const& surface, int width, int height) = 0;
+
+	/**
+	 * @brief Performs a grayscale smoothing using the Savitzky-Golay method.
+	 *
+	 * @see imageproc::savGolKernel()
+	 */
+	virtual imageproc::GrayImage savGolFilter(
+		imageproc::GrayImage const& src, QSize const& window_size,
+		int hor_degree, int vert_degree) = 0;
 };
 
 #endif

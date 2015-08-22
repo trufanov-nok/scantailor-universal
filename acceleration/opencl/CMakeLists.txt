@@ -14,6 +14,7 @@ SET(
 	OpenCLTextFilterBank.cpp OpenCLTextFilterBank.h
 	OpenCLDewarp.cpp OpenCLDewarp.h
 	OpenCLAffineTransform.cpp OpenCLAffineTransform.h
+	OpenCLSavGolFilter.cpp OpenCLSavGolFilter.h
 	Transpose.cpp Transpose.h
 	Copy.cpp Copy.h
 	RenderPolynomialSurface.cpp RenderPolynomialSurface.h

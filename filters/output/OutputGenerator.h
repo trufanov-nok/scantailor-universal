@@ -170,7 +170,8 @@ private:
 		imageproc::BinaryImage* out_speckles_img,
 		TaskStatus const& status, DebugImages* dbg) const;
 
-	static QImage smoothToGrayscale(QImage const& src);
+	static imageproc::GrayImage smoothToGrayscale(
+		QImage const& src, std::shared_ptr<AcceleratableOperations> const& accel_ops);
 	
 	static void morphologicalSmoothInPlace(
 		imageproc::BinaryImage& img, TaskStatus const& status);

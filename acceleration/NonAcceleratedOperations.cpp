@@ -20,6 +20,7 @@
 #include "imageproc/RasterOpGeneric.h"
 #include "imageproc/GaussBlur.h"
 #include "imageproc/AffineTransform.h"
+#include "imageproc/SavGolFilter.h"
 #include "dewarping/RasterDewarper.h"
 #include <QPoint>
 #include <QPointF>
@@ -149,4 +150,12 @@ NonAcceleratedOperations::renderPolynomialSurface(
 	PolynomialSurface const& surface, int width, int height)
 {
 	return surface.render(QSize(width, height));
+}
+
+GrayImage
+NonAcceleratedOperations::savGolFilter(
+	imageproc::GrayImage const& src, QSize const& window_size,
+	int hor_degree, int vert_degree)
+{
+	return imageproc::savGolFilter(src, window_size, hor_degree, vert_degree);
 }

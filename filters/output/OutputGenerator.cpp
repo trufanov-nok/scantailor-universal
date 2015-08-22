@@ -399,7 +399,7 @@ OutputGenerator::process(
 	if (!render_params.needBinarization()) {
 		maybe_smoothed = maybe_normalized;
 	} else {
-		maybe_smoothed = smoothToGrayscale(maybe_normalized);
+		maybe_smoothed = smoothToGrayscale(maybe_normalized, accel_ops);
 		if (dbg) {
 			dbg->add(maybe_smoothed, "smoothed");
 		}
@@ -795,8 +795,9 @@ OutputGenerator::detectPictures(
 	return holes_filled;
 }
 
-QImage
-OutputGenerator::smoothToGrayscale(QImage const& src)
+GrayImage
+OutputGenerator::smoothToGrayscale(
+	QImage const& src, std::shared_ptr<AcceleratableOperations> const& accel_ops)
 {
 	int const min_dim = std::min(src.width(), src.height());
 	int window;
@@ -814,7 +815,7 @@ OutputGenerator::smoothToGrayscale(QImage const& src)
 		window = 11;
 		degree = 2;
 	}
-	return savGolFilter(GrayImage(src), QSize(window, window), degree, degree);
+	return accel_ops->savGolFilter(GrayImage(src), QSize(window, window), degree, degree);
 }
 
 BinaryThreshold

@@ -22,6 +22,7 @@
 #include "OpenCLTextFilterBank.h"
 #include "OpenCLDewarp.h"
 #include "OpenCLAffineTransform.h"
+#include "OpenCLSavGolFilter.h"
 #include "RenderPolynomialSurface.h"
 #include "VecNT.h"
 #include <QFile>
@@ -48,7 +49,7 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 ,	m_commandQueue(m_context, m_devices.front(), 0)
 ,	m_ptrFallback(fallback)
 {
-	// The order of these source files may be important, some
+	// The order of these source files may be important, as some
 	// sources may be using entities declared / defined in other
 	// source files. Note that we don't use #include directives
 	// in OpenCL kernel code.
@@ -62,7 +63,8 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 		"rgba_color_mixer.cl",
 		"affine_transform.cl",
 		"dewarp.cl",
-		"render_polynomial_surface.cl"
+		"render_polynomial_surface.cl",
+		"sav_gol_filter.cl"
 	};
 
 	std::deque<QByteArray> sources;
@@ -366,6 +368,39 @@ OpenCLAcceleratedOperations::renderPolynomialSurfaceUnguarded(
 {
 	return opencl::renderPolynomialSurface(
 		m_commandQueue, m_program, width, height, surface.coeffs()
+	);
+}
+
+imageproc::GrayImage
+OpenCLAcceleratedOperations::savGolFilter(
+	imageproc::GrayImage const& src, QSize const& window_size,
+	int hor_degree, int vert_degree)
+{
+	try {
+		return savGolFilterUnguarded(src, window_size, hor_degree, vert_degree);
+	} catch (cl::Error const& e) {
+		if (e.err() == CL_OUT_OF_HOST_MEMORY) {
+			throw std::bad_alloc();
+		}
+		qDebug() << "OpenCL error: " << e.what();
+		return m_ptrFallback->savGolFilter(src, window_size, hor_degree, vert_degree);
+	}
+}
+
+imageproc::GrayImage
+OpenCLAcceleratedOperations::savGolFilterUnguarded(
+	imageproc::GrayImage const& src, QSize const& window_size,
+	int hor_degree, int vert_degree)
+{
+	if (m_devices.front().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU) {
+		// The OpenCL implementation of Savitzly-Golay filter is significantly
+		// slower when executed on CPU compared to a non-OpenCL version.
+		// Therefore, we invoke a non-OpenCL version here.
+		return m_ptrFallback->savGolFilter(src, window_size, hor_degree, vert_degree);
+	}
+
+	return opencl::savGolFilter(
+		m_commandQueue, m_program, src, window_size, hor_degree, vert_degree
 	);
 }
 

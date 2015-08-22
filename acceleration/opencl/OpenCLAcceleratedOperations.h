@@ -70,6 +70,10 @@ public:
 
 	virtual imageproc::GrayImage renderPolynomialSurface(
 		imageproc::PolynomialSurface const& surface, int width, int height);
+
+	virtual imageproc::GrayImage savGolFilter(
+		imageproc::GrayImage const& src, QSize const& window_size,
+		int hor_degree, int vert_degree);
 private:
 	Grid<float> gaussBlurUnguarded(
 		Grid<float> const& src, float h_sigma, float v_sigma) const;
@@ -95,6 +99,10 @@ private:
 
 	imageproc::GrayImage renderPolynomialSurfaceUnguarded(
 		imageproc::PolynomialSurface const& surface, int width, int height);
+
+	imageproc::GrayImage savGolFilterUnguarded(
+		imageproc::GrayImage const& src, QSize const& window_size,
+		int hor_degree, int vert_degree);
 
 	cl::Context m_context;
 	std::vector<cl::Device> m_devices;
