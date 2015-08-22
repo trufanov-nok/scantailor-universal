@@ -19,6 +19,7 @@
 #include "GridLineTraverser.h"
 #include "LineIntersectionScalar.h"
 #include <algorithm>
+#include <cstdlib>
 
 GridLineTraverser::GridLineTraverser(QLineF const& line)
 {
@@ -26,7 +27,7 @@ GridLineTraverser::GridLineTraverser(QLineF const& line)
 	QPoint const p2(line.p2().toPoint());
 	int h_spans, v_spans, num_spans;
 	double s1 = 0.0, s2 = 0.0;
-	if ((h_spans = abs(p1.x() - p2.x())) > (v_spans = abs(p1.y() - p2.y()))) {
+	if ((h_spans = std::abs(p1.x() - p2.x())) > (v_spans = std::abs(p1.y() - p2.y()))) {
 		// Major direction: horizontal.
 		num_spans = h_spans;
 		lineIntersectionScalar(line, QLineF(p1, QPoint(p1.x(), p1.y() + 1)), s1);
