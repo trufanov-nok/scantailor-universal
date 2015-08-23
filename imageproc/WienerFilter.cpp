@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cassert>
+#include <cmath>
 #include <stdexcept>
 
 namespace imageproc
