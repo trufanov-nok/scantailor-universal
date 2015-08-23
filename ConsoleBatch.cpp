@@ -196,7 +196,7 @@ ConsoleBatch::process()
 	int startFilterIdx = m_ptrStages->fixOrientationFilterIdx();
 	if (cli.hasStartFilterIdx()) {
 		unsigned int sf = cli.getStartFilterIdx();
-		if (sf<0 || sf>=m_ptrStages->filters().size())
+		if (sf>=m_ptrStages->filters().size())
 			throw std::runtime_error("Start filter out of range");
 		startFilterIdx = sf;
 	}
@@ -205,7 +205,7 @@ ConsoleBatch::process()
 	int endFilterIdx = m_ptrStages->selectContentFilterIdx();
 	if (cli.hasEndFilterIdx()) {
 		unsigned int ef = cli.getEndFilterIdx();
-		if (ef<0 || ef>=m_ptrStages->filters().size())
+		if (ef>=m_ptrStages->filters().size())
 			throw std::runtime_error("End filter out of range");
 		endFilterIdx = ef;
 	}
