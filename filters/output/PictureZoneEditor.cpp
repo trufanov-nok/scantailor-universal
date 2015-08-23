@@ -348,8 +348,8 @@ PictureZoneEditor::MaskTransformTask::MaskTransformTask(
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	BinaryImage const& mask, QTransform const& xform,
 	QSize const& target_size)
-:	m_ptrResult(new Result(zone_editor)),
-	m_ptrAccelOps(accel_ops),
+:	m_ptrAccelOps(accel_ops),
+	m_ptrResult(new Result(zone_editor)),
 	m_origMask(mask),
 	m_xform(xform),
 	m_targetSize(target_size)
