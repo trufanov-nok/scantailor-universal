@@ -26,8 +26,6 @@
 #include "imageproc/Sobel.h"
 #ifndef Q_MOC_RUN
 #include <boost/scoped_array.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #endif
 #include <QImage>
 #include <QPainter>
@@ -188,27 +186,26 @@ void
 TextLineRefiner::calcBlurredGradient(
     Grid<float>& gradient, float h_sigma, float v_sigma) const
 {
-    using namespace boost::lambda;
 
     float const downscale = 1.0f / (255.0f * 8.0f);
     Grid<float> vert_grad(m_image.width(), m_image.height(), /*padding=*/0);
     horizontalSobel<float>(
-        m_image.width(), m_image.height(), m_image.data(), m_image.stride(), _1 * downscale,
-        gradient.data(), gradient.stride(), _1 = _2, _1,
-        gradient.data(), gradient.stride(), _1 = _2
+        m_image.width(), m_image.height(), m_image.data(), m_image.stride(), [=](float val) {return val * downscale; },
+        gradient.data(), gradient.stride(), [=](float& n, float val) { n = val; }, [=](float val) { return val; },
+        gradient.data(), gradient.stride(), [=](float& n, float val) { n = val; }
     );
     verticalSobel<float>(
-        m_image.width(), m_image.height(), m_image.data(), m_image.stride(), _1 * downscale,
-        vert_grad.data(), vert_grad.stride(), _1 = _2, _1,
+        m_image.width(), m_image.height(), m_image.data(), m_image.stride(), [=](float val) {return val * downscale; },
+        vert_grad.data(), vert_grad.stride(),  [=](float& n, float val) { n = val; }, [=](float val) { return val; },
         gradient.data(), gradient.stride(),
-        _1 = _1 * m_unitDownVec[0] + _2 * m_unitDownVec[1]
+        [=](float& n, float val) { n = n * m_unitDownVec[0] + val * m_unitDownVec[1]; }
     );
     Grid<float>().swap(vert_grad); // Save memory.
 
     gaussBlurGeneric(
         m_image.size(), h_sigma, v_sigma,
-        gradient.data(), gradient.stride(), _1,
-        gradient.data(), gradient.stride(), _1 = _2
+        gradient.data(), gradient.stride(), [=](float val) { return val; },
+        gradient.data(), gradient.stride(), [=](float& n, float val) { n = val; }
     );
 }
 

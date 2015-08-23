@@ -95,10 +95,6 @@
 #include "settings/globalstaticsettings.h"
 #include "StatusBarProvider.h"
 #include "OpenWithMenuProvider.h"
-#ifndef Q_MOC_RUN
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#endif
 #include <QApplication>
 #include <QLineF>
 #include <QPointer>
@@ -587,8 +583,6 @@ MainWindow::showNewOpenProjectPanel()
 void
 MainWindow::createBatchProcessingWidget()
 {
-    using namespace boost::lambda;
-
     m_ptrBatchProcessingWidget.reset(new QWidget);
     QGridLayout* layout = new QGridLayout(m_ptrBatchProcessingWidget.get());
     m_ptrBatchProcessingWidget->setLayout(layout);
@@ -612,7 +606,9 @@ MainWindow::createBatchProcessingWidget()
         Ui::BatchProcessingLowerPanel ui;
     };
     LowerPanel* lower_panel = new LowerPanel(m_ptrBatchProcessingWidget.get());
-    m_checkBeepWhenFinished = std::bind(&QCheckBox::isChecked, lower_panel->ui.beepWhenFinished);
+    m_checkBeepWhenFinished = [lower_panel]() {
+        return lower_panel->ui.beepWhenFinished->isChecked();
+    };
 
     int row = 0; // Row 0 is reserved.
     layout->addWidget(stop_btn, ++row, 1, Qt::AlignCenter);
@@ -1139,10 +1135,9 @@ MainWindow::showRelinkingDialog()
     m_ptrPages->listRelinkablePaths(dialog->pathCollector());
     dialog->pathCollector()(RelinkablePath(m_outFileNameGen.outDir(), RelinkablePath::Dir));
 
-    new QtSignalForwarder(
-        dialog, SIGNAL(accepted()),
-        boost::lambda::bind(&MainWindow::performRelinking, this, dialog->relinker())
-    );
+    connect(dialog, &QDialog::accepted, [this, dialog]() {
+        this->performRelinking(dialog->relinker());
+    });
 
     dialog->show();
 }
@@ -2932,8 +2927,6 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
     // so to be safe, remove duplicates.
     files.erase(std::unique(files.begin(), files.end()), files.end());
 
-    using namespace boost::lambda;
-
     std::vector<ImageFileInfo> new_files;
     std::vector<QString> loaded_files;
     std::vector<QString> failed_files; // Those we failed to read metadata from.
@@ -2943,12 +2936,10 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
         QFileInfo const file_info(files[i]);
         ImageFileInfo image_file_info(file_info, std::vector<ImageMetadata>());
 
-        void (std::vector<ImageMetadata>::*push_back)(const ImageMetadata&) =
-            &std::vector<ImageMetadata>::push_back;
         ImageMetadataLoader::Status const status = ImageMetadataLoader::load(
-                    files.at(i), boost::lambda::bind(push_back,
-                            boost::ref(image_file_info.imageInfo()), boost::lambda::_1)
-                );
+                    files.at(i),[&](ImageMetadata const& metadata) {
+                image_file_info.imageInfo().push_back(metadata);
+            } );
 
         if (status == ImageMetadataLoader::LOADED) {
             new_files.push_back(image_file_info);
@@ -2969,8 +2960,14 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
     }
 
     // Check if there is at least one DPI that's not OK.
-    if (std::find_if(new_files.begin(), new_files.end(), !boost::lambda::bind(&ImageFileInfo::isDpiOK, boost::lambda::_1)) != new_files.end()) {
-
+    bool not_ok = false;
+    for (ImageFileInfo const& file : new_files) {
+         if (!file.isDpiOK()) {
+             not_ok = true;
+             break;
+         }
+    }
+    if (not_ok) {
         std::unique_ptr<FixDpiDialog> dpi_dialog(new FixDpiDialog(new_files, this));
         dpi_dialog->setWindowModality(Qt::WindowModal);
         if (dpi_dialog->exec() != QDialog::Accepted) {
@@ -3013,11 +3010,8 @@ MainWindow::showInsertEmptyPageDialog(BeforeOrAfter before_or_after, const PageI
     QFileInfo const file_info(empty_page_filename);
     ImageFileInfo image_file_info(file_info, std::vector<ImageMetadata>());
 
-    void (std::vector<ImageMetadata>::*push_back)(const ImageMetadata&) =
-        &std::vector<ImageMetadata>::push_back;
     ImageMetadataLoader::Status const status = ImageMetadataLoader::load(
-                empty_page_filename, boost::lambda::bind(push_back,
-                        boost::ref(image_file_info.imageInfo()), boost::lambda::_1)
+                empty_page_filename, [&](const ImageMetadata& m) { image_file_info.imageInfo().push_back(m); }
             );
 
     if (status != ImageMetadataLoader::LOADED) {

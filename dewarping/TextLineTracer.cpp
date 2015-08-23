@@ -60,9 +60,6 @@
 #include <QtGlobal>
 #ifndef Q_MOC_RUN
 #include <boost/scoped_array.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/if.hpp>
 #endif
 #include <algorithm>
 #include <set>
@@ -85,8 +82,6 @@ TextLineTracer::trace(
     DistortionModelBuilder& output,
     TaskStatus const& status, DebugImages* dbg)
 {
-    using namespace boost::lambda;
-
     GrayImage downscaled(downscale(input, dpi));
     if (dbg) {
         dbg->add(downscaled, "downscaled");
@@ -160,6 +155,7 @@ TextLineTracer::trace(
         output.addHorizontalCurve(polyline);
     }
 }
+
 
 GrayImage
 TextLineTracer::downscale(GrayImage const& input, Dpi const& dpi)
@@ -335,8 +331,6 @@ TextLineTracer::extractTextLines(
     std::list<std::vector<QPointF> >& out, imageproc::GrayImage const& image,
     std::pair<QLineF, QLineF> const& bounds, DebugImages* dbg)
 {
-    using namespace boost::lambda;
-
     int const width = image.width();
     int const height = image.height();
     QSize const size(image.size());
@@ -346,14 +340,14 @@ TextLineTracer::extractTextLines(
 
     float const downscale = 1.0f / (255.0f * 8.0f);
     horizontalSobel<float>(
-        width, height, image.data(), image.stride(), _1 * downscale,
-        aux_grid.data(), aux_grid.stride(), _1 = _2, _1,
-        main_grid.data(), main_grid.stride(), _1 = _2
+        width, height, image.data(), image.stride(), [=](float val) {return val * downscale; },
+        aux_grid.data(), aux_grid.stride(), [=](float& n, float val) { n = val; }, [=](float val) { return val; },
+        main_grid.data(), main_grid.stride(), [=](float& n, float val) { n = val; }
     );
     verticalSobel<float>(
-        width, height, image.data(), image.stride(), _1 * downscale,
-        aux_grid.data(), aux_grid.stride(), _1 = _2, _1,
-        main_grid.data(), main_grid.stride(), _1 = _1 * direction[0] + _2 * direction[1]
+        width, height, image.data(), image.stride(), [=](float val) {return val * downscale; },
+        aux_grid.data(), aux_grid.stride(), [=](float& n, float val) { n = val; }, [=](float val) { return val; },
+        main_grid.data(), main_grid.stride(), [=](float& n, float val) { n = n * direction[0] + val * direction[1]; }
     );
     if (dbg) {
         dbg->add(visualizeGradient(image, main_grid), "first_dir_deriv");
@@ -361,26 +355,26 @@ TextLineTracer::extractTextLines(
 
     gaussBlurGeneric(
         size, 6.0f, 6.0f,
-        main_grid.data(), main_grid.stride(), _1,
-        main_grid.data(), main_grid.stride(), _1 = _2
+        main_grid.data(), main_grid.stride(), [=](float val) { return val; },
+        main_grid.data(), main_grid.stride(), [=](float& n, float val) { n = val; }
     );
     if (dbg) {
         dbg->add(visualizeGradient(image, main_grid), "first_dir_deriv_blurred");
     }
 
     horizontalSobel<float>(
-        width, height, main_grid.data(), main_grid.stride(), _1,
-        aux_grid.data(), aux_grid.stride(), _1 = _2, _1,
-        aux_grid.data(), aux_grid.stride(), _1 = _2
+        width, height, main_grid.data(), main_grid.stride(), [=](float val) {return val; },
+        aux_grid.data(), aux_grid.stride(), [=](float& n, float val) { n = val; }, [=](float val) { return val; },
+        aux_grid.data(), aux_grid.stride(), [=](float& n, float val) { n = val; }
     );
     verticalSobel<float>(
-        width, height, main_grid.data(), main_grid.stride(), _1,
-        main_grid.data(), main_grid.stride(), _1 = _2, _1,
-        main_grid.data(), main_grid.stride(), _1 = _2
+        width, height, main_grid.data(), main_grid.stride(), [=](float val) {return val; },
+        main_grid.data(), main_grid.stride(), [=](float& n, float val) { n = val; }, [=](float val) { return val; },
+        main_grid.data(), main_grid.stride(), [=](float& n, float val) { n = val; }
     );
     rasterOpGeneric(
         aux_grid.data(), aux_grid.stride(), size,
-        main_grid.data(), main_grid.stride(), _2 = _1 * direction[0] + _2 * direction[1]
+        main_grid.data(), main_grid.stride(), [=](const float& b, float& f) {f = b * direction[0] + f * direction[1]; }
     );
     if (dbg) {
         dbg->add(visualizeGradient(image, main_grid), "second_dir_deriv");
@@ -389,14 +383,15 @@ TextLineTracer::extractTextLines(
     float max = 0;
     rasterOpGeneric(
         main_grid.data(), main_grid.stride(), size,
-        if_then(_1 > var(max), var(max) = _1)
+                [&max](const float& f) { if (f > max) max = f; }
     );
     float const threshold = max * 15.0f / 255.0f;
 
     BinaryImage initial_binarization(image.size());
     rasterOpGeneric(
         initial_binarization, main_grid.data(), main_grid.stride(),
-        if_then_else(_2 > threshold, _1 = uint32_t(1), _1 = uint32_t(0))
+                [threshold](rop_generic_impl::BitProxy& a, const float& b) { a = b > threshold ? uint32_t(1) : uint32_t(0); }
+//        if_then_else(_2 > threshold, _1 = uint32_t(1), _1 = uint32_t(0))
     );
     if (dbg) {
         dbg->add(initial_binarization, "initial_binarization");
@@ -404,7 +399,7 @@ TextLineTracer::extractTextLines(
 
     rasterOpGeneric(
         main_grid.data(), main_grid.stride(), size,
-        aux_grid.data(), aux_grid.stride(), _2 = bind((float (*)(float))&std::fabs, _1)
+        aux_grid.data(), aux_grid.stride(), [](const float& a, float & b) { b = std::fabs(a); }
     );
     if (dbg) {
         dbg->add(visualizeGradient(image, aux_grid), "abs");
@@ -412,8 +407,8 @@ TextLineTracer::extractTextLines(
 
     gaussBlurGeneric(
         size, 12.0f, 12.0f,
-        aux_grid.data(), aux_grid.stride(), _1,
-        aux_grid.data(), aux_grid.stride(), _1 = _2
+        aux_grid.data(), aux_grid.stride(), [=](float val) { return val; },
+        aux_grid.data(), aux_grid.stride(), [=](float& n, float val) { n = val; }
     );
     if (dbg) {
         dbg->add(visualizeGradient(image, aux_grid), "blurred");
@@ -422,7 +417,8 @@ TextLineTracer::extractTextLines(
     rasterOpGeneric(
         main_grid.data(), main_grid.stride(), size,
         aux_grid.data(), aux_grid.stride(),
-        _2 += _1 - bind((float (*)(float))&std::fabs, _1)
+                [](const float& a, float & b) { b += a - std::fabs(a); }
+//        _2 += _1 - bind((float (*)(float))&std::fabs, _1)
     );
     if (dbg) {
         dbg->add(visualizeGradient(image, aux_grid), "+= diff");
@@ -431,7 +427,8 @@ TextLineTracer::extractTextLines(
     BinaryImage post_binarization(image.size());
     rasterOpGeneric(
         post_binarization, aux_grid.data(), aux_grid.stride(),
-        if_then_else(_2 > threshold, _1 = uint32_t(1), _1 = uint32_t(0))
+                [threshold](rop_generic_impl::BitProxy& a, const float& b) { a = b > threshold ? uint32_t(1) : uint32_t(0); }
+//        if_then_else(_2 > threshold, _1 = uint32_t(1), _1 = uint32_t(0))
     );
     if (dbg) {
         dbg->add(post_binarization, "post_binarization");
@@ -440,7 +437,8 @@ TextLineTracer::extractTextLines(
     BinaryImage obstacles(image.size());
     rasterOpGeneric(
         obstacles, aux_grid.data(), aux_grid.stride(),
-        if_then_else(_2 < -threshold, _1 = uint32_t(1), _1 = uint32_t(0))
+                [threshold](rop_generic_impl::BitProxy& a, const float& b) { a = b < -threshold ? uint32_t(1) : uint32_t(0); }
+//        if_then_else(_2 < -threshold, _1 = uint32_t(1), _1 = uint32_t(0))
     );
     if (dbg) {
         dbg->add(obstacles, "obstacles");

@@ -23,10 +23,6 @@
 #include "imageproc/SEDM.h"
 #include <QRect>
 #include <QtGlobal>
-#ifndef Q_MOC_RUN
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#endif
 #include <algorithm>
 #include <math.h>
 #include <assert.h>
@@ -178,11 +174,13 @@ TowardsLineTracer::setupSteps()
     }
 
     // Sort by decreasing alignment with m_normalTowardsLine.
-    using namespace boost::lambda;
     std::sort(
         m_steps, m_steps + m_numSteps,
-        bind(&Vec2d::dot, m_normalTowardsLine, bind<Vec2d const&>(&Step::unitVec, _1)) >
-        bind(&Vec2d::dot, m_normalTowardsLine, bind<Vec2d const&>(&Step::unitVec, _2))
+                [=](const Step& lhs, const Step& rhs){
+
+        return m_normalTowardsLine.dot(lhs.unitVec) > m_normalTowardsLine.dot(rhs.unitVec); }
+//        bind(&Vec2d::dot, m_normalTowardsLine, bind<Vec2d const&>(&Step::unitVec, _1)) >
+//        bind(&Vec2d::dot, m_normalTowardsLine, bind<Vec2d const&>(&Step::unitVec, _2))
     );
 }
 

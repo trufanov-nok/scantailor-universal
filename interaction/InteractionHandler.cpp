@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,11 +24,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QContextMenuEvent>
-#ifndef Q_MOC_RUN
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/construct.hpp>
-#include <boost/lambda/bind.hpp>
-#endif
+#include <boost/checked_delete.hpp>
 #include <assert.h>
 
 #define DISPATCH(list, call) {                    \
@@ -84,9 +80,8 @@ InteractionHandler::InteractionHandler()
 
 InteractionHandler::~InteractionHandler()
 {
-    using namespace boost::lambda;
-    m_ptrPreceeders->clear_and_dispose(bind(delete_ptr(), _1));
-    m_ptrFollowers->clear_and_dispose(bind(delete_ptr(), _1));
+    m_ptrPreceeders->clear_and_dispose(&boost::checked_delete<InteractionHandler>);
+    m_ptrFollowers->clear_and_dispose(&boost::checked_delete<InteractionHandler>);
 }
 
 void

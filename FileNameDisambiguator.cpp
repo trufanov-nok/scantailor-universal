@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/composite_key.hpp>
-#include <boost/lambda/lambda.hpp>
 #endif
 
 using namespace boost::multi_index;
@@ -113,7 +112,7 @@ FileNameDisambiguator::FileNameDisambiguator()
 
 FileNameDisambiguator::FileNameDisambiguator(
     QDomElement const& disambiguator_el)
-    :   m_ptrImpl(new Impl(disambiguator_el, boost::lambda::_1))
+    :   m_ptrImpl(new Impl(disambiguator_el, [](QString const& path) -> QString { return path; }))
 {
 }
 
@@ -127,7 +126,7 @@ FileNameDisambiguator::FileNameDisambiguator(
 QDomElement
 FileNameDisambiguator::toXml(QDomDocument& doc, QString const& name) const
 {
-    return m_ptrImpl->toXml(doc, name, boost::lambda::_1);
+    return m_ptrImpl->toXml(doc, name, [](QString const& path) -> QString { return path; });
 }
 
 QDomElement

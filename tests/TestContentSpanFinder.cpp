@@ -20,14 +20,11 @@
 #include "imageproc/SlicedHistogram.h"
 #include "Span.h"
 #include <vector>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include <boost/test/unit_test.hpp>
 
 namespace Tests
 {
 
-using namespace boost::lambda;
 using namespace imageproc;
 
 BOOST_AUTO_TEST_SUITE(ContentSpanFinderTestSuite);
@@ -37,11 +34,8 @@ BOOST_AUTO_TEST_CASE(test_empty_input)
     ContentSpanFinder span_finder;
 
     std::vector<Span> spans;
-    void (std::vector<Span>::*push_back)(const Span&) =
-        &std::vector<Span>::push_back;
     span_finder.find(
-        SlicedHistogram(),
-        boost::lambda::bind(push_back, var(spans), _1)
+                SlicedHistogram(), [&spans](const Span& s) { spans.push_back(s); }
     );
 
     BOOST_CHECK(spans.empty());
@@ -65,9 +59,9 @@ BOOST_AUTO_TEST_CASE(test_min_content_width)
     span_finder.setMinContentWidth(2);
 
     std::vector<Span> spans;
-    void (std::vector<Span>::*push_back)(const Span&) =
-        &std::vector<Span>::push_back;
-    span_finder.find(hist, boost::lambda::bind(push_back, var(spans), _1));
+    span_finder.find(
+                hist, [&spans](const Span& s) { spans.push_back(s); }
+    );
 
     BOOST_REQUIRE(spans.size() == 2);
     BOOST_REQUIRE(spans[0] == Span(3, 3 + 3));
@@ -92,9 +86,9 @@ BOOST_AUTO_TEST_CASE(test_min_whitespace_width)
     span_finder.setMinWhitespaceWidth(2);
 
     std::vector<Span> spans;
-    void (std::vector<Span>::*push_back)(const Span&) =
-        &std::vector<Span>::push_back;
-    span_finder.find(hist, boost::lambda::bind(push_back, var(spans), _1));
+    span_finder.find(
+                hist, [&spans](const Span& s) { spans.push_back(s); }
+    );
 
     BOOST_REQUIRE(spans.size() == 2);
     BOOST_REQUIRE(spans[0] == Span(1, 1 + 4));
@@ -120,9 +114,9 @@ BOOST_AUTO_TEST_CASE(test_min_content_and_whitespace_width)
     span_finder.setMinWhitespaceWidth(2);
 
     std::vector<Span> spans;
-    void (std::vector<Span>::*push_back)(const Span&) =
-        &std::vector<Span>::push_back;
-    span_finder.find(hist, boost::lambda::bind(push_back, var(spans), _1));
+    span_finder.find(
+                hist, [&spans](const Span& s) { spans.push_back(s); }
+    );
 
     // Note that although a content block at index 1 is too short,
     // it's still allowed to merge with content at positions 3 and 4

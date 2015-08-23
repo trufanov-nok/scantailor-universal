@@ -27,10 +27,6 @@
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "CacheDrivenTask.h"
-#ifndef Q_MOC_RUN
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#endif
 #include <QString>
 #include <QObject>
 #include <QCoreApplication>
@@ -105,18 +101,13 @@ Filter::saveSettings(
     ProjectWriter const& writer, QDomDocument& doc) const
 {
 
-    using namespace boost::lambda;
-
     QDomElement filter_el(doc.createElement("output"));
 
     filter_el.setAttribute("tiffCompressionMethod", m_ptrSettings->getTiffCompressionName());
 
-    writer.enumPages(
-        boost::lambda::bind(
-            &Filter::writePageSettings,
-            this, boost::ref(doc), var(filter_el), boost::lambda::_1, boost::lambda::_2
-        )
-    );
+    writer.enumPages([this, &doc, &filter_el](PageId const& page_id, int numeric_id) {
+        writePageSettings(doc, filter_el, page_id, numeric_id);
+    });
 
     return filter_el;
 }

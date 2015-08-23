@@ -20,10 +20,6 @@
 #include "ChangeDewarpingWidget.moc"
 #include "PageSelectionAccessor.h"
 #include "QtSignalForwarder.h"
-#ifndef Q_MOC_RUN
-#include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
-#endif
 
 namespace output
 {
@@ -50,12 +46,10 @@ ChangeDewarpingWidget::ChangeDewarpingWidget(QWidget* parent, DewarpingMode cons
     }
 
     // No, we don't leak memory here.
-    using namespace boost::lambda;
-    new QtSignalForwarder(ui.offRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::OFF);
-    new QtSignalForwarder(ui.autoRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::AUTO);
-    new QtSignalForwarder(ui.manualRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MANUAL);
-    new QtSignalForwarder(ui.marginalRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MARGINAL);
-
+    connect(ui.offRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::OFF; } );
+    connect(ui.autoRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::AUTO; } );
+    connect(ui.manualRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::MANUAL; } );
+    connect(ui.marginalRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::MARGINAL; } );
 }
 
 ChangeDewarpingWidget::~ChangeDewarpingWidget()

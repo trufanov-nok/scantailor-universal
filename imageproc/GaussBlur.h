@@ -75,16 +75,10 @@ GrayImage gaussBlur(GrayImage const& src, float h_sigma, float v_sigma);
  * float const val = ...;
  * writer(output[x], val);
  * \endcode
- * Consider using boost::lambda, possible in conjunction with one of the functors
- * from ValueConv.h:
+ * When type conversion is required, consider using one of the functors from ValueConv.h:
  * \code
- * using namespace boost::lambda;
- *
- * // Just copying.
- * gaussBlurGeneric(..., _1 = _2);
- *
- * // Convert to uint8_t, with rounding and clipping.
- * gaussBlurGeneric(..., _1 = bind<uint8_t>(RoundAndClipValueConv<uint8_t>(), _2);
+ * RoundAndClipValueConv<uint8_t> const float2byte;
+ * gaussBlurGeneric(..., [float2byte](uint8_t& dst, float src) { dst = float2byte(src); });
  * \endcode
  */
 template<typename SrcIt, typename DstIt, typename FloatReader, typename FloatWriter>
