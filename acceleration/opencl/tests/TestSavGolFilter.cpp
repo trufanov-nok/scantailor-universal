@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(test1)
 			output, control
 		);
 
-		//BOOST_MESSAGE("SavGolFilter max error at: (" << max_err_x << ", " << max_err_y << ")");
+		//BOOST_TEST_MESSAGE("SavGolFilter max error at: (" << max_err_x << ", " << max_err_y << ")");
 		BOOST_CHECK_LE(max_err, 1);
 
 	} // for (device)

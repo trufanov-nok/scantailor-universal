@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(test_oriented_gaussians)
 		}
 	}
 
-	BOOST_MESSAGE("Anisotropic Gauss blur RMSE: mean = " << mean_rmse << ", worst = " << worst_rmse);
+	BOOST_TEST_MESSAGE("Anisotropic Gauss blur RMSE: mean = " << mean_rmse << ", worst = " << worst_rmse);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
