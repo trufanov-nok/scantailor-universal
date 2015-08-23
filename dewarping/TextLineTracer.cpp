@@ -38,7 +38,6 @@
 #include "imageproc/RasterOpGeneric.h"
 #include "imageproc/Sobel.h"
 #include "imageproc/Constants.h"
-#include <boost/lambda/lambda.hpp>
 #include <QPainter>
 #include <QPen>
 #include <QColor>
@@ -55,8 +54,6 @@ TextLineTracer::trace(
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg)
 {
-	using namespace boost::lambda;
-
 	TextLineSegmenter::Result segmentation(
 		TextLineSegmenter::process(input, accel_ops, status, dbg)
 	);

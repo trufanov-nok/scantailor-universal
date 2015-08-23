@@ -51,7 +51,6 @@
 #include "imageproc/PlugHoles.h"
 #include "imageproc/IntegralImage.h"
 #include <boost/dynamic_bitset.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <QPoint>
 #include <QPointF>
 #include <QSizeF>
@@ -165,8 +164,6 @@ TextLineSegmenter::processDownscaled(
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	TaskStatus const& status, DebugImages* dbg)
 {
-	using namespace boost::lambda;
-
 	int const width = image.width();
 	int const height = image.height();
 

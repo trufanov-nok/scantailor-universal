@@ -1,6 +1,6 @@
 /*
 	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+	Copyright (C) 2007-2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,14 +30,13 @@
 #include <Qt>
 #include <QLineF>
 #include <QDebug>
-#include <boost/lambda/lambda.hpp>
 
 ZoneCreationInteraction::ZoneCreationInteraction(
 	ZoneInteractionContext& context, InteractionState& interaction)
 :	m_rContext(context),
-	m_dragHandler(context.imageView(), boost::lambda::constant(true)),
+	m_dragHandler(context.imageView(), [](InteractionState const&) { return true; }),
 	m_dragWatcher(m_dragHandler),
-	m_zoomHandler(context.imageView(), boost::lambda::constant(true)),
+	m_zoomHandler(context.imageView(), [](InteractionState const&) { return true; }),
 	m_ptrSpline(new EditableSpline)
 {
 	QPointF const screen_mouse_pos(

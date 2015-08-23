@@ -32,8 +32,6 @@
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include <boost/foreach.hpp>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
@@ -70,8 +68,6 @@
 #include <assert.h>
 
 using namespace ::boost::multi_index;
-using namespace ::boost::lambda;
-
 
 class ThumbnailSequence::Item
 {
@@ -488,7 +484,9 @@ ThumbnailSequence::Impl::Impl(
 	m_pSelectionLeader(0)
 {
 	m_graphicsScene.setContextMenuEventCallback(
-		bind(&Impl::sceneContextMenuEvent, this, _1)
+		[this](QGraphicsSceneContextMenuEvent* evt) {
+			sceneContextMenuEvent(evt);
+		}
 	);
 }
 
@@ -602,7 +600,7 @@ ThumbnailSequence::Impl::invalidateThumbnail(PageInfo const& page_info)
 {
 	ItemsById::iterator const id_it(m_itemsById.find(page_info.id()));
 	if (id_it != m_itemsById.end()) {
-		m_itemsById.modify(id_it, bind(&Item::pageInfo, _1) = page_info);
+		m_itemsById.modify(id_it, [&page_info](Item& item) { item.pageInfo = page_info; });
 		invalidateThumbnailImpl(id_it);
 	}
 }
@@ -722,11 +720,12 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
 	// Sort pages in m_itemsInOrder using m_ptrOrderProvider.
 	if (m_ptrOrderProvider.get()) {
 		m_itemsInOrder.sort(
-			bind(
-				&PageOrderProvider::precedes, m_ptrOrderProvider.get(),
-				bind(&Item::pageId, _1), bind(&Item::incompleteThumbnail, _1),
-				bind(&Item::pageId, _2), bind(&Item::incompleteThumbnail, _2) 
-			)
+			[this](Item const& lhs, Item const& rhs) {
+				return m_ptrOrderProvider->precedes(
+					lhs.pageId(), lhs.incompleteThumbnail,
+					rhs.pageId(), rhs.incompleteThumbnail
+				);
+			}
 		);
 	}
 	

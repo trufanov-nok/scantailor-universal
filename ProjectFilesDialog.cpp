@@ -39,9 +39,6 @@
 #include <QBrush>
 #include <QColor>
 #include <QDebug>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/construct.hpp>
 #include <vector>
 #include <deque>
 #include <algorithm>

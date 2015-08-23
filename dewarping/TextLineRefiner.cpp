@@ -25,8 +25,6 @@
 #include "imageproc/Sobel.h"
 #include <boost/scoped_array.hpp>
 #include <boost/foreach.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include <QImage>
 #include <QPainter>
 #include <QPen>

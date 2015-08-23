@@ -42,9 +42,6 @@
 #include <QTransform>
 #include <QDebug>
 #include <Qt>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/control_structures.hpp>
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
@@ -97,8 +94,6 @@ static void morphologicalPreprocessingInPlace(GrayImage& image,
 	std::shared_ptr<AcceleratableOperations> const& accel_ops,
 	DebugImages* dbg)
 {
-	using namespace boost::lambda;
-
 	// We do morphological preprocessing with one of two methods.  The first
 	// one is good for cases when the dark area is in the middle of the image,
 	// touching at least one of the vertical edges and not touching the horizontal one.
@@ -148,7 +143,13 @@ static void morphologicalPreprocessingInPlace(GrayImage& image,
 	// Now let's take the difference between the original difference
 	// and approximated difference.
 	rasterOpGeneric(
-		if_then_else(_1 > _2, _1 -= _2, _1 = _2 - _1),
+		[](uint8_t& diff, uint8_t approximated) {
+			if (diff > approximated) {
+				diff -= approximated;
+			} else {
+				diff = approximated - diff;
+			}
+		},
 		diff, approximated
 	);
 	approximated = GrayImage(); // save memory.

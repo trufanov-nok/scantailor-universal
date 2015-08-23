@@ -21,8 +21,6 @@
 #include <QString>
 #include <QMessageBox>
 #include <Qt>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include <algorithm>
 #include <assert.h>
 

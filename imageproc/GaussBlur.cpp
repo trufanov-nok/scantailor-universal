@@ -20,8 +20,6 @@
 #include "GrayImage.h"
 #include "Constants.h"
 #include <Eigen/Core>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -200,17 +198,17 @@ void initPaddingLayers(Grid<float>& intermediate_image)
 
 GrayImage gaussBlur(GrayImage const& src, float h_sigma, float v_sigma)
 {
-	using namespace boost::lambda;
-
 	if (src.isNull()) {
 		return src;
 	}
+
+	RoundAndClipValueConv<uint8_t> const float2byte;
 
 	GrayImage dst(src.size());
 	gaussBlurGeneric(
 		src.size(), h_sigma, v_sigma,
 		src.data(), src.stride(), StaticCastValueConv<float>(),
-		dst.data(), dst.stride(), _1 = bind<uint8_t>(RoundAndClipValueConv<uint8_t>(), _2)
+		dst.data(), dst.stride(), [float2byte](uint8_t& dst, float src) { dst = float2byte(src); }
 	);
 
 	return dst;
@@ -220,17 +218,17 @@ GrayImage anisotropicGaussBlur(
 	GrayImage const& src, float dir_x, float dir_y,
 	float dir_sigma, float ortho_dir_sigma)
 {
-	using namespace boost::lambda;
-
 	if (src.isNull()) {
 		return src;
 	}
+
+	RoundAndClipValueConv<uint8_t> const float2byte;
 
 	GrayImage dst(src.size());
 	anisotropicGaussBlurGeneric(
 		src.size(), dir_x, dir_y, dir_sigma, ortho_dir_sigma,
 		src.data(), src.stride(), StaticCastValueConv<float>(),
-		dst.data(), dst.stride(), _1 = bind<uint8_t>(RoundAndClipValueConv<uint8_t>(), _2)
+		dst.data(), dst.stride(), [float2byte](uint8_t& dst, float src) { dst = float2byte(src); }
 	);
 
 	return dst;

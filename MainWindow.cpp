@@ -90,8 +90,6 @@
 #include "config.h"
 #include "version.h"
 #include <boost/foreach.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include <QApplication>
 #include <QLineF>
 #include <QPointer>
@@ -475,8 +473,6 @@ MainWindow::showNewOpenProjectPanel()
 void
 MainWindow::createBatchProcessingWidget()
 {
-	using namespace boost::lambda;
-
 	m_ptrBatchProcessingWidget.reset(new QWidget);
 	QGridLayout* layout = new QGridLayout(m_ptrBatchProcessingWidget.get());
 	m_ptrBatchProcessingWidget->setLayout(layout);
@@ -497,7 +493,9 @@ MainWindow::createBatchProcessingWidget()
 		Ui::BatchProcessingLowerPanel ui;
 	};
 	LowerPanel* lower_panel = new LowerPanel(m_ptrBatchProcessingWidget.get());
-	m_checkBeepWhenFinished = bind(&QCheckBox::isChecked, lower_panel->ui.beepWhenFinished);
+	m_checkBeepWhenFinished = [lower_panel]() {
+		return lower_panel->ui.beepWhenFinished->isChecked();
+	};
 
 	int row = 0; // Row 0 is reserved.
 	layout->addWidget(stop_btn, ++row, 1, Qt::AlignCenter);

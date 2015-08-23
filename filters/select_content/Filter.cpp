@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,8 +28,6 @@
 #include "CacheDrivenTask.h"
 #include "OrderByWidthProvider.h"
 #include "OrderByHeightProvider.h"
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #include <QString>
 #include <QObject>
 #include <QDomDocument>
@@ -113,15 +111,11 @@ QDomElement
 Filter::saveSettings(
 	ProjectWriter const& writer, QDomDocument& doc) const
 {
-	using namespace boost::lambda;
-	
 	QDomElement filter_el(doc.createElement("select-content"));
-	writer.enumPages(
-		bind(
-			&Filter::writePageSettings,
-			this, boost::ref(doc), var(filter_el), _1, _2
-		)
-	);
+
+	writer.enumPages([this, &doc, &filter_el](PageId const& page_id, int numeric_id) {
+		writePageSettings(doc, filter_el, page_id, numeric_id);
+	});
 	
 	return filter_el;
 }
