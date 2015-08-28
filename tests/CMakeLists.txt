@@ -4,6 +4,7 @@ SET(
 	sources
 	main.cpp TestContentSpanFinder.cpp
 	TestSmartFilenameOrdering.cpp
+	TestQtPolygonIntersection.cpp
 	../ContentSpanFinder.cpp ../ContentSpanFinder.h
 	../SmartFilenameOrdering.cpp ../SmartFilenameOrdering.h
 )

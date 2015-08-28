@@ -401,7 +401,12 @@ DewarpingImageTransform::constrainCropArea(QPolygonF const& orig_crop_area) cons
 	mid_line_normal.intersect(extended_right_bound, &extra_crop_area[2]);
 	mid_line_normal.intersect(extended_left_bound, &extra_crop_area[3]);
 
-	return orig_crop_area.intersected(extra_crop_area);
+	QPolygonF intersection(orig_crop_area.intersected(extra_crop_area));
+	if (intersection.isEmpty()) {
+		// Try to workaround QTBUG-48003.
+		intersection = extra_crop_area.intersected(orig_crop_area);
+	}
+	return intersection;
 }
 
 } // namespace dewarping
