@@ -41,7 +41,7 @@
 #include "imageproc/Constants.h"
 #include "imageproc/Grayscale.h"
 #include "imageproc/RasterOp.h"
-#include "imageproc/GrayRasterOp.h"
+#include "imageproc/RasterOpGeneric.h"
 #include "imageproc/PolynomialSurface.h"
 #include "imageproc/SavGolFilter.h"
 #include "imageproc/DrawOver.h"
@@ -81,30 +81,6 @@ namespace output
 
 namespace
 {
-
-struct RaiseAboveBackground
-{
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		// src: orig
-		// dst: background (dst >= src)
-		if (dst - src < 1) {
-			return 0xff;
-		}
-		unsigned const orig = src;
-		unsigned const background = dst;
-		return static_cast<uint8_t>((orig * 255 + background / 2) / background);
-	}
-};
-
-struct CombineInverted
-{
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		unsigned const dilated = dst;
-		unsigned const eroded = src;
-		unsigned const res = 255 - (255 - dilated) * eroded / 255;
-		return static_cast<uint8_t>(res);
-	}
-};
 
 /**
  * In picture areas we make sure we don't use pure black and pure white colors.
@@ -642,7 +618,19 @@ OutputGenerator::normalizeIlluminationGray(
 	
 	status.throwIfCancelled();
 	
-	grayRasterOp<RaiseAboveBackground>(bg_img, input_for_normalisation);
+	// Divide input_for_normalisation by bg_img. Save result in bg_img.
+	rasterOpGeneric(
+		[](uint8_t orig, uint8_t& bg) {
+			int const i_orig = static_cast<int>(orig);
+			int const i_bg = static_cast<int>(bg);
+			if (i_bg > i_orig) {
+				bg = static_cast<uint8_t>((i_orig * 255 + (i_bg >> 1)) / i_bg);
+			} else {
+				bg = 0xff;
+			}
+		},
+		input_for_normalisation, bg_img
+	);
 	if (dbg) {
 		dbg->add(bg_img, "normalized_illumination");
 	}
@@ -752,7 +740,13 @@ OutputGenerator::detectPictures(
 	
 	status.throwIfCancelled();
 	
-	grayRasterOp<CombineInverted>(dilated, eroded);
+	// Invert "dilated", multiply by "eroded", invert the result.
+	rasterOpGeneric(
+		[](uint8_t eroded, uint8_t& dilated) {
+			dilated = static_cast<uint8_t>(255u - (255u - dilated) * eroded / 255u);
+		},
+		eroded, dilated
+	);
 	GrayImage gray_gradient(dilated);
 	dilated = GrayImage();
 	eroded = GrayImage();
@@ -778,7 +772,8 @@ OutputGenerator::detectPictures(
 	
 	status.throwIfCancelled();
 	
-	grayRasterOp<GRopInvert<GRopSrc> >(reconstructed, reconstructed);
+	// Invert "reconstructed".
+	rasterOpGeneric([](uint8_t& px) { px = uint8_t(0xff) - px; }, reconstructed);
 	if (dbg) {
 		dbg->add(reconstructed, "reconstructed_inverted");
 	}

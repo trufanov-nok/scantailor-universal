@@ -32,7 +32,7 @@
 #include "imageproc/PolynomialSurface.h"
 #include "imageproc/PolygonRasterizer.h"
 #include "imageproc/GrayImage.h"
-#include "imageproc/GrayRasterOp.h"
+#include "imageproc/Grayscale.h"
 #include "imageproc/RasterOpGeneric.h"
 #include "imageproc/SeedFill.h"
 #include <QImage>

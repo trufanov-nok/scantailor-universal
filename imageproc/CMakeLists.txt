@@ -16,7 +16,7 @@ SET(
 	ConnCompEraserExt.cpp ConnCompEraserExt.h
 	GrayImage.cpp GrayImage.h
 	Grayscale.cpp Grayscale.h
-	RasterOp.h GrayRasterOp.h RasterOpGeneric.h
+	RasterOp.h RasterOpGeneric.h
 	UpscaleIntegerTimes.cpp UpscaleIntegerTimes.h
 	ReduceThreshold.cpp ReduceThreshold.h
 	Shear.cpp Shear.h

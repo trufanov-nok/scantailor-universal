@@ -22,7 +22,7 @@
 #include "imageproc/AffineTransform.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Grayscale.h"
-#include "imageproc/GrayRasterOp.h"
+#include "imageproc/RasterOpGeneric.h"
 #include "imageproc/Morphology.h"
 #include "imageproc/MorphGradientDetect.h"
 #include "imageproc/HoughLineDetector.h"
@@ -108,7 +108,12 @@ VertLineFinder::findLines(
 		preprocessed = GrayImage();
 	}
 	
-	grayRasterOp<GRopClippedSubtract<GRopDst, GRopSrc> >(h_gradient, v_gradient);
+	rasterOpGeneric(
+		[](uint8_t& h_gradient, uint8_t v_gradient) {
+			h_gradient -= std::min(h_gradient, v_gradient);
+		},
+		h_gradient, v_gradient
+	);
 	v_gradient = GrayImage();
 	if (dbg) {
 		dbg->add(h_gradient, "vert_raster_lines");
@@ -233,7 +238,12 @@ VertLineFinder::removeDarkVertBorders(GrayImage const& src)
 	GrayImage dst(src);
 	
 	selectVertBorders(dst);
-	grayRasterOp<GRopInvert<GRopClippedSubtract<GRopDst, GRopSrc> > >(dst, src);
+	rasterOpGeneric(
+		[](uint8_t src, uint8_t& dst) {
+			dst = uint8_t(0xff) - (dst - std::min(src, dst));
+		},
+		src, dst
+	);
 	
 	return dst;
 }

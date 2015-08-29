@@ -30,7 +30,6 @@
 #include "imageproc/ConnCompEraserExt.h"
 #include "imageproc/AffineTransform.h"
 #include "imageproc/RasterOp.h"
-#include "imageproc/GrayRasterOp.h"
 #include "imageproc/SeedFill.h"
 #include "imageproc/Morphology.h"
 #include "imageproc/Grayscale.h"

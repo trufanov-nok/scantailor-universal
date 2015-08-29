@@ -44,7 +44,6 @@
 #include "imageproc/Scale.h"
 #include "imageproc/SlicedHistogram.h"
 #include "imageproc/Grayscale.h"
-#include "imageproc/GrayRasterOp.h"
 #include "imageproc/PolygonRasterizer.h"
 #include <boost/foreach.hpp>
 #include <QRect>
