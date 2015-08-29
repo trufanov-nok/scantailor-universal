@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
 
 SET(
 	CMAKE_USER_MAKE_RULES_OVERRIDE
@@ -329,8 +329,17 @@ FOREACH(conf_file ${conf_files})
 	ENDIF()
 ENDFOREACH()
 
+SET(suggest_jom FALSE)
+
 IF(MSVC)
-	SET(make_command nmake)
+	FIND_PROGRAM(JOM_EXECUTABLE jom HINTS "${source_outer_dir}" "${build_outer_dir}")
+	IF(JOM_EXECUTABLE)
+		TO_NATIVE_PATH("${JOM_EXECUTABLE}" make_command)
+	ELSE()
+		SET(make_command nmake)
+		SET(suggest_jom TRUE)
+	ENDIF()
+
 	IF(MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR MSVC90 OR MSVC10 OR MSVC11)
 		MESSAGE(FATAL_ERROR "This Visual Studio version is too old and is not supported. Supported versions are Visual Studio 2013 or above")
 	ELSEIF(MSVC12)
@@ -417,9 +426,14 @@ MESSAGE(STATUS "QT_SRC_DIR is ${QT_SRC_DIR}")
 IF(QT_PREBUILT_DIR)
 	MESSAGE(STATUS "QT_PREBUILT_DIR is ${QT_PREBUILT_DIR}")
 ELSE()
-	MESSAGE(STATUS "QT_PREBUILT_DIR is not set. Using a source-only version of Qt? Fine, but building will take longer.")
+	MESSAGE(STATUS "QT_PREBUILT_DIR is not set. Using a source-only version of Qt? Fine, though \
+building will take longer.")
 ENDIF()
 MESSAGE(STATUS "If you've got multiple versions of Qt installed, check we've got the right one.")
+IF(suggest_jom)
+	MESSAGE(STATUS "Note that building Qt with NMAKE is slow. Consider using JOM instead. \
+Drop jom.exe to the folder with other dependencies and/or set JOM_EXECUTABLE to point to it.")
+ENDIF()
 MESSAGE(STATUS "----------------------------")
 
 
