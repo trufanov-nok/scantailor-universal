@@ -21,7 +21,9 @@
 #include "imageproc/GaussBlur.h"
 #include "imageproc/AffineTransform.h"
 #include "imageproc/SavGolFilter.h"
+#include "imageproc/Morphology.h"
 #include "dewarping/RasterDewarper.h"
+#include <stdexcept>
 #include <QPoint>
 #include <QPointF>
 #include <QRect>
@@ -158,4 +160,23 @@ NonAcceleratedOperations::savGolFilter(
 	int hor_degree, int vert_degree)
 {
 	return imageproc::savGolFilter(src, window_size, hor_degree, vert_degree);
+}
+
+void
+NonAcceleratedOperations::hitMissReplaceInPlace(
+	imageproc::BinaryImage& img, imageproc::BWColor const img_surroundings,
+	std::vector<Grid<char>> const& patterns)
+{
+	for (Grid<char> const& pattern : patterns) {
+		if (pattern.stride() != pattern.width()) {
+			throw std::invalid_argument(
+				"NonAcceleratedOperations::hitMissReplaceInPlace: "
+				"patterns with extended stride are not supported"
+			);
+		}
+
+		imageproc::hitMissReplaceInPlace(
+			img, img_surroundings, pattern.data(), pattern.width(), pattern.height()
+		);
+	}
 }

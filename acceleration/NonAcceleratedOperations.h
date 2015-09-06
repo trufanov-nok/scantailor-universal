@@ -69,6 +69,10 @@ public:
 	virtual imageproc::GrayImage savGolFilter(
 		imageproc::GrayImage const& src, QSize const& window_size,
 		int hor_degree, int vert_degree);
+
+	virtual void hitMissReplaceInPlace(
+		imageproc::BinaryImage& img, imageproc::BWColor img_surroundings,
+		std::vector<Grid<char>> const& patterns);
 };
 
 #endif

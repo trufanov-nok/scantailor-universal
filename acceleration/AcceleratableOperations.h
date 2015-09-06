@@ -21,6 +21,8 @@
 
 #include "Grid.h"
 #include "VecNT.h"
+#include "imageproc/BinaryImage.h"
+#include "imageproc/BWColor.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/PolynomialSurface.h"
 #include "dewarping/CylindricalSurfaceDewarper.h"
@@ -178,6 +180,15 @@ public:
 	virtual imageproc::GrayImage savGolFilter(
 		imageproc::GrayImage const& src, QSize const& window_size,
 		int hor_degree, int vert_degree) = 0;
+
+	/**
+	 * @brief Performs a series of match-replace operations on a binary image.
+	 *
+	 * @see imageproc::hitMissReplaceInPlace()
+	 */
+	virtual void hitMissReplaceInPlace(
+		imageproc::BinaryImage& img, imageproc::BWColor img_surroundings,
+		std::vector<Grid<char>> const& patterns) = 0;
 };
 
 #endif

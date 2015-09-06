@@ -24,6 +24,8 @@
 #include "OpenCLAffineTransform.h"
 #include "OpenCLSavGolFilter.h"
 #include "RenderPolynomialSurface.h"
+#include "HitMissTransform.h"
+#include "Utils.h"
 #include "VecNT.h"
 #include <QFile>
 #include <QString>
@@ -33,6 +35,7 @@
 #include <new>
 #include <stdexcept>
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 
 namespace opencl
@@ -64,7 +67,10 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 		"affine_transform.cl",
 		"dewarp.cl",
 		"render_polynomial_surface.cl",
-		"sav_gol_filter.cl"
+		"sav_gol_filter.cl",
+		"binary_word_mask.cl",
+		"binary_fill_rect.cl",
+		"binary_raster_op.cl"
 	};
 
 	std::deque<QByteArray> sources;
@@ -402,6 +408,85 @@ OpenCLAcceleratedOperations::savGolFilterUnguarded(
 	return opencl::savGolFilter(
 		m_commandQueue, m_program, src, window_size, hor_degree, vert_degree
 	);
+}
+
+void
+OpenCLAcceleratedOperations::hitMissReplaceInPlace(
+	imageproc::BinaryImage& img, imageproc::BWColor img_surroundings,
+	std::vector<Grid<char>> const& patterns)
+{
+	try {
+		return hitMissReplaceInPlaceUnguarded(img, img_surroundings, patterns);
+	} catch (cl::Error const& e) {
+		if (e.err() == CL_OUT_OF_HOST_MEMORY) {
+			throw std::bad_alloc();
+		}
+		qDebug() << "OpenCL error: " << e.what();
+		return m_ptrFallback->hitMissReplaceInPlace(img, img_surroundings, patterns);
+	}
+}
+
+void
+OpenCLAcceleratedOperations::hitMissReplaceInPlaceUnguarded(
+	imageproc::BinaryImage& img, imageproc::BWColor img_surroundings,
+	std::vector<Grid<char>> const& patterns)
+{
+	if (img.isNull() || patterns.empty()) {
+		// OpenCL doesn't like zero-size buffers.
+		return;
+	}
+
+	// A bug in Intel driver makes this function hang.
+	bool force_fallback = isDodgyDevice(m_devices.front());
+
+	// The OpenCL implementation of hit-miss transform is significantly
+	// slower when executed on CPU compared to a non-OpenCL version.
+	force_fallback |= m_devices.front().getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU;
+
+	if (force_fallback) {
+		return m_ptrFallback->hitMissReplaceInPlace(img, img_surroundings, patterns);
+	}
+
+	std::vector<cl::Event> deps;
+	cl::Event evt;
+
+	cl::Buffer const work_buffer(
+		m_context, CL_MEM_READ_WRITE, img.wordsPerLine() * img.height() * sizeof(uint32_t));
+	OpenCLGrid<uint32_t> work_grid(work_buffer, img.wordsPerLine(), img.height(), /*padding=*/0);
+
+	cl::Buffer const tmp_buffer(
+		m_context, CL_MEM_READ_WRITE, img.wordsPerLine() * img.height() * sizeof(uint32_t));
+	OpenCLGrid<uint32_t> tmp_grid(tmp_buffer, img.wordsPerLine(), img.height(), /*padding=*/0);
+
+	// Copy from host memory into work_grid.
+	m_commandQueue.enqueueWriteBuffer(
+		work_grid.buffer(), CL_FALSE, 0, work_grid.totalBytes(), img.data(), &deps, &evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+
+	for (Grid<char> const& pattern : patterns) {
+		if (pattern.stride() != pattern.width()) {
+			throw std::invalid_argument(
+				"NonAcceleratedOperations::hitMissReplaceInPlace: "
+				"patterns with extended stride are not supported"
+			);
+		}
+
+		opencl::hitMissReplaceInPlace(
+			m_commandQueue, m_program, work_grid, img.width(), img_surroundings,
+			tmp_grid, pattern.data(), pattern.width(), pattern.height(), &deps, &deps
+		);
+	}
+
+	// Copy from work_grid to host memory.
+	m_commandQueue.enqueueReadBuffer(
+		work_grid.buffer(), CL_FALSE, 0, work_grid.totalBytes(), img.data(), &deps, &evt
+	);
+	deps.clear();
+	deps.push_back(evt);
+
+	evt.wait();
 }
 
 } // namespace opencl

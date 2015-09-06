@@ -22,6 +22,7 @@
 #include "ColorParams.h"
 #include "DespeckleLevel.h"
 #include "CachingFactory.h"
+#include "Grid.h"
 #include "imageproc/AbstractImageTransform.h"
 #include <boost/optional.hpp>
 #include <QSize>
@@ -173,12 +174,12 @@ private:
 	static imageproc::GrayImage smoothToGrayscale(
 		QImage const& src, std::shared_ptr<AcceleratableOperations> const& accel_ops);
 	
-	static void morphologicalSmoothInPlace(
-		imageproc::BinaryImage& img, TaskStatus const& status);
+	static void morphologicalSmoothInPlace(imageproc::BinaryImage& img,
+		std::shared_ptr<AcceleratableOperations> const& accel_ops);
 	
-	static void hitMissReplaceAllDirections(
-		imageproc::BinaryImage& img, char const* pattern,
-		int pattern_width, int pattern_height);
+	static void generatePatternsForAllDirections(
+		std::vector<Grid<char>>& sink, char const* const pattern,
+		int const pattern_width, int const pattern_height);
 	
 	static QSize calcLocalWindowSize();
 	

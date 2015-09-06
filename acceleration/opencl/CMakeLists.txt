@@ -20,6 +20,7 @@ SET(
 	RenderPolynomialSurface.cpp RenderPolynomialSurface.h
 	BinaryFill.cpp BinaryFill.h
 	BinaryRasterOp.cpp BinaryRasterOp.h
+	HitMissTransform.cpp HitMissTransform.h
 	Utils.cpp Utils.h
 )
 

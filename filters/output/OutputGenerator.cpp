@@ -27,6 +27,7 @@
 #include "ZoneSet.h"
 #include "PictureLayerProperty.h"
 #include "FillColorProperty.h"
+#include "Grid.h"
 #include "dewarping/DistortionModel.h"
 #include "imageproc/AffineImageTransform.h"
 #include "imageproc/AffineTransform.h"
@@ -394,7 +395,7 @@ OutputGenerator::process(
 
 			status.throwIfCancelled();
 
-			morphologicalSmoothInPlace(dst, status);
+			morphologicalSmoothInPlace(dst, accel_ops);
 			if (dbg) {
 				dbg->add(dst, "edges_smoothed");
 			}
@@ -487,7 +488,7 @@ OutputGenerator::process(
 
 		status.throwIfCancelled();
 
-		morphologicalSmoothInPlace(bw_content, status);
+		morphologicalSmoothInPlace(bw_content, accel_ops);
 		if (dbg) {
 			dbg->add(bw_content, "edges_smoothed");
 		}
@@ -943,8 +944,10 @@ OutputGenerator::maybeDespeckleInPlace(
 
 void
 OutputGenerator::morphologicalSmoothInPlace(
-	BinaryImage& bin_img, TaskStatus const& status)
+	BinaryImage& bin_img, std::shared_ptr<AcceleratableOperations> const& accel_ops)
 {
+	std::vector<Grid<char>> patterns;
+
 	// When removing black noise, remove small ones first.
 	
 	{
@@ -952,10 +955,8 @@ OutputGenerator::morphologicalSmoothInPlace(
 			"XXX"
 			" - "
 			"   ";
-		hitMissReplaceAllDirections(bin_img, pattern, 3, 3);
+		generatePatternsForAllDirections(patterns, pattern, 3, 3);
 	}
-	
-	status.throwIfCancelled();
 	
 	{
 		char const pattern[] =
@@ -965,10 +966,8 @@ OutputGenerator::morphologicalSmoothInPlace(
 			"X- "
 			"X  "
 			"X ?";
-		hitMissReplaceAllDirections(bin_img, pattern, 3, 6);
+		generatePatternsForAllDirections(patterns, pattern, 3, 6);
 	}
-	
-	status.throwIfCancelled();
 	
 	{
 		char const pattern[] =
@@ -981,10 +980,8 @@ OutputGenerator::morphologicalSmoothInPlace(
 			"X  "
 			"X ?"
 			"X ?";
-		hitMissReplaceAllDirections(bin_img, pattern, 3, 9);
+		generatePatternsForAllDirections(patterns, pattern, 3, 9);
 	}
-	
-	status.throwIfCancelled();
 	
 	{
 		char const pattern[] =
@@ -997,10 +994,8 @@ OutputGenerator::morphologicalSmoothInPlace(
 			"XX "
 			"XX?"
 			"XX?";
-		hitMissReplaceAllDirections(bin_img, pattern, 3, 9);
+		generatePatternsForAllDirections(patterns, pattern, 3, 9);
 	}
-	
-	status.throwIfCancelled();
 	
 	{
 		char const pattern[] =
@@ -1010,68 +1005,65 @@ OutputGenerator::morphologicalSmoothInPlace(
 			"X+ "
 			"XX "
 			"XX?";
-		hitMissReplaceAllDirections(bin_img, pattern, 3, 6);
+		generatePatternsForAllDirections(patterns, pattern, 3, 6);
 	}
-	
-	status.throwIfCancelled();
 	
 	{
 		char const pattern[] =
 			"   "
 			"X+X"
 			"XXX";
-		hitMissReplaceAllDirections(bin_img, pattern, 3, 3);
+		generatePatternsForAllDirections(patterns, pattern, 3, 3);
 	}
+
+	accel_ops->hitMissReplaceInPlace(bin_img, WHITE, patterns);
 }
 
 void
-OutputGenerator::hitMissReplaceAllDirections(
-	imageproc::BinaryImage& img, char const* const pattern,
+OutputGenerator::generatePatternsForAllDirections(
+	std::vector<Grid<char>>& sink, char const* const pattern,
 	int const pattern_width, int const pattern_height)
 {
-	hitMissReplaceInPlace(img, WHITE, pattern, pattern_width, pattern_height);
-	
-	std::vector<char> pattern_data(pattern_width * pattern_height, ' ');
-	char* const new_pattern = &pattern_data[0];
-	
-	// Rotate 90 degrees clockwise.
-	char const* p = pattern;
-	int new_width = pattern_height;
-	int new_height = pattern_width;
+	// Rotations are clockwise.
+	Grid<char> pattern0(pattern_width, pattern_height);
+	Grid<char> pattern90(pattern_height, pattern_width);
+	Grid<char> pattern180(pattern_width, pattern_height);
+	Grid<char> pattern270(pattern_height, pattern_width);
+
+	// pattern -> pattern0
+	memcpy(pattern0.data(), pattern, pattern_width*pattern_height);
+
+	// pattern0 -> pattern90
 	for (int y = 0; y < pattern_height; ++y) {
-		for (int x = 0; x < pattern_width; ++x, ++p) {
+		for (int x = 0; x < pattern_width; ++x) {
 			int const new_x = pattern_height - 1 - y;
 			int const new_y = x;
-			new_pattern[new_y * new_width + new_x] = *p;
+			pattern90(new_x, new_y) = pattern0(x, y);
 		}
 	}
-	hitMissReplaceInPlace(img, WHITE, new_pattern, new_width, new_height);
 	
-	// Rotate upside down.
-	p = pattern;
-	new_width = pattern_width;
-	new_height = pattern_height;
+	// pattern0 -> pattern180
 	for (int y = 0; y < pattern_height; ++y) {
-		for (int x = 0; x < pattern_width; ++x, ++p) {
+		for (int x = 0; x < pattern_width; ++x) {
 			int const new_x = pattern_width - 1 - x;
 			int const new_y = pattern_height - 1 - y;
-			new_pattern[new_y * new_width + new_x] = *p;
+			pattern180(new_x, new_y) = pattern0(x, y);
 		}
 	}
-	hitMissReplaceInPlace(img, WHITE, new_pattern, new_width, new_height);
 	
-	// Rotate 90 degrees counter-clockwise.
-	p = pattern;
-	new_width = pattern_height;
-	new_height = pattern_width;
+	// pattern0 -> pattern270
 	for (int y = 0; y < pattern_height; ++y) {
-		for (int x = 0; x < pattern_width; ++x, ++p) {
+		for (int x = 0; x < pattern_width; ++x) {
 			int const new_x = y;
 			int const new_y = pattern_width - 1 - x;
-			new_pattern[new_y * new_width + new_x] = *p;
+			pattern270(new_x, new_y) = pattern0(x, y);
 		}
 	}
-	hitMissReplaceInPlace(img, WHITE, new_pattern, new_width, new_height);
+
+	sink.push_back(std::move(pattern0));
+	sink.push_back(std::move(pattern90));
+	sink.push_back(std::move(pattern180));
+	sink.push_back(std::move(pattern270));
 }
 
 unsigned char

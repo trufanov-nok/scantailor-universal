@@ -74,6 +74,10 @@ public:
 	virtual imageproc::GrayImage savGolFilter(
 		imageproc::GrayImage const& src, QSize const& window_size,
 		int hor_degree, int vert_degree);
+
+	virtual void hitMissReplaceInPlace(
+		imageproc::BinaryImage& img, imageproc::BWColor img_surroundings,
+		std::vector<Grid<char>> const& patterns);
 private:
 	Grid<float> gaussBlurUnguarded(
 		Grid<float> const& src, float h_sigma, float v_sigma) const;
@@ -103,6 +107,10 @@ private:
 	imageproc::GrayImage savGolFilterUnguarded(
 		imageproc::GrayImage const& src, QSize const& window_size,
 		int hor_degree, int vert_degree);
+
+	void hitMissReplaceInPlaceUnguarded(
+		imageproc::BinaryImage& img, imageproc::BWColor img_surroundings,
+		std::vector<Grid<char>> const& patterns);
 
 	cl::Context m_context;
 	std::vector<cl::Device> m_devices;
