@@ -19,6 +19,7 @@ SET(
 	Copy.cpp Copy.h
 	RenderPolynomialSurface.cpp RenderPolynomialSurface.h
 	BinaryFill.cpp BinaryFill.h
+	BinaryRasterOp.cpp BinaryRasterOp.h
 	Utils.cpp Utils.h
 )
 
