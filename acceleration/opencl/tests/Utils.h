@@ -19,6 +19,8 @@
 #ifndef OPENCL_TESTS_UTILS_H_
 #define OPENCL_TESTS_UTILS_H_
 
+#include "OpenCLGrid.h"
+#include "imageproc/BinaryImage.h"
 #include <QByteArray>
 #include <CL/cl.hpp>
 #include <vector>
@@ -52,6 +54,15 @@ private:
 	std::deque<QByteArray> m_sources;
 	cl::Program::Sources m_sourceAccessors;
 };
+
+imageproc::BinaryImage randomBinaryImage(int width, int height);
+
+OpenCLGrid<uint32_t> binaryImageToOpenCLGrid(
+	imageproc::BinaryImage const& image, cl::CommandQueue const& command_queue);
+
+imageproc::BinaryImage openCLGridToBinaryImage(
+	OpenCLGrid<uint32_t> const& grid, int pixel_width,
+	cl::CommandQueue const& command_queue);
 
 } // namespace tests
 

@@ -11,5 +11,7 @@
         <file>device_code/affine_transform.cl</file>
         <file>device_code/render_polynomial_surface.cl</file>
         <file>device_code/sav_gol_filter.cl</file>
+        <file>device_code/binary_fill_rect.cl</file>
+        <file>device_code/binary_word_mask.cl</file>
     </qresource>
 </RCC>

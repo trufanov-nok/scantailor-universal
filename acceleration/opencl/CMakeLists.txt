@@ -18,6 +18,7 @@ SET(
 	Transpose.cpp Transpose.h
 	Copy.cpp Copy.h
 	RenderPolynomialSurface.cpp RenderPolynomialSurface.h
+	BinaryFill.cpp BinaryFill.h
 	Utils.cpp Utils.h
 )
 

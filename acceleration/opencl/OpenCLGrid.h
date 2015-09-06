@@ -20,6 +20,8 @@
 #define OPENCL_GRID_H_
 
 #include "Grid.h"
+#include <QSize>
+#include <QRect>
 #include <CL/cl.hpp>
 
 namespace opencl
@@ -82,6 +84,10 @@ public:
 	 * Total bytes occupied by this grid in memory.
 	 */
 	cl_int totalBytes() const { return totalBytesWithDifferentPadding(m_padding); }
+
+	QSize size() const { return QSize(m_width, m_height); }
+
+	QRect rect() const { return QRect(0, 0, m_width, m_height); }
 
 	/**
 	 * Returns the number of bytes this grid would occupy if its padding was different.

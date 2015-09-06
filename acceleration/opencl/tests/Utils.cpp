@@ -23,6 +23,10 @@
 #include <QtGlobal>
 #include <stdexcept>
 #include <utility>
+#include <cstdlib>
+#include <cstdint>
+#include <cstddef>
+#include <algorithm>
 
 static void initQtResources()
 {
@@ -91,6 +95,50 @@ ProgramBuilderFixture::buildProgram(cl::Context const& context) const
 	}
 
 	return program;
+}
+
+imageproc::BinaryImage randomBinaryImage(int width, int height)
+{
+	imageproc::BinaryImage image(width, height);
+	uint32_t* pword = image.data();
+	uint32_t* const end = pword + image.height() * image.wordsPerLine();
+	for (; pword != end; ++pword) {
+		uint32_t const w1 = rand() % (1 << 16);
+		uint32_t const w2 = rand() % (1 << 16);
+		*pword = (w1 << 16) | w2;
+	}
+	return image;
+}
+
+OpenCLGrid<uint32_t> binaryImageToOpenCLGrid(
+	imageproc::BinaryImage const& image, cl::CommandQueue const& command_queue)
+{
+	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
+	size_t const totalBytes = image.height() * image.wordsPerLine() * sizeof(uint32_t);
+
+	cl::Buffer const buf(context, CL_MEM_READ_WRITE, totalBytes);
+	OpenCLGrid<uint32_t> grid(buf, image.wordsPerLine(), image.height(), 0);
+	command_queue.enqueueWriteBuffer(buf, CL_TRUE, 0, totalBytes, image.data());
+
+	return grid;
+}
+
+imageproc::BinaryImage openCLGridToBinaryImage(
+	OpenCLGrid<uint32_t> const& grid, int pixel_width,
+	cl::CommandQueue const& command_queue)
+{
+	imageproc::BinaryImage dst(pixel_width, grid.height());
+
+	cl::size_t<3> region;
+	region[0] = std::min(dst.wordsPerLine(), grid.width()) * sizeof(uint32_t);
+	region[1] = dst.height();
+	region[2] = 1;
+	command_queue.enqueueReadBufferRect(
+		grid.buffer(), CL_TRUE, cl::size_t<3>(), cl::size_t<3>(), region,
+		grid.stride() * sizeof(uint32_t), 0, dst.wordsPerLine() * sizeof(uint32_t), 0, dst.data()
+	);
+
+	return dst;
 }
 
 } // namespace tests
