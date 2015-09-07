@@ -974,6 +974,7 @@ ThumbnailPixmapCache::Impl::makeThumbnail(
 
 	QSize new_affine_size(orig_affine_size);
 	new_affine_size.scale(max_thumb_size, Qt::KeepAspectRatio);
+	new_affine_size = new_affine_size.expandedTo(QSize(1, 1));
 
 	// Scale down, to get a thumbnail-size dewarped image.
 	std::unique_ptr<AbstractImageTransform> downscaling_transform(
