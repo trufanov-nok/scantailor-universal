@@ -72,6 +72,9 @@ imageproc::GrayImage savGolFilter(
 	cl::Image2D byte_texture(context, CL_MEM_READ_WRITE, cl_format_byte, src.width(), src.height());
 	cl::Image2D float_texture(context, CL_MEM_READ_WRITE, cl_format_float, src.width(), src.height());
 
+	std::vector<cl::Event> events;
+	cl::Event evt;
+
 	// Copy the source image to byte_texture.
 	cl::size_t<3> const origin;
 	cl::size_t<3> region;
@@ -79,10 +82,10 @@ imageproc::GrayImage savGolFilter(
 	region[1] = src.height();
 	region[2] = 1;
 	command_queue.enqueueWriteImage(
-		byte_texture, CL_TRUE, origin, region, src.stride(), 0, (void*)src.data()
+		byte_texture, CL_FALSE, origin, region, src.stride(), 0, (void*)src.data(), &events, &evt
 	);
+	indicateCompletion(&events, evt);
 
-	cl::Event evt;
 	cl::Kernel kernel(program, "sav_gol_filter_1d");
 
 	// Horizontal pass: byte_texture -> float_texture
@@ -113,10 +116,9 @@ imageproc::GrayImage savGolFilter(
 				thisOrNextMultipleOf(src.width(), h_wg_size),
 				thisOrNextMultipleOf(src.height(), v_wg_size)
 			),
-			cl::NDRange(h_wg_size, v_wg_size), nullptr, &evt
+			cl::NDRange(h_wg_size, v_wg_size), &events, &evt
 		);
-
-		evt.wait();
+		indicateCompletion(&events, evt);
 	}
 
 	// Vertical pass: float_texture -> byte_texture
@@ -147,17 +149,19 @@ imageproc::GrayImage savGolFilter(
 				thisOrNextMultipleOf(src.width(), h_wg_size),
 				thisOrNextMultipleOf(src.height(), v_wg_size)
 			),
-			cl::NDRange(h_wg_size, v_wg_size), nullptr, &evt
+			cl::NDRange(h_wg_size, v_wg_size), &events, &evt
 		);
-
-		evt.wait();
+		indicateCompletion(&events, evt);
 	}
 
 	// byte_texture -> destination image
 	imageproc::GrayImage dst(src.size());
 	command_queue.enqueueReadImage(
-		byte_texture, CL_TRUE, origin, region, dst.stride(), 0, dst.data()
+		byte_texture, CL_FALSE, origin, region, dst.stride(), 0, dst.data(), &events, &evt
 	);
+	indicateCompletion(&events, evt);
+
+	cl::WaitForEvents(events);
 
 	return dst;
 }

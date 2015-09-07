@@ -132,6 +132,9 @@ QImage dewarp(
 		adapted.clFormat, dst_size.width(), dst_size.height()
 	);
 
+	std::vector<cl::Event> events;
+	cl::Event evt;
+
 	// Write the source image to device memory.
 	cl::size_t<3> const origin;
 	cl::size_t<3> region;
@@ -139,9 +142,10 @@ QImage dewarp(
 	region[1] = src.height();
 	region[2] = 1;
 	command_queue.enqueueWriteImage(
-		src_image, CL_TRUE, origin, region, adapted.image.bytesPerLine(), 0,
-		(void*)adapted.image.bits()
+		src_image, CL_FALSE, origin, region, adapted.image.bytesPerLine(), 0,
+		(void*)adapted.image.bits(), &events, &evt
 	);
+	indicateCompletion(&events, evt);
 
 	// Create host and device buffers for storing Generatrix structures.
 	// Because of constant memory size limitations, we may need several passes.
@@ -181,9 +185,10 @@ QImage dewarp(
 
 		// Copy generatrix_host_buffer to generatrix_device_buffer.
 		command_queue.enqueueWriteBuffer(
-			range_device_buffer, CL_TRUE, 0, (range_end + 1 - range_begin)*sizeof(Generatrix),
-			range_host_buffer.data()
+			range_device_buffer, CL_FALSE, 0, (range_end + 1 - range_begin)*sizeof(Generatrix),
+			range_host_buffer.data(), &events, &evt
 		);
+		indicateCompletion(&events, evt);
 
 		cl::Kernel kernel(program, "dewarp");
 		int idx = 0;
@@ -201,8 +206,6 @@ QImage dewarp(
 			(float)min_mapping_area.width(), (float)min_mapping_area.height()
 		});
 
-		cl::Event evt;
-
 		command_queue.enqueueNDRangeKernel(
 			kernel,
 			cl::NDRange(range_begin, 0),
@@ -210,10 +213,9 @@ QImage dewarp(
 				thisOrNextMultipleOf(range_end - range_begin, h_wg_size),
 				thisOrNextMultipleOf(dst_size.height(), v_wg_size)
 			),
-			cl::NDRange(h_wg_size, v_wg_size), nullptr, &evt
+			cl::NDRange(h_wg_size, v_wg_size), &events, &evt
 		);
-
-		evt.wait();
+		indicateCompletion(&events, evt);
 	}
 
 	QImage dst(dst_size, adapted.image.format());
@@ -225,8 +227,11 @@ QImage dewarp(
 	region[1] = dst.height();
 	region[2] = 1;
 	command_queue.enqueueReadImage(
-		dst_image, CL_TRUE, origin, region, dst.bytesPerLine(), 0, dst.bits()
+		dst_image, CL_FALSE, origin, region, dst.bytesPerLine(), 0, dst.bits(), &events, &evt
 	);
+	indicateCompletion(&events, evt);
+
+	cl::WaitForEvents(events);
 
 	return dst;
 }

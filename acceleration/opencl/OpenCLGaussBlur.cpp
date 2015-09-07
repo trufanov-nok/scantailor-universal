@@ -53,7 +53,7 @@ void initHistoryUpdateMatrix(FilterParams const& p, cl_float3& m1, cl_float3& m2
 void horizontalPass(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float> const& src_grid, OpenCLGrid<float> const& dst_grid,
-	float const sigma, std::vector<cl::Event>& deps, cl::Event& evt)
+	float const sigma, std::vector<cl::Event>* events)
 {
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
@@ -82,22 +82,22 @@ void horizontalPass(
 	kernel.setArg(idx++, m2);
 	kernel.setArg(idx++, m3);
 
+	cl::Event evt;
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
 		cl::NDRange(thisOrNextMultipleOf(src_grid.height(), wg_size)),
 		cl::NDRange(wg_size),
-		&deps,
+		events,
 		&evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 }
 
 void verticalPass(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float> const& src_grid, OpenCLGrid<float> const& dst_grid,
-	float const sigma, std::vector<cl::Event>& deps, cl::Event& evt)
+	float const sigma, std::vector<cl::Event>* events)
 {
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
@@ -126,26 +126,28 @@ void verticalPass(
 	kernel.setArg(idx++, m2);
 	kernel.setArg(idx++, m3);
 
+	cl::Event evt;
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
 		cl::NDRange(thisOrNextMultipleOf(src_grid.width(), wg_size)),
 		cl::NDRange(wg_size),
-		&deps,
+		events,
 		&evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 }
 
 void copy1PxPadding(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
-	OpenCLGrid<float>& grid, std::vector<cl::Event>& deps, cl::Event& evt)
+	OpenCLGrid<float>& grid, std::vector<cl::Event>* events)
 {
 	assert(grid.padding() > 0);
 
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+
+	cl::Event evt;
 
 	// Copy the top outer layer.
 	command_queue.enqueueCopyBuffer(
@@ -153,10 +155,9 @@ void copy1PxPadding(
 		grid.offset() * sizeof(float),
 		(grid.offset() - grid.stride()) * sizeof(float),
 		grid.width() * sizeof(float),
-		&deps, &evt
+		events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 
 	// Copy the bottom outer layer.
 	command_queue.enqueueCopyBuffer(
@@ -164,10 +165,9 @@ void copy1PxPadding(
 		(grid.offset() + (grid.height() - 1) * grid.stride()) * sizeof(float),
 		(grid.offset() + grid.height() * grid.stride()) * sizeof(float),
 		grid.width() * sizeof(float),
-		&deps, &evt
+		events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 
 	// Copy the left outer layer.
 	{
@@ -184,11 +184,10 @@ void copy1PxPadding(
 			cl::NullRange,
 			cl::NDRange(thisOrNextMultipleOf(grid.height(), max_wg_size)),
 			cl::NDRange(max_wg_size),
-			&deps,
+			events,
 			&evt
 		);
-		deps.clear();
-		deps.push_back(evt);
+		indicateCompletion(events, evt);
 	}
 
 	// Copy the right outer layer.
@@ -206,11 +205,10 @@ void copy1PxPadding(
 			cl::NullRange,
 			cl::NDRange(thisOrNextMultipleOf(grid.height(), max_wg_size)),
 			cl::NDRange(max_wg_size),
-			&deps,
+			events,
 			&evt
 		);
-		deps.clear();
-		deps.push_back(evt);
+		indicateCompletion(events, evt);
 	}
 
 	{
@@ -224,18 +222,17 @@ void copy1PxPadding(
 
 		command_queue.enqueueTask(
 			kernel,
-			&deps,
+			events,
 			&evt
 		);
-		deps.clear();
-		deps.push_back(evt);
+		indicateCompletion(events, evt);
 	}
 }
 
 void verticallyTraversedSkewedPassInPlace(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float>& grid, float const sigma, float const dx,
-	std::vector<cl::Event>& deps, cl::Event& evt)
+	std::vector<cl::Event>* events)
 {
 	int const width = grid.width();
 	int const height = grid.height();
@@ -248,7 +245,7 @@ void verticallyTraversedSkewedPassInPlace(
 	cl_float3 m1, m2, m3;
 	initHistoryUpdateMatrix(p, m1, m2, m3);
 
-	copy1PxPadding(command_queue, program, grid, deps, evt);
+	copy1PxPadding(command_queue, program, grid, events);
 
 	// In the CPU version of this code we build a reference skewed line,
 	// which is an array of InterpolatedCoord structures indexed by y.
@@ -285,6 +282,8 @@ void verticallyTraversedSkewedPassInPlace(
 	);
 	OpenCLGrid<float> intermediate_grid(grid.withDifferentPadding(intermediate_buffer, 1));
 
+	cl::Event evt;
+
 	cl::Kernel kernel(program, "gauss_blur_skewed_vert_traversal_stage1");
 	int idx = 0;
 	kernel.setArg(idx++, cl_int(width));
@@ -310,11 +309,10 @@ void verticallyTraversedSkewedPassInPlace(
 		cl::NullRange,
 		cl::NDRange(thisOrNextMultipleOf(max_x_offset - min_x_offset + 1, wg_size_1d)),
 		cl::NDRange(wg_size_1d),
-		&deps,
+		events,
 		&evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 
 	kernel = cl::Kernel(program, "gauss_blur_skewed_vert_traversal_stage2");
 	idx = 0;
@@ -336,17 +334,16 @@ void verticallyTraversedSkewedPassInPlace(
 		cl::NullRange,
 		cl::NDRange(thisOrNextMultipleOf(width, h_wg_size), thisOrNextMultipleOf(height, v_wg_size)),
 		cl::NDRange(h_wg_size, v_wg_size),
-		&deps,
+		events,
 		&evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 }
 
 void horizontallyTraversedSkewedPassInPlace(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float>& grid, float const sigma, float const dy,
-	std::vector<cl::Event>& deps, cl::Event& evt)
+	std::vector<cl::Event>* events)
 {
 	int const width = grid.width();
 	int const height = grid.height();
@@ -359,7 +356,7 @@ void horizontallyTraversedSkewedPassInPlace(
 	cl_float3 m1, m2, m3;
 	initHistoryUpdateMatrix(p, m1, m2, m3);
 
-	copy1PxPadding(command_queue, program, grid, deps, evt);
+	copy1PxPadding(command_queue, program, grid, events);
 
 	// In the CPU version of this code we build a reference skewed line,
 	// which is an array of InterpolatedCoord structures indexed by x.
@@ -396,6 +393,8 @@ void horizontallyTraversedSkewedPassInPlace(
 	);
 	OpenCLGrid<float> intermediate_grid(grid.withDifferentPadding(intermediate_buffer, 1));
 
+	cl::Event evt;
+
 	cl::Kernel kernel(program, "gauss_blur_skewed_hor_traversal_stage1");
 	int idx = 0;
 	kernel.setArg(idx++, cl_int(width));
@@ -421,11 +420,10 @@ void horizontallyTraversedSkewedPassInPlace(
 		cl::NullRange,
 		cl::NDRange(thisOrNextMultipleOf(max_y_offset - min_y_offset + 1, wg_size_1d)),
 		cl::NDRange(wg_size_1d),
-		&deps,
+		events,
 		&evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 
 	kernel = cl::Kernel(program, "gauss_blur_skewed_hor_traversal_stage2");
 	idx = 0;
@@ -447,11 +445,10 @@ void horizontallyTraversedSkewedPassInPlace(
 		cl::NullRange,
 		cl::NDRange(thisOrNextMultipleOf(width, h_wg_size), thisOrNextMultipleOf(height, v_wg_size)),
 		cl::NDRange(h_wg_size, v_wg_size),
-		&deps,
+		events,
 		&evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(events, evt);
 }
 
 } // anonymous namespace
@@ -461,18 +458,16 @@ OpenCLGrid<float> gaussBlur(
 	cl::Program const& program,
 	OpenCLGrid<float> const& src_grid,
 	float h_sigma, float v_sigma,
-	std::vector<cl::Event>* wait_for,
-	cl::Event* event)
+	std::vector<cl::Event> const* dependencies,
+	std::vector<cl::Event>* completion_set)
 {
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 
-	std::vector<cl::Event> deps;
-	if (wait_for) {
-		deps.insert(deps.end(), wait_for->begin(), wait_for->end());
+	std::vector<cl::Event> events;
+	if (dependencies) {
+		events = *dependencies;
 	}
-
-	cl::Event evt;
 
 	cl::Buffer dst_buffer(
 		context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(0)
@@ -483,31 +478,22 @@ OpenCLGrid<float> gaussBlur(
 		// horizontalPass() is going to be slow, but without fast local memory
 		// there is no way to accelerate it.
 
-		horizontalPass(command_queue, program, src_grid, dst_grid, h_sigma, deps, evt);
-		verticalPass(command_queue, program, dst_grid, dst_grid, v_sigma, deps, evt);
+		horizontalPass(command_queue, program, src_grid, dst_grid, h_sigma, &events);
+		verticalPass(command_queue, program, dst_grid, dst_grid, v_sigma, &events);
 	} else {
 		// This device has fast local memory, so we avoid a slow horizontalPass()
 		// by doing transpose() -> verticalPass() -> transpose()
 
 		OpenCLGrid<float> transposed = opencl::transpose(
-			command_queue, program, src_grid, /*dst_padding=*/0, &deps, &evt
+			command_queue, program, src_grid, /*dst_padding=*/0, &events, &events
 		);
-		deps.clear();
-		deps.push_back(evt);
 
-		verticalPass(command_queue, program, transposed, transposed, h_sigma, deps, evt);
-
-		opencl::transpose(command_queue, program, transposed, dst_grid, &deps, &evt);
-		deps.clear();
-		deps.push_back(evt);
-
-		verticalPass(command_queue, program, dst_grid, dst_grid, v_sigma, deps, evt);
+		verticalPass(command_queue, program, transposed, transposed, h_sigma, &events);
+		opencl::transpose(command_queue, program, transposed, dst_grid, &events);
+		verticalPass(command_queue, program, dst_grid, dst_grid, v_sigma, &events);
 	}
 
-	if (event) {
-		*event = evt;
-	}
-
+	indicateCompletion(completion_set, std::move(events));
 	return dst_grid;
 }
 
@@ -517,17 +503,16 @@ OpenCLGrid<float> anisotropicGaussBlur(
 	OpenCLGrid<float> const& src_grid,
 	float const dir_x, float const dir_y,
 	float const dir_sigma, float const ortho_dir_sigma,
-	std::vector<cl::Event>* wait_for, cl::Event* event)
+	std::vector<cl::Event> const* dependencies,
+	std::vector<cl::Event>* completion_set)
 {
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 
-	std::vector<cl::Event> deps;
-	if (wait_for) {
-		deps.insert(deps.end(), wait_for->begin(), wait_for->end());
+	std::vector<cl::Event> events;
+	if (dependencies) {
+		events = *dependencies;
 	}
-
-	cl::Event evt;
 
 	cl::Buffer dst_buffer(
 		context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(1)
@@ -539,7 +524,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 	bool const horizontal_decomposition = hdp.sigma_x > vdp.sigma_y;
 
 	if (!horizontal_decomposition) {
-		verticalPass(command_queue, program, src_grid, dst_grid, vdp.sigma_y, deps, evt);
+		verticalPass(command_queue, program, src_grid, dst_grid, vdp.sigma_y, &events);
 	} else {
 		if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
 			// horizontalPass() is going to be slow, but without fast local memory
@@ -548,22 +533,16 @@ OpenCLGrid<float> anisotropicGaussBlur(
 				context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(1)
 			);
 			dst_grid = src_grid.withDifferentPadding(dst_buffer, 1);
-			horizontalPass(command_queue, program, src_grid, dst_grid, hdp.sigma_x, deps, evt);
+			horizontalPass(command_queue, program, src_grid, dst_grid, hdp.sigma_x, &events);
 		} else {
 			// This device has fast local memory, so we avoid a slow horizontalPass()
 			// by doing transpose() -> verticalPass() -> transpose()
 
 			OpenCLGrid<float> transposed = opencl::transpose(
-				command_queue, program, src_grid, /*dst_padding=*/0, &deps, &evt
+				command_queue, program, src_grid, /*dst_padding=*/0, &events
 			);
-			deps.clear();
-			deps.push_back(evt);
-
-			verticalPass(command_queue, program, transposed, transposed, hdp.sigma_x, deps, evt);
-
-			opencl::transpose(command_queue, program, transposed, dst_grid, &deps, &evt);
-			deps.clear();
-			deps.push_back(evt);
+			verticalPass(command_queue, program, transposed, transposed, hdp.sigma_x, &events);
+			opencl::transpose(command_queue, program, transposed, dst_grid, &events);
 		}
 	}
 
@@ -589,7 +568,7 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dx*dx);
 
 		verticallyTraversedSkewedPassInPlace(
-			command_queue, program, dst_grid, adjusted_sigma_phi, dx, deps, evt
+			command_queue, program, dst_grid, adjusted_sigma_phi, dx, &events
 		);
 	} else {
 		float dy; // The step in y direction.
@@ -608,32 +587,23 @@ OpenCLGrid<float> anisotropicGaussBlur(
 			// fast local memory there is no way to accelerate it.
 
 			horizontallyTraversedSkewedPassInPlace(
-				command_queue, program, dst_grid, adjusted_sigma_phi, dy, deps, evt
+				command_queue, program, dst_grid, adjusted_sigma_phi, dy, &events
 			);
 		} else {
 			// This device has fast local memory, so we avoid a slow horizontallyTraversedSkewedPass()
 			// by doing transpose() -> verticallyTraversedSkewedPass() -> transpose()
 
 			OpenCLGrid<float> transposed = opencl::transpose(
-				command_queue, program, dst_grid, /*dst_padding=*/1, &deps, &evt
+				command_queue, program, dst_grid, /*dst_padding=*/1, &events, &events
 			);
-			deps.clear();
-			deps.push_back(evt);
-
 			verticallyTraversedSkewedPassInPlace(
-				command_queue, program, transposed, adjusted_sigma_phi, dy, deps, evt
+				command_queue, program, transposed, adjusted_sigma_phi, dy, &events
 			);
-
-			opencl::transpose(command_queue, program, transposed, dst_grid, &deps, &evt);
-			deps.clear();
-			deps.push_back(evt);
+			opencl::transpose(command_queue, program, transposed, dst_grid, &events, &events);
 		}
 	}
 
-	if (event) {
-		*event = evt;
-	}
-
+	indicateCompletion(completion_set, events);
 	return dst_grid;
 }
 

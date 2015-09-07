@@ -137,6 +137,9 @@ QImage affineTransform(
 	auto const adapted = adaptImage(src, outside_pixels);
 	QSizeF const unit_size(calcSrcUnitSize(inv_xform, min_mapping_area));
 
+	std::vector<cl::Event> events;
+	cl::Event evt;
+
 	// Create source and destination images on the device.
 	cl::Image2D src_image(
 		context, CL_MEM_READ_ONLY,
@@ -154,9 +157,10 @@ QImage affineTransform(
 	region[1] = src.height();
 	region[2] = 1;
 	command_queue.enqueueWriteImage(
-		src_image, CL_TRUE, origin, region, adapted.image.bytesPerLine(), 0,
-		(void*)adapted.image.bits()
+		src_image, CL_FALSE, origin, region, adapted.image.bytesPerLine(), 0,
+		(void*)adapted.image.bits(), &events, &evt
 	);
+	indicateCompletion(&events, evt);
 
 	cl::Kernel kernel(program, "affine_transform");
 	int idx = 0;
@@ -174,8 +178,6 @@ QImage affineTransform(
 		(float)qAlpha(outside_pixels.rgba()) / 255.f
 	});
 
-	cl::Event evt;
-
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
@@ -183,10 +185,10 @@ QImage affineTransform(
 			thisOrNextMultipleOf(dst_rect.width(), h_wg_size),
 			thisOrNextMultipleOf(dst_rect.height(), v_wg_size)
 		),
-		cl::NDRange(h_wg_size, v_wg_size), nullptr, &evt
+		cl::NDRange(h_wg_size, v_wg_size),
+		&events, &evt
 	);
-
-	evt.wait();
+	indicateCompletion(&events, evt);
 
 	QImage dst(dst_rect.size(), adapted.image.format());
 	if (dst.format() == QImage::Format_Indexed8) {
@@ -197,8 +199,11 @@ QImage affineTransform(
 	region[1] = dst.height();
 	region[2] = 1;
 	command_queue.enqueueReadImage(
-		dst_image, CL_TRUE, origin, region, dst.bytesPerLine(), 0, dst.bits()
+		dst_image, CL_FALSE, origin, region, dst.bytesPerLine(), 0, dst.bits(), &events, &evt
 	);
+	indicateCompletion(&events, evt);
+
+	cl::WaitForEvents(events);
 
 	return dst;
 }

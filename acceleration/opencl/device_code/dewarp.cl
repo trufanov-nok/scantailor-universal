@@ -16,6 +16,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// REQUIRES: rgba_color_mixer.cl
+
 typedef struct
 {
 	float2 origin;

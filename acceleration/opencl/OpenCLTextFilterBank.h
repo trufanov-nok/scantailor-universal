@@ -35,8 +35,8 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	OpenCLGrid<float> const& src_grid,
 	std::vector<Vec2f> const& directions,
 	std::vector<Vec2f> const& sigmas, float shoulder_length,
-	std::vector<cl::Event>* wait_for = nullptr,
-	cl::Event* event = nullptr);
+	std::vector<cl::Event> const* dependencies = nullptr,
+	std::vector<cl::Event>* completion_set = nullptr);
 
 } // namespace opencl
 

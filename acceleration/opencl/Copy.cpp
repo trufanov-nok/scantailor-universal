@@ -28,7 +28,7 @@ namespace opencl
 OpenCLGrid<float> copy(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float> const& src_grid, int dst_padding,
-	std::vector<cl::Event>* wait_for, cl::Event* event)
+	std::vector<cl::Event> const* dependencies, std::vector<cl::Event>* completion_set)
 {
 	int const width = src_grid.width();
 	int const height = src_grid.height();
@@ -56,15 +56,16 @@ OpenCLGrid<float> copy(
 	kernel.setArg(idx++, dst_grid.offset());
 	kernel.setArg(idx++, dst_grid.stride());
 
+	cl::Event evt;
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
 		cl::NDRange(thisOrNextMultipleOf(width, h_wg_size), thisOrNextMultipleOf(height, v_wg_size)),
 		cl::NDRange(h_wg_size, v_wg_size),
-		wait_for,
-		event
+		dependencies, &evt
 	);
 
+	indicateCompletion(completion_set, evt);
 	return dst_grid;
 }
 

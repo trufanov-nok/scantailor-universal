@@ -36,7 +36,8 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	OpenCLGrid<float> const& src_grid,
 	std::vector<Vec2f> const& directions,
 	std::vector<Vec2f> const& sigmas, float const shoulder_length,
-	std::vector<cl::Event>* wait_for, cl::Event* event)
+	std::vector<cl::Event> const* dependencies,
+	std::vector<cl::Event>* completion_set)
 {
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
@@ -46,9 +47,9 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 	size_t const h_wg_size = std::min<size_t>(max_work_group_size, cacheline_size / sizeof(float));
 	size_t const v_wg_size = max_work_group_size / h_wg_size;
 
-	std::vector<cl::Event> deps;
-	if (wait_for) {
-		deps.insert(deps.end(), wait_for->begin(), wait_for->end());
+	std::vector<cl::Event> events;
+	if (dependencies) {
+		events = *dependencies;
 	}
 
 	cl::Event evt;
@@ -77,11 +78,10 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 				thisOrNextMultipleOf(accum_grid.height(), v_wg_size)
 			),
 			cl::NDRange(h_wg_size, v_wg_size),
-			&deps,
+			&events,
 			&evt
 		);
-		deps.clear();
-		deps.push_back(evt);
+		indicateCompletion(&events, evt);
 	}
 
 	cl::Buffer dir_map_buffer(
@@ -108,11 +108,10 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 				thisOrNextMultipleOf(dir_map_grid.height(), v_wg_size)
 			),
 			cl::NDRange(h_wg_size, v_wg_size),
-			&deps,
+			&events,
 			&evt
 		);
-		deps.clear();
-		deps.push_back(evt);
+		indicateCompletion(&events, evt);
 	}
 
 	for (Vec2f const& s : sigmas) {
@@ -121,7 +120,7 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 			assert(std::abs(dir.squaredNorm() - 1.f) < 1e-5);
 
 			OpenCLGrid<float> blurred_grid = anisotropicGaussBlur(
-				command_queue, program, src_grid, dir[0], dir[1], s[0], s[1], &deps, &evt
+				command_queue, program, src_grid, dir[0], dir[1], s[0], s[1], &events, &events
 			);
 
 			QPointF shoulder_f(dir[1], -dir[0]);
@@ -152,20 +151,16 @@ std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> textFilterBank(
 					thisOrNextMultipleOf(src_grid.height(), v_wg_size)
 				),
 				cl::NDRange(h_wg_size, v_wg_size),
-				&deps,
+				&events,
 				&evt
 			);
-			deps.clear();
-			deps.push_back(evt);
+			indicateCompletion(&events, evt);
 
-			evt.wait(); // Prevent excessive resource consumption.
+			cl::WaitForEvents(events); // Prevent excessive resource consumption.
 		}
 	}
 
-	if (event) {
-		*event = evt;
-	}
-
+	indicateCompletion(completion_set, std::move(events));
 	return std::make_pair(std::move(accum_grid), std::move(dir_map_grid));
 }
 

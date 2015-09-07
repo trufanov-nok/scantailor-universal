@@ -33,17 +33,17 @@ namespace opencl
  * @param src The source grid.
  * @param dst_padding The padding the destination grid will have.
  *        The padding will be left uninitialized.
- * @param wait_for If provided, the kernels enqueued by this function will be
+ * @param dependencies If provided, the kernels enqueued by this function will be
  *        made to depend on the events provided.
- * @param event If provided, this event will be initialised to enable waiting
- *        for this operation to complete.
+ * @param completion_set If provided, used to return a set of events indicating
+ *        the completion of all asynchronous operations initiated by this function.
  * @return The copy.
  */
 OpenCLGrid<float> copy(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float> const& src, int dst_padding,
-	std::vector<cl::Event>* wait_for = nullptr,
-	cl::Event* event = nullptr);
+	std::vector<cl::Event> const* dependencies = nullptr,
+	std::vector<cl::Event>* completion_set = nullptr);
 
 } // namespace opencl
 

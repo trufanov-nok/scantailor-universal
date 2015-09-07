@@ -85,11 +85,6 @@ BOOST_AUTO_TEST_CASE(test)
 		cl::Context context(device);
 		cl::CommandQueue command_queue(context, device);
 		cl::Program program(buildProgram(context));
-		try {
-			program.build();
-		} catch (cl::Error const&) {
-			BOOST_FAIL(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device));
-		}
 
 #if LOG_PERFORMANCE
 		PerformanceTimer ptimer;

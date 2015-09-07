@@ -20,6 +20,7 @@
 #include "Grid.h"
 #include "OpenCLGrid.h"
 #include "Utils.h"
+#include "../Utils.h"
 #include "PerformanceTimer.h"
 #include <CL/cl.hpp>
 #include <boost/test/auto_unit_test.hpp>
@@ -50,11 +51,6 @@ BOOST_AUTO_TEST_CASE(test)
 		cl::Context context(device);
 		cl::CommandQueue command_queue(context, device);
 		cl::Program program(buildProgram(context));
-		try {
-			program.build();
-		} catch (cl::Error const&) {
-			BOOST_FAIL(program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device));
-		}
 
 		Grid<float> input(1001, 999);
 		for (int y = 0; y < input.height(); ++y) {
@@ -63,39 +59,33 @@ BOOST_AUTO_TEST_CASE(test)
 			}
 		}
 
-		std::vector<cl::Event> deps;
+		std::vector<cl::Event> events;
 		cl::Event evt;
 
 		// Copy input to device.
 		cl::Buffer const src_buffer(context, CL_MEM_READ_ONLY, input.totalBytes());
 		OpenCLGrid<float> src_grid(src_buffer, input);
 		command_queue.enqueueWriteBuffer(
-			src_grid.buffer(), CL_FALSE, 0, input.totalBytes(), input.paddedData(), &deps, &evt
+			src_grid.buffer(), CL_FALSE, 0, input.totalBytes(), input.paddedData(), &events, &evt
 		);
-		deps.clear();
-		deps.push_back(evt);
+		indicateCompletion(&events, evt);
 
-#if LOG_PERFORMANCE
-		evt.wait();
-		PerformanceTimer ptimer;
-#endif
-
+		// The first invokation involves kernel compilation, so don't include it into timing
+		// measurement.
 		OpenCLGrid<float> dst_grid = transpose(
-			command_queue, program, src_grid, /*dst_padding=*/0, &deps, &evt
+			command_queue, program, src_grid, /*dst_padding=*/0, &events, &events
 		);
-		deps.clear();
-		deps.push_back(evt);
 
 #if LOG_PERFORMANCE
-		evt.wait();
-		for (int i = 0; i < 99; ++i) {
+		cl::WaitForEvents(events);
+		PerformanceTimer ptimer;
+
+		for (int i = 0; i < 100; ++i) {
 			transpose(
-				command_queue, program, src_grid, /*dst_padding=*/0, &deps, &evt
+				command_queue, program, src_grid, /*dst_padding=*/0, &events, &events
 			);
-			deps.clear();
-			deps.push_back(evt);
-			evt.wait();
 		}
+		cl::WaitForEvents(events);
 
 		ptimer.print(("[transpose x100] "+device.getInfo<CL_DEVICE_NAME>() + ": ").c_str());
 #endif
@@ -103,15 +93,15 @@ BOOST_AUTO_TEST_CASE(test)
 		// Copy output from device.
 		Grid<float> output(dst_grid.toUninitializedHostGrid());
 		command_queue.enqueueReadBuffer(
-			dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), output.paddedData(), &deps, &evt
+			dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(),
+			output.paddedData(), &events, &evt
 		);
-		deps.clear();
-		deps.push_back(evt);
+		indicateCompletion(&events, evt);
 
 		BOOST_REQUIRE_EQUAL(output.width(), input.height());
 		BOOST_REQUIRE_EQUAL(output.height(), input.width());
 
-		evt.wait();
+		cl::WaitForEvents(events);
 
 		bool correct = true;
 		for (int y = 0; y < input.height() && correct; ++y) {

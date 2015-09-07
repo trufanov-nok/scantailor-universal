@@ -16,6 +16,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// REQUIRES: rgba_color_mixer.cl
+
 kernel void affine_transform(
 	read_only image2d_t const src, write_only image2d_t const dst,
 	float2 const xform_m1, float2 const xform_m2, float2 const xform_bias,

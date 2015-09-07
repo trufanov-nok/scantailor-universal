@@ -17,6 +17,7 @@
 */
 
 #include "Transpose.h"
+#include "Utils.h"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -28,7 +29,8 @@ namespace opencl
 OpenCLGrid<float> transpose(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float> const& src_grid, int dst_padding,
-	std::vector<cl::Event>* wait_for, cl::Event* event)
+	std::vector<cl::Event> const* dependencies,
+	std::vector<cl::Event>* completion_set)
 {
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 
@@ -37,7 +39,7 @@ OpenCLGrid<float> transpose(
 	);
 	OpenCLGrid<float> dst_grid(dst_buffer, src_grid.height(), src_grid.width(), dst_padding);
 
-	transpose(command_queue, program, src_grid, dst_grid, wait_for, event);
+	transpose(command_queue, program, src_grid, dst_grid, dependencies, completion_set);
 
 	return dst_grid;
 }
@@ -45,7 +47,8 @@ OpenCLGrid<float> transpose(
 void transpose(
 	cl::CommandQueue const& command_queue, cl::Program const& program,
 	OpenCLGrid<float> const& src_grid, OpenCLGrid<float>& dst_grid,
-	std::vector<cl::Event>* wait_for, cl::Event* event)
+	std::vector<cl::Event> const* dependencies,
+	std::vector<cl::Event>* completion_set)
 {
 	assert(src_grid.width() == dst_grid.height());
 	assert(src_grid.height() == dst_grid.width());
@@ -77,6 +80,7 @@ void transpose(
 	kernel.setArg(idx++, cl::Local((tile_dim + 1) * tile_dim * sizeof(float)));
 	kernel.setArg(idx++, cl_int(tile_dim + 1));
 
+	cl::Event evt;
 	command_queue.enqueueNDRangeKernel(
 		kernel,
 		cl::NullRange,
@@ -85,9 +89,10 @@ void transpose(
 			v_wg_size * ((src_grid.height() + tile_dim - 1) / tile_dim)
 		),
 		cl::NDRange(h_wg_size, v_wg_size),
-		wait_for,
-		event
+		dependencies,
+		&evt
 	);
+	indicateCompletion(completion_set, evt);
 }
 
 } // namespace opencl

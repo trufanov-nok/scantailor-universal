@@ -35,10 +35,10 @@ namespace opencl
  * @param src_grid The grid to apply gaussian filtering to.
  * @param h_sigma The standard deviation in horizontal direction.
  * @param v_sigma The standard deviation in vertical direction.
- * @param wait_for If provided, the kernels enqueued by this function will be
+ * @param dependencies If provided, the kernels enqueued by this function will be
  *        made to depend on the events provided.
- * @param event If provided, this event will be initialised to enable waiting
- *        for this operation to complete.
+ * @param completion_set If provided, used to return a set of events indicating
+ *        the completion of all asynchronous operations initiated by this function.
  * @return The filtered grid.
  */
 OpenCLGrid<float> gaussBlur(
@@ -46,8 +46,8 @@ OpenCLGrid<float> gaussBlur(
 	cl::Program const& program,
 	OpenCLGrid<float> const& src_grid,
 	float h_sigma, float v_sigma,
-	std::vector<cl::Event>* wait_for = nullptr,
-	cl::Event* event = nullptr);
+	std::vector<cl::Event> const* dependencies = nullptr,
+	std::vector<cl::Event>* completion_set = nullptr);
 
 /**
  * @brief Applies an oriented 2D gaussian filter to a float-valued grid.
@@ -63,10 +63,10 @@ OpenCLGrid<float> gaussBlur(
  * @param dir_sigma The standard deviation in (dir_x, dir_y) direction.
  * @param ortho_dir_sigma The standard deviation in a direction orthogonal
  *        to (dir_x, dir_y).
- * @param wait_for If provided, the kernels enqueued by this function will be
+ * @param dependencies If provided, the kernels enqueued by this function will be
  *        made to depend on the events provided.
- * @param event If provided, this event will be initialised to enable waiting
- *        for this operation to complete.
+ * @param completion_set If provided, used to return a set of events indicating
+ *        the completion of all asynchronous operations initiated by this function.
  * @return The filtered grid.
  */
 OpenCLGrid<float> anisotropicGaussBlur(
@@ -75,8 +75,8 @@ OpenCLGrid<float> anisotropicGaussBlur(
 	OpenCLGrid<float> const& src_grid,
 	float dir_x, float dir_y,
 	float dir_sigma, float ortho_dir_sigma,
-	std::vector<cl::Event>* wait_for = nullptr,
-	cl::Event* event = nullptr);
+	std::vector<cl::Event> const* dependencies = nullptr,
+	std::vector<cl::Event>* completion_set = nullptr);
 
 } // namespace opencl
 

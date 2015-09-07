@@ -128,33 +128,28 @@ OpenCLAcceleratedOperations::gaussBlurUnguarded(
 		return Grid<float>();
 	}
 
-	std::vector<cl::Event> deps;
+	std::vector<cl::Event> events;
 	cl::Event evt;
 
 	cl::Buffer const src_buffer(m_context, CL_MEM_READ_ONLY, src.totalBytes());
 	OpenCLGrid<float> src_grid(src_buffer, src);
 
 	m_commandQueue.enqueueWriteBuffer(
-		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &deps, &evt
+		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(&events, evt);
 
 	auto dst_grid = opencl::gaussBlur(
-		m_commandQueue, m_program, src_grid, h_sigma, v_sigma, &deps, &evt
+		m_commandQueue, m_program, src_grid, h_sigma, v_sigma, &events, &events
 	);
-	deps.clear();
-	deps.push_back(evt);
 
 	Grid<float> dst(dst_grid.toUninitializedHostGrid());
-
 	m_commandQueue.enqueueReadBuffer(
-		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &deps, &evt
+		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(&events, evt);
 
-	evt.wait();
+	cl::WaitForEvents(events);
 
 	return std::move(dst);
 }
@@ -185,34 +180,29 @@ OpenCLAcceleratedOperations::anisotropicGaussBlurUnguarded(
 		return Grid<float>();
 	}
 
-	std::vector<cl::Event> deps;
+	std::vector<cl::Event> events;
 	cl::Event evt;
 
 	cl::Buffer const src_buffer(m_context, CL_MEM_READ_ONLY, src.totalBytes());
 	OpenCLGrid<float> src_grid(src_buffer, src);
 
 	m_commandQueue.enqueueWriteBuffer(
-		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &deps, &evt
+		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(&events, evt);
 
 	auto dst_grid = opencl::anisotropicGaussBlur(
 		m_commandQueue, m_program, src_grid,
-		dir_x, dir_y, dir_sigma, ortho_dir_sigma, &deps, &evt
+		dir_x, dir_y, dir_sigma, ortho_dir_sigma, &events, &events
 	);
-	deps.clear();
-	deps.push_back(evt);
 
 	Grid<float> dst(dst_grid.toUninitializedHostGrid());
-
 	m_commandQueue.enqueueReadBuffer(
-		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &deps, &evt
+		dst_grid.buffer(), CL_FALSE, 0, dst_grid.totalBytes(), dst.paddedData(), &events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(&events, evt);
 
-	evt.wait();
+	cl::WaitForEvents(events);
 
 	return std::move(dst);
 }
@@ -243,43 +233,36 @@ OpenCLAcceleratedOperations::textFilterBankUnguarded(
 		return std::make_pair(Grid<float>(), Grid<uint8_t>());
 	}
 
-	std::vector<cl::Event> deps;
+	std::vector<cl::Event> events;
 	cl::Event evt;
 
 	cl::Buffer const src_buffer(m_context, CL_MEM_READ_ONLY, src.totalBytes());
 	OpenCLGrid<float> src_grid(src_buffer, src);
 
 	m_commandQueue.enqueueWriteBuffer(
-		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &deps, &evt
+		src_grid.buffer(), CL_FALSE, 0, src.totalBytes(), src.paddedData(), &events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(&events, evt);
 
 	std::pair<OpenCLGrid<float>, OpenCLGrid<uint8_t>> dst = opencl::textFilterBank(
 		m_commandQueue, m_program, src_grid,
-		directions, sigmas, shoulder_length, &deps, &evt
+		directions, sigmas, shoulder_length, &events, &events
 	);
-	deps.clear();
-	deps.push_back(evt);
 
 	Grid<float> accum(dst.first.toUninitializedHostGrid());
-
 	m_commandQueue.enqueueReadBuffer(
-		dst.first.buffer(), CL_FALSE, 0, accum.totalBytes(), accum.paddedData(), &deps, &evt
+		dst.first.buffer(), CL_FALSE, 0, accum.totalBytes(), accum.paddedData(), &events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(&events, evt);
 
 	Grid<uint8_t> direction_map(dst.second.toUninitializedHostGrid());
-
 	m_commandQueue.enqueueReadBuffer(
 		dst.second.buffer(), CL_FALSE, 0, direction_map.totalBytes(),
-		direction_map.paddedData(), &deps, &evt
+		direction_map.paddedData(), &events, &evt
 	);
-	deps.clear();
-	deps.push_back(evt);
+	indicateCompletion(&events, evt);
 
-	evt.wait();
+	cl::WaitForEvents(events);
 
 	return std::make_pair(std::move(accum), std::move(direction_map));
 }
