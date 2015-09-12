@@ -258,9 +258,9 @@ namespace
 class BadTwoPageSplitter
 {
 public:
-	BadTwoPageSplitter(double image_width)
-	: m_imageCenter(0.5 * image_width),
-	m_distFromCenterThreshold(0.6 * m_imageCenter) {}
+	BadTwoPageSplitter(QRectF const& image_rect)
+	: m_imageCenter(image_rect.center().x()),
+	m_distFromCenterThreshold(0.6 * (m_imageCenter - image_rect.left())) {}
 	
 	/**
 	 * Returns true if the line is too close to an edge
@@ -347,7 +347,7 @@ PageLayoutEstimator::tryCutAtFoldingLine(
 		lines.erase(
 			std::remove_if(
 				lines.begin(), lines.end(),
-				BadTwoPageSplitter(virtual_image_rect.width())
+				BadTwoPageSplitter(virtual_image_rect)
 			), lines.end()
 		);
 		return autoDetectTwoPageLayout(lines, virtual_image_rect);
