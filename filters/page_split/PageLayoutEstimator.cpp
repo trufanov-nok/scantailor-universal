@@ -380,6 +380,9 @@ PageLayoutEstimator::cutAtWhitespace(
 		AffineTransformedImage const downscaled = image.withAdjustedTransform(
 			[](AffineImageTransform& xform) {
 				xform.scaleTo(QSize(3000, 3000), Qt::KeepAspectRatio);
+				xform.translateSoThatPointBecomes(
+					xform.transformedCropArea().boundingRect().topLeft(), QPointF(0.0, 0.0)
+				);
 			}
 		);
 		img = binarize(downscaled, accel_ops);
