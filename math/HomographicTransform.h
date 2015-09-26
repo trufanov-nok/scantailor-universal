@@ -23,8 +23,10 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <cstddef>
+#include <cmath>
 #include <stdexcept>
 #include <string>
+#include <limits>
 
 template<size_t N, typename T> class HomographicTransform;
 
@@ -57,7 +59,7 @@ public:
 };
 
 
-/** An optimized, both in terms of API and performance, 1D version. */
+/** A 1D specialisation providing additional methods. */
 template<typename T>
 class HomographicTransform<1, T> : public HomographicTransformBase<1, T>
 {
@@ -70,6 +72,40 @@ public:
 
 	// Prevent it's shadowing by the above one.
 	using HomographicTransformBase<1, T>::operator();
+
+	/**
+	 * Every homographic transform has a hyperplane of discontinuity in its domain.
+	 * If a homographic transform was generated from a "reasonable" set of points,
+	 * all of those points are going to be on the same side of the discontinuity hyperplane.
+	 * For points on the other side, mirrorSide() returns true.
+	 */
+	bool mirrorSide(T from) const;
+
+	/**
+	 * Treating a 1D homographic transform as an ordinary function f: R -> R, computes its
+	 * derivative at a given point. Evaluating the derivative at a point of discontinuity
+	 * results in undefined behaviour.
+	 */
+	T derivativeAt(T from) const;
+
+	/**
+	 * Treating a 1D homographic transform as an ordinary function f: R -> R, computes its
+	 * 2nd derivative at a given point. Evaluating the derivative at a point of discontinuity
+	 * results in undefined behaviour.
+	 */
+	T secondDerivativeAt(T from) const;
+
+	/**
+	 * Treating a 1D homographic transform as an ordinary function f: R -> R, finds points
+	 * in its domain where the derivative takes the desired value. There may be 0, 1 or 2
+	 * such points. Results are reported through @p sink like this:
+	 * @code
+	 * double const x = ...;
+	 * sink(x);
+	 * @endcode
+	 */
+	template<typename F>
+	void solveForDeriv(T deriv, F&& sink) const;
 };
 
 
@@ -106,6 +142,59 @@ HomographicTransform<1, T>::operator()(T from) const
 	// Optimized version for 1D case.
 	auto const& m = this->mat();
 	return (from * m(0, 0) + m(0, 1)) / (from * m(1, 0) + m(1, 1));
+}
+
+template<typename T>
+bool
+HomographicTransform<1, T>::mirrorSide(T from) const
+{
+	auto const& m = this->mat();
+	return std::signbit(from * m(1, 0) + m(1, 1));
+}
+
+template<typename T>
+T
+HomographicTransform<1, T>::derivativeAt(T from) const
+{
+	auto const& m = this->mat();
+	T const den = from * m(1, 0) + m(1, 1);
+	return m.determinant() / (den * den);
+}
+
+template<typename T>
+T
+HomographicTransform<1, T>::secondDerivativeAt(T from) const
+{
+	auto const& m = this->mat();
+	T const den = from * m(1, 0) + m(1, 1);
+	return T(-2.0) * m(1, 0) * m.determinant() / (den * den * den);
+}
+
+template<typename T>
+template<typename F>
+void
+HomographicTransform<1, T>::solveForDeriv(T deriv, F&& sink) const
+{
+	auto const& m = this->mat();
+	T const a = deriv * m(1, 0) * m(1, 0);
+	T const b = T(2.0) * deriv * m(1, 0) * m(1, 1);
+	T const c = deriv * m(1, 1) * m(1, 1) - m.determinant();
+	T const d = b * b - T(4.0) * a * c;
+
+	if (std::abs(a) < std::numeric_limits<T>::epsilon()) {
+		// We've got a linear not quadratic function.
+		if (std::abs(b) >= std::numeric_limits<T>::epsilon()) {
+			sink(c / -b);
+		}
+	} else if (std::abs(d) < std::numeric_limits<T>::epsilon()) {
+		// 1 root.
+		sink(-b / (T(2.0) * a));
+	} else if (d > T(0.0)) {
+		// 2 roots.
+		T const sqrt_d = std::sqrt(d);
+		sink((-b + sqrt_d) / (T(2.0) * a));
+		sink((-b - sqrt_d) / (T(2.0) * a));
+	}
 }
 
 #endif

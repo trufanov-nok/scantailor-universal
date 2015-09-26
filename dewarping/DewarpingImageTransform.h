@@ -90,6 +90,8 @@ public:
 
 	virtual std::function<QPointF(QPointF const&)> backwardMapper() const;
 private:
+	class ConstrainedCropAreaBuilder;
+
 	void setupIntrinsicScale();
 
 	QPolygonF constrainCropArea(QPolygonF const& orig_crop_area) const;

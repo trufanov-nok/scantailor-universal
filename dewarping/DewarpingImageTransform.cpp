@@ -20,7 +20,7 @@
 #include "RoundingHasher.h"
 #include "ToVec.h"
 #include "ToLineProjector.h"
-#include "LineIntersectionScalar.h"
+#include "LineBoundedByPolygon.h"
 #include "imageproc/AffineImageTransform.h"
 #include "imageproc/AffineTransformedImage.h"
 #include <Eigen/Core>
@@ -39,16 +39,76 @@
 #include <boost/optional.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <algorithm>
+#include <iterator>
 #include <utility>
 #include <memory>
+#include <limits>
 #include <cmath>
 #include <cassert>
+#include <map>
 
 using namespace Eigen;
 using namespace imageproc;
 
 namespace dewarping
 {
+
+class DewarpingImageTransform::ConstrainedCropAreaBuilder
+{
+public:
+	ConstrainedCropAreaBuilder(QPolygonF const& orig_crop_area,
+		double min_density, double max_density, CylindricalSurfaceDewarper const& dewarper);
+
+	/**
+	 * Sample crv_x values in a certain range with dynamically adjusted step size.
+	 * Each sample contributes two points to the resulting crop area.
+	 */
+	void sampleCrvXRange(double from, double to, double forward_direction);
+
+	/**
+	 * Return the crop area resulting from calls to sampleCrvXRange().
+	 */
+	QPolygonF build() const;
+private:
+	/**
+	 * Determines the vertical boundaries of the generatrix and adds the corresponding
+	 * line segment to m_vertSegments. Returns an iterator to the newly added element in
+	 * m_vertSegments or m_vertSegments.end(), if the generatrix is outside of a feasible region.
+	 */
+	std::map<double, QLineF>::iterator processGeneratrix(
+		double crv_x, CylindricalSurfaceDewarper::Generatrix const& generatrix);
+
+	/**
+	 * If lengths of two consecutive segments differ significantly, create
+	 * another segment in the middle. Proceed recursively from there.
+	 */
+	void maybeAddExtraVerticalSegments(
+		double segment1_crv_x, double segment1_len,
+		double segment2_crv_x, double segment2_len);
+
+	QPolygonF const& m_origCropArea;
+
+	/**
+	 * Densities are expressed as the length in pixels in original image over
+	 * the corresponding length in crv_y units. For an explanation of crv_*
+	 * coordinates, see comments at the top of CylindricalSurfaceDewarper.cpp.
+	 */
+	double const m_minDensity;
+	double const m_maxDensity;
+
+	CylindricalSurfaceDewarper const& m_dewarper;
+	CylindricalSurfaceDewarper::State m_dewarpingState;
+
+	/**
+	 * A collection of line segments in original image coordinates corresponding to
+	 * vertical line segments in dewarped image coordinates. Indexed and ordered by crv_x.
+	 * QLineF has the layout of (top_point, bottom_point) when viewed from dewarped point
+	 * of view. For an explanation of crv_* coordinates, see comments at the top of
+	 * CylindricalSurfaceDewarper.cpp.
+	 */
+	std::map<double, QLineF> m_vertSegments;
+};
+
 
 DewarpingImageTransform::DewarpingImageTransform(
 	QSize const& orig_size,
@@ -338,75 +398,204 @@ DewarpingImageTransform::setupIntrinsicScale()
 QPolygonF
 DewarpingImageTransform::constrainCropArea(QPolygonF const& orig_crop_area) const
 {
-	// The point where the vertical bounds intersect is a vanishing point that
-	// can't be mapped into dewarped coordinates. We want to exclude it as well
-	// as anything beyond it from the crop area.
-	QLineF const left_bound(m_topPolyline.front(), m_bottomPolyline.front());
-	QLineF const right_bound(m_topPolyline.back(), m_bottomPolyline.back());
-	boost::optional<QPointF> vanishing_point;
-	double left_bound_isect_scalar = 0.0;
-	if (lineIntersectionScalar(left_bound, right_bound, left_bound_isect_scalar)) {
-		vanishing_point = left_bound.pointAt(left_bound_isect_scalar);
-	}
-
-	// Points on left_bound will have the x coordinate of 0 in normalized dewarped coordinates.
-	// Points on img_right_bound will have x coordinate of 1. We want to allow some area
-	// outside of those bounds to be inside the crop region, yet we don't want to allow
-	// the area too far outside of those bounds.
 	CylindricalSurfaceDewarper::State state;
-	QLineF const extended_left_bound = m_dewarper.mapGeneratrix(-1.0, state).imgLine;
-	QLineF const mid_line = m_dewarper.mapGeneratrix(0.5, state).imgLine;
-	QLineF const extended_right_bound = m_dewarper.mapGeneratrix(2.0, state).imgLine;
+	CylindricalSurfaceDewarper::Generatrix const left_bound =
+		m_dewarper.mapGeneratrix(0.0, state);
+	CylindricalSurfaceDewarper::Generatrix const right_bound =
+		m_dewarper.mapGeneratrix(1.0, state);
 
-	ToLineProjector const mid_line_projector(mid_line);
-	double max_proj = -std::numeric_limits<double>::max();
-	double min_proj = std::numeric_limits<double>::max();
+	// Calculate densities of pixels in original (warped) image at corners
+	// of the the curved quadrilateral. We assume those are positive.
+	double const left_bound_len = left_bound.imgLine.length();
+	double const right_bound_len = right_bound.imgLine.length();
+	double const corner_densities[] = {
+		left_bound.pln2img.derivativeAt(0.0) * left_bound_len,
+		left_bound.pln2img.derivativeAt(1.0) * left_bound_len,
+		right_bound.pln2img.derivativeAt(0.0) * right_bound_len,
+		right_bound.pln2img.derivativeAt(1.0) * right_bound_len
+	};
 
-	for (QPointF const& pt : orig_crop_area) {
-		double const proj = mid_line_projector.projectionScalar(pt);
-		min_proj = std::min<double>(proj, min_proj);
-		max_proj = std::max<double>(proj, max_proj);
-	}
+	// We want to constrain the crop area in such a way that warped
+	// pixel density in that area doesn't go out of a certain range.
+	auto const minmax_densities = std::minmax_element(
+		std::begin(corner_densities), std::end(corner_densities)
+	);
+	double const min_density = 0.6 * *minmax_densities.first;
+	double const max_density = 1.4 * *minmax_densities.second;
 
-	if (vanishing_point) {
-		// Any point that's safe to include into the crop area.
-		QPointF const safe_point(0.5 * (left_bound.pointAt(0.5) + right_bound.pointAt(0.5)));
+	ConstrainedCropAreaBuilder builder(orig_crop_area, min_density, max_density, m_dewarper);
 
-		double const vanishing_point_proj = mid_line_projector.projectionScalar(*vanishing_point);
-		double const safe_point_proj = mid_line_projector.projectionScalar(safe_point);
+	builder.sampleCrvXRange(0.0 + 0.3, 0.0 - 0.6, -1.0);
+	builder.sampleCrvXRange(1.0 - 0.3, 1.0 + 0.6, 1.0);
 
-		// We exclude the vanishing point and some surrounding area. To be more precise,
-		// we exclude a certain fraction of the distance between the vanishing point and
-		// the furthest away point in the direction of safe_point.
-		double const safety_fraction = 0.04;
-		if (vanishing_point_proj < safe_point_proj) {
-			min_proj = std::max<double>(
-				min_proj, vanishing_point_proj + safety_fraction * (max_proj - vanishing_point_proj)
-			);
+	return builder.build();
+}
+
+
+/*============================= ConstrainedCropAreaBuilder ==================================*/
+
+DewarpingImageTransform::ConstrainedCropAreaBuilder::ConstrainedCropAreaBuilder(
+	QPolygonF const& orig_crop_area, double min_density, double max_density,
+	CylindricalSurfaceDewarper const& dewarper)
+	: m_origCropArea(orig_crop_area)
+	, m_minDensity(min_density)
+	, m_maxDensity(max_density)
+	, m_dewarper(dewarper)
+{
+}
+
+void
+DewarpingImageTransform::ConstrainedCropAreaBuilder::sampleCrvXRange(
+	double const from, double const to, double const forward_direction)
+{
+	double const backwards_direction = -forward_direction;
+	double direction = forward_direction;
+	double step_size = 0.1;
+	double const min_step_size = step_size / 8;
+
+	struct LastSegment
+	{
+		double crv_x;
+		double length;
+	};
+
+	boost::optional<LastSegment> last_segment;
+
+	for (double crv_x = from;
+			(crv_x - to) * (from - to) > -std::numeric_limits<double>::epsilon()
+			&& step_size > min_step_size - std::numeric_limits<double>::epsilon();
+			crv_x += step_size * direction) {
+
+		auto segment_it = processGeneratrix(
+			crv_x, m_dewarper.mapGeneratrix(crv_x, m_dewarpingState)
+		);
+		if (segment_it == m_vertSegments.end()) {
+			step_size *= 0.5;
+			direction = backwards_direction;
 		} else {
-			max_proj = std::min<double>(
-				max_proj, vanishing_point_proj + safety_fraction * (min_proj - vanishing_point_proj)
-			);
+			double const segment_len = segment_it->second.length();
+			if (last_segment) {
+				maybeAddExtraVerticalSegments(
+					last_segment->crv_x, last_segment->length, segment_it->first, segment_len
+				);
+			}
+
+			last_segment = LastSegment{segment_it->first, segment_len};
+			direction = forward_direction;
 		}
 	}
+}
 
-	QPolygonF extra_crop_area(4);
-	QLineF mid_line_normal(mid_line.normalVector());
+QPolygonF
+DewarpingImageTransform::ConstrainedCropAreaBuilder::build() const
+{
+	QPolygonF new_crop_area(m_vertSegments.size() * 2);
 
-	mid_line_normal.translate(mid_line.pointAt(min_proj) - mid_line_normal.p1());
-	mid_line_normal.intersect(extended_left_bound, &extra_crop_area[0]);
-	mid_line_normal.intersect(extended_right_bound, &extra_crop_area[1]);
+	int i1 = 0;
+	int i2 = new_crop_area.size() - 1;
 
-	mid_line_normal.translate(mid_line.pointAt(max_proj) - mid_line_normal.p1());
-	mid_line_normal.intersect(extended_right_bound, &extra_crop_area[2]);
-	mid_line_normal.intersect(extended_left_bound, &extra_crop_area[3]);
-
-	QPolygonF intersection(orig_crop_area.intersected(extra_crop_area));
-	if (intersection.isEmpty()) {
-		// Try to workaround QTBUG-48003.
-		intersection = extra_crop_area.intersected(orig_crop_area);
+	for (auto const& kv : m_vertSegments) {
+		new_crop_area[i1] = kv.second.p1();
+		new_crop_area[i2] = kv.second.p2();
+		++i1;
+		--i2;
 	}
-	return intersection;
+
+	return new_crop_area;
+}
+
+std::map<double, QLineF>::iterator
+DewarpingImageTransform::ConstrainedCropAreaBuilder::processGeneratrix(
+	double const crv_x, CylindricalSurfaceDewarper::Generatrix const& generatrix)
+{
+	// A pair of lower and upper bounds for y coordinate in a unit square
+	// corresponding to the curved quadrilateral.
+	std::pair<boost::optional<double>, boost::optional<double>> valid_range;
+
+	// Called for points where pixel density reaches the lower or upper threshold.
+	auto const processCriticalPoint = [&generatrix, &valid_range]
+			(double crv_y, bool upper_threshold) {
+
+		if (!generatrix.pln2img.mirrorSide(crv_y)) {
+			double const second_deriv = generatrix.pln2img.secondDerivativeAt(crv_y);
+			if (std::signbit(second_deriv) == upper_threshold) {
+				assert(!valid_range.first);
+				valid_range.first = crv_y;
+			} else {
+				assert(!valid_range.second);
+				valid_range.second = crv_y;
+			}
+
+		}
+	};
+
+	double const recip_len = 1.0 / generatrix.imgLine.length();
+
+	generatrix.pln2img.solveForDeriv(
+		m_minDensity * recip_len,
+		[processCriticalPoint](double crv_y) {
+			processCriticalPoint(crv_y, /*upper_threshold=*/false);
+		}
+	);
+
+	generatrix.pln2img.solveForDeriv(
+		m_maxDensity * recip_len,
+		[processCriticalPoint](double crv_y) {
+			processCriticalPoint(crv_y, /*upper_threshold=*/true);
+		}
+	);
+
+	QLineF bounded_line(generatrix.imgLine);
+	if (!lineBoundedByPolygon(bounded_line, m_origCropArea)) {
+		return m_vertSegments.end();
+	}
+
+	ToLineProjector const projector(generatrix.imgLine);
+	double min_proj = projector.projectionScalar(bounded_line.p1());
+	double max_proj = projector.projectionScalar(bounded_line.p2());
+
+	if (valid_range.first) {
+		min_proj = std::max<double>(min_proj, generatrix.pln2img(*valid_range.first));
+	}
+
+	if (valid_range.second) {
+		max_proj = std::min<double>(max_proj, generatrix.pln2img(*valid_range.second));
+	}
+
+	if (min_proj >= max_proj) {
+		return m_vertSegments.end();
+	}
+
+	QPointF const p1(generatrix.imgLine.pointAt(min_proj));
+	QPointF const p2(generatrix.imgLine.pointAt(max_proj));
+
+	return m_vertSegments.emplace(crv_x, QLineF(p1, p2)).first;
+}
+
+void
+DewarpingImageTransform::ConstrainedCropAreaBuilder::maybeAddExtraVerticalSegments(
+	double const segment1_crv_x, double const segment1_len,
+	double const segment2_crv_x, double const segment2_len)
+{
+	auto const lengths_close_enough = [](double len1, double len2) {
+		return std::max(len1, len2) - std::min(len1, len2) < 0.1 * (len1 + len2);
+	};
+
+	if (lengths_close_enough(segment1_len, segment2_len)) {
+		return;
+	}
+
+	double const mid_crv_x = 0.5 * (segment1_crv_x + segment2_crv_x);
+	auto const segment_it = processGeneratrix(
+		mid_crv_x, m_dewarper.mapGeneratrix(mid_crv_x, m_dewarpingState)
+	);
+	if (segment_it == m_vertSegments.end()) {
+		return;
+	}
+
+	double const mid_len = segment_it->second.length();
+	maybeAddExtraVerticalSegments(segment1_crv_x, segment1_len, mid_crv_x, mid_len);
+	maybeAddExtraVerticalSegments(mid_crv_x, mid_len, segment2_crv_x, segment2_len);
 }
 
 } // namespace dewarping

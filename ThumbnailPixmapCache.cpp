@@ -966,12 +966,6 @@ ThumbnailPixmapCache::Impl::makeThumbnail(
 	}
 	
 	QSize const orig_affine_size(thumb_transform.origSize());
-
-	if (orig_affine_size.width() < max_thumb_size.width() &&
-		orig_affine_size.height() < max_thumb_size.height()) {
-		return AffineTransformedImage(full_size_image, thumb_transform);
-	}
-
 	QSize new_affine_size(orig_affine_size);
 	new_affine_size.scale(max_thumb_size, Qt::KeepAspectRatio);
 	new_affine_size = new_affine_size.expandedTo(QSize(1, 1));
