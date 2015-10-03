@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -145,14 +145,26 @@ PolylineIntersector::tryIntersectingOutsideOfPolyline(
 		return false;
 	}
 
-	ToLineProjector const proj(line);
+	assert(m_numSegments > 0); // The case where it's 0 is caught by the above if.
+
+	QLineF segment;
 
 	if (fabs(front_dot) < fabs(back_dot)) {
+		// The line is beyond the head of the polyline.
 		hint.update(-1);
-		intersection = proj.projectionPoint(m_polyline.front());
+
+		// The order of points is important here!
+		segment.setPoints(m_polyline[0], m_polyline[1]);
 	} else {
+		// The line is beyond the tail of the polyline.
 		hint.update(m_numSegments);
-		intersection = proj.projectionPoint(m_polyline.back());
+
+		// The order of points is important here!
+		segment.setPoints(m_polyline.back(), m_polyline[m_polyline.size() - 2]);
+	}
+
+	if (line.intersect(segment, &intersection) == QLineF::NoIntersection) {
+		intersection = ToLineProjector(line).projectionPoint(segment.p1());
 	}
 
 	return true;
