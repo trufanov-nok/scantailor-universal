@@ -10,6 +10,7 @@ SET(
 	ToLineProjector.cpp ToLineProjector.h
 	ArcLengthMapper.cpp ArcLengthMapper.h
 	LineBoundedByRect.cpp LineBoundedByRect.h
+	LineBoundedByPolygon.cpp LineBoundedByPolygon.h
 	PolylineIntersector.cpp PolylineIntersector.h
 	LinearFunction.cpp LinearFunction.h
 	QuadraticFunction.cpp QuadraticFunction.h
