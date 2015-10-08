@@ -33,8 +33,9 @@
 #include "config.h"
 #include "DespeckleLevel.h"
 #include "SettingsManager.h"
-
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
+#endif
 #include <QtGlobal>
 #include <QVariant>
 #include <QColorDialog>

@@ -92,10 +92,11 @@
 #include "config.h"
 #include "version.h"
 #include "SettingsManager.h"
-
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
+#endif
 #include <QApplication>
 #include <QLineF>
 #include <QPointer>

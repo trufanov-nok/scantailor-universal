@@ -33,10 +33,10 @@
 #include "PageRange.h"
 #include "SelectedPage.h"
 #include "BeforeOrAfter.h"
-
 #include "SettingsDialog.h"
-
+#ifndef Q_MOC_RUN
 #include <boost/function.hpp>
+#endif
 #include <QMainWindow>
 #include <QString>
 #include <QPointer>
