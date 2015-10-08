@@ -24,7 +24,9 @@
 #include "ThumbnailLoadResult.h"
 #include "AbstractCommand.h"
 #include "acceleration/AcceleratableOperations.h"
+#ifndef Q_MOC_RUN
 #include <boost/weak_ptr.hpp>
+#endif
 #include <memory>
 
 class PageId;

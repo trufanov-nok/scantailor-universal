@@ -31,7 +31,10 @@
 #include <Qt>
 #include <QtGlobal>
 #include <math.h>
+#include "ApplyDialog.h"
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
+#endif
 
 namespace deskew
 {

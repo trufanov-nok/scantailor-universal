@@ -23,6 +23,10 @@
 #include "VecNT.h"
 #include "ToLineProjector.h"
 #include "ToVec.h"
+#include <QDebug>
+#ifndef Q_MOC_RUN
+#include <boost/foreach.hpp>
+#endif
 #include <stdexcept>
 #include <limits>
 #include <cmath>

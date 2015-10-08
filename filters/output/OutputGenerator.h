@@ -24,7 +24,9 @@
 #include "CachingFactory.h"
 #include "Grid.h"
 #include "imageproc/AbstractImageTransform.h"
+#ifndef Q_MOC_RUN
 #include <boost/optional.hpp>
+#endif
 #include <QSize>
 #include <QRect>
 #include <QTransform>

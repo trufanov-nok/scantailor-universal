@@ -24,7 +24,9 @@
 #include "PageInfo.h"
 #include "PageId.h"
 #include "imageproc/Constants.h"
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
+#endif
 #include <QApplication>
 #include <QStyle>
 #include <QIcon>

@@ -24,12 +24,14 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QMutex>
+#ifndef Q_MOC_RUN
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/foreach.hpp>
+#endif
 
 using namespace boost::multi_index;
 

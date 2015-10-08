@@ -24,7 +24,10 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QContextMenuEvent>
+#ifndef Q_MOC_RUN
 #include <boost/checked_delete.hpp>
+#endif
+
 #include <assert.h>
 
 #define DISPATCH(list, call) {                    \

@@ -32,9 +32,11 @@
 #include <QPen>
 #include <QColor>
 #include <QDebug>
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#endif
 #include <algorithm>
 #include <exception>
 #include <iterator>

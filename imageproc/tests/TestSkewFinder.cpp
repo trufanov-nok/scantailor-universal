@@ -25,7 +25,9 @@
 #include <QTransform>
 #include <QColor>
 #include <QString>
+#ifndef Q_MOC_RUN
 #include <boost/test/auto_unit_test.hpp>
+#endif
 #include <memory>
 #include <math.h>
 #include <stdlib.h>

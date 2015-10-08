@@ -30,7 +30,9 @@
 #include <QObject>
 #include <QColor>
 #include <QtGlobal> // For Q_OS_*
+#ifndef Q_MOC_RUN
 #include <boost/function.hpp>
+#endif
 #include <map>
 #include <memory>
 #include <vector>

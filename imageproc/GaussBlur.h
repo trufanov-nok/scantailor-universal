@@ -43,7 +43,9 @@
 #include "GridAccessor.h"
 #include "RasterOpGeneric.h"
 #include <QSize>
+#ifndef Q_MOC_RUN
 #include <boost/scoped_array.hpp>
+#endif
 #include <algorithm>
 #include <cmath>
 #include <cstddef>

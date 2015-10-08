@@ -22,7 +22,9 @@
 #include "DistortionType.h"
 #include "../../Utils.h"
 #include <QMutexLocker>
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
+#endif
 
 namespace deskew
 {

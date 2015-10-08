@@ -26,8 +26,10 @@
 #include "ThumbnailLoadResult.h"
 #include "imageproc/AbstractImageTransform.h"
 #include "imageproc/AffineImageTransform.h"
-#include <boost/optional.hpp>
+#ifndef Q_MOC_RUN
 #include <boost/shared_ptr.hpp>
+#include <boost/optional.hpp>
+#endif
 #include <QTransform>
 #include <QGraphicsItem>
 #include <QSize>

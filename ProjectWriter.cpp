@@ -29,8 +29,10 @@
 #include <QFile>
 #include <QTextStream>
 #include <QFileInfo>
+#ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#endif
 #include <stddef.h>
 #include <assert.h>
 

@@ -37,8 +37,10 @@
 #include <QBrush>
 #include <QPen>
 #include <Qt>
+#ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#endif
 #include <vector>
 #include <assert.h>
 

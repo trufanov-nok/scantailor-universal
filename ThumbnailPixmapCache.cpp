@@ -44,6 +44,7 @@
 #include <QSize>
 #include <QDebug>
 #include <Qt>
+#ifndef Q_MOC_RUN
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
@@ -51,6 +52,7 @@
 #include <boost/foreach.hpp>
 #include <boost/optional.hpp>
 #include <boost/tuple/tuple.hpp>
+#endif
 #include <algorithm>
 #include <memory>
 #include <vector>

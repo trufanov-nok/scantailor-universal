@@ -23,8 +23,10 @@
 #include "imageproc/GrayImage.h"
 #include "imageproc/GaussBlur.h"
 #include "imageproc/Sobel.h"
+#ifndef Q_MOC_RUN
 #include <boost/scoped_array.hpp>
 #include <boost/foreach.hpp>
+#endif
 #include <QImage>
 #include <QPainter>
 #include <QPen>

@@ -24,7 +24,9 @@
 #include "adiff/Function.h"
 #include <QLineF>
 #include <QDebug>
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
+#endif
 #include <string>
 #include <stdexcept>
 #include <algorithm>

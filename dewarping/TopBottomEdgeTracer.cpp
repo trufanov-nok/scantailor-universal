@@ -38,7 +38,11 @@
 #include <QColor>
 #include <QtGlobal>
 #include <QDebug>
+#ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#endif
 #include <limits>
 #include <algorithm>
 #include <math.h>

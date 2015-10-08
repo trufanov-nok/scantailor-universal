@@ -24,7 +24,9 @@
 #include <QCursor>
 #include <QMouseEvent>
 #include <Qt>
+#ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
+#endif
 #include <stdexcept>
 #include <string>
 

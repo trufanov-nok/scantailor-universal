@@ -40,8 +40,10 @@
 #include <QBrush>
 #include <Qt>
 #include <QDebug>
+#ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#endif
 #include <assert.h>
 
 namespace output

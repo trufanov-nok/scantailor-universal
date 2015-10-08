@@ -21,6 +21,10 @@
 #include "ImageFileInfo.h"
 #include <QString>
 #include <Qt>
+#ifndef Q_MOC_RUN
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#endif
 #include <algorithm>
 #include <assert.h>
 
