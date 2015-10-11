@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ja_JP">
+<TS version="2.1" language="ja_JP">
 <context>
     <name>CrashReportDialog</name>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="71"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="72"/>
         <source>This file contains the internal state of the program when it crashed</source>
         <translation>このファイルはクラッシュ時のプログラムの内部状態を含んでいます</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="77"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="78"/>
         <source>Dump file</source>
         <translation>ダンプファイル</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="105"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="106"/>
         <source>Sending ...</source>
         <translation>送信中...</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="136"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="139"/>
         <source>Unexpected response (code %1) from dispatcher</source>
         <translation>予期しない反応 (code %1) がディスパッチャから返ってきました。</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="161"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="164"/>
         <source>Unexpected response from dispatcher</source>
         <translation>予期しない反応がディスパッチャから返ってきました。</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="221"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="224"/>
         <source>Unexpected response (code %1) from the receiving side</source>
         <translation>予期しない反応 (code %1) が受信先から返ってきました。</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="227"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="230"/>
         <source>Successfully sent</source>
         <translation>送信成功</translation>
     </message>

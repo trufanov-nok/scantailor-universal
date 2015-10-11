@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="cs" sourcelanguage="en">
+<TS version="2.1" language="cs" sourcelanguage="en">
 <context>
     <name>CrashReportDialog</name>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="71"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="72"/>
         <source>This file contains the internal state of the program when it crashed</source>
         <translation>Tento soubor obsahuje stav programu, kdy došlo k havárii.</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="77"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="78"/>
         <source>Dump file</source>
         <translation>Vypsat soubor</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="105"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="106"/>
         <source>Sending ...</source>
         <translation>Odesílám...</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="136"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="139"/>
         <source>Unexpected response (code %1) from dispatcher</source>
         <translation>Dispečer hlásí neočekávaný kód %1.</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="161"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="164"/>
         <source>Unexpected response from dispatcher</source>
         <translation>Neočekávaná odpověď od dispečera.</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="221"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="224"/>
         <source>Unexpected response (code %1) from the receiving side</source>
         <translation>Neočekávaná odpověď (kód %1) od příjemce.</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="227"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="230"/>
         <source>Successfully sent</source>
         <translation>Uspěšně odesláno</translation>
     </message>

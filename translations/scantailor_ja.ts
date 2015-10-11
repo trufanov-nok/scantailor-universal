@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ja_JP">
+<TS version="2.1" language="ja_JP">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -48,26 +48,30 @@
         <translation>Robert B. - 第1世代の歪み補正アルゴリズム</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="171"/>
         <source>Andrey Bergman - System load adjustment.</source>
-        <translation>Andrey Bergman - システム負荷調整</translation>
+        <translation type="vanished">Andrey Bergman - システム負荷調整</translation>
     </message>
-    <message utf8="true">
-        <location filename="../ui/AboutDialog.ui" line="178"/>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="171"/>
         <source>Petr Kovář - Command line interface.</source>
         <translation>Petr Kovář - コマンドラインインタフェース</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="205"/>
+        <location filename="../ui/AboutDialog.ui" line="198"/>
         <source>Neco Torquato - Brazilian Portuguese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="212"/>
+        <location filename="../ui/AboutDialog.ui" line="205"/>
         <source>Svetoslav Sashkov, Mandor - Bulgarian</source>
         <translation>Svetoslav Sashkov, Mandor - ブルガリア語</translation>
     </message>
-    <message utf8="true">
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="212"/>
+        <source>Damir13 - Croatian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../ui/AboutDialog.ui" line="219"/>
         <source>Petr Kovář - Czech</source>
         <translation>Petr Kovář - チェコ語</translation>
@@ -92,7 +96,7 @@
         <source>Patrick Pascal - French</source>
         <translation>Patrick Pascal - フランス語</translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../ui/AboutDialog.ui" line="254"/>
         <source>Daniel Koć - Polish</source>
         <translation>Daniel Koć - ポーランド語</translation>
@@ -102,32 +106,37 @@
         <source>Joseph Artsimovich - Russian</source>
         <translation>Joseph Artsimovich - ロシア語</translation>
     </message>
-    <message utf8="true">
+    <message>
         <location filename="../ui/AboutDialog.ui" line="268"/>
+        <source>Hxcan Cai - Simplified Chinese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="275"/>
         <source>Marián Hvolka - Slovak</source>
         <translation>Marián Hvolka - スロバキア語</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="275"/>
+        <location filename="../ui/AboutDialog.ui" line="282"/>
         <source>Flavio Benelli - Spanish</source>
         <translation>Flavio Benelli - スペイン語</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="282"/>
+        <location filename="../ui/AboutDialog.ui" line="289"/>
         <source>Davidson Wang - Traditional Chinese</source>
         <translation>Davidson Wang - 繁体字中国語</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="289"/>
+        <location filename="../ui/AboutDialog.ui" line="296"/>
         <source>Yuri Chornoivan - Ukrainian</source>
         <translation>Yuri Chornoivan - ウクライナ語</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="316"/>
+        <location filename="../ui/AboutDialog.ui" line="323"/>
         <source>denver 22</source>
         <translation>denver 22</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -146,11 +155,11 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Petr Kovář - コマンドラインインタフェース&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="190"/>
+        <location filename="../ui/AboutDialog.ui" line="183"/>
         <source>Translators</source>
         <translation>翻訳者</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>Svetoslav Sashkov, Mandor - Bulgarian
 Petr Kovář - Czech
 Stefan Birkner - German
@@ -172,7 +181,7 @@ Joseph Artsimovich - ロシア語
 Marián Hvolka - スロバキア語
 Davidson Wang - 繁体字中国語</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>Svetoslav Sashkov, Mandor - Bulgarian
 Stefan Birkner - German
 Angelo Gemmi - Italian
@@ -221,12 +230,17 @@ Andrey Bergman - システム負荷調整
 </translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="301"/>
+        <location filename="../ui/AboutDialog.ui" line="308"/>
         <source>Documentation</source>
         <translation>ドキュメント化</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="357"/>
+        <location filename="../ui/AboutDialog.ui" line="364"/>
+        <source>References</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="465"/>
         <source>License</source>
         <translation>ライセンス</translation>
     </message>
@@ -255,32 +269,36 @@ Andrey Bergman - システム負荷調整
 <context>
     <name>DeskewApplyDialog</name>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="20"/>
         <source>Apply to</source>
-        <translation>適用先...</translation>
+        <translation type="vanished">適用先...</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="26"/>
+        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="57"/>
+        <source>Scope</source>
+        <translation type="unfinished">適用範囲</translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="63"/>
         <source>This page only (already applied)</source>
         <translation>このページのみ（適用済）</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="36"/>
+        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="73"/>
         <source>All pages</source>
         <translation>全ページ</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="43"/>
+        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="80"/>
         <source>This page and the following ones</source>
         <translation>このページ以降</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="59"/>
+        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="105"/>
         <source>Selected pages</source>
         <translation>選択されたページ</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="92"/>
+        <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="138"/>
         <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
         <translation>Ctrl+クリック や Shift+クリック で複数ページを選択できます。</translation>
     </message>
@@ -293,22 +311,62 @@ Andrey Bergman - システム負荷調整
         <translation></translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="20"/>
         <source>Deskew</source>
-        <translation>傾きを修正</translation>
+        <translation type="vanished">傾きを修正</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="41"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="20"/>
+        <source>Distortion type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="44"/>
+        <source>No distortion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="66"/>
+        <source>Page skew</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="88"/>
+        <source>Keystoning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="110"/>
+        <source>Curved lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="187"/>
+        <source>Mode</source>
+        <translation type="unfinished">モード</translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="206"/>
         <source>Auto</source>
         <translation>自動</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="57"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="222"/>
         <source>Manual</source>
         <translation>手動</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="140"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="251"/>
+        <source>Rotation angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="296"/>
+        <source>Depth perception</source>
+        <translation type="unfinished">距離感</translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="162"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="336"/>
         <source>Apply To ...</source>
         <translation>適用先...</translation>
     </message>
@@ -340,70 +398,56 @@ Andrey Bergman - システム負荷調整
 <context>
     <name>FixDpiDialog</name>
     <message>
-        <location filename="../FixDpiDialog.cpp" line="241"/>
         <source>Need Fixing</source>
-        <translation type="unfinished">要訂正</translation>
+        <translation type="obsolete">要訂正</translation>
     </message>
     <message>
-        <location filename="../FixDpiDialog.cpp" line="242"/>
-        <location filename="../FixDpiDialog.cpp" line="707"/>
         <source>All Pages</source>
-        <translation type="unfinished">全ページ</translation>
+        <translation type="obsolete">全ページ</translation>
     </message>
     <message>
-        <location filename="../FixDpiDialog.cpp" line="476"/>
         <source>DPI is too large and most likely wrong.</source>
-        <translation type="unfinished">DPI が大きすぎます。恐らく正しくありません。</translation>
+        <translation type="obsolete">DPI が大きすぎます。恐らく正しくありません。</translation>
     </message>
     <message>
-        <location filename="../FixDpiDialog.cpp" line="479"/>
         <source>DPI is too small. Even if it&apos;s correct, you are not going to get acceptable results with it.</source>
-        <translation type="unfinished">DPI が小さすぎます。仮に正しい値だとしても、よい結果は得られないでしょう。</translation>
+        <translation type="obsolete">DPI が小さすぎます。仮に正しい値だとしても、よい結果は得られないでしょう。</translation>
     </message>
     <message>
-        <location filename="../FixDpiDialog.cpp" line="482"/>
         <source>DPI is too small for this pixel size. Such combination would probably lead to out of memory errors.</source>
-        <translation type="unfinished">ピクセルサイズに対して DPI が小さすぎます。そのような組合せはメモリ不足エラーの原因となることがあります。</translation>
+        <translation type="obsolete">ピクセルサイズに対して DPI が小さすぎます。そのような組合せはメモリ不足エラーの原因となることがあります。</translation>
     </message>
     <message>
-        <location filename="../FixDpiDialog.cpp" line="733"/>
         <source>%1 (page %2)</source>
-        <translation type="unfinished">%1 （%2 ページ）</translation>
+        <translation type="obsolete">%1 （%2 ページ）</translation>
     </message>
     <message>
-        <location filename="../ui/FixDpiDialog.ui" line="13"/>
         <source>Fix DPI</source>
-        <translation>DPI を訂正</translation>
+        <translation type="vanished">DPI を訂正</translation>
     </message>
     <message>
-        <location filename="../ui/FixDpiDialog.ui" line="23"/>
         <source>Tab 1</source>
-        <translation>タブ 1</translation>
+        <translation type="vanished">タブ 1</translation>
     </message>
     <message>
-        <location filename="../ui/FixDpiDialog.ui" line="33"/>
         <source>Tab 2</source>
-        <translation>タブ 2</translation>
+        <translation type="vanished">タブ 2</translation>
     </message>
     <message>
-        <location filename="../ui/FixDpiDialog.ui" line="46"/>
         <source>DPI</source>
-        <translation>DPI</translation>
+        <translation type="vanished">DPI</translation>
     </message>
     <message>
-        <location filename="../ui/FixDpiDialog.ui" line="69"/>
         <source>Custom</source>
-        <translation>カスタム</translation>
+        <translation type="vanished">カスタム</translation>
     </message>
     <message>
-        <location filename="../ui/FixDpiDialog.ui" line="90"/>
         <source>x</source>
-        <translation>x</translation>
+        <translation type="vanished">x</translation>
     </message>
     <message>
-        <location filename="../ui/FixDpiDialog.ui" line="113"/>
         <source>Apply</source>
-        <translation>適用</translation>
+        <translation type="vanished">適用</translation>
     </message>
 </context>
 <context>
@@ -444,7 +488,7 @@ Andrey Bergman - システム負荷調整
 <context>
     <name>ImageViewBase</name>
     <message>
-        <location filename="../ImageViewBase.cpp" line="211"/>
+        <location filename="../ImageViewBase.cpp" line="222"/>
         <source>Use the mouse wheel or +/- to zoom.  When zoomed, dragging is possible.</source>
         <translation type="unfinished">マウスホイールまたは +/- キーでズームできます。ズームしている場合、ドラッグで画像を動かせます。</translation>
     </message>
@@ -452,17 +496,17 @@ Andrey Bergman - システム負荷調整
 <context>
     <name>InteractiveXSpline</name>
     <message>
-        <location filename="../interaction/InteractiveXSpline.cpp" line="47"/>
+        <location filename="../interaction/InteractiveXSpline.cpp" line="53"/>
         <source>Click to create a new control point.</source>
         <translation>クリックすると新しいコントロールポイントを作成できます。</translation>
     </message>
     <message>
-        <location filename="../interaction/InteractiveXSpline.cpp" line="73"/>
+        <location filename="../interaction/InteractiveXSpline.cpp" line="81"/>
         <source>This point can be dragged.</source>
         <translation>このポイントはドラッグできます。</translation>
     </message>
     <message>
-        <location filename="../interaction/InteractiveXSpline.cpp" line="75"/>
+        <location filename="../interaction/InteractiveXSpline.cpp" line="83"/>
         <source>Drag this point or delete it by pressing Del or D.</source>
         <translation>このポイントはドラッグできます。Del または D を押すと削除できます。</translation>
     </message>
@@ -470,14 +514,14 @@ Andrey Bergman - システム負荷調整
 <context>
     <name>LoadFileTask</name>
     <message>
-        <location filename="../LoadFileTask.cpp" line="157"/>
+        <location filename="../LoadFileTask.cpp" line="152"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation type="unfinished">以下のファイルを読み込めませんでした：
 %1</translation>
     </message>
     <message>
-        <location filename="../LoadFileTask.cpp" line="160"/>
+        <location filename="../LoadFileTask.cpp" line="155"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use the &lt;a href=&quot;#relink&quot;&gt;Relinking Tool&lt;/a&gt; to locate it.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -507,83 +551,83 @@ Andrey Bergman - システム負荷調整
         <translation type="obsolete">終了時にビープ音を鳴らす</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="232"/>
-        <location filename="../MainWindow.cpp" line="564"/>
+        <location filename="../ui/MainWindow.ui" line="225"/>
+        <location filename="../MainWindow.cpp" line="560"/>
         <source>Save Project</source>
         <translation>プロジェクトを保存する</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="564"/>
+        <location filename="../MainWindow.cpp" line="560"/>
         <source>Save this project?</source>
         <translation type="unfinished">プロジェクトを保存しますか？</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1001"/>
+        <location filename="../MainWindow.cpp" line="996"/>
         <source>Insert before ...</source>
         <translation type="unfinished">前に挿入…</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1004"/>
+        <location filename="../MainWindow.cpp" line="999"/>
         <source>Insert after ...</source>
         <translation type="unfinished">後に挿入…</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1010"/>
+        <location filename="../MainWindow.cpp" line="1005"/>
         <source>Remove from project ...</source>
         <translation type="unfinished">プロジェクトから取り除く…</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1031"/>
+        <location filename="../MainWindow.cpp" line="1026"/>
         <source>Insert here ...</source>
         <translation type="unfinished">ここに挿入…</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1369"/>
-        <location filename="../MainWindow.cpp" line="1437"/>
+        <location filename="../MainWindow.cpp" line="1321"/>
+        <location filename="../MainWindow.cpp" line="1389"/>
         <source>Scan Tailor Projects</source>
         <translation type="unfinished">Scan Tailor プロジェクト</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1436"/>
+        <location filename="../MainWindow.cpp" line="1388"/>
         <source>Open Project</source>
         <translation type="unfinished">プロジェクトを開く</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1454"/>
-        <location filename="../MainWindow.cpp" line="1463"/>
-        <location filename="../MainWindow.cpp" line="1777"/>
-        <location filename="../MainWindow.cpp" line="1808"/>
+        <location filename="../MainWindow.cpp" line="1406"/>
+        <location filename="../MainWindow.cpp" line="1415"/>
+        <location filename="../MainWindow.cpp" line="1732"/>
+        <location filename="../MainWindow.cpp" line="1763"/>
         <source>Error</source>
         <translation type="unfinished">エラー</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1455"/>
+        <location filename="../MainWindow.cpp" line="1407"/>
         <source>Unable to open the project file.</source>
         <translation type="unfinished">プロジェクトファイルを開けませんでした。</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1464"/>
+        <location filename="../MainWindow.cpp" line="1416"/>
         <source>The project file is broken.</source>
         <translation type="unfinished">プロジェクトファイルは破損しています。</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1673"/>
+        <location filename="../MainWindow.cpp" line="1628"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished">ページの最終サイズが未確定のため、まだ出力できません。確定するには、「版面を選択」または「余白」から一括処理を実行してください。</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1711"/>
+        <location filename="../MainWindow.cpp" line="1666"/>
         <source>%2 - Scan Tailor %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1860"/>
+        <location filename="../MainWindow.cpp" line="1815"/>
         <source>Files to insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1915"/>
+        <location filename="../MainWindow.cpp" line="1869"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -593,7 +637,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">ページの最終サイズが未確定のため、まだ出力できません。確定するには、「版面を選択」または「ページ配置」から一括処理を実行してください。</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1706"/>
+        <location filename="../MainWindow.cpp" line="1661"/>
         <source>Unnamed</source>
         <translation type="unfinished">名前なし</translation>
     </message>
@@ -602,8 +646,8 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">%1 - Scan Tailor %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1778"/>
-        <location filename="../MainWindow.cpp" line="1809"/>
+        <location filename="../MainWindow.cpp" line="1733"/>
+        <location filename="../MainWindow.cpp" line="1764"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished">プロジェクトファイルを保存できません！</translation>
     </message>
@@ -612,7 +656,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">挿入するファイル</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1866"/>
+        <location filename="../MainWindow.cpp" line="1821"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished">プロジェクトに含まれない画像 (%1)</translation>
     </message>
@@ -625,7 +669,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">%1 （%2 ページ）</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1962"/>
+        <location filename="../MainWindow.cpp" line="1902"/>
         <source>Remove</source>
         <translation type="unfinished">取り除く</translation>
     </message>
@@ -650,22 +694,22 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">PgUp, PgDown または Q, W キーでページを移れます。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="156"/>
+        <location filename="../ui/MainWindow.ui" line="150"/>
         <source>Use Home, End, PgUp (or Q), PgDown (or W) to navigate between pages.</source>
         <translation>Home, End, PgUp（または Q）, PgDown（または W）キーでページを移れます。</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="185"/>
+        <location filename="../ui/MainWindow.ui" line="179"/>
         <source>Tools</source>
         <translation>ツール</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="196"/>
+        <location filename="../ui/MainWindow.ui" line="189"/>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="210"/>
+        <location filename="../ui/MainWindow.ui" line="203"/>
         <source>Help</source>
         <translation>ヘルプ</translation>
     </message>
@@ -674,134 +718,134 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">デバッグ</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="227"/>
+        <location filename="../ui/MainWindow.ui" line="220"/>
         <source>Debug Mode</source>
         <translation>デバッグモード</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="235"/>
+        <location filename="../ui/MainWindow.ui" line="228"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="240"/>
+        <location filename="../ui/MainWindow.ui" line="233"/>
         <source>Save Project As ...</source>
         <translation>プロジェクトを別名で保存…</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="245"/>
-        <location filename="../ui/MainWindow.ui" line="294"/>
+        <location filename="../ui/MainWindow.ui" line="238"/>
+        <location filename="../ui/MainWindow.ui" line="287"/>
         <source>Next Page</source>
         <translation>次ページ</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="248"/>
+        <location filename="../ui/MainWindow.ui" line="241"/>
         <source>PgDown</source>
         <translation>PgDown</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="256"/>
-        <location filename="../ui/MainWindow.ui" line="283"/>
+        <location filename="../ui/MainWindow.ui" line="249"/>
+        <location filename="../ui/MainWindow.ui" line="276"/>
         <source>Previous Page</source>
         <translation>前ページ</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="259"/>
+        <location filename="../ui/MainWindow.ui" line="252"/>
         <source>PgUp</source>
         <translation>PgUp</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="267"/>
+        <location filename="../ui/MainWindow.ui" line="260"/>
         <source>New Project ...</source>
         <translation>新規プロジェクト...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="270"/>
+        <location filename="../ui/MainWindow.ui" line="263"/>
         <source>Ctrl+N</source>
         <translation>Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="275"/>
+        <location filename="../ui/MainWindow.ui" line="268"/>
         <source>Open Project ...</source>
         <translation>プロジェクトを開く...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="278"/>
+        <location filename="../ui/MainWindow.ui" line="271"/>
         <source>Ctrl+O</source>
         <translation>Ctrl+O</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="286"/>
+        <location filename="../ui/MainWindow.ui" line="279"/>
         <source>Q</source>
         <translation>Q</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="297"/>
+        <location filename="../ui/MainWindow.ui" line="290"/>
         <source>W</source>
         <translation>W</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="305"/>
+        <location filename="../ui/MainWindow.ui" line="298"/>
         <source>Close Project</source>
         <translation>プロジェクトを閉じる…</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="308"/>
+        <location filename="../ui/MainWindow.ui" line="301"/>
         <source>Ctrl+W</source>
         <translation>Ctrl+W</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="313"/>
+        <location filename="../ui/MainWindow.ui" line="306"/>
         <source>Quit</source>
         <translation>終了</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="316"/>
+        <location filename="../ui/MainWindow.ui" line="309"/>
         <source>Ctrl+Q</source>
         <translation>Ctrl+Q</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="326"/>
+        <location filename="../ui/MainWindow.ui" line="319"/>
         <source>First Page</source>
         <translation>最初のページ</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="329"/>
+        <location filename="../ui/MainWindow.ui" line="322"/>
         <source>Home</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="334"/>
+        <location filename="../ui/MainWindow.ui" line="327"/>
         <source>Last Page</source>
         <translation>最後のページ</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="337"/>
+        <location filename="../ui/MainWindow.ui" line="330"/>
         <source>End</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="342"/>
+        <location filename="../ui/MainWindow.ui" line="335"/>
         <source>About</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="347"/>
+        <location filename="../ui/MainWindow.ui" line="340"/>
         <source>Fix DPI ...</source>
         <translation>DPI を訂正...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="352"/>
+        <location filename="../ui/MainWindow.ui" line="345"/>
         <source>Relinking ...</source>
         <translation>再リンク...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="492"/>
+        <location filename="../MainWindow.cpp" line="486"/>
         <source>Stop batch processing</source>
         <translation type="unfinished">一括処理を停止</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="321"/>
+        <location filename="../ui/MainWindow.ui" line="314"/>
         <source>Settings ...</source>
         <translation>設定...</translation>
     </message>
@@ -1012,17 +1056,17 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation>注意：Scan Tailor はメモリ不足を検知してプロジェクトを保存する機会を作ろうとはしますが、必ずしもそれが可能だとは限りません。今回は成功しましたが、次はいきなりクラッシュするかも知れません。</translation>
     </message>
     <message>
-        <location filename="../OutOfMemoryDialog.cpp" line="88"/>
+        <location filename="../OutOfMemoryDialog.cpp" line="87"/>
         <source>Scan Tailor Projects</source>
         <translation type="unfinished">Scan Tailor プロジェクト</translation>
     </message>
     <message>
-        <location filename="../OutOfMemoryDialog.cpp" line="123"/>
+        <location filename="../OutOfMemoryDialog.cpp" line="122"/>
         <source>Error</source>
         <translation type="unfinished">エラー</translation>
     </message>
     <message>
-        <location filename="../OutOfMemoryDialog.cpp" line="124"/>
+        <location filename="../OutOfMemoryDialog.cpp" line="123"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished">プロジェクトファイルを保存できません！</translation>
     </message>
@@ -1126,44 +1170,36 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
 <context>
     <name>OutputChangeDpiDialog</name>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="17"/>
         <source>Apply Output Resolution</source>
-        <translation>出力解像度を適用する</translation>
+        <translation type="vanished">出力解像度を適用する</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="23"/>
         <source>DPI</source>
-        <translation>DPI</translation>
+        <translation type="vanished">DPI</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="68"/>
         <source>Scope</source>
-        <translation>適用範囲</translation>
+        <translation type="vanished">適用範囲</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="74"/>
         <source>This page only</source>
-        <translation>このページのみ</translation>
+        <translation type="vanished">このページのみ</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="91"/>
         <source>This page and the following ones</source>
-        <translation>このページ以降</translation>
+        <translation type="vanished">このページ以降</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="107"/>
         <source>Selected pages</source>
-        <translation>選択されたページ</translation>
+        <translation type="vanished">選択されたページ</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="140"/>
         <source>Use Ctrl+Click / Shift+Click to select multiple pages.</source>
-        <translation>Ctrl+クリック や Shift+クリック で複数ページを選択できます。</translation>
+        <translation type="vanished">Ctrl+クリック や Shift+クリック で複数ページを選択できます。</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="84"/>
         <source>All pages</source>
-        <translation>全ページ</translation>
+        <translation type="vanished">全ページ</translation>
     </message>
 </context>
 <context>
@@ -1174,43 +1210,38 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation></translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="20"/>
         <source>Output Resolution (DPI)</source>
-        <translation>出力解像度 (DPI)</translation>
+        <translation type="vanished">出力解像度 (DPI)</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="78"/>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="419"/>
         <source>Change ...</source>
-        <translation>変更...</translation>
+        <translation type="vanished">変更...</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="103"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="126"/>
         <source>Mode</source>
         <translation>モード</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="169"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="201"/>
         <source>White margins</source>
         <translation>余白</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="176"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="208"/>
         <source>Equalize illumination</source>
         <translation>照明を均一化する</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="361"/>
         <source>Dewarping</source>
-        <translation>歪み補正</translation>
+        <translation type="vanished">歪み補正</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="444"/>
         <source>Depth perception</source>
-        <translation>距離感</translation>
+        <translation type="vanished">距離感</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="533"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="417"/>
         <source>No despeckling</source>
         <translation>スペックル除去なし</translation>
     </message>
@@ -1219,36 +1250,55 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">歪み補正</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="336"/>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="484"/>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="666"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="20"/>
+        <source>Resolution Enhancement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="47"/>
+        <source>1x</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="66"/>
+        <source>1.5x</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="85"/>
+        <source>2x</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="368"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="550"/>
         <source>Apply To ...</source>
         <translation>適用先...</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="509"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="393"/>
         <source>Despeckling</source>
         <translation>スペックル除去</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="558"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="442"/>
         <source>Cautious despeckling</source>
         <translation>控えめなスペックル除去</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="561"/>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="587"/>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="613"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="445"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="471"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="497"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="584"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="468"/>
         <source>Normal despeckling</source>
         <translation>標準的なスペックル除去</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="610"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="494"/>
         <source>Aggressive despeckling</source>
         <translation>積極的なスペックル除去</translation>
     </message>
@@ -1257,12 +1307,12 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="obsolete">スペックル除去</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="274"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="306"/>
         <source>Thinner</source>
         <translation>薄く</translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="306"/>
+        <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="338"/>
         <source>Thicker</source>
         <translation>濃く</translation>
     </message>
@@ -1330,65 +1380,87 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation>余白</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="42"/>
         <source>Millimeters (mm)</source>
-        <translation>ミリメートル (mm)</translation>
+        <translation type="vanished">ミリメートル (mm)</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="47"/>
         <source>Inches (in)</source>
-        <translation>インチ (in)</translation>
+        <translation type="vanished">インチ (in)</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="87"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="43"/>
         <source>Top</source>
         <translation>上</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="100"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="161"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="338"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="361"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="384"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="407"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="430"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="456"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="479"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="502"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="525"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="56"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="129"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="342"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="368"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="394"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="420"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="446"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="475"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="501"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="527"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="553"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="121"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="77"/>
         <source>Bottom</source>
         <translation>下</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="138"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="100"/>
         <source>Left</source>
         <translation>左</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="185"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="153"/>
         <source>Right</source>
         <translation>右</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="244"/>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="580"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="224"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="611"/>
         <source>Apply To ...</source>
         <translation>適用先...</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="269"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="249"/>
         <source>Alignment</source>
         <translation>位置合わせ</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="293"/>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="275"/>
+        <source>Don&apos;t match size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="285"/>
+        <source>Match size by growing margins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="295"/>
+        <source>Match size by scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="636"/>
+        <source>Missing content box</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="649"/>
+        <source>As there is no content box, the output will be a blank white page with size matching that of other pages.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Match size with other pages</source>
-        <translation>サイズを他のページに合わせる</translation>
+        <translation type="vanished">サイズを他のページに合わせる</translation>
     </message>
     <message>
         <source>Align with other pages</source>
@@ -1533,63 +1605,63 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     <name>ProjectFilesDialog</name>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="20"/>
-        <location filename="../ProjectFilesDialog.cpp" line="334"/>
+        <location filename="../ProjectFilesDialog.cpp" line="309"/>
         <source>Input Directory</source>
         <translation>入力ディレクトリ</translation>
     </message>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="43"/>
-        <location filename="../ProjectFilesDialog.cpp" line="354"/>
+        <location filename="../ProjectFilesDialog.cpp" line="329"/>
         <source>Output Directory</source>
         <translation>出力ディレクトリ</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="526"/>
-        <location filename="../ProjectFilesDialog.cpp" line="534"/>
-        <location filename="../ProjectFilesDialog.cpp" line="543"/>
-        <location filename="../ProjectFilesDialog.cpp" line="565"/>
-        <location filename="../ProjectFilesDialog.cpp" line="574"/>
-        <location filename="../ProjectFilesDialog.cpp" line="647"/>
+        <location filename="../ProjectFilesDialog.cpp" line="469"/>
+        <location filename="../ProjectFilesDialog.cpp" line="477"/>
+        <location filename="../ProjectFilesDialog.cpp" line="486"/>
+        <location filename="../ProjectFilesDialog.cpp" line="508"/>
+        <location filename="../ProjectFilesDialog.cpp" line="517"/>
+        <location filename="../ProjectFilesDialog.cpp" line="588"/>
         <source>Error</source>
         <translation type="unfinished">エラー</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="526"/>
+        <location filename="../ProjectFilesDialog.cpp" line="469"/>
         <source>No files in project!</source>
         <translation type="unfinished">プロジェクト内にファイルがありません！</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="535"/>
+        <location filename="../ProjectFilesDialog.cpp" line="478"/>
         <source>Input directory is not set or doesn&apos;t exist.</source>
         <translation type="unfinished">入力ディレクトリが指定されていないか存在しません。</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="544"/>
+        <location filename="../ProjectFilesDialog.cpp" line="487"/>
         <source>Input and output directories can&apos;t be the same.</source>
         <translation type="unfinished">入力ディレクトリと出力ディレクトリを同じにはできません。</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="554"/>
+        <location filename="../ProjectFilesDialog.cpp" line="497"/>
         <source>Create Directory?</source>
         <translation type="unfinished">ディレクトリを作成しますか？</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="555"/>
+        <location filename="../ProjectFilesDialog.cpp" line="498"/>
         <source>Output directory doesn&apos;t exist.  Create it?</source>
         <translation type="unfinished">出力ディレクトリが存在しません。作成しますか？</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="566"/>
+        <location filename="../ProjectFilesDialog.cpp" line="509"/>
         <source>Unable to create output directory.</source>
         <translation type="unfinished">出力ディレクトリを作成できません。</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="575"/>
+        <location filename="../ProjectFilesDialog.cpp" line="518"/>
         <source>Output directory is not set or doesn&apos;t exist.</source>
         <translation type="unfinished">出力ディレクトリが指定されていないか存在しません。</translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="647"/>
+        <location filename="../ProjectFilesDialog.cpp" line="588"/>
         <source>Some of the files failed to load.
 Either we don&apos;t support their format, or they are broken.
 You should remove them from the project.</source>
@@ -1662,20 +1734,19 @@ p, li { white-space: pre-wrap; }
         <translation>ページを右から左へと配置（縦書きおよびヘブライ語・アラビア語向け）</translation>
     </message>
     <message>
-        <location filename="../ui/ProjectFilesDialog.ui" line="178"/>
         <source>Fix DPIs, even if they look OK</source>
-        <translation>DPI が正しそうな場合でも訂正する</translation>
+        <translation type="vanished">DPI が正しそうな場合でも訂正する</translation>
     </message>
 </context>
 <context>
     <name>ProjectOpeningContext</name>
     <message>
-        <location filename="../ProjectOpeningContext.cpp" line="51"/>
+        <location filename="../ProjectOpeningContext.cpp" line="45"/>
         <source>Error</source>
         <translation type="unfinished">エラー</translation>
     </message>
     <message>
-        <location filename="../ProjectOpeningContext.cpp" line="52"/>
+        <location filename="../ProjectOpeningContext.cpp" line="46"/>
         <source>Unable to interpret the project file.</source>
         <translation type="unfinished">プロジェクトファイルを変換できませんでした。</translation>
     </message>
@@ -1698,17 +1769,17 @@ p, li { white-space: pre-wrap; }
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../RelinkingDialog.cpp" line="95"/>
+        <location filename="../RelinkingDialog.cpp" line="94"/>
         <source>Substitution File for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../RelinkingDialog.cpp" line="102"/>
+        <location filename="../RelinkingDialog.cpp" line="101"/>
         <source>Substitution Directory for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../RelinkingDialog.cpp" line="130"/>
+        <location filename="../RelinkingDialog.cpp" line="129"/>
         <source>This change would merge several files into one.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1841,14 +1912,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../SettingsDialog.cpp" line="36"/>
         <source>Compiled without OpenGL support.</source>
-        <translation type="unfinished">OpenGL サポート無しでコンパイルされています。</translation>
+        <translation type="obsolete">OpenGL サポート無しでコンパイルされています。</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="41"/>
         <source>Your hardware / driver don&apos;t provide the necessary features.</source>
-        <translation type="unfinished">必要な機能をハードウェアやドライバが持っていません。</translation>
+        <translation type="obsolete">必要な機能をハードウェアやドライバが持っていません。</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="14"/>
@@ -1857,14 +1926,53 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="20"/>
+        <source>Accelerate user interface with OpenGL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/SettingsDialog.ui" line="45"/>
+        <source>Device: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/SettingsDialog.ui" line="54"/>
+        <source>Accelerate image processing with OpenCL, using:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Use 3D acceleration for user interface</source>
-        <translation>ユーザインターフェースに 3D アクセラレーションを用いる</translation>
+        <translation type="vanished">ユーザインターフェースに 3D アクセラレーションを用いる</translation>
+    </message>
+    <message>
+        <location filename="../SettingsDialog.cpp" line="44"/>
+        <source>Built without OpenGL support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../SettingsDialog.cpp" line="50"/>
+        <source>Your hardware / driver don&apos;t provide the necessary features</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../SettingsDialog.cpp" line="63"/>
+        <source>Built without OpenCL support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../SettingsDialog.cpp" line="76"/>
+        <source>Failed to initialize OpenCL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../SettingsDialog.cpp" line="96"/>
+        <source>No OpenCL-capable devices found</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>StageListView</name>
     <message>
-        <location filename="../StageListView.cpp" line="130"/>
+        <location filename="../StageListView.cpp" line="129"/>
         <source>Launch batch processing</source>
         <translation type="unfinished">一括処理を開始</translation>
     </message>
@@ -1883,48 +1991,59 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../ui/SystemLoadWidget.ui" line="46"/>
-        <location filename="../ui/SystemLoadWidget.ui" line="73"/>
+        <location filename="../ui/SystemLoadWidget.ui" line="76"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../SystemLoadWidget.cpp" line="98"/>
         <source>Minimal</source>
-        <translation type="unfinished">最小</translation>
+        <translation type="obsolete">最小</translation>
     </message>
     <message>
-        <location filename="../SystemLoadWidget.cpp" line="100"/>
         <source>Normal</source>
-        <translation type="unfinished">通常</translation>
+        <translation type="obsolete">通常</translation>
+    </message>
+    <message>
+        <location filename="../SystemLoadWidget.cpp" line="38"/>
+        <source>32-bit version of Scan Tailor doesn&apos;t support parallel processing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="1359"/>
+        <location filename="../ThumbnailSequence.cpp" line="1357"/>
         <source>%1 (page %2)</source>
         <translation type="unfinished">%1 （%2 ページ）</translation>
     </message>
 </context>
 <context>
+    <name>VectorFieldImageView</name>
+    <message>
+        <location filename="../VectorFieldImageView.cpp" line="120"/>
+        <source>Scale: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ZoneContextMenuInteraction</name>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="275"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="270"/>
         <source>Properties</source>
         <translation>プロパティ</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="265"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="260"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="249"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="244"/>
         <source>Delete confirmation</source>
         <translation>削除の確認</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="249"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="244"/>
         <source>Really delete this zone?</source>
         <translation>この領域を本当に削除しますか？</translation>
     </message>
@@ -1932,17 +2051,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ZoneCreationInteraction</name>
     <message>
-        <location filename="../zones/ZoneCreationInteraction.cpp" line="206"/>
+        <location filename="../zones/ZoneCreationInteraction.cpp" line="205"/>
         <source>Click to finish this zone.  ESC to cancel.</source>
         <translation>クリックするとこの領域を完結します。ESC を押すとキャンセルします。</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneCreationInteraction.cpp" line="208"/>
+        <location filename="../zones/ZoneCreationInteraction.cpp" line="207"/>
         <source>Connect first and last points to finish this zone.  ESC to cancel.</source>
         <translation>最初と最後の点をつなぐと領域作成を完了します。ESC を押すとキャンセルします。</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneCreationInteraction.cpp" line="211"/>
+        <location filename="../zones/ZoneCreationInteraction.cpp" line="210"/>
         <source>Zones need to have at least 3 points.  ESC to cancel.</source>
         <translation>領域には3つ以上の点が必要です。ESC を押すとキャンセルします。</translation>
     </message>
@@ -2005,20 +2124,24 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>deskew::Filter</name>
     <message>
-        <location filename="../filters/deskew/Filter.cpp" line="57"/>
         <source>Deskew</source>
-        <translation>傾きを修正</translation>
+        <translation type="vanished">傾きを修正</translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/Filter.cpp" line="55"/>
+        <source>Geometric Distortions</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>deskew::ImageView</name>
     <message>
-        <location filename="../filters/deskew/ImageView.cpp" line="62"/>
+        <location filename="../filters/deskew/ImageView.cpp" line="73"/>
         <source>Use Ctrl+Wheel to rotate or Ctrl+Shift+Wheel for finer rotation.</source>
         <translation>Ctrl+マウスホイールで回転できます。Ctrl+Shift+マウスホイールでより細かく回転できます。</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ImageView.cpp" line="65"/>
+        <location filename="../filters/deskew/ImageView.cpp" line="76"/>
         <source>Drag this handle to rotate the image.</source>
         <translation>ハンドルをドラッグすると画像を回転できます。</translation>
     </message>
@@ -2026,15 +2149,24 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>deskew::OptionsWidget</name>
     <message>
-        <location filename="../filters/deskew/OptionsWidget.cpp" line="69"/>
         <source>Apply Deskew</source>
-        <translation>傾き修正を適用</translation>
+        <translation type="vanished">傾き修正を適用</translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/OptionsWidget.cpp" line="124"/>
+        <source>Apply Distortion Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/OptionsWidget.cpp" line="171"/>
+        <source>Apply Depth Perception</source>
+        <translation type="unfinished">遠近感を適用</translation>
     </message>
 </context>
 <context>
     <name>fix_orientation::ApplyDialog</name>
     <message>
-        <location filename="../filters/fix_orientation/ApplyDialog.cpp" line="53"/>
+        <location filename="../filters/fix_orientation/ApplyDialog.cpp" line="52"/>
         <source>Can&apos;t do: more than one group is selected.</source>
         <translation>実行できません：複数のグループが選択されています。</translation>
     </message>
@@ -2042,7 +2174,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>fix_orientation::Filter</name>
     <message>
-        <location filename="../filters/fix_orientation/Filter.cpp" line="64"/>
+        <location filename="../filters/fix_orientation/Filter.cpp" line="62"/>
         <source>Fix Orientation</source>
         <translation>向きを訂正</translation>
     </message>
@@ -2050,31 +2182,24 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>output::ChangeDpiDialog</name>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="72"/>
         <source>Custom</source>
-        <translation>カスタム</translation>
+        <translation type="vanished">カスタム</translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="131"/>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="140"/>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="148"/>
         <source>Error</source>
-        <translation>エラー</translation>
+        <translation type="vanished">エラー</translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="132"/>
         <source>DPI is not set.</source>
-        <translation>DPI が指定されていません。</translation>
+        <translation type="vanished">DPI が指定されていません。</translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="141"/>
         <source>DPI is too low!</source>
-        <translation>DPI が小さすぎます。</translation>
+        <translation type="vanished">DPI が小さすぎます。</translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="149"/>
         <source>DPI is too high!</source>
-        <translation>DPI が大きすぎます。</translation>
+        <translation type="vanished">DPI が大きすぎます。</translation>
     </message>
 </context>
 <context>
@@ -2087,7 +2212,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>output::FillZoneEditor</name>
     <message>
-        <location filename="../filters/output/FillZoneEditor.cpp" line="226"/>
+        <location filename="../filters/output/FillZoneEditor.cpp" line="225"/>
         <source>Pick color</source>
         <translation>色を抽出</translation>
     </message>
@@ -2103,80 +2228,80 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="63"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="61"/>
         <source>Black and White</source>
         <translation>白黒</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="64"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="62"/>
         <source>Color / Grayscale</source>
         <translation>カラー／グレースケール</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="65"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="63"/>
         <source>Mixed</source>
         <translation>ミックス</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="407"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="345"/>
         <source>Apply Despeckling Level</source>
         <translation>スペックル除去レベルを適用する</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="487"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="477"/>
+        <source>This page: %1 x %2 px</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply Depth Perception</source>
-        <translation>遠近感を適用</translation>
+        <translation type="vanished">遠近感を適用</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="660"/>
         <source>Off</source>
-        <translation>オフ</translation>
+        <translation type="vanished">オフ</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="663"/>
         <source>Auto</source>
-        <translation>自動</translation>
+        <translation type="vanished">自動</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="666"/>
         <source>Manual</source>
-        <translation>手動</translation>
+        <translation type="vanished">手動</translation>
     </message>
 </context>
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../filters/output/Task.cpp" line="512"/>
+        <location filename="../filters/output/Task.cpp" line="530"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation>画像領域はミックスモードでのみ有効です。</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="564"/>
+        <location filename="../filters/output/Task.cpp" line="562"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation>スペックル除去はカラー／グレースケールモードでは無効です。</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="581"/>
+        <location filename="../filters/output/Task.cpp" line="579"/>
         <source>Output</source>
         <translation>出力</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="582"/>
+        <location filename="../filters/output/Task.cpp" line="580"/>
         <source>Picture Zones</source>
         <translation>画像領域</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="583"/>
+        <location filename="../filters/output/Task.cpp" line="581"/>
         <source>Fill Zones</source>
         <translation>塗り潰し領域</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="584"/>
         <source>Dewarping</source>
-        <translation>歪み補正</translation>
+        <translation type="vanished">歪み補正</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="585"/>
+        <location filename="../filters/output/Task.cpp" line="582"/>
         <source>Despeckling</source>
         <translation>スペックル除去</translation>
     </message>
@@ -2184,7 +2309,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>page_layout::ApplyDialog</name>
     <message>
-        <location filename="../filters/page_layout/ApplyDialog.cpp" line="51"/>
+        <location filename="../filters/page_layout/ApplyDialog.cpp" line="50"/>
         <source>Can&apos;t do: more than one group is selected.</source>
         <translation>実行できません：複数のグループが選択されています。</translation>
     </message>
@@ -2196,22 +2321,22 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">ページ配置</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="67"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="66"/>
         <source>Natural order</source>
         <translation>通常の順序</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="68"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="67"/>
         <source>Order by increasing width</source>
         <translation>幅の狭い順</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="69"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="68"/>
         <source>Order by increasing height</source>
         <translation>高さの低い順</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="79"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="78"/>
         <source>Margins</source>
         <translation>余白</translation>
     </message>
@@ -2219,7 +2344,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>page_layout::ImageView</name>
     <message>
-        <location filename="../filters/page_layout/ImageView.cpp" line="76"/>
+        <location filename="../filters/page_layout/ImageView.cpp" line="88"/>
         <source>Resize margins by dragging any of the solid lines.</source>
         <translation>余白の幅を変えるには実線のどれかをドラッグします。</translation>
     </message>
@@ -2227,12 +2352,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../filters/page_layout/OptionsWidget.cpp" line="320"/>
+        <location filename="../filters/page_layout/OptionsWidget.cpp" line="351"/>
         <source>Apply Margins</source>
         <translation>余白を適用する</translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/OptionsWidget.cpp" line="335"/>
+        <location filename="../filters/page_layout/OptionsWidget.cpp" line="366"/>
         <source>Apply Alignment</source>
         <translation>位置合わせを適用する</translation>
     </message>
@@ -2240,17 +2365,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>page_split::Filter</name>
     <message>
-        <location filename="../filters/page_split/Filter.cpp" line="65"/>
+        <location filename="../filters/page_split/Filter.cpp" line="63"/>
         <source>Natural order</source>
         <translation>通常の順序</translation>
     </message>
     <message>
-        <location filename="../filters/page_split/Filter.cpp" line="66"/>
+        <location filename="../filters/page_split/Filter.cpp" line="64"/>
         <source>Order by split type</source>
         <translation>ページ分割の種類順</translation>
     </message>
     <message>
-        <location filename="../filters/page_split/Filter.cpp" line="76"/>
+        <location filename="../filters/page_split/Filter.cpp" line="74"/>
         <source>Split Pages</source>
         <translation>ページを分割</translation>
     </message>
@@ -2258,7 +2383,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>page_split::ImageView</name>
     <message>
-        <location filename="../filters/page_split/ImageView.cpp" line="85"/>
+        <location filename="../filters/page_split/ImageView.cpp" line="88"/>
         <source>Drag the line or the handles.</source>
         <translation>線またはハンドルをドラッグします。</translation>
     </message>
@@ -2267,13 +2392,13 @@ p, li { white-space: pre-wrap; }
     <name>page_split::OptionsWidget</name>
     <message>
         <location filename="../filters/page_split/OptionsWidget.cpp" line="116"/>
-        <location filename="../filters/page_split/OptionsWidget.cpp" line="208"/>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="213"/>
         <location filename="../filters/page_split/OptionsWidget.cpp" line="301"/>
         <source>Set manually</source>
         <translation>手動設定</translation>
     </message>
     <message>
-        <location filename="../filters/page_split/OptionsWidget.cpp" line="165"/>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="166"/>
         <location filename="../filters/page_split/OptionsWidget.cpp" line="298"/>
         <source>Auto detected</source>
         <translation>自動検出</translation>
@@ -2290,7 +2415,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>select_content::ApplyDialog</name>
     <message>
-        <location filename="../filters/select_content/ApplyDialog.cpp" line="53"/>
+        <location filename="../filters/select_content/ApplyDialog.cpp" line="52"/>
         <source>Can&apos;t do: more than one group is selected.</source>
         <translation>実行できません：複数のグループが選択されています。</translation>
     </message>
@@ -2298,22 +2423,22 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>select_content::Filter</name>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="59"/>
+        <location filename="../filters/select_content/Filter.cpp" line="57"/>
         <source>Natural order</source>
         <translation>通常の順序</translation>
     </message>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="60"/>
+        <location filename="../filters/select_content/Filter.cpp" line="58"/>
         <source>Order by increasing width</source>
         <translation>幅の狭い順</translation>
     </message>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="61"/>
+        <location filename="../filters/select_content/Filter.cpp" line="59"/>
         <source>Order by increasing height</source>
         <translation>高さの低い順</translation>
     </message>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="71"/>
+        <location filename="../filters/select_content/Filter.cpp" line="69"/>
         <source>Select Content</source>
         <translation>版面を選択</translation>
     </message>
@@ -2321,22 +2446,22 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>select_content::ImageView</name>
     <message>
-        <location filename="../filters/select_content/ImageView.cpp" line="58"/>
+        <location filename="../filters/select_content/ImageView.cpp" line="71"/>
         <source>Use the context menu to enable / disable the content box.</source>
         <translation>コンテキストメニュー（右クリック）から版面の有効／無効を切り替えられます。</translation>
     </message>
     <message>
-        <location filename="../filters/select_content/ImageView.cpp" line="61"/>
+        <location filename="../filters/select_content/ImageView.cpp" line="74"/>
         <source>Drag lines or corners to resize the content box.</source>
         <translation>線またはコーナーをドラッグすると版面の大きさを変えられます。</translation>
     </message>
     <message>
-        <location filename="../filters/select_content/ImageView.cpp" line="107"/>
+        <location filename="../filters/select_content/ImageView.cpp" line="120"/>
         <source>Create Content Box</source>
         <translation>版面の作成</translation>
     </message>
     <message>
-        <location filename="../filters/select_content/ImageView.cpp" line="108"/>
+        <location filename="../filters/select_content/ImageView.cpp" line="121"/>
         <source>Remove Content Box</source>
         <translation>版面を取り除く</translation>
     </message>

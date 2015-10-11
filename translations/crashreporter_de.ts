@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE">
+<TS version="2.1" language="de_DE">
 <context>
     <name>CrashReportDialog</name>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="71"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="72"/>
         <source>This file contains the internal state of the program when it crashed</source>
         <translation>Diese Datei enthält den internen Status des Programms, wenn es abstürzt.</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="77"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="78"/>
         <source>Dump file</source>
         <translation>Speicherauszug-Datei</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="105"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="106"/>
         <source>Sending ...</source>
         <translation>Senden ...</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="136"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="139"/>
         <source>Unexpected response (code %1) from dispatcher</source>
         <translation>Unerwartete Antwort (Code %1) vom für das Senden zuständigen Programm</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="161"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="164"/>
         <source>Unexpected response from dispatcher</source>
         <translation>Unerwartete Antwort vom für das Senden zuständigen Programm</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="221"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="224"/>
         <source>Unexpected response (code %1) from the receiving side</source>
         <translation>Unerwartete Antwort (Code %1) von der empfangenden Seite</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="227"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="230"/>
         <source>Successfully sent</source>
         <translation>Erfolgreich versandt</translation>
     </message>

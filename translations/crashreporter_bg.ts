@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="bg_BG">
+<TS version="2.1" language="bg_BG">
 <context>
     <name>CrashReportDialog</name>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="71"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="72"/>
         <source>This file contains the internal state of the program when it crashed</source>
         <translation>Този файл съдържа вътрешното състояние на програмата по време на срива</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="77"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="78"/>
         <source>Dump file</source>
         <translation>Дъмп-файл</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="105"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="106"/>
         <source>Sending ...</source>
         <translation>Изпращане ...</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="136"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="139"/>
         <source>Unexpected response (code %1) from dispatcher</source>
         <translation>Неочакван отговор (код %1) от диспечера</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="161"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="164"/>
         <source>Unexpected response from dispatcher</source>
         <translation>Неочакван отговор от диспечера</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="221"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="224"/>
         <source>Unexpected response (code %1) from the receiving side</source>
         <translation>Неочакван отговор (код %1) от приемащата страна</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="227"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="230"/>
         <source>Successfully sent</source>
         <translation>Изпращането е успешно</translation>
     </message>

@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="pl_PL" sourcelanguage="en">
+<TS version="2.1" language="pl_PL" sourcelanguage="en">
 <context>
     <name>CrashReportDialog</name>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="71"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="72"/>
         <source>This file contains the internal state of the program when it crashed</source>
         <translation>Ten plik zawiera wewnętrzny stan programu podczas awarii</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="77"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="78"/>
         <source>Dump file</source>
         <translation>Zapisz plik</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="105"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="106"/>
         <source>Sending ...</source>
         <translation>Wysyłanie...</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="136"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="139"/>
         <source>Unexpected response (code %1) from dispatcher</source>
         <translation>Nieoczekiwana odpowiedź (kod %1)</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="161"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="164"/>
         <source>Unexpected response from dispatcher</source>
         <translation>Nieoczekiwana odpowiedź</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="221"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="224"/>
         <source>Unexpected response (code %1) from the receiving side</source>
         <translation>Nieoczekiwana odpowiedź (kod %1) od odbiorcy</translation>
     </message>
     <message>
-        <location filename="../crash_reporter/CrashReportDialog.cpp" line="227"/>
+        <location filename="../crash_reporter/CrashReportDialog.cpp" line="230"/>
         <source>Successfully sent</source>
         <translation>Wysyłanie powiodło się</translation>
     </message>

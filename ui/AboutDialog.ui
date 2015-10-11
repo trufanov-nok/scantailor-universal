@@ -374,15 +374,15 @@ font-weight:bold;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>112</width>
-            <height>4482</height>
+            <width>423</width>
+            <height>1106</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
             <widget class="QLabel" name="references">
              <property name="text">
-              <string>&lt;p&gt;
+              <string notr="true">&lt;p&gt;
 &lt;a href=&quot;http://scholar.google.com/scholar?q=Recursive+implementation+of+the+Gaussian+filter&quot;&gt;[1]&lt;/a&gt; Young, Ian T., and Lucas J. Van Vliet. &quot;Recursive implementation of the Gaussian filter.&quot; Signal processing 44.2 (1995): 139-151.
 &lt;/p&gt;
 &lt;p&gt;
