@@ -88,6 +88,12 @@ public:
 	QPointF mapToDewarpedSpace(QPointF const& img_pt) const;
 
 	/**
+	 * This version may achieve higher performance when transforming many
+	 * points at once.
+	 */
+	QPointF mapToDewarpedSpace(QPointF const& img_pt, State& state) const;
+
+	/**
 	 * Transforms a point from dewarped normalized coordinates
 	 * to warped image coordinates.  See comments in the beginning
 	 * of the *.cpp file for more information about coordinate

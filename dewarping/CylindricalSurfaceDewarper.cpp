@@ -145,7 +145,12 @@ QPointF
 CylindricalSurfaceDewarper::mapToDewarpedSpace(QPointF const& img_pt) const
 {
 	State state;
+	return mapToDewarpedSpace(img_pt, state);
+}
 
+QPointF
+CylindricalSurfaceDewarper::mapToDewarpedSpace(QPointF const& img_pt, State& state) const
+{
 	double const pln_x = m_img2pln(toVec(img_pt))[0];
 	double const crv_x = m_arcLengthMapper.xToArcLen(pln_x, state.m_arcLengthHint);
 

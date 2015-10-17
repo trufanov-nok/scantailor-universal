@@ -168,10 +168,13 @@ DewarpingImageTransform::clone() const
 QPolygonF
 DewarpingImageTransform::transformedCropArea() const
 {
+	CylindricalSurfaceDewarper::State state;
 	QPolygonF poly(m_origCropArea);
+
 	for (QPointF& pt : poly) {
-		pt = postScale(m_dewarper.mapToDewarpedSpace(pt));
+		pt = postScale(m_dewarper.mapToDewarpedSpace(pt, state));
 	}
+
 	return poly;
 }
 
