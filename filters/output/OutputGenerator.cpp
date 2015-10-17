@@ -206,10 +206,10 @@ OutputGenerator::OutputGenerator(
 	DespeckleLevel const despeckle_level)
 :	m_ptrImageTransform(image_transform)
 ,	m_colorParams(color_params)
+,	m_outRect(outer_rect.toRect())
+,	m_contentRect(content_rect.toRect())
 ,	m_despeckleLevel(despeckle_level)
 {
-	m_outRect = outer_rect.toRect();
-
 	// An empty outer_rect may be a result of all pages having no content box.
 	if (m_outRect.width() <= 0) {
 		m_outRect.setWidth(1);
@@ -218,11 +218,16 @@ OutputGenerator::OutputGenerator(
 		m_outRect.setHeight(1);
 	}
 
-	m_contentRect = content_rect.translated(-m_outRect.topLeft()).toRect();
+	// Make sure m_contentRect is fully inside m_outerRect.
+	// Note that QRect::intersected() would be inappropriate here because of the way
+	// it handles null rectangles.
+	m_contentRect.setLeft(std::max(m_contentRect.left(), m_outRect.left()));
+	m_contentRect.setTop(std::max(m_contentRect.top(), m_outRect.top()));
+	m_contentRect.setRight(std::min(m_contentRect.right(), m_outRect.right()));
+	m_contentRect.setBottom(std::min(m_contentRect.bottom(), m_outRect.bottom()));
 
-	// Note that QRect::contains(<empty rect>) always returns false, so we don't use it here.
-	assert(m_outRect.translated(-m_outRect.topLeft()).contains(m_contentRect.topLeft()));
-	assert(m_outRect.translated(-m_outRect.topLeft()).contains(m_contentRect.bottomRight()));
+	// Make m_contentRect be relative to m_outerRect.
+	m_contentRect.translate(-m_outRect.topLeft());
 }
 
 std::function<QPointF(QPointF const&)>
