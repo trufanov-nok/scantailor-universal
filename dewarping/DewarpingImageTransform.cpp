@@ -203,9 +203,11 @@ DewarpingImageTransform::toAffine(
 		-dewarped_rect.topLeft(),
 		QSizeF(m_intrinsicScaleX * m_userScaleX, m_intrinsicScaleY * m_userScaleY)
 	);
+	auto const minmax_densities = calcMinMaxDensities();
 
 	QImage const dewarped_image = accel_ops->dewarp(
-		image, dst_size, m_dewarper, model_domain, outside_color
+		image, dst_size, m_dewarper, model_domain, outside_color,
+		minmax_densities.first, minmax_densities.second
 	);
 
 	AffineImageTransform affine_transform(dst_size);
@@ -253,16 +255,18 @@ DewarpingImageTransform::materialize(QImage const& image,
 
 	QRectF model_domain(0, 0, m_intrinsicScaleX * m_userScaleX, m_intrinsicScaleY * m_userScaleY);
 	model_domain.translate(-target_rect.topLeft());
+	auto const minmax_densities = calcMinMaxDensities();
 
 	return accel_ops->dewarp(
-		image, target_rect.size(), m_dewarper, model_domain, outside_color
+		image, target_rect.size(), m_dewarper, model_domain, outside_color,
+		minmax_densities.first, minmax_densities.second
 	);
 }
 
 std::function<QPointF(QPointF const&)>
 DewarpingImageTransform::forwardMapper() const
 {
-	auto dewarper(std::make_shared<dewarping::CylindricalSurfaceDewarper>(m_dewarper));
+	auto dewarper(std::make_shared<CylindricalSurfaceDewarper>(m_dewarper));
 	QTransform post_transform;
 	post_transform.scale(m_intrinsicScaleX * m_userScaleX, m_intrinsicScaleY * m_userScaleY);
 
@@ -274,7 +278,7 @@ DewarpingImageTransform::forwardMapper() const
 std::function<QPointF(QPointF const&)>
 DewarpingImageTransform::backwardMapper() const
 {
-	auto dewarper(std::make_shared<dewarping::CylindricalSurfaceDewarper>(m_dewarper));
+	auto dewarper(std::make_shared<CylindricalSurfaceDewarper>(m_dewarper));
 	QTransform pre_transform;
 	qreal const xscale = m_intrinsicScaleX * m_userScaleX;
 	qreal const yscale = m_intrinsicScaleY * m_userScaleY;
@@ -401,6 +405,21 @@ DewarpingImageTransform::setupIntrinsicScale()
 QPolygonF
 DewarpingImageTransform::constrainCropArea(QPolygonF const& orig_crop_area) const
 {
+	auto const minmax_densities = calcMinMaxDensities();
+	double const min_density = minmax_densities.first;
+	double const max_density = minmax_densities.second;
+
+	ConstrainedCropAreaBuilder builder(orig_crop_area, min_density, max_density, m_dewarper);
+
+	builder.sampleCrvXRange(0.0 + 0.3, 0.0 - 0.6, -1.0);
+	builder.sampleCrvXRange(1.0 - 0.3, 1.0 + 0.6, 1.0);
+
+	return builder.build();
+}
+
+std::pair<double, double>
+DewarpingImageTransform::calcMinMaxDensities() const
+{
 	CylindricalSurfaceDewarper::State state;
 	CylindricalSurfaceDewarper::Generatrix const left_bound =
 		m_dewarper.mapGeneratrix(0.0, state);
@@ -423,15 +442,7 @@ DewarpingImageTransform::constrainCropArea(QPolygonF const& orig_crop_area) cons
 	auto const minmax_densities = std::minmax_element(
 		std::begin(corner_densities), std::end(corner_densities)
 	);
-	double const min_density = 0.6 * *minmax_densities.first;
-	double const max_density = 1.4 * *minmax_densities.second;
-
-	ConstrainedCropAreaBuilder builder(orig_crop_area, min_density, max_density, m_dewarper);
-
-	builder.sampleCrvXRange(0.0 + 0.3, 0.0 - 0.6, -1.0);
-	builder.sampleCrvXRange(1.0 - 0.3, 1.0 + 0.6, 1.0);
-
-	return builder.build();
+	return std::make_pair(0.6 * *minmax_densities.first, 1.4 * *minmax_densities.second);
 }
 
 

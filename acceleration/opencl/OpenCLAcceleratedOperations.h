@@ -61,6 +61,7 @@ public:
 		QImage const& src, QSize const& dst_size,
 		dewarping::CylindricalSurfaceDewarper const& distortion_model,
 		QRectF const& model_domain, QColor const& background_color,
+		float min_density, float max_density,
 		QSizeF const& min_mapping_area) const;
 
 	virtual QImage affineTransform(
@@ -94,6 +95,7 @@ private:
 		QImage const& src, QSize const& dst_size,
 		dewarping::CylindricalSurfaceDewarper const& distortion_model,
 		QRectF const& model_domain, QColor const& background_color,
+		float min_density, float max_density,
 		QSizeF const& min_mapping_area) const;
 
 	QImage affineTransformUnguarded(

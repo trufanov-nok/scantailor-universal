@@ -58,7 +58,7 @@ public:
 		QPolygonF const& orig_crop_area,
 		std::vector<QPointF> const& top_curve,
 		std::vector<QPointF> const& bottom_curve,
-		dewarping::DepthPerception const& depth_perception);
+		DepthPerception const& depth_perception);
 
 	virtual ~DewarpingImageTransform();
 
@@ -96,6 +96,8 @@ private:
 
 	QPolygonF constrainCropArea(QPolygonF const& orig_crop_area) const;
 
+	std::pair<double, double> calcMinMaxDensities() const;
+
 	QPointF postScale(QPointF const& pt) const;
 
 	static int const INTRINSIC_SCALE_ALGO_VERSION;
@@ -104,8 +106,8 @@ private:
 	QPolygonF m_origCropArea;
 	std::vector<QPointF> m_topPolyline;
 	std::vector<QPointF> m_bottomPolyline;
-	dewarping::DepthPerception m_depthPerception;
-	dewarping::CylindricalSurfaceDewarper m_dewarper;
+	DepthPerception m_depthPerception;
+	CylindricalSurfaceDewarper m_dewarper;
 
 	/**
 	 * CylindricalSurfaceDewarper maps a curved quadrilateral into a unit square.

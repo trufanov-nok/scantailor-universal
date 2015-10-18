@@ -24,6 +24,7 @@ typedef struct
 	float2 vector;
 	float2 homog_m1;
 	float2 homog_m2;
+	int2 dst_y_range;
 }
 Generatrix;
 
@@ -108,15 +109,6 @@ kernel void dewarp(
 		f_src_bottom = midpoint + min_mapping_area.y * 0.5f;
 	}
 
-	// This check needs to be done in floating points, as otherwise
-	// we may overflow integers when converting floating point to integer.
-	out_of_bounds = (f_src_right <= 0.f) | (f_src_bottom <= 0.f)
-			| (f_src_left >= (float)sw) | (f_src_top >= (float)sh);
-	if (out_of_bounds){
-		write_imagef(dst, dst_coord, bg_color);
-		return;
-	}
-
 	// Note: the code below is more or less the same as in transformGeneric()
 	// in imageproc/Transform.cpp
 
@@ -139,6 +131,17 @@ kernel void dewarp(
 		src_top = (int)f_src_top_floor;
 		src_bottom = (int)f_src_bottom_floor;
 		// Note that src_right and src_bottom are inclusive.
+	}
+
+	out_of_bounds =
+			(src_right < 0) | (src_bottom < 0) |
+			(src_left >= sw) | (src_top >= sh) |
+			(dst_y < min(left_generatrix.dst_y_range.s0, right_generatrix.dst_y_range.s0)) |
+			(dst_y > max(left_generatrix.dst_y_range.s1, right_generatrix.dst_y_range.s1));
+
+	if (out_of_bounds) {
+		write_imagef(dst, dst_coord, bg_color);
+		return;
 	}
 
 	float background_area = 0.f;

@@ -272,12 +272,14 @@ OpenCLAcceleratedOperations::dewarp(
 	QImage const& src, QSize const& dst_size,
 	dewarping::CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& background_color,
+	float min_density, float max_density,
 	QSizeF const& min_mapping_area) const
 {
 	try {
 		return dewarpUnguarded(
 			src, dst_size, distortion_model,
-			model_domain, background_color, min_mapping_area
+			model_domain, background_color,
+			min_density, max_density, min_mapping_area
 		);
 	} catch (cl::Error const& e) {
 		if (e.err() == CL_OUT_OF_HOST_MEMORY) {
@@ -286,7 +288,8 @@ OpenCLAcceleratedOperations::dewarp(
 		qDebug() << "OpenCL error: " << e.what();
 		return m_ptrFallback->dewarp(
 			src, dst_size, distortion_model,
-			model_domain, background_color, min_mapping_area
+			model_domain, background_color,
+			min_density, max_density, min_mapping_area
 		);
 	}
 }
@@ -296,11 +299,13 @@ OpenCLAcceleratedOperations::dewarpUnguarded(
 	QImage const& src, QSize const& dst_size,
 	dewarping::CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& background_color,
+	float min_density, float max_density,
 	QSizeF const& min_mapping_area) const
 {
 	return opencl::dewarp(
 		m_commandQueue, m_program, src, dst_size,
-		distortion_model, model_domain, background_color, min_mapping_area
+		distortion_model, model_domain, background_color,
+		min_density, max_density, min_mapping_area
 	);
 }
 

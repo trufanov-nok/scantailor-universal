@@ -30,12 +30,8 @@
 #include <QRect>
 #include <QDebug>
 #include <cstdint>
-#include <math.h>
-
-#define INTERP_NONE 0
-#define INTERP_BILLINEAR 1
-#define INTERP_AREA_MAPPING 2
-#define INTERPOLATION_METHOD INTERP_AREA_MAPPING
+#include <utility>
+#include <cmath>
 
 using namespace imageproc;
 
@@ -45,135 +41,12 @@ namespace dewarping
 namespace
 {
 
-#if INTERPOLATION_METHOD == INTERP_NONE
-
-template<typename ColorMixer, typename PixelType>
-void dewarpGeneric(
-	PixelType const* const src_data, QSize const src_size,
-	int const src_stride, PixelType* const dst_data,
-	QSize const dst_size, int const dst_stride,
-	CylindricalSurfaceDewarper const& distortion_model,
-	QRectF const& model_domain, PixelType const bg_color,
-	QSizeF const& /*min_mapping_area*/)
-{
-	int const src_width = src_size.width();
-	int const src_height = src_size.height();
-	int const dst_width = dst_size.width();
-	int const dst_height = dst_size.height();
-
-	CylindricalSurfaceDewarper::State state;
-
-	double const model_domain_left = model_domain.left();
-	double const model_x_scale = 1.0 / (model_domain.right() - model_domain.left());
-
-	float const model_domain_top = model_domain.top();
-	float const model_y_scale = 1.0 / (model_domain.bottom() - model_domain.top());
-
-	for (int dst_x = 0; dst_x < dst_width; ++dst_x) {
-		double const model_x = (dst_x - model_domain_left) * model_x_scale;
-		CylindricalSurfaceDewarper::Generatrix const generatrix(
-			distortion_model.mapGeneratrix(model_x, state)
-		);
-
-		HomographicTransform<1, float> const homog(generatrix.pln2img.mat());
-		Vec2f const origin(generatrix.imgLine.p1());
-		Vec2f const vec(generatrix.imgLine.p2() - generatrix.imgLine.p1());
-		for (int dst_y = 0; dst_y < dst_height; ++dst_y) {
-			float const model_y = (float(dst_y) - model_domain_top) * model_y_scale;
-			Vec2f const src_pt(origin + vec * homog(model_y));
-			int const src_x = qRound(src_pt[0]);
-			int const src_y = qRound(src_pt[1]);
-			if (src_x < 0 || src_x >= src_width || src_y < 0 || src_y >= src_height) {
-				dst_data[dst_y * dst_stride + dst_x] = bg_color;
-				continue;
-			}
-
-			dst_data[dst_y * dst_stride + dst_x] = src_data[src_y * src_stride + src_x];
-		}
-	}
-}
-
-#elif INTERPOLATION_METHOD == INTERP_BILLINEAR
-
-template<typename ColorMixer, typename PixelType>
-void dewarpGeneric(
-	PixelType const* const src_data, QSize const src_size,
-	int const src_stride, PixelType* const dst_data,
-	QSize const dst_size, int const dst_stride,
-	CylindricalSurfaceDewarper const& distortion_model,
-	QRectF const& model_domain, PixelType const bg_color,
-	QSizeF const& /*min_mapping_area*/)
-{
-	int const src_width = src_size.width();
-	int const src_height = src_size.height();
-	int const dst_width = dst_size.width();
-	int const dst_height = dst_size.height();
-
-	CylindricalSurfaceDewarper::State state;
-
-	double const model_domain_left = model_domain.left() - 0.5f;
-	double const model_x_scale = 1.0 / (model_domain.right() - model_domain.left());
-
-	float const model_domain_top = model_domain.top() - 0.5f;
-	float const model_y_scale = 1.0 / (model_domain.bottom() - model_domain.top());
-
-	for (int dst_x = 0; dst_x < dst_width; ++dst_x) {
-		double const model_x = (dst_x - model_domain_left) * model_x_scale;
-		CylindricalSurfaceDewarper::Generatrix const generatrix(
-			distortion_model.mapGeneratrix(model_x, state)
-		);
-
-		HomographicTransform<1, float> const homog(generatrix.pln2img.mat());
-		Vec2f const origin(generatrix.imgLine.p1());
-		Vec2f const vec(generatrix.imgLine.p2() - generatrix.imgLine.p1());
-		for (int dst_y = 0; dst_y < dst_height; ++dst_y) {
-			float const model_y = ((float)dst_y - model_domain_top) * model_y_scale;
-			Vec2f const src_pt(origin + vec * homog(model_y));
-
-			int const src_x0 = (int)floor(src_pt[0] - 0.5f);
-			int const src_y0 = (int)floor(src_pt[1] - 0.5f);
-			int const src_x1 = src_x0 + 1;
-			int const src_y1 = src_y0 + 1;
-			float const x = src_pt[0] - src_x0;
-			float const y = src_pt[1] - src_y0;
-
-			PixelType tl_color = bg_color;
-			if (src_x0 >= 0 && src_x0 < src_width && src_y0 >= 0 && src_y0 < src_height) {
-				tl_color = src_data[src_y0 * src_stride + src_x0];
-			}
-
-			PixelType tr_color = bg_color;
-			if (src_x1 >= 0 && src_x1 < src_width && src_y0 >= 0 && src_y0 < src_height) {
-				tr_color = src_data[src_y0 * src_stride + src_x1];
-			}
-
-			PixelType bl_color = bg_color;
-			if (src_x0 >= 0 && src_x0 < src_width && src_y1 >= 0 && src_y1 < src_height) {
-				bl_color = src_data[src_y1 * src_stride + src_x0];
-			}
-
-			PixelType br_color = bg_color;
-			if (src_x1 >= 0 && src_x1 < src_width && src_y1 >= 0 && src_y1 < src_height) {
-				br_color = src_data[src_y1 * src_stride + src_x1];
-			}
-
-			ColorMixer mixer;
-			mixer.add(tl_color, (1.5f - y) * (1.5f - x));
-			mixer.add(tr_color, (1.5f - y) * (x - 0.5f));
-			mixer.add(bl_color, (y - 0.5f) * (1.5f - x));
-			mixer.add(br_color, (y - 0.5f) * (x - 0.5f));
-			dst_data[dst_y * dst_stride + dst_x] = mixer.mix(1.0f);
-		}
-	}
-}
-
-#elif INTERPOLATION_METHOD == INTERP_AREA_MAPPING
-
 template<typename ColorMixer, typename PixelType>
 void areaMapGeneratrix(
 	PixelType const* const src_data, QSize const src_size,
 	int const src_stride, PixelType* p_dst,
 	QSize const dst_size, int const dst_stride,
+	int const dst_y_first, int const dst_y_last,
 	PixelType const bg_color,
 	std::vector<Vec2f> const& prev_grid_column,
 	std::vector<Vec2f> const& next_grid_column,
@@ -189,7 +62,15 @@ void areaMapGeneratrix(
 
 	Vec2f f_src32_quad[4];
 
-	for (int dst_y = 0; dst_y < dst_height; ++dst_y) {
+	int dst_y = 0;
+
+	// Process top out-of-density-bounds segment.
+	for (; dst_y < dst_y_first; ++dst_y) {
+		*p_dst = bg_color;
+		p_dst += dst_stride;
+	}
+
+	for (; dst_y <= dst_y_last; ++dst_y) {
 		// Take a mid-point of each edge, pre-multiply by 32,
 		// write the result to f_src32_quad. 16 comes from 32*0.5
 		f_src32_quad[0] = 16.0f * (src_left_points[0] + src_right_points[0]);
@@ -432,6 +313,12 @@ void areaMapGeneratrix(
 		*p_dst = mixer.mix(src_area + background_area);
 		p_dst += dst_stride;
 	}
+
+	// Process bottom out-of-density-bounds segment.
+	for (; dst_y < dst_height; ++dst_y) {
+		*p_dst = bg_color;
+		p_dst += dst_stride;
+	}
 }
 
 template<typename ColorMixer, typename PixelType>
@@ -441,6 +328,7 @@ void dewarpGeneric(
 	QSize const dst_size, int const dst_stride,
 	CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, PixelType const bg_color,
+	float const min_density, float const max_density,
 	QSizeF const& min_mapping_area)
 {
 	int const dst_width = dst_size.width();
@@ -449,16 +337,18 @@ void dewarpGeneric(
 	CylindricalSurfaceDewarper::State state;
 
 	double const model_domain_left = model_domain.left();
-	double const model_x_scale = 1.0 / (model_domain.right() - model_domain.left());
+	double const model_x_scale = 1.f / model_domain.width();
 
 	float const model_domain_top = model_domain.top();
-	float const model_y_scale = 1.0 / (model_domain.bottom() - model_domain.top());
+	float const model_domain_height = model_domain.height();
+	float const model_y_scale = 1.f / model_domain_height;
 
 	float const f_src32_min_mapping_width = min_mapping_area.width() * 32.f;
 	float const f_src32_min_mapping_height = min_mapping_area.height() * 32.f;
 
 	std::vector<Vec2f> prev_grid_column(dst_height + 1);
 	std::vector<Vec2f> next_grid_column(dst_height + 1);
+	std::pair<int, int> prev_dst_y_range(0, dst_height - 1); // Inclusive.
 
 	for (int dst_x = 0; dst_x <= dst_width; ++dst_x) {
 		double const model_x = (dst_x - model_domain_left) * model_x_scale;
@@ -474,25 +364,64 @@ void dewarpGeneric(
 			next_grid_column[dst_y] = origin + vec * homog(model_y);
 		}
 
+		std::pair<int, int> dst_y_range(0, dst_height - 1); // Inclusive.
+
+		// Called for points where pixel density reaches the lower or upper threshold.
+		auto const processCriticalPoint =
+				[&generatrix, &dst_y_range, model_domain_top, model_domain_height]
+				(double model_y, bool upper_threshold) {
+
+			if (!generatrix.pln2img.mirrorSide(model_y)) {
+				double const dst_y = model_domain_top + model_y * model_domain_height;
+				double const second_deriv = generatrix.pln2img.secondDerivativeAt(model_y);
+				if (std::signbit(second_deriv) == upper_threshold) {
+					if (dst_y > dst_y_range.first) {
+						dst_y_range.first = std::min((int)std::ceil(dst_y), dst_y_range.second);
+					}
+				} else {
+					if (dst_y < dst_y_range.second) {
+						dst_y_range.second = std::max((int)std::floor(dst_y), dst_y_range.first);
+					}
+				}
+			}
+		};
+
+		double const recip_len = 1.0 / generatrix.imgLine.length();
+
+		generatrix.pln2img.solveForDeriv(
+			min_density * recip_len,
+			[processCriticalPoint](double model_y) {
+				processCriticalPoint(model_y, /*upper_threshold=*/false);
+			}
+		);
+
+		generatrix.pln2img.solveForDeriv(
+			max_density * recip_len,
+			[processCriticalPoint](double model_y) {
+				processCriticalPoint(model_y, /*upper_threshold=*/true);
+			}
+		);
+
+		int const dst_y_first = std::max(prev_dst_y_range.first, dst_y_range.first);
+		int const dst_y_last = std::min(prev_dst_y_range.second, dst_y_range.second);
+		// The case with dst_y_first > dst_y_first is not a problem, as long as both
+		// are within [0, dst_height)
+
 		if (dst_x != 0) {
 			areaMapGeneratrix<ColorMixer, PixelType>(
 				src_data, src_size, src_stride,
 				dst_data + dst_x - 1, dst_size, dst_stride,
-				bg_color, prev_grid_column, next_grid_column,
+				dst_y_first, dst_y_last, bg_color,
+				prev_grid_column, next_grid_column,
 				f_src32_min_mapping_width, f_src32_min_mapping_height
 			);
 		}
 
 		prev_grid_column.swap(next_grid_column);
+		prev_dst_y_range = dst_y_range;
 	}
 }
 
-#endif // INTERPOLATION_METHOD
-
-#if INTERPOLATION_METHOD == INTERP_BILLINEAR
-typedef float MixingWeight;
-typedef float ArgbMixingWeight;
-#else
 typedef uint32_t MixingWeight;
 typedef float ArgbMixingWeight;
 /* We can't use uint32_t for ArgbMixingWeight because additional scaling
@@ -500,12 +429,12 @@ typedef float ArgbMixingWeight;
  * (think thumbnail creation). We could have used uint64_t, but float provides
  * better performance, at least on my machine.
  */
-#endif
 
 QImage dewarpGrayscale(
 	GrayImage const& src, QSize const& dst_size,
 	CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& bg_color,
+	float const min_density, float const max_density,
 	QSizeF const& min_mapping_area)
 {
 	GrayImage dst(dst_size);
@@ -514,8 +443,8 @@ QImage dewarpGrayscale(
 	dewarpGeneric<GrayColorMixer<MixingWeight>, uint8_t>(
 		src.data(), src.size(), src.stride(),
 		dst.data(), dst_size, dst.stride(),
-		distortion_model, model_domain,
-		bg_sample, min_mapping_area
+		distortion_model, model_domain, bg_sample,
+		min_density, max_density, min_mapping_area
 	);
 	return dst.toQImage();
 }
@@ -524,6 +453,7 @@ QImage dewarpRgb(
 	QImage const& src, QSize const& dst_size,
 	CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& bg_color,
+	float const min_density, float const max_density,
 	QSizeF const& min_mapping_area)
 {
 	QImage dst(dst_size, QImage::Format_RGB32);
@@ -533,8 +463,8 @@ QImage dewarpRgb(
 	dewarpGeneric<RgbColorMixer<MixingWeight>, uint32_t>(
 		(uint32_t const*)src.bits(), src.size(), src.bytesPerLine()/4,
 		(uint32_t*)dst.bits(), dst_size, dst.bytesPerLine()/4,
-		distortion_model, model_domain,
-		bg_color.rgb(), min_mapping_area
+		distortion_model, model_domain, bg_color.rgb(),
+		min_density, max_density, min_mapping_area
 	);
 	return dst;
 }
@@ -543,6 +473,7 @@ QImage dewarpArgb(
 	QImage const& src, QSize const& dst_size,
 	CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& bg_color,
+	float const min_density, float const max_density,
 	QSizeF const& min_mapping_area)
 {
 	QImage dst(dst_size, QImage::Format_ARGB32);
@@ -552,8 +483,8 @@ QImage dewarpArgb(
 	dewarpGeneric<ArgbColorMixer<ArgbMixingWeight>, uint32_t>(
 		(uint32_t const*)src.bits(), src.size(), src.bytesPerLine()/4,
 		(uint32_t*)dst.bits(), dst_size, dst.bytesPerLine()/4,
-		distortion_model, model_domain,
-		bg_color.rgba(), min_mapping_area
+		distortion_model, model_domain, bg_color.rgba(),
+		min_density, max_density, min_mapping_area
 	);
 	return dst;
 }
@@ -565,6 +496,7 @@ RasterDewarper::dewarp(
 	QImage const& src, QSize const& dst_size,
 	CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& bg_color,
+	float const min_density, float const max_density,
 	QSizeF const& min_mapping_area)
 {
 	if (model_domain.isEmpty()) {
@@ -584,7 +516,7 @@ RasterDewarper::dewarp(
 			if (src.allGray() && is_opaque_gray(bg_color.rgba())) {
 				return dewarpGrayscale(
 					GrayImage(src), dst_size, distortion_model,
-					model_domain, bg_color, min_mapping_area
+					model_domain, bg_color, min_density, max_density, min_mapping_area
 				);
 			}
 			// fall through
@@ -593,13 +525,13 @@ RasterDewarper::dewarp(
 				return dewarpRgb(
 					badAllocIfNull(src.convertToFormat(QImage::Format_RGB32)),
 					dst_size, distortion_model,
-					model_domain, bg_color, min_mapping_area
+					model_domain, bg_color, min_density, max_density, min_mapping_area
 				);
 			} else {
 				return dewarpArgb(
 					badAllocIfNull(src.convertToFormat(QImage::Format_ARGB32)),
 					dst_size, distortion_model,
-					model_domain, bg_color, min_mapping_area
+					model_domain, bg_color, min_density, max_density, min_mapping_area
 				);
 			}
 	}

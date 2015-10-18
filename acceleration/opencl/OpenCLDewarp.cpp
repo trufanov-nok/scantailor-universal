@@ -87,10 +87,9 @@ struct Generatrix
 	cl_float2 vector;
 	cl_float2 homog_m1;
 	cl_float2 homog_m2;
+	cl_int2 dst_y_range;
 
-	Generatrix() = default;
-
-	Generatrix(CylindricalSurfaceDewarper::Generatrix const& gen) {
+	void set(CylindricalSurfaceDewarper::Generatrix const& gen, std::pair<int, int> dst_y_range) {
 		origin.s[0] = gen.imgLine.p1().x();
 		origin.s[1] = gen.imgLine.p1().y();
 		vector.s[0] = gen.imgLine.p2().x() - gen.imgLine.p1().x();
@@ -99,6 +98,8 @@ struct Generatrix
 		homog_m1.s[1] = gen.pln2img.mat()(1, 0);
 		homog_m2.s[0] = gen.pln2img.mat()(0, 1);
 		homog_m2.s[1] = gen.pln2img.mat()(1, 1);
+		this->dst_y_range.s[0] = dst_y_range.first;
+		this->dst_y_range.s[1] = dst_y_range.second;
 	}
 };
 
@@ -111,6 +112,7 @@ QImage dewarp(
 	QImage const& src, QSize const& dst_size,
 	dewarping::CylindricalSurfaceDewarper const& distortion_model,
 	QRectF const& model_domain, QColor const& background_color,
+	float min_density, float max_density,
 	QSizeF const& min_mapping_area)
 {
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
@@ -159,10 +161,11 @@ QImage dewarp(
 	std::vector<Generatrix> range_host_buffer(range_buffer_elements);
 
 	float const model_domain_left = model_domain.left();
-	float const model_x_scale = 1.f / (model_domain.right() - model_domain.left());
+	float const model_x_scale = 1.f / model_domain.width();
 
 	float const model_domain_top = model_domain.top();
-	float const model_y_scale = 1.f / (model_domain.bottom() - model_domain.top());
+	float const model_domain_height = model_domain.height();
+	float const model_y_scale = 1.f / model_domain_height;
 
 	CylindricalSurfaceDewarper::State state;
 
@@ -180,7 +183,46 @@ QImage dewarp(
 			CylindricalSurfaceDewarper::Generatrix const generatrix(
 				distortion_model.mapGeneratrix(model_x, state)
 			);
-			range_host_buffer[dst_x - range_begin] = generatrix;
+
+			std::pair<int, int> dst_y_range(0, dst_size.height() - 1); // Inclusive.
+
+			// Called for points where pixel density reaches the lower or upper threshold.
+			auto const processCriticalPoint =
+					[&generatrix, &dst_y_range, model_domain_top, model_domain_height]
+					(double model_y, bool upper_threshold) {
+
+				if (!generatrix.pln2img.mirrorSide(model_y)) {
+					double const dst_y = model_domain_top + model_y * model_domain_height;
+					double const second_deriv = generatrix.pln2img.secondDerivativeAt(model_y);
+					if (std::signbit(second_deriv) == upper_threshold) {
+						if (dst_y > dst_y_range.first) {
+							dst_y_range.first = std::min((int)std::ceil(dst_y), dst_y_range.second);
+						}
+					} else {
+						if (dst_y < dst_y_range.second) {
+							dst_y_range.second = std::max((int)std::floor(dst_y), dst_y_range.first);
+						}
+					}
+				}
+			};
+
+			double const recip_len = 1.0 / generatrix.imgLine.length();
+
+			generatrix.pln2img.solveForDeriv(
+				min_density * recip_len,
+				[processCriticalPoint](double model_y) {
+					processCriticalPoint(model_y, /*upper_threshold=*/false);
+				}
+			);
+
+			generatrix.pln2img.solveForDeriv(
+				max_density * recip_len,
+				[processCriticalPoint](double model_y) {
+					processCriticalPoint(model_y, /*upper_threshold=*/true);
+				}
+			);
+
+			range_host_buffer[dst_x - range_begin].set(generatrix, dst_y_range);
 		}
 
 		// Copy generatrix_host_buffer to generatrix_device_buffer.

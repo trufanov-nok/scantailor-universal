@@ -71,6 +71,8 @@ BOOST_AUTO_TEST_CASE(test_argb)
 	}
 	QSize const output_size(900, 1100);
 	QSizeF const min_mapping_area(0.7, 0.7);
+	float const min_density = 1e1f;
+	float const max_density = 1e5f;
 	QRectF const model_domain(QPointF(0, 0), output_size);
 	QColor const bg_color = Qt::transparent;
 
@@ -85,8 +87,8 @@ BOOST_AUTO_TEST_CASE(test_argb)
 #endif
 
 	QImage const control = RasterDewarper::dewarp(
-		input, output_size, distortion_model,
-		model_domain, bg_color, min_mapping_area
+		input, output_size, distortion_model, model_domain,
+		bg_color, min_density, max_density, min_mapping_area
 	);
 
 #if LOG_PERFORMANCE
@@ -111,7 +113,7 @@ BOOST_AUTO_TEST_CASE(test_argb)
 
 		QImage const output = dewarp(
 			command_queue, program, input, output_size, distortion_model,
-			model_domain, bg_color, min_mapping_area
+			model_domain, bg_color, min_density, max_density, min_mapping_area
 		);
 
 #if LOG_PERFORMANCE
