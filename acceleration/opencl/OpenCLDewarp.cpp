@@ -158,7 +158,7 @@ QImage dewarp(
 	);
 	size_t const range_buffer_size = range_buffer_elements * sizeof(Generatrix);
 	cl::Buffer const range_device_buffer(context, CL_MEM_READ_ONLY, range_buffer_size);
-	std::vector<Generatrix> range_host_buffer(range_buffer_elements);
+	std::vector<Generatrix> range_host_buffer(dst_size.width() + 1);
 
 	float const model_domain_left = model_domain.left();
 	float const model_x_scale = 1.f / model_domain.width();
@@ -222,13 +222,13 @@ QImage dewarp(
 				}
 			);
 
-			range_host_buffer[dst_x - range_begin].set(generatrix, dst_y_range);
+			range_host_buffer[dst_x].set(generatrix, dst_y_range);
 		}
 
 		// Copy generatrix_host_buffer to generatrix_device_buffer.
 		command_queue.enqueueWriteBuffer(
 			range_device_buffer, CL_FALSE, 0, (range_end + 1 - range_begin)*sizeof(Generatrix),
-			range_host_buffer.data(), &events, &evt
+			range_host_buffer.data() + range_begin, &events, &evt
 		);
 		indicateCompletion(&events, evt);
 
