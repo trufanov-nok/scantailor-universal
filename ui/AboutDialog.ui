@@ -110,9 +110,9 @@ font-weight:bold;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-187</y>
             <width>423</width>
-            <height>500</height>
+            <height>516</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -256,6 +256,13 @@ font-weight:bold;</string>
               </widget>
              </item>
              <item>
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>uciN - Romanian</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QLabel" name="label_22">
                <property name="text">
                 <string>Joseph Artsimovich - Russian</string>
@@ -374,8 +381,8 @@ font-weight:bold;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>423</width>
-            <height>1106</height>
+            <width>112</width>
+            <height>4482</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
