@@ -254,6 +254,13 @@ ImageView::matchSizeModeChanged(MatchSizeMode const& match_size_mode)
 	Settings::AggregateSizeChanged const size_changed =
 		m_ptrSettings->setMatchSizeMode(m_pageId, match_size_mode);
 
+	if (size_changed == Settings::AGGREGATE_SIZE_CHANGED) {
+		// Need to update both m_aggregateHardSize and m_committedAggregateHardSize,
+		// as the former is used by recalcBoxesAndFit() below.
+		m_aggregateHardSize = m_ptrSettings->getAggregateHardSize();
+		m_committedAggregateHardSize = m_aggregateHardSize;
+	}
+
 	recalcBoxesAndFit(calcHardMargins());
 
 	if (size_changed == Settings::AGGREGATE_SIZE_CHANGED) {
