@@ -69,6 +69,7 @@ private:
 
 	std::list<Entry> m_queue;
 	PageInfo m_selectedPage;
+	PageInfo m_pageToSelectWhenDone;
 };
 
 #endif
