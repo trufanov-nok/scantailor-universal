@@ -151,20 +151,9 @@ private:
 	
 	imageproc::BinaryThreshold adjustThreshold(
 		imageproc::BinaryThreshold threshold) const;
-	
-	imageproc::BinaryThreshold calcBinarizationThreshold(
-		QImage const& image, imageproc::BinaryImage const& mask) const;
-
-	imageproc::BinaryThreshold calcBinarizationThreshold(
-		QImage const& image, QPolygonF const& crop_area,
-		imageproc::BinaryImage const* mask = 0) const;
 
 	imageproc::BinaryImage binarize(
 		QImage const& image, imageproc::BinaryImage const& mask) const;
-	
-	imageproc::BinaryImage binarize(
-		QImage const& image, QPolygonF const& crop_area,
-		imageproc::BinaryImage const* mask = 0) const;
 	
 	void maybeDespeckleInPlace(
 		imageproc::BinaryImage& image, DespeckleLevel level,

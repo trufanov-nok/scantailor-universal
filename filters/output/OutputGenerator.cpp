@@ -390,10 +390,14 @@ OutputGenerator::process(
 	status.throwIfCancelled();
 
 	if (render_params.binaryOutput() || m_outRect.isEmpty()) {
-		BinaryImage dst(m_outRect.size(), WHITE);
+		BinaryImage dst(m_outRect.size().expandedTo(QSize(1, 1)), WHITE);
 
 		if (!m_contentRect.isEmpty()) {
-			dst = binarize(maybe_smoothed, QRectF(m_contentRect));
+			BinaryImage binarization_mask(dst.size(), BLACK);
+			binarization_mask.fillExcept(m_contentRect, WHITE);
+
+			dst = binarize(maybe_smoothed, binarization_mask);
+			binarization_mask.release(); // Save memory.
 			if (dbg) {
 				dbg->add(dst, "binarized_and_cropped");
 			}
@@ -483,10 +487,15 @@ OutputGenerator::process(
 		// It's "Color / Grayscale" mode, as we handle B/W above.
 		reserveBlackAndWhite(maybe_normalized);
 	} else {
-		BinaryImage bw_content(
-			binarize(maybe_smoothed, transformed_crop_area/*XXX*/, &bw_mask)
+		BinaryImage binarization_mask(bw_mask);
+		binarization_mask.fillExcept(m_contentRect, WHITE);
+		PolygonRasterizer::fillExcept(
+			binarization_mask, WHITE, transformed_crop_area, Qt::WindingFill
 		);
-		maybe_smoothed = QImage(); // Save memory.
+
+		BinaryImage bw_content(binarize(maybe_smoothed, binarization_mask));
+		maybe_smoothed = QImage();   //
+		binarization_mask.release(); // Save memory.
 		if (dbg) {
 			dbg->add(bw_content, "binarized_and_cropped");
 		}
@@ -830,36 +839,6 @@ OutputGenerator::adjustThreshold(BinaryThreshold threshold) const
 	return BinaryThreshold(qBound(30, adjusted, 225));
 }
 
-BinaryThreshold
-OutputGenerator::calcBinarizationThreshold(
-	QImage const& image, BinaryImage const& mask) const
-{
-	GrayscaleHistogram hist(image, mask);
-	return adjustThreshold(BinaryThreshold::otsuThreshold(hist));
-}
-
-BinaryThreshold
-OutputGenerator::calcBinarizationThreshold(
-	QImage const& image, QPolygonF const& crop_area, BinaryImage const* mask) const
-{
-	QPainterPath path;
-	path.addPolygon(crop_area);
-	
-	if (path.contains(image.rect())) {
-		return adjustThreshold(BinaryThreshold::otsuThreshold(image));
-	} else {
-		BinaryImage modified_mask(image.size(), BLACK);
-		PolygonRasterizer::fillExcept(modified_mask, WHITE, crop_area, Qt::WindingFill);
-		modified_mask = erodeBrick(modified_mask, QSize(3, 3), WHITE);
-		
-		if (mask) {
-			rasterOp<RopAnd<RopSrc, RopDst> >(modified_mask, *mask);
-		}
-		
-		return calcBinarizationThreshold(image, modified_mask);
-	}
-}
-
 BinaryImage
 OutputGenerator::binarize(QImage const& image, BinaryImage const& mask) const
 {
@@ -871,29 +850,6 @@ OutputGenerator::binarize(QImage const& image, BinaryImage const& mask) const
 	rasterOp<RopAnd<RopSrc, RopDst> >(binarized, mask);
 	
 	return binarized;
-}
-
-BinaryImage
-OutputGenerator::binarize(QImage const& image,
-	QPolygonF const& crop_area, BinaryImage const* mask) const
-{
-	QPainterPath path;
-	path.addPolygon(crop_area);
-	
-	if (path.contains(image.rect()) && !mask) {
-		BinaryThreshold const bw_thresh(BinaryThreshold::otsuThreshold(image));
-		return BinaryImage(image, adjustThreshold(bw_thresh));
-	} else {
-		BinaryImage modified_mask(image.size(), BLACK);
-		PolygonRasterizer::fillExcept(modified_mask, WHITE, crop_area, Qt::WindingFill);
-		modified_mask = erodeBrick(modified_mask, QSize(3, 3), WHITE);
-		
-		if (mask) {
-			rasterOp<RopAnd<RopSrc, RopDst> >(modified_mask, *mask);
-		}
-		
-		return binarize(image, modified_mask);
-	}
 }
 
 /**
