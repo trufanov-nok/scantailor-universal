@@ -111,7 +111,7 @@ PolynomialSurface::PolynomialSurface(
 	AtA.setZero();
 	VectorXd Atb(num_terms);
 	Atb.setZero();
-	prepareDataForLeastSquares(src, AtA, Atb, m_horDegree, m_vertDegree);
+	prepareDataForLeastSquares(src, mask, AtA, Atb, m_horDegree, m_vertDegree);
 
 	fixSquareMatrixRankDeficiency(AtA);
 	VectorXd coeffs = AtA.selfadjointView<Upper>().ldlt().solve(Atb);
@@ -338,9 +338,10 @@ void PolynomialSurface::prepareDataForLeastSquares(
 			double const data_point = data_scale * image_line[x];
 
 			int pos = 0;
-			for (int i = 0; i <= v_degree; ++i) {
-				for (int j = 0; j <= h_degree; ++j, ++pos) {
-					full_powers[pos] = y_powers[i] * x_powers(j, x);
+			for (int i = 0; i <= h_degree; ++i) {
+				double const x_power = x_powers(i, x);
+				for (int j = 0; j <= v_degree; ++j, ++pos) {
+					full_powers[pos] = y_powers[j] * x_power;
 				}
 			}
 
@@ -350,7 +351,7 @@ void PolynomialSurface::prepareDataForLeastSquares(
 
 				// Only updating the upper triangular part as this matrix
 				// is symmetric and we'll be using selfadjointView() on it.
-				for (int j = 0; j < num_terms; ++j) {
+				for (int j = i; j < num_terms; ++j) {
 					double const j_val = full_powers[j];
 					AtA(i, j) += i_val * j_val;
 				}
