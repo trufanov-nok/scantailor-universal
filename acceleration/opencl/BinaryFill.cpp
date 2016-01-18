@@ -84,7 +84,8 @@ void binaryFillFrame(
 		);
 	}
 
-	if (!inner_pixel_rect.intersects(outer_pixel_rect)) {
+	if (!inner_pixel_rect.intersects(outer_pixel_rect)
+			|| inner_pixel_rect.contains(outer_pixel_rect)) {
 		indicateCompletion(completion_set, dependencies);
 		return;
 	}
