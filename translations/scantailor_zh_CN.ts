@@ -68,9 +68,8 @@
         <translation>Petr Kovář - 捷克语</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="226"/>
         <source>Stefan Birkner - German</source>
-        <translation>Stefan Birkner - 德语</translation>
+        <translation type="vanished">Stefan Birkner - 德语</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="233"/>
@@ -94,31 +93,36 @@
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="261"/>
+        <source>uciN - Romanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="268"/>
         <source>Joseph Artsimovich - Russian</source>
         <translation>Joseph Artsimovich - 俄语</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="275"/>
+        <location filename="../ui/AboutDialog.ui" line="282"/>
         <source>Marián Hvolka - Slovak</source>
         <translation>Marián Hvolka - 斯洛伐克语</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="282"/>
+        <location filename="../ui/AboutDialog.ui" line="289"/>
         <source>Flavio Benelli - Spanish</source>
         <translation>Flavio Benelli - 西班牙语</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="289"/>
+        <location filename="../ui/AboutDialog.ui" line="296"/>
         <source>Davidson Wang - Traditional Chinese</source>
         <translation>Davidson Wang - 繁体中文</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="296"/>
+        <location filename="../ui/AboutDialog.ui" line="303"/>
         <source>Yuri Chornoivan - Ukrainian</source>
         <translation>Yuri Chornoivan - 乌克兰语</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="323"/>
+        <location filename="../ui/AboutDialog.ui" line="330"/>
         <source>denver 22</source>
         <translation>denver 22</translation>
     </message>
@@ -133,17 +137,22 @@
         <translation>贡献者</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="308"/>
+        <location filename="../ui/AboutDialog.ui" line="226"/>
+        <source>Stefan Birkner, Markus Stamm - German</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="315"/>
         <source>Documentation</source>
         <translation>文档</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="364"/>
+        <location filename="../ui/AboutDialog.ui" line="371"/>
         <source>References</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="465"/>
+        <location filename="../ui/AboutDialog.ui" line="472"/>
         <source>License</source>
         <translation>许可证</translation>
     </message>
@@ -153,7 +162,7 @@
         <translation>Damir13 - 克罗地亚语</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="268"/>
+        <location filename="../ui/AboutDialog.ui" line="275"/>
         <source>Hxcan Cai - Simplified Chinese</source>
         <translation>Hxcan Cai - 简体中文</translation>
     </message>

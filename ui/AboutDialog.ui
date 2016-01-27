@@ -110,7 +110,7 @@ font-weight:bold;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-187</y>
+            <y>-272</y>
             <width>423</width>
             <height>516</height>
            </rect>
@@ -223,7 +223,7 @@ font-weight:bold;</string>
              <item>
               <widget class="QLabel" name="label_17">
                <property name="text">
-                <string>Stefan Birkner - German</string>
+                <string>Stefan Birkner, Markus Stamm - German</string>
                </property>
               </widget>
              </item>
@@ -381,8 +381,8 @@ font-weight:bold;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>112</width>
-            <height>4482</height>
+            <width>423</width>
+            <height>1106</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">

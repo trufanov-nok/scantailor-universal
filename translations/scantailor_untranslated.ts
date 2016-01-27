@@ -69,11 +69,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="226"/>
-        <source>Stefan Birkner - German</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../ui/AboutDialog.ui" line="233"/>
         <source>Angelo Gemmi - Italian</source>
         <translation type="unfinished"></translation>
@@ -95,36 +90,41 @@
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="261"/>
-        <source>Joseph Artsimovich - Russian</source>
+        <source>uciN - Romanian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="268"/>
-        <source>Hxcan Cai - Simplified Chinese</source>
+        <source>Joseph Artsimovich - Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="275"/>
-        <source>Marián Hvolka - Slovak</source>
+        <source>Hxcan Cai - Simplified Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="282"/>
-        <source>Flavio Benelli - Spanish</source>
+        <source>Marián Hvolka - Slovak</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="289"/>
-        <source>Davidson Wang - Traditional Chinese</source>
+        <source>Flavio Benelli - Spanish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="296"/>
+        <source>Davidson Wang - Traditional Chinese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="303"/>
         <source>Yuri Chornoivan - Ukrainian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="323"/>
+        <location filename="../ui/AboutDialog.ui" line="330"/>
         <source>denver 22</source>
         <translation type="unfinished"></translation>
     </message>
@@ -139,17 +139,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="308"/>
+        <location filename="../ui/AboutDialog.ui" line="226"/>
+        <source>Stefan Birkner, Markus Stamm - German</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="315"/>
         <source>Documentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="364"/>
+        <location filename="../ui/AboutDialog.ui" line="371"/>
         <source>References</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="465"/>
+        <location filename="../ui/AboutDialog.ui" line="472"/>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>

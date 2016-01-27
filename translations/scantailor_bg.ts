@@ -78,9 +78,13 @@
         <translation>Petr Kovář - Чешки</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="226"/>
         <source>Stefan Birkner - German</source>
-        <translation>Stefan Birkner - Немски</translation>
+        <translation type="vanished">Stefan Birkner - Немски</translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="226"/>
+        <source>Stefan Birkner, Markus Stamm - German</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="233"/>
@@ -104,41 +108,46 @@
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="261"/>
+        <source>uciN - Romanian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/AboutDialog.ui" line="268"/>
         <source>Joseph Artsimovich - Russian</source>
         <translation>Joseph Artsimovich - Руски</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="268"/>
+        <location filename="../ui/AboutDialog.ui" line="275"/>
         <source>Hxcan Cai - Simplified Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="275"/>
+        <location filename="../ui/AboutDialog.ui" line="282"/>
         <source>Marián Hvolka - Slovak</source>
         <translation>Marián Hvolka - Словашки</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="282"/>
+        <location filename="../ui/AboutDialog.ui" line="289"/>
         <source>Flavio Benelli - Spanish</source>
         <translation>Flavio Benelli - Испански</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="289"/>
+        <location filename="../ui/AboutDialog.ui" line="296"/>
         <source>Davidson Wang - Traditional Chinese</source>
         <translation>Davidson Wang - Традиционен китайски</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="296"/>
+        <location filename="../ui/AboutDialog.ui" line="303"/>
         <source>Yuri Chornoivan - Ukrainian</source>
         <translation>Yuri Chornoivan - Украински</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="323"/>
+        <location filename="../ui/AboutDialog.ui" line="330"/>
         <source>denver 22</source>
         <translation>denver 22</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="364"/>
+        <location filename="../ui/AboutDialog.ui" line="371"/>
         <source>References</source>
         <translation type="unfinished"></translation>
     </message>
@@ -219,7 +228,7 @@ Andrey Bergman - Настройка натоварването на систем
 </translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="308"/>
+        <location filename="../ui/AboutDialog.ui" line="315"/>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
@@ -232,7 +241,7 @@ phaedrus
 Taxman</translation>
     </message>
     <message>
-        <location filename="../ui/AboutDialog.ui" line="465"/>
+        <location filename="../ui/AboutDialog.ui" line="472"/>
         <source>License</source>
         <translation>Лиценз</translation>
     </message>
