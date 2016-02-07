@@ -35,12 +35,13 @@ namespace imageproc
  * @brief Applies a user-provided function to pixels from one or more images.
  *
  * The user-provided function will be called for each pixel individually.
- * The function will be passed as many arguments as there are pixels in
- * each individual image. In case of multiple images, image dimensions must
- * match. Argument types generally correspond to pixel types, except they
- * can also be references to pixel types, allowing image modifications.
- * In some cases instead of a pixel type you have a proxy object. That's the
- * case with BinaryImage, where BWPixelProxy class represents a pixel.
+ * The function will be passed the number of arguments equal to the number
+ * of images passed to rasterOpGeneric(). When more than one image is passed,
+ * dimensions of all images have to match. Argument types generally correspond
+ * to pixel types, except they can also be references to pixel types, allowing
+ * image modifications. In some cases instead of a pixel type you have a proxy
+ * object. That's the case with BinaryImage, where BWPixelProxy class represents
+ * a pixel.
  * Example:
  * @code
  * GrayImage img1 = ...;
@@ -53,8 +54,8 @@ namespace imageproc
  * @par Extending For Custom Image Types
  * In order to make rasterOpGeneric() work with a custom image type, you need
  * to do one of the following:
- * -# Implement an accessor() method in the custom class (perhaps both cost and
- *    non-cost versions) returning an appropriate instantiation of GridAccessor
+ * -# Implement an accessor() method in the custom class (perhaps both const and
+ *    non-const versions) returning an appropriate instantiation of GridAccessor
  *    template.
  * -# In the same namespace as the custom image class, declare and implement
  *    the following functions:
@@ -156,7 +157,7 @@ void validateDimensions(
     FirstImage const& first_image, Images const&... other_images)
 {
     if (reference_dims != extractDimensions(first_image)) {
-        throw std::invalid_argument("ropGeneric: inconsistent image dimensions");
+        throw std::invalid_argument("rasterOpGeneric: inconsistent image dimensions");
     }
 
     validateDimensions(reference_dims, other_images...);
@@ -168,7 +169,7 @@ std::tuple<int, int> getAndValidateDimensions(
 {
     std::tuple<int, int> const dims = extractDimensions(first_image);
     if (std::get<0>(dims) < 0 || std::get<1>(dims) < 0) {
-        throw std::invalid_argument("ropGeneric: invalid image dimensions");
+        throw std::invalid_argument("rasterOpGeneric: invalid image dimensions");
     }
 
     validateDimensions(dims, other_images...);
