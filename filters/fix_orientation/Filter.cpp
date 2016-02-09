@@ -29,6 +29,7 @@
 #include "ProjectWriter.h"
 #include "XmlMarshaller.h"
 #include "XmlUnmarshaller.h"
+#include "CommandLine.h"
 #include <QString>
 #include <QObject>
 #include <QCoreApplication>
@@ -36,7 +37,10 @@
 #include <QDomElement>
 #include <QDomNode>
 #include <iostream>
-#include "CommandLine.h"
+#ifndef Q_MOC_RUN
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#endif
 
 namespace fix_orientation
 {
@@ -94,9 +98,12 @@ Filter::saveSettings(
 {
 	QDomElement filter_el(doc.createElement("fix-orientation"));
 
-	writer.enumImages([this, &doc, &filter_el](ImageId const& image_id, int numeric_id) {
-		writeImageSettings(doc, filter_el, image_id, numeric_id);
-	});
+	writer.enumImages(
+		boost::lambda::bind(
+			&Filter::writeImageSettings,
+			this, boost::ref(doc), boost::lambda::var(filter_el), boost::lambda::_1, boost::lambda::_2
+		)
+	);
 	
 	return filter_el;
 }

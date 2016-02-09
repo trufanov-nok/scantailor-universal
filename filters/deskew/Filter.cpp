@@ -33,6 +33,10 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include "CommandLine.h"
+#ifndef Q_MOC_RUN
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#endif
 
 namespace deskew
 {
@@ -77,12 +81,14 @@ Filter::preUpdateUI(FilterUiInterface* const ui, PageId const& page_id)
 QDomElement
 Filter::saveSettings(ProjectWriter const& writer, QDomDocument& doc) const
 {
-	QDomElement filter_el(doc.createElement("deskew"));
-
-	writer.enumPages([this, &doc, &filter_el](PageId const& page_id, int numeric_id) {
-		writePageSettings(doc, filter_el, page_id, numeric_id);
-	});
 	
+    QDomElement filter_el(doc.createElement("deskew"));
+	writer.enumPages(
+		boost::lambda::bind(
+			&Filter::writePageSettings,
+			this, boost::ref(doc), boost::lambda::var(filter_el), boost::lambda::_1, boost::lambda::_2
+		)
+	);
 	return filter_el;
 }
 

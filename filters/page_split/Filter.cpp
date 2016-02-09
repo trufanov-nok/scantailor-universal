@@ -38,6 +38,10 @@
 #include <stddef.h>
 #include "CommandLine.h"
 #include "OrderBySplitTypeProvider.h"
+#ifndef Q_MOC_RUN
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#endif
 
 namespace page_split
 {
@@ -103,9 +107,12 @@ Filter::saveSettings(
 		layoutTypeToString(m_ptrSettings->defaultLayoutType())
 	);
 	
-	writer.enumImages([this, &doc, &filter_el](ImageId const& image_id, int numeric_id) {
-		writeImageSettings(doc, filter_el, image_id, numeric_id);
-	});
+	writer.enumImages(
+		boost::lambda::bind(
+			&Filter::writeImageSettings,
+			this, boost::ref(doc), boost::lambda::var(filter_el), boost::lambda::_1, boost::lambda::_2
+		)
+	);
 	
 	return filter_el;
 }

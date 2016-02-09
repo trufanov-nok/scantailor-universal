@@ -35,7 +35,10 @@
 #include <QDomElement>
 #include <QtGlobal>
 #include <memory>
-
+#ifndef Q_MOC_RUN
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#endif
 #include "CommandLine.h"
 #include "ImageViewTab.h"
 
@@ -89,9 +92,12 @@ Filter::saveSettings(
 	QDomElement filter_el(doc.createElement("output"));
 	filter_el.setAttribute("scalingFactor", Utils::doubleToString(m_ptrSettings->scalingFactor()));
 
-	writer.enumPages([this, &doc, &filter_el](PageId const& page_id, int numeric_id) {
-		writePageSettings(doc, filter_el, page_id, numeric_id);
-	});
+	writer.enumPages(
+		boost::lambda::bind(
+			&Filter::writePageSettings,
+			this, boost::ref(doc), boost::lambda::var(filter_el), boost::lambda::_1, boost::lambda::_2
+		)
+	);
 	
 	return filter_el;
 }
