@@ -2459,7 +2459,7 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
 		void (std::vector<ImageMetadata>::*push_back) (const ImageMetadata&) =
 			&std::vector<ImageMetadata>::push_back;
 		ImageMetadataLoader::Status const status = ImageMetadataLoader::load(
-			files.at(i), boost::lambda::bind(push_back,
+			files.at(i), boost::lambda::bind(&std::vector<ImageMetadata>::push_back,
 			boost::ref(image_file_info.imageInfo()), boost::lambda::_1)
 		);
 
@@ -2482,7 +2482,7 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
 	}
 
 	// Check if there is at least one DPI that's not OK.
-	if (std::find_if(new_files.begin(), new_files.end(), !bind(&ImageFileInfo::isDpiOK, _1)) != new_files.end()) {
+	if (std::find_if(new_files.begin(), new_files.end(), !boost::lambda::bind(&ImageFileInfo::isDpiOK, boost::lambda::_1)) != new_files.end()) {
 
 		std::auto_ptr<FixDpiDialog> dpi_dialog(new FixDpiDialog(new_files, this));
 		dpi_dialog->setWindowModality(Qt::WindowModal);
