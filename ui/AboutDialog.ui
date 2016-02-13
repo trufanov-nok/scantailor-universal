@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>490</width>
-    <height>349</height>
+    <width>534</width>
+    <height>423</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,8 +110,8 @@ font-weight:bold;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-272</y>
-            <width>423</width>
+            <y>0</y>
+            <width>467</width>
             <height>516</height>
            </rect>
           </property>
@@ -380,9 +380,9 @@ font-weight:bold;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
-            <width>423</width>
-            <height>1106</height>
+            <y>-843</y>
+            <width>467</width>
+            <height>1178</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -417,7 +417,7 @@ font-weight:bold;</string>
 &lt;a href=&quot;http://scholar.google.com/scholar?q=Niblack%2C+W.%3A+An+Introduction+to+Digital+Image+Processing.&quot;&gt;[9]&lt;/a&gt; Niblack, Wayne. An introduction to digital image processing. Englewood Cliffs, N. J., Prentice Hall (1986) 115-116
 &lt;/p&gt;
 &lt;p&gt;
-&lt;a href=&quot;http://scholar.google.com/scholar?q=Adaptive+degraded+document+image+binarization&quot;&gt;[10]&lt;/a&gt; Gatos, Basilios, Ioannis Pratikakis, and Stavros J. Perantonis. &quot;Adaptive degraded document image binarization.&quot; Pattern recognition 39.3 (2006): 317-327.
+&lt;a href=&quot;http://scholar.google.com/scholar?q=An+adaptive+binarization+technique+for+low+quality+historical+documents&quot;&gt;[10]&lt;/a&gt; Gatos, Basilios, Ioannis Pratikakis, and Stavros J. Perantonis. &quot;An adaptive binarization technique for low quality historical documents.&quot; Document Analysis Systems VI. Springer Berlin Heidelberg, 2004. 102-113.
 &lt;/p&gt;
 &lt;p&gt;
 &lt;a href=&quot;http://scholar.google.com/scholar?q=Adaptive+document+image+binarization&quot;&gt;[11]&lt;/a&gt; Sauvola, Jaakko, and Matti Pietikäinen. &quot;Adaptive document image binarization.&quot; Pattern recognition 33.2 (2000): 225-236.
@@ -442,6 +442,12 @@ font-weight:bold;</string>
 &lt;/p&gt;
 &lt;p&gt;
 &lt;a href=&quot;http://scholar.google.com/scholar?q=X-splines%3A+A+spline+model+designed+for+the+end-user&quot;&gt;[18]&lt;/a&gt; Blanc, Carole, and Christophe Schlick. &quot;X-splines: A spline model designed for the end-user.&quot; Proceedings of the 22nd annual conference on Computer graphics and interactive techniques. ACM, 1995.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=Danielsson+Euclidean+distance+mapping&quot;&gt;[19]&lt;/a&gt; Danielsson, Per-Erik. &quot;Euclidean distance mapping.&quot; Computer Graphics and image processing 14.3 (1980): 227-248.
+&lt;/p&gt;
+&lt;p&gt;
+&lt;a href=&quot;http://scholar.google.com/scholar?q=A+general+algorithm+for+computing+distance+transforms+in+linear+time&quot;&gt;[20]&lt;/a&gt; Meijster, Arnold, Jos BTM Roerdink, and Wim H. Hesselink. &quot;A general algorithm for computing distance transforms in linear time.&quot; Mathematical Morphology and its applications to image and signal processing. Springer US, 2002. 331-340.
 &lt;/p&gt;</string>
              </property>
              <property name="textFormat">
@@ -500,9 +506,6 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources>
-  <include location="../resources/resources.qrc"/>
-  <include location="../resources/resources.qrc"/>
-  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections>

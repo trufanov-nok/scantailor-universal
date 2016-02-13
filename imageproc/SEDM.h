@@ -37,11 +37,7 @@ class ConnectivityMap;
  * For each pixel of the input image stores the squared euclidean
  * (straight line) distance to either the nearest white or black pixel.
  *
- * The implementation is based on the following paper:\n
- * Meijster, A., Roerdink, J., and Hesselink, W. 2000.
- * A general algorithm for computing distance transforms in linear time.
- * In Proceedings of the 5th International Conference on Mathematical
- * Morphology and its Applications to Image and Signal Processing.
+ * @see Help -> About -> References -> [20]
  */
 class IMAGEPROC_EXPORT SEDM
 {

@@ -38,6 +38,8 @@ class ConnectivityMap;
  * Extension goes by taking over zero (that is background) labels.
  * Extension is done in such a way that two different labels meet at
  * a location equidistant from the initial areas of those two labels.
+ *
+ * @see Help -> About -> References -> [19]
  */
 class IMAGEPROC_EXPORT InfluenceMap
 {
