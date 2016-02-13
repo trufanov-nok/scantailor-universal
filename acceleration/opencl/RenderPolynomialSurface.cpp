@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015-2016  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "Utils.h"
 #include "AlignedArray.h"
 #include <cstddef>
+#include <array>
 #include <algorithm>
 #include <vector>
 
@@ -86,12 +87,10 @@ imageproc::GrayImage renderPolynomialSurface(
 
 	GrayImage dst(QSize(width, height));
 
-	cl::size_t<3> region;
-	region[0] = width;
-	region[1] = height;
-	region[2] = 1;
+	std::array<size_t, 3> const region{width, height, 1};
+	std::array<size_t, 3> const zero_offset{0, 0, 0};
 	command_queue.enqueueReadBufferRect(
-		dst_buffer, CL_TRUE, cl::size_t<3>(), cl::size_t<3>(),
+		dst_buffer, CL_TRUE, zero_offset, zero_offset,
 		region, dst_buffer_stride, 0, dst.stride(), 0, dst.data(), &deps
 	);
 

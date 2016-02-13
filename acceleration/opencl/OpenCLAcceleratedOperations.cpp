@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015-2016  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
-#include <deque>
 #include <new>
+#include <algorithm>
 #include <stdexcept>
 #include <cstddef>
 #include <cstdint>
@@ -73,8 +73,8 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 		"binary_raster_op.cl"
 	};
 
-	std::deque<QByteArray> sources;
-	cl::Program::Sources source_accessors;
+	cl::Program::Sources sources;
+	sources.reserve(std::distance(std::begin(device_sources), std::end(device_sources)));
 
 	for (char const* file_name : device_sources) {
 		QString resource_name(":/device_code/");
@@ -83,12 +83,10 @@ OpenCLAcceleratedOperations::OpenCLAcceleratedOperations(
 		if (!file.open(QIODevice::ReadOnly)) {
 			throw std::runtime_error("Failed to read file: "+resource_name.toStdString());
 		}
-		sources.push_back(file.readAll());
-		QByteArray const& data = sources.back();
-		source_accessors.push_back(std::make_pair(data.data(), data.size()));
+		sources.push_back(file.readAll().toStdString());
 	}
 
-	cl::Program program(m_context, source_accessors);
+	cl::Program program(m_context, sources);
 
 	try {
 		program.build();

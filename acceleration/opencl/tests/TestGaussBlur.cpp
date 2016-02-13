@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015-2016  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "PerformanceTimer.h"
 #include "imageproc/GaussBlur.h"
 #include "imageproc/Constants.h"
-#include <CL/cl.hpp>
+#include <CL/cl2.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/test/auto_unit_test.hpp>

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015-2016  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,8 +21,7 @@
 
 #include "OpenCLGrid.h"
 #include "imageproc/BinaryImage.h"
-#include <QByteArray>
-#include <CL/cl.hpp>
+#include <CL/cl2.hpp>
 #include <vector>
 #include <deque>
 
@@ -51,8 +50,7 @@ protected:
 
 	cl::Program buildProgram(cl::Context const& context) const;
 private:
-	std::deque<QByteArray> m_sources;
-	cl::Program::Sources m_sourceAccessors;
+	cl::Program::Sources m_sources;
 };
 
 imageproc::BinaryImage randomBinaryImage(int width, int height);

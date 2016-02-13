@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015-2016  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ T msbBits(int bits)
 bool isDodgyDevice(cl::Device const& device)
 {
 	cl_device_type const device_type = device.getInfo<CL_DEVICE_TYPE>();
-	cl::Platform const platform = device.getInfo<CL_DEVICE_PLATFORM>();
+	cl::Platform const platform(device.getInfo<CL_DEVICE_PLATFORM>());
 	std::string const platform_name = platform.getInfo<CL_PLATFORM_NAME>();
 
 	if (device_type == CL_DEVICE_TYPE_GPU && platform_name.find("Intel") != std::string::npos) {

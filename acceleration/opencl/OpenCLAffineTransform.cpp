@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015-2016  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,11 +25,13 @@
 #include <QColor>
 #include <QSysInfo>
 #include <QDebug>
-#include <CL/cl.hpp>
+#include <CL/cl2.hpp>
 #include <utility>
 #include <stdexcept>
 #include <algorithm>
+#include <array>
 #include <cassert>
+#include <cstddef>
 #include <cmath>
 #include <vector>
 
@@ -151,11 +153,8 @@ QImage affineTransform(
 	);
 
 	// Write the source image to device memory.
-	cl::size_t<3> const origin;
-	cl::size_t<3> region;
-	region[0] = src.width();
-	region[1] = src.height();
-	region[2] = 1;
+	std::array<size_t, 3> const origin{0, 0, 0};
+	std::array<size_t, 3> region{src.width(), src.height(), 1};
 	command_queue.enqueueWriteImage(
 		src_image, CL_FALSE, origin, region, adapted.image.bytesPerLine(), 0,
 		(void*)adapted.image.bits(), &events, &evt

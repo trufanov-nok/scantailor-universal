@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2015  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2015-2016  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QtGlobal>
+#include <array>
 #include <stdexcept>
 #include <utility>
 #include <cstdlib>
@@ -76,15 +77,13 @@ ProgramBuilderFixture::addSource(char const* source_fname)
 	if (!file.open(QIODevice::ReadOnly)) {
 		throw std::runtime_error("Failed to read file: "+resource_name.toStdString());
 	}
-	m_sources.push_back(file.readAll());
-	QByteArray const& data = m_sources.back();
-	m_sourceAccessors.push_back(std::make_pair(data.data(), data.size()));
+	m_sources.push_back(file.readAll().toStdString());
 }
 
 cl::Program
 ProgramBuilderFixture::buildProgram(cl::Context const& context) const
 {
-	cl::Program program(context, m_sourceAccessors);
+	cl::Program program(context, m_sources);
 
 	try {
 		program.build();
@@ -129,12 +128,13 @@ imageproc::BinaryImage openCLGridToBinaryImage(
 {
 	imageproc::BinaryImage dst(pixel_width, grid.height());
 
-	cl::size_t<3> region;
+	std::array<size_t, 3> const zero_offset{0, 0, 0};
+	std::array<size_t, 3> region;
 	region[0] = std::min(dst.wordsPerLine(), grid.width()) * sizeof(uint32_t);
 	region[1] = dst.height();
 	region[2] = 1;
 	command_queue.enqueueReadBufferRect(
-		grid.buffer(), CL_TRUE, cl::size_t<3>(), cl::size_t<3>(), region,
+		grid.buffer(), CL_TRUE, zero_offset, zero_offset, region,
 		grid.stride() * sizeof(uint32_t), 0, dst.wordsPerLine() * sizeof(uint32_t), 0, dst.data()
 	);
 
