@@ -20,7 +20,7 @@
     <message>
         <location filename="../ui/AboutDialog.ui" line="33"/>
         <source>Scan Tailor is an interactive post-processing tool for scanned pages. It performs operations such as page splitting, skew correction, adding/removing margins, and others. You give it raw scans, and you get pages ready to be printed or assembled into a PDF or DJVU file.  Scanning and optical character recognition is out of scope of this project.</source>
-        <translation>Scan Tailor ist ein interaktives Werkzeug zur Nachbearbeitung gescannter Seiten. Scan Tailor unterstützt insbesondere das Aufteilen von Seiten, das Entzerren der Seitenabbilder und das Hinzufügen und Entfernen von Seitenrändern. Sie können als Ursprungsdateien die unbearbeiteten Bilddateien aus dem Scanvorgang nutzen, und Sie erhalten Seiten, die zum Drucken oder für die Einbindung in PDF- und DJVU-Dateien geeignet sind. Der Scanvorgang selbst und die Texterkennung sind nicht Teil des Projekts.</translation>
+        <translation>Scan Tailor ist ein interaktives Werkzeug zur Nachbearbeitung gescannter Seiten. Scan Tailor unterstützt insbesondere das Aufteilen von Seiten, die Korrektur der Bildgeometrie und das Hinzufügen und Entfernen von Seitenrändern. Sie können als Ursprungsdateien die unbearbeiteten Bilddateien aus dem Scanvorgang nutzen, und Sie erhalten Ausgabedateien, die zum Drucken und zur Einbindung in PDF- und DJVU-Dateien geeignet sind. Der Scanvorgang selbst und die Texterkennung sind nicht Teil dieses Projekts.</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="101"/>
@@ -30,7 +30,7 @@
     <message>
         <location filename="../ui/AboutDialog.ui" line="125"/>
         <source>Lead Developer</source>
-        <translation>Chefentwickler</translation>
+        <translation>Leitender Entwickler</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="132"/>
@@ -69,7 +69,7 @@
     <message>
         <location filename="../ui/AboutDialog.ui" line="212"/>
         <source>Damir13 - Croatian</source>
-        <translation type="unfinished"></translation>
+        <translation>Damir13 - Kroatisch</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="219"/>
@@ -78,12 +78,12 @@
     </message>
     <message>
         <source>Stefan Birkner - German</source>
-        <translation type="vanished">Markus Stamm - Deutsch</translation>
+        <translation type="vanished">Stefan Birkner - Deutsch</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="226"/>
         <source>Stefan Birkner, Markus Stamm - German</source>
-        <translation type="unfinished"></translation>
+        <translation>Stefan Birkner, Markus Stamm - Deutsch</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="233"/>
@@ -108,7 +108,7 @@
     <message>
         <location filename="../ui/AboutDialog.ui" line="261"/>
         <source>uciN - Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>uciN - Rumänisch</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="268"/>
@@ -118,7 +118,7 @@
     <message>
         <location filename="../ui/AboutDialog.ui" line="275"/>
         <source>Hxcan Cai - Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Hxcan Cai - Chinesisch (Kurzzeichen)</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="282"/>
@@ -148,7 +148,7 @@
     <message>
         <location filename="../ui/AboutDialog.ui" line="371"/>
         <source>References</source>
-        <translation type="unfinished"></translation>
+        <translation>Literaturhinweise</translation>
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="183"/>
@@ -234,7 +234,7 @@ Taxman</translation>
     <message>
         <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="57"/>
         <source>Scope</source>
-        <translation type="unfinished">Anwendungsbereich</translation>
+        <translation>Anwendungsbereich</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewApplyDialog.ui" line="63"/>
@@ -276,32 +276,32 @@ Taxman</translation>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="20"/>
         <source>Distortion type</source>
-        <translation type="unfinished"></translation>
+        <translation>Art des Geometriefehlers</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="44"/>
         <source>No distortion</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Fehler in der Bildgeometrie</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="66"/>
         <source>Page skew</source>
-        <translation type="unfinished"></translation>
+        <translation>Seite verdreht</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="88"/>
         <source>Keystoning</source>
-        <translation type="unfinished"></translation>
+        <translation>Trapezverzerrung</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="110"/>
         <source>Curved lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Bogenlinien</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="187"/>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Methode</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="206"/>
@@ -316,12 +316,12 @@ Taxman</translation>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="251"/>
         <source>Rotation angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Drehwinkel</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="296"/>
         <source>Depth perception</source>
-        <translation type="unfinished">Tiefenwahrnehmung</translation>
+        <translation>Tiefenwahrnehmung</translation>
     </message>
     <message>
         <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="162"/>
@@ -468,13 +468,13 @@ Taxman</translation>
         <location filename="../LoadFileTask.cpp" line="152"/>
         <source>The following file could not be loaded:
 %1</source>
-        <translation>Die folgende Datei konnte nicht geladen werden:
+        <translation>Folgende Datei konnte nicht geladen werden:
 %1</translation>
     </message>
     <message>
         <location filename="../LoadFileTask.cpp" line="155"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use the &lt;a href=&quot;#relink&quot;&gt;Relinking Tool&lt;/a&gt; to locate it.</source>
-        <translation>Die folgende Datei existiert nicht:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Um die Datei aufzusuchen, nutzen Sie das Werkzeug &lt;a href=&quot;#relink&quot;&gt;Pfade und Dateien korrigieren&lt;/a&gt;.</translation>
+        <translation>Folgende Datei existiert nicht:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Um die Datei aufzusuchen, nutzen Sie das Werkzeug &lt;a href=&quot;#relink&quot;&gt;Pfade und Dateien korrigieren&lt;/a&gt;.</translation>
     </message>
 </context>
 <context>
@@ -482,7 +482,7 @@ Taxman</translation>
     <message>
         <location filename="../ui/LoadFilesStatusDialog.ui" line="14"/>
         <source>Some files failed to load</source>
-        <translation>Mindestens eine Datei konnte nicht geladen werden</translation>
+        <translation>Mindestens eine Datei konnte nicht geladen werden.</translation>
     </message>
     <message>
         <location filename="../ui/LoadFilesStatusDialog.ui" line="27"/>
@@ -492,7 +492,7 @@ Taxman</translation>
     <message>
         <location filename="../ui/LoadFilesStatusDialog.ui" line="87"/>
         <source>Failed to load: %1</source>
-        <translation>Fehler beim Laden: %1</translation>
+        <translation>Nicht erfolgreich geladen: %1</translation>
     </message>
 </context>
 <context>
@@ -562,7 +562,7 @@ Taxman</translation>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe der bearbeiteten Dateien ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
-Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbeitung an den Punkten &quot;Inhalt auswählen&quot; oder &quot;Ränder&quot;.</translation>
+Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbeitung an den Punkten &quot;Inhalt auswählen&quot; oder &quot;Ränder (Stege)&quot;.</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="1661"/>
@@ -601,7 +601,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../MainWindow.cpp" line="1821"/>
         <source>Images not in project (%1)</source>
-        <translation>Bilder, die nicht in das Projekt aufgenommen sind (%1)</translation>
+        <translation>Bilder außerhalb des Projekts (%1)</translation>
     </message>
     <message>
         <source>Error opening the image file.</source>
@@ -845,7 +845,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../filters/fix_orientation/ui/OrientationApplyDialog.ui" line="125"/>
         <source>Selected pages</source>
-        <translation>ausgewählte Seiten</translation>
+        <translation>die ausgewählten Seiten</translation>
     </message>
     <message>
         <location filename="../filters/fix_orientation/ui/OrientationApplyDialog.ui" line="155"/>
@@ -897,27 +897,27 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="14"/>
         <source>Out of memory</source>
-        <translation>Verfügbarer Speicherplatz erschöpft</translation>
+        <translation>Adressierbarer Arbeitsspeicher erschöpft</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="37"/>
         <source>Out of Memory Situation in Scan Tailor</source>
-        <translation>Es steht für Scan Tailor nicht genügend Speicherplatz zur Verfügung</translation>
+        <translation>Für Scan Tailor steht nicht ausreichend adressierbarer Arbeitsspeicher zur Verfügung</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="70"/>
         <source>Possible reasons</source>
-        <translation>Mögliche Gründe hierfür sind:</translation>
+        <translation>Mögliche Gründe</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="103"/>
         <source>Did you have to fix the DPI of your source images? Are you sure the values you entered were correct?</source>
-        <translation>Fehler in den dpi-Werten. Falls Sie die dpi-Werte der Ausgangsdateien korrigiert haben, sind Sie sicher, dass die eingegebenen Werte richtig sind?</translation>
+        <translation>Es können Fehler in den dpi-Werten vorliegen. Falls Sie die dpi-Werte der Ursprungsdateien korrigiert haben, stellen Sie sicher, dass Sie die richtigen Werte eingegeben haben.</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="123"/>
         <source>Sometimes your source images may have wrong DPI embedded into them. Scan Tailor tries to detect those, but it&apos;s not always easy to tell. You may need to check &quot;Fix DPI even if they look normal&quot; when creating a project and look into &quot;All pages&quot; tab in the &quot;Fix DPI&quot; dialog, which is also accessible from the Tools menu.</source>
-        <translation>Ihre Ausgangsdateien können falsche dpi-Werte enthalten. Scan Tailor versucht, solche Fehler zu erkennen, jedoch ist diese Erkennung nicht immer sicher möglich. Möglicherweise müssen Sie beim Erstellen Ihres Projekts die Option &quot;dpi-Werte korrigieren, auch wenn sie scheinbar richtig sind&quot; aktivieren. Sie können die Werte auch auf der Registerkarte &quot;Alle Seiten&quot; im Konfigurationsdialog &quot;dpi-Werte korrigieren&quot; einsehen. DIeser Konfigurationsdialog ist über das Menü Werkzeuge erreichbar.</translation>
+        <translation>Ihre Ursprungsdateien können falsche dpi-Werte enthalten. Scan Tailor versucht, solche Fehler zu erkennen, jedoch ist diese Erkennung nicht immer sicher möglich. Möglicherweise müssen Sie beim Erstellen Ihres Projekts die Option &quot;dpi-Werte korrigieren, auch wenn sie scheinbar richtig sind&quot; aktivieren. Sie können die Werte auch auf der Registerkarte &quot;Alle Seiten&quot; im Konfigurationsdialog &quot;dpi-Werte korrigieren&quot; einsehen. Dieser Konfigurationsdialog ist über das Menü Werkzeuge erreichbar.</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="143"/>
@@ -927,23 +927,23 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="174"/>
         <source>What can help</source>
-        <translation>Mögliche Maßnahmen zur Abhilfe sind:</translation>
+        <translation>Maßnahmen mit Erfolgsaussicht</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="204"/>
         <source>Fix your DPIs. Learn how to &lt;a href=&quot;http://vimeo.com/12524529&quot;&gt;estimate unknown DPIs&lt;/a&gt;.</source>
         <extracomment>Feel free to change the URL to a localized video / text tutorial.</extracomment>
-        <translation>Die Korrektur der dpi-Werte. Sie finden Informationen in englischer Sprache &lt;a href=&quot;http://vimeo.com/12524529&quot;&gt;über das Schätzen unbekannter dpi-Werte&lt;/a&gt;.</translation>
+        <translation>Sie können versuchen, die dpi-Werte zu korrigieren. Sie finden Informationen in englischer Sprache über das Schätzen unbekannter dpi-Werte &lt;a href=&quot;http://vimeo.com/12524529&quot;&gt;in diesem Video&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="224"/>
         <source>If your hardware and operating system are 64-bit capable, consider switching to a 64-bit version of Scan Tailor.</source>
-        <translation>Der Wechsel auf die 64-Bit-Version des Scan Tailors, falls Ihre Hardware und Ihr Betriebssystem 64-Bit-kompatibel ist.</translation>
+        <translation>Falls Ihre Hardware und Ihr Betriebssystem 64-Bit-kompatibel sind, können Sie zur 64-Bit-Version des Scan Tailors wechseln.</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="244"/>
         <source>When working with grayscale images, make sure they are really grayscale. If they are actually color images that just happen to look grayscale, convert them to grayscale using some kind of batch image converter. This will both save memory and increase performance.</source>
-        <translation>Falls Sie mit Bilddateien in Graustufen arbeiten, stellen Sie sicher, dass es sich wirklich um Graustufen-Bilddateien und nicht um Farb-Bilddateien handelt. Handelt es sich um Farb-Bilddateien, die nur wie Graustufen-Bilddateien aussehen, dann wandeln Sie diese Dateien mithilfe eines externen Konverters in Graustufen um. Hierdurch werden Speicherplatz gespart und die Leistung erhöht.</translation>
+        <translation>Falls Sie mit Bilddateien in Graustufen arbeiten, stellen Sie sicher, dass es sich wirklich um Graustufen-Bilddateien und nicht um Farb-Bilddateien handelt. Handelt es sich um Farb-Bilddateien, die nur wie Graustufen-Bilddateien aussehen, dann wandeln Sie diese Dateien mithilfe eines externen Konverters in Graustufen um. Dies spart Speicherplatz und erhöht die Leistung.</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="264"/>
@@ -953,12 +953,12 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="295"/>
         <source>What won&apos;t help</source>
-        <translation>Maßnahmen, die keinen Erfolg versprechen, sind:</translation>
+        <translation>Maßnahmen ohne Erfolgsaussicht</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="325"/>
         <source>Surprisingly, upgrading your RAM won&apos;t help here. The lack of RAM is compensated by the swap mechanism, which makes things slow, but keeps programs running. An out of memory situation means we ran out of memory address space, which has nothing to do with the amount of RAM you have. The only way to increase the memory address space is to go 64-bit hardware, 64-bit operating system and 64-bit Scan Tailor.</source>
-        <translation>Die Erweiterung des Arbeitsspeichers, obwohl dies eigentlich nahe liegt. Ist nicht ausreichend physikalischer Arbeitsspeicher vorhanden, so wird dies durch den Swap-Mechanismus ausgeglichen. Hierdurch verringert sich zwar die Bearbeitungsgeschwindigkeit, die betroffenen Programme können aber ausgeführt werden. Meldet Scan Tailor, dass der Speicherplatz erschöpft ist, dann bedeutet dies, dass der Adressraum des Arbeitsspeichers erschöpft ist; es bedeutet nicht, dass nicht genügend physikalischer Arbeitsspeicher zur Verfügung steht. Die einzige Möglichkeit, den Adressraum des Arbeitsspeichers zu vergrößern, ist der Einsatz von 64-Bit-kompatibler Hardware, eines 64-Bit-Betriebssystems und der 64-Bit-Version des Scan Tailors.</translation>
+        <translation>Die Erweiterung des Arbeitsspeichers bietet keine Abhilfe, obwohl dies eigentlich nahe liegt. Ist nicht ausreichend physikalischer Arbeitsspeicher vorhanden, so wird dies durch den Swap-Mechanismus ausgeglichen. Hierdurch verringert sich zwar die Bearbeitungsgeschwindigkeit, die betroffenen Programme können aber ausgeführt werden. Meldet Scan Tailor, dass der adressierbare Arbeitsspeicher erschöpft ist, dann bedeutet dies, dass der Adressraum des Arbeitsspeichers erschöpft ist; es bedeutet nicht, dass nicht genügend physikalischer Arbeitsspeicher zur Verfügung steht. Die einzige Möglichkeit, den Adressraum des Arbeitsspeichers zu vergrößern, ist der Einsatz von 64-Bit-kompatibler Hardware, eines 64-Bit-Betriebssystems und der 64-Bit-Version des Scan Tailors.</translation>
     </message>
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="361"/>
@@ -983,7 +983,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/OutOfMemoryDialog.ui" line="453"/>
         <source>Please note that while Scan Tailor tries to catch out-of-memory situations and give you the opportunity to save your project, it&apos;s not always possible. This time it succeeded, but the next time it might just crash.</source>
-        <translation>Beachte: Scan Tailor versucht zwar, Betriebszustände abzufangen, in denen der verfügbare Speicherplatz erschöpft ist, sodass Sie Ihr Projekt speichern können, dies ist jedoch nicht immer möglich. In dem vorliegenden Fall konnte der Betriebszustand abgefangen werden; sollte ein vergleichbarer Betriebszustand aber wieder auftreten, kann Scan Tailor auch abstürzen, und es kann daher zu Datenverlust kommen.</translation>
+        <translation>Beachte: Scan Tailor versucht zwar, Betriebszustände abzufangen, in denen der adressierbare Arbeitsspeicher erschöpft ist, sodass Sie Ihr Projekt speichern können, dies ist jedoch nicht immer möglich. In dem vorliegenden Fall konnte der Betriebszustand abgefangen werden; sollte ein vergleichbarer Betriebszustand aber wieder auftreten, kann Scan Tailor auch abstürzen, und es kann dann zum Datenverlust kommen.</translation>
     </message>
     <message>
         <location filename="../OutOfMemoryDialog.cpp" line="87"/>
@@ -1220,22 +1220,22 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="20"/>
         <source>Resolution Enhancement</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbesserung der Auflösung</translation>
     </message>
     <message>
         <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="47"/>
         <source>1x</source>
-        <translation type="unfinished"></translation>
+        <translation>1x</translation>
     </message>
     <message>
         <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="66"/>
         <source>1.5x</source>
-        <translation type="unfinished"></translation>
+        <translation>1,5x</translation>
     </message>
     <message>
         <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="85"/>
         <source>2x</source>
-        <translation type="unfinished"></translation>
+        <translation>2x</translation>
     </message>
     <message>
         <location filename="../filters/output/ui/OutputOptionsWidget.ui" line="338"/>
@@ -1362,27 +1362,27 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="275"/>
         <source>Don&apos;t match size</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe nicht angleichen</translation>
     </message>
     <message>
         <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="285"/>
         <source>Match size by growing margins</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe angleichen durch Vergrößern der Ränder</translation>
     </message>
     <message>
         <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="295"/>
         <source>Match size by scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe angleichen durch Skalierung</translation>
     </message>
     <message>
         <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="636"/>
         <source>Missing content box</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalts-Auswahlfeld fehlt</translation>
     </message>
     <message>
         <location filename="../filters/page_layout/ui/PageLayoutOptionsWidget.ui" line="649"/>
         <source>As there is no content box, the output will be a blank white page with size matching that of other pages.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist kein Inhalts-Auswahlfeld vorhanden. Als Ausgabedatei wird eine leere weiße Seite erzeugt, deren Größe denen der anderen Seiten entspricht.</translation>
     </message>
     <message>
         <source>Match size with other pages</source>
@@ -1509,7 +1509,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
         <location filename="../ui/ProjectFilesDialog.ui" line="20"/>
         <location filename="../ProjectFilesDialog.cpp" line="309"/>
         <source>Input Directory</source>
-        <translation>Verzeichnis für die Ausgangsdateien (Eingabeverzeichnis)</translation>
+        <translation>Verzeichnis für die Ursprungsdateien (Eingabeverzeichnis)</translation>
     </message>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="43"/>
@@ -1585,7 +1585,7 @@ Sie sollten diese Dateien aus dem Projekt entfernen.</translation>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="64"/>
         <source>Files Not In Project</source>
-        <translation>In das Projekt nicht aufgenommene Dateien</translation>
+        <translation>Nicht in das Projekt aufgenommene Dateien</translation>
     </message>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="77"/>
@@ -1602,7 +1602,7 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Ausgewählte Dateien zum Projekt hinzufügen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Ausgewählte Dateien dem Projekt hinzufügen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="108"/>
@@ -1650,7 +1650,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ProjectOpeningContext.cpp" line="46"/>
         <source>Unable to interpret the project file.</source>
-        <translation>Die Projektdatei kann nicht ausgewertet werden.</translation>
+        <translation>Die Projektdatei konnte nicht verarbeitet werden.</translation>
     </message>
 </context>
 <context>
@@ -1701,7 +1701,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ui/RemovePagesDialog.ui" line="72"/>
         <source>Corresponding output files will be deleted, while input files will remain.</source>
-        <translation>Die zugehörigen Ausgabedateien werden hierdurch gelöscht; die Ausgangsdateien bleiben erhalten.</translation>
+        <translation>Die zugehörigen Ausgabedateien werden hierdurch gelöscht; die Ursprungsdateien bleiben erhalten.</translation>
     </message>
 </context>
 <context>
@@ -1810,17 +1810,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ui/SettingsDialog.ui" line="20"/>
         <source>Accelerate user interface with OpenGL</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerschnittstelle mithilfe von OpenGL beschleunigen</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="45"/>
         <source>Device: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät: %1</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="54"/>
         <source>Accelerate image processing with OpenCL, using:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildverarbeitung mithilfe von OpenCL beschleunigen und dazu folgendes Gerät nutzen:</translation>
     </message>
     <message>
         <source>Use 3D acceleration for user interface</source>
@@ -1829,27 +1829,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../SettingsDialog.cpp" line="44"/>
         <source>Built without OpenGL support</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohne OpenGL-Unterstützung kompiliert</translation>
     </message>
     <message>
         <location filename="../SettingsDialog.cpp" line="50"/>
         <source>Your hardware / driver don&apos;t provide the necessary features</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Hardware oder Ihr Treiber verfügt nicht über die notwendigen Leistungsmerkmale</translation>
     </message>
     <message>
         <location filename="../SettingsDialog.cpp" line="63"/>
         <source>Built without OpenCL support</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohne OpenCL-Unterstützung kompiliert</translation>
     </message>
     <message>
         <location filename="../SettingsDialog.cpp" line="76"/>
         <source>Failed to initialize OpenCL</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenCL konnte nicht initialisiert werden</translation>
     </message>
     <message>
         <location filename="../SettingsDialog.cpp" line="96"/>
         <source>No OpenCL-capable devices found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Geräte mit OpenCL-Unterstützung gefunden</translation>
     </message>
 </context>
 <context>
@@ -1889,7 +1889,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../SystemLoadWidget.cpp" line="38"/>
         <source>32-bit version of Scan Tailor doesn&apos;t support parallel processing</source>
-        <translation type="unfinished"></translation>
+        <translation>Die 32-Bit-Version des Scan Tailors unterstützt keine Parallelverarbeitung</translation>
     </message>
 </context>
 <context>
@@ -1905,7 +1905,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../VectorFieldImageView.cpp" line="120"/>
         <source>Scale: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Maßstab: %1</translation>
     </message>
 </context>
 <context>
@@ -1964,7 +1964,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../zones/ZoneDefaultInteraction.cpp" line="47"/>
         <source>Right click to edit zone properties.</source>
-        <translation>Eigenschaften des Bereichs bearbeiten durch Rechtsklick.</translation>
+        <translation>Bearbeiten der Eigenschaften des Bereichs durch Rechtsklick.</translation>
     </message>
     <message>
         <location filename="../zones/ZoneDefaultInteraction.cpp" line="49"/>
@@ -1982,7 +1982,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../zones/ZoneVertexDragInteraction.cpp" line="162"/>
         <source>Move the vertex to one of its neighbors to merge them.</source>
-        <translation>Vereinigen eines Eckpunkts mit einem benachbarten Eckpunkt durch Anklicken des Eckpunkts und Ziehen mit der Maus.</translation>
+        <translation>Vereinigen eines Eckpunkts mit einem benachbarten Eckpunkt durch Anklicken des Eckpunkts und Verschieben mit der Maus zum benachbarten Eckpunkt.</translation>
     </message>
 </context>
 <context>
@@ -1994,7 +1994,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/deskew/Filter.cpp" line="55"/>
         <source>Geometric Distortions</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildgeometrie korrigieren</translation>
     </message>
 </context>
 <context>
@@ -2019,12 +2019,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/deskew/OptionsWidget.cpp" line="124"/>
         <source>Apply Distortion Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Art des Geometriefehlers festlegen</translation>
     </message>
     <message>
         <location filename="../filters/deskew/OptionsWidget.cpp" line="171"/>
         <source>Apply Depth Perception</source>
-        <translation type="unfinished">Tiefenwahrnehmung ändern</translation>
+        <translation>Tiefenwahrnehmung festlegen</translation>
     </message>
 </context>
 <context>
@@ -2107,7 +2107,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/output/OptionsWidget.cpp" line="477"/>
         <source>This page: %1 x %2 px</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Seite: %1 x %2 Bildpunkte</translation>
     </message>
     <message>
         <source>Apply Depth Perception</source>
@@ -2176,7 +2176,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/page_layout/Filter.cpp" line="66"/>
         <source>Natural order</source>
-        <translation>Natürliche Reihenfolge</translation>
+        <translation>Ursprüngliche Reihenfolge</translation>
     </message>
     <message>
         <location filename="../filters/page_layout/Filter.cpp" line="67"/>
@@ -2199,7 +2199,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/page_layout/ImageView.cpp" line="88"/>
         <source>Resize margins by dragging any of the solid lines.</source>
-        <translation>Ändern der Ränder (Stege) durch Verschieben der durchgehenden Linien mit der Maus.</translation>
+        <translation>Ändern der Größe der Ränder (Stege) durch Verschieben der durchgehenden Linien mit der Maus.</translation>
     </message>
 </context>
 <context>
@@ -2220,7 +2220,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/page_split/Filter.cpp" line="63"/>
         <source>Natural order</source>
-        <translation>Natürliche Reihenfolge</translation>
+        <translation>Ursprüngliche Reihenfolge</translation>
     </message>
     <message>
         <location filename="../filters/page_split/Filter.cpp" line="64"/>
@@ -2262,7 +2262,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/page_split/UnremoveButton.cpp" line="38"/>
         <source>Restore removed page.</source>
-        <translation>Gelöschte Seite wiederherstellen.</translation>
+        <translation>Gelöschte Seite wieder herstellen.</translation>
     </message>
 </context>
 <context>
@@ -2278,7 +2278,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../filters/select_content/Filter.cpp" line="57"/>
         <source>Natural order</source>
-        <translation>Natürliche Reihenfolge</translation>
+        <translation>Ursprüngliche Reihenfolge</translation>
     </message>
     <message>
         <location filename="../filters/select_content/Filter.cpp" line="58"/>
