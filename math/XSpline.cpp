@@ -260,9 +260,13 @@ XSpline::maybeAddMoreSamples(
 	double mid_t = 0.5 * (prev_t + next_t);
 	double const nearby_junction_t = floor(mid_t * num_segments + 0.5) * r_num_segments;
 	
-	// If nearby_junction_t is between prev_t and next_t, make it our mid_t.
-	if ((nearby_junction_t - prev_t) * (next_t - prev_t) > 0 &&
-		(nearby_junction_t - next_t) * (prev_t - next_t) > 0) {
+	// If nearby_junction_t is between prev_t and next_t, make it our mid_t,
+	// provided it's not too close to either prev_pt or next_pt.
+	// Two samples very close to each other is a problem, as that creates numerical
+	// instability when calculating curvature at a vertex of a polyline.
+	if ((nearby_junction_t - prev_t) * std::copysign(1.0, next_t - prev_t) > 1e-5 &&
+		(nearby_junction_t - next_t) * std::copysign(1.0, prev_t - next_t) > 1e-5) {
+
 		mid_t = nearby_junction_t;
 		flags = JUNCTION_SAMPLE;
 	}
