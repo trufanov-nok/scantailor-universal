@@ -111,8 +111,7 @@ private:
 	static void intersectBack(std::deque<QPointF>& polyline, QLineF const& bound);
 
 	static XSpline fitExtendedSpline(
-		std::vector<QPointF> const& polyline, Vec2d const& centroid,
-		std::pair<QLineF, QLineF> const& bounds);
+		std::vector<QPointF> const& polyline, std::pair<QLineF, QLineF> const& bounds);
 
 	QImage visualizeTrimmedPolylines(
 		QImage const& background, std::vector<TracedCurve> const& curves) const;

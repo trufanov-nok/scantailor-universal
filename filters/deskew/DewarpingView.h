@@ -43,6 +43,11 @@ namespace imageproc
 	class AffineTransformedImage;
 }
 
+namespace spfit
+{
+	class PolylineModelShape;
+}
+
 namespace deskew
 {
 
@@ -78,6 +83,9 @@ private:
 	static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2);
 
 	static void fitSpline(XSpline& spline, std::vector<QPointF> const& polyline);
+
+	static void curvatureAwareControlPointPositioning(
+		XSpline& spline, spfit::PolylineModelShape const& model_shape);
 
 	void paintXSpline(
 		QPainter& painter, InteractionState const& interaction,

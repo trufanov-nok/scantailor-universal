@@ -26,12 +26,6 @@
 #include "DebugImages.h"
 #include "VecNT.h"
 #include "ToVec.h"
-#include "spfit/FrenetFrame.h"
-#include "spfit/SqDistApproximant.h"
-#include "spfit/PolylineModelShape.h"
-#include "spfit/SplineFitter.h"
-#include "spfit/LinearForceBalancer.h"
-#include "spfit/ConstraintSet.h"
 #include <QTransform>
 #include <QImage>
 #include <QPainter>
@@ -242,12 +236,10 @@ DistortionModelBuilder::polylineToCurve(std::vector<QPointF> const& polyline) co
 	// Trim the polyline if necessary.
 	std::vector<QPointF> const trimmed_polyline(maybeTrimPolyline(polyline, bounds));
 	
-	Vec2d const centroid(this->centroid(polyline));
-
-	// Fit the polyline to a spline, extending it to bounds at the same time.
-	XSpline const extended_spline(fitExtendedSpline(trimmed_polyline, centroid, bounds));
+	// Fit a spline to a polyline, extending it to bounds at the same time.
+	XSpline const extended_spline(fitExtendedSpline(trimmed_polyline, bounds));
 	
-	double const order = centroid.dot(m_downDirection);
+	double const order = centroid(polyline).dot(m_downDirection);
 	return TracedCurve(trimmed_polyline, extended_spline, order);
 }
 
@@ -372,97 +364,33 @@ DistortionModelBuilder::intersectBack(
 
 XSpline
 DistortionModelBuilder::fitExtendedSpline(
-	std::vector<QPointF> const& polyline, Vec2d const& centroid,
-	std::pair<QLineF, QLineF> const& bounds)
+	std::vector<QPointF> const& polyline, std::pair<QLineF, QLineF> const& bounds)
 {
-	using namespace spfit;
-
-	QLineF const chord(polyline.front(), polyline.back());
 	XSpline spline;
-	int const initial_spline_points = 6;
-	spline.appendControlPoint(chord.pointAt(0), 1);
-	for (int i = 1; i < initial_spline_points - 1; ++i) {
-		double const fraction = i / (initial_spline_points - 1.0);
-		spline.appendControlPoint(chord.pointAt(fraction), 1);
-	}
-	spline.appendControlPoint(chord.pointAt(1), 1);
-	
-	//initialSplinePositioning(spline, 0, chord.p1(), 1, chord.p2());
-	
-	class ModelShape : public PolylineModelShape
+
+	// Left extension.
 	{
-	public:
-		ModelShape(std::vector<QPointF> const& polyline) : PolylineModelShape(polyline) {}
-	protected:
-		virtual SqDistApproximant calcApproximant(
-			QPointF const& pt, FittableSpline::SampleFlags sample_flags,
-			Flags polyline_flags, FrenetFrame const& frenet_frame, double signed_curvature) const {
-			
-			if ((polyline_flags & (POLYLINE_FRONT|POLYLINE_BACK)) &&
-				(sample_flags & (FittableSpline::HEAD_SAMPLE|FittableSpline::TAIL_SAMPLE))) {
-				return SqDistApproximant::weightedCurveDistance(
-					toVec(pt), frenet_frame, signed_curvature, 100.0
-				);
-			} else {
-				return SqDistApproximant::curveDistance(toVec(pt), frenet_frame, signed_curvature);
+		QLineF const line(polyline[0], polyline[1]);
+		QPointF intersection;
+		if (line.intersect(bounds.first, &intersection) != QLineF::NoIntersection) {
+			if (Vec2d(intersection - polyline[0]).squaredNorm() > 1.0) {
+				spline.appendControlPoint(intersection, -1.0);
 			}
 		}
-	};
-	
-	ModelShape const model_shape(polyline);
-	SplineFitter fitter(&spline);
-
-	FittableSpline::SamplingParams sampling_params;
-	sampling_params.maxDistBetweenSamples = 10;
-	fitter.setSamplingParams(sampling_params);
-
-	int iterations_remaining = 20;
-	LinearForceBalancer balancer(0.8);
-	balancer.setTargetRatio(0.1);
-	balancer.setIterationsToTarget(iterations_remaining - 1);
-
-	// Initial fitting: just uniform distribution of junction points on a spline.
-	{
-		ConstraintSet constraints(&spline);
-		constraints.constrainSplinePoint(0, bounds.first);
-		constraints.constrainSplinePoint(1, bounds.second);
-		for (int i = 0; i < initial_spline_points; ++i) {
-			constraints.constrainSplinePoint(spline.controlPointIndexToT(i), chord);
-		}
-		fitter.setConstraints(constraints);
-		fitter.addInternalForce(spline.junctionPointsAttractionForce());
-
-		// We don't have any external forces, so we can choose any non-zero
-		// weight for internal force.
-		fitter.optimize(1); 
-		assert(!Curve::splineHasLoops(spline));
 	}
 
-	ConstraintSet constraints(&spline);
-	constraints.constrainSplinePoint(0, bounds.first);
-	constraints.constrainSplinePoint(1, bounds.second);
-	fitter.setConstraints(constraints);
+	for (QPointF const& pt : polyline) {
+		spline.appendControlPoint(pt, -1.0);
+	}
 
-	for (int iteration = 0; iterations_remaining > 0; ++iteration, --iterations_remaining, balancer.nextIteration()) {
-		fitter.addAttractionForces(model_shape);
-		fitter.addInternalForce(spline.controlPointsAttractionForce());
-
-		double internal_force_weight = balancer.calcInternalForceWeight(
-			fitter.internalForce(), fitter.externalForce()
-		);
-		OptimizationResult const res(fitter.optimize(internal_force_weight));
-		if (Curve::splineHasLoops(spline)) {
-			if (iteration == 0) {
-				// Having a loop on the first iteration is not good at all.
-				throw BadCurve();
-			} else {
-				fitter.undoLastStep();
-				break;
+	// Right extension.
+	{
+		QLineF const line(polyline[polyline.size() - 2], polyline.back());
+		QPointF intersection;
+		if (line.intersect(bounds.second, &intersection) != QLineF::NoIntersection) {
+			if (Vec2d(intersection - polyline.back()).squaredNorm() > 1.0) {
+				spline.appendControlPoint(intersection, -1.0);
 			}
-		}
-
-		if (res.improvementPercentage() < 0.5) {
-			break;
 		}
 	}
 

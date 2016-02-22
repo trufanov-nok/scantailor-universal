@@ -23,12 +23,10 @@
 #include "VecNT.h"
 #include "ToLineProjector.h"
 #include "ToVec.h"
-#include <QDebug>
-#include <boost/foreach.hpp>
 #include <stdexcept>
 #include <limits>
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 namespace spfit
 {
@@ -43,14 +41,22 @@ PolylineModelShape::PolylineModelShape(std::vector<QPointF> const& polyline)
 	// of our polyline.  We'll use it to calculate curvature at polyline vertices.
 	XSpline spline;
 
-	BOOST_FOREACH(QPointF const& pt, polyline) {
+	for (QPointF const& pt : polyline) {
 		spline.appendControlPoint(pt, -1);
 	}
 	
 	int const num_control_points = spline.numControlPoints();
 	double const scale = 1.0 / (num_control_points - 1);
+	double cumulative_arc_length = 0;
+	QPointF last_pt;
+
 	for (int i = 0; i < num_control_points; ++i) {
-		m_vertices.push_back(spline.pointAndDtsAt(i * scale));
+		XSpline::PointAndDerivs const& pd = spline.pointAndDtsAt(i * scale);
+		if (i > 0) {
+			cumulative_arc_length += QLineF(last_pt, pd.point).length();
+		}
+		m_vertices.push_back(Vertex{pd, pd.signedCurvature(), cumulative_arc_length});
+		last_pt = pd.point;
 	}
 }
 
@@ -72,8 +78,8 @@ PolylineModelShape::localSqDistApproximant(
 	// Project pt to each segment.
 	int const num_segments = int(m_vertices.size()) - 1;
 	for (int i = 0; i < num_segments; ++i) {
-		QPointF const pt1(m_vertices[i].point);
-		QPointF const pt2(m_vertices[i + 1].point);
+		QPointF const pt1(m_vertices[i].pd.point);
+		QPointF const pt2(m_vertices[i + 1].pd.point);
 		QLineF const segment(pt1, pt2);
 		double const s = ToLineProjector(segment).projectionScalar(pt);
 		if (s > 0 && s < 1) {
@@ -93,7 +99,7 @@ PolylineModelShape::localSqDistApproximant(
 	// Check if pt is closer to a vertex than to any segment.
 	int const num_points = m_vertices.size();
 	for (int i = 0; i < num_points; ++i) {
-		QPointF const vtx(m_vertices[i].point);
+		QPointF const vtx(m_vertices[i].pd.point);
 		Vec2d const vec(pt - vtx);
 		double const sqdist = vec.squaredNorm();
 		if (sqdist < best_sqdist) {
@@ -108,12 +114,12 @@ PolylineModelShape::localSqDistApproximant(
 		// The foot point is on a line segment.
 		assert(segment_t >= 0 && segment_t <= 1);
 
-		XSpline::PointAndDerivs const& pd1 = m_vertices[segment_idx];
-		XSpline::PointAndDerivs const& pd2 = m_vertices[segment_idx + 1];
-		FrenetFrame const frenet_frame(toVec(best_foot_point), toVec(pd2.point - pd1.point));
+		Vertex const& vtx1 = m_vertices[segment_idx];
+		Vertex const& vtx2 = m_vertices[segment_idx + 1];
+		FrenetFrame const frenet_frame(toVec(best_foot_point), toVec(vtx2.pd.point - vtx1.pd.point));
 
-		double const k1 = pd1.signedCurvature();
-		double const k2 = pd2.signedCurvature();
+		double const k1 = vtx1.signedCurvature;
+		double const k2 = vtx2.signedCurvature;
 		double const weighted_k = k1 + segment_t * (k2 - k1);
 		
 		return calcApproximant(pt, sample_flags, DEFAULT_FLAGS, frenet_frame, weighted_k);
@@ -121,8 +127,8 @@ PolylineModelShape::localSqDistApproximant(
 		// The foot point is a vertex of the polyline.
 		assert(vertex_idx != -1);
 
-		XSpline::PointAndDerivs const& pd = m_vertices[vertex_idx];
-		FrenetFrame const frenet_frame(toVec(best_foot_point), toVec(pd.firstDeriv));
+		Vertex const& vtx = m_vertices[vertex_idx];
+		FrenetFrame const frenet_frame(toVec(best_foot_point), toVec(vtx.pd.firstDeriv));
 
 		Flags polyline_flags = DEFAULT_FLAGS;
 		if (vertex_idx == 0) {
@@ -132,7 +138,7 @@ PolylineModelShape::localSqDistApproximant(
 			polyline_flags |= POLYLINE_BACK;
 		}
 
-		return calcApproximant(pt, sample_flags, polyline_flags, frenet_frame, pd.signedCurvature());
+		return calcApproximant(pt, sample_flags, polyline_flags, frenet_frame, vtx.signedCurvature);
 	}
 }
 
@@ -147,6 +153,47 @@ PolylineModelShape::calcApproximant(
 	} else {
 		return SqDistApproximant::curveDistance(toVec(pt), frenet_frame, signed_curvature);
 	}
+}
+
+void
+PolylineModelShape::uniformArcLengthSampling(int num_samples,
+	std::function<void(QPointF const& pt, double abs_curvature)> const& sink) const
+{
+	if (num_samples <= 0 || m_vertices.empty()) {
+		return;
+	}
+
+	auto vtx_it = m_vertices.begin();
+	sink(vtx_it->pd.point, std::abs(vtx_it->signedCurvature));
+
+	++vtx_it;
+	auto const vtx_end = m_vertices.end();
+	if (vtx_it == vtx_end)
+	{
+		return;
+	}
+
+	double const arc_length_step = m_vertices.back().cumulativeArcLength / (num_samples - 1);
+
+	for (int sample_idx = 1; sample_idx < num_samples - 1; ++sample_idx) {
+		double const target_arc_length = arc_length_step * sample_idx;
+
+		while (vtx_it != vtx_end) {
+			if (vtx_it->cumulativeArcLength >= target_arc_length) {
+				double const gap = vtx_it->cumulativeArcLength - (vtx_it - 1)->cumulativeArcLength;
+				double const alpha = (vtx_it->cumulativeArcLength - target_arc_length) / gap;
+				QPointF const pt = alpha * (vtx_it - 1)->pd.point + (1 - alpha) * vtx_it->pd.point;
+				double const abs_curvature = alpha * std::abs((vtx_it - 1)->signedCurvature) +
+						(1 - alpha) * std::abs(vtx_it->signedCurvature);
+
+				sink(pt, abs_curvature);
+				break; // Advance to the next output sample.
+			}
+			++vtx_it;
+		}
+	}
+
+	sink(m_vertices.back().pd.point, std::abs(m_vertices.back().signedCurvature));
 }
 
 } // namespace spfit

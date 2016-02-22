@@ -155,8 +155,10 @@ DewarpingView::fitSpline(XSpline& spline, std::vector<QPointF> const& polyline)
 {
 	using namespace spfit;
 
-	SplineFitter fitter(&spline);
 	PolylineModelShape const model_shape(polyline);
+	curvatureAwareControlPointPositioning(spline, polyline);
+
+	SplineFitter fitter(&spline);
 
 	ConstraintSet constraints(&spline);
 	constraints.constrainSplinePoint(0.0, polyline.front());
@@ -187,6 +189,41 @@ DewarpingView::fitSpline(XSpline& spline, std::vector<QPointF> const& polyline)
 
 		if (res.improvementPercentage() < 0.5) {
 			break;
+		}
+	}
+}
+
+void
+DewarpingView::curvatureAwareControlPointPositioning(
+	XSpline& spline, spfit::PolylineModelShape const& model_shape)
+{
+	using namespace spfit;
+
+	struct Node
+	{
+		QPointF pt;
+		double cumulativeAbsCurvature;
+	};
+	std::vector<Node> nodes;
+
+	double cumulative_abs_curvature = 0;
+	model_shape.uniformArcLengthSampling(100,
+		[&cumulative_abs_curvature, &nodes](QPointF const& pt, double abs_curvature) {
+			cumulative_abs_curvature += abs_curvature;
+			nodes.push_back(Node{pt, cumulative_abs_curvature});
+		}
+	);
+
+	int const num_control_points = spline.numControlPoints();
+	auto it = nodes.begin();
+	for (int cp_idx = 1; cp_idx < num_control_points - 1; ++cp_idx) {
+		double const target_cumulative_abs_curvature =
+				cumulative_abs_curvature * cp_idx / (num_control_points - 1);
+		for (; it != nodes.end(); ++it) {
+			if (it->cumulativeAbsCurvature > target_cumulative_abs_curvature) {
+				spline.moveControlPoint(cp_idx, it->pt);
+				break;
+			}
 		}
 	}
 }

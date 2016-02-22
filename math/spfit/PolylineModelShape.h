@@ -24,10 +24,10 @@
 #include "ModelShape.h"
 #include "SqDistApproximant.h"
 #include "XSpline.h"
-#include "VecNT.h"
 #include "FlagOps.h"
 #include <QPointF>
 #include <vector>
+#include <functional>
 
 namespace spfit
 {
@@ -46,12 +46,25 @@ public:
 
 	virtual SqDistApproximant localSqDistApproximant(
 		QPointF const& pt, FittableSpline::SampleFlags sample_flags) const;
+
+	void uniformArcLengthSampling(int num_samples,
+		std::function<void(QPointF const& pt, double abs_curvature)> const& sink) const;
 protected:
 	virtual SqDistApproximant calcApproximant(
 		QPointF const& pt, FittableSpline::SampleFlags sample_flags,
 		Flags polyline_flags, FrenetFrame const& frenet_frame, double signed_curvature) const;
 private:
-	std::vector<XSpline::PointAndDerivs> m_vertices;
+	struct Vertex
+	{
+		XSpline::PointAndDerivs pd;
+
+		double signedCurvature;
+
+		/** Arc length from the beginning of a spline to this vertex. */
+		double cumulativeArcLength;
+	};
+
+	std::vector<Vertex> m_vertices;
 };
 
 DEFINE_FLAG_OPS(PolylineModelShape::Flags)
