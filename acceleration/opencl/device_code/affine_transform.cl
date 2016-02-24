@@ -19,7 +19,7 @@
 // REQUIRES: rgba_color_mixer.cl
 
 kernel void affine_transform(
-	read_only image2d_t const src, write_only image2d_t const dst,
+	read_only image2d_t src, write_only image2d_t dst,
 	float2 const xform_m1, float2 const xform_m2, float2 const xform_bias,
 	float2 const unit_size, int const outside_area_flags, float4 outside_color)
 {

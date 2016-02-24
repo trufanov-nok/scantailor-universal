@@ -16,7 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-static float4 updateHistoryForBackwardPass(
+float4 updateHistoryForBackwardPass(
 	float4 const history, float const pixel,
 	float3 const m1, float3 const m2, float3 const m3)
 {

@@ -40,7 +40,7 @@
  *        is given by (window_last_offset - window_first_offset + 1).
  */
 kernel void sav_gol_filter_1d(
-	read_only image2d_t const src, write_only image2d_t const dst,
+	read_only image2d_t src, write_only image2d_t dst,
 	float2 const coord_normalizer, float2 const coord_delta,
 	constant float const* coeffs, int window_first_offset, int window_last_offset)
 {

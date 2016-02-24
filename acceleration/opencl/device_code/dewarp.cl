@@ -28,13 +28,13 @@ typedef struct
 }
 Generatrix;
 
-static float evaluate_1d_homography(Generatrix const* g, float val)
+float evaluate_1d_homography(Generatrix const* g, float val)
 {
 	float2 const out = g->homog_m1 * val + g->homog_m2;
 	return out.s0 / out.s1;
 }
 
-static float2 sample_generatrix(
+float2 sample_generatrix(
 	Generatrix const* g, int y, float model_domain_top, float model_y_scale)
 {
 	float const model_y = ((float)y - model_domain_top) * model_y_scale;
@@ -42,7 +42,7 @@ static float2 sample_generatrix(
 }
 
 kernel void dewarp(
-	read_only image2d_t const src, write_only image2d_t const dst,
+	read_only image2d_t src, write_only image2d_t dst,
 	constant Generatrix const* const generatrix_list,
 	int const range_end, float const model_domain_top,
 	float const model_y_scale, float4 const bg_color,
