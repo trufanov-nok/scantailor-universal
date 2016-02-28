@@ -4,3 +4,23 @@ CMakeFiles
 *.h.moc
 build/
 *~
+*_automoc.cpp
+moc_*cpp
+
+# Individual files
+.version.h
+adiff_tests
+config.h
+generic_tests
+imageproc_tests
+qrc_resources.cpp
+resources/resources.qrc.depends
+spfit_tests
+update_translations_crashreporter.pro
+update_translations_scantailor.pro
+
+# The finished program
+scantailor
+scantailor-cli
+scantailor-cli.exe
+scantailor.exe
