@@ -654,7 +654,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="228"/>
         <source>Ctrl+S</source>
-        <translation>Strg+S</translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="233"/>
@@ -670,7 +670,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="241"/>
         <source>PgDown</source>
-        <translation>Bild ab</translation>
+        <translation>PgDown</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="249"/>
@@ -681,7 +681,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="252"/>
         <source>PgUp</source>
-        <translation>Bild auf</translation>
+        <translation>PgUp</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="260"/>
@@ -691,7 +691,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="263"/>
         <source>Ctrl+N</source>
-        <translation>Strg+N</translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="268"/>
@@ -701,7 +701,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="271"/>
         <source>Ctrl+O</source>
-        <translation>Strg+O</translation>
+        <translation>Ctrl+O</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="279"/>
@@ -721,7 +721,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="301"/>
         <source>Ctrl+W</source>
-        <translation>Strg+W</translation>
+        <translation>Ctrl+W</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="306"/>
@@ -731,7 +731,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="309"/>
         <source>Ctrl+Q</source>
-        <translation>Strg+Q</translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="319"/>
@@ -741,7 +741,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="322"/>
         <source>Home</source>
-        <translation>Pos 1</translation>
+        <translation>Home</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="327"/>
@@ -751,7 +751,7 @@ Um die endgültige Größe der Seiten festzulegen, starten Sie die Stapelverarbe
     <message>
         <location filename="../ui/MainWindow.ui" line="330"/>
         <source>End</source>
-        <translation>Ende</translation>
+        <translation>End</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="335"/>
