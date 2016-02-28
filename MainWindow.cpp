@@ -1156,13 +1156,31 @@ MainWindow::startBatchProcessing()
 	}
 
 	m_ptrInteractiveQueue->cancelAndClear();
-	
-	m_ptrBatchQueue.reset(new ProcessingTaskQueue);
-	PageInfo page(m_ptrThumbSequence->selectionLeader());
-	for (; !page.isNull(); page = m_ptrThumbSequence->nextPage(page.id())) {
+
+	auto const enqueuePage = [this](PageInfo const& page) {
 		m_ptrBatchQueue->addProcessingTask(
 			page, createCompositeTask(page, m_curFilter, /*batch=*/true, m_debug)
 		);
+	};
+	
+	m_ptrBatchQueue.reset(new ProcessingTaskQueue);
+
+	// We want to start and finish on the same page.
+	PageInfo startFinishPage(m_ptrThumbSequence->selectionLeader());
+	m_ptrBatchQueue->selectPageWhenDone(startFinishPage);
+
+	// Process pages starting from the current one till the end of the list.
+	PageInfo page(startFinishPage);
+	for (; !page.isNull(); page = m_ptrThumbSequence->nextPage(page.id())) {
+		enqueuePage(page);
+	}
+
+	// Wrap-around and start from the beginning, unless we've only got one page in the list.
+	page = m_ptrThumbSequence->firstPage();
+	if (page.id() != m_ptrThumbSequence->lastPage().id()) {
+		for (; page.id() != startFinishPage.id(); page = m_ptrThumbSequence->nextPage(page.id())) {
+			enqueuePage(page);
+		}
 	}
 
 	focusButton->setChecked(true);
@@ -1203,6 +1221,9 @@ MainWindow::stopBatchProcessing(MainAreaAction main_area)
 	if (!page.isNull()) {
 		m_ptrThumbSequence->setSelection(page.id());
 	}
+
+	// Note that it's important to call selectedPage() before cancelAndClear(),
+	// as otherwise we would get the page set by selectPageWhenDone().
 
 	m_ptrBatchQueue->cancelAndClear();
 	m_ptrBatchQueue.reset();
@@ -1258,11 +1279,6 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
 			QApplication::alert(this); // Flash the taskbar entry.
 			if (m_checkBeepWhenFinished()) {
 				QApplication::beep();
-			}
-
-			if (m_selectedPage.get(getCurrentView()) == m_ptrThumbSequence->lastPage().id()) {
-				// If batch processing finished at the last page, jump to the first one.	
-				goFirstPage();
 			}
 
 			return;

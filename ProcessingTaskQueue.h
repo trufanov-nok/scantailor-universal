@@ -52,6 +52,11 @@ public:
 	 */
 	PageInfo selectedPage() const;
 
+	/**
+	 * Make selectedPage() return a specific page after all pages have been processed.
+	 */
+	void selectPageWhenDone(PageInfo const& page);
+
 	bool allProcessed() const;
 
 	void cancelAndRemove(std::set<PageId> const& pages);
@@ -69,6 +74,7 @@ private:
 
 	std::list<Entry> m_queue;
 	PageInfo m_selectedPage;
+	PageInfo m_pageLastAdded;
 	PageInfo m_pageToSelectWhenDone;
 };
 

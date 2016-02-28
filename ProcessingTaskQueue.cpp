@@ -36,7 +36,7 @@ ProcessingTaskQueue::addProcessingTask(
 	PageInfo const& page_info, BackgroundTaskPtr const& task)
 {
 	m_queue.push_back(Entry(page_info, task));
-	m_pageToSelectWhenDone = PageInfo();
+	m_pageLastAdded = page_info;
 }
 
 BackgroundTaskPtr
@@ -83,14 +83,6 @@ ProcessingTaskQueue::processingFinished(BackgroundTaskPtr const& task)
 	// have <it> pointing to it.
 
 	bool const removing_selected_page = (m_selectedPage.id() == it->pageInfo.id());
-
-	std::list<Entry>::iterator next_it(it);
-	++next_it;
-
-	if (next_it == end && m_pageToSelectWhenDone.isNull()) {
-		m_pageToSelectWhenDone = it->pageInfo;
-	}
-
 	m_queue.erase(it);
 
 	if (removing_selected_page) {
@@ -98,6 +90,8 @@ ProcessingTaskQueue::processingFinished(BackgroundTaskPtr const& task)
 			m_selectedPage = m_queue.front().pageInfo;
 		} else if (!m_pageToSelectWhenDone.isNull()) {
 			m_selectedPage = m_pageToSelectWhenDone;
+		} else {
+			m_selectedPage = m_pageLastAdded;
 		}
 	}
 }
@@ -106,6 +100,12 @@ PageInfo
 ProcessingTaskQueue::selectedPage() const
 {
 	return m_selectedPage;
+}
+
+void
+ProcessingTaskQueue::selectPageWhenDone(PageInfo const& page)
+{
+	m_pageToSelectWhenDone = page;
 }
 
 bool
@@ -131,9 +131,11 @@ ProcessingTaskQueue::cancelAndRemove(std::set<PageId> const& pages)
 				m_selectedPage = PageInfo();
 			}
 
-			// We don't bother matching against m_pageToSelectWhenDone,
-			// because in the current implementation that's always a page
-			// that's no longer in the queue.
+			if (m_pageLastAdded.id() == it->pageInfo.id()) {
+				m_pageLastAdded = PageInfo();
+			}
+
+			// We don't clear m_pageToSelectWhenDone as it's set explicitly by client code.
 
 			m_queue.erase(it++);
 		}
@@ -150,5 +152,7 @@ ProcessingTaskQueue::cancelAndClear()
 		}
 		m_queue.pop_front();
 	}
+
+	m_pageLastAdded = PageInfo();
 	m_selectedPage = m_pageToSelectWhenDone;
 }
