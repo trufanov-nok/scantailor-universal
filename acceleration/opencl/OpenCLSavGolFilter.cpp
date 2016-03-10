@@ -66,8 +66,8 @@ imageproc::GrayImage savGolFilter(
 	size_t const v_wg_size = static_cast<size_t>(std::sqrt((double)max_wg_size));
 	size_t const h_wg_size = max_wg_size / v_wg_size;
 
-	auto const cl_format_byte = cl::ImageFormat(CL_LUMINANCE, CL_UNORM_INT8);
-	auto const cl_format_float = cl::ImageFormat(CL_LUMINANCE, CL_FLOAT);
+	auto const cl_format_byte = cl::ImageFormat(CL_R, CL_UNORM_INT8);
+	auto const cl_format_float = cl::ImageFormat(CL_R, CL_FLOAT);
 
 	// Create two images on the device.
 	cl::Image2D byte_texture(context, CL_MEM_READ_WRITE, cl_format_byte, src.width(), src.height());

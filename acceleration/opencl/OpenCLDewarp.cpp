@@ -62,7 +62,7 @@ AdaptedImage adaptImage(QImage const& src, QColor const& bg_color)
 		case QImage::Format_MonoLSB:
 			if (src.allGray() && is_opaque_gray(bg_color.rgba())) {
 				adapted.image = toGrayscale(src);
-				adapted.clFormat = cl::ImageFormat(CL_LUMINANCE, CL_UNORM_INT8);
+				adapted.clFormat = cl::ImageFormat(CL_R, CL_UNORM_INT8);
 				break;
 			}
 			// fall through
