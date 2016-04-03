@@ -71,7 +71,7 @@ MACRO(ST_SET_DEFAULT_GCC_FLAGS)
 				CACHE STRING "Common C flags for all build configurations." FORCE
 			)
 			SET(
-				CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${stdlibs_shared_static_} -std=c++11 -Wno-deprecated-declarations"
+				CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${stdlibs_shared_static_} -Wno-deprecated-declarations"
 				CACHE STRING "Common C++ flags for all build configurations." FORCE
 			)
 		

@@ -22,6 +22,8 @@ SET(
 
 PROJECT("Scan Tailor")
 
+SET(CMAKE_CXX_STANDARD 11)
+
 # Keep the paths outside of the build directory in RPATH
 # when installing. That's useful for building with say
 # a custom build of Qt.
