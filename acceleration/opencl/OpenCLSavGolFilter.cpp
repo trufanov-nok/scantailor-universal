@@ -78,7 +78,7 @@ imageproc::GrayImage savGolFilter(
 
 	// Copy the source image to byte_texture.
 	std::array<size_t, 3> const origin{0, 0, 0};
-	std::array<size_t, 3> const region{src.width(), src.height(), 1};
+	std::array<size_t, 3> const region{(size_t)src.width(), (size_t)src.height(), 1};
 	command_queue.enqueueWriteImage(
 		byte_texture, CL_FALSE, origin, region, src.stride(), 0, (void*)src.data(), &events, &evt
 	);

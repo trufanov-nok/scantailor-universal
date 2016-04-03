@@ -87,7 +87,7 @@ imageproc::GrayImage renderPolynomialSurface(
 
 	GrayImage dst(QSize(width, height));
 
-	std::array<size_t, 3> const region{width, height, 1};
+	std::array<size_t, 3> const region{(size_t)width, (size_t)height, 1};
 	std::array<size_t, 3> const zero_offset{0, 0, 0};
 	command_queue.enqueueReadBufferRect(
 		dst_buffer, CL_TRUE, zero_offset, zero_offset,
