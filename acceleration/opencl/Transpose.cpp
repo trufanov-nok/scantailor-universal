@@ -54,19 +54,28 @@ void transpose(
 	assert(src_grid.height() == dst_grid.width());
 
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
-	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
 	uint64_t const local_mem_size = device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();
 
-	size_t tile_dim = std::min<size_t>(cacheline_size/sizeof(float), max_wg_size);
-	while ((tile_dim + 1) * tile_dim * sizeof(float) > local_mem_size) {
-		tile_dim >>= 1;
+	cl::Kernel kernel(program, "transpose_float_grid");
+	size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
+
+	size_t tile_dim = 1;
+	for (;;) {
+		size_t next_tile_dim = tile_dim * 2;
+
+		// Do we exceed max_wg_items?
+		if (next_tile_dim * next_tile_dim > max_wg_items) {
+			break;
+		}
+
+		// Do we exceed local memory size?
+		while ((next_tile_dim + 1) * next_tile_dim * sizeof(float) > local_mem_size) {
+			break;
+		}
+
+		tile_dim = next_tile_dim;
 	}
 
-	size_t const h_wg_size = std::min<size_t>(tile_dim, max_wg_size);
-	size_t v_wg_size = std::min<size_t>(tile_dim, max_wg_size / h_wg_size);
-
-	cl::Kernel kernel(program, "transpose_float_grid");
 	int idx = 0;
 	kernel.setArg(idx++, src_grid.width());
 	kernel.setArg(idx++, src_grid.height());
@@ -85,10 +94,10 @@ void transpose(
 		kernel,
 		cl::NullRange,
 		cl::NDRange(
-			h_wg_size * ((src_grid.width() + tile_dim - 1) / tile_dim),
-			v_wg_size * ((src_grid.height() + tile_dim - 1) / tile_dim)
+			thisOrNextMultipleOf(src_grid.width(), tile_dim),
+			thisOrNextMultipleOf(src_grid.height(), tile_dim)
 		),
-		cl::NDRange(h_wg_size, v_wg_size),
+		cl::NDRange(tile_dim, tile_dim),
 		dependencies,
 		&evt
 	);

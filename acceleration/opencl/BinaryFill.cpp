@@ -39,11 +39,7 @@ void binaryFillRect(
 	}
 
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
-	size_t const h_wg_size = std::min<size_t>(cacheline_size/sizeof(uint32_t), max_wg_size);
-	size_t const v_wg_size = max_wg_size / h_wg_size;
-
 	cl_uint const fill_word = fill_color == imageproc::WHITE ? cl_uint(0) : ~cl_uint(0);
 
 	cl::Kernel kernel(program, "binary_fill_rect");
@@ -55,6 +51,18 @@ void binaryFillRect(
 	kernel.setArg(idx++, grid.stride());
 	kernel.setArg(idx++, fill_word);
 	kernel.setArg(idx++, computeLeftRightEdgeMasks(pixel_rect));
+
+	size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
+
+	// Try to access a cacheline worth of data horizontally.
+	// Note that some devices report zero cacheline_size.
+	size_t h_wg_size = std::max<size_t>(64, cacheline_size) / sizeof(uint32_t);
+
+	// Do we exceed max_wg_items?
+	h_wg_size = std::min(h_wg_size, max_wg_items);
+
+	// Maximum possible vertical size.
+	size_t v_wg_size = max_wg_items / h_wg_size;
 
 	cl::Event evt;
 
@@ -91,11 +99,7 @@ void binaryFillFrame(
 	}
 
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
-	size_t const h_wg_size = std::min<size_t>(cacheline_size/sizeof(uint32_t), max_wg_size);
-	size_t const v_wg_size = max_wg_size / h_wg_size;
-
 	std::vector<cl::Event> events;
 
 	cl::Kernel kernel(program, "binary_fill_rect");
@@ -112,6 +116,18 @@ void binaryFillFrame(
 		kernel.setArg(idx++, grid.stride());
 		kernel.setArg(idx++, fill_word);
 		kernel.setArg(idx++, computeLeftRightEdgeMasks(pixel_rect));
+
+		size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
+
+		// Try to access a cacheline worth of data horizontally.
+		// Note that some devices report zero cacheline_size.
+		size_t h_wg_size = std::max<size_t>(64, cacheline_size) / sizeof(uint32_t);
+
+		// Do we exceed max_wg_items?
+		h_wg_size = std::min(h_wg_size, max_wg_items);
+
+		// Maximum possible vertical size.
+		size_t v_wg_size = max_wg_items / h_wg_size;
 
 		cl::Event evt;
 		command_queue.enqueueNDRangeKernel(

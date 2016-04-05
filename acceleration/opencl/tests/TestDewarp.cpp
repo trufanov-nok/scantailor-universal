@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE(test_argb)
 #if LOG_PERFORMANCE
 	for (int i = 0; i < 99; ++i) {
 		RasterDewarper::dewarp(
-			input, output_size, distortion_model,
-			model_domain, bg_color, min_mapping_area
+			input, output_size, distortion_model, model_domain,
+			bg_color, min_density, max_density, min_mapping_area
 		);
 	}
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(test_argb)
 		for (int i = 0; i < 99; ++i) {
 			dewarp(
 				command_queue, program, input, output_size, distortion_model,
-				model_domain, bg_color, min_mapping_area
+				model_domain, bg_color, min_density, max_density, min_mapping_area
 			);
 		}
 

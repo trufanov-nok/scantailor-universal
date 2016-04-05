@@ -62,9 +62,6 @@ imageproc::GrayImage savGolFilter(
 
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
-	size_t const v_wg_size = static_cast<size_t>(std::sqrt((double)max_wg_size));
-	size_t const h_wg_size = max_wg_size / v_wg_size;
 
 	auto const cl_format_byte = cl::ImageFormat(CL_R, CL_UNORM_INT8);
 	auto const cl_format_float = cl::ImageFormat(CL_R, CL_FLOAT);
@@ -85,6 +82,10 @@ imageproc::GrayImage savGolFilter(
 	indicateCompletion(&events, evt);
 
 	cl::Kernel kernel(program, "sav_gol_filter_1d");
+	size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
+
+	size_t const v_wg_size = static_cast<size_t>(std::sqrt((double)max_wg_items));
+	size_t const h_wg_size = max_wg_items / v_wg_size;
 
 	// Horizontal pass: byte_texture -> float_texture
 	{

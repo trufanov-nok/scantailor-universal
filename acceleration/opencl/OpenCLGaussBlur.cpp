@@ -56,9 +56,6 @@ void horizontalPass(
 	float const sigma, std::vector<cl::Event>* events)
 {
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
-	size_t const wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
 
 	FilterParams const p(sigma);
 
@@ -66,6 +63,9 @@ void horizontalPass(
 	initHistoryUpdateMatrix(p, m1, m2, m3);
 
 	cl::Kernel kernel(program, "gauss_blur_1d");
+	size_t const wg_size =
+		kernel.getWorkGroupInfo<CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE>(device);
+
 	int idx = 0;
 	kernel.setArg(idx++, src_grid.width());
 	kernel.setArg(idx++, src_grid.height());
@@ -100,9 +100,6 @@ void verticalPass(
 	float const sigma, std::vector<cl::Event>* events)
 {
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
-	size_t const wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
 
 	FilterParams const p(sigma);
 
@@ -110,6 +107,9 @@ void verticalPass(
 	initHistoryUpdateMatrix(p, m1, m2, m3);
 
 	cl::Kernel kernel(program, "gauss_blur_1d");
+	size_t const wg_size =
+		kernel.getWorkGroupInfo<CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE>(device);
+
 	int idx = 0;
 	kernel.setArg(idx++, src_grid.height());
 	kernel.setArg(idx++, src_grid.width());
@@ -145,7 +145,7 @@ void copy1PxPadding(
 	assert(grid.padding() > 0);
 
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+
 
 	cl::Event evt;
 
@@ -172,6 +172,9 @@ void copy1PxPadding(
 	// Copy the left outer layer.
 	{
 		cl::Kernel kernel(program, "copy_1px_column");
+		size_t const wg_size =
+			kernel.getWorkGroupInfo<CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE>(device);
+
 		int idx = 0;
 		kernel.setArg(idx++, grid.height());
 		kernel.setArg(idx++, grid.buffer());
@@ -182,8 +185,8 @@ void copy1PxPadding(
 		command_queue.enqueueNDRangeKernel(
 			kernel,
 			cl::NullRange,
-			cl::NDRange(thisOrNextMultipleOf(grid.height(), max_wg_size)),
-			cl::NDRange(max_wg_size),
+			cl::NDRange(thisOrNextMultipleOf(grid.height(), wg_size)),
+			cl::NDRange(wg_size),
 			events,
 			&evt
 		);
@@ -193,6 +196,9 @@ void copy1PxPadding(
 	// Copy the right outer layer.
 	{
 		cl::Kernel kernel(program, "copy_1px_column");
+		size_t const wg_size =
+			kernel.getWorkGroupInfo<CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE>(device);
+
 		int idx = 0;
 		kernel.setArg(idx++, grid.height());
 		kernel.setArg(idx++, grid.buffer());
@@ -203,8 +209,8 @@ void copy1PxPadding(
 		command_queue.enqueueNDRangeKernel(
 			kernel,
 			cl::NullRange,
-			cl::NDRange(thisOrNextMultipleOf(grid.height(), max_wg_size)),
-			cl::NDRange(max_wg_size),
+			cl::NDRange(thisOrNextMultipleOf(grid.height(), wg_size)),
+			cl::NDRange(wg_size),
 			events,
 			&evt
 		);
@@ -239,7 +245,6 @@ void verticallyTraversedSkewedPassInPlace(
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 
 	FilterParams const p(sigma);
 	cl_float3 m1, m2, m3;
@@ -284,60 +289,77 @@ void verticallyTraversedSkewedPassInPlace(
 
 	cl::Event evt;
 
-	cl::Kernel kernel(program, "gauss_blur_skewed_vert_traversal_stage1");
-	int idx = 0;
-	kernel.setArg(idx++, cl_int(width));
-	kernel.setArg(idx++, cl_int(height));
-	kernel.setArg(idx++, grid.buffer());
-	kernel.setArg(idx++, grid.offset());
-	kernel.setArg(idx++, grid.stride());
-	kernel.setArg(idx++, intermediate_grid.buffer());
-	kernel.setArg(idx++, intermediate_grid.offset());
-	kernel.setArg(idx++, intermediate_grid.stride());
-	kernel.setArg(idx++, cl_int(min_x_offset));
-	kernel.setArg(idx++, cl_int(max_x_offset));
-	kernel.setArg(idx++, cl_float(dx));
-	kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-	kernel.setArg(idx++, m1);
-	kernel.setArg(idx++, m2);
-	kernel.setArg(idx++, m3);
+	{
+		cl::Kernel kernel(program, "gauss_blur_skewed_vert_traversal_stage1");
+		size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
+		size_t const wg_size_1d = std::min<size_t>(max_wg_items, 16);
 
-	size_t const wg_size_1d = std::min<size_t>(max_wg_size, 16);
+		int idx = 0;
+		kernel.setArg(idx++, cl_int(width));
+		kernel.setArg(idx++, cl_int(height));
+		kernel.setArg(idx++, grid.buffer());
+		kernel.setArg(idx++, grid.offset());
+		kernel.setArg(idx++, grid.stride());
+		kernel.setArg(idx++, intermediate_grid.buffer());
+		kernel.setArg(idx++, intermediate_grid.offset());
+		kernel.setArg(idx++, intermediate_grid.stride());
+		kernel.setArg(idx++, cl_int(min_x_offset));
+		kernel.setArg(idx++, cl_int(max_x_offset));
+		kernel.setArg(idx++, cl_float(dx));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
-	command_queue.enqueueNDRangeKernel(
-		kernel,
-		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(max_x_offset - min_x_offset + 1, wg_size_1d)),
-		cl::NDRange(wg_size_1d),
-		events,
-		&evt
-	);
-	indicateCompletion(events, evt);
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(thisOrNextMultipleOf(max_x_offset - min_x_offset + 1, wg_size_1d)),
+			cl::NDRange(wg_size_1d),
+			events,
+			&evt
+		);
+		indicateCompletion(events, evt);
+	}
 
-	kernel = cl::Kernel(program, "gauss_blur_skewed_vert_traversal_stage2");
-	idx = 0;
-	kernel.setArg(idx++, cl_int(width));
-	kernel.setArg(idx++, cl_int(height));
-	kernel.setArg(idx++, intermediate_grid.buffer());
-	kernel.setArg(idx++, intermediate_grid.offset());
-	kernel.setArg(idx++, intermediate_grid.stride());
-	kernel.setArg(idx++, grid.buffer());
-	kernel.setArg(idx++, grid.offset());
-	kernel.setArg(idx++, grid.stride());
-	kernel.setArg(idx++, cl_float(dx));
+	{
+		cl::Kernel kernel = cl::Kernel(program, "gauss_blur_skewed_vert_traversal_stage2");
+		size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
 
-	size_t const h_wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
-	size_t const v_wg_size = max_wg_size / h_wg_size;
+		// Try to access a cacheline worth of data horizontally.
+		// Note that some devices report zero cacheline_size.
+		size_t h_wg_size = std::max<size_t>(64, cacheline_size) / sizeof(float);
 
-	command_queue.enqueueNDRangeKernel(
-		kernel,
-		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(width, h_wg_size), thisOrNextMultipleOf(height, v_wg_size)),
-		cl::NDRange(h_wg_size, v_wg_size),
-		events,
-		&evt
-	);
-	indicateCompletion(events, evt);
+		// Do we exceed max_wg_items?
+		h_wg_size = std::min(h_wg_size, max_wg_items);
+
+		// Maximum possible vertical size.
+		size_t v_wg_size = max_wg_items / h_wg_size;
+
+		int idx = 0;
+		kernel.setArg(idx++, cl_int(width));
+		kernel.setArg(idx++, cl_int(height));
+		kernel.setArg(idx++, intermediate_grid.buffer());
+		kernel.setArg(idx++, intermediate_grid.offset());
+		kernel.setArg(idx++, intermediate_grid.stride());
+		kernel.setArg(idx++, grid.buffer());
+		kernel.setArg(idx++, grid.offset());
+		kernel.setArg(idx++, grid.stride());
+		kernel.setArg(idx++, cl_float(dx));
+
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(
+				thisOrNextMultipleOf(width, h_wg_size),
+				thisOrNextMultipleOf(height, v_wg_size)
+			),
+			cl::NDRange(h_wg_size, v_wg_size),
+			events,
+			&evt
+		);
+		indicateCompletion(events, evt);
+	}
 }
 
 void horizontallyTraversedSkewedPassInPlace(
@@ -350,7 +372,6 @@ void horizontallyTraversedSkewedPassInPlace(
 	cl::Context const context = command_queue.getInfo<CL_QUEUE_CONTEXT>();
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
-	size_t const max_wg_size = device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 
 	FilterParams const p(sigma);
 	cl_float3 m1, m2, m3;
@@ -395,60 +416,77 @@ void horizontallyTraversedSkewedPassInPlace(
 
 	cl::Event evt;
 
-	cl::Kernel kernel(program, "gauss_blur_skewed_hor_traversal_stage1");
-	int idx = 0;
-	kernel.setArg(idx++, cl_int(width));
-	kernel.setArg(idx++, cl_int(height));
-	kernel.setArg(idx++, grid.buffer());
-	kernel.setArg(idx++, grid.offset());
-	kernel.setArg(idx++, grid.stride());
-	kernel.setArg(idx++, intermediate_grid.buffer());
-	kernel.setArg(idx++, intermediate_grid.offset());
-	kernel.setArg(idx++, intermediate_grid.stride());
-	kernel.setArg(idx++, cl_int(min_y_offset));
-	kernel.setArg(idx++, cl_int(max_y_offset));
-	kernel.setArg(idx++, cl_float(dy));
-	kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
-	kernel.setArg(idx++, m1);
-	kernel.setArg(idx++, m2);
-	kernel.setArg(idx++, m3);
+	{
+		cl::Kernel kernel(program, "gauss_blur_skewed_hor_traversal_stage1");
+		size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
+		size_t const wg_size_1d = std::min<size_t>(max_wg_items, 16);
 
-	size_t const wg_size_1d = std::min<size_t>(max_wg_size, 16);
+		int idx = 0;
+		kernel.setArg(idx++, cl_int(width));
+		kernel.setArg(idx++, cl_int(height));
+		kernel.setArg(idx++, grid.buffer());
+		kernel.setArg(idx++, grid.offset());
+		kernel.setArg(idx++, grid.stride());
+		kernel.setArg(idx++, intermediate_grid.buffer());
+		kernel.setArg(idx++, intermediate_grid.offset());
+		kernel.setArg(idx++, intermediate_grid.stride());
+		kernel.setArg(idx++, cl_int(min_y_offset));
+		kernel.setArg(idx++, cl_int(max_y_offset));
+		kernel.setArg(idx++, cl_float(dy));
+		kernel.setArg(idx++, cl_float4{p.B, p.a1, p.a2, p.a3});
+		kernel.setArg(idx++, m1);
+		kernel.setArg(idx++, m2);
+		kernel.setArg(idx++, m3);
 
-	command_queue.enqueueNDRangeKernel(
-		kernel,
-		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(max_y_offset - min_y_offset + 1, wg_size_1d)),
-		cl::NDRange(wg_size_1d),
-		events,
-		&evt
-	);
-	indicateCompletion(events, evt);
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(thisOrNextMultipleOf(max_y_offset - min_y_offset + 1, wg_size_1d)),
+			cl::NDRange(wg_size_1d),
+			events,
+			&evt
+		);
+		indicateCompletion(events, evt);
+	}
 
-	kernel = cl::Kernel(program, "gauss_blur_skewed_hor_traversal_stage2");
-	idx = 0;
-	kernel.setArg(idx++, cl_int(width));
-	kernel.setArg(idx++, cl_int(height));
-	kernel.setArg(idx++, intermediate_grid.buffer());
-	kernel.setArg(idx++, intermediate_grid.offset());
-	kernel.setArg(idx++, intermediate_grid.stride());
-	kernel.setArg(idx++, grid.buffer());
-	kernel.setArg(idx++, grid.offset());
-	kernel.setArg(idx++, grid.stride());
-	kernel.setArg(idx++, cl_float(dy));
+	{
+		cl::Kernel kernel = cl::Kernel(program, "gauss_blur_skewed_hor_traversal_stage2");
+		size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
 
-	size_t const h_wg_size = std::min<size_t>(max_wg_size, cacheline_size / sizeof(float));
-	size_t const v_wg_size = max_wg_size / h_wg_size;
+		// Try to access a cacheline worth of data horizontally.
+		// Note that some devices report zero cacheline_size.
+		size_t h_wg_size = std::max<size_t>(64, cacheline_size) / sizeof(float);
 
-	command_queue.enqueueNDRangeKernel(
-		kernel,
-		cl::NullRange,
-		cl::NDRange(thisOrNextMultipleOf(width, h_wg_size), thisOrNextMultipleOf(height, v_wg_size)),
-		cl::NDRange(h_wg_size, v_wg_size),
-		events,
-		&evt
-	);
-	indicateCompletion(events, evt);
+		// Do we exceed max_wg_items?
+		h_wg_size = std::min(h_wg_size, max_wg_items);
+
+		// Maximum possible vertical size.
+		size_t v_wg_size = max_wg_items / h_wg_size;
+
+		int idx = 0;
+		kernel.setArg(idx++, cl_int(width));
+		kernel.setArg(idx++, cl_int(height));
+		kernel.setArg(idx++, intermediate_grid.buffer());
+		kernel.setArg(idx++, intermediate_grid.offset());
+		kernel.setArg(idx++, intermediate_grid.stride());
+		kernel.setArg(idx++, grid.buffer());
+		kernel.setArg(idx++, grid.offset());
+		kernel.setArg(idx++, grid.stride());
+		kernel.setArg(idx++, cl_float(dy));
+
+		command_queue.enqueueNDRangeKernel(
+			kernel,
+			cl::NullRange,
+			cl::NDRange(
+				thisOrNextMultipleOf(width, h_wg_size),
+				thisOrNextMultipleOf(height, v_wg_size)
+			),
+			cl::NDRange(h_wg_size, v_wg_size),
+			events,
+			&evt
+		);
+		indicateCompletion(events, evt);
+	}
 }
 
 } // anonymous namespace

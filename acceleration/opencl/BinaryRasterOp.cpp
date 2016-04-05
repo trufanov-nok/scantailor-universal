@@ -64,6 +64,7 @@ void binaryRasterOp(
 	}
 
 	cl::Device const device = command_queue.getInfo<CL_QUEUE_DEVICE>();
+	uint64_t const local_mem_size = device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();
 	size_t const cacheline_size = device.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
 
 	cl::Event completion_evt;
@@ -74,11 +75,20 @@ void binaryRasterOp(
 	if (src_first_bit == dst_first_bit) {
 		// Aligned case.
 		cl::Kernel kernel(program, (kernel_name_base+"_aligned").c_str());
-		size_t const max_wg_size = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
-		size_t const h_wg_size = std::min<size_t>(cacheline_size/sizeof(uint32_t), max_wg_size);
+		size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
 
-		// Somehow limiting it to 16 helps.
-		size_t const v_wg_size = std::min<size_t>(16, max_wg_size / h_wg_size);
+		// Try to access a cacheline worth of data horizontally.
+		// Note that some devices report zero cacheline_size.
+		size_t h_wg_size = std::max<size_t>(64, cacheline_size) / sizeof(uint32_t);
+
+		// Do we exceed max_wg_items?
+		h_wg_size = std::min(h_wg_size, max_wg_items);
+
+		// Maximum possible vertical size.
+		size_t v_wg_size = max_wg_items / h_wg_size;
+
+		// For some reason, limiting workgroup size helps with performance.
+		v_wg_size = std::min<size_t>(v_wg_size, 16);
 
 		int idx = 0;
 		kernel.setArg(idx++, cl_int(dst_word_rect.width()));
@@ -108,22 +118,28 @@ void binaryRasterOp(
 		// Misaligned case.
 		char const* const kernel_suffix = src_first_bit < dst_first_bit ? "_src_dst" : "_dst_src";
 		cl::Kernel kernel(program, (kernel_name_base + kernel_suffix).c_str());
-		size_t const local_mem_size = device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();
-		size_t const max_wg_size = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
 
-		// The amount of local memory we are going to be using is:
-		// (h_wg_size + 1) * v_wg_size * sizeof(uint32_t)
+		size_t const max_wg_items = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
 
-		size_t const h_wg_size = std::min<size_t>(
-			max_wg_size, std::min<size_t>(
-				cacheline_size, local_mem_size - sizeof(uint32_t)
-			) / sizeof(int32_t)
-		);
+		// Try to access a cacheline worth of data horizontally.
+		// Note that some devices report zero cacheline_size.
+		size_t h_wg_size = std::max<size_t>(64, cacheline_size) / sizeof(uint32_t);
 
-		size_t const v_wg_size = std::min<size_t>(
-			std::min<size_t>(16, max_wg_size / h_wg_size), // Somehow limiting it to 16 helps.
-			local_mem_size / ((h_wg_size + 1) * sizeof(uint32_t))
-		);
+		// Do we exceed max_wg_items?
+		h_wg_size = std::min(h_wg_size, max_wg_items);
+
+		// Do we exceed local memory? We'll be using (h_wg_size+1)*(v_wg_size)*sizeof(uint32_t)
+		// bytes of local memory.
+		h_wg_size = std::min(h_wg_size, local_mem_size / sizeof(uint32_t) - 1);
+
+		// Maximum possible vertical size.
+		size_t v_wg_size = max_wg_items / h_wg_size;
+
+		// Do we exceed local memory?
+		v_wg_size = std::min(v_wg_size, local_mem_size / ((h_wg_size + 1) * sizeof(uint32_t)));
+
+		// For some reason, limiting workgroup size helps with performance.
+		v_wg_size = std::min<size_t>(v_wg_size, 16);
 
 		int idx = 0;
 		if (src_first_bit > dst_first_bit) {
