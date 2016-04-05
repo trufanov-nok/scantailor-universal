@@ -512,16 +512,17 @@ OpenCLGrid<float> gaussBlur(
 	);
 	OpenCLGrid<float> dst_grid(src_grid.withDifferentPadding(dst_buffer, 0));
 
-	if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
-		// horizontalPass() is going to be slow, but without fast local memory
-		// there is no way to accelerate it.
+	// On discrete GPU devices, horizontalPass() is going to be slow.
+	// We may be able to accelerate it by doing:
+	// transpose() -> verticalPass() -> transpose()
+	// provided we have fast local memory. On CPUs and integrated GPUs
+	// it's not worth doing though.
+	if (device.getInfo<CL_DEVICE_HOST_UNIFIED_MEMORY>() == CL_TRUE ||
+		device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
 
 		horizontalPass(command_queue, program, src_grid, dst_grid, h_sigma, &events);
 		verticalPass(command_queue, program, dst_grid, dst_grid, v_sigma, &events);
 	} else {
-		// This device has fast local memory, so we avoid a slow horizontalPass()
-		// by doing transpose() -> verticalPass() -> transpose()
-
 		OpenCLGrid<float> transposed = opencl::transpose(
 			command_queue, program, src_grid, /*dst_padding=*/0, &events, &events
 		);
@@ -564,18 +565,20 @@ OpenCLGrid<float> anisotropicGaussBlur(
 	if (!horizontal_decomposition) {
 		verticalPass(command_queue, program, src_grid, dst_grid, vdp.sigma_y, &events);
 	} else {
-		if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
-			// horizontalPass() is going to be slow, but without fast local memory
-			// there is no way to accelerate it.
+		// On discrete GPU devices, horizontalPass() is going to be slow.
+		// We may be able to accelerate it by doing:
+		// transpose() -> verticalPass() -> transpose()
+		// provided we have fast local memory. On CPUs and integrated GPUs
+		// it's not worth doing though.
+		if (device.getInfo<CL_DEVICE_HOST_UNIFIED_MEMORY>() == CL_TRUE ||
+			device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
+
 			cl::Buffer dst_buffer(
 				context, CL_MEM_READ_WRITE, src_grid.totalBytesWithDifferentPadding(1)
 			);
 			dst_grid = src_grid.withDifferentPadding(dst_buffer, 1);
 			horizontalPass(command_queue, program, src_grid, dst_grid, hdp.sigma_x, &events);
 		} else {
-			// This device has fast local memory, so we avoid a slow horizontalPass()
-			// by doing transpose() -> verticalPass() -> transpose()
-
 			OpenCLGrid<float> transposed = opencl::transpose(
 				command_queue, program, src_grid, /*dst_padding=*/0, &events
 			);
@@ -620,17 +623,18 @@ OpenCLGrid<float> anisotropicGaussBlur(
 		}
 		float const adjusted_sigma_phi = sigma_phi / std::sqrt(1.0f + dy*dy);
 
-		if (device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
-			// horizontallyTraversedSkewedPassInPlace() is going to be slow, but without
-			// fast local memory there is no way to accelerate it.
+		// On discrete GPU devices, horizontallyTraversedSkewedPassInPlace() is going to be slow.
+		// We may be able to accelerate it by doing:
+		// transpose() -> verticallyTraversedSkewedPassInPlace() -> transpose()
+		// provided we have fast local memory. On CPUs and integrated GPUs
+		// it's not worth doing though.
+		if (device.getInfo<CL_DEVICE_HOST_UNIFIED_MEMORY>() == CL_TRUE ||
+			device.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>() == CL_GLOBAL) {
 
 			horizontallyTraversedSkewedPassInPlace(
 				command_queue, program, dst_grid, adjusted_sigma_phi, dy, &events
 			);
 		} else {
-			// This device has fast local memory, so we avoid a slow horizontallyTraversedSkewedPass()
-			// by doing transpose() -> verticallyTraversedSkewedPass() -> transpose()
-
 			OpenCLGrid<float> transposed = opencl::transpose(
 				command_queue, program, dst_grid, /*dst_padding=*/1, &events, &events
 			);
