@@ -130,13 +130,13 @@ void binaryRasterOp(
 
 		// Do we exceed local memory? We'll be using (h_wg_size+1)*(v_wg_size)*sizeof(uint32_t)
 		// bytes of local memory.
-		h_wg_size = std::min(h_wg_size, local_mem_size / sizeof(uint32_t) - 1);
+		h_wg_size = std::min<size_t>(h_wg_size, local_mem_size / sizeof(uint32_t) - 1);
 
 		// Maximum possible vertical size.
 		size_t v_wg_size = max_wg_items / h_wg_size;
 
 		// Do we exceed local memory?
-		v_wg_size = std::min(v_wg_size, local_mem_size / ((h_wg_size + 1) * sizeof(uint32_t)));
+		v_wg_size = std::min<size_t>(v_wg_size, local_mem_size / ((h_wg_size + 1) * sizeof(uint32_t)));
 
 		// For some reason, limiting workgroup size helps with performance.
 		v_wg_size = std::min<size_t>(v_wg_size, 16);
