@@ -24,10 +24,11 @@
 namespace output
 {
 
-ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el)
-:	m_whiteMargins(el.attribute("whiteMargins") == "1"),
-	m_normalizeIllumination(el.attribute("normalizeIllumination") == "1")
+ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode)
 {
+    QString default_value = mixed_mode?"1":"0";
+    m_whiteMargins = el.attribute("whiteMargins", default_value) == "1";
+    m_normalizeIllumination = el.attribute("normalizeIllumination", default_value) == "1";
 }
 
 QDomElement

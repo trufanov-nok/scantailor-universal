@@ -46,7 +46,7 @@ Params::Params(QDomElement const& el)
 	m_colorParams.setColorMode(parseColorMode(cp.attribute("colorMode")));
 	m_colorParams.setColorGrayscaleOptions(
 		ColorGrayscaleOptions(
-			cp.namedItem("color-or-grayscale").toElement()
+            cp.namedItem("color-or-grayscale").toElement(), m_colorParams.colorMode() == ColorParams::MIXED
 		)
 	);
 	m_colorParams.setBlackWhiteOptions(

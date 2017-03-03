@@ -25,10 +25,11 @@ namespace output
 {
 
 ColorParams::ColorParams(QDomElement const& el)
-:	m_colorMode(parseColorMode(el.attribute("colorMode"))),
-	m_colorGrayscaleOptions(el.namedItem("color-or-grayscale").toElement()),
-	m_bwOptions(el.namedItem("bw").toElement())
+:	m_colorMode(parseColorMode(el.attribute("colorMode")))
 {
+    m_colorGrayscaleOptions = ColorGrayscaleOptions(el.namedItem("color-or-grayscale").toElement(),
+                                                    colorMode() == MIXED);
+    m_bwOptions = BlackWhiteOptions(el.namedItem("bw").toElement());
 }
 
 QDomElement

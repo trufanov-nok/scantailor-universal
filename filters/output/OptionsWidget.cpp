@@ -610,6 +610,7 @@ OptionsWidget::updateColorsDisplay()
 			break;
 		case ColorParams::MIXED:
 			bw_options_visible = true;
+            color_grayscale_options_visible = true;
 			break;
 	}
 	
