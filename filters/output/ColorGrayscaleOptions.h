@@ -32,7 +32,7 @@ public:
     ColorGrayscaleOptions(bool whiteMargins = false, bool normalizeIllumination = false)
     : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination) {}
 	
-	ColorGrayscaleOptions(QDomElement const& el);
+    ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode);
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 	

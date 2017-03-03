@@ -41,15 +41,21 @@ public:
 	
 	ColorMode colorMode() const { return m_colorMode; }
 	
-	void setColorMode(ColorMode mode) { m_colorMode = mode; }
+	void setColorMode(ColorMode mode) {
+        if (mode != ColorParams::BLACK_AND_WHITE && m_colorMode != mode) {
+            bool defaults = (mode == ColorParams::MIXED);
+            setColorGrayscaleOptions(ColorGrayscaleOptions(defaults, defaults));
+        }
+        m_colorMode = mode;
+    }
 
-    bool colorLayerEnabled() const { return m_colorLayerEnabled; }
+	bool colorLayerEnabled() const { return m_colorLayerEnabled; }
 
-    void setColorLayerEnabled(bool enabled) { m_colorLayerEnabled = enabled; }
+	void setColorLayerEnabled(bool enabled) { m_colorLayerEnabled = enabled; }
 
-    bool autoLayerEnabled() const { return m_autoLayerEnabled; }
+	bool autoLayerEnabled() const { return m_autoLayerEnabled; }
 
-    void setAutoLayerEnabled(bool enabled) { m_autoLayerEnabled = enabled; }
+	void setAutoLayerEnabled(bool enabled) { m_autoLayerEnabled = enabled; }
 	
 	ColorGrayscaleOptions const& colorGrayscaleOptions() const {
 		return m_colorGrayscaleOptions;
@@ -74,8 +80,8 @@ private:
 	ColorMode m_colorMode;
 	ColorGrayscaleOptions m_colorGrayscaleOptions;
 	BlackWhiteOptions m_bwOptions;
-    bool m_colorLayerEnabled;
-    bool m_autoLayerEnabled;
+	bool m_colorLayerEnabled;
+	bool m_autoLayerEnabled;
 };
 
 } // namespace output

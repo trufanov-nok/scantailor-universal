@@ -32,6 +32,10 @@ RenderParams::RenderParams(ColorParams const& cp)
 			m_mask |= WHITE_MARGINS|NORMALIZE_ILLUMINATION
 					|NEED_BINARIZATION;
 			break;
+
+        case ColorParams::MIXED:
+            m_mask |= NEED_BINARIZATION|MIXED_OUTPUT;
+            // continue to COLOR_GRAYSCALE to get colorGrayscaleOptions
 		case ColorParams::COLOR_GRAYSCALE: {
 			ColorGrayscaleOptions const opt(
 				cp.colorGrayscaleOptions()
@@ -44,10 +48,6 @@ RenderParams::RenderParams(ColorParams const& cp)
 			}
 			break;
 		}
-		case ColorParams::MIXED:
-			m_mask |= WHITE_MARGINS|NORMALIZE_ILLUMINATION
-					|NEED_BINARIZATION|MIXED_OUTPUT;
-			break;
     }
 
     if (cp.colorLayerEnabled())
