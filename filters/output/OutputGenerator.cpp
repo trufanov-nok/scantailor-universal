@@ -588,7 +588,7 @@ OutputGenerator::processWithoutDewarping(
 	QPolygonF normalize_illumination_crop_area(m_xform.resultingPreCropArea());
 	normalize_illumination_crop_area.translate(-normalize_illumination_rect.topLeft());
 
-	if (render_params.normalizeIllumination()) {
+    if (render_params.normalizeIllumination() || render_params.mixedOutput()) {
 		maybe_normalized = normalizeIlluminationGray(
 			status, input.grayImage(), orig_image_crop_area,
 			m_xform.transform(), normalize_illumination_rect, 0, dbg
@@ -707,25 +707,42 @@ OutputGenerator::processWithoutDewarping(
     }
 
 	
-	if (render_params.normalizeIllumination()
-			&& !input.origImage().allGray()) {
-		assert(maybe_normalized.format() == QImage::Format_Indexed8);
-		QImage tmp(
-			transform(
-				input.origImage(), m_xform.transform(),
-				normalize_illumination_rect,
-				OutsidePixels::assumeColor(Qt::white)
-			)
-		);
-		
-		status.throwIfCancelled();
-		
-		adjustBrightnessGrayscale(tmp, maybe_normalized);
-		maybe_normalized = tmp;
-		if (dbg) {
-			dbg->add(maybe_normalized, "norm_illum_color");
-		}
-	}
+    if ((render_params.normalizeIllumination() && !input.origImage().allGray())
+               || render_params.mixedOutput()) {
+           // in case of mixedOutput we normalized image for picture detection and now should
+           // restoren non-normalized image if it has !normalizeIllumination()
+           QImage tmp;
+           if (!input.origImage().allGray()) {
+               assert(maybe_normalized.format() == QImage::Format_Indexed8);
+               tmp = (
+                           transform(
+                               input.origImage(), m_xform.transform(),
+                               normalize_illumination_rect,
+                               OutsidePixels::assumeColor(Qt::white)
+                               )
+                           );
+
+               status.throwIfCancelled();
+
+               if (render_params.normalizeIllumination()) {
+                   adjustBrightnessGrayscale(tmp, maybe_normalized);
+               }
+           } else {
+               tmp = (
+                           transform(
+                               input.grayImage(), m_xform.transform(),
+                               normalize_illumination_rect,
+                               OutsidePixels::assumeColor(Qt::white)
+                               )
+                           );
+               status.throwIfCancelled();
+           }
+           maybe_normalized = tmp;
+           if (dbg) {
+               dbg->add(maybe_normalized, "norm_illum_color");
+           }
+
+   }
 	
 	if (!render_params.mixedOutput()) {
 		// It's "Color / Grayscale" mode, as we handle B/W above.

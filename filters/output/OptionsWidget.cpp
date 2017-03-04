@@ -653,6 +653,7 @@ OptionsWidget::updateColorsDisplay()
 			m_colorParams.colorGrayscaleOptions()
 		);
 		whiteMarginsCB->setChecked(opt.whiteMargins());
+        whiteMarginsCB->setEnabled(color_mode != ColorParams::MIXED); // Mixed must have margins
 		equalizeIlluminationCB->setChecked(opt.normalizeIllumination());
 		equalizeIlluminationCB->setEnabled(opt.whiteMargins());
 	}
