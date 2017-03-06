@@ -25,6 +25,7 @@
 
 #include "CommandLine.h"
 #include "ConsoleBatch.h"
+#include "SettingsDefaults.h"
 
 
 int main(int argc, char **argv)
@@ -41,6 +42,7 @@ int main(int argc, char **argv)
     app.setOrganizationName("Scan Tailor Universal");
     app.setOrganizationDomain("github.com/trufanov-nok/scantailor");
     QSettings::setDefaultFormat(QSettings::IniFormat);
+    SettingsDefaults::prepareDefaults(false);
 
     // parse command line arguments
 	CommandLine cli(app.arguments(), false);
