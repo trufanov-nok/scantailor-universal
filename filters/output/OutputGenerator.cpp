@@ -245,14 +245,14 @@ OutputGenerator::OutputGenerator(
 :	m_dpi(dpi),
 	m_colorParams(color_params),
 	m_xform(xform),
-	m_outRect(xform.resultingRect().toRect()),
-	m_contentRect(xform.transform().map(content_rect_phys).boundingRect().toRect()),
+    m_outRect(xform.resultingRect().toAlignedRect()),
+    m_contentRect(xform.transform().map(content_rect_phys).boundingRect().toAlignedRect()),
 	m_despeckleLevel(despeckle_level)
 {	
 	assert(m_outRect.topLeft() == QPoint(0, 0));
 
 	// Note that QRect::contains(<empty rect>) always returns false, so we don't use it here.
-	assert(m_outRect.contains(m_contentRect.topLeft()) && m_outRect.contains(m_contentRect.bottomRight()));
+    assert(m_outRect.contains(m_contentRect.topLeft()) && m_outRect.contains(m_contentRect.bottomRight()));
 }
 
 QImage
