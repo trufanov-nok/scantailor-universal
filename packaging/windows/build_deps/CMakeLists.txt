@@ -23,6 +23,31 @@ ST_SET_DEFAULT_GCC_FLAGS()
 GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
 GET_FILENAME_COMPONENT(build_outer_dir "${PROJECT_BINARY_DIR}/.." ABSOLUTE)
 
+
+SET(suggest_jom FALSE)
+
+IF(MSVC)
+	FIND_PROGRAM(JOM_EXECUTABLE jom HINTS "${source_outer_dir}" "${build_outer_dir}")
+	IF(JOM_EXECUTABLE)
+		TO_NATIVE_PATH("${JOM_EXECUTABLE}" make_command)
+	ELSE()
+		SET(make_command nmake)
+		SET(suggest_jom TRUE)
+	ENDIF()
+
+	IF(MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR MSVC90 OR MSVC10 OR MSVC11)
+		MESSAGE(FATAL_ERROR "This Visual Studio version is too old and is not supported. Only Visual Studio 2013 is currently supported.")
+	ELSEIF(MSVC12)
+		SET(qt_platform win32-msvc2013)
+		SET(boost_toolset msvc-12.0)
+	ELSE()
+		MESSAGE(FATAL_ERROR "A new and unsupported version of Visual Studio was detected. Only Visual Studio 2013 is currently supported.")
+	ENDIF()
+ELSE()
+	MESSAGE(FATAL_ERROR "Unsupported compiler. Only Visual Studio 2013 is currently supported.")
+ENDIF()
+
+
 FILE(GLOB jpeg_dirs1 "${build_outer_dir}/jpeg-[0-9]*")
 FILE(GLOB jpeg_dirs2 "${source_outer_dir}/jpeg-[0-9]*")
 FILE(GLOB zlib_dirs1 "${build_outer_dir}/zlib-[0-9]*.[0-9]*.[0-9]*")
@@ -271,12 +296,6 @@ SET_TARGET_PROPERTIES(
 
 #================================= Boost ================================#
 
-IF(MSVC)
-	SET(boost_toolset msvc)
-ELSE()
-	MESSAGE(FATAL_ERROR "Unsupported platform. Only Visual Studio is currently supported")
-ENDIF()
-
 SET(boost_64bit_flags "")
 IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	LIST(APPEND boost_64bit_flags "address-model=64")
@@ -329,35 +348,12 @@ FOREACH(conf_file ${conf_files})
 	ENDIF()
 ENDFOREACH()
 
-SET(suggest_jom FALSE)
-
-IF(MSVC)
-	FIND_PROGRAM(JOM_EXECUTABLE jom HINTS "${source_outer_dir}" "${build_outer_dir}")
-	IF(JOM_EXECUTABLE)
-		TO_NATIVE_PATH("${JOM_EXECUTABLE}" make_command)
-	ELSE()
-		SET(make_command nmake)
-		SET(suggest_jom TRUE)
-	ENDIF()
-
-	IF(MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR MSVC90 OR MSVC10 OR MSVC11)
-		MESSAGE(FATAL_ERROR "This Visual Studio version is too old and is not supported. Supported versions are Visual Studio 2013 or above")
-	ELSEIF(MSVC12)
-		SET(platform win32-msvc2013)
-	ELSE()
-		MESSAGE("A new and unsupported version of Visual Studio was detected. You may proceed, but it may not work. Visual Studio 2013 is strongly recommended")
-		SET(platform win32-msvc2013)
-	ENDIF()
-ELSE()
-	MESSAGE(FATAL_ERROR "Unsupported compiler. Only Visual Studio 2013 is currently supported.")
-ENDIF()
-
 
 IF(MSVC)
 	# Disable frame pointer ommission in release mode to ensure
 	# good stack traces from our built-in crash reporter.
 	PATCH_FILE(
-		"${QTBASE_DIR}/mkspecs/${platform}/qmake.conf"
+		"${QTBASE_DIR}/mkspecs/${qt_platform}/qmake.conf"
 		
 		# Add the flag.
 		"/(QMAKE_CFLAGS_RELEASE[ \t]*=)/\\1 -Oy-/"
@@ -391,7 +387,7 @@ ADD_CUSTOM_COMMAND(
 	COMMAND "${CMAKE_COMMAND}"
 	"-DPROJECT_ROOT=${CMAKE_SOURCE_DIR}/../../.."
 	"-DTARGET_FILE=${qt_build_script}"
-	"-DPLATFORM=${platform}"
+	"-DPLATFORM=${qt_platform}"
 	"-DMAYBE_SKIP_BUILDING_TOOLS=${maybe_skip_building_tools}"
 	"-DMAKE_COMMAND=${make_command}"
 	"-DJPEG_INCLUDE_DIR=${JPEG_INCLUDE_DIR}"
