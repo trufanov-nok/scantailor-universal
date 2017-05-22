@@ -31,6 +31,18 @@ PageSequence::pageAt(size_t const idx) const
 	return m_pages.at(idx); // may throw
 }
 
+PageInfo const&
+PageSequence::pageAt(PageId const page) const
+{
+    std::vector<PageInfo>::const_iterator it(m_pages.begin());
+    std::vector<PageInfo>::const_iterator const end(m_pages.end());
+    for (; it != end && it->id() != page; ++it) {
+        // Continue until we have a match.
+    }
+
+    return *it;
+}
+
 std::set<PageId>
 PageSequence::selectAll() const
 {

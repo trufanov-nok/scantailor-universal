@@ -24,7 +24,7 @@ using namespace imageproc::constants;
 bool
 ImageMetadata::operator==(ImageMetadata const& other) const
 {
-	if (m_size != other.m_size) {
+    if ( (m_size != other.m_size) || (is_grayscale != other.isGrayScale())) {
 		return false;
 	} else if (m_dpi.isNull() && other.m_dpi.isNull()) {
 		return true;

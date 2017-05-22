@@ -38,19 +38,30 @@
 
 #include "CommandLine.h"
 #include "ImageViewTab.h"
+#include "OrderByModeProvider.h"
+#include "OrderBySourceColor.h"
 
 namespace output
 {
 
 Filter::Filter(
-	PageSelectionAccessor const& page_selection_accessor)
-:	m_ptrSettings(new Settings)
+        IntrusivePtr<ProjectPages> const& pages,
+        PageSelectionAccessor const& page_selection_accessor)
+:	m_ptrPages(pages), m_ptrSettings(new Settings)
 {
 	if (CommandLine::get().isGui()) {
 		m_ptrOptionsWidget.reset(
 			new OptionsWidget(m_ptrSettings, page_selection_accessor)
 		);
 	}
+
+    typedef PageOrderOption::ProviderPtr ProviderPtr;
+    ProviderPtr const default_order;
+    ProviderPtr const order_by_mode(new OrderByModeProvider(m_ptrSettings));
+    ProviderPtr const order_by_source_color(new OrderBySourceColor(m_ptrSettings, pages));
+    m_pageOrderOptions.push_back(PageOrderOption(QCoreApplication::tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(QCoreApplication::tr("Order by mode"), order_by_mode));
+    m_pageOrderOptions.push_back(PageOrderOption(QCoreApplication::tr("Grayscale sources on top"), order_by_source_color));
 }
 
 Filter::~Filter()
@@ -203,5 +214,25 @@ Filter::createCacheDrivenTask(OutputFileNameGenerator const& out_file_name_gen)
 		new CacheDrivenTask(m_ptrSettings, out_file_name_gen)
 	);
 }
+
+std::vector<PageOrderOption>
+Filter::pageOrderOptions() const
+{
+    return m_pageOrderOptions;
+}
+
+int
+Filter::selectedPageOrder() const
+{
+    return m_selectedPageOrder;
+}
+
+void
+Filter::selectPageOrder(int option)
+{
+    assert((unsigned)option < m_pageOrderOptions.size());
+    m_selectedPageOrder = option;
+}
+
 
 } // namespace output

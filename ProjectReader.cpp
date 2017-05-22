@@ -247,8 +247,13 @@ ProjectReader::processImageMetadata(QDomElement const& image_el)
 	if (!dpi_el.isNull()) {
 		dpi = XmlUnmarshaller::dpi(dpi_el);
 	}
-	
-	return ImageMetadata(size, dpi);
+
+    QDomElement const gs_el(image_el.namedItem("grayscale").toElement());
+
+    if (!gs_el.isNull())
+        return ImageMetadata(size, dpi, gs_el.attribute("value", "1").toInt() != 0);
+    else
+        return ImageMetadata(size, dpi);
 }
 
 void

@@ -1,6 +1,7 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
     Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Vadim Kuznetsov ()DikBSD <dikbsd@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,33 +17,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PAGE_SEQUENCE_H_
-#define PAGE_SEQUENCE_H_
+#ifndef PAGE_SPLIT_ORDER_BY_MODE_PROVIDER_H_
+#define PAGE_SPLIT_ORDER_BY_MODE_PROVIDER_H_
 
-#include "PageInfo.h"
-#include <vector>
-#include <set>
-#include <stddef.h>
+#include "Settings.h"
+#include "IntrusivePtr.h"
+#include "PageOrderProvider.h"
 
-class PageSequence
+namespace output
 {
-	// Member-wise copying is OK.
+
+class OrderByModeProvider : public PageOrderProvider
+{
 public:
-	void append(PageInfo const& page_info);
-	
-	size_t numPages() const { return m_pages.size(); }
+    OrderByModeProvider(IntrusivePtr<Settings> const& settings);
 
-    PageInfo const& pageAt(PageId page) const;
-	
-	PageInfo const& pageAt(size_t idx) const;
-
-	std::set<PageId> selectAll() const;
-
-	std::set<PageId> selectPagePlusFollowers(PageId const& page) const;
-
-	std::set<PageId> selectEveryOther(PageId const& base) const;
+	virtual bool precedes(
+		PageId const& lhs_page, bool lhs_incomplete,
+		PageId const& rhs_page, bool rhs_incomplete) const;
 private:
-	std::vector<PageInfo> m_pages;
+	IntrusivePtr<Settings> m_ptrSettings;
 };
 
-#endif
+} // namespace page_split
+
+#endif //PAGE_SPLIT_ORDER_BY_MODE_PROVIDER_H_

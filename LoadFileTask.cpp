@@ -88,6 +88,12 @@ LoadFileTask::operator()()
 		if (image.isNull()) {
 			return FilterResultPtr(new ErrorResult(m_imageId.filePath()));
 		} else {
+
+            if (image.isGrayscale() != m_imageMetadata.isGrayScale()) {
+                m_imageMetadata.setGrayScale(image.isGrayscale());
+                m_ptrPages->updateImageMetadata(m_imageId, m_imageMetadata);
+            }
+
 			updateImageSizeIfChanged(image);
 			overrideDpi(image);
 			m_ptrThumbnailCache->ensureThumbnailExists(m_imageId, image);
