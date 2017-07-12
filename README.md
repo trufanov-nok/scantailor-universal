@@ -50,7 +50,7 @@ Scan Tailor is being used not just by enthusiasts, but also by libraries and oth
   [Quick-Start-Guide](https://github.com/trufanov-nok/scantailor-universal/wiki/Quick-Start-Guide), and complete 
   [Usage Guide](https://github.com/trufanov-nok/scantailor-universal/wiki/User-Guide), including installation information 
   (via the [installer](https://github.com/trufanov-nok/scantailor-universal/wiki/User-Guide#installation-and-first-start) or 
-  [building from from source](https://github.com/trufanov-nok/scantailor-universal/wiki/Building-from-Source-Code-on-Linux-and-Mac-OS-X))
+  [building from source](https://github.com/trufanov-nok/scantailor-universal/wiki/Building-from-Source-Code-on-Linux-and-Mac-OS-X))
   can be found in the [wiki](https://github.com/trufanov-nok/scantailor-universal/wiki/)!
 
 ## Additional Links 
