@@ -441,7 +441,7 @@ ProjectFilesDialog::setInputDir(QString const& dir, bool const auto_add_files)
 		files.begin(), files.end(),
 		boost::lambda::bind(
 			&pushItemWithFlags<Item, ItemList>,
-			_1, boost::ref(items), cref(m_supportedExtensions)
+            _1, boost::ref(items), boost::cref(m_supportedExtensions)
 		)
 	);
 	
@@ -513,7 +513,7 @@ ProjectFilesDialog::removeFromProject()
 	m_ptrInProjectFiles->items(
 		selection, boost::lambda::bind(
 			&pushItemIfSameDir<Item, ItemList>,
-			boost::ref(items), _1, cref(input_dir)
+            boost::ref(items), _1, boost::cref(input_dir)
 		)
 	);
 	
