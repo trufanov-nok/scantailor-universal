@@ -1227,10 +1227,8 @@ OutputGenerator::processWithDewarping(
 			normalized_original = input.grayImage();
 		}
 		if (dewarping_mode == DewarpingMode::AUTO
-//begin of modified by monday2000
-//Marginal_Dewarping
 			|| dewarping_mode == DewarpingMode::MARGINAL
-//end of modified by monday2000			
+            || render_params.mixedOutput()
 			) {
 			warped_gray_output = transformToGray(
 				input.grayImage(), m_xform.transform(), normalize_illumination_rect,
