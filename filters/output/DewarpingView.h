@@ -58,6 +58,7 @@ public slots:
 	void depthPerceptionChanged(double val);	
 protected:
 	virtual void onPaint(QPainter& painter, InteractionState const& interaction);
+    virtual void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction);
 private:
 //begin of modified by monday2000
 //Marginal_Dewarping
@@ -89,6 +90,7 @@ private:
 	InteractiveXSpline m_bottomSpline;
 	DragHandler m_dragHandler;
 	ZoomHandler m_zoomHandler;
+    QRectF const m_virt_content_rect;
 };
 
 } // namespace output
