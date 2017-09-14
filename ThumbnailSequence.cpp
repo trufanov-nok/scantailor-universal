@@ -656,7 +656,7 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
     double yoffset = SPACING;
 
     int num_items = 0;
-    int view_width = m_graphicsScene.views().first()->width();
+    int view_width = !m_graphicsScene.views().isEmpty() ? m_graphicsScene.views().first()->width() : 0;
 	for (ord_it = m_itemsInOrder.begin(); ord_it != ord_end; ++ord_it, ++num_items) {
 		CompositeItem* composite = ord_it->composite;
 		composite->setPos(xoffset, yoffset);
@@ -666,7 +666,7 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
         xoffset += composite->boundingRect().width() + SPACING;
         if (xoffset > view_width) {
             xoffset = SPACING;
-    		yoffset += composite->boundingRect().height() + SPACING;
+            yoffset += composite->boundingRect().height() + SPACING;
         }
 		m_graphicsScene.addItem(composite);
 	}
