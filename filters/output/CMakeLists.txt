@@ -51,6 +51,8 @@ SET(
 	DewarpingMode.cpp DewarpingMode.h
 	ChangeDewarpingDialog.cpp ChangeDewarpingDialog.h
 	DepthPerception.cpp DepthPerception.h
+        OrderByModeProvider.cpp OrderByModeProvider.h
+        OrderBySourceColor.cpp OrderBySourceColor.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 QT4_AUTOMOC(${sources})

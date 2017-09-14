@@ -36,7 +36,7 @@ public:
 	
 	ImageMetadata() {}
 	
-	ImageMetadata(QSize size, Dpi dpi) : m_size(size), m_dpi(dpi) {}
+    ImageMetadata(QSize size, Dpi dpi, bool grayscale = true) : m_size(size), m_dpi(dpi), is_grayscale(grayscale) {}
 	
 	QSize const& size() const { return m_size; }
 	
@@ -47,6 +47,10 @@ public:
 	void setDpi(Dpi const& dpi) { m_dpi = dpi; }
 	
 	bool isDpiOK() const;
+
+    void setGrayScale(bool const grayscale) { is_grayscale = grayscale; }
+
+    bool isGrayScale() const { return is_grayscale; }
 	
 	DpiStatus horizontalDpiStatus() const;
 	
@@ -62,6 +66,7 @@ private:
 	
 	QSize m_size;
 	Dpi m_dpi;
+    bool is_grayscale;
 };
 
 #endif

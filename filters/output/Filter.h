@@ -27,11 +27,8 @@
 #include "SafeDeletingQObjectPtr.h"
 #include "PictureZonePropFactory.h"
 #include "FillZonePropFactory.h"
-//begin of modified by monday2000
-//Original_Foreground_Mixed
-//added:
+#include "ProjectPages.h"
 #include <QImage>
-//end of modified by monday2000
 
 class PageId;
 class PageSelectionAccessor;
@@ -51,7 +48,7 @@ class Filter : public AbstractFilter
 {
 	DECLARE_NON_COPYABLE(Filter)
 public:
-	Filter(PageSelectionAccessor const& page_selection_accessor);
+    Filter(IntrusivePtr<ProjectPages> const& pages, PageSelectionAccessor const& page_selection_accessor);
 	
 	virtual ~Filter();
 	
@@ -87,15 +84,22 @@ public:
 	
 	OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); };
 	Settings* getSettings() { return m_ptrSettings.get(); };
+
+    virtual std::vector<PageOrderOption> pageOrderOptions() const;
+    virtual int selectedPageOrder() const;
+    virtual void selectPageOrder(int option);
 private:
 	void writePageSettings(
 		QDomDocument& doc, QDomElement& filter_el,
 		PageId const& page_id, int numeric_id) const;
 	
+    IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<Settings> m_ptrSettings;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
 	PictureZonePropFactory m_pictureZonePropFactory;
 	FillZonePropFactory m_fillZonePropFactory;
+    std::vector<PageOrderOption> m_pageOrderOptions;
+    int m_selectedPageOrder;
 };
 
 } // namespace output

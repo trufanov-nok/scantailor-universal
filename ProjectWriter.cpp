@@ -193,6 +193,10 @@ ProjectWriter::writeImageMetadata(
 	dpi_el.setAttribute("horizontal", metadata.dpi().horizontal());
 	dpi_el.setAttribute("vertical", metadata.dpi().vertical());
 	image_el.appendChild(dpi_el);
+
+    QDomElement gs_el(doc.createElement("grayscale"));
+    gs_el.setAttribute("value", metadata.isGrayScale()?"1":"0");
+    image_el.appendChild(gs_el);
 }
 
 QDomElement
