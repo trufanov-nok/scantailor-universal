@@ -736,7 +736,37 @@ IF(WIN32)
 			ELSE()
 				COPY_TO_BUILD_DIR("${GCC_DW2_DLL}")
 			ENDIF()
-		ENDIF(NOT MINGW64)
+
+                        FIND_FILE(
+                            LIBWPTHREAD_DLL libwinpthread-1.dll
+                            PATHS c:/MinGW/bin ENV PATH
+                            DOC "Full path to libwinpthread-1.dll"
+                            )
+                        IF(NOT LIBWPTHREAD_DLL)
+                        SET(LIBWPTHREAD_DLL "") # For NSIS
+                        MESSAGE(
+                            "Could not find libwinpthread-1.dll\n"
+                            "That's fine if your MinGW is old and just doesn't have it."
+                            )
+                        ELSE()
+                        COPY_TO_BUILD_DIR("${LIBWPTHREAD_DLL}")
+                        ENDIF()
+
+                        FIND_FILE(
+                            LIBSTDC6_DLL libstdc++-6.dll
+                            PATHS c:/MinGW/bin ENV PATH
+                            DOC "Full path to libstdc++-6.dll"
+                            )
+                        IF(NOT LIBSTDC6_DLL)
+                        SET(LIBSTDC6_DLL "") # For NSIS
+                        MESSAGE(
+                            "Could not find libstdc++-6.dll\n"
+                            "That's fine if your MinGW is old and just doesn't have it."
+                            )
+                        ELSE()
+                        COPY_TO_BUILD_DIR("${LIBSTDC6_DLL}")
+                        ENDIF()
+                        ENDIF(NOT MINGW64)
 	ENDIF(MINGW)
 	
 	SET(

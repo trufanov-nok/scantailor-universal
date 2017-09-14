@@ -3,7 +3,7 @@
 !define LICENSE_FILE "@LICENSE_FILE@"
 !define INSTALLER_FILENAME "@INSTALLER_FILENAME@"
 !define STAGING_DIR "@STAGING_DIR@"
-!define UNINST_REGKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\Scan Tailor"
+!define UNINST_REGKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\Scan Tailor Universal"
 
 # The window identifier of the main Scan Tailor window.
 !define WNDCLASS "ScanTailor_Window"
@@ -16,14 +16,14 @@
 BrandingText " " # To remove the mention of NullSoft.
 #LoadLanguageFile "${NSISDIR}\Contrib\Language files\Russian.nlf"
 
-Name "Scan Tailor version ${VERSION}"
+Name "Scan Tailor Universal version ${VERSION}"
 
 OutFile "${INSTALLER_FILENAME}"
 
 !if "@SIZEOF_VOID_PTR@" == "8"
-InstallDir "$PROGRAMFILES64\Scan Tailor"
+InstallDir "$PROGRAMFILES64\Scan Tailor Universal"
 !else
-InstallDir "$PROGRAMFILES\Scan Tailor"
+InstallDir "$PROGRAMFILES\Scan Tailor Universal"
 !endif
 
 InstallDirRegKey HKLM "${UNINST_REGKEY}" "InstallLocation"
@@ -37,7 +37,7 @@ AllowSkipFiles off
 SetCompressor /SOLID /FINAL lzma
 
 !if "${VERSION_QUAD}" != ""
-  VIAddVersionKey "ProductName" "Scan Tailor"
+  VIAddVersionKey "ProductName" "Scan Tailor Universal"
   VIAddVersionKey "ProductVersion" "${VERSION}"
   VIAddVersionKey "Comments" "Interactive post-processing tool for scanned pages."
   VIAddVersionKey "CompanyName" "Joseph Artsimovich"
@@ -63,7 +63,7 @@ SetCompressor /SOLID /FINAL lzma
 !if "@SIZEOF_VOID_PTR@" == "8"
 Function .onInit
   ${IfNot} ${RunningX64}
-    MessageBox MB_ICONSTOP|MB_OK "A 64-bit version of Scan Tailor won't work on a 32-bit version of Windows."
+    MessageBox MB_ICONSTOP|MB_OK "A 64-bit version of Scan Tailor Universal won't work on a 32-bit version of Windows."
     Abort
   ${EndIf}
 FunctionEnd
@@ -76,18 +76,18 @@ Section
   WriteUninstaller $INSTDIR\Uninstaller.exe
   
   # Write uninstall registry records.
-  WriteRegStr HKLM "${UNINST_REGKEY}" "DisplayName" "Scan Tailor"
+  WriteRegStr HKLM "${UNINST_REGKEY}" "DisplayName" "Scan Tailor Universal"
   WriteRegStr HKLM "${UNINST_REGKEY}" "UninstallString" "$INSTDIR\Uninstaller.exe"
   
   # Create menu shortcuts.
   SetShellVarContext all
-  CreateDirectory "$SMPROGRAMS\Scan Tailor"
-  CreateShortcut "$SMPROGRAMS\Scan Tailor\Scan Tailor.lnk" "$INSTDIR\scantailor.exe"
-  CreateShortcut "$SMPROGRAMS\Scan Tailor\Uninstall.lnk" "$INSTDIR\Uninstaller.exe"  
+  CreateDirectory "$SMPROGRAMS\Scan Tailor Universal"
+  CreateShortcut "$SMPROGRAMS\Scan Tailor Universal\Scan Tailor Universal.lnk" "$INSTDIR\scantailor.exe"
+  CreateShortcut "$SMPROGRAMS\Scan Tailor Universal\Uninstall.lnk" "$INSTDIR\Uninstaller.exe"
 
   # Register the ".ScanTailor" file extension.
   ${registerExtension} "$INSTDIR\scantailor.exe" ".ScanTailor" \
-  "Scan Tailor Project" "$INSTDIR\scantailor.exe,0"
+  "Scan Tailor Universal Project" "$INSTDIR\scantailor.exe,0"
 SectionEnd
 
 
@@ -102,7 +102,7 @@ FunctionEnd
 
 Section "Uninstall"
   # Unregister the ".ScanTailor" file extension.
-  ${unregisterExtension} ".ScanTailor" "Scan Tailor Project"
+  ${unregisterExtension} ".ScanTailor" "Scan Tailor Universal Project"
   
   # Remove program files.
   Delete "$INSTDIR\scantailor.exe"
@@ -116,6 +116,8 @@ Section "Uninstall"
   Delete "$INSTDIR\libpng.dll"
   Delete "$INSTDIR\libjpeg.dll"
   Delete "$INSTDIR\libtiff.dll"
+  Delete "$INSTDIR\libstdc++-6.dll"
+  Delete "$INSTDIR\libwinpthread-1.dll"
   Delete "$INSTDIR\Uninstaller.exe"
   RMDir /r "$INSTDIR\Microsoft.VC80.CRT"
   RMDir /r "$INSTDIR\Microsoft.VC90.CRT"
@@ -137,5 +139,5 @@ Section "Uninstall"
 
   # Remove menu entries
   SetShellVarContext all
-  RMDir /r "$SMPROGRAMS\Scan Tailor"
+  RMDir /r "$SMPROGRAMS\Scan Tailor Universal"
 SectionEnd
