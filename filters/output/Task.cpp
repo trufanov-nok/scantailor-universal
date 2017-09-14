@@ -127,15 +127,10 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<Settings> const& settings,
 	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
 	PageId const& page_id, OutputFileNameGenerator const& out_file_name_gen,
-//begin of modified by monday2000
-//Dont_Equalize_Illumination_Pic_Zones
-	//ImageViewTab const last_tab, bool const batch, bool const debug)
 	ImageViewTab const last_tab, bool const batch, bool const debug,
-	bool const dont_equalize_illumination_pic_zones,
 	bool const keep_orig_fore_subscan,
 //Original_Foreground_Mixed
 	QImage* const p_orig_fore_subscan)
-//end of modified by monday2000
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
 	m_ptrThumbnailCache(thumbnail_cache),
@@ -143,15 +138,12 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 	m_outFileNameGen(out_file_name_gen),
 	m_lastTab(last_tab),
 	m_batchProcessing(batch),
-//begin of modified by monday2000
 //Dont_Equalize_Illumination_Pic_Zones
 	//m_debug(debug)
 	m_debug(debug),
-	m_dont_equalize_illumination_pic_zones(dont_equalize_illumination_pic_zones),
 	m_keep_orig_fore_subscan(keep_orig_fore_subscan),
 //Original_Foreground_Mixed
 	m_p_orig_fore_subscan(p_orig_fore_subscan)
-//end of modified by monday2000
 {
 	if (debug) {
 		m_ptrDbg.reset(new DebugImages);
@@ -261,7 +253,6 @@ Task::process(
 			status, data, new_picture_zones, new_fill_zones,
 			params.dewarpingMode(), distortion_model,
 			params.depthPerception(),
-			m_dont_equalize_illumination_pic_zones,
 			m_keep_orig_fore_subscan,
 			write_automask ? &automask_img : 0,
 			write_speckles_file ? &speckles_img : 0,
@@ -393,12 +384,7 @@ Task::process(
 			status, data, new_picture_zones, new_fill_zones,
 			params.dewarpingMode(), distortion_model,
 			params.depthPerception(),
-//begin of modified by monday2000
-//Dont_Equalize_Illumination_Pic_Zones
-//added:
-			m_dont_equalize_illumination_pic_zones,
 			false,
-//end of modified by monday2000
 			write_automask ? &automask_img : 0,
             write_speckles_file ? &speckles_img : 0,
             m_ptrDbg.get()

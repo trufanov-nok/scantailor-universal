@@ -129,13 +129,8 @@ public:
 		DewarpingMode dewarping_mode,
 		dewarping::DistortionModel& distortion_model,
 		DepthPerception const& depth_perception,
-//begin of modified by monday2000
-//Dont_Equalize_Illumination_Pic_Zones
 //Original_Foreground_Mixed
-//added:		
-		bool dont_equalize_illumination_pic_zones,
 		bool keep_orig_fore_subscan = false,
-//end of modified by monday2000
 		imageproc::BinaryImage* auto_picture_mask = 0,
 		imageproc::BinaryImage* speckles_image = 0,
 //Picture_Shape
@@ -154,19 +149,14 @@ private:
 
 	QImage processImpl(
 		TaskStatus const& status, FilterData const& input,
-//begin of modified by monday2000
 //Quadro_Zoner
 		//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
 		ZoneSet& picture_zones, ZoneSet const& fill_zones,
 		DewarpingMode dewarping_mode,
 		dewarping::DistortionModel& distortion_model,
 		DepthPerception const& depth_perception,
-//Dont_Equalize_Illumination_Pic_Zones
 //Original_Foreground_Mixed
-//added:		
-		bool dont_equalize_illumination_pic_zones,
 		bool keep_orig_fore_subscan = false,
-//end of modified by monday2000
 		imageproc::BinaryImage* auto_picture_mask = 0,
 		imageproc::BinaryImage* speckles_image = 0,
 //Picture_Shape
@@ -184,14 +174,9 @@ private:
 
 	QImage processWithoutDewarping(
 		TaskStatus const& status, FilterData const& input,
-//begin of modified by monday2000
 //Quadro_Zoner
 		//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
 		ZoneSet& picture_zones, ZoneSet const& fill_zones,
-//Dont_Equalize_Illumination_Pic_Zones
-//added:		
-		bool dont_equalize_illumination_pic_zones,
-//end of modified by monday2000
 		imageproc::BinaryImage* auto_picture_mask = 0,
 		imageproc::BinaryImage* speckles_image = 0,
 //Picture_Shape
@@ -208,12 +193,7 @@ private:
 		DewarpingMode dewarping_mode,
 		dewarping::DistortionModel& distortion_model,
 		DepthPerception const& depth_perception,
-//begin of modified by monday2000
-//Dont_Equalize_Illumination_Pic_Zones
-//added:		
-		bool dont_equalize_illumination_pic_zones,
 		bool keep_orig_fore_subscan = false,
-//end of modified by monday2000
 		imageproc::BinaryImage* auto_picture_mask = 0,
 		imageproc::BinaryImage* speckles_image = 0,
 //Picture_Shape

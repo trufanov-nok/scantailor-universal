@@ -112,9 +112,6 @@ public slots:
 	void SetStartExport();
 //Auto_Save_Project
 	void AutoSaveProjectState(bool auto_save);
-//Dont_Equalize_Illumination_Pic_Zones
-	void DontEqualizeIlluminationPicZones(bool);
-//end of modified by monday2000
 private:
 	enum MainAreaAction { UPDATE_MAIN_AREA, CLEAR_MAIN_AREA };
 //Original_Foreground_Mixed
@@ -350,9 +347,6 @@ private:
 //Auto_Save_Project
 	void autoSaveProject();
 	bool m_auto_save_project;
-//Dont_Equalize_Illumination_Pic_Zones
-	bool m_dont_equalize_illumination_pic_zones;
-//end of modified by monday2000
 };
 
 #endif
