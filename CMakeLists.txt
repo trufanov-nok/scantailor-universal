@@ -688,7 +688,7 @@ ADD_TEST(ScanTaylorTests tests/tests --log_level=message)
 # Source code packaging
 SET(CPACK_CMAKE_GENERATOR "")
 SET(CPACK_SOURCE_GENERATOR "TGZ")
-SET(CPACK_SOURCE_PACKAGE_FILE_NAME "scantailor-enhanced-${VERSION}")
+SET(CPACK_SOURCE_PACKAGE_FILE_NAME "scantailor-universal-${VERSION}")
 SET(
 	CPACK_SOURCE_IGNORE_FILES
 	"/\\\\.svn/"

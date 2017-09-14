@@ -18,6 +18,7 @@
 */
 
 #include <QCoreApplication>
+#include <QSettings>
 #include <QString>
 #include <QStringList>
 #include <iostream>
@@ -35,7 +36,13 @@ int main(int argc, char **argv)
 	app.setLibraryPaths(QStringList(app.applicationDirPath()));
 #endif
 
-	// parse command line arguments
+    // This information is used by QSettings.
+    app.setApplicationName("Scan Tailor Universal");
+    app.setOrganizationName("Scan Tailor Universal");
+    app.setOrganizationDomain("github.com/trufanov-nok/scantailor");
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+
+    // parse command line arguments
 	CommandLine cli(app.arguments(), false);
 	CommandLine::set(cli);
 

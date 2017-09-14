@@ -184,9 +184,11 @@ int main(int argc, char** argv)
 	app.installTranslator(&translator);
 	
 	// This information is used by QSettings.
-	app.setApplicationName("Scan Tailor");
-	app.setOrganizationName("Scan Tailor");
-	app.setOrganizationDomain("scantailor.sourceforge.net");
+    app.setApplicationName("Scan Tailor Universal");
+    app.setOrganizationName("Scan Tailor Universal");
+    app.setOrganizationDomain("github.com/trufanov-nok/scantailor");
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+
 	QSettings settings;
 	
 	PngMetadataLoader::registerMyself();
