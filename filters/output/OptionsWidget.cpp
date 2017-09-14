@@ -287,6 +287,8 @@ OptionsWidget::colorLayerCBToggled(bool const checked)
 void
 OptionsWidget::autoLayerCBToggled(bool const checked)
 {
+    pictureShapeOptions->setVisible(checked);
+
     m_colorParams.setAutoLayerEnabled(checked);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams);
 
@@ -699,7 +701,7 @@ OptionsWidget::updateColorsDisplay()
 			break;
 		case ColorParams::MIXED:
 			bw_options_visible = true;
-			picture_shape_visible = true;
+            picture_shape_visible = m_colorParams.autoLayerEnabled();
             color_grayscale_options_visible = true;
 			break;
 	}
