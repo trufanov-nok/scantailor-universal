@@ -42,6 +42,10 @@ OrderByModeProvider::precedes(
     if (lclr_param.colorMode() != rclr_param.colorMode())
     {
         return lclr_param.colorMode() < rclr_param.colorMode();
+    } else if (lclr_param.autoLayerEnabled() != rclr_param.autoLayerEnabled()) {
+        return lclr_param.autoLayerEnabled() < rclr_param.autoLayerEnabled();
+    } else if (lclr_param.colorLayerEnabled() != rclr_param.colorLayerEnabled()) {
+        return lclr_param.colorLayerEnabled() < rclr_param.colorLayerEnabled();
     } else if (lclr_param.colorGrayscaleOptions().normalizeIllumination() != rclr_param.colorGrayscaleOptions().normalizeIllumination()) {
         return lclr_param.colorGrayscaleOptions().normalizeIllumination() < rclr_param.colorGrayscaleOptions().normalizeIllumination();
     } else

@@ -494,36 +494,42 @@ OutputGenerator::estimateBinarizationMask(
 void
 OutputGenerator::modifyBinarizationMask(
 	imageproc::BinaryImage& bw_mask,
-	QRect const& mask_rect, ZoneSet const& zones) const
+    QRect const& mask_rect, ZoneSet const& zones, int filter) const
 {
 	QTransform xform(m_xform.transform());
 	xform *= QTransform().translate(-mask_rect.x(), -mask_rect.y());
 
 	typedef PictureLayerProperty PLP;
 
-	// Pass 1: ERASER1
-	BOOST_FOREACH(Zone const& zone, zones) {
-		if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::ERASER1) {
-			QPolygonF const poly(zone.spline().toPolygon());
-			PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
-		}
-	}
+    // Pass 1: ERASER1
+    if (filter & BINARIZATION_MASK_ERASER1) {
+        BOOST_FOREACH(Zone const& zone, zones) {
+            if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::ERASER1) {
+                QPolygonF const poly(zone.spline().toPolygon());
+                PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
+            }
+        }
+    }
 
 	// Pass 2: PAINTER2
-	BOOST_FOREACH(Zone const& zone, zones) {
-		if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::PAINTER2) {
-			QPolygonF const poly(zone.spline().toPolygon());
-			PolygonRasterizer::fill(bw_mask, WHITE, xform.map(poly), Qt::WindingFill);
-		}
-	}
+    if (filter & BINARIZATION_MASK_PAINTER2) {
+        BOOST_FOREACH(Zone const& zone, zones) {
+            if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::PAINTER2) {
+                QPolygonF const poly(zone.spline().toPolygon());
+                PolygonRasterizer::fill(bw_mask, WHITE, xform.map(poly), Qt::WindingFill);
+            }
+        }
+    }
 
 	// Pass 1: ERASER3
-	BOOST_FOREACH(Zone const& zone, zones) {
-		if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::ERASER3) {
-			QPolygonF const poly(zone.spline().toPolygon());
-			PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
-		}
-	}
+    if (filter & BINARIZATION_MASK_ERASER3) {
+        BOOST_FOREACH(Zone const& zone, zones) {
+            if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::ERASER3) {
+                QPolygonF const poly(zone.spline().toPolygon());
+                PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
+            }
+        }
+    }
 }
 
 QImage
@@ -747,7 +753,7 @@ OutputGenerator::processWithoutDewarping(
 	QPolygonF normalize_illumination_crop_area(m_xform.resultingPreCropArea());
 	normalize_illumination_crop_area.translate(-normalize_illumination_rect.topLeft());
 
-	if (render_params.normalizeIllumination()) {
+    if (render_params.normalizeIllumination() || render_params.mixedOutput()) {
 		maybe_normalized = normalizeIlluminationGray(
 			status, input.grayImage(), orig_image_crop_area,
 			m_xform.transform(), normalize_illumination_rect, 0, dbg
@@ -837,106 +843,137 @@ OutputGenerator::processWithoutDewarping(
 	QSize const target_size(m_outRect.size().expandedTo(QSize(1, 1)));
 
 	BinaryImage bw_mask;
-	if (render_params.mixedOutput()) {
-		// This block should go before the block with
-		// adjustBrightnessGrayscale(), which may convert
-		// maybe_normalized from grayscale to color mode.
-		
-		bw_mask = estimateBinarizationMask(
-			status, GrayImage(maybe_normalized),
-			normalize_illumination_rect,
-			small_margins_rect, dbg
-		);
+    BinaryImage bw_auto_picture_mask;
+    if (render_params.mixedOutput()) {
+        // This block should go before the block with
+        // adjustBrightnessGrayscale(), which may convert
+        // maybe_normalized from grayscale to color mode.
 
-//Picture_Shape
-//Quadro_Zoner
-		if (picture_shape == RECTANGULAR_SHAPE)
-		{
-			bw_mask.rectangularizeAreas(WHITE);
+        if (auto_picture_mask) {
+            if (auto_picture_mask->size() != target_size) {
+                BinaryImage(target_size).swap(*auto_picture_mask);
+            }
 
-			picture_zones.remove_auto_zones();
+            auto_picture_mask->fill(BLACK);
+        }
 
-			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
-		}		
-		else if (picture_shape == QUADRO_SHAPE)
-		{
-			if (picture_zones.auto_zones_found())
-				bw_mask.fill(BLACK);
-			else
-			{
-				std::vector<QRect> areas;
-				bw_mask.rectangularizeAreasQuadro(WHITE, areas);				
 
-				QTransform xform1(m_xform.transform());            
-				xform1 *= QTransform().translate(-small_margins_rect.x(), -small_margins_rect.y());
+        if (render_params.autoLayer())
+        {
+            bw_mask = estimateBinarizationMask(
+                        status, GrayImage(maybe_normalized),
+                        normalize_illumination_rect,
+                        small_margins_rect, dbg
+                        );
+            
+            //Picture_Shape
+            //Quadro_Zoner
+            if (picture_shape == RECTANGULAR_SHAPE)
+            {
+                bw_mask.rectangularizeAreas(WHITE);
 
-				QTransform inv_xform(xform1.inverted()); 
+                picture_zones.remove_auto_zones();
 
-				for (int i=0; i<(int)areas.size(); i++)
-				{				
-					QRectF area0(areas[i]);
-					QPolygonF area1(area0);
-					QPolygonF area(inv_xform.map(area1));
+                (*p_settings)->setPictureZones(*p_pageId, picture_zones);
+            }
+            else if (picture_shape == QUADRO_SHAPE)
+            {
+                if (picture_zones.auto_zones_found())
+                    bw_mask.fill(BLACK);
+                else
+                {
+                    std::vector<QRect> areas;
+                    bw_mask.rectangularizeAreasQuadro(WHITE, areas);
 
-					Zone zone1(area);
+                    QTransform xform1(m_xform.transform());
+                    xform1 *= QTransform().translate(-small_margins_rect.x(), -small_margins_rect.y());
 
-					picture_zones.add(zone1);
-				}
+                    QTransform inv_xform(xform1.inverted());
 
-				(*p_settings)->setPictureZones(*p_pageId, picture_zones);
-			}
-		}
-		else
-		{
-			picture_zones.remove_auto_zones();
+                    for (int i=0; i<(int)areas.size(); i++)
+                    {
+                        QRectF area0(areas[i]);
+                        QPolygonF area1(area0);
+                        QPolygonF area(inv_xform.map(area1));
 
-			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
-		}
+                        Zone zone1(area);
 
-		if (dbg) {
-			dbg->add(bw_mask, "bw_mask");
-		}
-		
-		if (auto_picture_mask) {
-			if (auto_picture_mask->size() != target_size) {
-				BinaryImage(target_size).swap(*auto_picture_mask);
-			}
-			auto_picture_mask->fill(BLACK);
+                        picture_zones.add(zone1);
+                    }
 
-			if (!m_contentRect.isEmpty()) {
-				QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
-				QRect const dst_rect(m_contentRect);
-				rasterOp<RopSrc>(*auto_picture_mask, dst_rect, bw_mask, src_rect.topLeft());
-			}
-		}
+                    (*p_settings)->setPictureZones(*p_pageId, picture_zones);
+                }
+            }
+            else
+            {
+                picture_zones.remove_auto_zones();
 
-		status.throwIfCancelled();
+                (*p_settings)->setPictureZones(*p_pageId, picture_zones);
+            }
+            
+            if (dbg) {
+                dbg->add(bw_mask, "bw_mask");
+            }
 
-		modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones);
-		if (dbg) {
-			dbg->add(bw_mask, "bw_mask with zones");
-		}
-	}
+            if (render_params.colorLayer()) {
+                bw_auto_picture_mask = bw_mask; // need it later
+            }
+
+            if (!m_contentRect.isEmpty() && !render_params.colorLayer()) {
+                // if colorLayer - will do it later
+                QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
+                QRect const dst_rect(m_contentRect);
+                rasterOp<RopSrc>(*auto_picture_mask, dst_rect, bw_mask, src_rect.topLeft());
+            }
+        } else {
+            bw_mask = BinaryImage(maybe_normalized.size(), BLACK);
+        }
+
+        status.throwIfCancelled();
+
+        modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones);
+        if (dbg) {
+            dbg->add(bw_mask, "bw_mask with zones");
+        }
+    }
+
 	
-	if (render_params.normalizeIllumination()
-			&& !input.origImage().allGray()) {
-		assert(maybe_normalized.format() == QImage::Format_Indexed8);
-		QImage tmp(
-			transform(
-				input.origImage(), m_xform.transform(),
-				normalize_illumination_rect,
-				OutsidePixels::assumeColor(Qt::white)
-			)
-		);
-		
-		status.throwIfCancelled();
-		
-		adjustBrightnessGrayscale(tmp, maybe_normalized);
-		maybe_normalized = tmp;
-		if (dbg) {
-			dbg->add(maybe_normalized, "norm_illum_color");
-		}
-	}
+    if ((render_params.normalizeIllumination() && !input.origImage().allGray())
+               || render_params.mixedOutput()) {
+           // in case of mixedOutput we normalized image for picture detection and now should
+           // restoren non-normalized image if it has !normalizeIllumination()
+           QImage tmp;
+           if (!input.origImage().allGray()) {
+               assert(maybe_normalized.format() == QImage::Format_Indexed8);
+               tmp = (
+                           transform(
+                               input.origImage(), m_xform.transform(),
+                               normalize_illumination_rect,
+                               OutsidePixels::assumeColor(Qt::white)
+                               )
+                           );
+
+               status.throwIfCancelled();
+
+               if (render_params.normalizeIllumination()) {
+                   adjustBrightnessGrayscale(tmp, maybe_normalized);
+               }
+           } else {
+               tmp = (
+                           transform(
+                               input.grayImage(), m_xform.transform(),
+                               normalize_illumination_rect,
+                               OutsidePixels::assumeColor(Qt::white)
+                               )
+                           );
+               status.throwIfCancelled();
+           }
+           maybe_normalized = tmp;
+           if (dbg) {
+               dbg->add(maybe_normalized, "norm_illum_color");
+           }
+
+   }
 	
 	if (!render_params.mixedOutput()) {
 		// It's "Color / Grayscale" mode, as we handle B/W above.
@@ -975,7 +1012,40 @@ OutputGenerator::processWithoutDewarping(
 		);
 		
 		status.throwIfCancelled();
-		
+
+        if (render_params.colorLayer())
+        {
+            bw_mask = bw_content;
+            bw_mask.invert();
+
+            BinaryImage new_auto_picture_mask;
+            if (render_params.autoLayer())
+            {
+                new_auto_picture_mask = bw_mask;
+                rasterOp<RopAnd<RopSrc,RopDst> >(new_auto_picture_mask, bw_auto_picture_mask);
+
+                modifyBinarizationMask(bw_auto_picture_mask, small_margins_rect, picture_zones, BINARIZATION_MASK_ERASER1 | BINARIZATION_MASK_PAINTER2);
+                rasterOp<RopAnd<RopSrc,RopDst> >(bw_mask, bw_auto_picture_mask);
+                modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones, BINARIZATION_MASK_ERASER3);
+                bw_auto_picture_mask.release();
+            } else {
+                // apply all zones directly to color layer mask as we have no autolayer.
+                new_auto_picture_mask = bw_mask;
+                modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones);                
+            }
+
+
+            if (!m_contentRect.isEmpty()) {
+                QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
+                QRect const dst_rect(m_contentRect);
+                rasterOp<RopSrc>(*auto_picture_mask, dst_rect, new_auto_picture_mask, src_rect.topLeft());
+            }
+
+
+
+//            bw_content.fill(WHITE);
+        }
+
 		if (maybe_normalized.format() == QImage::Format_Indexed8) {
 			combineMixed<uint8_t>(
 				maybe_normalized, bw_content, bw_mask,

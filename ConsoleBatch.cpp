@@ -459,6 +459,9 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
 		if (cli.hasColorMode())
 			colorParams.setColorMode(cli.getColorMode());
 
+        if (cli.hasColorLayer())
+            colorParams.setColorLayerEnabled(cli.getColorLayer());
+
 		if (cli.hasWhiteMargins() || cli.hasNormalizeIllumination()) {
 			output::ColorGrayscaleOptions cgo;
 			if (cli.hasWhiteMargins())

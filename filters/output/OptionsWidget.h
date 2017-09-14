@@ -87,6 +87,10 @@ private slots:
 	void pictureShapeChanged(int idx);
 	
 	void tiffCompressionChanged(int idx);
+
+    void colorLayerCBToggled(bool checked);
+
+    void autoLayerCBToggled(bool checked);
 	
 	void whiteMarginsToggled(bool checked);
 	

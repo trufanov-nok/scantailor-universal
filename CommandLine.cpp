@@ -241,6 +241,8 @@ CommandLine::setup()
 	m_colorMode = fetchColorMode();
 	m_defaultColorMode = fetchDefaultColorMode();
 	m_pictureShape = fetchPictureShape();
+    m_colorLayer =fetchColorLayer();
+    m_autoLayer =fetchAutoLayer();
 	m_dpi = fetchDpi();
 	m_outputDpi = fetchDpi("output-dpi");
     m_defaultOutputDpi = fetchDpi("default-output-dpi");
@@ -482,6 +484,20 @@ CommandLine::fetchPictureShape()
 		return output::RECTANGULAR_SHAPE;
 
 	return output::FREE_SHAPE;
+}
+
+bool
+CommandLine::fetchColorLayer()
+{
+    QString cm = m_options.value("colorLayer", "false").toLower();
+    return (cm != "false");
+}
+
+bool
+CommandLine::fetchAutoLayer()
+{
+    QString cm = m_options.value("autoLayer", "true").toLower();
+    return (cm != "false");
 }
 
 Margins

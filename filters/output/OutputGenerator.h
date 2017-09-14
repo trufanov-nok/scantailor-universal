@@ -81,6 +81,13 @@ using namespace imageproc;
 namespace output
 {
 
+enum BinarizationMask
+{
+    BINARIZATION_MASK_ERASER1 = 1,
+    BINARIZATION_MASK_PAINTER2 = 2,
+    BINARIZATION_MASK_ERASER3 = 4
+};
+
 class OutputGenerator
 {
 public:
@@ -143,7 +150,8 @@ public:
 	 * \brief Returns the content rectangle in output image coordinates.
 	 */
 	QRect outputContentRect() const;
-private:
+private:    
+
 	QImage processImpl(
 		TaskStatus const& status, FilterData const& input,
 //begin of modified by monday2000
@@ -263,7 +271,8 @@ private:
 
 	void modifyBinarizationMask(
 		imageproc::BinaryImage& bw_mask,
-		QRect const& mask_rect, ZoneSet const& zones) const;
+        QRect const& mask_rect, ZoneSet const& zones,
+        int filter = BINARIZATION_MASK_ERASER1 | BINARIZATION_MASK_PAINTER2 | BINARIZATION_MASK_ERASER3) const;
 	
 	imageproc::BinaryThreshold adjustThreshold(
 		imageproc::BinaryThreshold threshold) const;

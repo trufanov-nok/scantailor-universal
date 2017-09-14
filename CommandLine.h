@@ -103,6 +103,8 @@ public:
 	bool hasColorMode() const { return contains("color-mode") && !m_options["color-mode"].isEmpty(); }
 	bool hasDefaultColorMode() const { return contains("default-color-mode") && !m_options["default-color-mode"].isEmpty(); }
 	bool hasPictureShape() const { return contains("picture-shape") && !m_options["picture-shape"].isEmpty(); }
+    bool hasColorLayer() const { return contains("colorLayer"); }
+    bool hasAutoLayer() const { return contains("autoLayer"); }
 	bool hasWhiteMargins() const { return contains("white-margins"); }
 	bool hasNormalizeIllumination() const { return contains("normalize-illumination"); }
 	bool hasThreshold() const { return contains("threshold") && !m_options["threshold"].isEmpty(); }
@@ -124,6 +126,8 @@ public:
 	output::ColorParams::ColorMode getColorMode() const { return m_colorMode; }
 	output::ColorParams::ColorMode getDefaultColorMode() const { return m_defaultColorMode; }
 	output::PictureShape getPictureShape() const { return m_pictureShape; }
+    bool getColorLayer() const { return m_colorLayer; }
+    bool getAutoLayer() const { return m_autoLayer; }
 	Dpi getInputDpi() const { return m_dpi; }
 	Dpi getOutputDpi() const { return m_outputDpi; }
     Dpi getDefaultOutputDpi() const { return m_defaultOutputDpi; }
@@ -185,6 +189,8 @@ private:
 	output::ColorParams::ColorMode m_colorMode;
 	output::ColorParams::ColorMode m_defaultColorMode;
 	output::PictureShape m_pictureShape;
+    bool m_colorLayer;
+    bool m_autoLayer;
 	Dpi m_dpi;
 	Dpi m_outputDpi;
     Dpi m_defaultOutputDpi;
@@ -215,6 +221,8 @@ private:
 	output::ColorParams::ColorMode fetchColorMode();
 	output::ColorParams::ColorMode fetchDefaultColorMode();
 	output::PictureShape fetchPictureShape();
+    bool fetchColorLayer();
+    bool fetchAutoLayer();
 	Qt::LayoutDirection fetchLayoutDirection();
 	Dpi fetchDpi(QString oname="dpi");
 	Margins fetchMargins(QString base="margins", Margins def=Margins(10.0, 5.0, 10.0, 5.0));
