@@ -1928,13 +1928,8 @@ OutputGenerator::detectPictures(
 	if (dbg) {
 		dbg->add(holes_filled, "holes_filled");
 	}
-	
-	GrayImage stretched2(stretchGrayRange(holes_filled , 5.0, 0.01));
-	if (dbg) {
-		dbg->add(stretched2, "stretched2");
-	}
 
-	return stretched2;
+    return holes_filled;
 }
 
 QImage
