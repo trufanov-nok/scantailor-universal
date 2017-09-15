@@ -63,6 +63,7 @@ SplitModeDialog::SplitModeDialog(
 	connect(modeAuto, SIGNAL(pressed()), this, SLOT(autoDetectionSelected()));
 	connect(modeManual, SIGNAL(pressed()), this, SLOT(manualModeSelected()));
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+    optionsBox->setVisible(false); //disabeled till i find a way tomake it work for images of unequal size
 }
 
 SplitModeDialog::~SplitModeDialog()
