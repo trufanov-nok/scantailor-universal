@@ -67,7 +67,7 @@ public:
     // wrapper function that interfaces application main()
     static bool prepareDefaults(bool isGUI)
     {
-        return registerSettingsFunc(nullptr, isGUI);
+        return registerSettingsFunc(NULL, isGUI);
     }
 
 };
