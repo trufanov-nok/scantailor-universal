@@ -1317,14 +1317,25 @@ MainWindow::startBatchProcessing()
 		)
 	);
 
-	StartBatchProcessingDialog dialog(this);
-	
-	dialog.show();
-	if (! dialog.exec()) {
-        return;
-	}
+    QSettings settings;
+    const QString show_dlg_key("batch_dialog/remember_choice");
+    const QString processAll_key("batch_dialog/start_from_current_page");
+    bool show_dlg = !settings.value(show_dlg_key, false).toBool();
+    bool processAll = !settings.value(processAll_key, true).toBool();
 
-    bool processAll = dialog.isAllPagesChecked();
+    if (show_dlg) {
+        StartBatchProcessingDialog dialog(this, processAll);
+
+        dialog.show();
+        if (! dialog.exec()) {
+            return;
+        }
+        processAll = dialog.isAllPagesChecked();
+        settings.setValue(show_dlg_key, dialog.isRememberChoiceChecked());
+        settings.setValue(processAll_key, !processAll);
+    }
+
+
     
 	PageInfo start_page = processAll ? m_ptrThumbSequence->firstPage() : m_ptrThumbSequence->selectionLeader();
 	PageInfo page = start_page;

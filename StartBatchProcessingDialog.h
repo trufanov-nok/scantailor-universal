@@ -12,10 +12,11 @@ class StartBatchProcessingDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit StartBatchProcessingDialog(QWidget *parent = 0);
+    explicit StartBatchProcessingDialog(QWidget *parent = 0, bool isAllPages = false);
     ~StartBatchProcessingDialog();
     
     bool isAllPagesChecked() const;
+    bool isRememberChoiceChecked() const;
     
 private:
     Ui::StartBatchProcessingDialog *ui;
