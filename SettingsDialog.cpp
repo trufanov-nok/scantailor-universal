@@ -22,6 +22,8 @@
 #include "config.h"
 #include <QSettings>
 #include <QVariant>
+#include <QDir>
+#include <MainWindow.h>
 
 SettingsDialog::SettingsDialog(QWidget* parent)
 :	QDialog(parent)
@@ -56,11 +58,38 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	connect(ui.DontEqualizeIlluminationPicZones, SIGNAL(toggled(bool)), this, SLOT(OnCheckDontEqualizeIlluminationPicZones(bool)));
 //end of modified by monday2000
     ui.docking->setChecked(settings.value("function_availability/docking_panels", true).toBool());
+
+    connect(this, SIGNAL(accepted()), this, SLOT(onSettingsDialog_accepted()));
+
+    initLanguageList(((MainWindow*)parent)->getLanguage());
+}
+
+void SettingsDialog::initLanguageList(QString cur_lang)
+{
+    ui.language->clear();
+    ui.language->addItem("English", "en");;
+
+    QStringList fileNames = QDir(QApplication::applicationDirPath()).entryList(QStringList("scantailor_*.qm"));
+    fileNames.sort();
+
+    for (int i = 0; i < fileNames.size(); ++i) {
+        // get locale extracted by filename
+        QString locale;
+        locale = fileNames[i];
+        locale.truncate(locale.lastIndexOf('.'));
+        locale.remove(0, locale.indexOf('_') + 1);
+
+        QString lang = QLocale::languageToString(QLocale(locale).language());
+        ui.language->addItem(lang, locale);
+        if (locale == cur_lang)
+            ui.language->setCurrentIndex(i+1);
+    }
+
+    ui.language->setEnabled(ui.language->count() > 0);
 }
 
 SettingsDialog::~SettingsDialog()
 {
-    emit changeDockingEnabled(ui.docking->isChecked());
 }
 
 void
@@ -95,3 +124,12 @@ SettingsDialog::OnCheckDontEqualizeIlluminationPicZones(bool state)
 	emit DontEqualizeIlluminationPicZonesSignal(state);
 }
 //end of modified by monday2000
+
+void
+SettingsDialog::onSettingsDialog_accepted()
+{
+    emit changeDockingEnabled(ui.docking->isChecked());
+
+    if (ui.language->currentIndex() >= 0)
+        emit languageSelected(ui.language->itemData(ui.language->currentIndex()).toString());
+}

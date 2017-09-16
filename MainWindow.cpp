@@ -351,6 +351,11 @@ MainWindow::MainWindow()
 
     setDockingPanels(settings.value("function_availability/docking_panels", true).toBool());
 
+    QString default_lang = QLocale::system().name().toLower();
+    default_lang.truncate(default_lang.lastIndexOf('_'));
+    changeLanguage(settings.value("mainWindow/language", default_lang).toString());
+
+
 //begin of modified by monday2000
 //Auto_Save_Project
 	m_auto_save_project = settings.value("settings/auto_save_project").toBool();
@@ -1686,6 +1691,7 @@ MainWindow::openSettingsDialog()
 //	connect(dialog, SIGNAL(DontEqualizeIlluminationPicZonesSignal(bool)), this, SLOT(DontEqualizeIlluminationPicZones(bool)));
 //end of modified by monday2000
     connect(dialog, SIGNAL(changeDockingEnabled(bool)), this, SLOT(setDockingPanels(bool)));
+    connect(dialog, SIGNAL(languageSelected(QString)), this, SLOT(changeLanguage(QString)));
     dialog->show();
 }
 
@@ -2148,7 +2154,7 @@ MainWindow::showAboutDialog()
 	Ui::AboutDialog ui;
 	QDialog* dialog = new QDialog(this);
 	ui.setupUi(dialog);
-	ui.version->setText(QString("build from") + QString::fromUtf8(VERSION));
+    ui.version->setText(QString(tr("build from ")) + QString::fromUtf8(VERSION));
 
 	QResource license(":/GPLv3.html");
 	ui.licenseViewer->setHtml(QString::fromUtf8((char const*)license.data(), license.size()));
@@ -2829,5 +2835,71 @@ MainWindow::setDockingPanels(bool enabled)
         m_docking_enabled = enabled;
         QSettings settings;
         settings.setValue("function_availability/docking_panels", m_docking_enabled);
+    }    
+}
+
+void
+MainWindow::changeLanguage(QString lang, bool dont_store)
+{
+    lang = lang.toLower();
+    if (lang == m_current_lang)
+        return;
+
+    QString translation("scantailor_"+lang);
+
+    bool loaded = m_translator.load(translation);
+    if (!loaded) {
+        loaded = m_translator.load(qApp->applicationDirPath() + "/" + translation);
+        if (!loaded) {
+            QString path(QString::fromUtf8(TRANSLATIONS_DIR_ABS));
+            path += QChar('/');
+            path += translation;
+            loaded = m_translator.load(path);
+            if (!loaded) {
+                path = QString::fromUtf8(TRANSLATIONS_DIR_REL);
+                path += QChar('/');
+                path += translation;
+                loaded = m_translator.load(path);
+            }
+        }
     }
+
+    if (loaded || lang == "en")
+    {
+        qApp->removeTranslator(&m_translator);
+        qApp->installTranslator(&m_translator);
+        if (!dont_store) {
+            QSettings settings;
+            settings.setValue("mainWindow/language", lang);
+        }
+        m_current_lang = lang;
+    } else {
+        changeLanguage("en"); // fallback to EN
+    }
+}
+
+void
+MainWindow::changeEvent(QEvent* event)
+{
+    if(0 != event) {
+        switch(event->type()) {
+        // this event is send if a translator is loaded
+        case QEvent::LanguageChange:
+            retranslateUi(this);
+            updateWindowTitle();
+            break;
+
+            // this event is send, if the system, language changes
+        case QEvent::LocaleChange:
+        {
+            QString locale = QLocale::system().name();
+            locale.truncate(locale.lastIndexOf('_'));
+            changeLanguage(locale);
+        }
+            break;
+        default:
+            break;
+        }
+    }
+    QMainWindow::changeEvent(event);
 }

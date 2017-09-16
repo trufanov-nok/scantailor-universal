@@ -161,28 +161,6 @@ int main(int argc, char** argv)
 		return 0;
 	}
 	
-	QString translation("scantailor_"+QLocale::system().name());
-        if (cli.hasLanguage()) {
-            translation = "scantailor_" + cli.getLanguage();
-        }
-        
-	QTranslator translator;
-	
-	// Try loading from the current directory.
-	if (!translator.load(translation)) {
-		// Now try loading from where it's supposed to be.
-		QString path(QString::fromUtf8(TRANSLATIONS_DIR_ABS));
-		path += QChar('/');
-		path += translation;
-		if (!translator.load(path)) {
-			path = QString::fromUtf8(TRANSLATIONS_DIR_REL);
-			path += QChar('/');
-			path += translation;
-			translator.load(path);
-		}
-	}
-	
-	app.installTranslator(&translator);
 	
 	// This information is used by QSettings.
     app.setApplicationName("Scan Tailor Universal");
@@ -199,6 +177,10 @@ int main(int argc, char** argv)
 	
 	MainWindow* main_wnd = new MainWindow();
 	main_wnd->setAttribute(Qt::WA_DeleteOnClose);
+
+    if (cli.hasLanguage())
+        main_wnd->changeLanguage(cli.getLanguage(), true);
+
 	if (settings.value("mainWindow/maximized") == false) {
 		main_wnd->show();
 	} else {

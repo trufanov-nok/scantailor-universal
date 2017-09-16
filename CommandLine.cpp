@@ -317,7 +317,7 @@ CommandLine::printHelp()
 	std::cout << "Options:" << std::endl;
 	std::cout << "\t--help, -h" << std::endl;
 	std::cout << "\t--verbose, -v" << std::endl;
-	std::cout << "\t--languge=<cs|de|...>\t-- default: system language" << std::endl;
+    std::cout << "\t--language=<cs|de|...>\t-- default: language in settings file or system language if it's missing" << std::endl;
 	std::cout << "\t--layout=, -l=<0|1|1.5|2>\t\t-- default: 0" << std::endl;
 	std::cout << "\t\t\t  0: auto detect" << std::endl;
 	std::cout << "\t\t\t  1: one page layout" << std::endl;

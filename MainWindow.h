@@ -44,6 +44,7 @@
 #include <memory>
 #include <vector>
 #include <set>
+#include <QTranslator>
 //begin of modified by monday2000
 //Export_Subscans
 #include <QMessageBox>
@@ -103,6 +104,7 @@ public:
     bool eventFilter(QObject *obj, QEvent *ev);
 	virtual void closeEvent(QCloseEvent* event);
 	virtual void timerEvent(QTimerEvent* event);
+    QString getLanguage() const { return m_current_lang; }
 public slots:
 	void openProject(QString const& project_file);
 //Export_Subscans
@@ -112,6 +114,8 @@ public slots:
 	void SetStartExport();
 //Auto_Save_Project
 	void AutoSaveProjectState(bool auto_save);
+
+    void changeLanguage(QString lang, bool dont_store = false);
 private:
 	enum MainAreaAction { UPDATE_MAIN_AREA, CLEAR_MAIN_AREA };
 //Original_Foreground_Mixed
@@ -352,6 +356,10 @@ private:
 //Auto_Save_Project
 	void autoSaveProject();
 	bool m_auto_save_project;
+//Language
+    QString m_current_lang;
+    QTranslator m_translator;
+    void changeEvent(QEvent* event);
 //Disable docking
     bool m_docking_enabled;
 };

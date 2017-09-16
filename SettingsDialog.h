@@ -37,6 +37,7 @@ signals:
 	void DontEqualizeIlluminationPicZonesSignal(bool state);
 //end of modified by monday2000
     void changeDockingEnabled(bool);
+    void languageSelected(QString);
 private slots:
 	void commitChanges();
 //begin of modified by monday2000
@@ -45,6 +46,11 @@ private slots:
 //Dont_Equalize_Illumination_Pic_Zones
 	void OnCheckDontEqualizeIlluminationPicZones(bool);
 //end of modified by monday2000
+    void onSettingsDialog_accepted();
+
+private:
+    void initLanguageList(QString cur_lang);
+
 private:
 	Ui::SettingsDialog ui;
 };
