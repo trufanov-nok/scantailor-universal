@@ -36,6 +36,7 @@ signals:
 //Dont_Equalize_Illumination_Pic_Zones
 	void DontEqualizeIlluminationPicZonesSignal(bool state);
 //end of modified by monday2000
+    void changeDockingEnabled(bool);
 private slots:
 	void commitChanges();
 //begin of modified by monday2000

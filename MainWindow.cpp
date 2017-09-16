@@ -170,16 +170,14 @@ MainWindow::MainWindow()
 	m_ignoreSelectionChanges(0),
 	m_ignorePageOrderingChanges(0),
 	m_debug(false),
-//begin of modified by monday2000
-//added:
 //Picture_Shape_Bug
 	//m_closing(false)
 	m_closing(false),
 //Export_Subscans
-	m_outpaths_vector(0),
-	m_exportTimerId(0),
-    m_keep_orig_fore_subscan(0)
-//end of modified by monday2000
+    m_outpaths_vector(0),
+    m_exportTimerId(0),
+    m_keep_orig_fore_subscan(0),
+    m_docking_enabled(true)
 
 {
 	m_maxLogicalThumbSize = QSize(250, 160);
@@ -350,6 +348,9 @@ MainWindow::MainWindow()
 			resize(1014, 689); // A sensible value.
 		}
 	}
+
+    setDockingPanels(settings.value("function_availability/docking_panels", true).toBool());
+
 //begin of modified by monday2000
 //Auto_Save_Project
 	m_auto_save_project = settings.value("settings/auto_save_project").toBool();
@@ -1684,7 +1685,8 @@ MainWindow::openSettingsDialog()
 //Dont_Equalize_Illumination_Pic_Zones
 //	connect(dialog, SIGNAL(DontEqualizeIlluminationPicZonesSignal(bool)), this, SLOT(DontEqualizeIlluminationPicZones(bool)));
 //end of modified by monday2000
-	dialog->show();
+    connect(dialog, SIGNAL(changeDockingEnabled(bool)), this, SLOT(setDockingPanels(bool)));
+    dialog->show();
 }
 
 //begin of modified by monday2000
@@ -2799,4 +2801,33 @@ MainWindow::newPageSelectionAccessor()
 {
 	IntrusivePtr<PageSelectionProvider const> provider(new PageSelectionProviderImpl(this));
 	return PageSelectionAccessor(provider);
+}
+
+void
+MainWindow::setDockingPanels(bool enabled)
+{
+    if (enabled != m_docking_enabled) {
+        if (!enabled)
+        {
+            dockWidget->setVisible(false);
+            dockWidget_4->setVisible(false);
+            dockWidgetContents_2->setParent(centralwidget);
+            dockWidgetContents_5->setParent(centralwidget);
+            horizontalLayout->addWidget(dockWidgetContents_2);
+            horizontalLayout->insertWidget(0, dockWidgetContents_5);
+        } else {
+            horizontalLayout->removeWidget(dockWidgetContents_2);
+            horizontalLayout->removeWidget(dockWidgetContents_5);
+            dockWidgetContents_2->setParent(dockWidget);
+            dockWidget->setWidget(dockWidgetContents_2);
+            dockWidgetContents_5->setParent(dockWidget_4);
+            dockWidget_4->setWidget(dockWidgetContents_5);
+            dockWidget->setVisible(true);
+            dockWidget_4->setVisible(true);
+        }
+
+        m_docking_enabled = enabled;
+        QSettings settings;
+        settings.setValue("function_availability/docking_panels", m_docking_enabled);
+    }
 }

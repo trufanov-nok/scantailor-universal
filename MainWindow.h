@@ -199,6 +199,11 @@ private slots:
 //Export_Subscans
 	void openExportDialog();
 //end of modified by monday2000
+
+    bool isDockingEnabled() const { return m_docking_enabled; }
+
+    void setDockingPanels(bool enabled);
+
 private:
 	class PageSelectionProviderImpl;
 	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
@@ -347,6 +352,8 @@ private:
 //Auto_Save_Project
 	void autoSaveProject();
 	bool m_auto_save_project;
+//Disable docking
+    bool m_docking_enabled;
 };
 
 #endif

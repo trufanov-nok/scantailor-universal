@@ -15,6 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QCheckBox" name="docking">
+     <property name="text">
+      <string>Docking panels</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="use3DAcceleration">
      <property name="text">
       <string>Use 3D acceleration for user interface</string>

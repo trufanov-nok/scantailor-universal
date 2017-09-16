@@ -55,10 +55,12 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	ui.DontEqualizeIlluminationPicZones->setChecked(settings.value("settings/dont_equalize_illumination_pic_zones").toBool());
 	connect(ui.DontEqualizeIlluminationPicZones, SIGNAL(toggled(bool)), this, SLOT(OnCheckDontEqualizeIlluminationPicZones(bool)));
 //end of modified by monday2000
+    ui.docking->setChecked(settings.value("function_availability/docking_panels", true).toBool());
 }
 
 SettingsDialog::~SettingsDialog()
 {
+    emit changeDockingEnabled(ui.docking->isChecked());
 }
 
 void
