@@ -33,6 +33,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	QSettings settings;
 
 #ifndef ENABLE_OPENGL
+    ui.use3DAcceleration->setVisible(false);
 	ui.use3DAcceleration->setChecked(false);
 	ui.use3DAcceleration->setEnabled(false);
 	ui.use3DAcceleration->setToolTip(tr("Compiled without OpenGL support."));
