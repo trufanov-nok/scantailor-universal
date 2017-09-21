@@ -117,7 +117,7 @@ public:
     //  Validation
 
     // line edit, (out)errorMessage -> valid?
-    typedef std::function<bool(FancyLineEdit *, QString *)> ValidationFunction;
+//    typedef std::function<bool(FancyLineEdit *, QString *)> ValidationFunction;
     enum State { Invalid, DisplayingInitialText, Valid };
 
     State state() const;
@@ -133,8 +133,8 @@ public:
     QColor okColor() const;
     void setOkColor(const  QColor &c);
 
-    void setValidationFunction(const ValidationFunction &fn);
-    static ValidationFunction defaultValidationFunction();    
+//    void setValidationFunction(const ValidationFunction &fn);
+//    static ValidationFunction defaultValidationFunction();
     void onEditingFinished();
 public slots:
     void validate();

@@ -82,28 +82,33 @@ public:
 
     FancyLineEdit *m_lineEdit;
     IconButton *m_iconbutton[2];    
-    FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
+//    FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
     QPixmap m_pixmap[2];
     QMenu *m_menu[2];
-    FancyLineEdit::State m_state = FancyLineEdit::Invalid;
+    FancyLineEdit::State m_state;
     bool m_menuTabFocusTrigger[2];
     bool m_iconEnabled[2];
 
-    bool m_isFiltering = false;
-    bool m_firstChange = true;
+    bool m_isFiltering;
+    bool m_firstChange;
 
     QString m_lastFilterText;
 
     QColor m_okTextColor;
-    QColor m_errorTextColor = Qt::red;
+    QColor m_errorTextColor;
     QString m_errorMessage;
     QString m_initialText;
 };
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
-    m_lineEdit(parent)
+    m_lineEdit(parent),
+    m_state(FancyLineEdit::Valid),
+    m_isFiltering(false),
+    m_firstChange(true),
+    m_errorTextColor (Qt::red)
+
 {
     m_okTextColor = parent->palette().color(QPalette::Active, QPalette::Text);
 
@@ -373,16 +378,16 @@ void FancyLineEdit::setOkColor(const QColor &c)
     validate();
 }
 
-void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
-{
-    d->m_validationFunction = fn;
-    validate();
-}
+//void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
+//{
+//    d->m_validationFunction = fn;
+//    validate();
+//}
 
-FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
-{
-    return &FancyLineEdit::validateWithValidator;
-}
+//FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
+//{
+//    return &FancyLineEdit::validateWithValidator;
+//}
 
 bool FancyLineEdit::validateWithValidator(FancyLineEdit *edit, QString *errorMessage)
 {
@@ -426,7 +431,7 @@ void FancyLineEdit::validate()
     const bool isDisplayingInitialText = !d->m_initialText.isEmpty() && t == d->m_initialText;
     const State newState = isDisplayingInitialText ?
                                DisplayingInitialText :
-                               (d->m_validationFunction(this, &d->m_errorMessage) ? Valid : Invalid);
+                               (true/*d->m_validationFunction(this, &d->m_errorMessage)*/ ? Valid : Invalid);
     setToolTip(d->m_errorMessage);
     // Changed..figure out if valid changed. DisplayingInitialText is not valid,
     // but should not show error color. Also trigger on the first change.
