@@ -52,8 +52,6 @@ ExportDialog::ExportDialog(QWidget* parent)
 	ui.labelFilesProcessed->clear();
 	ui.ExportButton->setText(tr("Export"));	
 	ui.OkButton->setText(tr("Close"));
-	ui.tabWidget->setTabText(0, tr("Main"));
-	ui.tabWidget->setTabText(1, tr("Rare options"));
 	//ui.tabWidget->setCurrentIndex(0);
 	//connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 

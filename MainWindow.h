@@ -207,6 +207,8 @@ private slots:
 
 	void openExportDialog();
 
+    void exportDialogClosed(QObject*);
+
     void on_actionAbout_Qt_triggered();
 
 private:

@@ -1706,6 +1706,14 @@ MainWindow::openExportDialog()
 	connect(m_p_export_dialog, SIGNAL(ExportOutputSignal(QString, bool, bool, bool, bool)), this, SLOT(ExportOutput(QString, bool, bool, bool, bool)));
 	connect(m_p_export_dialog, SIGNAL(ExportStopSignal()), this, SLOT(ExportStop()));
 	connect(m_p_export_dialog, SIGNAL(SetStartExportSignal()), this, SLOT(SetStartExport()));
+    connect(m_p_export_dialog, SIGNAL(destroyed(QObject*)), this, SLOT(exportDialogClosed(QObject*)));
+}
+
+void
+MainWindow::exportDialogClosed(QObject*)
+{
+    // switching off export mode
+    m_keep_orig_fore_subscan = false;
 }
 
 
