@@ -1295,6 +1295,10 @@ OutputGenerator::processWithDewarping(
 		
 		distortion_model = model_builder.tryBuildModel(dbg, &input.grayImage().toQImage());
 
+        if (!distortion_model.isValid()) {
+            setupTrivialDistortionModel(distortion_model);
+        }
+
 //begin of modified by monday2000
 //Auto_Dewarping_Vert_Half_Correction
 
@@ -1426,9 +1430,6 @@ OutputGenerator::processWithDewarping(
 
 //end of modified by monday2000
 
-		if (!distortion_model.isValid()) {
-			setupTrivialDistortionModel(distortion_model);
-		}
 //begin of modified by monday2000
 //Marginal_Dewarping
 	}
