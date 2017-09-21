@@ -111,7 +111,7 @@ CommandLine::parseCli(QStringList const& argv)
 	opts << "start-filter";
 	opts << "end-filter";
 	opts << "output-project";
-	opts << "tiff-compression";
+    opts << "tiff-compression";
 	opts << "picture-shape";
  	opts << "language";
 	opts << "disable-content-text-mask";
@@ -262,7 +262,7 @@ CommandLine::setup()
 	m_endFilterIdx = fetchEndFilterIdx();
 	m_matchLayoutTolerance = fetchMatchLayoutTolerance();
 	m_dewarpingMode = fetchDewarpingMode();
-	m_compression = fetchCompression();
+    m_compression = fetchCompression();
 	m_language = fetchLanguage();
 	m_windowTitle = fetchWindowTitle();
 	m_pageDetectionBox = fetchPageDetectionBox();
@@ -271,7 +271,7 @@ CommandLine::setup()
 
 	QRegExp exp(".*(tif|tiff|jpg|jpeg|bmp|gif|png|pbm|pgm|ppm|xbm|xpm)$", Qt::CaseInsensitive);
 	// setup images
-	for (int i=0; i<m_files.size(); ++i) {
+    for (int i=0; i<(int)m_files.size(); ++i) {
 		if (! exp.exactMatch(m_files[i].filePath())) {
 #ifdef DEBUG
 			std::cout << "Skipping file: " << m_files[i].filePath().toStdString() << std::endl;
@@ -786,26 +786,13 @@ bool CommandLine::hasLanguage() const
 	return m_options.contains("language");
 }
 
-int
-CommandLine::fetchCompression() const
+QString CommandLine::fetchCompression() const
 {
-	if (!m_options.contains("tiff-compression"))
-	    return COMPRESSION_LZW;
-	
-	QString c(m_options["tiff-compression"].toLower());
-	if (c == "lzw")
-	    return COMPRESSION_LZW;
-	else if (c == "none")
-	    return COMPRESSION_NONE;
-	else if (c == "jpeg")
-	    return COMPRESSION_JPEG;	
-	else if (c == "deflate")
-	    return COMPRESSION_DEFLATE;	
-	else if (c == "packbits")
-	    return COMPRESSION_PACKBITS;
-	
-	std::cout << "Unknown compression" << std::endl;
-    throw("Unknown compression");
+    if (!m_options.contains("tiff-compression")) {
+        return QString("LZW");
+    } else {
+        return m_options["tiff-compression"].toUpper();
+    }
 }
 
 QString CommandLine::fetchLanguage() const

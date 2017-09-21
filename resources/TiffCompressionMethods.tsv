@@ -1,0 +1,29 @@
+NONE	1	dump mode	0
+CCITTRLE	2	CCITT modified Huffman RLE
+CCITTFAX3	3	CCITT Group 3 fax encoding
+CCITT_T4	3	CCITT T.4 (TIFF 6 name)
+CCITTFAX4	4	CCITT Group 4 fax encoding
+CCITT_T6	4	CCITT T.6 (TIFF 6 name)
+LZW	5	Lempel-Ziv  & Welch	0
+OJPEG	6	!6.0 JPEG
+JPEG	7	%JPEG DCT compression	0
+T85	9	!TIFF/FX T.85 JBIG compression
+T43	10	!TIFF/FX T.43 colour by layered JBIG compression
+NEXT	32766	NeXT 2-bit RLE
+CCITTRLEW	32771	#1 w/ word alignment
+PACKBITS	32773	Macintosh RLE	0
+THUNDERSCAN	32809	ThunderScan RLE
+IT8CTPAD	32895	IT8 CT w/padding
+IT8LW	32896	IT8 Linework RLE
+IT8MP	32897	IT8 Monochrome picture
+IT8BL	32898	IT8 Binary line art
+PIXARFILM	32908	Pixar companded 10bit LZW
+PIXARLOG	32909	Pixar companded 11bit ZIP
+DEFLATE	32946	Deflate compression	0
+ADOBE_DEFLATE	8	Deflate compression, as recognized by Adobe
+DCS	32947	Kodak DCS encoding
+JBIG	34661	ISO JBIG
+SGILOG	34676	SGI Log Luminance RLE
+SGILOG24	34677	SGI Log 24-bit packed
+JP2000	34712	Leadtools JPEG2000
+LZMA	34925	LZMA2

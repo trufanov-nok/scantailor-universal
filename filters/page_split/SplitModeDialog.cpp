@@ -20,6 +20,7 @@
 #include "PageSelectionAccessor.h"
 #include <QPixmap>
 #include <QButtonGroup>
+#include <QSettings>
 #include <assert.h>
 #include <iostream>
 
@@ -63,7 +64,15 @@ SplitModeDialog::SplitModeDialog(
 	connect(modeAuto, SIGNAL(pressed()), this, SLOT(autoDetectionSelected()));
 	connect(modeManual, SIGNAL(pressed()), this, SLOT(manualModeSelected()));
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
-    optionsBox->setVisible(false); //disabeled till i find a way tomake it work for images of unequal size
+    QSettings settings;
+    if (!settings.value("apply_cut/enabled", true).toBool())
+    {
+        optionsBox->setVisible(false);
+        applyCutOption->setChecked(Qt::Unchecked);
+    } else {
+        applyCutOption->setChecked(settings.value("apply_cut/default", false).toBool());
+    }
+
 }
 
 SplitModeDialog::~SplitModeDialog()

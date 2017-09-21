@@ -85,8 +85,6 @@ private slots:
 	void colorModeChanged(int idx);
 
 	void pictureShapeChanged(int idx);
-	
-	void tiffCompressionChanged(int idx);
 
     void colorLayerCBToggled(bool checked);
 
@@ -125,6 +123,8 @@ private slots:
 	void applyDepthPerceptionConfirmed(std::set<PageId> const& pages);
 
 	void depthPerceptionChangedSlot(int val);
+    void on_tiffCompression_currentIndexChanged(int index);
+
 private:
 	void handleDespeckleLevelChange(DespeckleLevel level);
 

@@ -74,14 +74,14 @@ public:
 	QString const& projectFile() const { return m_projectFile; }
 	QString const& outputProjectFile() const { return m_outputProjectFile; }
 
-	bool isContentDetectionEnabled() const { return !contains("disable-content-detection"); };
-	bool isPageDetectionEnabled() const { return contains("enable-page-detection"); };
-	bool isForcePageDetectionDisabled() const { return contains("force-disable-page-detection"); };
-	bool isFineTuningEnabled() const { return contains("enable-fine-tuning"); };
-	bool isAutoMarginsEnabled() const { return contains("enable-auto-margins"); };
+    bool isContentDetectionEnabled() const { return !contains("disable-content-detection"); }
+    bool isPageDetectionEnabled() const { return contains("enable-page-detection"); }
+    bool isForcePageDetectionDisabled() const { return contains("force-disable-page-detection"); }
+    bool isFineTuningEnabled() const { return contains("enable-fine-tuning"); }
+    bool isAutoMarginsEnabled() const { return contains("enable-auto-margins"); }
 
 	bool hasMargins(QString base="margins") const;
-    bool hasPageBorders() const { return hasMargins("page-borders"); };
+    bool hasPageBorders() const { return hasMargins("page-borders"); }
 	bool hasAlignment() const;
 	bool hasOutputDpi() const;
 	bool hasLanguage() const;
@@ -112,7 +112,7 @@ public:
 	bool hasDewarping() const { return contains("dewarping"); }
 	bool hasMatchLayoutTolerance() const { return contains("match-layout-tolerance") && !m_options["match-layout-tolerance"].isEmpty(); }
 	bool hasDepthPerception() const { return contains("depth-perception") && !m_options["depth-perception"].isEmpty(); }
-	bool hasTiffCompression() const { return contains("tiff-compression") && !m_options["tiff-compression"].isEmpty(); }
+    bool hasTiffCompression() const { return contains("tiff-compression") && !m_options["tiff-compression"].isEmpty(); }
 	bool hasTiffForceRGB() const { return contains("tiff-force-rgb"); }
 	bool hasTiffForceGrayscale() const { return contains("tiff-force-grayscale"); }
 	bool hasTiffForceKeepColorSpace() const { return contains("tiff-force-keep-color-space"); }
@@ -149,7 +149,7 @@ public:
 	output::DespeckleLevel getDespeckleLevel() const { return m_despeckleLevel; }
 	output::DepthPerception getDepthPerception() const { return m_depthPerception; }
 	float getMatchLayoutTolerance() const { return m_matchLayoutTolerance; }
-	int getTiffCompression() const { return m_compression; }
+    QString getTiffCompression() const { return m_compression; }
 	QString getLanguage() const { return m_language; }
 	QString getWindowTitle() const { return m_windowTitle; }
 	QSizeF getPageDetectionBox() const { return m_pageDetectionBox; }
@@ -183,6 +183,7 @@ private:
 	std::vector<QFileInfo> m_files;
 	std::vector<ImageFileInfo> m_images;
 	QString m_outputDirectory;
+    QString m_compression;
 
 	page_split::LayoutType m_layoutType;
 	Qt::LayoutDirection m_layoutDirection;
@@ -212,7 +213,6 @@ private:
 	output::DespeckleLevel m_despeckleLevel;
 	output::DepthPerception m_depthPerception;
 	float m_matchLayoutTolerance;
-	int  m_compression;
 
 	bool parseCli(QStringList const& argv);
 	void addImage(QString const& path);
@@ -243,7 +243,7 @@ private:
 	output::DespeckleLevel fetchDespeckleLevel();
 	output::DepthPerception fetchDepthPerception();
 	float fetchMatchLayoutTolerance();
-	int fetchCompression() const;
+    QString fetchCompression() const;
 	QString fetchLanguage() const;
 	QString fetchWindowTitle() const;
 	QSizeF fetchPageDetectionBox() const;

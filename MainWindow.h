@@ -115,9 +115,16 @@ public slots:
 //Auto_Save_Project
 	void AutoSaveProjectState(bool auto_save);
 
+    void settingsChanged();
     void changeLanguage(QString lang, bool dont_store = false);
 private:
-	enum MainAreaAction { UPDATE_MAIN_AREA, CLEAR_MAIN_AREA };
+    enum MainAreaAction { UPDATE_MAIN_AREA, CLEAR_MAIN_AREA };
+
+//Settings processing
+
+    void setDockingPanels(bool enabled);
+
+
 //Original_Foreground_Mixed
 signals:
 	void StartExportTimerSignal();
@@ -174,8 +181,6 @@ private slots:
 		BackgroundTaskPtr const& task,
 		FilterResultPtr const& result);
 	
-	void debugToggled(bool enabled);
-	
 	void fixDpiDialogRequested();
 
 	void fixedDpiSubmitted();
@@ -199,14 +204,10 @@ private slots:
 	void showAboutDialog();
 
 	void handleOutOfMemorySituation();
-//begin of modified by monday2000
-//Export_Subscans
+
 	void openExportDialog();
-//end of modified by monday2000
 
-    bool isDockingEnabled() const { return m_docking_enabled; }
-
-    void setDockingPanels(bool enabled);
+    void on_actionAbout_Qt_triggered();
 
 private:
 	class PageSelectionProviderImpl;

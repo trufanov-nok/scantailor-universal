@@ -20,6 +20,7 @@
 #define SETTINGS_DIALOG_H_
 
 #include "ui_SettingsDialog.h"
+#include "QSettings"
 #include <QDialog>
 
 class SettingsDialog : public QDialog
@@ -29,30 +30,37 @@ public:
 	SettingsDialog(QWidget* parent = 0);
 	
 	virtual ~SettingsDialog();
-//begin of modified by monday2000
 signals:
-//Auto_Save_Project
-	void AutoSaveProjectStateSignal(bool auto_save);
-//Dont_Equalize_Illumination_Pic_Zones
-	void DontEqualizeIlluminationPicZonesSignal(bool state);
-//end of modified by monday2000
-    void changeDockingEnabled(bool);
-    void languageSelected(QString);
+    void settingsChanged();
 private slots:
 	void commitChanges();
-//begin of modified by monday2000
-//Auto_Save_Project
-	void OnCheckAutoSaveProject(bool);
-//Dont_Equalize_Illumination_Pic_Zones
-	void OnCheckDontEqualizeIlluminationPicZones(bool);
-//end of modified by monday2000
-    void onSettingsDialog_accepted();
+    void filterChanged(const QString &);
+    void on_treeWidget_itemActivated(QTreeWidgetItem *item, int column);
+    void on_treeWidget_itemSelectionChanged();    
+    void on_actionExpand_all_triggered();
+    void on_actionCollapse_all_triggered();
+    void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+    void on_language_currentIndexChanged(int index);
+    void on_cbApplyCutDefault_clicked(bool checked);
+    void on_stackedWidget_currentChanged(int arg1);
+
+    void on_cbTiffCompression_currentIndexChanged(int index);
+
+    void on_cbTiffFilter_clicked(bool checked);
 
 private:
     void initLanguageList(QString cur_lang);
-
+    void loadTiffList();
+    void populateTreeWidget(QTreeWidget* treeWidget);
+    void setupItem(QTreeWidgetItem *item, QWidget* w = NULL, QString s = "", bool default_val = true);
+    void backupSettings();
+    void restoreSettings();
 private:
 	Ui::SettingsDialog ui;
+    QSettings m_settings;
+    QSettings::SettingsMap m_oldSettings;
+    bool m_accepted;
 };
 
 #endif

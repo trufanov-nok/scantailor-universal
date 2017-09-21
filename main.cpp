@@ -163,9 +163,9 @@ int main(int argc, char** argv)
 	
 	
 	// This information is used by QSettings.
-    app.setApplicationName("Scan Tailor Universal");
-    app.setOrganizationName("Scan Tailor Universal");
-    app.setOrganizationDomain("github.com/trufanov-nok/scantailor");
+    app.setApplicationName(APPLICATION_NAME);
+    app.setOrganizationName(ORGANIZATION_NAME);
+    app.setOrganizationDomain(ORGANIZATION_DOMAIN);
     QSettings::setDefaultFormat(QSettings::IniFormat);
     SettingsDefaults::prepareDefaults(true);
 
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
     if (cli.hasLanguage())
         main_wnd->changeLanguage(cli.getLanguage(), true);
 
-	if (settings.value("mainWindow/maximized") == false) {
+    if (settings.value("main_window/maximized") == false) {
 		main_wnd->show();
 	} else {
 		main_wnd->showMaximized();

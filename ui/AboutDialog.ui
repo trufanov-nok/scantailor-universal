@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -34,6 +34,9 @@
          </property>
          <property name="wordWrap">
           <bool>true</bool>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -113,7 +116,7 @@ font-weight:bold;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-165</y>
             <width>430</width>
             <height>422</height>
            </rect>
@@ -133,6 +136,9 @@ font-weight:bold;</string>
             <widget class="QLabel" name="label_5">
              <property name="text">
               <string>Joseph Artsimovich</string>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
@@ -159,12 +165,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>U235 - Picture auto-detection algorithm.</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_13">
                <property name="text">
                 <string>Robert B. - First generation dewarping algorithm.</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -173,12 +185,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Andrey Bergman - System load adjustment.</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_15">
                <property name="text">
                 <string>Petr Kovář - Command line interface.</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -207,12 +225,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Neco Torquato - Brazilian Portuguese</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_9">
                <property name="text">
                 <string>Svetoslav Sashkov, Mandor - Bulgarian</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -221,12 +245,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Petr Kovář - Czech</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_17">
                <property name="text">
                 <string>Stefan Birkner - German</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -235,12 +265,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Angelo Gemmi - Italian</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_19">
                <property name="text">
                 <string>Masahiro Kitagawa - Japanese</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -249,12 +285,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Patrick Pascal - French</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_21">
                <property name="text">
                 <string>Daniel Koć - Polish</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -263,12 +305,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Joseph Artsimovich - Russian</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_23">
                <property name="text">
                 <string>Marián Hvolka - Slovak</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -277,6 +325,9 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Flavio Benelli - Spanish</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
@@ -284,12 +335,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string>Davidson Wang - Traditional Chinese</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_28">
                <property name="text">
                 <string>Yuri Chornoivan - Ukrainian</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>
@@ -318,6 +375,9 @@ font-weight:bold;</string>
                <property name="text">
                 <string>denver 22</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
@@ -325,12 +385,18 @@ font-weight:bold;</string>
                <property name="text">
                 <string notr="true">phaedrus</string>
                </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_26">
                <property name="text">
                 <string notr="true">Taxman</string>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                </property>
               </widget>
              </item>

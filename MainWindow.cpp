@@ -181,8 +181,7 @@ MainWindow::MainWindow()
 
 {
 	m_maxLogicalThumbSize = QSize(250, 160);
-	m_ptrThumbSequence.reset(new ThumbnailSequence(m_maxLogicalThumbSize));
-	
+	m_ptrThumbSequence.reset(new ThumbnailSequence(m_maxLogicalThumbSize));    
 	setupUi(this);
 	sortOptions->setVisible(false);
 
@@ -204,8 +203,7 @@ MainWindow::MainWindow()
 	setupThumbView(); // Expects m_ptrThumbSequence to be initialized.
 	
 	m_ptrTabbedDebugImages.reset(new TabbedDebugImages);
-	
-	m_debug = actionDebug->isChecked();
+	    
 	m_pImageFrameLayout = new QStackedLayout(imageViewFrame);
 	m_pOptionsFrameLayout = new QStackedLayout(filterOptions);
 	
@@ -296,12 +294,7 @@ MainWindow::MainWindow()
 	
 	connect(actionFixDpi, SIGNAL(triggered(bool)), SLOT(fixDpiDialogRequested()));
 	connect(actionRelinking, SIGNAL(triggered(bool)), SLOT(showRelinkingDialog()));
-	connect(actionDebug, SIGNAL(toggled(bool)), SLOT(debugToggled(bool)));
-
-	connect(
-		actionSettings, SIGNAL(triggered(bool)),
-		this, SLOT(openSettingsDialog())
-	);
+    connect(actionSettings, SIGNAL(triggered(bool)), SLOT(openSettingsDialog()));
 //begin of modified by monday2000
 //Export_Subscans
 //added:
@@ -339,26 +332,8 @@ MainWindow::MainWindow()
 	updateWindowTitle();
 	updateMainArea();
 
-	QSettings settings;
-	if (settings.value("mainWindow/maximized") == false) {
-		QVariant const geom(
-			settings.value("mainWindow/nonMaximizedGeometry")
-		);
-		if (!restoreGeometry(geom.toByteArray())) {
-			resize(1014, 689); // A sensible value.
-		}
-	}
-
-    setDockingPanels(settings.value("function_availability/docking_panels", true).toBool());
-
-    QString default_lang = QLocale::system().name().toLower();
-    default_lang.truncate(default_lang.lastIndexOf('_'));
-    changeLanguage(settings.value("mainWindow/language", default_lang).toString());
-
-
-//begin of modified by monday2000
-//Auto_Save_Project
-	m_auto_save_project = settings.value("settings/auto_save_project").toBool();
+    //Process settings
+    settingsChanged();
 }
 
 
@@ -373,6 +348,28 @@ MainWindow::~MainWindow()
 	removeWidgetsFromLayout(m_pImageFrameLayout);
 	removeWidgetsFromLayout(m_pOptionsFrameLayout);
 	m_ptrTabbedDebugImages->clear();
+}
+
+void
+MainWindow::settingsChanged()
+{
+    QSettings settings;
+    if (settings.value("main_window/maximized") == false) {
+        QVariant const geom(
+            settings.value("main_window/non_maximized_geometry")
+        );
+        if (!restoreGeometry(geom.toByteArray())) {
+            resize(1014, 689); // A sensible value.
+        }
+    }
+
+    setDockingPanels(settings.value("docking_panels/enabled", true).toBool());
+
+    QString default_lang = QLocale::system().name().toLower();
+    default_lang.truncate(default_lang.lastIndexOf('_'));
+    changeLanguage(settings.value("main_window/language", default_lang).toString());
+
+    m_debug = QSettings().value("debug_mode/enabled", false).toBool();
 }
 
 PageSequence
@@ -633,10 +630,10 @@ MainWindow::timerEvent(QTimerEvent* const event)
 	if (closeProjectInteractive()) {
 		m_closing = true;
 		QSettings settings;
-		settings.setValue("mainWindow/maximized", isMaximized());
+        settings.setValue("main_window/maximized", isMaximized());
 		if (!isMaximized()) {
 			settings.setValue(
-				"mainWindow/nonMaximizedGeometry", saveGeometry()
+                "main_window/non_maximized_geometry", saveGeometry()
 			);
 		}
 		close();
@@ -1465,12 +1462,6 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
 }
 
 void
-MainWindow::debugToggled(bool const enabled)
-{
-	m_debug = enabled;
-}
-
-void
 MainWindow::fixDpiDialogRequested()
 {
 	if (isBatchProcessingInProgress() || !isProjectLoaded()) {
@@ -1684,15 +1675,8 @@ MainWindow::openSettingsDialog()
 	SettingsDialog* dialog = new SettingsDialog(this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowModality(Qt::WindowModal);
-//begin of modified by monday2000
-//Auto_Save_Project
-	connect(dialog, SIGNAL(AutoSaveProjectStateSignal(bool)), this, SLOT(AutoSaveProjectState(bool)));
-//Dont_Equalize_Illumination_Pic_Zones
-//	connect(dialog, SIGNAL(DontEqualizeIlluminationPicZonesSignal(bool)), this, SLOT(DontEqualizeIlluminationPicZones(bool)));
-//end of modified by monday2000
-    connect(dialog, SIGNAL(changeDockingEnabled(bool)), this, SLOT(setDockingPanels(bool)));
-    connect(dialog, SIGNAL(languageSelected(QString)), this, SLOT(changeLanguage(QString)));
-    dialog->show();
+    connect(dialog, SIGNAL(settingsChanged()), this, SLOT(settingsChanged()));
+    dialog->exec();
 }
 
 //begin of modified by monday2000
@@ -2870,7 +2854,7 @@ MainWindow::changeLanguage(QString lang, bool dont_store)
         qApp->installTranslator(&m_translator);
         if (!dont_store) {
             QSettings settings;
-            settings.setValue("mainWindow/language", lang);
+            settings.setValue("main_window/language", lang);
         }
         m_current_lang = lang;
     } else {
@@ -2902,4 +2886,9 @@ MainWindow::changeEvent(QEvent* event)
         }
     }
     QMainWindow::changeEvent(event);
+}
+
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+    QApplication::aboutQt();
 }

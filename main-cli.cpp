@@ -26,6 +26,7 @@
 #include "CommandLine.h"
 #include "ConsoleBatch.h"
 #include "SettingsDefaults.h"
+#include "config.h"
 
 
 int main(int argc, char **argv)
@@ -38,9 +39,9 @@ int main(int argc, char **argv)
 #endif
 
     // This information is used by QSettings.
-    app.setApplicationName("Scan Tailor Universal");
-    app.setOrganizationName("Scan Tailor Universal");
-    app.setOrganizationDomain("github.com/trufanov-nok/scantailor");
+    app.setApplicationName(APPLICATION_NAME);
+    app.setOrganizationName(ORGANIZATION_NAME);
+    app.setOrganizationDomain(ORGANIZATION_DOMAIN);
     QSettings::setDefaultFormat(QSettings::IniFormat);
     SettingsDefaults::prepareDefaults(false);
 

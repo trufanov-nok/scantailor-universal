@@ -72,12 +72,6 @@ OptionsWidget::OptionsWidget(
     pictureShapeSelector->addItem(tr("Quadro"), QUADRO_SHAPE);
     labePictureShape->setText(tr("Picture Shape"));
 
-	tiffCompression->addItem(tr("None"), COMPRESSION_NONE);
-	tiffCompression->addItem(tr("LZW"), COMPRESSION_LZW);
-	tiffCompression->addItem(tr("Deflate"), COMPRESSION_DEFLATE);
-	tiffCompression->addItem(tr("Packbits"), COMPRESSION_PACKBITS);
-	tiffCompression->addItem(tr("JPEG"), COMPRESSION_JPEG);
-
 	darkerThresholdLink->setText(
 		Utils::richTextForLink(darkerThresholdLink->text())
 	);
@@ -105,10 +99,6 @@ OptionsWidget::OptionsWidget(
 	connect(
 		pictureShapeSelector, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(pictureShapeChanged(int))
-	);
-	connect(
-		tiffCompression, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(tiffCompressionChanged(int))
 	);
     connect(
         colorLayerCB, SIGNAL(clicked(bool)),
@@ -265,13 +255,6 @@ OptionsWidget::pictureShapeChanged(int const idx)
 	m_pictureShape = (PictureShape)(pictureShapeSelector->itemData(idx).toInt());
 	m_ptrSettings->setPictureShape(m_pageId, m_pictureShape);
 	emit reloadRequested();
-}
-
-void
-OptionsWidget::tiffCompressionChanged(int idx)
-{
-    int compression = tiffCompression->itemData(idx).toInt();
-    m_ptrSettings->setTiffCompression(compression);
 }
 
 void
@@ -729,8 +712,6 @@ OptionsWidget::updateColorsDisplay()
 		pictureShapeSelector->setCurrentIndex(picture_shape_idx);
 	}
 	
-	int compression_idx = tiffCompression->findData(m_ptrSettings->getTiffCompression());
-	tiffCompression->setCurrentIndex(compression_idx);
 
 	if (bw_options_visible) {
 		switch (m_despeckleLevel) {
@@ -791,3 +772,8 @@ OptionsWidget::updateDewarpingDisplay()
 }
 
 } // namespace output
+
+void output::OptionsWidget::on_tiffCompression_currentIndexChanged(int index)
+{
+
+}

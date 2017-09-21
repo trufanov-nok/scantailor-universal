@@ -250,7 +250,7 @@ InteractiveXSpline::controlPointMoveRequest(int idx, QPointF const& pos, Qt::Key
 				{
 					Vec2d shift_y = storage_pt - old_pos;
 					QPointF new_position = m_spline.controlPointPosition(i) + shift_y;
-					new_position.setX(m_spline.controlPointPosition(i).x());
+                    new_position.setX(m_spline.controlPointPosition(i).x());
 					m_spline.moveControlPoint(i, new_position);
 				}
 //end of modified by monday2000

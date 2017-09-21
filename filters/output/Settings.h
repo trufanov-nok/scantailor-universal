@@ -89,9 +89,10 @@ public:
 	void setPictureZones(PageId const& page_id, ZoneSet const& zones);
 
 	void setFillZones(PageId const& page_id, ZoneSet const& zones);
-	
-	int getTiffCompression() { return m_compression; };
-	void setTiffCompression(int compression) { m_compression = compression; };
+	    
+    int getTiffCompression();
+    const QString getTiffCompressioName() const;
+    void setTiffCompression(QString const& compression);
 
 	/**
 	 * For now, default zone properties are not persistent.
@@ -121,6 +122,7 @@ private:
 	PropertySet m_defaultPictureZoneProps;
 	PropertySet m_defaultFillZoneProps;
 	int m_compression;
+    QString m_compressionName;
 };
 
 } // namespace output

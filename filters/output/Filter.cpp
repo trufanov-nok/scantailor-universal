@@ -103,7 +103,7 @@ Filter::saveSettings(
 	
 	QDomElement filter_el(doc.createElement("output"));
 	
-	filter_el.setAttribute("tiffCompression", m_ptrSettings->getTiffCompression());
+    filter_el.setAttribute("tiffCompressionMethod", m_ptrSettings->getTiffCompressioName());
 	
 	writer.enumPages(
 		boost::lambda::bind(
@@ -146,7 +146,7 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
 		filters_el.namedItem("output").toElement()
 	);
 	
-	m_ptrSettings->setTiffCompression(filter_el.attribute("tiffCompression", QString::number(COMPRESSION_LZW)).toInt());
+    m_ptrSettings->setTiffCompression(filter_el.attribute("tiffCompressionMethod", "LZW"));
 	
 	QString const page_tag_name("page");
 	QDomNode node(filter_el.firstChild());

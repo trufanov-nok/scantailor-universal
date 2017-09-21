@@ -550,6 +550,8 @@ SET(
 	SystemLoadWidget.cpp SystemLoadWidget.h
 	MainWindow.cpp MainWindow.h
 	main.cpp
+        settings/fancylineedit.cpp settings/fancylineedit.h
+        settings/execmenu.cpp settings/execmenu.h
 )
 
 SET(
