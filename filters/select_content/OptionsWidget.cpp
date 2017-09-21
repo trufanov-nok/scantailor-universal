@@ -26,6 +26,7 @@
 #include <boost/foreach.hpp>
 #endif
 
+#include <QSettings>
 #include <iostream>
 
 namespace select_content
@@ -52,6 +53,8 @@ OptionsWidget::OptionsWidget(
     connect(rightBorder, SIGNAL(valueChanged(double)), this, SLOT(borderChanged()));
     connect(topBorder, SIGNAL(valueChanged(double)), this, SLOT(borderChanged()));
     connect(bottomBorder, SIGNAL(valueChanged(double)), this, SLOT(borderChanged()));
+
+    m_force_reload = QSettings().value("content_selection/force_STE_reload_tweak", false).toBool();
 }
 
 OptionsWidget::~OptionsWidget()
@@ -102,12 +105,15 @@ OptionsWidget::manualContentRectSet(QRectF const& content_rect)
 	m_uiData.setContentRect(content_rect);
 	m_uiData.setMode(MODE_MANUAL);
 	m_uiData.setContentDetection(true);
+    bool need_reload = m_uiData.pageDetection() || m_force_reload;
     m_uiData.setPageDetection(false);
 	updateModeIndication(MODE_MANUAL);
 	commitCurrentParams();
 	
 	emit invalidateThumbnail(m_pageId);
-	emit reloadRequested();
+    if (need_reload) {
+        emit reloadRequested();
+    }
 }
 
 void
@@ -117,19 +123,24 @@ OptionsWidget::modeChanged(bool const auto_mode)
 	//	return;
 	//}
 
+    bool need_reload = m_uiData.pageDetection() || m_force_reload;
+
 	if (auto_mode) {
+        need_reload = !need_reload;
 		//m_ptrSettings->clearPageParams(m_pageId);
 		m_uiData.setMode(MODE_AUTO);
-		m_uiData.setContentDetection(true);
-		commitCurrentParams();
-		emit reloadRequested();
-	} else {
+		m_uiData.setContentDetection(true);				
+	} else {        
+        m_uiData.setMode(MODE_MANUAL);
         m_uiData.setPageDetection(false);
-		m_uiData.setMode(MODE_MANUAL);
-		m_uiData.setContentDetection(true);
-		commitCurrentParams();
-		emit reloadRequested();
+
 	}
+
+    m_uiData.setContentDetection(true);
+    commitCurrentParams();
+    if (need_reload) {
+        emit reloadRequested();
+    }
 }
 
 void OptionsWidget::autoMode()

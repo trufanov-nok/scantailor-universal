@@ -126,6 +126,7 @@ private:
 	PageSelectionAccessor m_pageSelectionAccessor;
 	PageId m_pageId;
 	int m_ignoreAutoManualToggle;
+    bool m_force_reload;
 };
 
 } // namespace select_content
