@@ -518,7 +518,8 @@ MainWindow::showNewOpenProjectPanel()
 	layout->setRowStretch(2, 1);
 	setImageWidget(outer_widget.release(), TRANSFER_OWNERSHIP);
 	
-	filterList->setBatchProcessingPossible(false);
+    filterList->setBatchProcessingPossible(false);
+    updateProjectActions();
 }
 
 void
@@ -2216,6 +2217,7 @@ MainWindow::updateProjectActions()
 	actionSaveProjectAs->setEnabled(loaded);
 	actionFixDpi->setEnabled(loaded);
 	actionRelinking->setEnabled(loaded);
+    actionExport->setEnabled(loaded);
 }
 
 bool
@@ -2227,7 +2229,7 @@ MainWindow::isBatchProcessingInProgress() const
 bool
 MainWindow::isProjectLoaded() const
 {
-	return !m_outFileNameGen.outDir().isEmpty();
+    return (!m_outFileNameGen.outDir().isEmpty()) && (m_ptrPages->numImages() > 0);
 }
 
 bool
