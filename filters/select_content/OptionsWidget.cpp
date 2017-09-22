@@ -72,7 +72,13 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	manualBtn->setEnabled(false);
 	disableBtn->setEnabled(false);
 	pageDetectAutoBtn->setEnabled(false);
-	pageDetectDisableBtn->setEnabled(false);
+    pageDetectDisableBtn->setEnabled(false);
+
+    bool fine_tune_corners_enabled = QSettings().value("fine_tune_page_corners/enabled", true).toBool();
+    panelFineTuneCorners->setVisible(fine_tune_corners_enabled);
+    if (!fine_tune_corners_enabled) {
+        fineTuneBtn->setChecked(false);
+    }
 }
 
 void
@@ -88,7 +94,10 @@ OptionsWidget::postUpdateUI(UiData const& ui_data)
     bottomBorder->setValue(m.bottom());
     
 	updateModeIndication(ui_data.mode());
-	fineTuneBtn->setChecked(ui_data.fineTuning());
+    if (panelFineTuneCorners->isVisible()) {
+        fineTuneBtn->setChecked(ui_data.fineTuning());
+        fineTuneBtn->setEnabled(true);
+    }
 	pageDetectAutoBtn->setChecked(ui_data.pageDetection());
 	pageDetectDisableBtn->setChecked(!ui_data.pageDetection());
 	autoBtn->setEnabled(true);
@@ -96,7 +105,7 @@ OptionsWidget::postUpdateUI(UiData const& ui_data)
 	disableBtn->setEnabled(true);
 	pageDetectAutoBtn->setEnabled(true);
 	pageDetectDisableBtn->setEnabled(true);
-	fineTuneBtn->setEnabled(true);
+
 }
 
 void
