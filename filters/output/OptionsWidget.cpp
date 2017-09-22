@@ -44,6 +44,7 @@
 #include <QSize>
 #include <Qt>
 #include <QDebug>
+#include <QSettings>
 #include <tiff.h>
 
 namespace output
@@ -200,6 +201,39 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	updateDpiDisplay();
 	updateColorsDisplay();
 	updateDewarpingDisplay();
+
+    ColorParams::ColorMode const mode = (ColorParams::ColorMode) colorModeSelector->itemData(colorModeSelector->currentIndex()).toInt();
+    if(mode == ColorParams::MIXED) {
+
+        bool picture_shape_visible = QSettings().value("picture_shape_detection/enabled", true).toBool();
+        pictureShapeOptions->setVisible(picture_shape_visible);
+
+        if (!picture_shape_visible) {
+            int idx = pictureShapeSelector->findData(FREE_SHAPE);
+            if (pictureShapeSelector->currentIndex() != idx && idx != -1) {
+                pictureShapeSelector->setCurrentIndex(idx);
+            }
+        }
+
+        bool quadro_visible = false;
+        if (picture_shape_visible) {
+            quadro_visible = QSettings().value("picture_shape_detection/smaller_rect", true).toBool();
+        }
+
+        int cur_idx = pictureShapeSelector->currentIndex();
+        int quadro_idx = pictureShapeSelector->findData(QUADRO_SHAPE);
+
+        if (!quadro_visible && quadro_idx != -1) {
+            pictureShapeSelector->removeItem(quadro_idx);
+            pictureShapeSelector->setCurrentIndex(cur_idx!=quadro_idx?cur_idx:0);
+        }
+
+        if (quadro_visible && quadro_idx == -1) {
+            pictureShapeSelector->addItem(tr("Quadro"), QUADRO_SHAPE);
+            pictureShapeSelector->setCurrentIndex(cur_idx!=-1?cur_idx:0);
+        }
+    }
+
 }
 
 void

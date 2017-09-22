@@ -17,8 +17,7 @@ pageOutput
 	pageColorGrayscaleMode
 	pageMixedMode
 		pagePictureShapeDetection	picture_shape_detection/enabled
-		pageTryToMakeRectangleSmaller	picture_shape_detection/smaller_rect
-		pageShowAsASelectionZone	picture_shape_detection/add_rect_as_zone
+			pageTryToMakeRectangleSmaller	picture_shape_detection/smaller_rect
 	pageFillZones
 	pageDewarping
 	pageDespeckling
