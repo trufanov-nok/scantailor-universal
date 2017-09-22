@@ -119,8 +119,8 @@ Alignment::toXml(QDomDocument& doc, QString const& name) const
 	}
 	
 	QDomElement el(doc.createElement(name));
-	el.setAttribute("vert", QString::fromAscii(vert));
-	el.setAttribute("hor", QString::fromAscii(hor));
+	el.setAttribute("vert", QLatin1String(vert));
+	el.setAttribute("hor", QLatin1String(hor));
 	el.setAttribute("null", m_isNull ? 1 : 0);
 	el.setAttribute("tolerance", QString::number(m_tolerance));
 	el.setAttribute("autoMargins", m_autoMargins ? "true" : "false");

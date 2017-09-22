@@ -436,7 +436,7 @@ PageLayout::typeToString(Type const type)
 			break;
 	}
 	
-	return QString::fromAscii(str);
+	return QLatin1String(str);
 }
 
 /**

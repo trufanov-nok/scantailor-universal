@@ -141,7 +141,7 @@ CommandLine::parseCli(QStringList const& argv)
 	// skip first argument (scantailor)
 	for (int i=1; i<argv.size(); i++) {
 #ifdef DEBUG
-	std::cout << "arg[" << i << "]=" << argv[i].toAscii().constData() << std::endl;
+    std::cout << "arg[" << i << "]=" << argv[i].toLocal8Bit().constData() << std::endl;
 #endif
 		if (rx.exactMatch(argv[i])) {
 			// option with a value
@@ -217,7 +217,7 @@ CommandLine::parseCli(QStringList const& argv)
 
 #ifdef DEBUG
 	QStringList params = m_options.keys();
-	for (int i=0; i<params.size(); i++) { std::cout << params[i].toAscii().constData() << "=" << m_options.value(params[i]).toAscii().constData() << std::endl; }
+    for (int i=0; i<params.size(); i++) { std::cout << params[i].toLocal8Bit().constData() << "=" << m_options.value(params[i]).toLocal8Bit().constData() << std::endl; }
 	std::cout << "Images: " << CommandLine::m_images.size() << std::endl;
 #endif
 
@@ -611,7 +611,7 @@ CommandLine::fetchContentRect()
 		return QRectF(rx.cap(1).toFloat(), rx.cap(2).toFloat(), rx.cap(3).toFloat(), rx.cap(4).toFloat());
 	}
 
-	std::cout << "invalid --content-box=" << m_options.value("content-box").toAscii().constData() << std::endl;
+    std::cout << "invalid --content-box=" << m_options.value("content-box").toLocal8Bit().constData() << std::endl;
 	exit(1);
 }
 
@@ -641,7 +641,7 @@ CommandLine::fetchOrientation()
 	} else if (cli_orient == "upsidedown") {
 		orient = UPSIDEDOWN;
 	} else {
-		std::cout << "Wrong orientation " << m_options.value("orientation").toAscii().constData() << std::endl;
+        std::cout << "Wrong orientation " << m_options.value("orientation").toLocal8Bit().constData() << std::endl;
 		exit(1);
 	}
 
@@ -824,7 +824,7 @@ QSizeF CommandLine::fetchPageDetectionBox() const
 		return QSizeF(rx.cap(1).toFloat(), rx.cap(2).toFloat());
 	}
     
-    std::cout << "invalid --page-detection-box=" << m_options["page-detection-box"].toAscii().constData() << std::endl;
+    std::cout << "invalid --page-detection-box=" << m_options["page-detection-box"].toLocal8Bit().constData() << std::endl;
     exit(1);    
 }
 

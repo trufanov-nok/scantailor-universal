@@ -18,7 +18,7 @@
 */
 
 #include "OrderBySourceColor.h"
-#include "OrderBySourceColor.h.moc"
+#include "OrderBySourceColor.moc"
 #include "Params.h"
 #include "PageSequence.h"
 #include <QSizeF>

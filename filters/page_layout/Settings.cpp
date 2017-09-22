@@ -564,7 +564,7 @@ Settings::Impl::updateContentRect()
 		QRectF icr(it->contentRect);
 
 	/*
-		std::cout << "\tupateContentRect: " << it->pageId.imageId().filePath().toAscii().constData() << "\n";
+		std::cout << "\tupateContentRect: " << it->pageId.imageId().filePath().toLocal8Bit().constData() << "\n";
 	std::cout << "m_contentRect.left(): " << m_contentRect.left() << " right(): " << m_contentRect.right() << " top: " << m_contentRect.top() << " bottom: " << m_contentRect.bottom() << std::endl;
 	std::cout << "icr.left(): " << icr.left() << " right(): " << icr.right() << " top: " << icr.top() << " bottom: " << icr.bottom() << std::endl;
 	*/

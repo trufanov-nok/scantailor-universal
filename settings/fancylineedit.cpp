@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "fancylineedit.h"
-#include "fancylineedit.h.moc"
+#include "fancylineedit.moc"
 #include "execmenu.h"
 
 #include <QAbstractItemView>

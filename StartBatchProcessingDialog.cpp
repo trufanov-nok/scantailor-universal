@@ -1,5 +1,5 @@
 #include "StartBatchProcessingDialog.h"
-#include "StartBatchProcessingDialog.h.moc"
+#include "StartBatchProcessingDialog.moc"
 #include "ui_StartBatchProcessingDialog.h"
 
 

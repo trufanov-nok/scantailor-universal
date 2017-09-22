@@ -131,7 +131,7 @@ Curve::serializePolyline(
 	}
 
 	QDomElement el(doc.createElement(name));
-	el.appendChild(doc.createTextNode(QString::fromLatin1(ba.toBase64())));
+	el.appendChild(doc.createTextNode(QLatin1String(ba.toBase64())));
 
 	return el;
 }

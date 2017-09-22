@@ -20,7 +20,7 @@
 // This file was added by monday2000
 
 #include "ExportDialog.h"
-#include "ExportDialog.h.moc"
+#include "ExportDialog.moc"
 #include "OpenGLSupport.h"
 #include "config.h"
 #include <QSettings>

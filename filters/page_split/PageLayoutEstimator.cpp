@@ -49,8 +49,6 @@
 #include "imageproc/PolygonRasterizer.h"
 #ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
 #endif
 #include <QRect>
 #include <QRectF>
@@ -492,7 +490,6 @@ PageLayoutEstimator::cutAtWhitespaceDeskewed150(
 	bool const left_offcut, bool const right_offcut,
 	DebugImages* dbg)
 {
-	using namespace boost::lambda;
 	
 	int const width = input.width();
 	int const height = input.height();
@@ -522,9 +519,8 @@ PageLayoutEstimator::cutAtWhitespaceDeskewed150(
 	span_finder.setMinWhitespaceWidth(8);
 	
 	std::deque<Span> spans;
-	SlicedHistogram hist(cc_img, SlicedHistogram::COLS);
-	void (std::deque<Span>::*push_back) (const Span&) = &std::deque<Span>::push_back;
-	span_finder.find(hist, boost::lambda::bind(push_back, var(spans), _1));
+	SlicedHistogram hist(cc_img, SlicedHistogram::COLS);	
+    span_finder.find(hist, [&] (Span const& span) { spans.push_back(span); });
 	
 	if (dbg) {
 		visualizeSpans(*dbg, spans, input, "spans");

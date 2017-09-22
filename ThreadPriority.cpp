@@ -100,7 +100,7 @@ ThreadPriority::save(QSettings& settings, QString const& key)
 			break;
 	}
 
-	settings.setValue(key, QString::fromAscii(str));
+	settings.setValue(key, QLatin1String(str));
 }
 
 void
