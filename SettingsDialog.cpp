@@ -78,7 +78,19 @@ void SettingsDialog::initLanguageList(QString cur_lang)
     ui.language->clear();
     ui.language->addItem("English", "en");;
 
-    QStringList fileNames = QDir(QApplication::applicationDirPath()).entryList(QStringList("scantailor_*.qm"));
+    const QStringList language_file_filter("scantailor_*.qm");
+    QStringList fileNames = QDir().entryList(language_file_filter);
+
+    if (fileNames.isEmpty()) {
+        fileNames = QDir(QApplication::applicationDirPath()).entryList(language_file_filter);
+        if (fileNames.isEmpty()) {
+            fileNames = QDir(QString::fromUtf8(TRANSLATIONS_DIR_ABS)).entryList(language_file_filter);
+            if (fileNames.isEmpty()) {
+                fileNames = QDir(QString::fromUtf8(TRANSLATIONS_DIR_REL)).entryList(language_file_filter);
+            }
+        }
+    }
+
     fileNames.sort();
 
     for (int i = 0; i < fileNames.size(); ++i) {
