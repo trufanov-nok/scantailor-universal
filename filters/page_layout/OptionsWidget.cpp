@@ -200,7 +200,13 @@ OptionsWidget::preUpdateUI(
 		alignmentMode->setCurrentIndex(1);
 	alignmentMode->blockSignals(false);
 	
-	autoMargins->setChecked(m_alignment.isAutoMarginsEnabled());
+    bool auto_margins_visible = QSettings().value("auto_margins/enabled", true).toBool();
+    autoMargins->setVisible(auto_margins_visible);
+    if (autoMargins->isVisible()) {
+        autoMargins->setChecked(m_alignment.isAutoMarginsEnabled());
+    } else {
+        autoMargins->setChecked(false);
+    }
 	enableDisableAlignmentButtons();
 	
 	m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
