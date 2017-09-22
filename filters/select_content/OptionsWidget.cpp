@@ -79,6 +79,12 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
     if (!fine_tune_corners_enabled) {
         fineTuneBtn->setChecked(false);
     }
+
+    bool border_panel_visible = QSettings().value("content_selection_borders_panel/enabled", true).toBool();
+    gbBordersPanel->setVisible(border_panel_visible);
+
+    gbPageBox->setVisible(fine_tune_corners_enabled || border_panel_visible);
+
 }
 
 void

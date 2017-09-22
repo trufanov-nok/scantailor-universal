@@ -8,7 +8,7 @@ pageSplitPages
 pageDeskew
 pageSelectContent
 	pageFineTunePageCorners	fine_tune_page_corners/enabled
-	pageAutoManualButtons	auto_manual_btns_select_content/enabled
+	pageBordersPanel	content_selection_borders_panel/enabled
 pageMargins
 	pageAutoMargins	auto_margins/enabled
 	pageOriginalAlignment	original_alignment/enabled

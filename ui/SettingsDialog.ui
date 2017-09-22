@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>25</number>
+       <number>11</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -656,7 +656,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="pageAutoManualButtons">
+      <widget class="QWidget" name="pageBordersPanel">
        <layout class="QVBoxLayout" name="verticalLayout_42">
         <item>
          <widget class="QGroupBox" name="groupBox_18">
@@ -684,7 +684,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="optAutoManualButtons">
+         <widget class="QGroupBox" name="optBordersPanel">
           <property name="title">
            <string>Options</string>
           </property>

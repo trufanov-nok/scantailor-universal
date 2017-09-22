@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="gbPageBox">
      <property name="title">
       <string>Page Box</string>
      </property>
@@ -70,7 +70,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_3">
+       <widget class="QGroupBox" name="gbBordersPanel">
         <property name="title">
          <string>Borders in MM</string>
         </property>
