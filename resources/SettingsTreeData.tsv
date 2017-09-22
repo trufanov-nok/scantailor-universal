@@ -1,25 +1,25 @@
 pageGeneral
-	pageDocking	"docking_panels/enabled"
-	pageAutoSaveProject	"auto-save_project/enabled" 0
+	pageDocking	docking_panels/enabled
+	pageAutoSaveProject	auto-save_project/enabled 0
 	pageTiffCompression
 pageFixOrientation
 pageSplitPages
-	pageApplyCut	"apply_cut/enabled"
+	pageApplyCut	apply_cut/enabled
 pageDeskew
 pageSelectContent
-	pageFineTunePageCorners	"fine_tune_page_corners/enabled"
-	pageAutoManualButtons	"auto_manual_btns_select_content/enabled"
+	pageFineTunePageCorners	fine_tune_page_corners/enabled
+	pageAutoManualButtons	auto_manual_btns_select_content/enabled
 pageMargins
-	pageAutoMargins	"auto_margins/enabled"
-	pageOriginalAlignment	"original_alignment/enabled"
+	pageAutoMargins	auto_margins/enabled
+	pageOriginalAlignment	original_alignment/enabled
 pageOutput
 	pageBlackWhiteMode
 	pageColorGrayscaleMode
 	pageMixedMode
-		pagePictureShapeDetection	"picture_shape_detection/enabled"
-		pageTryToMakeRectangleSmaller	"picture_shape_detection/smaller_rect"
-		pageShowAsASelectionZone	"picture_shape_detection/add_rect_as_zone"
+		pagePictureShapeDetection	picture_shape_detection/enabled
+		pageTryToMakeRectangleSmaller	picture_shape_detection/smaller_rect
+		pageShowAsASelectionZone	picture_shape_detection/add_rect_as_zone
 	pageFillZones
 	pageDewarping
 	pageDespeckling
-	pageDebugMode	"debug_mode/enabled"	0
+	pageDebugMode	debug_mode/enabled	0
