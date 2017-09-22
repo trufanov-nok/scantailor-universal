@@ -60,14 +60,6 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
     connect(ui.buttonBox, SIGNAL(accepted()), SLOT(commitChanges()));
     connect(ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    //begin of modified by monday2000
-    //Auto_Save_Project
-    //	ui.AutoSaveProject->setChecked(settings.value("settings/auto_save_project").toBool());
-    //	connect(ui.AutoSaveProject, SIGNAL(toggled(bool)), this, SLOT(OnCheckAutoSaveProject(bool)));
-    //Dont_Equalize_Illumination_Pic_Zones
-    //	ui.DontEqualizeIlluminationPicZones->setChecked(settings.value("settings/dont_equalize_illumination_pic_zones").toBool());
-    //	connect(ui.DontEqualizeIlluminationPicZones, SIGNAL(toggled(bool)), this, SLOT(OnCheckDontEqualizeIlluminationPicZones(bool)));
-    //end of modified by monday2000
 
     // pageGeneral is displayed by default
     initLanguageList(((MainWindow*)parent)->getLanguage());
@@ -409,11 +401,12 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     const QWidget* currentPage = ui.stackedWidget->currentWidget();
     if (currentPage == ui.pageApplyCut) {
         ui.cbApplyCutDefault->setChecked(m_settings.value("apply_cut/default", false).toBool());
-    } else {
-        if (currentPage == ui.pageTiffCompression) {
-            loadTiffList();
-        }
+    } else if (currentPage == ui.pageTiffCompression) {
+        loadTiffList();
+    } else if (currentPage == ui.pageAutoSaveProject) {
+        ui.sbSavePeriod->setValue(abs(m_settings.value("auto-save_project/time_period_min", 5).toInt()));
     }
+
 }
 
 void SettingsDialog::on_cbTiffCompression_currentIndexChanged(int index)
@@ -426,4 +419,9 @@ void SettingsDialog::on_cbTiffFilter_clicked(bool checked)
 {
     m_settings.setValue("tiff_compression/show_all", !checked);
     loadTiffList();
+}
+
+void SettingsDialog::on_sbSavePeriod_valueChanged(int arg1)
+{
+    m_settings.setValue("auto-save_project/time_period_min", arg1);
 }

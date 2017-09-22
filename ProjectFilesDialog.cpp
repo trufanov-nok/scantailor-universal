@@ -580,7 +580,7 @@ ProjectFilesDialog::onOK()
 		return;
 	}
 	
-	startLoadingMetadata();
+    startLoadingMetadata();
 }
 
 void

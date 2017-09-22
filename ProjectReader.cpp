@@ -122,6 +122,7 @@ ProjectReader::processDirectories(QDomElement const& dirs_el)
 		}
 		
 		m_dirMap.insert(DirMap::value_type(id, path));
+        m_inputDir = path;
 	}
 }
 

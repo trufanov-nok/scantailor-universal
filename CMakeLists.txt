@@ -558,6 +558,7 @@ SET(
         StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
         settings/fancylineedit.cpp settings/fancylineedit.h
         settings/execmenu.cpp settings/execmenu.h
+        AutoSaveTimer.cpp AutoSaveTimer.h
 
 )
 

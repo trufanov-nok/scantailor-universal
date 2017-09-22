@@ -43,6 +43,8 @@ public:
 	std::vector<ImageFileInfo> const& files() const { return m_files; }
 	
 	QString const& outDir() const { return m_outDir; }
+
+    QString const& inputDir() const { return m_inputDir; }
 	
 	Qt::LayoutDirection layoutDirection() const { return m_layoutDirection; }
 signals:
@@ -63,6 +65,7 @@ private:
 	QPointer<ProjectFilesDialog> m_ptrProjectFilesDialog;
 	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
 	QString m_outDir;
+    QString m_inputDir;
 	std::vector<ImageFileInfo> m_files;
 	Qt::LayoutDirection m_layoutDirection;
 	QWidget* m_pParent;

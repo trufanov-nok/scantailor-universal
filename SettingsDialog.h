@@ -49,6 +49,8 @@ private slots:
 
     void on_cbTiffFilter_clicked(bool checked);
 
+    void on_sbSavePeriod_valueChanged(int arg1);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

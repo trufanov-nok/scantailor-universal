@@ -177,7 +177,8 @@ MainWindow::MainWindow()
     m_outpaths_vector(0),
     m_exportTimerId(0),
     m_keep_orig_fore_subscan(0),
-    m_docking_enabled(true)
+    m_docking_enabled(true),
+    m_autosave_timer(NULL)
 
 {
 	m_maxLogicalThumbSize = QSize(250, 160);
@@ -188,10 +189,6 @@ MainWindow::MainWindow()
 #if !defined(ENABLE_OPENGL)
 	// Right now the only setting is 3D acceleration, so get rid of
 	// the whole Settings dialog, if it's inaccessible.
-//begin of modified by monday2000
-//Auto_Save_Project
-	//actionSettings->setVisible(false); // commented by monday2000
-//end of modified by monday2000
 #endif
 
 	createBatchProcessingWidget();
@@ -339,6 +336,8 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+    destroyAutoSaveTimer();
+
 	m_ptrInteractiveQueue->cancelAndClear();
 	if (m_ptrBatchQueue.get()) {
 		m_ptrBatchQueue->cancelAndClear();
@@ -369,7 +368,15 @@ MainWindow::settingsChanged()
     default_lang.truncate(default_lang.lastIndexOf('_'));
     changeLanguage(settings.value("main_window/language", default_lang).toString());
 
-    m_debug = QSettings().value("debug_mode/enabled", false).toBool();
+    m_debug = settings.value("debug_mode/enabled", false).toBool();
+
+    bool autoSaveIsOn = settings.value("auto-save_project/enabled", false).toBool();
+
+    if (autoSaveIsOn) {
+        createAutoSaveTimer();
+    } else {
+        destroyAutoSaveTimer();
+    }
 
     updateMainArea(); // to invoke preUpdateUI in optionsWidget
 }
@@ -630,6 +637,7 @@ MainWindow::timerEvent(QTimerEvent* const event)
 	// We only use the timer event for delayed closing of the window.
 	killTimer(event->timerId());
 	
+    pauseAutoSaveTimer();
 	if (closeProjectInteractive()) {
 		m_closing = true;
 		QSettings settings;
@@ -641,11 +649,10 @@ MainWindow::timerEvent(QTimerEvent* const event)
 		}
 		close();
 	}
-//begin of modified by monday2000
-//Export_Subscans
-//added:
+
+    resumeAutoSaveTimer();
+
 	}
-//end of modified by monday2000
 }
 
 MainWindow::SavePromptResult
@@ -1046,11 +1053,6 @@ MainWindow::goToPage(PageId const& page_id)
 	// If the page was already selected, it will be reloaded.
 	// That's by design.
 	updateMainArea();
-
-//begin of modified by monday2000
-//Auto_Save_Project
-	autoSaveProject();
-//end of modified by monday2000
 }
 
 void
@@ -1075,31 +1077,6 @@ MainWindow::currentPageChanged(
 		}
 	}
 
-//begin of modified by monday2000
-//Auto_Save_Project
-	if (flags & ThumbnailSequence::SELECTED_BY_USER)
-		autoSaveProject();
-//end of modified by monday2000
-}
-
-//begin of modified by monday2000
-//Auto_Save_Project
-void
-MainWindow::autoSaveProject()
-{
-	if (m_projectFile.isEmpty()) 
-		return;	
-
-	if (!m_auto_save_project)
-		return;
-
-	saveProjectWithFeedback(m_projectFile);
-}
-
-void 
-MainWindow::AutoSaveProjectState(bool auto_save)
-{
-	m_auto_save_project = auto_save;
 }
 
 void
@@ -1524,13 +1501,17 @@ void
 MainWindow::saveProjectTriggered()
 {
 	if (m_projectFile.isEmpty()) {
-		saveProjectAsTriggered();
+        pauseAutoSaveTimer();
+        saveProjectAsTriggered();
+        resumeAutoSaveTimer();
 		return;
 	}
 	
+    pauseAutoSaveTimer();
 	if (saveProjectWithFeedback(m_projectFile)) {
 		updateWindowTitle();
 	}
+    resumeAutoSaveTimer();
 }
 
 void
@@ -1580,9 +1561,11 @@ MainWindow::saveProjectAsTriggered()
 void
 MainWindow::newProject()
 {
+    pauseAutoSaveTimer();
 	if (!closeProjectInteractive()) {
+        resumeAutoSaveTimer();
 		return;
-	}
+    }
 	
 	// It will delete itself when it's done.
 	ProjectCreationContext* context = new ProjectCreationContext(this);
@@ -1602,14 +1585,19 @@ MainWindow::newProjectCreated(ProjectCreationContext* context)
 		)
 	);
 	switchToNewProject(pages, context->outDir());
+    setAutoSaveInputDir(context->inputDir());
 }
 
 void
 MainWindow::openProject()
 {
-	if (!closeProjectInteractive()) {
+    pauseAutoSaveTimer();
+
+    if (!closeProjectInteractive()) {
+        resumeAutoSaveTimer();
 		return;
 	}
+    setAutoSaveInputDir("");
 	
 	QSettings settings;
 	QString const project_dir(settings.value("project/lastDir").toString());
@@ -1622,6 +1610,7 @@ MainWindow::openProject()
 	);
 	if (project_file.isEmpty()) {
 		// Cancelled by user.
+        resumeAutoSaveTimer();
 		return;
 	}
 	
@@ -1637,6 +1626,7 @@ MainWindow::openProject(QString const& project_file)
 			this, tr("Error"),
 			tr("Unable to open the project file.")
 		);
+        resumeAutoSaveTimer();
 		return;
 	}
 	
@@ -1646,6 +1636,7 @@ MainWindow::openProject(QString const& project_file)
 			this, tr("Error"),
 			tr("The project file is broken.")
 		);
+        resumeAutoSaveTimer();
 		return;
 	}
 	
@@ -1675,12 +1666,16 @@ MainWindow::projectOpened(ProjectOpeningContext* context)
 		context->projectReader()->outputDirectory(),
 		context->projectFile(), context->projectReader()
 	);
+
+    setAutoSaveInputDir(context->projectReader()->inputDirectory());
 }
 
 void
 MainWindow::closeProject()
 {
+    pauseAutoSaveTimer();
 	closeProjectInteractive();
+    resumeAutoSaveTimer();
 }
 
 void
@@ -2914,4 +2909,49 @@ MainWindow::changeEvent(QEvent* event)
 void MainWindow::on_actionAbout_Qt_triggered()
 {
     QApplication::aboutQt();
+}
+
+void
+MainWindow::pauseAutoSaveTimer() {
+    if (m_autosave_timer != NULL) {
+        m_autosave_timer->blockSignals(true);
+    }
+}
+
+void
+MainWindow::resumeAutoSaveTimer() {
+    if (m_autosave_timer != NULL) {
+        m_autosave_timer->blockSignals(false);
+    }
+}
+
+void
+MainWindow::createAutoSaveTimer()
+{
+    int time = 60*1000*abs(QSettings().value("auto-save_project/time_period_min", 5).toInt());
+
+    if (m_autosave_timer == NULL) {
+        m_autosave_timer = new QAutoSaveTimer(this);
+        m_autosave_timer->start(time);
+    } else {
+        if (m_autosave_timer->interval() != time) {
+            m_autosave_timer->start(time);
+        }
+    }
+
+}
+
+void
+MainWindow::destroyAutoSaveTimer() {
+    if (m_autosave_timer != NULL) {
+        m_autosave_timer->stop();
+        m_autosave_timer->deleteLater();
+        m_autosave_timer = NULL;
+    }
+}
+
+void
+MainWindow::setAutoSaveInputDir(const QString dir)
+{
+    QSettings().setValue("auto-save_project/_inputDir", dir);
 }

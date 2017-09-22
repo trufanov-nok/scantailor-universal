@@ -53,6 +53,7 @@
 #include "ImageLoader.h"
 #include "ExportDialog.h"
 //end of modified by monday2000
+#include "AutoSaveTimer.h"
 
 class AbstractFilter;
 class AbstractRelinker;
@@ -93,7 +94,7 @@ class MainWindow :
 public:
 	MainWindow();
 	
-	virtual ~MainWindow();
+    virtual ~MainWindow();
 	
 	PageSequence allPages() const;
 
@@ -105,6 +106,13 @@ public:
 	virtual void closeEvent(QCloseEvent* event);
 	virtual void timerEvent(QTimerEvent* event);
     QString getLanguage() const { return m_current_lang; }
+
+    // AutoSave Timer / begin
+        int numImages() { return m_ptrPages->numImages(); }
+        const QString projectFile() { return m_projectFile; }
+        bool saveProjectWithFeedback(QString const& project_file);
+    // AutoSave Timer / end
+
 public slots:
 	void openProject(QString const& project_file);
 //Export_Subscans
@@ -112,9 +120,6 @@ public slots:
 		bool generate_blank_back_subscans, bool orig_fore_subscan);
 	void ExportStop();
 	void SetStartExport();
-//Auto_Save_Project
-	void AutoSaveProjectState(bool auto_save);
-
     void settingsChanged();
     void changeLanguage(QString lang, bool dont_store = false);
 private:
@@ -222,7 +227,7 @@ private:
 	
 	virtual void setImageWidget(
 		QWidget* widget, Ownership ownership,
-		DebugImages* debug_images = 0);
+        DebugImages* debug_images = 0);
 
 	virtual IntrusivePtr<AbstractCommand0<void> > relinkingDialogRequester();
 	
@@ -285,8 +290,6 @@ private:
 	
 	void closeProjectWithoutSaving();
 	
-	bool saveProjectWithFeedback(QString const& project_file);
-	
 	void showInsertFileDialog(
 		BeforeOrAfter before_or_after, ImageId const& existig);
 
@@ -312,6 +315,18 @@ private:
 	void performRelinking(IntrusivePtr<AbstractRelinker> const& relinker);
 
 	PageSelectionAccessor newPageSelectionAccessor();
+
+    // AutoSave Timer / begin
+        void createAutoSaveTimer();
+
+        void pauseAutoSaveTimer();
+
+        void resumeAutoSaveTimer();
+
+        void destroyAutoSaveTimer();
+
+        void setAutoSaveInputDir(const QString );
+    // AutoSave Timer / end
 	
 	QSizeF m_maxLogicalThumbSize;
 	IntrusivePtr<ProjectPages> m_ptrPages;
@@ -356,15 +371,14 @@ private:
 //Original_Foreground_Mixed
 	bool m_keep_orig_fore_subscan;
 	std::auto_ptr<ThumbnailSequence> m_ptrThumbSequence_export;	
-//Auto_Save_Project
-	void autoSaveProject();
-	bool m_auto_save_project;
 //Language
     QString m_current_lang;
     QTranslator m_translator;
     void changeEvent(QEvent* event);
 //Disable docking
     bool m_docking_enabled;
+
+    QTimer* m_autosave_timer;
 };
 
 #endif
