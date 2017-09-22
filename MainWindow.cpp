@@ -370,6 +370,8 @@ MainWindow::settingsChanged()
     changeLanguage(settings.value("main_window/language", default_lang).toString());
 
     m_debug = QSettings().value("debug_mode/enabled", false).toBool();
+
+    updateMainArea(); // to invoke preUpdateUI in optionsWidget
 }
 
 PageSequence
