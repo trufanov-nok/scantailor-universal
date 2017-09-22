@@ -806,8 +806,3 @@ OptionsWidget::updateDewarpingDisplay()
 }
 
 } // namespace output
-
-void output::OptionsWidget::on_tiffCompression_currentIndexChanged(int index)
-{
-
-}

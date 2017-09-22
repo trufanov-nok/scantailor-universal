@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>11</number>
+       <number>7</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -382,12 +382,15 @@
              <property name="wordWrap">
               <bool>true</bool>
              </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="cbTiffFilter">
              <property name="text">
-              <string>Filter possible unsupported methods</string>
+              <string>Hide rare or unsupported methods</string>
              </property>
             </widget>
            </item>

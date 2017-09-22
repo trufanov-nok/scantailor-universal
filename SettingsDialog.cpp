@@ -369,6 +369,9 @@ void SettingsDialog::on_cbApplyCutDefault_clicked(bool checked)
 void SettingsDialog::loadTiffList()
 {
     bool filtered_only = !m_settings.value("tiff_compression/show_all", false).toBool();
+    ui.cbTiffFilter->blockSignals(true);
+    ui.cbTiffFilter->setChecked(filtered_only);
+    ui.cbTiffFilter->blockSignals(false);
 
     const QResource tiff_data(":/TiffCompressionMethods.tsv");
     QStringList tiff_list = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
@@ -397,7 +400,7 @@ void SettingsDialog::loadTiffList()
             idx = 0;
         }
         ui.cbTiffCompression->setCurrentIndex(idx);
-        on_cbTiffCompression_currentIndexChanged(idx); // not triggered in one case
+//        on_cbTiffCompression_currentIndexChanged(idx); // not triggered in one case
     }
 }
 
@@ -415,15 +418,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
 
 void SettingsDialog::on_cbTiffCompression_currentIndexChanged(int index)
 {
-    int idx = ui.cbTiffCompression->currentIndex();
-    if (idx == -1) {
-        ui.lblTiffDetails->clear();
-        ui.cbTiffFilter->setEnabled(false);
-    } else {
-        ui.lblTiffDetails->setText(ui.cbTiffCompression->itemData(idx).toString());
-        ui.cbTiffFilter->setEnabled(true);
-        m_settings.setValue("tiff_compression/method", ui.cbTiffCompression->currentText());
-    }
+    ui.lblTiffDetails->setText(ui.cbTiffCompression->itemData(index).toString());
+    m_settings.setValue("tiff_compression/method", ui.cbTiffCompression->currentText());
 }
 
 void SettingsDialog::on_cbTiffFilter_clicked(bool checked)

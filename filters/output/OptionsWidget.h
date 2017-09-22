@@ -123,7 +123,6 @@ private slots:
 	void applyDepthPerceptionConfirmed(std::set<PageId> const& pages);
 
 	void depthPerceptionChangedSlot(int val);
-    void on_tiffCompression_currentIndexChanged(int index);
 
 private:
 	void handleDespeckleLevelChange(DespeckleLevel level);
