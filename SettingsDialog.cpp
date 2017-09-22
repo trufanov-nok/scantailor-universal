@@ -175,6 +175,29 @@ SettingsDialog::setupItem(QTreeWidgetItem *item, QWidget* w, QString s, bool def
 }
 
 void
+disable_subtree(QTreeWidgetItem *item)
+{
+    item->setDisabled(true);
+    for (int i = 0; i < item->childCount(); i++) {
+        disable_subtree(item->child(i));
+    }
+}
+
+void check_nested_disabled(QTreeWidgetItem *item)
+{
+    QString key = item->data(0, Qt::UserRole+1).toString();
+    bool disable_children = (!key.isEmpty() && item->checkState(1) != Qt::Checked);
+
+     for (int i = 0; i < item->childCount(); i++) {
+         if (disable_children) {
+             disable_subtree(item->child(i));
+         } else {
+             check_nested_disabled(item->child(i));
+         }
+     }
+}
+
+void
 SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 {
     const QStringList settingsTreeTitles = (QStringList()
@@ -190,8 +213,8 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             <<        tr("Fine Tune page corners")
                                             <<        tr("Borders Panel")
                                             << tr("Margins")
-                                            <<        tr("Auto margins")
                                             <<        tr("Original alignment")
+                                            <<                tr("Auto margins")
                                             << tr("Output")
                                             <<        tr("Black & White mode")
                                             <<        tr("Color/Grayscale mode")
@@ -259,6 +282,10 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
     treeWidget->blockSignals(false);
 
     treeWidget->setCurrentItem(treeWidget->topLevelItem(0));
+
+    for(int i = 0; i < treeWidget->topLevelItemCount(); i++) {
+        check_nested_disabled(treeWidget->topLevelItem(i));
+    }
 }
 
 bool filterItem(QTreeWidgetItem * i, const QString & filter)
@@ -306,6 +333,21 @@ void SettingsDialog::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column
         bool b = item->checkState(1) == Qt::Checked;
         m_settings.setValue(key, b);
         item->data(0, Qt::UserRole).value<QWidget*>()->setEnabled(b);
+        for (int i = 0; i < item->childCount(); i++) {
+            QTreeWidgetItem *c = item->child(i);
+
+            if (c->data(1, Qt::CheckStateRole).isValid()) {
+                if (!b && c->checkState(1) != Qt::Unchecked) {
+                    c->setCheckState(1, Qt::Unchecked);
+                    ui.treeWidget->expandItem(c);
+                }
+            }
+
+            c->setDisabled(!b);
+        }
+        if (item->childCount() > 0) {
+            ui.treeWidget->expandItem(item);
+        }
     }
 
 }

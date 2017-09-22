@@ -10,8 +10,8 @@ pageSelectContent
 	pageFineTunePageCorners	fine_tune_page_corners/enabled
 	pageBordersPanel	content_selection_borders_panel/enabled
 pageMargins
-	pageAutoMargins	auto_margins/enabled
 	pageOriginalAlignment	original_alignment/enabled
+		pageAutoMargins	auto_margins/enabled
 pageOutput
 	pageBlackWhiteMode
 	pageColorGrayscaleMode

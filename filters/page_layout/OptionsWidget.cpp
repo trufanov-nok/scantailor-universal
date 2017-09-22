@@ -200,13 +200,40 @@ OptionsWidget::preUpdateUI(
 		alignmentMode->setCurrentIndex(1);
 	alignmentMode->blockSignals(false);
 	
-    bool auto_margins_visible = QSettings().value("auto_margins/enabled", true).toBool();
-    autoMargins->setVisible(auto_margins_visible);
-    if (autoMargins->isVisible()) {
+    bool original_alignment_visible = QSettings().value("original_alignment/enabled", true).toBool();
+
+    int old_idx = alignmentMode->currentIndex();
+    if (old_idx < 0) {
+        old_idx = 0;
+        alignmentMode->setCurrentIndex(old_idx);
+    }
+
+    int idx_original_item = alignmentMode->findData(Alignment::VORIGINAL);
+    if (original_alignment_visible && idx_original_item == -1) {
+        alignmentMode->addItem(tr("Original"), Alignment::VORIGINAL);
+        alignmentMode->setCurrentIndex(old_idx);
+    }
+
+    if (!original_alignment_visible && idx_original_item != -1) {
+        alignmentMode->removeItem(idx_original_item);
+        alignmentMode->setCurrentIndex(old_idx!=idx_original_item?old_idx:0);
+    }
+
+
+    bool auto_margins_visible = false;
+    if (original_alignment_visible) {
+        auto_margins_visible = QSettings().value("auto_margins/enabled", true).toBool();
+    }
+
+    m_ignoreMarginChanges = old_ignore;
+    if (auto_margins_visible) {
         autoMargins->setChecked(m_alignment.isAutoMarginsEnabled());
     } else {
         autoMargins->setChecked(false);
     }
+    m_ignoreMarginChanges = true;
+    autoMargins->setVisible(auto_margins_visible);
+
 	enableDisableAlignmentButtons();
 	
 	m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
@@ -337,7 +364,10 @@ OptionsWidget::autoMarginsChanged(bool checked)
 	}
 
 	alignmentMode->setEnabled(!checked);
-	alignmentMode->setCurrentIndex(2);
+    int idx = alignmentMode->findData(Alignment::VORIGINAL); // autoMargin item has userData==1
+    if (idx != -1) {
+        alignmentMode->setCurrentIndex(idx);
+    }
 	enableDisableAlignmentButtons();
 	m_alignment.setAutoMargins(checked);
 	m_alignment.setVertical(Alignment::VORIGINAL);

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>226</width>
-    <height>497</height>
+    <width>240</width>
+    <height>531</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -296,7 +296,7 @@
           <item>
            <widget class="QComboBox" name="alignmentMode">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <item>
              <property name="text">
@@ -306,11 +306,6 @@
             <item>
              <property name="text">
               <string comment="manual">Manual</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string comment="original">Original</string>
              </property>
             </item>
            </widget>
