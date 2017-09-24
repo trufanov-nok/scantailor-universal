@@ -2,9 +2,9 @@ NONE	1	dump mode	0
 CCITTRLE	2	CCITT modified Huffman RLE
 CCITTFAX3	3	CCITT Group 3 fax encoding
 CCITT_T4	3	CCITT T.4 (TIFF 6 name)
-CCITTFAX4	4	CCITT Group 4 fax encoding
+CCITTFAX4	4	CCITT Group 4 fax encoding	0
 CCITT_T6	4	CCITT T.6 (TIFF 6 name)
-LZW	5	Lempel-Ziv  & Welch	0
+LZW	5	Lempel-Ziv & Welch	0
 OJPEG	6	!6.0 JPEG
 JPEG	7	%JPEG DCT compression	0
 T85	9	!TIFF/FX T.85 JBIG compression
