@@ -2155,7 +2155,7 @@ MainWindow::showAboutDialog()
 	Ui::AboutDialog ui;
 	QDialog* dialog = new QDialog(this);
 	ui.setupUi(dialog);
-    ui.version->setText(QString(tr("build from ")) + QString::fromUtf8(VERSION));
+    ui.version->setText(QString::fromUtf8(VERSION));
 
 	QResource license(":/GPLv3.html");
 	ui.licenseViewer->setHtml(QString::fromUtf8((char const*)license.data(), license.size()));
@@ -2353,7 +2353,7 @@ MainWindow::updateWindowTitle()
 		project_name = QFileInfo(m_projectFile).baseName();
 	}
 	QString const version(QString::fromUtf8(VERSION));
-    setWindowTitle(tr("%2 - Scan Tailor \"Universal\" build from %3 [%1bit]").arg(sizeof(void*)*8).arg(project_name, version));
+    setWindowTitle(tr("%2 - Scan Tailor \"Universal\" %3 [%1bit]").arg(sizeof(void*)*8).arg(project_name, version));
 }
 
 /**
