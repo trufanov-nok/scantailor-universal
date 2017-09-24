@@ -362,7 +362,7 @@ MainWindow::settingsChanged()
         }
     }
 
-    setDockingPanels(settings.value("docking_panels/enabled", true).toBool());
+    setDockingPanels(settings.value("docking_panels/enabled", false).toBool());
 
     QString default_lang = QLocale::system().name().toLower();
     default_lang.truncate(default_lang.lastIndexOf('_'));
