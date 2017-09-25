@@ -39,6 +39,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     ui.treeWidget->addAction(ui.actionExpand_all);
     ui.treeWidget->addAction(ui.actionCollapse_all);
     populateTreeWidget(ui.treeWidget);
+    restoreSettingsTreeState(ui.treeWidget);
 
 
 #ifndef ENABLE_OPENGL
@@ -124,7 +125,9 @@ SettingsDialog::~SettingsDialog()
 {
     if (!m_accepted) {
         restoreSettings();
+        storeSettingsTreeState(ui.treeWidget);
     } else {
+        storeSettingsTreeState(ui.treeWidget);
         emit settingsChanged();
     }
 }
@@ -306,6 +309,42 @@ void SettingsDialog::filterChanged(const QString & filter)
     ui.treeWidget->expandAll();
     ui.treeWidget->blockSignals(false);
 }
+
+void conditionalExpand(QTreeWidgetItem* item, int& idx, const QStringList& states)
+{
+    item->setExpanded( (idx < states.count())? !states[idx++].isEmpty():false );
+    for(int i = 0; i < item->childCount(); i++) {
+        conditionalExpand(item->child(i), idx, states);
+    }
+}
+
+void SettingsDialog::restoreSettingsTreeState(QTreeWidget* treeWidget)
+{
+    QStringList tree_expand_state = m_settings.value("main_window/settings_tree_state","").toString().split(',',QString::KeepEmptyParts);
+    int idx = 0;
+    for (int i = 0; i < treeWidget->topLevelItemCount(); i++) {
+        conditionalExpand(treeWidget->topLevelItem(i), idx, tree_expand_state);
+    }
+}
+
+void saveExpandState(QTreeWidgetItem* item, QStringList& states)
+{
+    states << (item->isExpanded()?"1":"");
+    for(int i = 0; i < item->childCount(); i++) {
+        saveExpandState(item->child(i), states);
+    }
+}
+
+void SettingsDialog::storeSettingsTreeState(QTreeWidget* treeWidget)
+{
+    QStringList tree_expand_state;
+    for (int i = 0; i < treeWidget->topLevelItemCount(); i++) {
+        saveExpandState(treeWidget->topLevelItem(i), tree_expand_state);
+    }
+    m_settings.setValue("main_window/settings_tree_state",tree_expand_state.join(','));
+}
+
+
 
 void SettingsDialog::on_actionExpand_all_triggered()
 {

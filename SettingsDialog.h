@@ -58,6 +58,8 @@ private:
     void setupItem(QTreeWidgetItem *item, QWidget* w = NULL, QString s = "", bool default_val = true);
     void backupSettings();
     void restoreSettings();
+    void restoreSettingsTreeState(QTreeWidget* treeWidget);
+    void storeSettingsTreeState(QTreeWidget* treeWidget);
 private:
 	Ui::SettingsDialog ui;
     QSettings m_settings;
