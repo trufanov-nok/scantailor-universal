@@ -720,6 +720,8 @@ IF(WIN32)
                 "${PLUGINS_DIR}/platforms/qwindowsd.dll" SUBDIR platforms
                 CONFIGURATIONS Debug
         )
+
+    if (Qt5Widgets_VERSION VERSION_LESS 5.4.0)
         COPY_TO_BUILD_DIR(
                 "${PLUGINS_DIR}/accessible/qtaccessiblewidgets.dll" SUBDIR accessible
                 CONFIGURATIONS Release MinSizeRel RelWithDebInfo
@@ -728,6 +730,7 @@ IF(WIN32)
                 "${PLUGINS_DIR}/accessible/qtaccessiblewidgetsd.dll" SUBDIR accessible
                 CONFIGURATIONS Debug
         )
+    endif()
 
         # Generate the target that will actually do the copying.
         GENERATE_COPY_TO_BUILD_DIR_TARGET(copy_to_build_dir)
