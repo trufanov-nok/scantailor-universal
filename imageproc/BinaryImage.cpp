@@ -565,6 +565,44 @@ BinaryImage::contentBoundingBox(BWColor const content_color) const
 }
 
 
+static const int MultiplyDeBruijnBitPosition[32] =
+{
+    0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+    31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+};
+
+static const int MultiplyDeBruijnBitPosition2[32] =
+{
+  0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,
+  8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31
+};
+
+inline const int countConsecutiveZeroBitsTrailing(uint32_t v)
+{
+    /* aka "Count the consecutive zero bits (trailing) on the right with multiply and lookup"
+       from Bit Twiddling Hacks By Sean Eron Anderson
+       https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
+     */
+    return MultiplyDeBruijnBitPosition[((uint32_t)((v & -v) * 0x077CB531U)) >> 27];
+}
+
+inline const int findPositionOfTheHighestBitSet(uint32_t v)
+{
+    /* aka "Find the log base 2 of an N-bit integer in O(lg(N)) operations with multiply and lookup"
+       from Bit Twiddling Hacks By Sean Eron Anderson
+       https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
+     */
+
+    v |= v >> 1; // first round down to one less than a power of 2
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+
+    return MultiplyDeBruijnBitPosition2[(uint32_t)(v * 0x07C4ACDDU) >> 27];
+}
+
+
 void
 BinaryImage::rectangularizeAreas(BWColor content_color)
 {
@@ -578,7 +616,7 @@ BinaryImage::rectangularizeAreas(BWColor content_color)
 	int const h = m_height;
 	int const wpl = m_wpl;
 	int const last_word_idx = (w - 1) >> 5;
-	int const last_word_bits = w - (last_word_idx << 5);
+    int const last_word_bits = w - (last_word_idx << 5);
 	int const last_word_unused_bits = 32 - last_word_bits;
 	uint32_t const last_word_mask = ~uint32_t(0) << last_word_unused_bits;
 	uint32_t const modifier = (content_color == WHITE) ? ~uint32_t(0) : 0;
@@ -588,31 +626,39 @@ BinaryImage::rectangularizeAreas(BWColor content_color)
 	uint32_t const* line = data;
 	// create list of filled continuous blocks on each line
 	for (int y = 0; y < h; ++y, line += wpl) {
-		QRect area;
+        QRect area;
+        area.setTop(y);
+        area.setBottom(y);
+        bool area_found = false;
 		for (int i = 0; i <= last_word_idx; ++i) {
 			uint32_t word = line[i] ^ modifier;
 			if (i==last_word_idx) {
 				// The last (possibly incomplete) word.
-				word = (line[last_word_idx] ^ modifier) & last_word_mask;
+                word &= last_word_mask;
 			}
-			if (word) {
-				if (area.isEmpty()) {
-					area.setLeft(i<<5);
-					area.setRight(((i+1)<<5)-1);
-					area.setTop(y);
-					area.setBottom(y);
-				} else {
-					area.setRight(((i+1)<<5)-1);
-				}
+            if (word) {
+                if (!area_found) {
+                    area.setLeft((i<<5) + 31 - findPositionOfTheHighestBitSet(~line[i]));
+                    area_found = true;
+                }
+                area.setRight(((i+1)<<5)-1);
 			} else {
-				if (!area.isEmpty()) {
-					areas.push_back(QRect(area));
-				}
-				area = QRect();
+                if (area_found) {
+                    uint32_t v = line[i-1];
+                    if (v) {
+                        area.setRight(area.right() - countConsecutiveZeroBitsTrailing(~v));
+                    }
+                    areas.push_back(QRect(area));
+                    area_found = false;
+                }
 			}
 		}
-		if (!area.isEmpty()) {
-			areas.push_back(QRect(area));
+        if (area_found) {
+            uint32_t v = line[last_word_idx];
+            if (v) {
+                area.setRight(area.right() - countConsecutiveZeroBitsTrailing(~v));
+            }
+            areas.push_back(QRect(area));
 		}
 	}
 
@@ -671,34 +717,42 @@ BinaryImage::rectangularizeAreasQuadro(BWColor content_color, std::vector<QRect>
 
 	uint32_t const* line = data;
 	// create list of filled continuous blocks on each line
-	for (int y = 0; y < h; ++y, line += wpl) {
-		QRect area;
-		for (int i = 0; i <= last_word_idx; ++i) {
-			uint32_t word = line[i] ^ modifier;
-			if (i==last_word_idx) {
-				// The last (possibly incomplete) word.
-				word = (line[last_word_idx] ^ modifier) & last_word_mask;
-			}
-			if (word) {
-				if (area.isEmpty()) {
-					area.setLeft(i<<5);
-					area.setRight(((i+1)<<5)-1);
-					area.setTop(y);
-					area.setBottom(y);
-				} else {
-					area.setRight(((i+1)<<5)-1);
-				}
-			} else {
-				if (!area.isEmpty()) {
-					areas.push_back(QRect(area));
-				}
-				area = QRect();
-			}
-		}
-		if (!area.isEmpty()) {
-			areas.push_back(QRect(area));
-		}
-	}
+    for (int y = 0; y < h; ++y, line += wpl) {
+        QRect area;
+        area.setTop(y);
+        area.setBottom(y);
+        bool area_found = false;
+        for (int i = 0; i <= last_word_idx; ++i) {
+            uint32_t word = line[i] ^ modifier;
+            if (i==last_word_idx) {
+                // The last (possibly incomplete) word.
+                word &= last_word_mask;
+            }
+            if (word) {
+                if (!area_found) {
+                    area.setLeft((i<<5) + 31 - findPositionOfTheHighestBitSet(~line[i]));
+                    area_found = true;
+                }
+                area.setRight(((i+1)<<5)-1);
+            } else {
+                if (area_found) {
+                    uint32_t v = line[i-1];
+                    if (v) {
+                        area.setRight(area.right() - countConsecutiveZeroBitsTrailing(~v));
+                    }
+                    areas.push_back(QRect(area));
+                    area_found = false;
+                }
+            }
+        }
+        if (area_found) {
+            uint32_t v = line[last_word_idx];
+            if (v) {
+                area.setRight(area.right() - countConsecutiveZeroBitsTrailing(~v));
+            }
+            areas.push_back(QRect(area));
+        }
+    }
 
 	// join adjacent blocks of areas
 	bool join = true;
