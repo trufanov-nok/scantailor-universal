@@ -2821,28 +2821,13 @@ void
 MainWindow::setDockingPanels(bool enabled)
 {
     if (enabled != m_docking_enabled) {
-        if (!enabled)
-        {
-            dockWidget->setVisible(false);
-            dockWidget_4->setVisible(false);
-            dockWidgetContents_2->setParent(centralwidget);
-            dockWidgetContents_5->setParent(centralwidget);
-            horizontalLayout->addWidget(dockWidgetContents_2);
-            horizontalLayout->insertWidget(0, dockWidgetContents_5);
-        } else {
-            horizontalLayout->removeWidget(dockWidgetContents_2);
-            horizontalLayout->removeWidget(dockWidgetContents_5);
-            dockWidgetContents_2->setParent(dockWidget);
-            dockWidget->setWidget(dockWidgetContents_2);
-            dockWidgetContents_5->setParent(dockWidget_4);
-            dockWidget_4->setWidget(dockWidgetContents_5);
-            dockWidget->setVisible(true);
-            dockWidget_4->setVisible(true);
-        }
+        QDockWidget::DockWidgetFeatures ft = enabled? QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable :
+                                                      QDockWidget::NoDockWidgetFeatures;
+        dockWidget->setFeatures(ft);
+        dockWidget_4->setFeatures(ft);
 
         m_docking_enabled = enabled;
-        QSettings settings;
-        settings.setValue("function_availability/docking_panels", m_docking_enabled);
+        QSettings().setValue("function_availability/docking_panels", m_docking_enabled);
     }    
 }
 
