@@ -61,18 +61,21 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="cursor">
-          <cursorShape>CrossCursor</cursorShape>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">font-size: 16pt;
-font-weight: bold;</string>
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
          </property>
          <property name="text">
           <string notr="true">Scan Tailor &quot;Universal&quot;</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -88,15 +91,21 @@ font-weight: bold;</string>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="version">
-         <property name="styleSheet">
-          <string notr="true">font-size:10pt;
-font-weight:bold;</string>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
          </property>
          <property name="text">
           <string notr="true">version</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
