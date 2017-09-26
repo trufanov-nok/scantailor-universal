@@ -1424,7 +1424,7 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
 			
 			QApplication::alert(this); // Flash the taskbar entry.
 			if (m_checkBeepWhenFinished()) {
-#if defined(Q_WS_X11)
+#if defined(Q_OS_UNIX)
                 QString ext_play_cmd("play /usr/share/sounds/freedesktop/stereo/bell.oga");
 #else
                 QString ext_play_cmd;
