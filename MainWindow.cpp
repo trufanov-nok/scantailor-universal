@@ -94,6 +94,7 @@
 #include "ui_StartBatchProcessingDialog.h"
 #include "config.h"
 #include "version.h"
+#include "settings/globaldrawsettings.h"
 #ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -195,7 +196,7 @@ MainWindow::MainWindow()
 	m_ptrProcessingIndicationWidget.reset(new ProcessingIndicationWidget);
 	
 	filterList->setStages(m_ptrStages);
-	filterList->selectRow(0);
+    filterList->selectRow(0);
 	
 	setupThumbView(); // Expects m_ptrThumbSequence to be initialized.
 	
@@ -377,6 +378,11 @@ MainWindow::settingsChanged()
     } else {
         destroyAutoSaveTimer();
     }
+
+    // Store Draw settings for immediate access
+    GlobalDrawSettings::setDrawDeskewDeviants(settings.value("deskew_deviant/enabled", false).toBool());
+    GlobalDrawSettings::setDrawContentDeviants(settings.value("select_content_deviant/enabled", false).toBool());
+    GlobalDrawSettings::setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
 
     updateMainArea(); // to invoke preUpdateUI in optionsWidget
 }

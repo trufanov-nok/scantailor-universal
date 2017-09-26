@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <memory>
 #include <assert.h>
+#include <settings/globaldrawsettings.h>
 
 class StageListView::Model : public QAbstractTableModel
 {
@@ -282,7 +283,8 @@ StageListView::selectionChanged(
 	
 	if (!selected.isEmpty()) {
 		placeLaunchButton(selected.front().topLeft().row());
-	}
+        GlobalDrawSettings::stageChanged(selected.front().topLeft().row());
+	}    
 }
 
 void

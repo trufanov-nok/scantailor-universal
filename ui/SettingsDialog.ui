@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>15</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -617,6 +617,7 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageDeviantDeskew"/>
       <widget class="QWidget" name="pageSelectContent">
        <layout class="QVBoxLayout" name="verticalLayout_40">
         <item>
@@ -646,6 +647,7 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageDeviantContent"/>
       <widget class="QWidget" name="pageFineTunePageCorners">
        <layout class="QVBoxLayout" name="verticalLayout_41">
         <item>
@@ -757,6 +759,7 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageDeviantMargins"/>
       <widget class="QWidget" name="pageAutoMargins">
        <layout class="QVBoxLayout" name="verticalLayout_44">
         <item>

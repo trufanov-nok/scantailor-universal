@@ -507,6 +507,7 @@ SET(
         filter_dc/ThumbnailCollector.h
         filter_dc/ContentBoxCollector.h
         filter_dc/PageOrientationCollector.h
+        settings/globaldrawsettings.cpp settings/globaldrawsettings.h
         version.h
         config.h.in
         ${common_ui_files}
