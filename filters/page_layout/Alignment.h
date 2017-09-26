@@ -60,11 +60,11 @@ public:
 	
 	void setNull(bool is_null) { m_isNull = is_null; }
 
-	double tolerance() const { return m_tolerance; };
-	void setTolerance(double t) { m_tolerance = t; };
+    double tolerance() const { return m_tolerance; }
+    void setTolerance(double t) { m_tolerance = t; }
 
-	bool isAutoMarginsEnabled() const { return m_autoMargins; };
-	void setAutoMargins(bool state) { m_autoMargins = state; };
+    bool isAutoMarginsEnabled() const { return m_autoMargins; }
+    void setAutoMargins(bool state) { m_autoMargins = state; }
 	
 	bool operator==(Alignment const& other) const {
 		return m_vert == other.m_vert && m_hor == other.m_hor

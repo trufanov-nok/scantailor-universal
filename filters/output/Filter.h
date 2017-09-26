@@ -81,8 +81,8 @@ public:
 	IntrusivePtr<CacheDrivenTask> createCacheDrivenTask(
 		OutputFileNameGenerator const& out_file_name_gen);
 	
-	OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); };
-	Settings* getSettings() { return m_ptrSettings.get(); };
+    OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); }
+    Settings* getSettings() { return m_ptrSettings.get(); }
 
     virtual std::vector<PageOrderOption> pageOrderOptions() const;
     virtual int selectedPageOrder() const;

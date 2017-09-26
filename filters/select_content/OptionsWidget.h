@@ -75,7 +75,7 @@ public:
 		void setFineTuneCorners(bool fine_tune);
 		
         void setPageBorders(double left, double top, double right, double bottom);
-        void setPageBorders(Margins const& borders) { m_borders = borders; };
+        void setPageBorders(Margins const& borders) { m_borders = borders; }
         Margins pageBorders() const { return m_borders; }
         
 		AutoManualMode mode() const;

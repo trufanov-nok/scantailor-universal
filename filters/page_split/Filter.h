@@ -87,7 +87,7 @@ public:
 	void pageOrientationUpdate(
 		ImageId const& image_id, OrthogonalRotation const& orientation);
 
-	Settings* getSettings() { return m_ptrSettings.get(); };
+    Settings* getSettings() { return m_ptrSettings.get(); }
 	
 	virtual std::vector<PageOrderOption> pageOrderOptions() const;
 	virtual int selectedPageOrder() const;

@@ -61,11 +61,11 @@ public:
     double pageDetectionTolerance() const { return m_pageDetectionTolerance; }
     void setPageDetectionTolerance(double tolerance) { m_pageDetectionTolerance = tolerance; }
 
-    double avg() const { return m_avg; };
-    void setAvg(double a) { m_avg = a; };
+    double avg() const { return m_avg; }
+    void setAvg(double a) { m_avg = a; }
 
-    double std() const { return m_sigma; };
-    void setStd(double s) { m_sigma = s; };
+    double std() const { return m_sigma; }
+    void setStd(double s) { m_sigma = s; }
 private:
 	typedef std::map<PageId, Params> PageParams;
 	

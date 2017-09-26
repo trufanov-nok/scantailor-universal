@@ -58,11 +58,11 @@ public:
 	double maxDeviation() const { return m_maxDeviation; }
 	void setMaxDeviation(double md) { m_maxDeviation = md; }
 
-    double avg() const { return m_avg; };
-    void setAvg(double a) { m_avg = a; };
+    double avg() const { return m_avg; }
+    void setAvg(double a) { m_avg = a; }
 
-    double std() const { return m_sigma; };
-    void setStd(double s) { m_sigma = s; };
+    double std() const { return m_sigma; }
+    void setStd(double s) { m_sigma = s; }
 
 private:
 	typedef std::map<PageId, Params> PerPageParams;
