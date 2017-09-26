@@ -1,30 +1,30 @@
 INCLUDE_DIRECTORIES(BEFORE ..)
 
 SET(
-	sources
-	main.cpp TestContentSpanFinder.cpp
-	TestSmartFilenameOrdering.cpp
-	TestMatrixCalc.cpp
-	../ContentSpanFinder.cpp ../ContentSpanFinder.h
-	../SmartFilenameOrdering.cpp ../SmartFilenameOrdering.h
+        sources
+        main.cpp TestContentSpanFinder.cpp
+        TestSmartFilenameOrdering.cpp
+        TestMatrixCalc.cpp
+        ../ContentSpanFinder.cpp ../ContentSpanFinder.h
+        ../SmartFilenameOrdering.cpp ../SmartFilenameOrdering.h
 )
 
 SOURCE_GROUP("Sources" FILES ${sources})
 
 SET(
-	libs
-	imageproc math ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-	${Boost_PRG_EXECUTION_MONITOR_LIBRARY} ${EXTRA_LIBS}
+        libs
+        imageproc math ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+        ${Boost_PRG_EXECUTION_MONITOR_LIBRARY} ${EXTRA_LIBS}
 )
 
-ADD_EXECUTABLE(tests ${sources})
-QT5_USE_MODULES(tests Widgets)
-TARGET_LINK_LIBRARIES(tests ${libs})
+ADD_EXECUTABLE(generic_tests ${sources})
+QT5_USE_MODULES(generic_tests Widgets)
+TARGET_LINK_LIBRARIES(generic_tests ${libs})
 
 # We want the executable located where we copy all the DLLs.
 SET_TARGET_PROPERTIES(
-	tests PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        generic_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-ADD_TEST(NAME tests COMMAND tests --log_level=message)
+ADD_TEST(NAME generic_tests COMMAND generic_tests --log_level=message)
