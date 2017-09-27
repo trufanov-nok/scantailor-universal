@@ -332,6 +332,9 @@ MainWindow::MainWindow()
 
     //Process settings
     settingsChanged();
+
+    scrollArea->horizontalScrollBar()->setDisabled(true);
+    filterOptions->installEventFilter(this);
 }
 
 
@@ -594,6 +597,10 @@ MainWindow::setupThumbView()
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
 {
+    if (obj == filterOptions && ev->type() == QEvent::Resize) {
+        scrollArea->setMinimumWidth(filterOptions->minimumSizeHint().width());
+    }
+
     if (obj == thumbView && ev->type() == QEvent::Resize) {
         emit invalidateAllThumbnails();
     }
