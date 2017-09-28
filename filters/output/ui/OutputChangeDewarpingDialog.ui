@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>324</height>
+    <height>348</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>Auto (experimental)</string>
+         <string>Auto</string>
         </property>
        </widget>
       </item>
@@ -102,7 +102,16 @@
          <property name="spacing">
           <number>0</number>
          </property>
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>

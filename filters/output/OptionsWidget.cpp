@@ -46,6 +46,9 @@
 #include <QDebug>
 #include <QSettings>
 #include <tiff.h>
+#include <QMenu>
+#include <QWheelEvent>
+#include <QPainter>
 
 namespace output
 {
@@ -61,46 +64,32 @@ OptionsWidget::OptionsWidget(
 {
 	setupUi(this);
 
+    setDespeckleLevel(DESPECKLE_NORMAL);
+
 	depthPerceptionSlider->setMinimum(qRound(DepthPerception::minValue() * 10));
 	depthPerceptionSlider->setMaximum(qRound(DepthPerception::maxValue() * 10));
 
-	colorModeSelector->addItem(tr("Black and White"), ColorParams::BLACK_AND_WHITE);
-	colorModeSelector->addItem(tr("Color / Grayscale"), ColorParams::COLOR_GRAYSCALE);
-	colorModeSelector->addItem(tr("Mixed"), ColorParams::MIXED);
-	
-	pictureShapeSelector->addItem(tr("Free"), FREE_SHAPE);
-	pictureShapeSelector->addItem(tr("Rectangular"), RECTANGULAR_SHAPE);
-    pictureShapeSelector->addItem(tr("Quadro"), QUADRO_SHAPE);
-    labePictureShape->setText(tr("Picture Shape"));
-
-	darkerThresholdLink->setText(
-		Utils::richTextForLink(darkerThresholdLink->text())
-	);
-	lighterThresholdLink->setText(
-		Utils::richTextForLink(lighterThresholdLink->text())
-	);
 	thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
+    thresholdSlider->addAction(actionReset_to_default_value);
+    m_ignore_system_wheel_settings = QSettings().value("mouse/ignore_system_wheel_settings", true).toBool();
+    thresholdSlider->installEventFilter(this);
+    if (m_ignore_system_wheel_settings){
+        despeckleSlider->installEventFilter(this);
+        depthPerceptionSlider->installEventFilter(this);
+    }
+
+    m_menuMode.addAction(actionModeBW);
+    m_menuMode.addAction(actionModeColorOrGrayscale);
+    m_menuMode.addAction(actionModeMixed);
+
+    m_menuPictureShape.addAction(actionPictureShapeFree);
+    m_menuPictureShape.addAction(actionPictureShapeRectangular);
+    m_menuPictureShape.addAction(actionPictureShapeQuadro);
 	
 	updateDpiDisplay();
 	updateColorsDisplay();
 	updateDewarpingDisplay();
 	
-	connect(
-		changeDpiButton, SIGNAL(clicked()),
-		this, SLOT(changeDpiButtonClicked())
-	);
-	connect(
-		colorModeSelector, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(colorModeChanged(int))
-	);
-	connect(
-		pictureShapeSelector, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(pictureShapeChanged(int))
-	);
-	connect(
-		pictureShapeSelector, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(pictureShapeChanged(int))
-	);
     connect(
         colorLayerCB, SIGNAL(clicked(bool)),
         this, SLOT(colorLayerCBToggled(bool))
@@ -116,71 +105,29 @@ OptionsWidget::OptionsWidget(
 	connect(
 		equalizeIlluminationCB, SIGNAL(clicked(bool)),
 		this, SLOT(equalizeIlluminationToggled(bool))
-	);
-	connect(
-		lighterThresholdLink, SIGNAL(linkActivated(QString const&)),
-		this, SLOT(setLighterThreshold())
-	);
-	connect(
-		darkerThresholdLink, SIGNAL(linkActivated(QString const&)),
-		this, SLOT(setDarkerThreshold())
-	);
-	connect(
-		neutralThresholdBtn, SIGNAL(clicked()),
-		this, SLOT(setNeutralThreshold())
-	);
-	connect(
-		thresholdSlider, SIGNAL(valueChanged(int)),
-		this, SLOT(bwThresholdChanged())
-	);
-	connect(
-		thresholdSlider, SIGNAL(sliderReleased()),
-		this, SLOT(bwThresholdChanged())
-	);
-	connect(
-		applyColorsButton, SIGNAL(clicked()),
-		this, SLOT(applyColorsButtonClicked())
-	);
+    );
 
-	connect(
-		changeDewarpingButton, SIGNAL(clicked()),
-		this, SLOT(changeDewarpingButtonClicked())
-	);
-
-	connect(
-		applyDepthPerceptionButton, SIGNAL(clicked()),
-		this, SLOT(applyDepthPerceptionButtonClicked())
-	);
-
-	connect(
-		despeckleOffBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleOffSelected())
-	);
-	connect(
-		despeckleCautiousBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleCautiousSelected())
-	);
-	connect(
-		despeckleNormalBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleNormalSelected())
-	);
-	connect(
-		despeckleAggressiveBtn, SIGNAL(clicked()),
-		this, SLOT(despeckleAggressiveSelected())
-	);
-	connect(
-		applyDespeckleButton, SIGNAL(clicked()),
-		this, SLOT(applyDespeckleButtonClicked())
-	);
-
-	connect(
-		depthPerceptionSlider, SIGNAL(valueChanged(int)),
-		this, SLOT(depthPerceptionChangedSlot(int))
-	);
+    despeckleSliderPanel->setVisible(false);
+    connect(
+        despeckleOffBtn, SIGNAL(clicked()),
+        this, SLOT(despeckleOffSelected())
+    );
+    connect(
+        despeckleCautiousBtn, SIGNAL(clicked()),
+        this, SLOT(despeckleCautiousSelected())
+    );
+    connect(
+        despeckleNormalBtn, SIGNAL(clicked()),
+        this, SLOT(despeckleNormalSelected())
+    );
+    connect(
+        despeckleAggressiveBtn, SIGNAL(clicked()),
+        this, SLOT(despeckleAggressiveSelected())
+    );
 	
     thresholdSlider->setMinimum(-50);
     thresholdSlider->setMaximum(50);
-	thresholLabel->setText(QString::number(thresholdSlider->value()));
+    thresholdLabel->setText(QString::number(thresholdSlider->value()));
 }
 
 OptionsWidget::~OptionsWidget()
@@ -194,25 +141,21 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	m_pageId = page_id;
 	m_outputDpi = params.outputDpi();
 	m_colorParams = params.colorParams();
-	m_pictureShape = params.pictureShape();
-	m_dewarpingMode = params.dewarpingMode();
+    setCurrentPictureShape(params.pictureShape());
+    m_dewarpingMode = params.dewarpingMode();
 	m_depthPerception = params.depthPerception();
-	m_despeckleLevel = params.despeckleLevel();
+    setDespeckleLevel(params.despeckleLevel());
 	updateDpiDisplay();
 	updateColorsDisplay();
 	updateDewarpingDisplay();
 
-    ColorParams::ColorMode const mode = (ColorParams::ColorMode) colorModeSelector->itemData(colorModeSelector->currentIndex()).toInt();
-    if(mode == ColorParams::MIXED) {
+    if(m_currentMode == ColorParams::MIXED) {
 
         bool picture_shape_visible = QSettings().value("picture_shape_detection/enabled", true).toBool();
         pictureShapeOptions->setVisible(picture_shape_visible);
 
-        if (!picture_shape_visible) {
-            int idx = pictureShapeSelector->findData(FREE_SHAPE);
-            if (pictureShapeSelector->currentIndex() != idx && idx != -1) {
-                pictureShapeSelector->setCurrentIndex(idx);
-            }
+        if (!picture_shape_visible && m_currentPictureShape != FREE_SHAPE) {
+            setCurrentPictureShape(FREE_SHAPE);
         }
 
         bool quadro_visible = false;
@@ -220,20 +163,29 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
             quadro_visible = QSettings().value("picture_shape_detection/smaller_rect", true).toBool();
         }
 
-        int cur_idx = pictureShapeSelector->currentIndex();
-        int quadro_idx = pictureShapeSelector->findData(QUADRO_SHAPE);
-
-        if (!quadro_visible && quadro_idx != -1) {
-            pictureShapeSelector->removeItem(quadro_idx);
-            pictureShapeSelector->setCurrentIndex(cur_idx!=quadro_idx?cur_idx:0);
+        if (!quadro_visible && m_menuPictureShape.actions().contains(actionPictureShapeQuadro)) {
+            m_menuPictureShape.removeAction(actionPictureShapeQuadro);
+            if (m_currentPictureShape == QUADRO_SHAPE) {
+                setCurrentPictureShape(FREE_SHAPE);
+            }
         }
 
-        if (quadro_visible && quadro_idx == -1) {
-            pictureShapeSelector->addItem(tr("Quadro"), QUADRO_SHAPE);
-            pictureShapeSelector->setCurrentIndex(cur_idx!=-1?cur_idx:0);
+        if (quadro_visible && !m_menuPictureShape.actions().contains(actionPictureShapeQuadro)) {
+            m_menuPictureShape.addAction(actionPictureShapeQuadro);
         }
     }
 
+}
+
+void
+OptionsWidget::updatePictureShapeValueText()
+{
+    switch (m_currentPictureShape) {
+    case FREE_SHAPE: pictureShapeValue->setText(Utils::richTextForLink(actionPictureShapeFree->toolTip())); break;
+    case RECTANGULAR_SHAPE: pictureShapeValue->setText(Utils::richTextForLink(actionPictureShapeRectangular->toolTip())); break;
+    case QUADRO_SHAPE: pictureShapeValue->setText(Utils::richTextForLink(actionPictureShapeQuadro->toolTip())); break;
+    default: ;
+    }
 }
 
 void
@@ -270,9 +222,9 @@ OptionsWidget::distortionModelChanged(dewarping::DistortionModel const& model)
 }
 
 void
-OptionsWidget::colorModeChanged(int const idx)
-{
-	int const mode = colorModeSelector->itemData(idx).toInt();
+OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
+{   
+    setModeValue(mode);
 	m_colorParams.setColorMode((ColorParams::ColorMode)mode);
     m_colorParams.setColorLayerEnabled(false);
 
@@ -284,10 +236,11 @@ OptionsWidget::colorModeChanged(int const idx)
 }
 
 void
-OptionsWidget::pictureShapeChanged(int const idx)
+OptionsWidget::changePictureShape(PictureShape const shape)
 {
-	m_pictureShape = (PictureShape)(pictureShapeSelector->itemData(idx).toInt());
-	m_ptrSettings->setPictureShape(m_pageId, m_pictureShape);
+    setCurrentPictureShape(shape);
+    m_ptrSettings->setPictureShape(m_pageId, m_currentPictureShape);
+    updatePictureShapeValueText();
 	emit reloadRequested();
 }
 
@@ -339,94 +292,6 @@ OptionsWidget::equalizeIlluminationToggled(bool const checked)
 }
 
 void
-OptionsWidget::setLighterThreshold()
-{
-	thresholdSlider->setValue(thresholdSlider->value() - 1);
-}
-
-void
-OptionsWidget::setDarkerThreshold()
-{
-	thresholdSlider->setValue(thresholdSlider->value() + 1);
-}
-
-void
-OptionsWidget::setNeutralThreshold()
-{
-	thresholdSlider->setValue(0);
-}
-
-void
-OptionsWidget::bwThresholdChanged()
-{
-	int const value = thresholdSlider->value();
-	QString const tooltip_text(QString::number(value));
-	thresholdSlider->setToolTip(tooltip_text);
-	
-	thresholLabel->setText(QString::number(value));
-	
-	if (m_ignoreThresholdChanges) {
-		return;
-	}
-	
-	// Show the tooltip immediately.
-	QPoint const center(thresholdSlider->rect().center());
-	QPoint tooltip_pos(thresholdSlider->mapFromGlobal(QCursor::pos()));
-	tooltip_pos.setY(center.y());
-	tooltip_pos.setX(qBound(0, tooltip_pos.x(), thresholdSlider->width()));
-	tooltip_pos = thresholdSlider->mapToGlobal(tooltip_pos);
-	QToolTip::showText(tooltip_pos, tooltip_text, thresholdSlider);
-	
-	if (thresholdSlider->isSliderDown()) {
-		// Wait for it to be released.
-		// We could have just disabled tracking, but in that case we wouldn't
-		// be able to show tooltips with a precise value.
-		return;
-	}
-
-	BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
-	if (opt.thresholdAdjustment() == value) {
-		// Didn't change.
-		return;
-	}
-
-	opt.setThresholdAdjustment(value);
-	m_colorParams.setBlackWhiteOptions(opt);
-	m_ptrSettings->setColorParams(m_pageId, m_colorParams);
-	emit reloadRequested();
-	
-	emit invalidateThumbnail(m_pageId);
-}
-
-void
-OptionsWidget::changeDpiButtonClicked()
-{
-	ChangeDpiDialog* dialog = new ChangeDpiDialog(
-		this, m_outputDpi, m_pageId, m_pageSelectionAccessor
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&, Dpi const&)),
-		this, SLOT(dpiChanged(std::set<PageId> const&, Dpi const&))
-	);
-	dialog->show();
-}
-
-void
-OptionsWidget::applyColorsButtonClicked()
-{
-	ApplyColorsDialog* dialog = new ApplyColorsDialog(
-		this, m_pageId, m_pageSelectionAccessor
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&)),
-		this, SLOT(applyColorsConfirmed(std::set<PageId> const&))
-	);
-	dialog->show();
-}
-
-void
 OptionsWidget::dpiChanged(std::set<PageId> const& pages, Dpi const& dpi)
 {
 	BOOST_FOREACH(PageId const& page_id, pages) {
@@ -446,7 +311,7 @@ OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 {
 	BOOST_FOREACH(PageId const& page_id, pages) {
 		m_ptrSettings->setColorParams(page_id, m_colorParams);
-		m_ptrSettings->setPictureShape(page_id, m_pictureShape);
+        m_ptrSettings->setPictureShape(page_id, m_currentPictureShape);
         emit invalidateThumbnail(page_id);
 	}
 	
@@ -458,31 +323,31 @@ OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 void
 OptionsWidget::despeckleOffSelected()
 {
-	handleDespeckleLevelChange(DESPECKLE_OFF);
+    handleDespeckleLevelChange(DESPECKLE_OFF);
 }
 
 void
 OptionsWidget::despeckleCautiousSelected()
 {
-	handleDespeckleLevelChange(DESPECKLE_CAUTIOUS);
+    handleDespeckleLevelChange(DESPECKLE_CAUTIOUS);
 }
 
 void
 OptionsWidget::despeckleNormalSelected()
 {
-	handleDespeckleLevelChange(DESPECKLE_NORMAL);
+    handleDespeckleLevelChange(DESPECKLE_NORMAL);
 }
 
 void
 OptionsWidget::despeckleAggressiveSelected()
 {
-	handleDespeckleLevelChange(DESPECKLE_AGGRESSIVE);
+    handleDespeckleLevelChange(DESPECKLE_AGGRESSIVE);
 }
 
 void
 OptionsWidget::handleDespeckleLevelChange(DespeckleLevel const level)
 {
-	m_despeckleLevel = level;
+    setDespeckleLevel(level);
 	m_ptrSettings->setDespeckleLevel(m_pageId, level);
 
 	bool handled = false;
@@ -497,21 +362,6 @@ OptionsWidget::handleDespeckleLevelChange(DespeckleLevel const level)
 }
 
 void
-OptionsWidget::applyDespeckleButtonClicked()
-{
-	ApplyColorsDialog* dialog = new ApplyColorsDialog(
-		this, m_pageId, m_pageSelectionAccessor
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(tr("Apply Despeckling Level"));
-	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&)),
-		this, SLOT(applyDespeckleConfirmed(std::set<PageId> const&))
-	);
-	dialog->show();
-}
-
-void
 OptionsWidget::applyDespeckleConfirmed(std::set<PageId> const& pages)
 {
 	BOOST_FOREACH(PageId const& page_id, pages) {
@@ -522,20 +372,6 @@ OptionsWidget::applyDespeckleConfirmed(std::set<PageId> const& pages)
 	if (pages.find(m_pageId) != pages.end()) {
 		emit reloadRequested();
 	}
-}
-
-void
-OptionsWidget::changeDewarpingButtonClicked()
-{
-	ChangeDewarpingDialog* dialog = new ChangeDewarpingDialog(
-		this, m_pageId, m_dewarpingMode, m_pageSelectionAccessor
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&, DewarpingMode const&)),
-		this, SLOT(dewarpingChanged(std::set<PageId> const&, DewarpingMode const&))
-	);
-	dialog->show();
 }
 
 void
@@ -582,21 +418,6 @@ OptionsWidget::dewarpingChanged(std::set<PageId> const& pages, DewarpingMode con
 }
 
 void
-OptionsWidget::applyDepthPerceptionButtonClicked()
-{
-	ApplyColorsDialog* dialog = new ApplyColorsDialog(
-		this, m_pageId, m_pageSelectionAccessor
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(tr("Apply Depth Perception"));
-	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&)),
-		this, SLOT(applyDepthPerceptionConfirmed(std::set<PageId> const&))
-	);
-	dialog->show();
-}
-
-void
 OptionsWidget::applyDepthPerceptionConfirmed(std::set<PageId> const& pages)
 {
 	BOOST_FOREACH(PageId const& page_id, pages) {
@@ -607,25 +428,6 @@ OptionsWidget::applyDepthPerceptionConfirmed(std::set<PageId> const& pages)
 	if (pages.find(m_pageId) != pages.end()) {
 		emit reloadRequested();
 	}
-}
-
-void
-OptionsWidget::depthPerceptionChangedSlot(int val)
-{
-	m_depthPerception.setValue(0.1 * val);
-	QString const tooltip_text(QString::number(m_depthPerception.value()));
-	depthPerceptionSlider->setToolTip(tooltip_text);
-
-	// Show the tooltip immediately.
-	QPoint const center(depthPerceptionSlider->rect().center());
-	QPoint tooltip_pos(depthPerceptionSlider->mapFromGlobal(QCursor::pos()));
-	tooltip_pos.setY(center.y());
-	tooltip_pos.setX(qBound(0, tooltip_pos.x(), depthPerceptionSlider->width()));
-	tooltip_pos = depthPerceptionSlider->mapToGlobal(tooltip_pos);
-	QToolTip::showText(tooltip_pos, tooltip_text, depthPerceptionSlider);
-
-	// Propagate the signal.
-	emit depthPerceptionChanged(m_depthPerception.value());
 }
 
 void
@@ -687,94 +489,104 @@ OptionsWidget::reloadIfNecessary()
 void
 OptionsWidget::updateDpiDisplay()
 {
-	if (m_outputDpi.horizontal() != m_outputDpi.vertical()) {
-		dpiLabel->setText(
-            QString::fromLatin1("%1 x %2")
-			.arg(m_outputDpi.horizontal()).arg(m_outputDpi.vertical())
-		);
-	} else {
-		dpiLabel->setText(QString::number(m_outputDpi.horizontal()));
-	}
+    if (m_outputDpi.horizontal() != m_outputDpi.vertical()) {
+        QString dpi_label = tr("%1 x %2 dpi")
+                .arg(m_outputDpi.horizontal())
+                .arg(m_outputDpi.vertical());
+        dpiValue->setText(Utils::richTextForLink(dpi_label));
+    } else {
+        QString dpi_label = tr("%1 dpi").arg(QString::number(m_outputDpi.horizontal()));
+        dpiValue->setText(Utils::richTextForLink(dpi_label));
+    }
+}
+
+void
+OptionsWidget::updateModeValueText()
+{
+    switch (m_currentMode) {
+        case ColorParams::BLACK_AND_WHITE:
+            modeValue->setText(Utils::richTextForLink(actionModeBW->toolTip()));
+            break;
+        case ColorParams::COLOR_GRAYSCALE:
+            modeValue->setText(Utils::richTextForLink(actionModeColorOrGrayscale->toolTip()));
+            break;
+        case ColorParams::MIXED:
+            modeValue->setText(Utils::richTextForLink(actionModeMixed->toolTip()));
+            break;
+    }
 }
 
 void
 OptionsWidget::updateColorsDisplay()
-{
-	colorModeSelector->blockSignals(true);
-	
-	ColorParams::ColorMode const color_mode = m_colorParams.colorMode();
-	int const color_mode_idx = colorModeSelector->findData(color_mode);
-	colorModeSelector->setCurrentIndex(color_mode_idx);
+{	
+    setModeValue(m_colorParams.colorMode());
+
 	bool color_grayscale_options_visible = false;
 	bool bw_options_visible = false;
 	bool picture_shape_visible = false;
 
-	switch (color_mode) {
-		case ColorParams::BLACK_AND_WHITE:
-			bw_options_visible = true;
-			break;
-		case ColorParams::COLOR_GRAYSCALE:
-			color_grayscale_options_visible = true;            
-			break;
-		case ColorParams::MIXED:
-			bw_options_visible = true;
+
+
+    switch (m_currentMode) {
+        case ColorParams::BLACK_AND_WHITE:
+            bw_options_visible = true;
+            break;
+        case ColorParams::COLOR_GRAYSCALE:
+            color_grayscale_options_visible = true;
+            break;
+        case ColorParams::MIXED:
+            bw_options_visible = true;
             picture_shape_visible = m_colorParams.autoLayerEnabled();
             color_grayscale_options_visible = true;
-			break;
-	}
+            break;
+    }
 	
-	colorGrayscaleOptions->setVisible(color_grayscale_options_visible);
+    illuminationPanel->setVisible(color_grayscale_options_visible);
 	if (color_grayscale_options_visible) {
 		ColorGrayscaleOptions const opt(
 			m_colorParams.colorGrayscaleOptions()
 		);
 		whiteMarginsCB->setChecked(opt.whiteMargins());
-        whiteMarginsCB->setEnabled(color_mode != ColorParams::MIXED); // Mixed must have margins
+        whiteMarginsCB->setEnabled(m_currentMode != ColorParams::MIXED); // Mixed must have margins
 		equalizeIlluminationCB->setChecked(opt.normalizeIllumination());
 		equalizeIlluminationCB->setEnabled(opt.whiteMargins());
 	}
 	
 	modePanel->setVisible(m_lastTab != TAB_DEWARPING);
 	pictureShapeOptions->setVisible(picture_shape_visible);
-    autoLayerCB->setVisible(color_mode == ColorParams::MIXED);
-    colorLayerCB->setVisible(color_mode == ColorParams::MIXED);
-	bwOptions->setVisible(bw_options_visible);
+    layersPanel->setVisible(m_currentMode == ColorParams::MIXED);
+    bwOptions->setVisible(bw_options_visible);
 	despecklePanel->setVisible(bw_options_visible && m_lastTab != TAB_DEWARPING);
 
 	if (picture_shape_visible) {
-		int const picture_shape_idx = pictureShapeSelector->findData(m_pictureShape);
-		pictureShapeSelector->setCurrentIndex(picture_shape_idx);
+        updatePictureShapeValueText();
 	}
 	
 
 	if (bw_options_visible) {
-		switch (m_despeckleLevel) {
-			case DESPECKLE_OFF:
-				despeckleOffBtn->setChecked(true);
-				break;
-			case DESPECKLE_CAUTIOUS:
-				despeckleCautiousBtn->setChecked(true);
-				break;
-			case DESPECKLE_NORMAL:
-				despeckleNormalBtn->setChecked(true);
-				break;
-			case DESPECKLE_AGGRESSIVE:
-				despeckleAggressiveBtn->setChecked(true);
-				break;
-		}
+        switch (m_despeckleLevel) {
+            case DESPECKLE_OFF:
+                despeckleOffBtn->setChecked(true);
+                break;
+            case DESPECKLE_CAUTIOUS:
+                despeckleCautiousBtn->setChecked(true);
+                break;
+            case DESPECKLE_NORMAL:
+                despeckleNormalBtn->setChecked(true);
+                break;
+            case DESPECKLE_AGGRESSIVE:
+                despeckleAggressiveBtn->setChecked(true);
+                break;
+        }
 
 		ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
-		thresholdSlider->setValue(
-			m_colorParams.blackWhiteOptions().thresholdAdjustment()
-		);
+        thresholdSlider->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
 	}
 
     autoLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
     colorLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
     colorLayerCB->setCheckState(m_colorParams.colorLayerEnabled() && m_dewarpingMode == DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
     autoLayerCB->setCheckState(m_colorParams.autoLayerEnabled() || m_dewarpingMode != DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
-
-	colorModeSelector->blockSignals(false);
 }
 
 void
@@ -784,18 +596,18 @@ OptionsWidget::updateDewarpingDisplay()
 
 	switch (m_dewarpingMode) {
 		case DewarpingMode::OFF:
-			dewarpingStatusLabel->setText(tr("Off"));
+            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Off")));
 			break;
 		case DewarpingMode::AUTO:
-			dewarpingStatusLabel->setText(tr("Auto"));
+            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Auto")));
 			break;
 		case DewarpingMode::MANUAL:
-			dewarpingStatusLabel->setText(tr("Manual"));
+            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Manual")));
 			break;
 //begin of modified by monday2000
 //Marginal_Dewarping
 		case DewarpingMode::MARGINAL:
-			dewarpingStatusLabel->setText(tr("Marginal"));
+            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Marginal")));
 			break;
 //end of modified by monday2000
 	}
@@ -805,4 +617,246 @@ OptionsWidget::updateDewarpingDisplay()
 	depthPerceptionSlider->blockSignals(false);
 }
 
+void
+OptionsWidget::updateDespeckleValueText()
+{
+    switch(m_despeckleLevel) {
+    case DESPECKLE_OFF: despeckleValue->setText(tr("Off")); break;
+    case DESPECKLE_CAUTIOUS: despeckleValue->setText(tr("Cautious")); break;
+    case DESPECKLE_NORMAL: despeckleValue->setText(tr("Normal")); break;
+    case DESPECKLE_AGGRESSIVE: despeckleValue->setText(tr("Aggresive")); break;
+    default: ;
+    }
+}
+
 } // namespace output
+
+void output::OptionsWidget::on_depthPerceptionSlider_valueChanged(int value)
+{
+    m_depthPerception.setValue(0.1 * value);
+    QString const tooltip_text(QString::number(m_depthPerception.value()));
+    depthPerceptionSlider->setToolTip(tooltip_text);
+
+    // Show the tooltip immediately.
+    QPoint const center(depthPerceptionSlider->rect().center());
+    QPoint tooltip_pos(depthPerceptionSlider->mapFromGlobal(QCursor::pos()));
+    tooltip_pos.setY(center.y());
+    tooltip_pos.setX(qBound(0, tooltip_pos.x(), depthPerceptionSlider->width()));
+    tooltip_pos = depthPerceptionSlider->mapToGlobal(tooltip_pos);
+    QToolTip::showText(tooltip_pos, tooltip_text, depthPerceptionSlider);
+
+    depthPerceptionValue->setText(QString::number(0.1 * value));
+
+    // Propagate the signal.
+    emit depthPerceptionChanged(m_depthPerception.value());
+}
+
+void output::OptionsWidget::on_applyDepthPerception_linkActivated(const QString &/*link*/)
+{
+    ApplyColorsDialog* dialog = new ApplyColorsDialog(
+        this, m_pageId, m_pageSelectionAccessor
+    );
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Apply Depth Perception"));
+    connect(
+        dialog, SIGNAL(accepted(std::set<PageId> const&)),
+        this, SLOT(applyDepthPerceptionConfirmed(std::set<PageId> const&))
+    );
+    dialog->show();
+}
+
+void output::OptionsWidget::on_dewarpingStatusLabel_linkActivated(const QString &/*link*/)
+{
+    ChangeDewarpingDialog* dialog = new ChangeDewarpingDialog(
+        this, m_pageId, m_dewarpingMode, m_pageSelectionAccessor
+    );
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(
+        dialog, SIGNAL(accepted(std::set<PageId> const&, DewarpingMode const&)),
+        this, SLOT(dewarpingChanged(std::set<PageId> const&, DewarpingMode const&))
+    );
+    dialog->show();
+}
+
+void output::OptionsWidget::on_applyDespeckleButton_linkActivated(const QString &/*link*/)
+{
+    ApplyColorsDialog* dialog = new ApplyColorsDialog(
+        this, m_pageId, m_pageSelectionAccessor
+    );
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Apply Despeckling Level"));
+    connect(
+        dialog, SIGNAL(accepted(std::set<PageId> const&)),
+        this, SLOT(applyDespeckleConfirmed(std::set<PageId> const&))
+    );
+    dialog->show();
+}
+
+void output::OptionsWidget::on_applyColorsButton_linkActivated(const QString &/*link*/)
+{
+    ApplyColorsDialog* dialog = new ApplyColorsDialog(
+        this, m_pageId, m_pageSelectionAccessor
+    );
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(
+        dialog, SIGNAL(accepted(std::set<PageId> const&)),
+        this, SLOT(applyColorsConfirmed(std::set<PageId> const&))
+    );
+    dialog->show();
+}
+
+
+void output::OptionsWidget::on_modeValue_linkActivated(const QString &/*link*/)
+{
+    m_menuMode.popup(modeValue->mapToGlobal(QPoint(0,modeValue->geometry().height())));
+}
+
+void output::OptionsWidget::on_actionModeBW_triggered()
+{
+    modeValue->setText(Utils::richTextForLink(actionModeBW->toolTip()));
+    changeColorMode(ColorParams::BLACK_AND_WHITE);
+}
+
+void output::OptionsWidget::on_actionModeColorOrGrayscale_triggered()
+{
+    modeValue->setText(Utils::richTextForLink(actionModeColorOrGrayscale->toolTip()));
+    changeColorMode(ColorParams::COLOR_GRAYSCALE);
+}
+
+void output::OptionsWidget::on_actionModeMixed_triggered()
+{
+    modeValue->setText(Utils::richTextForLink(actionModeMixed->toolTip()));
+    changeColorMode(ColorParams::MIXED);
+}
+
+void output::OptionsWidget::on_actionPictureShapeFree_triggered()
+{
+    changePictureShape(PictureShape::FREE_SHAPE);
+}
+
+void output::OptionsWidget::on_actionPictureShapeRectangular_triggered()
+{
+    changePictureShape(PictureShape::RECTANGULAR_SHAPE);
+}
+
+void output::OptionsWidget::on_actionPictureShapeQuadro_triggered()
+{
+    changePictureShape(PictureShape::QUADRO_SHAPE);
+}
+
+void output::OptionsWidget::on_pictureShapeValue_linkActivated(const QString &/*link*/)
+{
+    m_menuPictureShape.popup(pictureShapeValue->mapToGlobal(QPoint(0,pictureShapeValue->geometry().height())));
+}
+
+void output::OptionsWidget::on_despeckleSlider_valueChanged(int value)
+{
+    switch(value) {
+    case 0: handleDespeckleLevelChange(DESPECKLE_OFF); break;
+    case 1: handleDespeckleLevelChange(DESPECKLE_CAUTIOUS); break;
+    case 2: handleDespeckleLevelChange(DESPECKLE_NORMAL); break;
+    case 3: handleDespeckleLevelChange(DESPECKLE_AGGRESSIVE); break;
+    default: ;
+    }
+}
+
+int sum_y = 0;
+
+bool output::OptionsWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (!(obj && event
+          && (QString(obj->metaObject()->className()) == "QSlider"))) {
+        return false;
+    }
+
+    if (m_ignore_system_wheel_settings && event->type() == QEvent::Wheel) {
+        QWheelEvent* e = (QWheelEvent*) event;
+        if (e->modifiers() == Qt::NoModifier) {
+            const QPoint& angleDelta = e->angleDelta();
+            if (!angleDelta.isNull()) {
+                sum_y += angleDelta.y();
+                if (abs(sum_y) >= 30) {
+                    QSlider* slider= (QSlider*) obj;
+                    int dy = (sum_y > 0) ? slider->singleStep() : -1*slider->singleStep();
+                    slider->setValue(slider->value() + dy);
+                    sum_y = 0;
+                    e->accept();
+                    return true;
+                }
+            }
+        }
+    } else if (event->type() == QEvent::Paint) {
+        QSlider* slider= (QSlider*) obj;
+        int position = QStyle::sliderPositionFromValue(slider->minimum(),
+                                                       slider->maximum(),
+                                                       0,
+                                                       slider->width());
+        QPainter painter(slider);
+        QPen p(painter.pen());
+        p.setColor(QColor(Qt::blue));
+        p.setWidth(3);
+        painter.setPen(p);
+//        painter.drawText(QPointF(position-5, 0, position+5, slider->height()/2), "0");
+        painter.drawLine(position, 0, position, slider->height()/2-6);
+    }
+
+    return false;
+}
+
+void output::OptionsWidget::on_thresholdSlider_valueChanged(int value)
+{
+    QString const tooltip_text(QString::number(value));
+    thresholdSlider->setToolTip(tooltip_text);
+
+    thresholdLabel->setText(QString::number(value));
+
+    if (m_ignoreThresholdChanges) {
+        return;
+    }
+
+    // Show the tooltip immediately.
+    QPoint const center(thresholdSlider->rect().center());
+    QPoint tooltip_pos(thresholdSlider->mapFromGlobal(QCursor::pos()));
+    tooltip_pos.setY(center.y());
+    tooltip_pos.setX(qBound(0, tooltip_pos.x(), thresholdSlider->width()));
+    tooltip_pos = thresholdSlider->mapToGlobal(tooltip_pos);
+    QToolTip::showText(tooltip_pos, tooltip_text, thresholdSlider);
+
+    if (thresholdSlider->isSliderDown()) {
+        // Wait for it to be released.
+        // We could have just disabled tracking, but in that case we wouldn't
+        // be able to show tooltips with a precise value.
+        return;
+    }
+
+    BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+    if (opt.thresholdAdjustment() == value) {
+        // Didn't change.
+        return;
+    }
+
+    opt.setThresholdAdjustment(value);
+    m_colorParams.setBlackWhiteOptions(opt);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    emit reloadRequested();
+
+    emit invalidateThumbnail(m_pageId);
+}
+
+void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
+{
+    ChangeDpiDialog* dialog = new ChangeDpiDialog(
+        this, m_outputDpi, m_pageId, m_pageSelectionAccessor
+    );
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(
+        dialog, SIGNAL(accepted(std::set<PageId> const&, Dpi const&)),
+        this, SLOT(dpiChanged(std::set<PageId> const&, Dpi const&))
+    );
+    dialog->show();
+}
+
+void output::OptionsWidget::on_actionReset_to_default_value_triggered()
+{
+    thresholdSlider->setValue(0);
+}

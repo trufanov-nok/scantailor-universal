@@ -36,6 +36,7 @@
 //Picture_Shape
 #include "Params.h"
 //end of modified by monday2000
+#include <QMenu>
 
 namespace dewarping
 {
@@ -74,17 +75,14 @@ public slots:
 
 	void distortionModelChanged(dewarping::DistortionModel const& model);
 private slots:
-	void changeDpiButtonClicked();
-	
-	void applyColorsButtonClicked();
 	
 	void dpiChanged(std::set<PageId> const& pages, Dpi const& dpi);
 
 	void applyColorsConfirmed(std::set<PageId> const& pages);
 
-	void colorModeChanged(int idx);
+    void changeColorMode(ColorParams::ColorMode const mode);
 
-	void pictureShapeChanged(int idx);
+    void changePictureShape(PictureShape const shape);
 
     void colorLayerCBToggled(bool checked);
 
@@ -92,39 +90,59 @@ private slots:
 	
 	void whiteMarginsToggled(bool checked);
 	
-	void equalizeIlluminationToggled(bool checked);
-	
-	void setLighterThreshold();
-	
-	void setDarkerThreshold();
-	
-	void setNeutralThreshold();
-	
-	void bwThresholdChanged();
+	void equalizeIlluminationToggled(bool checked);	
 
-	void despeckleOffSelected();
+    void despeckleOffSelected();
 
-	void despeckleCautiousSelected();
+    void despeckleCautiousSelected();
 
-	void despeckleNormalSelected();
+    void despeckleNormalSelected();
 
-	void despeckleAggressiveSelected();
-
-	void applyDespeckleButtonClicked();
+    void despeckleAggressiveSelected();
 
 	void applyDespeckleConfirmed(std::set<PageId> const& pages);
 
-	void changeDewarpingButtonClicked();
-
 	void dewarpingChanged(std::set<PageId> const& pages, DewarpingMode const& mode);
-
-	void applyDepthPerceptionButtonClicked();
 
 	void applyDepthPerceptionConfirmed(std::set<PageId> const& pages);
 
-	void depthPerceptionChangedSlot(int val);
+    void on_depthPerceptionSlider_valueChanged(int value);
+
+    void on_applyDepthPerception_linkActivated(const QString &);
+
+    void on_dewarpingStatusLabel_linkActivated(const QString &);
+
+    void on_applyDespeckleButton_linkActivated(const QString &);
+
+    void on_applyColorsButton_linkActivated(const QString &);
+
+    void on_modeValue_linkActivated(const QString &);
+
+    void on_actionModeBW_triggered();
+
+    void on_actionModeColorOrGrayscale_triggered();
+
+    void on_actionModeMixed_triggered();
+
+    void on_actionPictureShapeFree_triggered();
+
+    void on_actionPictureShapeRectangular_triggered();
+
+    void on_actionPictureShapeQuadro_triggered();
+
+    void on_pictureShapeValue_linkActivated(const QString &);
+
+    void on_despeckleSlider_valueChanged(int value);
+
+    void on_thresholdSlider_valueChanged(int value);
+
+    void on_dpiValue_linkActivated(const QString &);
+
+    void on_actionReset_to_default_value_triggered();
 
 private:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 	void handleDespeckleLevelChange(DespeckleLevel level);
 
 	void reloadIfNecessary();
@@ -134,18 +152,49 @@ private:
 	void updateColorsDisplay();
 
 	void updateDewarpingDisplay();
+
+    void updateModeValueText();
+
+    void updatePictureShapeValueText();
+
+    void updateDespeckleValueText();
+
+    void setCurrentPictureShape(PictureShape v)
+    {
+        m_currentPictureShape = v;
+        updatePictureShapeValueText();
+    }
+
+    void setModeValue(ColorParams::ColorMode v)
+    {
+        m_currentMode = v;
+        updateModeValueText();
+    }
+
+    void setDespeckleLevel(DespeckleLevel v)
+    {
+        m_despeckleLevel = v;
+        if (despeckleSlider->value() != (int)v) {
+            despeckleSlider->setValue((int)v);
+        }
+        updateDespeckleValueText();
+    }
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageSelectionAccessor m_pageSelectionAccessor;
 	PageId m_pageId;
 	Dpi m_outputDpi;
 	ColorParams m_colorParams;
-	PictureShape m_pictureShape;
 	DepthPerception m_depthPerception;
 	DewarpingMode m_dewarpingMode;
 	DespeckleLevel m_despeckleLevel;
 	ImageViewTab m_lastTab;
 	int m_ignoreThresholdChanges;
+    QMenu m_menuMode;
+    ColorParams::ColorMode m_currentMode;
+    QMenu m_menuPictureShape;
+    PictureShape m_currentPictureShape;
+    bool m_ignore_system_wheel_settings;
 };
 
 } // namespace output
