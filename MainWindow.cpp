@@ -2824,18 +2824,38 @@ MainWindow::newPageSelectionAccessor()
 	return PageSelectionAccessor(provider);
 }
 
+void setupDockingPanel(QDockWidget* panel, bool enabled)
+{
+    panel->setFeatures( enabled? QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable :
+                                 QDockWidget::NoDockWidgetFeatures);
+
+    if (!enabled) {
+        Q_ASSERT(panel->titleBarWidget() == NULL);
+
+        QWidget* titleWidget = new QWidget(panel);
+        titleWidget->setVisible(false);
+        panel->setTitleBarWidget( titleWidget );
+
+        panel->setFloating(false);
+    } else {
+        QWidget* titleWidget = panel->titleBarWidget();
+        Q_ASSERT(titleWidget != NULL);
+        panel->setTitleBarWidget(NULL);
+        titleWidget->deleteLater();
+    }
+
+}
+
 void
 MainWindow::setDockingPanels(bool enabled)
 {
     if (enabled != m_docking_enabled) {
-        QDockWidget::DockWidgetFeatures ft = enabled? QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable :
-                                                      QDockWidget::NoDockWidgetFeatures;
-        dockWidget->setFeatures(ft);
-        dockWidget_4->setFeatures(ft);
+        setupDockingPanel(dockWidget, enabled);
+        setupDockingPanel(dockWidget_4, enabled);
 
         m_docking_enabled = enabled;
         QSettings().setValue("function_availability/docking_panels", m_docking_enabled);
-    }    
+    }
 }
 
 void
