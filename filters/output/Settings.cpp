@@ -125,17 +125,17 @@ Settings::setParams(PageId const& page_id, Params const& params)
 }
 
 void
-Settings::setColorParams(PageId const& page_id, ColorParams const& prms)
+Settings::setColorParams(PageId const& page_id, ColorParams const& prms, ColorParamsApplyFilter const& filter)
 {
     QMutexLocker const locker(&m_mutex);
 
     PerPageParams::iterator const it(m_perPageParams.lower_bound(page_id));
     if (it == m_perPageParams.end() || m_perPageParams.key_comp()(page_id, it->first)) {
         Params params;
-        params.setColorParams(prms);
+        params.setColorParams(prms, filter);
         m_perPageParams.insert(it, PerPageParams::value_type(page_id, params));
     } else {
-        it->second.setColorParams(prms);
+        it->second.setColorParams(prms, filter);
     }
 }
 

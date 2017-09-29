@@ -31,10 +31,14 @@ class QDomElement;
 
 namespace output
 {
-//Picture_Shape
-	enum PictureShape { FREE_SHAPE, RECTANGULAR_SHAPE, 
-//Quadro_Zoner		
-		QUADRO_SHAPE };
+    enum PictureShape { FREE_SHAPE, RECTANGULAR_SHAPE, QUADRO_SHAPE };
+
+    enum ColorParamsApplyFilter
+    {
+        CopyMode = 1,
+        CopyThreshold = 2,
+        CopyAll = CopyMode | CopyThreshold
+    };
 
 class Params
 {
@@ -52,7 +56,7 @@ public:
 	PictureShape pictureShape() const { return m_pictureShape; }
 	void setPictureShape(PictureShape ps) { m_pictureShape = ps; }
 
-	void setColorParams(ColorParams const& params) { m_colorParams = params; }
+    void setColorParams(ColorParams const& params, ColorParamsApplyFilter const& filter = CopyAll);
 
     bool const getColorLayer() { return m_colorParams.colorLayerEnabled(); }
 

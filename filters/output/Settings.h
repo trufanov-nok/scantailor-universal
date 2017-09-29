@@ -62,7 +62,7 @@ public:
 	
 	void setParams(PageId const& page_id, Params const& params);
 
-	void setColorParams(PageId const& page_id, ColorParams const& prms);
+    void setColorParams(PageId const& page_id, ColorParams const& prms, ColorParamsApplyFilter const& filter = ColorParamsApplyFilter::CopyAll);
 
 	void setPictureShape(PageId const& page_id, PictureShape picture_shape);
 

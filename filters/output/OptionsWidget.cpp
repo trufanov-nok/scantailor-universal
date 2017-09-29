@@ -124,7 +124,12 @@ OptionsWidget::OptionsWidget(
         despeckleAggressiveBtn, SIGNAL(clicked()),
         this, SLOT(despeckleAggressiveSelected())
     );
-	
+
+    connect(
+        thresholdSlider, &QSlider::sliderReleased,
+        this, &OptionsWidget::on_thresholdSlider_valueChanged
+    );
+
     thresholdSlider->setMinimum(-50);
     thresholdSlider->setMaximum(50);
     thresholdLabel->setText(QString::number(thresholdSlider->value()));
@@ -228,7 +233,7 @@ OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
 	m_colorParams.setColorMode((ColorParams::ColorMode)mode);
     m_colorParams.setColorLayerEnabled(false);
 
-	m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     colorLayerCB->setCheckState(Qt::Unchecked);
     autoLayerCB->setCheckState(Qt::Checked);
 	updateColorsDisplay();
@@ -248,7 +253,7 @@ void
 OptionsWidget::colorLayerCBToggled(bool const checked)
 {
     m_colorParams.setColorLayerEnabled(checked);
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 
     updateColorsDisplay();
     emit reloadRequested();
@@ -260,7 +265,7 @@ OptionsWidget::autoLayerCBToggled(bool const checked)
     pictureShapeOptions->setVisible(checked);
 
     m_colorParams.setAutoLayerEnabled(checked);
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 
     updateColorsDisplay();
     emit reloadRequested();
@@ -276,7 +281,7 @@ OptionsWidget::whiteMarginsToggled(bool const checked)
 		equalizeIlluminationCB->setChecked(false);
 	}
 	m_colorParams.setColorGrayscaleOptions(opt);
-	m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 	equalizeIlluminationCB->setEnabled(checked);
 	emit reloadRequested();
 }
@@ -287,7 +292,7 @@ OptionsWidget::equalizeIlluminationToggled(bool const checked)
 	ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
 	opt.setNormalizeIllumination(checked);
 	m_colorParams.setColorGrayscaleOptions(opt);
-	m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 	emit reloadRequested();
 }
 
@@ -310,7 +315,7 @@ void
 OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 {
 	BOOST_FOREACH(PageId const& page_id, pages) {
-		m_ptrSettings->setColorParams(page_id, m_colorParams);
+        m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyMode);
         m_ptrSettings->setPictureShape(page_id, m_currentPictureShape);
         emit invalidateThumbnail(page_id);
 	}
@@ -803,12 +808,13 @@ bool output::OptionsWidget::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-void output::OptionsWidget::on_thresholdSlider_valueChanged(int value)
+void output::OptionsWidget::on_thresholdSlider_valueChanged()
 {
+    int value = thresholdSlider->value();
     QString const tooltip_text(QString::number(value));
     thresholdSlider->setToolTip(tooltip_text);
 
-    thresholdLabel->setText(QString::number(value));
+    thresholdLabel->setNum(value);
 
     if (m_ignoreThresholdChanges) {
         return;
@@ -837,7 +843,7 @@ void output::OptionsWidget::on_thresholdSlider_valueChanged(int value)
 
     opt.setThresholdAdjustment(value);
     m_colorParams.setBlackWhiteOptions(opt);
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyThreshold);
     emit reloadRequested();
 
     emit invalidateThumbnail(m_pageId);
@@ -859,4 +865,29 @@ void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
 void output::OptionsWidget::on_actionReset_to_default_value_triggered()
 {
     thresholdSlider->setValue(0);
+}
+
+void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& pages)
+{
+    BOOST_FOREACH(PageId const& page_id, pages) {
+        m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyThreshold);
+        emit invalidateThumbnail(page_id);
+    }
+
+    if (pages.find(m_pageId) != pages.end()) {
+        emit reloadRequested();
+    }
+}
+
+void output::OptionsWidget::on_applyThresholdButton_linkActivated(const QString &/*link*/)
+{
+    ApplyColorsDialog* dialog = new ApplyColorsDialog(
+        this, m_pageId, m_pageSelectionAccessor
+    );
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(
+        dialog, SIGNAL(accepted(std::set<PageId> const&)),
+        this, SLOT(applyThresholdConfirmed(std::set<PageId> const&))
+    );
+    dialog->show();
 }

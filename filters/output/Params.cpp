@@ -136,4 +136,22 @@ Params::formatColorMode(ColorParams::ColorMode const mode)
 	return QLatin1String(str);
 }
 
+void
+Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& filter)
+{
+    switch (filter)
+    {
+    case CopyAll:
+        m_colorParams = params;
+        break;
+    case CopyMode:
+        m_colorParams.setColorMode(params.colorMode());
+        m_colorParams.setColorGrayscaleOptions(params.colorGrayscaleOptions());
+        break;
+    case CopyThreshold:
+        m_colorParams.setBlackWhiteOptions(params.blackWhiteOptions());
+        break;
+    }
+}
+
 } // namespace output
