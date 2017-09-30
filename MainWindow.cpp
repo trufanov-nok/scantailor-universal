@@ -387,6 +387,7 @@ MainWindow::settingsChanged()
     GlobalDrawSettings::setDrawContentDeviants(settings.value("select_content_deviant/enabled", false).toBool());
     GlobalDrawSettings::setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
 
+    emit settingsUpdateRequest();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget
 }
 
@@ -2727,6 +2728,7 @@ MainWindow::createCompositeTask(
 //end of modified by monday2000
 		);
 		debug = false;
+        connect(this, SIGNAL(settingsUpdateRequest()), output_task->getSettingsListener(), SLOT(settingsChanged()));
 	}
 	if (last_filter_idx >= m_ptrStages->pageLayoutFilterIdx()) {
 		page_layout_task = m_ptrStages->pageLayoutFilter()->createTask(

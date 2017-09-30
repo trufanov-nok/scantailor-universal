@@ -447,6 +447,11 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         loadTiffList();
     } else if (currentPage == ui.pageAutoSaveProject) {
         ui.sbSavePeriod->setValue(abs(m_settings.value("auto-save_project/time_period_min", 5).toInt()));
+    } else if (currentPage == ui.pageOutput) {
+        ui.ThresholdMinValue->setValue( m_settings.value("output/binrization_threshold_control_min", -50).toInt() );
+        ui.ThresholdMaxValue->setValue( m_settings.value("output/binrization_threshold_control_max", 50).toInt() );
+        connect( ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
+        connect( ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
     }
 
 }
@@ -466,4 +471,38 @@ void SettingsDialog::on_cbTiffFilter_clicked(bool checked)
 void SettingsDialog::on_sbSavePeriod_valueChanged(int arg1)
 {
     m_settings.setValue("auto-save_project/time_period_min", arg1);
+}
+
+void SettingsDialog::onThresholdValueChanged(int)
+{
+    int min = ui.ThresholdMinValue->value();
+    int max = ui.ThresholdMaxValue->value();
+
+    if (min > max) { //swap values
+        max = min;
+        min = ui.ThresholdMaxValue->value();
+    }
+
+    if (min == max) {
+        if (max < ui.ThresholdMaxValue->maximum()) {
+            max++;
+        } else
+        if (min > ui.ThresholdMaxValue->minimum()) {
+            min--;
+        }
+    }
+
+    min = std::max(ui.ThresholdMinValue->minimum(), min);
+    max = std::min(ui.ThresholdMaxValue->maximum(), max);
+
+    if (min != ui.ThresholdMinValue->value()) {
+        ui.ThresholdMinValue->setValue(min);
+    }
+
+    if (max != ui.ThresholdMaxValue->value()) {
+        ui.ThresholdMaxValue->setValue(max);
+    }
+
+    m_settings.setValue("output/binrization_threshold_control_min", min);
+    m_settings.setValue("output/binrization_threshold_control_max", max);
 }

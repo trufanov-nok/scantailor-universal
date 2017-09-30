@@ -51,6 +51,8 @@ private slots:
 
     void on_sbSavePeriod_valueChanged(int arg1);
 
+    void onThresholdValueChanged(int);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

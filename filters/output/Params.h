@@ -58,13 +58,23 @@ public:
 
     void setColorParams(ColorParams const& params, ColorParamsApplyFilter const& filter = CopyAll);
 
-    bool const getColorLayer() { return m_colorParams.colorLayerEnabled(); }
+    bool const getColorLayer() { return m_colorParams.colorGrayscaleOptions().colorLayerEnabled(); }
 
-    void setColorLayer(bool const& enabled) { m_colorParams.setColorLayerEnabled(enabled); }
+    void setColorLayer(bool const& enabled)
+    {
+        ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+        opt.setColorLayerEnabled(enabled);
+        m_colorParams.setColorGrayscaleOptions(opt);
+    }
 
-    bool const getAutoLayer() { return m_colorParams.autoLayerEnabled(); }
+    bool const getAutoLayer() { return m_colorParams.colorGrayscaleOptions().autoLayerEnabled(); }
 
-    void setAutoLayer(bool const& enabled) { m_colorParams.setAutoLayerEnabled(enabled); }
+    void setAutoLayer(bool const& enabled)
+    {
+        ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+        opt.setAutoLayerEnabled(enabled);
+        m_colorParams.setColorGrayscaleOptions(opt);
+    }
 
 	DewarpingMode const& dewarpingMode() const { return m_dewarpingMode; }
 

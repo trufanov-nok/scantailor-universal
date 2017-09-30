@@ -133,7 +133,7 @@ private:
 //Original_Foreground_Mixed
 signals:
 	void StartExportTimerSignal();
-//end of modified by monday2000
+    void settingsUpdateRequest();
 private slots:
 	void goFirstPage();
 

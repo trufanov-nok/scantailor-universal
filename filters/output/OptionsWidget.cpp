@@ -62,7 +62,7 @@ OptionsWidget::OptionsWidget(
 	m_lastTab(TAB_OUTPUT),
 	m_ignoreThresholdChanges(0)
 {
-	setupUi(this);
+    setupUi(this);
 
     setDespeckleLevel(DESPECKLE_NORMAL);
 
@@ -130,8 +130,15 @@ OptionsWidget::OptionsWidget(
         this, &OptionsWidget::on_thresholdSlider_valueChanged
     );
 
-    thresholdSlider->setMinimum(-50);
-    thresholdSlider->setMaximum(50);
+    settingsChanged();
+}
+
+void
+OptionsWidget::settingsChanged()
+{
+    QSettings s;
+    thresholdSlider->setMinimum(s.value("output/binrization_threshold_control_min", -50).toInt());
+    thresholdSlider->setMaximum(s.value("output/binrization_threshold_control_max", 50).toInt());
     thresholdLabel->setText(QString::number(thresholdSlider->value()));
 }
 
@@ -231,7 +238,12 @@ OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
 {   
     setModeValue(mode);
 	m_colorParams.setColorMode((ColorParams::ColorMode)mode);
-    m_colorParams.setColorLayerEnabled(false);
+
+    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+    if (opt.colorLayerEnabled()) {
+        opt.setColorLayerEnabled(false);
+        m_colorParams.setColorGrayscaleOptions(opt);
+    }
 
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     colorLayerCB->setCheckState(Qt::Unchecked);
@@ -252,7 +264,10 @@ OptionsWidget::changePictureShape(PictureShape const shape)
 void
 OptionsWidget::colorLayerCBToggled(bool const checked)
 {
-    m_colorParams.setColorLayerEnabled(checked);
+    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+    opt.setColorLayerEnabled(checked);
+    m_colorParams.setColorGrayscaleOptions(opt);
+
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 
     updateColorsDisplay();
@@ -264,7 +279,10 @@ OptionsWidget::autoLayerCBToggled(bool const checked)
 {
     pictureShapeOptions->setVisible(checked);
 
-    m_colorParams.setAutoLayerEnabled(checked);
+    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+    opt.setAutoLayerEnabled(checked);
+    m_colorParams.setColorGrayscaleOptions(opt);
+
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 
     updateColorsDisplay();
@@ -541,7 +559,7 @@ OptionsWidget::updateColorsDisplay()
             break;
         case ColorParams::MIXED:
             bw_options_visible = true;
-            picture_shape_visible = m_colorParams.autoLayerEnabled();
+            picture_shape_visible = m_colorParams.colorGrayscaleOptions().autoLayerEnabled();
             color_grayscale_options_visible = true;
             break;
     }
@@ -590,8 +608,8 @@ OptionsWidget::updateColorsDisplay()
 
     autoLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
     colorLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
-    colorLayerCB->setCheckState(m_colorParams.colorLayerEnabled() && m_dewarpingMode == DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
-    autoLayerCB->setCheckState(m_colorParams.autoLayerEnabled() || m_dewarpingMode != DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
+    colorLayerCB->setCheckState(m_colorParams.colorGrayscaleOptions().colorLayerEnabled() && m_dewarpingMode == DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
+    autoLayerCB->setCheckState(m_colorParams.colorGrayscaleOptions().autoLayerEnabled() || m_dewarpingMode != DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
 }
 
 void
@@ -792,17 +810,19 @@ bool output::OptionsWidget::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (event->type() == QEvent::Paint) {
         QSlider* slider= (QSlider*) obj;
-        int position = QStyle::sliderPositionFromValue(slider->minimum(),
-                                                       slider->maximum(),
-                                                       0,
-                                                       slider->width());
-        QPainter painter(slider);
-        QPen p(painter.pen());
-        p.setColor(QColor(Qt::blue));
-        p.setWidth(3);
-        painter.setPen(p);
-//        painter.drawText(QPointF(position-5, 0, position+5, slider->height()/2), "0");
-        painter.drawLine(position, 0, position, slider->height()/2-6);
+        if (slider->minimum() <=0 && slider->maximum() >= 0) {
+            int position = QStyle::sliderPositionFromValue(slider->minimum(),
+                                                           slider->maximum(),
+                                                           0,
+                                                           slider->width());
+            QPainter painter(slider);
+            QPen p(painter.pen());
+            p.setColor(QColor(Qt::blue));
+            p.setWidth(3);
+            painter.setPen(p);
+            //        painter.drawText(QPointF(position-5, 0, position+5, slider->height()/2), "0");
+            painter.drawLine(position, 0, position, slider->height()/2-6);
+        }
     }
 
     return false;

@@ -142,12 +142,6 @@ OutputImageParams::colorParamsMatch(
 	if (cp1.colorMode() != cp2.colorMode()) {
 		return false;
 	}
-
-    if (cp1.colorMode() == ColorParams::MIXED &&
-            ( (cp1.colorLayerEnabled() != cp2.colorLayerEnabled()) ||
-              (cp1.autoLayerEnabled()  != cp2.autoLayerEnabled()) ) ) {
-            return false;
-    }
 	
 	switch (cp1.colorMode()) {
 		case ColorParams::COLOR_GRAYSCALE:

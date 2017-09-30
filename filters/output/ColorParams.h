@@ -48,14 +48,6 @@ public:
             setColorGrayscaleOptions(ColorGrayscaleOptions(defaults, defaults));
         }
         m_colorMode = mode; }
-
-    bool colorLayerEnabled() const { return m_colorLayerEnabled; }
-
-    void setColorLayerEnabled(bool enabled) { m_colorLayerEnabled = enabled; }
-
-    bool autoLayerEnabled() const { return m_autoLayerEnabled; }
-
-    void setAutoLayerEnabled(bool enabled) { m_autoLayerEnabled = enabled; }
 	
 	ColorGrayscaleOptions const& colorGrayscaleOptions() const {
 		return m_colorGrayscaleOptions;
@@ -81,8 +73,6 @@ private:
 	ColorMode m_colorMode;
 	ColorGrayscaleOptions m_colorGrayscaleOptions;
 	BlackWhiteOptions m_bwOptions;
-    bool m_colorLayerEnabled;
-    bool m_autoLayerEnabled;
 };
 
 } // namespace output

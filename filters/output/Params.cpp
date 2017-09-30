@@ -55,9 +55,6 @@ Params::Params(QDomElement const& el)
 	m_colorParams.setBlackWhiteOptions(
 		BlackWhiteOptions(cp.namedItem("bw").toElement())
 	);
-
-    m_colorParams.setColorLayerEnabled(cp.attribute("colorLayer", "false") != "false");
-    m_colorParams.setAutoLayerEnabled(cp.attribute("autoLayer", "true") != "false");
 }
 
 QDomElement
@@ -79,16 +76,6 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 		formatColorMode(m_colorParams.colorMode())
 	);
 
-    cp.setAttribute(
-        "colorLayer",
-        m_colorParams.colorLayerEnabled()?"true":"false"
-    );
-
-    cp.setAttribute(
-        "autoLayer",
-        m_colorParams.autoLayerEnabled()?"true":"false"
-    );
-	
 	cp.appendChild(
 		m_colorParams.colorGrayscaleOptions().toXml(
 			doc, "color-or-grayscale"

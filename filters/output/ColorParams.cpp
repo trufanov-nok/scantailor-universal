@@ -27,7 +27,7 @@ namespace output
 {
 
 ColorParams::ColorParams()
-: m_colorMode(DefaultColorMode()), m_colorLayerEnabled(false), m_autoLayerEnabled(true)
+: m_colorMode(DefaultColorMode())
 {
 }
 

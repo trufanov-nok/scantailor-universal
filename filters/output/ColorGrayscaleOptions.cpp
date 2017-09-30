@@ -29,6 +29,8 @@ ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_m
     QString default_value = mixed_mode?"1":"0";
     m_whiteMargins = el.attribute("whiteMargins", default_value) == "1";
     m_normalizeIllumination = el.attribute("normalizeIllumination", default_value) == "1";
+    m_autoLayerEnabled = el.attribute("autoLayer", default_value) == "1";
+    m_colorLayerEnabled = el.attribute("colorLayer", "0") == "1";
 }
 
 QDomElement
@@ -37,6 +39,8 @@ ColorGrayscaleOptions::toXml(QDomDocument& doc, QString const& name) const
 	QDomElement el(doc.createElement(name));
 	el.setAttribute("whiteMargins", m_whiteMargins ? "1" : "0");
 	el.setAttribute("normalizeIllumination", m_normalizeIllumination ? "1" : "0");
+    el.setAttribute("autoLayer", m_autoLayerEnabled ? "1" : "0");
+    el.setAttribute("colorLayer", m_colorLayerEnabled ? "1" : "0");
 	return el;
 }
 
@@ -50,6 +54,14 @@ ColorGrayscaleOptions::operator==(ColorGrayscaleOptions const& other) const
 	if (m_normalizeIllumination != other.m_normalizeIllumination) {
 		return false;
 	}
+
+    if (m_autoLayerEnabled != other.m_autoLayerEnabled) {
+        return false;
+    }
+
+    if (m_colorLayerEnabled != other.m_colorLayerEnabled) {
+        return false;
+    }
 	
 	return true;
 }

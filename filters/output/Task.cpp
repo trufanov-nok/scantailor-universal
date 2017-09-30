@@ -521,6 +521,11 @@ Task::deleteMutuallyExclusiveOutputFiles()
 	}
 }
 
+QObject*
+Task::getSettingsListener()
+{
+    return m_ptrFilter->optionsWidget();
+}
 
 /*============================ Task::UiUpdater ==========================*/
 

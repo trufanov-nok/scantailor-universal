@@ -29,8 +29,9 @@ namespace output
 class ColorGrayscaleOptions
 {
 public:
-    ColorGrayscaleOptions(bool whiteMargins = false, bool normalizeIllumination = false)
-    : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination) {}
+    ColorGrayscaleOptions(bool whiteMargins = false, bool normalizeIllumination = false, bool autoLayer = true, bool colorLayer = false)
+    : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination),
+      m_autoLayerEnabled(autoLayer), m_colorLayerEnabled(colorLayer) {}
 	
     ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode);
 	
@@ -43,6 +44,14 @@ public:
 	bool normalizeIllumination() const { return m_normalizeIllumination; }
 	
 	void setNormalizeIllumination(bool val) { m_normalizeIllumination = val; }
+
+    bool colorLayerEnabled() const { return m_colorLayerEnabled; }
+
+    void setColorLayerEnabled(bool enabled) { m_colorLayerEnabled = enabled; }
+
+    bool autoLayerEnabled() const { return m_autoLayerEnabled; }
+
+    void setAutoLayerEnabled(bool enabled) { m_autoLayerEnabled = enabled; }
 	
 	bool operator==(ColorGrayscaleOptions const& other) const;
 	
@@ -50,6 +59,8 @@ public:
 private:
 	bool m_whiteMargins;
 	bool m_normalizeIllumination;
+    bool m_autoLayerEnabled;
+    bool m_colorLayerEnabled;
 };
 
 } // namespace output

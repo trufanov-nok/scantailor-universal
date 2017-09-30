@@ -33,21 +33,24 @@ RenderParams::RenderParams(ColorParams const& cp)
 					|NEED_BINARIZATION;
 			break;
 
-        case ColorParams::MIXED:
+        case ColorParams::MIXED: {
             m_mask |= NEED_BINARIZATION|MIXED_OUTPUT;
 
-            if (cp.colorLayerEnabled())
+            const ColorGrayscaleOptions& opt = cp.colorGrayscaleOptions();
+
+            if (opt.colorLayerEnabled())
                 m_mask |= COLOR_LAYER;
 
-            if (cp.autoLayerEnabled())
+            if (opt.autoLayerEnabled())
                 m_mask |= AUTO_LAYER;
+            }
 
             // MOTE: continue to COLOR_GRAYSCALE to get colorGrayscaleOptions
 
 		case ColorParams::COLOR_GRAYSCALE: {
-			ColorGrayscaleOptions const opt(
-				cp.colorGrayscaleOptions()
-			);
+            ColorGrayscaleOptions const opt(
+                cp.colorGrayscaleOptions()
+            );
 			if (opt.whiteMargins()) {
 				m_mask |= WHITE_MARGINS;
 				if (opt.normalizeIllumination()) {
@@ -55,7 +58,8 @@ RenderParams::RenderParams(ColorParams const& cp)
 				}
 			}
 			break;
-		}
+       }
+
     }
 }
 

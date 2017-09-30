@@ -74,6 +74,8 @@ public slots:
 	void tabChanged(ImageViewTab tab);
 
 	void distortionModelChanged(dewarping::DistortionModel const& model);
+
+    void settingsChanged();
 private slots:
 	
 	void dpiChanged(std::set<PageId> const& pages, Dpi const& dpi);

@@ -459,15 +459,16 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
 		if (cli.hasColorMode())
 			colorParams.setColorMode(cli.getColorMode());
 
-        if (cli.hasColorLayer())
-            colorParams.setColorLayerEnabled(cli.getColorLayer());
-
-		if (cli.hasWhiteMargins() || cli.hasNormalizeIllumination()) {
-			output::ColorGrayscaleOptions cgo;
+        if (cli.hasWhiteMargins() || cli.hasNormalizeIllumination() || cli.hasColorLayer() || cli.hasAutoLayer()) {
+            output::ColorGrayscaleOptions cgo;
 			if (cli.hasWhiteMargins())
 				cgo.setWhiteMargins(true);
 			if (cli.hasNormalizeIllumination())
 				cgo.setNormalizeIllumination(true);
+            if (cli.hasColorLayer())
+                cgo.setColorLayerEnabled(true);
+            if (cli.hasAutoLayer())
+                cgo.setAutoLayerEnabled(true);
 			colorParams.setColorGrayscaleOptions(cgo);
 		}
 

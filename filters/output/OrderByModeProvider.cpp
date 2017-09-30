@@ -39,17 +39,24 @@ OrderByModeProvider::precedes(
     ColorParams const lclr_param(m_ptrSettings->getParams(lhs_page).colorParams());
     ColorParams const rclr_param(m_ptrSettings->getParams(rhs_page).colorParams());
 
-    if (lclr_param.colorMode() != rclr_param.colorMode())
-    {
+    if (lclr_param.colorMode() != rclr_param.colorMode()) {
         return lclr_param.colorMode() < rclr_param.colorMode();
-    } else if (lclr_param.autoLayerEnabled() != rclr_param.autoLayerEnabled()) {
-        return lclr_param.autoLayerEnabled() < rclr_param.autoLayerEnabled();
-    } else if (lclr_param.colorLayerEnabled() != rclr_param.colorLayerEnabled()) {
-        return lclr_param.colorLayerEnabled() < rclr_param.colorLayerEnabled();
-    } else if (lclr_param.colorGrayscaleOptions().normalizeIllumination() != rclr_param.colorGrayscaleOptions().normalizeIllumination()) {
-        return lclr_param.colorGrayscaleOptions().normalizeIllumination() < rclr_param.colorGrayscaleOptions().normalizeIllumination();
-    } else
-        return lclr_param.blackWhiteOptions().thresholdAdjustment() <  rclr_param.blackWhiteOptions().thresholdAdjustment();
+    }
+
+    const ColorGrayscaleOptions& cgoptsl = lclr_param.colorGrayscaleOptions();
+    const ColorGrayscaleOptions& cgoptsr = rclr_param.colorGrayscaleOptions();
+
+    if (cgoptsl.autoLayerEnabled() != cgoptsr.autoLayerEnabled()) {
+        return cgoptsl.autoLayerEnabled() < cgoptsr.autoLayerEnabled();
+    }
+    if (cgoptsl.colorLayerEnabled() != cgoptsr.colorLayerEnabled()) {
+        return cgoptsl.colorLayerEnabled() < cgoptsr.colorLayerEnabled();
+    }
+    if (cgoptsl.normalizeIllumination() != cgoptsr.normalizeIllumination()) {
+        return cgoptsl.normalizeIllumination() < cgoptsr.normalizeIllumination();
+    }
+
+    return lclr_param.blackWhiteOptions().thresholdAdjustment() <  rclr_param.blackWhiteOptions().thresholdAdjustment();
 
 }
 

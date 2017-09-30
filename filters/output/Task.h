@@ -73,6 +73,8 @@ public:
 		TaskStatus const& status, FilterData const& data,
 		QPolygonF const& content_rect_phys);
 
+    QObject* getSettingsListener();
+
 private:
 	class UiUpdater;
 	
