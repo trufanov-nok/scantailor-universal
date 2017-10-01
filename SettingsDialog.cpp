@@ -26,6 +26,7 @@
 #include <QDebug>
 #include <QResource>
 #include <boost/foreach.hpp>
+#include "filters/output/DespeckleLevel.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
     :	QDialog(parent), m_accepted(false)
@@ -452,6 +453,24 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.ThresholdMaxValue->setValue( m_settings.value("output/binrization_threshold_control_max", 50).toInt() );
         connect( ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
         connect( ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
+    } else if (currentPage == ui.pageDespeckling) {
+        QComboBox* cb = ui.despecklingDefaultsValue;
+        cb->blockSignals(true);
+        cb->clear();
+        cb->addItem(tr("None"),  output::DESPECKLE_OFF);
+        cb->addItem(tr("Cuatious"),  output::DESPECKLE_CAUTIOUS);
+        cb->addItem(tr("Normal"),  output::DESPECKLE_NORMAL);
+        cb->addItem(tr("Aggresive"),  output::DESPECKLE_AGGRESSIVE);
+        int def = m_settings.value("despeckling/default_level", output::DESPECKLE_CAUTIOUS).toInt();
+
+        cb->setCurrentIndex(0);
+        for (int i = 0; cb->count(); i++) {
+            if (cb->itemData(i).toInt() == def) {
+                cb->setCurrentIndex(i);
+                break;
+            }
+        }
+        cb->blockSignals(false);
     }
 
 }
@@ -505,4 +524,10 @@ void SettingsDialog::onThresholdValueChanged(int)
 
     m_settings.setValue("output/binrization_threshold_control_min", min);
     m_settings.setValue("output/binrization_threshold_control_max", max);
+}
+
+void SettingsDialog::on_despecklingDefaultsValue_currentIndexChanged(int index)
+{
+    int val = ui.despecklingDefaultsValue->itemData(index).toInt();
+    m_settings.setValue("despeckling/default_level", val);
 }

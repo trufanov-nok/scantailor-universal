@@ -53,6 +53,8 @@ private slots:
 
     void onThresholdValueChanged(int);
 
+    void on_despecklingDefaultsValue_currentIndexChanged(int index);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

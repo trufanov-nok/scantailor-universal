@@ -26,15 +26,16 @@
 #include <QDomElement>
 #include <QByteArray>
 #include <QString>
+#include <QSettings>
 
 namespace output
 {
 
 Params::Params()
 :	m_dpi(CommandLine::get().getDefaultOutputDpi()),
-	m_despeckleLevel(DESPECKLE_CAUTIOUS),
 	m_pictureShape(FREE_SHAPE)
 {
+   m_despeckleLevel = (DespeckleLevel) QSettings().value("despeckling/default_level", DESPECKLE_CAUTIOUS).toUInt();
 }
 
 Params::Params(QDomElement const& el)
