@@ -905,6 +905,7 @@ void output::OptionsWidget::on_applyThresholdButton_linkActivated(const QString 
         this, m_pageId, m_pageSelectionAccessor
     );
     dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Apply Threshold"));
     connect(
         dialog, SIGNAL(accepted(std::set<PageId> const&)),
         this, SLOT(applyThresholdConfirmed(std::set<PageId> const&))
