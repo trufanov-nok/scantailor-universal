@@ -27,6 +27,7 @@
 #include <QResource>
 #include <boost/foreach.hpp>
 #include "filters/output/DespeckleLevel.h"
+#include "filters/output/Params.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
     :	QDialog(parent), m_accepted(false)
@@ -382,12 +383,12 @@ void SettingsDialog::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column
         if (item->childCount() > 0) {
             ui.treeWidget->expandItem(item);
         }
+
+        if (key == "picture_shape_detection/enabled" ||
+                key == "picture_shape_detection/smaller_rect") {
+            setupPictureShapeComboBox();
+        }
     }
-
-}
-
-void SettingsDialog::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
-{
 
 }
 
@@ -463,17 +464,38 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         cb->addItem(tr("Aggresive"),  output::DESPECKLE_AGGRESSIVE);
         int def = m_settings.value("despeckling/default_level", output::DESPECKLE_CAUTIOUS).toInt();
 
-        cb->setCurrentIndex(0);
-        for (int i = 0; cb->count(); i++) {
-            if (cb->itemData(i).toInt() == def) {
-                cb->setCurrentIndex(i);
-                break;
-            }
-        }
+        int idx = cb->findData(def);
+        cb->setCurrentIndex(idx!=-1?idx:0);
+
         cb->blockSignals(false);
+    } else if (currentPage == ui.pagePictureShapeDetection) {
+        setupPictureShapeComboBox();
     }
 
 }
+
+void SettingsDialog::setupPictureShapeComboBox()
+{
+    QComboBox* cb = ui.picturesShapeDefaultsValue;
+    cb->blockSignals(true);
+    cb->clear();
+    cb->addItem(tr("Free"),  output::FREE_SHAPE);
+    if (m_settings.value("picture_shape_detection/enabled", true).toBool()) {
+        cb->addItem(tr("Rectangular"),  output::RECTANGULAR_SHAPE);
+    }
+    if (m_settings.value("picture_shape_detection/smaller_rect", true).toBool()) {
+        cb->addItem(tr("Quadro"),  output::QUADRO_SHAPE);
+    }
+
+    int def = m_settings.value("picture_shape_detection/default", output::FREE_SHAPE).toInt();
+
+
+    int idx = cb->findData(def);
+    cb->setCurrentIndex(idx!=-1?idx:0);
+
+    cb->blockSignals(false);
+}
+
 
 void SettingsDialog::on_cbTiffCompression_currentIndexChanged(int index)
 {
@@ -530,4 +552,10 @@ void SettingsDialog::on_despecklingDefaultsValue_currentIndexChanged(int index)
 {
     int val = ui.despecklingDefaultsValue->itemData(index).toInt();
     m_settings.setValue("despeckling/default_level", val);
+}
+
+void SettingsDialog::on_picturesShapeDefaultsValue_currentIndexChanged(int index)
+{
+    int val = ui.picturesShapeDefaultsValue->itemData(index).toInt();
+    m_settings.setValue("picture_shape_detection/default", val);
 }

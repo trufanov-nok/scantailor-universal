@@ -40,7 +40,6 @@ private slots:
     void on_actionExpand_all_triggered();
     void on_actionCollapse_all_triggered();
     void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
-    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
     void on_language_currentIndexChanged(int index);
     void on_cbApplyCutDefault_clicked(bool checked);
     void on_stackedWidget_currentChanged(int arg1);
@@ -55,6 +54,8 @@ private slots:
 
     void on_despecklingDefaultsValue_currentIndexChanged(int index);
 
+    void on_picturesShapeDefaultsValue_currentIndexChanged(int index);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
@@ -64,6 +65,7 @@ private:
     void restoreSettings();
     void restoreSettingsTreeState(QTreeWidget* treeWidget);
     void storeSettingsTreeState(QTreeWidget* treeWidget);
+    void setupPictureShapeComboBox();
 private:
 	Ui::SettingsDialog ui;
     QSettings m_settings;

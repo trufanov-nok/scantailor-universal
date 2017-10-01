@@ -32,19 +32,21 @@ namespace output
 {
 
 Params::Params()
-:	m_dpi(CommandLine::get().getDefaultOutputDpi()),
-	m_pictureShape(FREE_SHAPE)
+:	m_dpi(CommandLine::get().getDefaultOutputDpi())
 {
-   m_despeckleLevel = (DespeckleLevel) QSettings().value("despeckling/default_level", DESPECKLE_CAUTIOUS).toUInt();
+   QSettings s;
+   m_despeckleLevel = (DespeckleLevel) s.value("despeckling/default_level", DESPECKLE_CAUTIOUS).toUInt();
+   m_pictureShape = (PictureShape) s.value("picture_shape_detection/default", output::FREE_SHAPE).toUInt();
 }
 
 Params::Params(QDomElement const& el)
-:	m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
+:	m_pictureShape((PictureShape)(el.attribute("pictureShape").toInt())),
+    m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
 	m_distortionModel(el.namedItem("distortion-model").toElement()),
 	m_depthPerception(el.attribute("depthPerception")),
 	m_dewarpingMode(el.attribute("dewarpingMode")),
-	m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel"))),
-	m_pictureShape((PictureShape)(el.attribute("pictureShape").toInt()))
+    m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
+
 {
 	QDomElement const cp(el.namedItem("color-params").toElement());
 	m_colorParams.setColorMode(parseColorMode(cp.attribute("colorMode")));
