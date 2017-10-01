@@ -1305,14 +1305,6 @@ MainWindow::startBatchProcessing()
 	}
 
 	m_ptrInteractiveQueue->cancelAndClear();
-	
-	m_ptrBatchQueue.reset(
-		new ProcessingTaskQueue(
-			currentPageOrderProvider().get()
-			? ProcessingTaskQueue::RANDOM_ORDER
-			: ProcessingTaskQueue::SEQUENTIAL_ORDER
-		)
-	);
 
     QSettings settings;
     const QString show_dlg_key("batch_dialog/remember_choice");
@@ -1332,6 +1324,13 @@ MainWindow::startBatchProcessing()
         settings.setValue(processAll_key, !processAll);
     }
 
+    m_ptrBatchQueue.reset(
+        new ProcessingTaskQueue(
+            currentPageOrderProvider().get()
+            ? ProcessingTaskQueue::RANDOM_ORDER
+            : ProcessingTaskQueue::SEQUENTIAL_ORDER
+        )
+    );
 
     
 	PageInfo start_page = processAll ? m_ptrThumbSequence->firstPage() : m_ptrThumbSequence->selectionLeader();

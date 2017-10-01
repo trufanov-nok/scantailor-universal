@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>23</number>
+       <number>22</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -234,6 +234,59 @@
              <property name="text">
               <string>Application language:</string>
              </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>Batch processing</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_55">
+              <item>
+               <widget class="QRadioButton" name="startBatchProcessingDlgAllPages">
+                <property name="text">
+                 <string>All pages</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="startBatchProcessingDlgFromSelected">
+                <property name="text">
+                 <string>Start from selected</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <item>
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="showStartBatchProcessingDlg">
+                  <property name="text">
+                   <string>Ask every time</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -1103,7 +1156,11 @@
               </spacer>
              </item>
              <item>
-              <widget class="QComboBox" name="picturesShapeDefaultsValue"/>
+              <widget class="QComboBox" name="picturesShapeDefaultsValue">
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToContents</enum>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

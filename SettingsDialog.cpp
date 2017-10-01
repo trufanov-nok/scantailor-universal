@@ -66,6 +66,11 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
     // pageGeneral is displayed by default
     initLanguageList(((MainWindow*)parent)->getLanguage());
+
+    ui.startBatchProcessingDlgAllPages->setChecked(
+                !m_settings.value("batch_dialog/start_from_current_page", true).toBool());
+    ui.showStartBatchProcessingDlg->setChecked(
+                !m_settings.value("batch_dialog/remember_choice", false).toBool());
 }
 
 void SettingsDialog::initLanguageList(QString cur_lang)
@@ -470,6 +475,11 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         cb->blockSignals(false);
     } else if (currentPage == ui.pagePictureShapeDetection) {
         setupPictureShapeComboBox();
+    } else if (currentPage == ui.pageGeneral) {
+        ui.startBatchProcessingDlgAllPages->setChecked(
+                    !m_settings.value("batch_dialog/start_from_current_page", true).toBool());
+        ui.showStartBatchProcessingDlg->setChecked(
+                    !m_settings.value("batch_dialog/remember_choice", false).toBool());
     }
 
 }
@@ -491,9 +501,11 @@ void SettingsDialog::setupPictureShapeComboBox()
 
 
     int idx = cb->findData(def);
-    cb->setCurrentIndex(idx!=-1?idx:0);
+    idx = idx!=-1?idx:0;
+    cb->setCurrentIndex(idx);
 
     cb->blockSignals(false);
+    on_picturesShapeDefaultsValue_currentIndexChanged(idx);
 }
 
 
@@ -558,4 +570,14 @@ void SettingsDialog::on_picturesShapeDefaultsValue_currentIndexChanged(int index
 {
     int val = ui.picturesShapeDefaultsValue->itemData(index).toInt();
     m_settings.setValue("picture_shape_detection/default", val);
+}
+
+void SettingsDialog::on_startBatchProcessingDlgAllPages_toggled(bool checked)
+{
+    m_settings.setValue("batch_dialog/start_from_current_page", !checked);
+}
+
+void SettingsDialog::on_showStartBatchProcessingDlg_clicked(bool checked)
+{
+    m_settings.setValue("batch_dialog/remember_choice", !checked);
 }

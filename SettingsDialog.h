@@ -56,6 +56,10 @@ private slots:
 
     void on_picturesShapeDefaultsValue_currentIndexChanged(int index);
 
+    void on_startBatchProcessingDlgAllPages_toggled(bool checked);
+
+    void on_showStartBatchProcessingDlg_clicked(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
