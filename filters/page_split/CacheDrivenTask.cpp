@@ -57,21 +57,36 @@ CacheDrivenTask::process(
 	);
 	
 	Params const* params = record.params();
-	
-	if (!params || !deps.compatibleWith(*params)) {
-		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-			thumb_col->processThumbnail(
-				std::auto_ptr<QGraphicsItem>(
-					new IncompleteThumbnail(
-						thumb_col->thumbnailCache(),
-						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), xform
-					)
-				)
-			);
-		}
-		
-		return;
+
+    bool compatibleWith = true;
+    if (!params || !(compatibleWith = deps.compatibleWith(*params))) {
+        if (!compatibleWith) {
+            Params new_params = *params;
+
+            compatibleWith = deps.fixCompatibility(new_params);
+
+            if (compatibleWith) {
+                Settings::UpdateAction update_params;
+                update_params.setParams(new_params);
+                m_ptrSettings->updatePage(page_info.imageId(), update_params);
+            }
+        }
+
+        if (!params || !compatibleWith) {
+            if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
+                thumb_col->processThumbnail(
+                            std::auto_ptr<QGraphicsItem>(
+                                new IncompleteThumbnail(
+                                    thumb_col->thumbnailCache(),
+                                    thumb_col->maxLogicalThumbSize(),
+                                    page_info.imageId(), xform
+                                    )
+                                )
+                            );
+            }
+
+            return;
+        }
 	}
 	
 	PageLayout layout(params->pageLayout());

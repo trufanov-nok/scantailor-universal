@@ -24,6 +24,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QDomText>
+#include <QTransform>
 
 namespace page_split
 {
@@ -96,6 +97,25 @@ Dependencies::toXml(QDomDocument& doc, QString const& tag_name) const
 	el.appendChild(marshaller.string(layoutTypeToString(m_layoutType), "layoutType"));
 	
 	return el;
+}
+
+bool
+Dependencies::fixCompatibility(Params& params) const
+{
+    QTransform rotate = m_rotation.transform(m_imageSize);
+    QSize new_size = rotate.map(QRegion(QRect(QPoint(0,0), m_imageSize))).boundingRect().size();
+
+    QSize old_size = params.dependencies().m_imageSize;
+    rotate = params.dependencies().m_rotation.transform(old_size);
+    old_size = rotate.map(QRegion(QRect(QPoint(0,0), old_size))).boundingRect().size();
+
+    qreal scale_x = (qreal) new_size.width() / old_size.width();
+    qreal scale_y = (qreal) new_size.height() / old_size.height();
+
+    PageLayout new_page_layout = params.pageLayout().transformed(QTransform::fromScale(scale_x, scale_y));
+
+    params = Params(new_page_layout, *this, params.splitLineMode());
+    return compatibleWith(params);
 }
 
 } // namespace page_split

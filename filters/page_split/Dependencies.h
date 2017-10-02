@@ -53,6 +53,8 @@ public:
 	OrthogonalRotation const& orientation() const { return m_rotation; }
 
 	bool compatibleWith(Params const& params) const;
+
+    bool fixCompatibility(Params& params) const;
 	
 	bool isNull() const { return m_imageSize.isNull(); }
 	

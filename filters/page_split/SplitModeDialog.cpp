@@ -56,7 +56,7 @@ SplitModeDialog::SplitModeDialog(
 	}
 	
 	layoutTypeLabel->setPixmap(QPixmap(iconFor(m_layoutType)));
-	if (m_layoutType == AUTO_LAYOUT_TYPE) {
+    if (m_layoutType == AUTO_LAYOUT_TYPE && !m_autoDetectedLayoutTypeValid) {
 		modeAuto->setChecked(true);
 	} else {
 		modeManual->setChecked(true);
@@ -69,7 +69,10 @@ SplitModeDialog::SplitModeDialog(
     if (!settings.value("apply_cut/enabled", true).toBool())
     {
         optionsBox->setVisible(false);
-        applyCutOption->setChecked(Qt::Unchecked);
+        applyCutOption->setChecked(false);
+    } else if (modeAuto->isChecked()) {
+        applyCutOption->setChecked(false);
+        applyCutOption->setDisabled(true);
     } else {
         applyCutOption->setChecked(settings.value("apply_cut/default", false).toBool());
     }
@@ -84,6 +87,8 @@ void
 SplitModeDialog::autoDetectionSelected()
 {
 	layoutTypeLabel->setPixmap(QPixmap(":/icons/layout_type_auto.png"));
+    applyCutOption->setChecked(false);
+    applyCutOption->setDisabled(true);
 }
 
 void
@@ -91,6 +96,7 @@ SplitModeDialog::manualModeSelected()
 {
 	char const* resource = iconFor(combinedLayoutType());
 	layoutTypeLabel->setPixmap(QPixmap(resource));
+    applyCutOption->setDisabled(false);
 }
 
 void
@@ -150,9 +156,6 @@ SplitModeDialog::combinedLayoutType() const
 		return m_layoutType;
 	}
 	
-	if (!m_autoDetectedLayoutTypeValid) {
-		return AUTO_LAYOUT_TYPE;
-	}
 	
 	switch (m_autoDetectedLayoutType) {
 		case PageLayout::SINGLE_PAGE_UNCUT:

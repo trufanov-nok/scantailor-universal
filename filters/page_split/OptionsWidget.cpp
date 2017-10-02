@@ -273,16 +273,29 @@ OptionsWidget::layoutTypeSet(
     
     Params const params = *( m_ptrSettings->getPageRecord(m_pageId.imageId()).params() );
 
-	if (layout_type != AUTO_LAYOUT_TYPE) {
-		BOOST_FOREACH(PageId const& page_id, pages) {
+    if (layout_type != AUTO_LAYOUT_TYPE) {
+        BOOST_FOREACH(PageId const& page_id, pages) {
             Settings::UpdateAction update_params;
             update_params.setLayoutType(layout_type);
             if (apply_cut) {
-              	update_params.setParams(params);
+                update_params.setParams(params);
             }
             m_ptrSettings->updatePage(page_id.imageId(), update_params);
+            emit invalidateThumbnail(page_id);
         }
-	}
+    } else {
+        Settings::UpdateAction update;
+        update.clearParams();
+        BOOST_FOREACH(PageId const& page_id, pages) {
+            m_ptrSettings->updatePage(page_id.imageId(), update);
+            if (page_id == m_pageId) {
+                autoBtn->setChecked(true);
+                emit reloadRequested();
+            } else {
+                emit invalidateThumbnail(page_id);
+            }
+        }
+    }
     
 	if (layout_type == AUTO_LAYOUT_TYPE) {
 		scopeLabel->setText(tr("Auto detected"));
@@ -290,8 +303,7 @@ OptionsWidget::layoutTypeSet(
 	} else {
 		scopeLabel->setText(tr("Set manually"));
 	}
-    
-	emit invalidateAllThumbnails();
+    	
 }
 
 void
