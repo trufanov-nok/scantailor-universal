@@ -48,7 +48,7 @@ namespace output
 Filter::Filter(
         IntrusivePtr<ProjectPages> const& pages,
         PageSelectionAccessor const& page_selection_accessor)
-:	m_ptrPages(pages), m_ptrSettings(new Settings)
+:	m_ptrPages(pages), m_ptrSettings(new Settings), m_selectedPageOrder(0)
 {
 	if (CommandLine::get().isGui()) {
 		m_ptrOptionsWidget.reset(
