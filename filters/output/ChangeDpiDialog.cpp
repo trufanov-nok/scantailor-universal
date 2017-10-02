@@ -30,6 +30,7 @@
 #include <boost/foreach.hpp>
 #endif
 #include <algorithm>
+#include <QSettings>
 
 namespace output
 {
@@ -54,20 +55,17 @@ ChangeDpiDialog::ChangeDpiDialog(
 	
 	dpiSelector->setValidator(new QIntValidator(dpiSelector));
 	
-	static int const common_dpis[] = {
-		300, 400, 600
-	};
+    QStringList common_dpis = QSettings().value("dpi/change_dpi_list","300,400,600").toString().split(',');
 	
 	int const requested_dpi = std::max(dpi.horizontal(), dpi.vertical());
 	m_customDpiString = QString::number(requested_dpi);
 	
 	int selected_index = -1;
-	BOOST_FOREACH(int const cdpi, common_dpis) {
-		if (cdpi == requested_dpi) {
+    BOOST_FOREACH(QString const cdpi, common_dpis) {
+        if (cdpi.trimmed().toInt() == requested_dpi) {
 			selected_index = dpiSelector->count();
 		}
-		QString const cdpi_str(QString::number(cdpi));
-		dpiSelector->addItem(cdpi_str, cdpi_str);
+        dpiSelector->addItem(cdpi, cdpi);
 	}
 	
 	m_customItemIdx = dpiSelector->count();

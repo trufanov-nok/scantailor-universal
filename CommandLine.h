@@ -158,6 +158,8 @@ public:
 
 	bool help() { return m_options.contains("help"); }
 	void printHelp();
+
+    static void updateSettings();
     
 private:
 	CommandLine() : m_gui(true), m_global(false) {}

@@ -455,6 +455,9 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     } else if (currentPage == ui.pageAutoSaveProject) {
         ui.sbSavePeriod->setValue(abs(m_settings.value("auto-save_project/time_period_min", 5).toInt()));
     } else if (currentPage == ui.pageOutput) {
+        ui.dpiDefaultXValue->setValue(m_settings.value("output/default_dpi_x", 600).toUInt());
+        ui.dpiDefaultYValue->setValue(m_settings.value("output/default_dpi_y", 600).toUInt());
+
         ui.ThresholdMinValue->setValue( m_settings.value("output/binrization_threshold_control_min", -50).toInt() );
         ui.ThresholdMaxValue->setValue( m_settings.value("output/binrization_threshold_control_max", 50).toInt() );
         ui.ThresholdDefaultsValue->setValue( m_settings.value("output/binrization_threshold_control_default", 0).toInt());
@@ -600,4 +603,14 @@ void SettingsDialog::on_ThresholdDefaultsValue_valueChanged(int arg1)
     }
 
     m_settings.setValue("output/binrization_threshold_control_default", val);
+}
+
+void SettingsDialog::on_dpiDefaultYValue_valueChanged(int arg1)
+{
+    m_settings.setValue("output/default_dpi_y", arg1);
+}
+
+void SettingsDialog::on_dpiDefaultXValue_valueChanged(int arg1)
+{
+    m_settings.setValue("output/default_dpi_x", arg1);
 }

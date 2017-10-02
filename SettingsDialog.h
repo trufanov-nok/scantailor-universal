@@ -62,6 +62,10 @@ private slots:
 
     void on_ThresholdDefaultsValue_valueChanged(int arg1);
 
+    void on_dpiDefaultYValue_valueChanged(int arg1);
+
+    void on_dpiDefaultXValue_valueChanged(int arg1);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

@@ -141,6 +141,14 @@ int main(int argc, char** argv)
 	app.setLibraryPaths(QStringList(app.applicationDirPath()));
 #endif
 
+    // This information is used by QSettings.
+    // Must be done before CommandLine created
+    app.setApplicationName(APPLICATION_NAME);
+    app.setOrganizationName(ORGANIZATION_NAME);
+    app.setOrganizationDomain(ORGANIZATION_DOMAIN);
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+
+
 	// parse command line arguments
 	CommandLine cli(app.arguments());
 	CommandLine::set(cli);
@@ -156,11 +164,7 @@ int main(int argc, char** argv)
 	}
 	
 	
-	// This information is used by QSettings.
-    app.setApplicationName(APPLICATION_NAME);
-    app.setOrganizationName(ORGANIZATION_NAME);
-    app.setOrganizationDomain(ORGANIZATION_DOMAIN);
-    QSettings::setDefaultFormat(QSettings::IniFormat);
+
     SettingsDefaults::prepareDefaults(true);
 
 	QSettings settings;
@@ -171,6 +175,8 @@ int main(int argc, char** argv)
 	
 	MainWindow* main_wnd = new MainWindow();
 	main_wnd->setAttribute(Qt::WA_DeleteOnClose);
+
+    QObject::connect(main_wnd, &MainWindow::settingsUpdateRequest, CommandLine::updateSettings);
 
     if (cli.hasLanguage())
         main_wnd->changeLanguage(cli.getLanguage(), true);

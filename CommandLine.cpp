@@ -26,6 +26,7 @@
 #include <QMap>
 #include <QRegExp>
 #include <QStringList>
+#include <QSettings>
 
 #include "Dpi.h"
 #include "ImageId.h"
@@ -37,6 +38,7 @@
 #include "filters/page_layout/Settings.h"
 #include "Margins.h"
 #include "Despeckle.h"
+
 
 
 CommandLine CommandLine::m_globalInstance;
@@ -425,6 +427,12 @@ CommandLine::fetchDpi(QString oname)
 {
 	int xdpi=600;
 	int ydpi=600;
+
+    if (oname == "default-output-dpi") {
+        QSettings settings;
+        xdpi = settings.value("output/default_dpi_x", 600).toUInt();
+        ydpi = settings.value("output/default_dpi_y", 600).toUInt();
+    }
 
 	if (m_options.contains(oname+"-x")) {
 		xdpi = m_options.value(oname+"-x").toInt();
@@ -846,4 +854,10 @@ bool CommandLine::fetchDefaultNull()
     }
     
     return m_defaultNull;
+}
+
+void CommandLine::updateSettings()
+{
+    CommandLine& cli = m_globalInstance;
+    cli.m_defaultOutputDpi = cli.fetchDpi("default-output-dpi");
 }
