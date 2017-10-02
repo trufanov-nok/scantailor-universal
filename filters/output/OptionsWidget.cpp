@@ -335,8 +335,9 @@ OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 	BOOST_FOREACH(PageId const& page_id, pages) {
         m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyMode);
         m_ptrSettings->setPictureShape(page_id, m_currentPictureShape);
-        emit invalidateThumbnail(page_id);
 	}
+
+    emit invalidateAllThumbnails();
 	
 	if (pages.find(m_pageId) != pages.end()) {
 		emit reloadRequested();
@@ -891,8 +892,9 @@ void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& page
 {
     BOOST_FOREACH(PageId const& page_id, pages) {
         m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyThreshold);
-        emit invalidateThumbnail(page_id);
     }
+
+    emit invalidateAllThumbnails();
 
     if (pages.find(m_pageId) != pages.end()) {
         emit reloadRequested();

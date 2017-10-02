@@ -281,7 +281,6 @@ OptionsWidget::layoutTypeSet(
                 update_params.setParams(params);
             }
             m_ptrSettings->updatePage(page_id.imageId(), update_params);
-            emit invalidateThumbnail(page_id);
         }
     } else {
         Settings::UpdateAction update;
@@ -291,11 +290,11 @@ OptionsWidget::layoutTypeSet(
             if (page_id == m_pageId) {
                 autoBtn->setChecked(true);
                 emit reloadRequested();
-            } else {
-                emit invalidateThumbnail(page_id);
             }
         }
     }
+
+    emit invalidateAllThumbnails();
     
 	if (layout_type == AUTO_LAYOUT_TYPE) {
 		scopeLabel->setText(tr("Auto detected"));
