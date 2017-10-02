@@ -188,9 +188,7 @@ Filter::pageOrientationUpdate(
 	}
 
 	// Use orientation to update the number of logical pages in an image.
-	// buggy: if you change orientation and then skip page split you get
-	// eg in deskew two same pages but in split it is set to one page layout
-	// m_ptrPages->autoSetLayoutTypeFor(image_id, orientation);
+     m_ptrPages->autoSetLayoutTypeFor(image_id, orientation);
 }
 
 void
