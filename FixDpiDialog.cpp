@@ -38,6 +38,7 @@
 #include <vector>
 #include <algorithm>
 #include <assert.h>
+#include <QSettings>
 
 // To be able to use it in QVariant
 Q_DECLARE_METATYPE(ImageMetadata)
@@ -236,10 +237,22 @@ FixDpiDialog::FixDpiDialog(std::vector<ImageFileInfo> const& files, QWidget* par
 	m_errorPalette = m_normalPalette;
 	m_errorPalette.setColor(QPalette::Text, Qt::red);
 	
-	dpiCombo->addItem("300 x 300", QSize(300, 300));
-	dpiCombo->addItem("400 x 400", QSize(400, 400));
-	dpiCombo->addItem("600 x 600", QSize(600, 600));
-	
+    QStringList sl = QSettings().value("dpi/predefined_list", "300x300,400x400,600x600").toString().split(',',QString::KeepEmptyParts);
+    foreach (QString s, sl) {
+        QStringList nums = s.split('x');
+        bool ok = nums.count() >= 2;
+        int x = 0; int y = 0;
+        if (ok) {
+            x = nums[0].trimmed().toInt(&ok);
+            if (ok) {
+                y = nums[1].trimmed().toInt(&ok);
+                if (ok) {
+                    dpiCombo->addItem(QString("%1 x %2").arg(x).arg(y), QSize(x, y));
+                }
+            }
+        }
+    }
+
 	tabWidget->setTabText(NEED_FIXING_TAB, tr("Need Fixing"));
 	tabWidget->setTabText(ALL_PAGES_TAB, tr("All Pages"));
 	undefinedDpiView->setModel(m_ptrUndefinedDpiPages->model()),
