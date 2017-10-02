@@ -457,6 +457,9 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     } else if (currentPage == ui.pageOutput) {
         ui.ThresholdMinValue->setValue( m_settings.value("output/binrization_threshold_control_min", -50).toInt() );
         ui.ThresholdMaxValue->setValue( m_settings.value("output/binrization_threshold_control_max", 50).toInt() );
+        ui.ThresholdDefaultsValue->setValue( m_settings.value("output/binrization_threshold_control_default", 0).toInt());
+        ui.ThresholdDefaultsValue->setMinimum(ui.ThresholdMinValue->value());
+        ui.ThresholdDefaultsValue->setMaximum(ui.ThresholdMaxValue->value());
         connect( ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
         connect( ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
     } else if (currentPage == ui.pageDespeckling) {
@@ -558,6 +561,9 @@ void SettingsDialog::onThresholdValueChanged(int)
 
     m_settings.setValue("output/binrization_threshold_control_min", min);
     m_settings.setValue("output/binrization_threshold_control_max", max);
+
+    ui.ThresholdDefaultsValue->setMinimum(min);
+    ui.ThresholdDefaultsValue->setMaximum(max);
 }
 
 void SettingsDialog::on_despecklingDefaultsValue_currentIndexChanged(int index)
@@ -580,4 +586,18 @@ void SettingsDialog::on_startBatchProcessingDlgAllPages_toggled(bool checked)
 void SettingsDialog::on_showStartBatchProcessingDlg_clicked(bool checked)
 {
     m_settings.setValue("batch_dialog/remember_choice", !checked);
+}
+
+void SettingsDialog::on_ThresholdDefaultsValue_valueChanged(int arg1)
+{
+    int val = arg1;
+    val = std::max(val, ui.ThresholdMinValue->value());
+    val = std::min(val, ui.ThresholdMaxValue->value());
+    if (val != arg1) {
+        ui.ThresholdDefaultsValue->blockSignals(true);
+        ui.ThresholdDefaultsValue->setValue(val);
+        ui.ThresholdDefaultsValue->blockSignals(false);
+    }
+
+    m_settings.setValue("output/binrization_threshold_control_default", val);
 }

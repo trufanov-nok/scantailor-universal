@@ -885,7 +885,8 @@ void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
 
 void output::OptionsWidget::on_actionReset_to_default_value_triggered()
 {
-    thresholdSlider->setValue(0);
+    int def = QSettings().value("output/binrization_threshold_control_default", 0).toInt();
+    thresholdSlider->setValue(def);
 }
 
 void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& pages)

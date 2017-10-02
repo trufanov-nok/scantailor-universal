@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>22</number>
+       <number>18</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -914,20 +914,20 @@
           </layout>
          </widget>
         </item>
-        <item>
+        <item alignment="Qt::AlignTop">
          <widget class="QGroupBox" name="optOutput">
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_9">
-           <item row="0" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_56">
+           <item>
             <widget class="QLabel" name="ThresholdMinMaxLabel">
              <property name="text">
-              <string>Threshold control diapason</string>
+              <string>Threshold control diapason:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <widget class="QLabel" name="ThresholdMinLabel">
@@ -981,6 +981,33 @@
                 <number>50</number>
                </property>
               </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLabel" name="ThresholdDefaultsLabel">
+               <property name="text">
+                <string>Default threshold value:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="ThresholdDefaultsValue"/>
              </item>
             </layout>
            </item>

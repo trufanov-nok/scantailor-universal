@@ -20,13 +20,15 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
+#include <QSettings>
+#include "settings/globaldrawsettings.h"
 
 namespace output
 {
 
-BlackWhiteOptions::BlackWhiteOptions()
-:	m_thresholdAdjustment(0)
-{
+BlackWhiteOptions::BlackWhiteOptions():
+    m_thresholdAdjustment(GlobalDrawSettings::m_binrization_threshold_control_default)
+{   
 }
 
 BlackWhiteOptions::BlackWhiteOptions(QDomElement const& el)

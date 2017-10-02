@@ -60,6 +60,8 @@ private slots:
 
     void on_showStartBatchProcessingDlg_clicked(bool checked);
 
+    void on_ThresholdDefaultsValue_valueChanged(int arg1);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

@@ -387,6 +387,8 @@ MainWindow::settingsChanged()
     GlobalDrawSettings::setDrawContentDeviants(settings.value("select_content_deviant/enabled", false).toBool());
     GlobalDrawSettings::setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
 
+    GlobalDrawSettings::m_binrization_threshold_control_default = settings.value("output/binrization_threshold_control_default", 0).toInt();
+
     emit settingsUpdateRequest();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget
 }

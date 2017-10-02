@@ -66,6 +66,8 @@ private:
     static bool m_drawContentDeviants;
     static bool m_drawMarginDeviants;
     static int m_currentStage;
+public:
+    static int m_binrization_threshold_control_default;
 };
 
 #endif // GLOBALPAINTSETTINGS_H
