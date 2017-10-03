@@ -215,11 +215,14 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
 	m_metadataLoadFailed(false),
 	m_autoOutDir(true)
 {
-	m_supportedExtensions.insert("png");
-	m_supportedExtensions.insert("jpg");
-	m_supportedExtensions.insert("jpeg");
-	m_supportedExtensions.insert("tif");
-	m_supportedExtensions.insert("tiff");
+    QString filter = QSettings().value("main_window/filetype_filter", "*.png *.tiff *.tif *.jpeg *.jpg *.bmp").toString();
+    foreach (QString ext, filter.toLower().split(' ', QString::SkipEmptyParts)) {
+     ext = ext.trimmed();
+     if (int i = ext.lastIndexOf('.')) {
+         ext = ext.right(ext.size()-i-1);
+     }
+     m_supportedExtensions.insert(ext);
+    }
 	
 	setupUi(this);
 	offProjectList->setModel(m_ptrOffProjectFilesSorted->model());

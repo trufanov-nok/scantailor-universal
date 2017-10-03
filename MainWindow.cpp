@@ -2523,7 +2523,8 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
 	);
 	dialog->setFileMode(QFileDialog::ExistingFiles);
 	dialog->setProxyModel(new ProxyModel(*m_ptrPages));
-    dialog->setNameFilter(tr("Images not in project (%1)").arg("*.png *.tiff *.tif *.jpeg *.jpg *.bmp"));
+    QString filter = QSettings().value("main_window/filetype_filter", "*.png *.tiff *.tif *.jpeg *.jpg *.bmp").toString();
+    dialog->setNameFilter(tr("Images not in project (%1)").arg(filter));
 	// XXX: Adding individual pages from a multi-page TIFF where
 	// some of the pages are already in project is not supported right now.
 
