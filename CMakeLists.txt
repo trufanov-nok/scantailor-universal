@@ -469,6 +469,7 @@ SET(
         PngMetadataLoader.cpp PngMetadataLoader.h
         TiffMetadataLoader.cpp TiffMetadataLoader.h
         JpegMetadataLoader.cpp JpegMetadataLoader.h
+        GenericMetadataLoader.cpp GenericMetadataLoader.h
         ImageLoader.cpp ImageLoader.h
         ErrorWidget.cpp ErrorWidget.h
         OrthogonalRotation.cpp OrthogonalRotation.h

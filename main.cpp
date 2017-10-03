@@ -22,6 +22,7 @@
 #include "PngMetadataLoader.h"
 #include "TiffMetadataLoader.h"
 #include "JpegMetadataLoader.h"
+#include "GenericMetadataLoader.h"
 #include "SettingsDefaults.h"
 #include <QMetaType>
 #include <QtPlugin>
@@ -172,6 +173,8 @@ int main(int argc, char** argv)
 	PngMetadataLoader::registerMyself();
 	TiffMetadataLoader::registerMyself();
 	JpegMetadataLoader::registerMyself();
+    // should be the last one as the most dumb and loads whole image into mem
+    GenericMetadataLoader::registerMyself();
 	
 	MainWindow* main_wnd = new MainWindow();
 	main_wnd->setAttribute(Qt::WA_DeleteOnClose);
