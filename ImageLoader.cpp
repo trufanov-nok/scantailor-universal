@@ -19,6 +19,7 @@
 #include "ImageLoader.h"
 #include "TiffReader.h"
 #include "ImageId.h"
+#include <QImageReader>
 #include <QImage>
 #include <QString>
 #include <QIODevice>
@@ -53,6 +54,6 @@ ImageLoader::load(QIODevice& io_dev, int const page_num)
 	}
 	
 	QImage image;
-	image.load(&io_dev, 0);
+    QImageReader(&io_dev).read(&image);
 	return image;
 }
