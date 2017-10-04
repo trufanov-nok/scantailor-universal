@@ -112,7 +112,7 @@ Task::process(
 	Params const params(
 		m_ptrSettings->updateContentSizeAndGetParams(
 			m_pageId, page_rect, content_rect, content_size_mm,
-			&agg_hard_size_before, &agg_hard_size_after
+            &agg_hard_size_before, &agg_hard_size_after, m_ptrNextTask
 		)
 	);
 	
