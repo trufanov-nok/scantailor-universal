@@ -756,7 +756,8 @@ MainWindow::updateSortOptions()
 
 void
 MainWindow::resetThumbSequence(
-	IntrusivePtr<PageOrderProvider const> const& page_order_provider)
+    IntrusivePtr<PageOrderProvider const> const& page_order_provider,
+        ThumbnailSequence::SelectionAction const action)
 {
 	if (m_ptrThumbnailCache.get()) {
 		IntrusivePtr<CompositeCacheDrivenTask> const task(
@@ -772,10 +773,12 @@ MainWindow::resetThumbSequence(
 			)
 		);
 	}
-	
+
+    std::set<PageId> _selection = m_ptrThumbSequence->selectedItems();
+
 	m_ptrThumbSequence->reset(
 		m_ptrPages->toPageSequence(getCurrentView()),
-		ThumbnailSequence::RESET_SELECTION, page_order_provider
+        action, page_order_provider
 	);
 	
 	if (!m_ptrThumbnailCache.get()) {
@@ -786,19 +789,47 @@ MainWindow::resetThumbSequence(
 		);
 	}
 
-	PageId const page(m_selectedPage.get(getCurrentView()));
-	if (m_ptrThumbSequence->setSelection(page)) {
-		// OK
-	} else if (m_ptrThumbSequence->setSelection(PageId(page.imageId(), PageId::LEFT_PAGE))) {
-		// OK
-	} else if (m_ptrThumbSequence->setSelection(PageId(page.imageId(), PageId::RIGHT_PAGE))) {
-		// OK
-	} else if (m_ptrThumbSequence->setSelection(PageId(page.imageId(), PageId::SINGLE_PAGE))) {
-		// OK
-	} else {
-		// Last resort.
-		m_ptrThumbSequence->setSelection(m_ptrThumbSequence->firstPage().id());
-	}
+    QVector<PageId> selection;
+    foreach (PageId page, _selection) {
+        selection.append(page);
+    }
+    qSort(selection);
+
+    QVector<PageId> selected;
+    foreach (const PageId page, selection){
+        const PageId page_left(page.imageId(), PageId::LEFT_PAGE);
+        const PageId page_right(page.imageId(), PageId::RIGHT_PAGE);
+        const PageId page_single(page.imageId(), PageId::SINGLE_PAGE);
+        if (m_ptrThumbSequence->setSelection(page, action)) {
+            selected.append(page);
+        } else if (page.subPage() == PageId::SINGLE_PAGE &&
+                   // Guess it was a page that now splitted
+                   m_ptrThumbSequence->setSelection(page_right, action) &&
+                   m_ptrThumbSequence->setSelection(page_left, action)) {
+            selected.append(page_left);
+            selected.append(page_right);
+        } else if (m_ptrThumbSequence->setSelection(page_left, action)) {
+            selected.append(page_left);
+        } else if (m_ptrThumbSequence->setSelection(page_right, action)) {
+            selected.append(page_right);
+        } else if (m_ptrThumbSequence->setSelection(page_single, action)) {
+            selected.append(page_single);
+        } else if (m_ptrThumbSequence->setSelection(m_ptrThumbSequence->firstPage().id())){
+            // Last resort.
+            selected.append(m_ptrThumbSequence->firstPage().id());
+        }
+
+    }
+
+    if (ThumbnailSequence::KEEP_SELECTION == action && !selected.isEmpty()) {
+        qSort(selected);
+        QRectF rect(m_ptrThumbSequence->pageSceneRect(selected[0]));
+        if (!rect.isNull()) {
+            rect.setHeight(thumbView->height() - 10);
+            thumbView->ensureVisible(rect, 0, 0);
+        }
+    }
+
 }
 
 void
@@ -1240,7 +1271,7 @@ MainWindow::filterSelectionChanged(QItemSelection const& selected)
 	}
 	
 	focusButton->setChecked(true); // Should go before resetThumbSequence().
-	resetThumbSequence(currentPageOrderProvider());
+    resetThumbSequence(currentPageOrderProvider(), ThumbnailSequence::KEEP_SELECTION);
 	
 	updateMainArea();
 }

@@ -139,7 +139,7 @@ public:
 	 * with REDUNDANT_SELECTION flag set, in case our page was already the
 	 * selection leader.
 	 */
-	bool setSelection(PageId const& page_id);
+    bool setSelection(PageId const& page_id, const SelectionAction action = ThumbnailSequence::RESET_SELECTION);
 
 	/**
 	 * \brief Returns the current selection leader.
@@ -202,6 +202,8 @@ public:
 	 * Returns a null rectangle if no item is currently selected.
 	 */
 	QRectF selectionLeaderSceneRect() const;
+
+    QRectF pageSceneRect(PageId const& id) const;
 
 	std::set<PageId> selectedItems() const;
 	

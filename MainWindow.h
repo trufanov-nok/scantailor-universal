@@ -251,8 +251,7 @@ private:
 
 	void updateSortOptions();
 
-	void resetThumbSequence(
-		IntrusivePtr<PageOrderProvider const> const& page_order_provider);
+    void resetThumbSequence(IntrusivePtr<PageOrderProvider const> const& page_order_provider, const ThumbnailSequence::SelectionAction action = ThumbnailSequence::RESET_SELECTION);
 	
 	void removeWidgetsFromLayout(QLayout* layout);
 	

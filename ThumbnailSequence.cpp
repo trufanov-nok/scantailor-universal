@@ -151,7 +151,7 @@ public:
 	
 	void invalidateAllThumbnails();
 	
-	bool setSelection(PageId const& page_id);
+    bool setSelection(PageId const& page_id, const ThumbnailSequence::SelectionAction action);
 
 	PageInfo selectionLeader() const;
 
@@ -169,6 +169,8 @@ public:
 	void removePages(std::set<PageId> const& pages);
 	
 	QRectF selectionLeaderSceneRect() const;
+
+    QRectF pageSceneRect(PageId const& id) const;
 	
 	std::set<PageId> selectedItems() const;
 	
@@ -409,9 +411,9 @@ ThumbnailSequence::invalidateAllThumbnails()
 }
 
 bool
-ThumbnailSequence::setSelection(PageId const& page_id)
+ThumbnailSequence::setSelection(PageId const& page_id, ThumbnailSequence::SelectionAction const action)
 {
-	return m_ptrImpl->setSelection(page_id);
+    return m_ptrImpl->setSelection(page_id, action);
 }
 
 PageInfo
@@ -462,6 +464,12 @@ QRectF
 ThumbnailSequence::selectionLeaderSceneRect() const
 {
 	return m_ptrImpl->selectionLeaderSceneRect();
+}
+
+QRectF
+ThumbnailSequence::pageSceneRect(PageId const& id) const
+{
+    return m_ptrImpl->pageSceneRect(id);
 }
 
 std::set<PageId>
@@ -532,13 +540,13 @@ ThumbnailSequence::Impl::reset(
 
 	std::set<PageId> selected;
 	PageInfo selection_leader;
-	
-	if (selection_action == KEEP_SELECTION) {
+
+    if (selection_action == KEEP_SELECTION) {
 		selectedItems().swap(selected);
 		if (m_pSelectionLeader) {
 			selection_leader = m_pSelectionLeader->pageInfo;
 		}
-	}
+    }
 	
 	clear(); // Also clears the selection.
 	
@@ -567,7 +575,7 @@ ThumbnailSequence::Impl::reset(
 		}
 	}
 
-	invalidateAllThumbnails();
+    invalidateAllThumbnails();
 	
 	if (!m_pSelectionLeader) {
 		if (some_selected_item) {
@@ -577,9 +585,9 @@ ThumbnailSequence::Impl::reset(
 	
 	if (m_pSelectionLeader) {
 		m_pSelectionLeader->setSelectionLeader(true);
-		m_rOwner.emitNewSelectionLeader(
-			selection_leader, m_pSelectionLeader->composite, DEFAULT_SELECTION_FLAGS
-		);
+        m_rOwner.emitNewSelectionLeader(
+            selection_leader, m_pSelectionLeader->composite, DEFAULT_SELECTION_FLAGS
+        );
 	}
 }
 
@@ -819,7 +827,7 @@ ThumbnailSequence::AllThumbnailsComplete()
 // end of modified by monday2000
 
 bool
-ThumbnailSequence::Impl::setSelection(PageId const& page_id)
+ThumbnailSequence::Impl::setSelection(PageId const& page_id, ThumbnailSequence::SelectionAction const action)
 {
 	ItemsById::iterator const id_it(m_itemsById.find(page_id));
 	if (id_it == m_itemsById.end()) {
@@ -828,25 +836,27 @@ ThumbnailSequence::Impl::setSelection(PageId const& page_id)
 	
 	bool const was_selection_leader = (&*id_it == m_pSelectionLeader);
 	
-	// Clear selection from all items except the one for which
-	// selection is requested.
-	SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
-	while (it != m_selectedThenUnselected.end()) {
-		Item const& item = *it;
-		if (!item.isSelected()) {
-			break;
-		}
+    if (action != ThumbnailSequence::KEEP_SELECTION) {
+        // Clear selection from all items except the one for which
+        // selection is requested.
+        SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
+        while (it != m_selectedThenUnselected.end()) {
+            Item const& item = *it;
+            if (!item.isSelected()) {
+                break;
+            }
 
-		++it;
+            ++it;
 
-		if (&*id_it != &item) {
-			item.setSelected(false);
-			moveToUnselected(&item);
-			if (m_pSelectionLeader == &item) {
-				m_pSelectionLeader = 0;
-			}
-		}
-	}
+            if (&*id_it != &item) {
+                item.setSelected(false);
+                moveToUnselected(&item);
+                if (m_pSelectionLeader == &item) {
+                    m_pSelectionLeader = 0;
+                }
+            }
+        }
+    }
 	
 	if (!was_selection_leader) {
 		m_pSelectionLeader = &*id_it;
@@ -1085,6 +1095,20 @@ ThumbnailSequence::Impl::selectionLeaderSceneRect() const
 	return m_pSelectionLeader->composite->mapToScene(
 		m_pSelectionLeader->composite->boundingRect()
 	).boundingRect();
+}
+
+QRectF
+ThumbnailSequence::Impl::pageSceneRect(PageId const& id) const
+{
+    BOOST_FOREACH(Item const& item, m_selectedThenUnselected) {
+        if (item.pageId() == id) {
+            return item.composite->mapToScene(
+                item.composite->boundingRect()
+            ).boundingRect();
+        }
+    }
+
+    return QRectF();
 }
 
 std::set<PageId>
