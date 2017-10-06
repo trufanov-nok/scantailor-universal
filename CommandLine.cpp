@@ -24,7 +24,7 @@
 
 #include <QDir>
 #include <QMap>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QSettings>
 
@@ -57,11 +57,11 @@ CommandLine::set(CommandLine const& cl)
 bool
 CommandLine::parseCli(QStringList const& argv)
 {
-	QRegExp rx("^--([^=]+)=(.*)$");
-	QRegExp rx_switch("^--([^=]+)$");
-	QRegExp rx_short("^-([^=]+)=(.*)$");
-	QRegExp rx_short_switch("^-([^=]+)$");
-	QRegExp rx_project(".*\\.ScanTailor$", Qt::CaseInsensitive);
+    QRegularExpression rx("^--([^=]+)=(.*)$");
+    QRegularExpression rx_switch("^--([^=]+)$");
+    QRegularExpression rx_short("^-([^=]+)=(.*)$");
+    QRegularExpression rx_short_switch("^-([^=]+)$");
+    QRegularExpression rx_project("^.*\\.ScanTailor$", QRegularExpression::CaseInsensitiveOption);
 
 	QList<QString> opts;
 	opts << "help";
@@ -141,81 +141,103 @@ CommandLine::parseCli(QStringList const& argv)
 	shortMap["o"] = "output-project";
 
 	// skip first argument (scantailor)
-	for (int i=1; i<argv.size(); i++) {
+    for (int i=1; i<argv.size(); i++) {
 #ifdef DEBUG
-    std::cout << "arg[" << i << "]=" << argv[i].toLocal8Bit().constData() << std::endl;
+        std::cout << "arg[" << i << "]=" << argv[i].toLocal8Bit().constData() << std::endl;
 #endif
-		if (rx.exactMatch(argv[i])) {
-			// option with a value
-			QString key = rx.cap(1);
-			if (! opts.contains(key)) {
-				m_error = true;
-				std::cout << "Unknown option '" << key.toStdString() << "'" << std::endl;
-				continue;
-			}
-			m_options[key] = rx.cap(2);
-		} else if (rx_switch.exactMatch(argv[i])) {
-			// option without value
-			QString key = rx_switch.cap(1);
-			if (! opts.contains(key)) {
-				m_error = true;
-				std::cout << "Unknown switch '" << key.toStdString() << "'" << std::endl;
-				continue;
-			}
-			m_options[key] = "true";
-		} else if (rx_short.exactMatch(argv[i])) {
-			// option with a value
-			QString key = shortMap[rx_short.cap(1)];
-			if (key == "") {
-				std::cout << "Unknown option: '" << rx_short.cap(1).toStdString() << "'" << std::endl;
-				m_error = true;
-				continue;
-			}
-			m_options[key] = rx_short.cap(2);
-		} else if (rx_short_switch.exactMatch(argv[i])) {
-			QString key = shortMap[rx_short_switch.cap(1)];
-			if (key == "") {
-				std::cout << "Unknown switch: '" << rx_short_switch.cap(1).toStdString() << "'" << std::endl;
-				m_error = true;
-				continue;
-			}
-			m_options[key] = "true";
-		} else if (rx_project.exactMatch(argv[i])) {
-			// project file
-			CommandLine::m_projectFile = argv[i];
-		} else {
-			// handle input images and output directory
-			QFileInfo file(argv[i]);
-			if (i==(argv.size()-1)) {
-				// output directory
-				if (file.isDir()) {
-					CommandLine::m_outputDirectory = file.filePath();
-				} else {
-					std::cout << "Error: Last argument must be an existing directory" << std::endl;
-					exit(1);
-				}
-			} else if (file.filePath() == "-") {
-				// file names from stdin
-				std::string fname;
-				while (! std::cin.eof()) {
-					std::cin >> fname;
-					addImage(fname.c_str());
-				}
-			} else if (file.isDir()) {
-				// add all files from given directory as images
-				QDir dir(argv[i]);
-				QStringList files = dir.entryList(QDir::Files, QDir::Name);
-				for (int f=0; f<files.count(); f++) {
-					addImage(dir.filePath(files[f]));
-				}
-			} else {
-				// argument is image
-				addImage(file.filePath());
-			}
-		}
-	}
-            
-	setup();
+        do {
+            QRegularExpressionMatch match = rx.match(argv[i]);
+            if (match.hasMatch()) {
+                // option with a value
+                QString key = match.captured(1);
+                if (! opts.contains(key)) {
+                    m_error = true;
+                    std::cout << "Unknown option '" << key.toStdString() << "'" << std::endl;
+                    continue;
+                }
+                m_options[key] = match.captured(2);
+                break;
+            }
+
+            match = rx_switch.match(argv[i]);
+            if (match.hasMatch()) {
+                // option without value
+                QString key = match.captured(1);
+                if (! opts.contains(key)) {
+                    m_error = true;
+                    std::cout << "Unknown switch '" << key.toStdString() << "'" << std::endl;
+                    continue;
+                }
+                m_options[key] = "true";
+                break;
+            }
+
+            match = rx_short.match(argv[i]);
+            if (match.hasMatch()) {
+                // option with a value
+                QString key = shortMap[match.captured(1)];
+                if (key == "") {
+                    std::cout << "Unknown option: '" << match.captured(1).toStdString() << "'" << std::endl;
+                    m_error = true;
+                    continue;
+                }
+                m_options[key] = match.captured(2);
+                break;
+            }
+
+            match = rx_short_switch.match(argv[i]);
+            if (match.hasMatch()) {
+                QString key = shortMap[match.captured(1)];
+                if (key == "") {
+                    std::cout << "Unknown switch: '" << match.captured(1).toStdString() << "'" << std::endl;
+                    m_error = true;
+                    continue;
+                }
+                m_options[key] = "true";
+                break;
+            }
+
+            match = rx_project.match(argv[i]);
+            if (match.hasMatch()) {
+                // project file
+                CommandLine::m_projectFile = argv[i];
+                break;
+            }
+
+            // handle input images and output directory
+            QFileInfo file(argv[i]);
+            if (i==(argv.size()-1)) {
+                // output directory
+                if (file.isDir()) {
+                    CommandLine::m_outputDirectory = file.filePath();
+                } else {
+                    std::cout << "Error: Last argument must be an existing directory" << std::endl;
+                    exit(1);
+                }
+            } else if (file.filePath() == "-") {
+                // file names from stdin
+                std::string fname;
+                while (! std::cin.eof()) {
+                    std::cin >> fname;
+                    addImage(fname.c_str());
+                }
+            } else if (file.isDir()) {
+                // add all files from given directory as images
+                QDir dir(argv[i]);
+                QStringList files = dir.entryList(QDir::Files, QDir::Name);
+                for (int f=0; f<files.count(); f++) {
+                    addImage(dir.filePath(files[f]));
+                }
+            } else {
+                // argument is image
+                addImage(file.filePath());
+            }
+
+        }
+        while (false);
+    }
+
+    setup();
 
 #ifdef DEBUG
 	QStringList params = m_options.keys();
@@ -271,10 +293,11 @@ CommandLine::setup()
 	m_pageDetectionTolerance = fetchPageDetectionTolerance();
     m_defaultNull = fetchDefaultNull();
 
-	QRegExp exp(".*(tif|tiff|jpg|jpeg|bmp|gif|png|pbm|pgm|ppm|xbm|xpm)$", Qt::CaseInsensitive);
+    QRegularExpression exp("^.*(tif|tiff|jpg|jpeg|bmp|gif|png|pbm|pgm|ppm|xbm|xpm)$", QRegularExpression::CaseInsensitiveOption);
 	// setup images
     for (int i=0; i<(int)m_files.size(); ++i) {
-		if (! exp.exactMatch(m_files[i].filePath())) {
+        QRegularExpressionMatch match = exp.match(m_files[i].filePath());
+        if (! match.hasMatch()) {
 #ifdef DEBUG
 			std::cout << "Skipping file: " << m_files[i].filePath().toStdString() << std::endl;
 #endif
@@ -613,10 +636,12 @@ CommandLine::fetchContentRect()
 	if (!hasContentRect())
 		return QRectF();
 
-	QRegExp rx("([\\d\\.]+)x([\\d\\.]+):([\\d\\.]+)x([\\d\\.]+)");
+    QRegularExpression rx("^([\\d\\.]+)x([\\d\\.]+):([\\d\\.]+)x([\\d\\.]+)$");
+    QRegularExpressionMatch match = rx.match(m_options.value("content-box"));
 
-	if (rx.exactMatch(m_options.value("content-box"))) {
-		return QRectF(rx.cap(1).toFloat(), rx.cap(2).toFloat(), rx.cap(3).toFloat(), rx.cap(4).toFloat());
+    if (match.hasMatch()) {
+        return QRectF(match.captured(1).toFloat(), match.captured(2).toFloat(),
+                      match.captured(3).toFloat(), match.captured(4).toFloat());
 	}
 
     std::cout << "invalid --content-box=" << m_options.value("content-box").toLocal8Bit().constData() << std::endl;
@@ -827,9 +852,10 @@ QSizeF CommandLine::fetchPageDetectionBox() const
         return QSizeF();
     }
     
-    QRegExp rx("([\\d\\.]+)x([\\d\\.]+)");
-	if (rx.exactMatch(m_options["page-detection-box"])) {
-		return QSizeF(rx.cap(1).toFloat(), rx.cap(2).toFloat());
+    QRegularExpression rx("^([\\d\\.]+)x([\\d\\.]+)$");
+    QRegularExpressionMatch match = rx.match((m_options["page-detection-box"]));
+    if (match.hasMatch()) {
+        return QSizeF(match.captured(1).toFloat(), match.captured(2).toFloat());
 	}
     
     std::cout << "invalid --page-detection-box=" << m_options["page-detection-box"].toLocal8Bit().constData() << std::endl;
