@@ -417,7 +417,7 @@ void SettingsDialog::loadTiffList()
     const QResource tiff_data(":/TiffCompressionMethods.tsv");
     QStringList tiff_list = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
     if (filtered_only) {
-        tiff_list = tiff_list.filter("\t0");
+        tiff_list = tiff_list.filter(QRegularExpression(".*\t0$"));
     }
 
 
@@ -452,6 +452,7 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.cbApplyCutDefault->setChecked(m_settings.value("apply_cut/default", false).toBool());
     } else if (currentPage == ui.pageTiffCompression) {
         loadTiffList();
+        ui.useHorizontalPredictor->setChecked(m_settings.value("tiff_compression/use_horizontal_predictor", false).toBool());
     } else if (currentPage == ui.pageAutoSaveProject) {
         ui.sbSavePeriod->setValue(abs(m_settings.value("auto-save_project/time_period_min", 5).toInt()));
     } else if (currentPage == ui.pageOutput) {
