@@ -148,6 +148,8 @@ private:
 	DraggableObject m_middleEdges[4];
 	ObjectDragHandler m_middleEdgeHandlers[4];
 
+    ImageTransformation const m_xform;
+
 	DragHandler m_dragHandler;
 	ZoomHandler m_zoomHandler;
 
@@ -161,7 +163,6 @@ private:
 	 * (0, 0) in millimeter coordinates.
 	 */
 	PhysicalTransformation const m_physXform;
-	ImageTransformation const m_xform;
 	
 	/**
 	 * Content box in virtual image coordinates.

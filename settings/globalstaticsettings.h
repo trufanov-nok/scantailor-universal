@@ -1,7 +1,7 @@
-#ifndef GLOBALPAINTSETTINGS_H
-#define GLOBALPAINTSETTINGS_H
+#ifndef GLOBALSTATICSETTINGS_H
+#define GLOBALSTATICSETTINGS_H
 
-class GlobalDrawSettings
+class GlobalStaticSettings
 {
 public:
     inline static bool doDrawDeviants()
@@ -59,7 +59,7 @@ private:
         }
     }
 
-    GlobalDrawSettings() {}
+    GlobalStaticSettings() {}
 
     static bool m_drawDeviants;
     static bool m_drawDeskewDeviants;
@@ -71,4 +71,4 @@ public:
     static bool m_use_horizontal_predictor;
 };
 
-#endif // GLOBALPAINTSETTINGS_H
+#endif // GLOBALSTATICSETTINGS_H

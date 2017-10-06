@@ -114,7 +114,7 @@ PageFinder::findPageBox(
 			fineTuneCorners(bwimg, content_rect, QSize(0,0), 1.0);
 	} else {
 		// detect content box using different binarized images
-		for (int i=0; i<bwimages.size(); ++i) {
+        for (size_t i=0; i < bwimages.size(); ++i) {
 			// detect content box
 			QImage bwimg(bwimages[i].toQImage());
 			rects.push_back(QRect(detectBorders(bwimg)));

@@ -94,7 +94,7 @@
 #include "ui_StartBatchProcessingDialog.h"
 #include "config.h"
 #include "version.h"
-#include "settings/globaldrawsettings.h"
+#include "settings/globalstaticsettings.h"
 #ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -383,12 +383,12 @@ MainWindow::settingsChanged()
     }
 
     // Store Draw settings for immediate access
-    GlobalDrawSettings::setDrawDeskewDeviants(settings.value("deskew_deviant/enabled", false).toBool());
-    GlobalDrawSettings::setDrawContentDeviants(settings.value("select_content_deviant/enabled", false).toBool());
-    GlobalDrawSettings::setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
+    GlobalStaticSettings::setDrawDeskewDeviants(settings.value("deskew_deviant/enabled", false).toBool());
+    GlobalStaticSettings::setDrawContentDeviants(settings.value("select_content_deviant/enabled", false).toBool());
+    GlobalStaticSettings::setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
 
-    GlobalDrawSettings::m_binrization_threshold_control_default = settings.value("output/binrization_threshold_control_default", 0).toInt();
-    GlobalDrawSettings::m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
+    GlobalStaticSettings::m_binrization_threshold_control_default = settings.value("output/binrization_threshold_control_default", 0).toInt();
+    GlobalStaticSettings::m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
 
     emit settingsUpdateRequest();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget

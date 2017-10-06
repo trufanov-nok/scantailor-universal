@@ -31,9 +31,9 @@ Params::Params(
 	QRectF const& content_rect, QSizeF const& content_size_mm,
 	Dependencies const& deps, AutoManualMode const mode)
 :	m_contentRect(content_rect),
-	m_pageRect(content_rect),
+    m_pageRect(content_rect),
     m_pageBorders(0,0,0,0),
-	m_contentSizeMM(content_size_mm),
+    m_contentSizeMM(content_size_mm),
 	m_deps(deps),
 	m_mode(mode),
 	m_deviation(0.0)
@@ -60,9 +60,9 @@ Params::Params(
 }
 
 Params::Params(Dependencies const& deps)
-:	m_deps(deps),
-	m_mode(MODE_AUTO),
-    m_pageBorders(0,0,0,0),
+:   m_pageBorders(0,0,0,0),
+    m_deps(deps),
+    m_mode(MODE_AUTO),
 	m_deviation(0.0)
 {
 	m_contentDetect = CommandLine::get().isContentDetectionEnabled();
@@ -81,16 +81,16 @@ Params::Params(QDomElement const& filter_el)
 			filter_el.namedItem("page-rect").toElement()
 		)		
 	),
-	m_contentSizeMM(
-		XmlUnmarshaller::sizeF(
-			filter_el.namedItem("content-size-mm").toElement()
-		)
-	),
    	m_pageBorders(
 		XmlUnmarshaller::margins(
 			filter_el.namedItem("page-borders").toElement()
 		)
 	),
+    m_contentSizeMM(
+        XmlUnmarshaller::sizeF(
+            filter_el.namedItem("content-size-mm").toElement()
+        )
+    ),
 	m_deps(filter_el.namedItem("dependencies").toElement()),
 	m_mode(filter_el.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO),
 	m_contentDetect(filter_el.attribute("content-detect") == "false" ? false : true),

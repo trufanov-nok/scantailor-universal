@@ -83,6 +83,7 @@ private:
 
 	PageId m_pageId;
 	QPolygonF m_virtDisplayArea;
+    QRectF const m_virt_content_rect;
 	DewarpingMode m_dewarpingMode;
 	dewarping::DistortionModel m_distortionModel;
 	DepthPerception m_depthPerception;
@@ -90,7 +91,6 @@ private:
 	InteractiveXSpline m_bottomSpline;
 	DragHandler m_dragHandler;
 	ZoomHandler m_zoomHandler;
-    QRectF const m_virt_content_rect;
 };
 
 } // namespace output

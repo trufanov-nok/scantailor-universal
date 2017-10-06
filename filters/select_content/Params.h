@@ -85,7 +85,7 @@ private:
 	QRectF m_contentRect;
 	QRectF m_pageRect;
     Margins m_pageBorders;
-	QSizeF m_contentSizeMM;
+    QSizeF m_contentSizeMM;
 	Dependencies m_deps;
 	AutoManualMode m_mode;
 	bool m_contentDetect;

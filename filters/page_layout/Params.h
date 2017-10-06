@@ -54,8 +54,8 @@ public:
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
 	Margins m_hardMarginsMM;
+    QRectF m_pageRect;
 	QRectF m_contentRect;
-	QRectF m_pageRect;
 	QSizeF m_contentSizeMM;
 	Alignment m_alignment;
 };

@@ -23,7 +23,7 @@
 #include "AbstractCommand.h"
 #include "PixmapRenderer.h"
 #include "imageproc/PolygonUtils.h"
-#include "settings/globaldrawsettings.h"
+#include "settings/globalstaticsettings.h"
 #ifndef Q_MOC_RUN
 #include <boost/weak_ptr.hpp>
 #endif
@@ -219,7 +219,7 @@ ThumbnailBase::paint(QPainter* painter,
 
 void ThumbnailBase::paintDeviant(QPainter &painter)
 {
-    if (!GlobalDrawSettings::doDrawDeviants()) {
+    if (!GlobalStaticSettings::doDrawDeviants()) {
         return;
     }
 	QPen pen(QColor(0xdd, 0x00, 0x00, 0xee));

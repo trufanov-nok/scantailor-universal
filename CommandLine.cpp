@@ -749,7 +749,7 @@ float
 CommandLine::fetchMatchLayoutTolerance()
 {
 	if (! hasMatchLayoutTolerance())
-		return 0.2;
+        return (float) 0.2;
 
 	return m_options["match-layout-tolerance"].toFloat();
 }
