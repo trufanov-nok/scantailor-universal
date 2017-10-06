@@ -18,8 +18,10 @@
 
 #include "OrderByHeightProvider.h"
 #include "Params.h"
+#include "PageId.h"
 #include <QSizeF>
 #include <memory>
+#include <assert.h>
 
 namespace select_content
 {
@@ -34,6 +36,19 @@ OrderByHeightProvider::precedes(
 	PageId const& lhs_page, bool const lhs_incomplete,
 	PageId const& rhs_page, bool const rhs_incomplete) const
 {
+
+    if (lhs_incomplete != rhs_incomplete) {
+        // Pages with question mark go to the bottom.
+        return rhs_incomplete;
+    } else if (lhs_incomplete) {
+        assert(rhs_incomplete);
+        // Two pages with question marks are ordered naturally.
+        return lhs_page < rhs_page;
+    }
+
+    assert(lhs_incomplete == false);
+    assert(rhs_incomplete == false);
+
 	std::auto_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
 	std::auto_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
 	
@@ -46,15 +61,26 @@ OrderByHeightProvider::precedes(
 		rhs_size = rhs_params->contentSizeMM();
 	}
 	
-	bool const lhs_valid = !lhs_incomplete && lhs_size.isValid();
-	bool const rhs_valid = !rhs_incomplete && rhs_size.isValid();
+    bool const lhs_invalid = !lhs_size.isValid();
+    bool const rhs_invalid = !rhs_size.isValid();
 
-	if (lhs_valid != rhs_valid) {
-		// Invalid (unknown) sizes go to the back.
-		return lhs_valid;
-	}
+    if (lhs_invalid != rhs_invalid) {
+        // Pages with question mark go to the bottom.
+        return rhs_invalid;
+    } else if (lhs_invalid) {
+        assert(rhs_invalid);
+        // Two pages with question marks are ordered naturally.
+        return lhs_page < rhs_page;
+    }
 
-	return lhs_size.height() < rhs_size.height();
+    assert(lhs_invalid == false);
+    assert(rhs_incomplete == false);
+
+    if (lhs_size.height() != rhs_size.height()) {
+        return lhs_size.height() < rhs_size.height();
+    } else {
+        return lhs_page < rhs_page;
+    }
 }
 
 } // namespace select_content

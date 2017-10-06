@@ -56,7 +56,11 @@ OrderByModeProvider::precedes(
         return cgoptsl.normalizeIllumination() < cgoptsr.normalizeIllumination();
     }
 
-    return lclr_param.blackWhiteOptions().thresholdAdjustment() <  rclr_param.blackWhiteOptions().thresholdAdjustment();
+    if (lclr_param.blackWhiteOptions().thresholdAdjustment() == rclr_param.blackWhiteOptions().thresholdAdjustment()) {
+        return lhs_page < rhs_page;
+    } else {
+        return lclr_param.blackWhiteOptions().thresholdAdjustment() < rclr_param.blackWhiteOptions().thresholdAdjustment();
+    }
 
 }
 
