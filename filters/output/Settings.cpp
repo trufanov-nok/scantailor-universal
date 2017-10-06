@@ -32,6 +32,7 @@
 #include <tiff.h>
 #include <QResource>
 #include <QSettings>
+#include <QRegularExpression>
 
 namespace output
 {
@@ -350,7 +351,7 @@ getCompressionVal(const QString& compression)
         _tiff_list = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
     }
 
-    QStringList data = _tiff_list.filter(compression+"\t", Qt::CaseInsensitive);
+    QStringList data = _tiff_list.filter(QRegularExpression("^"+compression+"\t.*"));
 
     if (data.empty()) {
         throw("Unknown compression");
