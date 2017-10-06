@@ -388,6 +388,7 @@ MainWindow::settingsChanged()
     GlobalDrawSettings::setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
 
     GlobalDrawSettings::m_binrization_threshold_control_default = settings.value("output/binrization_threshold_control_default", 0).toInt();
+    GlobalDrawSettings::m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
 
     emit settingsUpdateRequest();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget

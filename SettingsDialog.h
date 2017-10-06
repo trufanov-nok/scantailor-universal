@@ -66,6 +66,8 @@ private slots:
 
     void on_dpiDefaultXValue_valueChanged(int arg1);
 
+    void on_useHorizontalPredictor_clicked(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

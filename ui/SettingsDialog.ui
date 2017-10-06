@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>18</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -468,6 +468,13 @@
             <widget class="QCheckBox" name="cbTiffFilter">
              <property name="text">
               <string>Hide rare or unsupported methods</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="useHorizontalPredictor">
+             <property name="text">
+              <string>Use horizontal differencing predictor</string>
              </property>
             </widget>
            </item>

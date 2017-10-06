@@ -68,6 +68,7 @@ private:
     static int m_currentStage;
 public:
     static int m_binrization_threshold_control_default;
+    static bool m_use_horizontal_predictor;
 };
 
 #endif // GLOBALPAINTSETTINGS_H

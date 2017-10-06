@@ -615,3 +615,8 @@ void SettingsDialog::on_dpiDefaultXValue_valueChanged(int arg1)
 {
     m_settings.setValue("output/default_dpi_x", arg1);
 }
+
+void SettingsDialog::on_useHorizontalPredictor_clicked(bool checked)
+{
+    m_settings.setValue("tiff_compression/use_horizontal_predictor", checked);
+}
