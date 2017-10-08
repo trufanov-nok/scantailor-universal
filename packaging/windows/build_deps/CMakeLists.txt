@@ -251,7 +251,13 @@ IF(EXISTS "${TIFF_DIR}/libtiff/tiffconf.vc.h")
 	)
 ENDIF(EXISTS "${TIFF_DIR}/libtiff/tiffconf.vc.h")
 
-ADD_LIBRARY(${TIFF_LIBRARY_NAME} SHARED ${libtiff_sources})
+SET(
+	libport_snprintf_sources
+	dummy.c snprintf.c
+)
+LIST_ITEMS_PREPEND(libport_snprintf_sources "${TIFF_DIR}/port/")
+
+ADD_LIBRARY(${TIFF_LIBRARY_NAME} SHARED ${libtiff_sources} ${libport_snprintf_sources})
 TARGET_LINK_LIBRARIES(
 	${TIFF_LIBRARY_NAME}
 	${PNG_LIBRARY_NAME} ${JPEG_LIBRARY_NAME} ${ZLIB_LIBRARY_NAME}
