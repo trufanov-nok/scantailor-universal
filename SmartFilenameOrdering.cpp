@@ -19,63 +19,63 @@
 #include "SmartFilenameOrdering.h"
 #include <QFileInfo>
 #include <QString>
+#include <QRegularExpression>
 
 bool
 SmartFilenameOrdering::operator()(QFileInfo const& lhs, QFileInfo const& rhs) const
 {
-	// First compare directories.
-	if (int comp = lhs.absolutePath().compare(rhs.absolutePath())) {
-		return comp < 0;
-	}
-	
-	QString const lhs_fname(lhs.fileName());
-	QString const rhs_fname(rhs.fileName());
-	QChar const* lhs_ptr = lhs_fname.constData();
-	QChar const* rhs_ptr = rhs_fname.constData();
-	while (!lhs_ptr->isNull() && !rhs_ptr->isNull()) {
-		bool const lhs_is_digit = lhs_ptr->isDigit();
-		bool const rhs_is_digit = rhs_ptr->isDigit();
-		if (lhs_is_digit != rhs_is_digit) {
-			// Digits have priority over non-digits.
-			return lhs_is_digit;
-		}
-		
-		if (lhs_is_digit && rhs_is_digit) {
-			unsigned long lhs_number = 0;
-			do {
-				lhs_number = lhs_number * 10 + lhs_ptr->digitValue();
-				++lhs_ptr;
-				// Note: isDigit() implies !isNull()
-			} while (lhs_ptr->isDigit());
-			
-			unsigned long rhs_number = 0;
-			do {
-				rhs_number = rhs_number * 10 + rhs_ptr->digitValue();
-				++rhs_ptr;
-				// Note: isDigit() implies !isNull()
-			} while (rhs_ptr->isDigit());
-			
-			if (lhs_number != rhs_number) {
-				return lhs_number < rhs_number;
-			} else {
-				continue;
-			}
-		}
-		
-		if (lhs_ptr->isNull() != rhs_ptr->isNull()) {
-			return *lhs_ptr < *rhs_ptr;
-		}
-		
-		++lhs_ptr;
-		++rhs_ptr;
-	}
-	
-	if (!lhs_ptr->isNull() || !rhs_ptr->isNull()) {
-		return lhs_ptr->isNull();
-	}
-	
-	// OK, the smart comparison indicates the file names are equal.
-	// However, if they aren't symbol-to-symbol equal, we can't treat
-	// them as equal, so let's do a usual comparison now.
-	return lhs_fname < rhs_fname;
+    // First compare directories.
+    if (int comp = lhs.absolutePath().compare(rhs.absolutePath())) {
+        return comp < 0;
+    }
+
+    QRegularExpression re_num("[0-9]+");
+    const QString zero('0');
+
+    const QString left_filename(lhs.fileName());
+    const QString right_filename(rhs.fileName());
+
+    QRegularExpressionMatchIterator match_left_it = re_num.globalMatch(left_filename);
+    QRegularExpressionMatchIterator match_right_it = re_num.globalMatch(right_filename);
+
+    int pos1 = 0;
+    int pos2 = 0;
+    QString fn1;
+    QString fn2;
+
+    while (match_left_it.hasNext() && match_right_it.hasNext()) {
+        QRegularExpressionMatch match_left = match_left_it.next();
+        QRegularExpressionMatch match_right = match_right_it.next();
+
+        fn1 += left_filename.mid(pos1, match_left.capturedStart() - pos1);
+        pos1 =  match_left.capturedEnd();
+
+        fn2 += right_filename.mid(pos2, match_right.capturedStart() - pos2);
+        pos2 =  match_right.capturedEnd();
+
+        QString left_num = match_left.captured();
+        QString right_num = match_right.captured();
+        int diff = left_num.size() - right_num.size();
+
+        if (diff < 0) {
+            left_num.prepend(zero.repeated(-1*diff));
+        } else if (diff > 0) {
+            right_num.prepend(zero.repeated(diff));
+        }
+
+        fn1 += left_num;
+        fn2 += right_num;
+    }
+    if (pos1 < left_filename.size()-1) {
+        fn1 += left_filename.right(left_filename.size()-pos1);
+    }
+    if (pos2 < right_filename.size()-1) {
+        fn2 += right_filename.right(right_filename.size()-pos2);
+    }
+
+    if (int comp = fn1.compare(fn2)) {
+        return comp < 0;
+    }
+
+    return left_filename < right_filename;
 }
