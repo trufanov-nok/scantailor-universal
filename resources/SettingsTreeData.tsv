@@ -2,6 +2,7 @@ pageGeneral
 	pageDocking	docking_panels/enabled	0
 	pageAutoSaveProject	auto-save_project/enabled	0
 	pageTiffCompression
+	pageDebugMode	debug_mode/enabled	0
 pageFixOrientation
 pageSplitPages
 	pageApplyCut	apply_cut/enabled
@@ -24,4 +25,3 @@ pageOutput
 	pageFillZones
 	pageDewarping
 	pageDespeckling
-	pageDebugMode	debug_mode/enabled	0

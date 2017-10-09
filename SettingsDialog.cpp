@@ -203,11 +203,12 @@ void
 SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 {
     const QStringList settingsTreeTitles = (QStringList()
-                                            << tr("General")
-                                            << tr("Docking")
+                                            << tr("General")                                            
+                                            <<        tr("Docking")
                                             <<        tr("Auto-save project")
                                             <<        tr("Tiff compression")
-                                            <<        tr("Fix Orientation")
+                                            <<        tr("Debug mode"))
+                                            << tr("Fix Orientation")
                                             << tr("Split pages")
                                             <<        tr("Apply cut")
                                             << tr("Deskew")
@@ -228,8 +229,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             <<                      tr("Quadro")
                                             <<        tr("Fill zones")
                                             <<        tr("Dewarping")
-                                            <<        tr("Despeckling")
-                                            <<        tr("Debug mode"));
+                                            <<        tr("Despeckling");
     const QResource tree_metadata(":/SettingsTreeData.tsv");
     QStringList tree_data = QString::fromUtf8((char const*)tree_metadata.data(), tree_metadata.size()).split('\n');
 
