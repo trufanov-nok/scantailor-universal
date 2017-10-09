@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>19</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -1124,7 +1124,15 @@
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_10"/>
+          <layout class="QFormLayout" name="formLayout_10">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="disableSmoothingBW">
+             <property name="text">
+              <string>Disable smoothing</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>

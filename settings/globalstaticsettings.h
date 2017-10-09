@@ -1,6 +1,8 @@
 #ifndef GLOBALSTATICSETTINGS_H
 #define GLOBALSTATICSETTINGS_H
 
+#include <QSettings>
+
 class GlobalStaticSettings
 {
 public:
@@ -41,6 +43,18 @@ public:
         }
     }
 
+    static void updateSettings()
+    {
+        QSettings settings;
+        setDrawDeskewDeviants(settings.value("deskew_deviant/enabled", false).toBool());
+        setDrawContentDeviants(settings.value("select_content_deviant/enabled", false).toBool());
+        setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
+
+        m_binrization_threshold_control_default = settings.value("output/binrization_threshold_control_default", 0).toInt();
+        m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
+        m_disable_bw_smoothing = settings.value("mode_bw/disable_smoothing", false).toBool();
+    }
+
 private:
     inline static void updateParams()
     {
@@ -69,6 +83,7 @@ private:
 public:
     static int m_binrization_threshold_control_default;
     static bool m_use_horizontal_predictor;
+    static bool m_disable_bw_smoothing;
 };
 
 #endif // GLOBALSTATICSETTINGS_H

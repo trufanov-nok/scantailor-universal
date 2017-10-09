@@ -62,6 +62,7 @@
 #include "imageproc/ConnectivityMap.h"
 #include "imageproc/InfluenceMap.h"
 #include "config.h"
+#include "settings/globalstaticsettings.h"
 #ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
@@ -658,6 +659,8 @@ OutputGenerator::processWithoutDewarping(
 	) const
 {
 	RenderParams const render_params(m_colorParams);
+    const bool suppress_smoothing = GlobalStaticSettings::m_disable_bw_smoothing &&
+            (m_colorParams.colorMode() == ColorParams::BLACK_AND_WHITE);
 	
 	// The whole image minus the part cut off by the split line.
 	QRect const big_margins_rect(
@@ -725,7 +728,7 @@ OutputGenerator::processWithoutDewarping(
 	QImage maybe_smoothed;
 	
 	// We only do smoothing if we are going to do binarization later.
-	if (!render_params.needBinarization()) {
+    if (!render_params.needBinarization() || suppress_smoothing) {
 		maybe_smoothed = maybe_normalized;
 	} else {
 		maybe_smoothed = smoothToGrayscale(maybe_normalized, m_dpi);
@@ -749,10 +752,12 @@ OutputGenerator::processWithoutDewarping(
 			
 			status.throwIfCancelled();
 			
-			morphologicalSmoothInPlace(bw_content, status);
-			if (dbg) {
-				dbg->add(bw_content, "edges_smoothed");
-			}
+            if (!suppress_smoothing) {
+                morphologicalSmoothInPlace(bw_content, status);
+                if (dbg) {
+                    dbg->add(bw_content, "edges_smoothed");
+                }
+            }
 
 			status.throwIfCancelled();
 			
@@ -924,10 +929,12 @@ OutputGenerator::processWithoutDewarping(
 		
 		status.throwIfCancelled();
 		
-		morphologicalSmoothInPlace(bw_content, status);
-		if (dbg) {
-			dbg->add(bw_content, "edges_smoothed");
-		}
+        if (!suppress_smoothing) {
+            morphologicalSmoothInPlace(bw_content, status);
+            if (dbg) {
+                dbg->add(bw_content, "edges_smoothed");
+            }
+        }
 
 		status.throwIfCancelled();
 		
@@ -1053,6 +1060,8 @@ OutputGenerator::processWithDewarping(
 	}
 
 	RenderParams const render_params(m_colorParams);
+    const bool suppress_smoothing = GlobalStaticSettings::m_disable_bw_smoothing &&
+            (m_colorParams.colorMode() == ColorParams::BLACK_AND_WHITE);
 	
 	// The whole image minus the part cut off by the split line.
 	QRect const big_margins_rect(
@@ -1565,7 +1574,7 @@ OutputGenerator::processWithDewarping(
 
 	QImage dewarped_and_maybe_smoothed;
 	// We only do smoothing if we are going to do binarization later.
-	if (!render_params.needBinarization()) {
+    if (!render_params.needBinarization() || suppress_smoothing) {
 		dewarped_and_maybe_smoothed = dewarped;
 	} else {
 		dewarped_and_maybe_smoothed = smoothToGrayscale(dewarped, m_dpi);
@@ -1593,10 +1602,12 @@ OutputGenerator::processWithDewarping(
 		
 		status.throwIfCancelled();
 
-		morphologicalSmoothInPlace(dewarped_bw_content, status);
-		if (dbg) {
-			dbg->add(dewarped_bw_content, "edges_smoothed");
-		}
+        if (!suppress_smoothing) {
+            morphologicalSmoothInPlace(dewarped_bw_content, status);
+            if (dbg) {
+                dbg->add(dewarped_bw_content, "edges_smoothed");
+            }
+        }
 
 		status.throwIfCancelled();
 		
@@ -1655,10 +1666,12 @@ OutputGenerator::processWithDewarping(
 
 		status.throwIfCancelled();
 		
-		morphologicalSmoothInPlace(dewarped_bw_content, status);
-		if (dbg) {
-			dbg->add(dewarped_bw_content, "edges_smoothed");
-		}
+        if (!suppress_smoothing) {
+            morphologicalSmoothInPlace(dewarped_bw_content, status);
+            if (dbg) {
+                dbg->add(dewarped_bw_content, "edges_smoothed");
+            }
+        }
 
 		status.throwIfCancelled();
 		

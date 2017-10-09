@@ -68,6 +68,8 @@ private slots:
 
     void on_useHorizontalPredictor_clicked(bool checked);
 
+    void on_disableSmoothingBW_clicked(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

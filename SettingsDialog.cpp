@@ -487,6 +487,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
                     !m_settings.value("batch_dialog/start_from_current_page", true).toBool());
         ui.showStartBatchProcessingDlg->setChecked(
                     !m_settings.value("batch_dialog/remember_choice", false).toBool());
+    } else if (currentPage == ui.pageBlackWhiteMode) {
+        ui.disableSmoothingBW->setChecked(m_settings.value("mode_bw/disable_smoothing", false).toBool());
     }
 
 }
@@ -619,4 +621,9 @@ void SettingsDialog::on_dpiDefaultXValue_valueChanged(int arg1)
 void SettingsDialog::on_useHorizontalPredictor_clicked(bool checked)
 {
     m_settings.setValue("tiff_compression/use_horizontal_predictor", checked);
+}
+
+void SettingsDialog::on_disableSmoothingBW_clicked(bool checked)
+{
+    m_settings.setValue("mode_bw/disable_smoothing", checked);
 }
