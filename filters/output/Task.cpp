@@ -130,7 +130,7 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 	ImageViewTab const last_tab, bool const batch, bool const debug,
 	bool const keep_orig_fore_subscan,
 //Original_Foreground_Mixed
-	QImage* const p_orig_fore_subscan)
+    QImage* const p_orig_fore_subscan)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
 	m_ptrThumbnailCache(thumbnail_cache),
@@ -270,7 +270,15 @@ Task::process(
 	}
 //end of modified by monday2000
 	
-	bool need_reprocess = false;
+    Params p = m_ptrSettings->getParams(m_pageId);
+    Params::Regenerate val = p.getForceReprocess();
+    bool need_reprocess = val & Params::RegeneratePage;
+    if (need_reprocess) {
+        val = (Params::Regenerate) (val & ~Params::RegeneratePage);
+        p.setForceReprocess(val);
+        m_ptrSettings->setParams(m_pageId, p);
+    }
+
 	do { // Just to be able to break from it.
 		
 		std::auto_ptr<OutputParams> stored_output_params(

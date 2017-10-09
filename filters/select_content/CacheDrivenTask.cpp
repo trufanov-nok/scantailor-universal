@@ -51,8 +51,21 @@ CacheDrivenTask::process(
 	ImageTransformation const& xform)
 {
 	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(page_info.id()));
+
+    bool need_reprocess(!params.get());
+    if (!need_reprocess) {
+        Params p(*params.get());
+        Params::Regenerate val = p.getForceReprocess();
+        need_reprocess = val & Params::RegenerateThumbnail;
+        if (need_reprocess) {
+            val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+            p.setForceReprocess(val);
+            m_ptrSettings->setPageParams(page_info.id(), p);
+        }
+    }
+
 	Dependencies const deps(xform.resultingPreCropArea());
-	if (!params.get() || (!params->dependencies().matches(deps) && (params->mode() == MODE_AUTO || !params->isContentDetectionEnabled()))) {
+    if (need_reprocess || (!params->dependencies().matches(deps) && (params->mode() == MODE_AUTO || !params->isContentDetectionEnabled()))) {
 		
 		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 			thumb_col->processThumbnail(

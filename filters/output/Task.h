@@ -27,11 +27,8 @@
 #include "OutputFileNameGenerator.h"
 #include <QColor>
 #include <memory>
-//begin of modified by monday2000
-//Original_Foreground_Mixed
-//added:
 #include <QImage>
-//end of modified by monday2000
+
 
 class DebugImages;
 class TaskStatus;
@@ -74,7 +71,6 @@ public:
 		QPolygonF const& content_rect_phys);
 
     QObject* getSettingsListener();
-
 private:
 	class UiUpdater;
 	

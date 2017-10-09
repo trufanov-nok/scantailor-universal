@@ -65,6 +65,8 @@ public:
 	
 	virtual void loadSettings(
 		ProjectReader const& reader, QDomElement const& filters_el);
+
+    virtual void invalidateSetting(PageId const& page);
 	
 	IntrusivePtr<Task> createTask(
 		PageId const& page_id,

@@ -26,14 +26,16 @@ namespace page_split
 Params::Params(PageLayout const& layout,
 	Dependencies const& deps,
 	AutoManualMode const split_line_mode)
-:	m_layout(layout),
+:	RegenParams(),
+    m_layout(layout),
 	m_deps(deps),
 	m_splitLineMode(split_line_mode)
 {
 }
 
 Params::Params(QDomElement const& el)
-:	m_layout(el.namedItem("pages").toElement()),
+:	RegenParams(),
+    m_layout(el.namedItem("pages").toElement()),
 	m_deps(el.namedItem("dependencies").toElement()),
 	m_splitLineMode(
 		el.attribute("mode") == "manual"

@@ -21,6 +21,7 @@
 
 #include "Margins.h"
 #include "Alignment.h"
+#include "RegenParams.h"
 #include <QSizeF>
 #include <QRectF>
 
@@ -31,7 +32,7 @@ class QString;
 namespace page_layout
 {
 
-class Params
+class Params: public RegenParams
 {
 	// Member-wise copying is OK.
 public:

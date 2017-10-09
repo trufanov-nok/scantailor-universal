@@ -32,7 +32,7 @@ namespace output
 {
 
 Params::Params()
-:	m_dpi(CommandLine::get().getDefaultOutputDpi())
+:  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi())
 {
    QSettings s;
    m_despeckleLevel = (DespeckleLevel) s.value("despeckling/default_level", DESPECKLE_CAUTIOUS).toUInt();
@@ -40,7 +40,8 @@ Params::Params()
 }
 
 Params::Params(QDomElement const& el)
-:	m_pictureShape((PictureShape)(el.attribute("pictureShape").toInt())),
+:	RegenParams(),
+    m_pictureShape((PictureShape)(el.attribute("pictureShape").toInt())),
     m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
 	m_distortionModel(el.namedItem("distortion-model").toElement()),
 	m_depthPerception(el.attribute("depthPerception")),

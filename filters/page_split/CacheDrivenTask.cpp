@@ -72,7 +72,21 @@ CacheDrivenTask::process(
             }
         }
 
-        if (!params || !compatibleWith) {
+        bool need_reprocess(!params || !compatibleWith);
+        if (!need_reprocess) {
+            Params p(*params);
+            Params::Regenerate val = p.getForceReprocess();
+            need_reprocess = val & Params::RegenerateThumbnail;
+            if (need_reprocess) {
+                val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+                p.setForceReprocess(val);
+                Settings::UpdateAction update_params;
+                update_params.setParams(p);
+                m_ptrSettings->updatePage(page_info.imageId(), update_params);
+            }
+        }
+
+        if (need_reprocess) {
             if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
                 thumb_col->processThumbnail(
                             std::auto_ptr<QGraphicsItem>(

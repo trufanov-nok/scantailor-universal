@@ -1151,6 +1151,16 @@ MainWindow::pageContextMenuRequested(
 	QAction* remove = menu.addAction(
 		QIcon(":/icons/user-trash.png"), tr("Remove from project ...")
 	);
+
+    QAction* regenerate = NULL;
+    bool regenerate_action_added = m_debug &&
+            (m_curFilter != m_ptrStages->fixOrientationFilterIdx()) &&
+            (m_curFilter != m_ptrStages->pageLayoutFilterIdx());
+
+    if (regenerate_action_added) {
+        menu.addSeparator();
+        regenerate = menu.addAction(tr("Regenerate result"));
+    }
 	
 	QAction* action = menu.exec(screen_pos);
 	if (action == ins_before) {
@@ -1159,7 +1169,11 @@ MainWindow::pageContextMenuRequested(
 		showInsertFileDialog(AFTER, page_info.imageId());
 	} else if (action == remove) {
 		showRemovePagesDialog(m_ptrThumbSequence->selectedItems());
-	}
+    } else if (regenerate_action_added && action == regenerate) {
+        m_ptrStages->filterAt(m_curFilter)->invalidateSetting(page_info.id());
+        emit invalidateThumbnail(page_info.id());
+        emit reloadRequested();
+    }
 }
 
 void

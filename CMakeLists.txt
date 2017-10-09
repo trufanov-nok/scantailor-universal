@@ -502,6 +502,7 @@ SET(
         PageOrderProvider.h
         PageOrderOption.h
         PayloadEvent.h
+        RegenParams.h
         filter_dc/AbstractFilterDataCollector.h
         filter_dc/ThumbnailCollector.h
         filter_dc/ContentBoxCollector.h

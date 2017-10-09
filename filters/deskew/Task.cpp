@@ -133,8 +133,20 @@ Task::process(TaskStatus const& status, FilterData const& data)
 			m_ptrSettings->setPageParams(m_pageId, new_params);
 		}
 	}
+
+    bool need_reprocess(!params.get());
+    if (!need_reprocess) {
+        Params p(*params.get());
+        Params::Regenerate val = p.getForceReprocess();
+        need_reprocess = val & Params::RegeneratePage;
+        if (need_reprocess) {
+            val = (Params::Regenerate) (val & ~Params::RegeneratePage);
+            p.setForceReprocess(val);
+            m_ptrSettings->setPageParams(m_pageId, p);
+        }
+    }
 	
-	if (!params.get()) {
+    if (need_reprocess) {
 		QRectF const image_area(
 			data.xform().transformBack().mapRect(data.xform().resultingRect())
 		);

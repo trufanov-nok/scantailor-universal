@@ -254,4 +254,17 @@ Filter::selectPageOrder(int option)
 	m_selectedPageOrder = option;
 }
 
+void
+Filter::invalidateSetting(PageId const& page_id)
+{
+    Settings::Record record(m_ptrSettings->getPageRecord(page_id.imageId()));
+    if (record.params()) {
+        Params p(*record.params());
+        p.setForceReprocess(Params::RegenerateAll);
+        Settings::UpdateAction ua;
+        ua.setParams(p);
+        m_ptrSettings->updatePage(page_id.imageId(), ua);
+    }
+}
+
 } // page_split

@@ -56,7 +56,20 @@ CacheDrivenTask::process(
 	std::auto_ptr<Params> const params(
 		m_ptrSettings->getPageParams(page_info.id())
 	);
-	if (!params.get() || !params->contentSizeMM().isValid()) {
+
+//    bool need_reprocess(!params.get());
+//    if (!need_reprocess) {
+//        Params p(*params.get());
+//        Params::Regenerate val = p.getForceReprocess();
+//        need_reprocess = val & Params::RegenerateThumbnail;
+//        if (need_reprocess) {
+//            val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+//            p.setForceReprocess(val);
+//            m_ptrSettings->setPageParams(page_info.id(), p);
+//        }
+//    }
+
+    if (!params.get() || !params->contentSizeMM().isValid()) {
 		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 			thumb_col->processThumbnail(
 				std::auto_ptr<QGraphicsItem>(

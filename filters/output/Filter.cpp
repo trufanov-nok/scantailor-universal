@@ -253,5 +253,12 @@ Filter::selectPageOrder(int option)
     m_selectedPageOrder = option;
 }
 
+void
+Filter::invalidateSetting(PageId const& page)
+{
+  Params p = m_ptrSettings->getParams(page);
+  p.setForceReprocess(Params::RegenerateAll);
+  m_ptrSettings->setParams(page, p);
+}
 
 } // namespace output

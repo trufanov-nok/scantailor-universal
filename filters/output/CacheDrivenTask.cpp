@@ -37,6 +37,7 @@
 #include <QRect>
 #include <QRectF>
 #include <QTransform>
+#include <QDebug>
 
 namespace output
 {
@@ -66,7 +67,14 @@ CacheDrivenTask::process(
 		ImageTransformation new_xform(xform);
 		new_xform.postScaleToDpi(params.outputDpi());
 
-		bool need_reprocess = false;
+        Params p = m_ptrSettings->getParams(page_info.id());
+        Params::Regenerate val = p.getForceReprocess();
+        bool need_reprocess = val & Params::RegenerateThumbnail;
+        if (need_reprocess) {
+            val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+            p.setForceReprocess(val);
+            m_ptrSettings->setParams(page_info.id(), p);
+        }
 
 		do { // Just to be able to break from it.
 

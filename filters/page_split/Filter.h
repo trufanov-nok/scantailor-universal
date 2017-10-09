@@ -88,6 +88,7 @@ public:
 		ImageId const& image_id, OrthogonalRotation const& orientation);
 
     Settings* getSettings() { return m_ptrSettings.get(); }
+    void invalidateSetting(PageId const& page_id);
 	
 	virtual std::vector<PageOrderOption> pageOrderOptions() const;
 	virtual int selectedPageOrder() const;

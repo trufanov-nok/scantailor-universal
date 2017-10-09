@@ -22,6 +22,7 @@
 #include "PageLayout.h"
 #include "Dependencies.h"
 #include "AutoManualMode.h"
+#include "RegenParams.h"
 #include <QString>
 
 class QDomDocument;
@@ -30,7 +31,7 @@ class QDomElement;
 namespace page_split
 {
 
-class Params
+class Params: public RegenParams
 {
 public:
 	// Member-wise copying is OK.

@@ -59,13 +59,15 @@ public:
 
 	virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id) = 0;
 	
-	virtual void updateStatistics() {};
+    virtual void updateStatistics() {}
 
 	virtual QDomElement saveSettings(
 		ProjectWriter const& writer, QDomDocument& doc) const = 0;
 	
 	virtual void loadSettings(
 		ProjectReader const& reader, QDomElement const& filters_el) = 0;
+
+    virtual void invalidateSetting(PageId const& page) {}
 };
 
 #endif

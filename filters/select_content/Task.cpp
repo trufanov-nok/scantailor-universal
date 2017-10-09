@@ -98,9 +98,24 @@ Task::process(TaskStatus const& status, FilterData const& data)
 	ui_data.setSizeCalc(PhysSizeCalc(data.xform()));
 
 	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
+
+    bool need_reprocess(!params.get());
+    bool regeneration_enforced = false;
+    if (!need_reprocess) {
+        Params p(*params.get());
+        Params::Regenerate val = p.getForceReprocess();
+        need_reprocess = val & Params::RegeneratePage;
+        if (need_reprocess) {
+            regeneration_enforced = true;
+            val = (Params::Regenerate) (val & ~Params::RegeneratePage);
+            p.setForceReprocess(val);
+            m_ptrSettings->setPageParams(m_pageId, p);
+        }
+    }
+
 	Params new_params(deps);
 
-	if (params.get())
+    if (!need_reprocess || regeneration_enforced)
 	{
 		/*
 		new_params.setPageDetect(params->isPageDetectionEnabled());
@@ -113,7 +128,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 */
 		new_params = *params;
 		new_params.setDependencies(deps);
-		if (!params->dependencies().matches(deps)) {
+        if (regeneration_enforced || !params->dependencies().matches(deps)) {
 			goto create_new_content;
 		}
 	}
@@ -123,12 +138,12 @@ create_new_content:
 		QRectF page_rect(data.xform().resultingRect());
 		QRectF content_rect(page_rect);
 
-		if (new_params.isPageDetectionEnabled()) {
+        if (regeneration_enforced || new_params.isPageDetectionEnabled()) {
 			//std::cout << "PageFinder" << std::endl;
 			page_rect = PageFinder::findPageBox(status, data, new_params.isFineTuningEnabled(), m_ptrSettings->pageDetectionBox(), m_ptrSettings->pageDetectionTolerance(), new_params.pageBorders(), m_ptrDbg.get());
 		}
 
-		if (new_params.isContentDetectionEnabled() && new_params.mode() == MODE_AUTO) {
+        if (regeneration_enforced || (new_params.isContentDetectionEnabled() && new_params.mode() == MODE_AUTO)) {
 			//std::cout << "ContentBoxFinder" << std::endl;
 			content_rect = ContentBoxFinder::findContentBox(status, data, page_rect, m_ptrDbg.get());
 		} else if (new_params.isContentDetectionEnabled() && new_params.mode() == MODE_MANUAL && new_params.contentRect().isValid()) {
@@ -137,8 +152,10 @@ create_new_content:
 			content_rect = page_rect;
 		}
 
-		new_params.setPageRect(page_rect);
-		new_params.setContentRect(content_rect);
+        if (!regeneration_enforced) {
+            new_params.setPageRect(page_rect);
+            new_params.setContentRect(content_rect);
+        }
 	}
 
 	ui_data.setContentRect(new_params.contentRect());

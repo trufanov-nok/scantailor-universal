@@ -133,8 +133,24 @@ Task::process(TaskStatus const& status, FilterData const& data)
 		Params const* const params = record.params();
 		
 		PageLayout new_layout;
+
+        bool need_reprocess(!params || !deps.compatibleWith(*params));
+        bool regeneration_enforced = false;
+        if (!need_reprocess) {
+            Params p(*params);
+            Params::Regenerate val = p.getForceReprocess();
+            need_reprocess = val & Params::RegeneratePage;
+            if (need_reprocess) {
+                regeneration_enforced = true;
+                val = (Params::Regenerate) (val & ~Params::RegeneratePage);
+                p.setForceReprocess(val);
+                Settings::UpdateAction update_params;
+                update_params.setParams(p);
+                m_ptrSettings->updatePage(m_pageInfo.imageId(), update_params);
+            }
+        }
 		
-		if (!params || !deps.compatibleWith(*params)) {
+        if (need_reprocess) {
 			new_layout = PageLayoutEstimator::estimatePageLayout(
 				record.combinedLayoutType(),
 				data.grayImage(), data.xform(),
@@ -148,6 +164,10 @@ Task::process(TaskStatus const& status, FilterData const& data)
 		} else {
 			break;
 		}
+
+        if (regeneration_enforced) {
+            break;
+        }
 			
 		Params const new_params(new_layout, deps, MODE_AUTO);
 		Settings::UpdateAction update;

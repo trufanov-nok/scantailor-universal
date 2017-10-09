@@ -21,6 +21,7 @@
 
 #include "Dependencies.h"
 #include "AutoManualMode.h"
+#include "RegenParams.h"
 #include <QString>
 #include <cmath>
 #include <algorithm>
@@ -34,7 +35,7 @@ class QDomElement;
 namespace deskew
 {
 
-class Params
+class Params: public RegenParams
 {
 public:
 	// Member-wise copying is OK.

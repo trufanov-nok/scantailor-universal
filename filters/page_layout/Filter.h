@@ -101,6 +101,7 @@ public:
 	
     OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); }
     Settings* getSettings() { return m_ptrSettings.get(); }
+    void invalidateSetting(PageId const& page_id);
 private:
 	void writePageSettings(
 		QDomDocument& doc, QDomElement& filter_el,

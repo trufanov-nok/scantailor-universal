@@ -189,4 +189,15 @@ Filter::createCacheDrivenTask(
 	);
 }
 
+void
+Filter::invalidateSetting(PageId const& page_id)
+{
+    std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page_id));
+    if (params.get()) {
+        Params p(*params.get());
+        p.setForceReprocess(Params::RegenerateAll);
+        m_ptrSettings->setPageParams(page_id, p);
+    }
+}
+
 } // namespace deskew

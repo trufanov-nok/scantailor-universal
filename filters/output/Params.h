@@ -25,6 +25,7 @@
 #include "dewarping/DistortionModel.h"
 #include "DepthPerception.h"
 #include "DespeckleLevel.h"
+#include "RegenParams.h"
 
 class QDomDocument;
 class QDomElement;
@@ -40,7 +41,7 @@ namespace output
         CopyAll = CopyMode | CopyThreshold
     };
 
-class Params
+class Params: public RegenParams
 {
 public:
 	Params();

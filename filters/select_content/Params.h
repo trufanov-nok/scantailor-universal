@@ -22,6 +22,7 @@
 #include "Dependencies.h"
 #include "AutoManualMode.h"
 #include "Margins.h"
+#include "RegenParams.h"
 #include <QRectF>
 #include <QSizeF>
 #include <cmath>
@@ -33,7 +34,7 @@ class QString;
 namespace select_content
 {
 
-class Params
+class Params: public RegenParams
 {
 public:
 	// Member-wise copying is OK.

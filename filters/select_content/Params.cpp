@@ -30,7 +30,8 @@ namespace select_content
 Params::Params(
 	QRectF const& content_rect, QSizeF const& content_size_mm,
 	Dependencies const& deps, AutoManualMode const mode)
-:	m_contentRect(content_rect),
+:	RegenParams(),
+    m_contentRect(content_rect),
     m_pageRect(content_rect),
     m_pageBorders(0,0,0,0),
     m_contentSizeMM(content_size_mm),
@@ -46,7 +47,8 @@ Params::Params(
 Params::Params(
 	QRectF const& content_rect, QSizeF const& content_size_mm,
 	Dependencies const& deps, AutoManualMode const mode, bool contentDetect, bool pageDetect, bool fineTuning)
-:	m_contentRect(content_rect),
+:	RegenParams(),
+    m_contentRect(content_rect),
 	m_pageRect(content_rect),
     m_pageBorders(0,0,0,0),
 	m_contentSizeMM(content_size_mm),
@@ -60,7 +62,8 @@ Params::Params(
 }
 
 Params::Params(Dependencies const& deps)
-:   m_pageBorders(0,0,0,0),
+:   RegenParams(),
+    m_pageBorders(0,0,0,0),
     m_deps(deps),
     m_mode(MODE_AUTO),
 	m_deviation(0.0)
@@ -71,7 +74,8 @@ Params::Params(Dependencies const& deps)
 }
 
 Params::Params(QDomElement const& filter_el)
-:	m_contentRect(
+:	RegenParams(),
+    m_contentRect(
 		XmlUnmarshaller::rectF(
 			filter_el.namedItem("content-rect").toElement()
 		)
