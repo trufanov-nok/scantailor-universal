@@ -95,7 +95,7 @@
    <addaction name="menuDebug"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="appStatusBar"/>
   <widget class="QDockWidget" name="dockWidget">
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
@@ -311,6 +311,68 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <widget class="QWidget" name="statusBarPanel" native="true">
+            <property name="geometry">
+             <rect>
+              <x>99</x>
+              <y>84</y>
+              <width>71</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="minimumSize">
+                <size>
+                 <width>31</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="statusTip">
+                <string>Position of the selected page in current order</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="statusLabelPageNo">
+               <property name="minimumSize">
+                <size>
+                 <width>31</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="statusTip">
+                <string>Position of the selected page in current order</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </item>
         </layout>

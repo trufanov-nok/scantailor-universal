@@ -36,6 +36,8 @@ public:
 	
 	PageInfo const& pageAt(size_t idx) const;
 
+    int pageNo(PageId const& page) const;
+
 	std::set<PageId> selectAll() const;
 
 	std::set<PageId> selectPagePlusFollowers(PageId const& page) const;

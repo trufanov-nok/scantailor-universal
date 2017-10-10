@@ -188,10 +188,20 @@ MainWindow::MainWindow()
 	setupUi(this);
 	sortOptions->setVisible(false);
 
-#if !defined(ENABLE_OPENGL)
-	// Right now the only setting is 3D acceleration, so get rid of
-	// the whole Settings dialog, if it's inaccessible.
-#endif
+    if (QStatusBar* sb = statusBar()) {
+        sb->setMaximumHeight(statusBarPanel->height()+3);
+        sb->addPermanentWidget(statusBarPanel);
+        connect(m_ptrThumbSequence.get(), &ThumbnailSequence::newSelectionLeader,
+                [=](PageInfo const & page){
+            PageSequence ps = m_ptrThumbSequence->toPageSequence();
+            if (ps.numPages() <= 0) {
+                statusLabelPageNo->clear();
+            } else {
+                statusLabelPageNo->setNum(ps.pageNo(page.id())+1);
+            } });
+
+        connect(this, &MainWindow::NewOpenProjectPanelShown, statusLabelPageNo, &QLabel::clear);
+    }
 
 	createBatchProcessingWidget();
 	m_ptrProcessingIndicationWidget.reset(new ProcessingIndicationWidget);
@@ -537,6 +547,7 @@ MainWindow::showNewOpenProjectPanel()
 	
     filterList->setBatchProcessingPossible(false);
     updateProjectActions();
+    emit NewOpenProjectPanelShown();
 }
 
 void
@@ -782,10 +793,16 @@ MainWindow::resetThumbSequence(
 		m_ptrThumbSequence->setThumbnailFactory(
 			IntrusivePtr<ThumbnailFactory>()
 		);
-	}
+	}    
 
+    ensurePageVisible(_selection, action);
+}
+
+void
+MainWindow::ensurePageVisible(std::set<PageId>& _selectedPages, ThumbnailSequence::SelectionAction const action)
+{
     QVector<PageId> selection;
-    foreach (PageId page, _selection) {
+    foreach (PageId page, _selectedPages) {
         selection.append(page);
     }
     qSort(selection);
@@ -824,7 +841,6 @@ MainWindow::resetThumbSequence(
             thumbView->ensureVisible(rect, 0, 0);
         }
     }
-
 }
 
 void
@@ -1326,11 +1342,15 @@ MainWindow::pageOrderingChanged(int idx)
 
 	m_ptrStages->filterAt(m_curFilter)->selectPageOrder(idx);
 
+    std::set<PageId> _selection = m_ptrThumbSequence->selectedItems();
+
 	m_ptrThumbSequence->reset(
 		m_ptrPages->toPageSequence(getCurrentView()),
 		ThumbnailSequence::KEEP_SELECTION,
 		currentPageOrderProvider()
 	);
+
+    ensurePageVisible(_selection);
 }
 
 void
