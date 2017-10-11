@@ -485,7 +485,18 @@ MainWindow::switchToNewProject(
 	} else {
 		m_ptrThumbnailCache = Utils::createThumbnailCache(m_outFileNameGen.outDir());
 	}
+
 	resetThumbSequence(currentPageOrderProvider());
+
+    // restore saved project selection
+    std::set<PageId> selection;
+    if (project_reader && ! m_selectedPage.isNull()) {
+        selection.insert(m_selectedPage.get(getCurrentView()));
+    } else {
+      selection.insert(m_ptrThumbSequence->firstPage().id());
+    }
+
+    ensurePageVisible(selection);
 
 	removeFilterOptionsWidget();
 	updateProjectActions();
@@ -783,7 +794,7 @@ MainWindow::resetThumbSequence(
 
     std::set<PageId> _selection = m_ptrThumbSequence->selectedItems();
 
-	m_ptrThumbSequence->reset(
+    m_ptrThumbSequence->reset(
 		m_ptrPages->toPageSequence(getCurrentView()),
         action, page_order_provider
 	);
@@ -807,6 +818,13 @@ MainWindow::ensurePageVisible(std::set<PageId>& _selectedPages, ThumbnailSequenc
         selection.append(page);
     }
     qSort(selection);
+
+    if (selection.isEmpty()) {
+        PageId leader = m_ptrThumbSequence->selectionLeader().id();
+        if (!leader.isNull()) {
+            selection.append(leader);
+        }
+    }
 
     QVector<PageId> selected;
     foreach (const PageId page, selection){
