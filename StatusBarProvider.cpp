@@ -1,0 +1,29 @@
+#include "StatusBarProvider.h"
+
+QStatusBar* StatusBarProvider::m_statusBar = NULL;
+int StatusBarProvider::m_filterIdx = 0;
+QEvent::Type StatusBarProvider::StatusBarEventType = static_cast<QEvent::Type> (QEvent::registerEventType());
+int StatusBarProvider::m_outputFilterIdx = 0;
+StatusLabelPhysSizeDisplayMode StatusBarProvider::statusLabelPhysSizeDisplayMode = Pixels;
+
+QSizeF StatusBarProvider::m_pageSize = QSizeF();
+Dpi StatusBarProvider::m_originalDpi = Dpi();
+Dpi StatusBarProvider::m_settingsDpi = StatusBarProvider::m_originalDpi;
+
+void
+StatusBarProvider::setPagePhysSize(const QSizeF _pageSize, const Dpi _originalDpi)
+{
+    m_pageSize = _pageSize;
+    m_originalDpi = _originalDpi;
+    notify();
+}
+
+void
+StatusBarProvider::changeFilterIdx(int idx)
+{
+    m_filterIdx = idx;
+    if (idx != m_outputFilterIdx) {
+       m_settingsDpi =  m_originalDpi;
+       notify();
+    }
+}

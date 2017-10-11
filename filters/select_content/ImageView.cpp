@@ -20,6 +20,7 @@
 #include "ImageView.moc"
 #include "ImageTransformation.h"
 #include "ImagePresentation.h"
+#include "StatusBarProvider.h"
 #include <QMouseEvent>
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -115,6 +116,11 @@ ImageView::ImageView(
 	addAction(remove);
 	connect(create, SIGNAL(triggered(bool)), this, SLOT(createContentBox()));
 	connect(remove, SIGNAL(triggered(bool)), this, SLOT(removeContentBox()));
+
+    if ( m_contentRect.isValid()) {
+        // override page size with content box size
+        StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+    }
 }
 
 ImageView::~ImageView()
@@ -137,6 +143,8 @@ ImageView::createContentBox()
 	m_contentRect = content_rect;
 	update();
 	emit manualContentRectSet(m_contentRect);
+
+    StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
 }
 
 void
@@ -152,6 +160,8 @@ ImageView::removeContentBox()
 	m_contentRect = QRectF();
 	update();
 	emit manualContentRectSet(m_contentRect);
+
+    StatusBarProvider::setPagePhysSize(virtualDisplayRect().size(), StatusBarProvider::getOriginalDpi());
 }
 
 void
@@ -272,6 +282,10 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos)
 	forceInsideImage(r, edge_mask);
 	m_contentRect = widgetToVirtual().mapRect(r);
 	update();
+
+    if ( m_contentRect.isValid()) {
+        StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+    }
 }
 
 QLineF

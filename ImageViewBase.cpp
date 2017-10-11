@@ -28,6 +28,7 @@
 #include "ScopedIncDec.h"
 #include "imageproc/PolygonUtils.h"
 #include "imageproc/Transform.h"
+#include "StatusBarProvider.h"
 #include "config.h"
 #include <QScrollBar>
 #include <QPointer>
@@ -216,6 +217,8 @@ ImageViewBase::ImageViewBase(
 	connect(verticalScrollBar(), SIGNAL(sliderReleased()), SLOT(updateScrollBars()));
 	connect(horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(reactToScrollBars()));
 	connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(reactToScrollBars()));
+
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
 }
 
 ImageViewBase::~ImageViewBase()
@@ -371,6 +374,7 @@ ImageViewBase::updateTransform(ImagePresentation const& presentation)
 
 	updateWidgetTransform();
 	update();
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
 }
 
 void
@@ -387,6 +391,7 @@ ImageViewBase::updateTransformAndFixFocalPoint(
 
 	updateWidgetTransformAndFixFocalPoint(mode);
 	update();
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
 }
 
 void
@@ -417,6 +422,7 @@ ImageViewBase::updateTransformPreservingScale(ImagePresentation const& presentat
 	updateWidgetTransform();
 	
 	update();
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
 }
 
 void

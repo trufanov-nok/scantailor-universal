@@ -95,6 +95,7 @@
 #include "config.h"
 #include "version.h"
 #include "settings/globalstaticsettings.h"
+#include "StatusBarProvider.h"
 #ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -186,22 +187,8 @@ MainWindow::MainWindow()
 	m_maxLogicalThumbSize = QSize(250, 160);
 	m_ptrThumbSequence.reset(new ThumbnailSequence(m_maxLogicalThumbSize));    
 	setupUi(this);
-	sortOptions->setVisible(false);
-
-    if (QStatusBar* sb = statusBar()) {
-        sb->setMaximumHeight(statusBarPanel->height()+3);
-        sb->addPermanentWidget(statusBarPanel);
-        connect(m_ptrThumbSequence.get(), &ThumbnailSequence::newSelectionLeader,
-                [=](PageInfo const & page){
-            PageSequence ps = m_ptrThumbSequence->toPageSequence();
-            if (ps.numPages() <= 0) {
-                statusLabelPageNo->clear();
-            } else {
-                statusLabelPageNo->setNum(ps.pageNo(page.id())+1);
-            } });
-
-        connect(this, &MainWindow::NewOpenProjectPanelShown, statusLabelPageNo, &QLabel::clear);
-    }
+    setupStatusBar();
+	sortOptions->setVisible(false);            
 
 	createBatchProcessingWidget();
 	m_ptrProcessingIndicationWidget.reset(new ProcessingIndicationWidget);
@@ -449,7 +436,7 @@ MainWindow::switchToNewProject(
 	updateDisambiguationRecords(pages->toPageSequence(IMAGE_VIEW));
 
 	// Recreate the stages and load their state.
-	m_ptrStages.reset(new StageSequence(pages, newPageSelectionAccessor()));
+	m_ptrStages.reset(new StageSequence(pages, newPageSelectionAccessor()));            
 	if (project_reader) {
 		project_reader->readFilterSettings(m_ptrStages->filters());
 	}
@@ -614,6 +601,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
     if (obj == thumbView && ev->type() == QEvent::Resize) {
         emit invalidateAllThumbnails();
     }
+
+    if (obj == statusLabelPhysSize && ev->type() == QEvent::MouseButtonRelease) {
+        if (statusLabelPhysSize->selectedText().isEmpty()) {
+            StatusBarProvider::toggleStatusLabelPhysSizeDisplayMode();
+        }
+        updateStatusBar();
+    }
+
+    if (obj == statusBar() && ev->type() == StatusBarProvider::StatusBarEventType) {
+        updateStatusBar();
+        ev->accept();
+        return true;
+    }
+
     return false;
 }
 
@@ -1299,6 +1300,8 @@ MainWindow::filterSelectionChanged(QItemSelection const& selected)
     resetThumbSequence(currentPageOrderProvider(), ThumbnailSequence::KEEP_SELECTION);
 	
 	updateMainArea();
+
+    StatusBarProvider::changeFilterIdx(m_curFilter);
 }
 
 void MainWindow::switchFilter1()
@@ -2291,6 +2294,10 @@ MainWindow::updateProjectActions()
 	actionFixDpi->setEnabled(loaded);
 	actionRelinking->setEnabled(loaded);
     actionExport->setEnabled(loaded);
+    if (m_ptrStages.get()) {
+        // just in case it ever changes
+        StatusBarProvider::setOutputFilterIdx(m_ptrStages->outputFilterIdx());
+    }
 }
 
 bool
@@ -3037,4 +3044,85 @@ void
 MainWindow::setAutoSaveInputDir(const QString dir)
 {
     QSettings().setValue("auto-save_project/_inputDir", dir);
+}
+
+
+void
+MainWindow::setupStatusBar()
+{
+    QStatusBar* sb = statusBar();
+    if (!sb) {
+        return;
+    }
+
+    StatusBarProvider::registerStatusBar(sb);
+    sb->installEventFilter(this);
+    sb->setMaximumHeight(statusBarPanel->height()+3);
+    sb->addPermanentWidget(statusBarPanel);
+    connect(m_ptrThumbSequence.get(), &ThumbnailSequence::newSelectionLeader,
+            [=](PageInfo const & page){
+        PageSequence ps = m_ptrThumbSequence->toPageSequence();
+        if (ps.numPages() <= 0) {
+            statusLabelPageNo->clear();
+        } else {
+            statusLabelPageNo->setNum(ps.pageNo(page.id())+1);
+        } });
+
+    connect(this, &MainWindow::NewOpenProjectPanelShown, statusLabelPageNo, &QLabel::clear);
+
+    statusLabelPhysSize->installEventFilter(this);
+}
+
+void
+MainWindow::updateStatusBar()
+{
+    QSizeF page_size = StatusBarProvider::getPageSize();
+
+    if (isBatchProcessingInProgress() || !isProjectLoaded() || !page_size.isValid()) {
+        statusLabelPhysSize->clear();
+        return;
+    }
+
+    StatusLabelPhysSizeDisplayMode mode = StatusBarProvider::statusLabelPhysSizeDisplayMode;
+
+
+    QString val("%1 x %2 ");
+    QString units;
+    Dpi dpi = StatusBarProvider::getOriginalDpi();
+
+    if (isOutputFilter()) {
+        Dpi outputDpi = StatusBarProvider::getSettingsDpi();
+        if (dpi != outputDpi) {
+            // the image will be scaled
+            page_size.setHeight(page_size.height()*outputDpi.vertical() / dpi.vertical());
+            page_size.setWidth(page_size.width()*outputDpi.horizontal() / dpi.horizontal());
+        }
+    }
+
+    Dpm dpm = Dpm(dpi);
+    switch (mode) {
+    case Pixels:
+        units = tr("px");
+        break;
+    case Inch:
+        page_size.setHeight(page_size.height()/dpi.vertical());
+        page_size.setWidth(page_size.width()/dpi.horizontal());
+        units = tr("in");
+        break;
+    case MM:
+        page_size.setHeight(page_size.height()/dpm.vertical()*1000);
+        page_size.setWidth(page_size.width()/dpm.horizontal()*1000);
+        units = tr("mm");
+        break;
+    case SM:
+        page_size.setHeight(page_size.height()/dpm.vertical()*100);
+        page_size.setWidth(page_size.width()/dpm.horizontal()*100);
+        units = tr("cm");
+        break;
+    default:
+        break;
+    }
+
+    val = val.arg(page_size.height()).arg(page_size.width()) + units;
+    statusLabelPhysSize->setText(val);
 }

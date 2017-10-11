@@ -31,6 +31,7 @@
 #include "../../Utils.h"
 #include "ScopedIncDec.h"
 #include "config.h"
+#include "StatusBarProvider.h"
 #ifndef Q_MOC_RUN
 #include <boost/foreach.hpp>
 #endif
@@ -522,6 +523,8 @@ OptionsWidget::updateDpiDisplay()
         QString dpi_label = tr("%1 dpi").arg(QString::number(m_outputDpi.horizontal()));
         dpiValue->setText(Utils::richTextForLink(dpi_label));
     }
+
+    StatusBarProvider::setSettingsDPi(m_outputDpi);
 }
 
 void

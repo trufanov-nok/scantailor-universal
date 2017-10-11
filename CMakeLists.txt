@@ -490,6 +490,7 @@ SET(
         PageRange.cpp PageRange.h
         SelectedPage.cpp SelectedPage.h
         Utils.cpp Utils.h
+        StatusBarProvider.cpp StatusBarProvider.h
         PageView.h
         AutoManualMode.h
         AbstractCommand.h
@@ -539,7 +540,7 @@ SET(
         StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
         settings/fancylineedit.cpp settings/fancylineedit.h
         settings/execmenu.cpp settings/execmenu.h
-        AutoSaveTimer.cpp AutoSaveTimer.h
+        AutoSaveTimer.cpp AutoSaveTimer.h        
 
 )
 
