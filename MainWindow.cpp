@@ -3065,7 +3065,7 @@ MainWindow::setupStatusBar()
         if (ps.numPages() <= 0) {
             statusLabelPageNo->clear();
         } else {
-            statusLabelPageNo->setNum(ps.pageNo(page.id())+1);
+            statusLabelPageNo->setText(tr("p. %1").arg(ps.pageNo(page.id())+1));
         } });
 
     connect(this, &MainWindow::NewOpenProjectPanelShown, statusLabelPageNo, &QLabel::clear);
@@ -3086,7 +3086,7 @@ MainWindow::updateStatusBar()
     StatusLabelPhysSizeDisplayMode mode = StatusBarProvider::statusLabelPhysSizeDisplayMode;
 
 
-    QString val("%1 x %2 ");
+    QString val(tr("%1 x %2 %3"));
     QString units;
     Dpi dpi = StatusBarProvider::getOriginalDpi();
 
@@ -3123,6 +3123,6 @@ MainWindow::updateStatusBar()
         break;
     }
 
-    val = val.arg(page_size.height()).arg(page_size.width()) + units;
+    val = val.arg(page_size.height()).arg(page_size.width()).arg(units);
     statusLabelPhysSize->setText(val);
 }
