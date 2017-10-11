@@ -711,7 +711,7 @@ MainWindow::promptProjectSave()
 
 bool
 MainWindow::compareFiles(QString const& fpath1, QString const& fpath2)
-{
+{   // rough comparision as order of elements in XML may vary
 	QFile file1(fpath1);
 	QFile file2(fpath2);
 	

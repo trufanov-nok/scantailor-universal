@@ -207,6 +207,15 @@ ProjectWriter::processPages(QDomDocument& doc) const
 	PageId const sel_opt_1(m_selectedPage.get(IMAGE_VIEW));
 	PageId const sel_opt_2(m_selectedPage.get(PAGE_VIEW));
 
+    PageId page_left;
+    PageId page_right;
+    if (sel_opt_2.subPage() == PageId::SINGLE_PAGE) {
+        // In case it was split later select first of its pages found
+        page_left = PageId(sel_opt_2.imageId(), PageId::LEFT_PAGE);
+        page_right = PageId(sel_opt_2.imageId(), PageId::RIGHT_PAGE);
+    }
+
+
 	size_t const num_pages = m_pageSequence.numPages();
 	for (size_t i = 0; i < num_pages; ++i) {
 		PageInfo const& page = m_pageSequence.pageAt(i);
@@ -215,8 +224,10 @@ ProjectWriter::processPages(QDomDocument& doc) const
 		page_el.setAttribute("id", pageId(page_id));
 		page_el.setAttribute("imageId", imageId(page_id.imageId()));
 		page_el.setAttribute("subPage", page_id.subPageAsString());
-		if (page_id == sel_opt_1 || page_id == sel_opt_2) {
+        if (page_id == sel_opt_1 || page_id == sel_opt_2
+                || page_id == page_left || page_id == page_right) {
 			page_el.setAttribute("selected", "selected");
+            page_left = page_right = PageId(); // if one of these match other shouldn't
 		}
 		pages_el.appendChild(page_el);
 	}
