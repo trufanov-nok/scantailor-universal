@@ -642,6 +642,7 @@ OptionsWidget::updateDewarpingDisplay()
 	depthPerceptionSlider->blockSignals(true);
 	depthPerceptionSlider->setValue(qRound(m_depthPerception.value() * 10));
 	depthPerceptionSlider->blockSignals(false);
+    depthPerceptionValue->setText(QString::number(0.1 * depthPerceptionSlider->value()));
 }
 
 void
