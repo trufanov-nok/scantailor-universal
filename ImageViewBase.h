@@ -250,12 +250,20 @@ protected:
 	virtual void resizeEvent(QResizeEvent* event);
 
 	virtual void enterEvent(QEvent* event);
+
+    virtual void leaveEvent(QEvent* event);
 	
 	/**
 	 * Returns the maximum viewport size (as if scrollbars are hidden)
 	 * reduced by margins.
 	 */
 	QRectF maxViewportRect() const;
+
+    /**
+     * Used from derived classes to adjust mouse coords
+     * reported to status bar
+     */
+    void setCursorPosAdjustment(QPointF pos) { m_cursorPosAdjustment = pos; }
 private slots:
 	void initiateBuildingHqVersion();
 
@@ -296,6 +304,8 @@ private:
 	void updateCursor();
 
 	void maybeQueueRedraw();
+
+    void setLastCursorPos(const QPointF& pos);
 	
 	InteractionHandler m_rootInteractionHandler;
 
@@ -436,6 +446,12 @@ private:
 	int m_ignoreResizeEvents;
 	
 	bool m_hqTransformEnabled;
+
+    QPointF m_lastCursorPos;
+
+    QPointF m_cursorPosAdjustment;
+
+    QTimer m_cursorPosTimer;
 };
 
 #endif

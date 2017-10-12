@@ -34,6 +34,26 @@ enum StatusLabelPhysSizeDisplayMode {
     SM
 };
 
+class QStatusBarProviderEvent: public QEvent
+{
+public:
+
+    enum NitificationTypeEnum
+    {
+        PhysSizeChanged = 1,
+        MousePosChanged = 2
+    };
+
+    Q_DECLARE_FLAGS(NitificationType, NitificationTypeEnum)
+
+
+    QStatusBarProviderEvent(QEvent::Type _t, const QStatusBarProviderEvent::NitificationTypeEnum _type): QEvent(_t), m_type(_type) { }
+    void setFlag(const NitificationTypeEnum _type) {m_type.setFlag(_type); }
+    bool testFlag(const NitificationTypeEnum _type) { return m_type.testFlag(_type); }
+private:
+    NitificationType m_type;
+};
+
 class StatusBarProvider
 {
 public:
@@ -51,13 +71,20 @@ public:
         m_pageSize = QSizeF();
         notify();
     }
-    static void setPagePhysSize(const QSizeF _pageSize, const Dpi _originalDpi);
-    static void setSettingsDPi(const Dpi _settingsDpi)
+    static void setPagePhysSize(const QSizeF& _pageSize, const Dpi& _originalDpi);
+    static void setSettingsDPi(const Dpi& _settingsDpi)
     {
         m_settingsDpi = _settingsDpi;
         notify();
     }
 
+    static void setMousePos(const QPointF& pos)
+    {
+        m_mousePos = pos;
+        notify(QStatusBarProviderEvent::MousePosChanged);
+    }
+
+    static QPointF getMousePos() { return m_mousePos; }
     static QSizeF getPageSize() { return m_pageSize; }
     static Dpi getOriginalDpi() { return m_originalDpi; }
     static Dpi getSettingsDpi() { return m_settingsDpi; notify(); }
@@ -72,7 +99,12 @@ public:
     static QEvent::Type StatusBarEventType;
     static StatusLabelPhysSizeDisplayMode statusLabelPhysSizeDisplayMode;
 private:
-    static void notify() { QApplication::postEvent(m_statusBar, new QEvent(StatusBarEventType)); }
+    static void notify( const QStatusBarProviderEvent::NitificationTypeEnum _type = QStatusBarProviderEvent::PhysSizeChanged)
+    {
+        if (m_statusBar) {
+            QApplication::postEvent(m_statusBar, new QStatusBarProviderEvent(StatusBarEventType, _type));
+        }
+    }
 
 private:
     static QStatusBar* m_statusBar;
@@ -81,6 +113,7 @@ private:
     static Dpi m_settingsDpi;
     static int m_filterIdx;
     static int m_outputFilterIdx;
+    static QPointF m_mousePos;
 
 };
 

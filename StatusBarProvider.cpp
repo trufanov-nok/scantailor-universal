@@ -7,11 +7,12 @@ int StatusBarProvider::m_outputFilterIdx = 0;
 StatusLabelPhysSizeDisplayMode StatusBarProvider::statusLabelPhysSizeDisplayMode = Pixels;
 
 QSizeF StatusBarProvider::m_pageSize = QSizeF();
+QPointF StatusBarProvider::m_mousePos;
 Dpi StatusBarProvider::m_originalDpi = Dpi();
 Dpi StatusBarProvider::m_settingsDpi = StatusBarProvider::m_originalDpi;
 
 void
-StatusBarProvider::setPagePhysSize(const QSizeF _pageSize, const Dpi _originalDpi)
+StatusBarProvider::setPagePhysSize(const QSizeF &_pageSize, const Dpi &_originalDpi)
 {
     m_pageSize = _pageSize;
     m_originalDpi = _originalDpi;

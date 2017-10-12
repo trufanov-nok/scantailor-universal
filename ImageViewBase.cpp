@@ -160,7 +160,9 @@ ImageViewBase::ImageViewBase(
 	m_transformChangeWatchersActive(0),
 	m_ignoreScrollEvents(0),
 	m_ignoreResizeEvents(0),
-	m_hqTransformEnabled(true)
+    m_hqTransformEnabled(true),    
+    m_lastCursorPos(0,0),
+    m_cursorPosAdjustment(m_virtualImageCropArea.boundingRect().topLeft())
 {
 #ifdef ENABLE_OPENGL
 	if (QSettings().value("settings/use_3d_acceleration", false) != false) {
@@ -219,6 +221,15 @@ ImageViewBase::ImageViewBase(
 	connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(reactToScrollBars()));
 
     StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
+    m_cursorPosTimer.setSingleShot(true);
+    connect(&m_cursorPosTimer, &QTimer::timeout, [=](){
+        QPointF pos;
+        if (!m_lastCursorPos.isNull()) {            
+            pos = m_widgetToVirtual.map(m_lastCursorPos) - m_cursorPosAdjustment;
+        }
+        StatusBarProvider::setMousePos(pos);
+    });
+    setMouseTracking(true);
 }
 
 ImageViewBase::~ImageViewBase()
@@ -370,6 +381,7 @@ ImageViewBase::updateTransform(ImagePresentation const& presentation)
 	m_imageToVirtual = presentation.transform();
 	m_virtualToImage = m_imageToVirtual.inverted();
 	m_virtualImageCropArea = presentation.cropArea();
+    m_cursorPosAdjustment = m_virtualImageCropArea.boundingRect().topLeft();
 	m_virtualDisplayArea = presentation.displayArea();
 
 	updateWidgetTransform();
@@ -387,6 +399,7 @@ ImageViewBase::updateTransformAndFixFocalPoint(
 	m_imageToVirtual = presentation.transform();
 	m_virtualToImage = m_imageToVirtual.inverted();
 	m_virtualImageCropArea = presentation.cropArea();
+    m_cursorPosAdjustment = m_virtualImageCropArea.boundingRect().topLeft();
 	m_virtualDisplayArea = presentation.displayArea();
 
 	updateWidgetTransformAndFixFocalPoint(mode);
@@ -410,6 +423,7 @@ ImageViewBase::updateTransformPreservingScale(ImagePresentation const& presentat
 	m_imageToVirtual = presentation.transform();
 	m_virtualToImage = m_imageToVirtual.inverted();
 	m_virtualImageCropArea = presentation.cropArea();
+    m_cursorPosAdjustment = m_virtualImageCropArea.boundingRect().topLeft();
 	m_virtualDisplayArea = presentation.displayArea();
 
 	updateWidgetTransform();
@@ -522,13 +536,13 @@ ImageViewBase::paintEvent(QPaintEvent* event)
 	m_interactionState.resetProximity();
 	if (!m_interactionState.captured()) {
 		m_rootInteractionHandler.proximityUpdate(
-			QPointF(0.5, 0.5) + mapFromGlobal(QCursor::pos()), m_interactionState
+            QPointF(0.5, 0.5) + mapFromGlobal(QCursor::pos()), m_interactionState
 		);
 		updateStatusTipAndCursor();
 	}
 
 	m_rootInteractionHandler.paint(painter, m_interactionState);
-	maybeQueueRedraw();
+    maybeQueueRedraw();
 }
 
 void
@@ -586,20 +600,34 @@ ImageViewBase::mouseReleaseEvent(QMouseEvent* event)
 }
 
 void
+ImageViewBase::setLastCursorPos(const QPointF &pos)
+{
+    if (pos != m_lastCursorPos) {
+        m_lastCursorPos = pos;
+        if (!m_cursorPosTimer.isActive()) {
+            // report cursor pos once in 150 msec
+            m_cursorPosTimer.start(150);
+        }
+    }
+}
+
+void
 ImageViewBase::mouseMoveEvent(QMouseEvent* event)
 {
-	m_interactionState.resetProximity();
-	if (!m_interactionState.captured()) {
-		m_rootInteractionHandler.proximityUpdate(
-			QPointF(0.5, 0.5) + event->pos(), m_interactionState
-		);
-	}
+    setLastCursorPos(event->localPos());
 
-	event->setAccepted(false);
-	m_rootInteractionHandler.mouseMoveEvent(event, m_interactionState);
-	event->setAccepted(true);
-	updateStatusTipAndCursor();
-	maybeQueueRedraw();
+    m_interactionState.resetProximity();
+    if (!m_interactionState.captured()) {
+        m_rootInteractionHandler.proximityUpdate(
+            QPointF(0.5, 0.5) + event->pos(), m_interactionState
+        );
+    }
+
+    event->setAccepted(false);
+    m_rootInteractionHandler.mouseMoveEvent(event, m_interactionState);
+    event->setAccepted(true);
+    updateStatusTipAndCursor();
+    maybeQueueRedraw();
 }
 
 void
@@ -651,6 +679,13 @@ ImageViewBase::enterEvent(QEvent* event)
 {
 	viewport()->setFocus();
 	QAbstractScrollArea::enterEvent(event);
+}
+
+void
+ImageViewBase::leaveEvent(QEvent* event)
+{
+    setLastCursorPos(QPoint());
+    QAbstractScrollArea::leaveEvent(event);
 }
 
 /**

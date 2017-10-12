@@ -617,12 +617,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
         if (statusLabelPhysSize->selectedText().isEmpty()) {
             StatusBarProvider::toggleStatusLabelPhysSizeDisplayMode();
         }
-        updateStatusBar();
+        displayStatusBarPageSize();
     }
 
     if (obj == statusBar() && ev->type() == StatusBarProvider::StatusBarEventType) {
-        updateStatusBar();
-        ev->accept();
+        QStatusBarProviderEvent* sb_ev = static_cast<QStatusBarProviderEvent*>(ev);
+        if (sb_ev->testFlag(QStatusBarProviderEvent::MousePosChanged)) {
+            emit UpdateStatusBarMousePos();
+        }
+
+        if (sb_ev->testFlag(QStatusBarProviderEvent::PhysSizeChanged)) {
+            emit UpdateStatusBarPageSize();
+        }
+
+        sb_ev->accept();
         return true;
     }
 
@@ -3088,11 +3096,14 @@ MainWindow::setupStatusBar()
 
     connect(this, &MainWindow::NewOpenProjectPanelShown, statusLabelPageNo, &QLabel::clear);
 
+    connect(this, &MainWindow::UpdateStatusBarPageSize, this, &MainWindow::displayStatusBarPageSize);
+    connect(this, &MainWindow::UpdateStatusBarMousePos, this, &MainWindow::displayStatusBarMousePos);
+
     statusLabelPhysSize->installEventFilter(this);
 }
 
 void
-MainWindow::updateStatusBar()
+MainWindow::displayStatusBarPageSize()
 {
     QSizeF page_size = StatusBarProvider::getPageSize();
 
@@ -3141,6 +3152,19 @@ MainWindow::updateStatusBar()
         break;
     }
 
-    val = val.arg(page_size.height()).arg(page_size.width()).arg(units);
+    val = val.arg(page_size.width()).arg(page_size.height()).arg(units);
     statusLabelPhysSize->setText(val);
+}
+
+void
+MainWindow::displayStatusBarMousePos()
+{
+    QPointF pos = StatusBarProvider::getMousePos();
+
+    if (isBatchProcessingInProgress() || !isProjectLoaded() || pos.isNull()) {
+        statusLabelMousePos->clear();
+        return;
+    }
+
+    statusLabelMousePos->setText(tr("%1,%2").arg(pos.x()).arg(pos.y()));
 }

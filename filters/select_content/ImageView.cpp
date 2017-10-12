@@ -120,6 +120,7 @@ ImageView::ImageView(
     if ( m_contentRect.isValid()) {
         // override page size with content box size
         StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+        setCursorPosAdjustment(m_contentRect.topLeft());
     }
 }
 
@@ -145,6 +146,7 @@ ImageView::createContentBox()
 	emit manualContentRectSet(m_contentRect);
 
     StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+    setCursorPosAdjustment(m_contentRect.topLeft());
 }
 
 void
@@ -162,6 +164,7 @@ ImageView::removeContentBox()
 	emit manualContentRectSet(m_contentRect);
 
     StatusBarProvider::setPagePhysSize(virtualDisplayRect().size(), StatusBarProvider::getOriginalDpi());
+    setCursorPosAdjustment(virtualDisplayRect().topLeft());
 }
 
 void
@@ -285,6 +288,7 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos)
 
     if ( m_contentRect.isValid()) {
         StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+        setCursorPosAdjustment(m_contentRect.topLeft());
     }
 }
 

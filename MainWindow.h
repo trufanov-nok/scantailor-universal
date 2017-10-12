@@ -134,6 +134,8 @@ signals:
 	void StartExportTimerSignal();
     void settingsUpdateRequest();
     void NewOpenProjectPanelShown();
+    void UpdateStatusBarPageSize();
+    void UpdateStatusBarMousePos();
 private slots:
 	void goFirstPage();
 
@@ -216,6 +218,10 @@ private slots:
 
     void on_actionAbout_Qt_triggered();
 
+    void displayStatusBarPageSize();
+
+    void displayStatusBarMousePos();
+
 private:
 	class PageSelectionProviderImpl;
 	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
@@ -251,9 +257,7 @@ private:
 
 	void updateSortOptions();
 
-    void setupStatusBar();
-
-    void updateStatusBar();
+    void setupStatusBar();    
 
     void resetThumbSequence(IntrusivePtr<PageOrderProvider const> const& page_order_provider, const ThumbnailSequence::SelectionAction action = ThumbnailSequence::RESET_SELECTION);
 
