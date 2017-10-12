@@ -314,14 +314,26 @@
            <widget class="QWidget" name="statusBarPanel" native="true">
             <property name="geometry">
              <rect>
-              <x>99</x>
-              <y>85</y>
-              <width>141</width>
-              <height>31</height>
+              <x>59</x>
+              <y>92</y>
+              <width>181</width>
+              <height>20</height>
              </rect>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item alignment="Qt::AlignRight">
               <widget class="QLabel" name="statusLabelMousePos">
                <property name="minimumSize">
                 <size>
@@ -362,7 +374,7 @@
                 <string>Physical size of image. (Click to change units of measurement)</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
                <property name="textInteractionFlags">
                 <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -391,12 +403,28 @@
                 <string>Position of the selected page in current order</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
                <property name="textInteractionFlags">
                 <set>Qt::LinksAccessibleByMouse</set>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>10</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>

@@ -3083,7 +3083,7 @@ MainWindow::setupStatusBar()
 
     StatusBarProvider::registerStatusBar(sb);
     sb->installEventFilter(this);
-    sb->setMaximumHeight(statusBarPanel->height()+3);
+    sb->setMaximumHeight(statusBarPanel->height()+6);
     sb->addPermanentWidget(statusBarPanel);
     connect(m_ptrThumbSequence.get(), &ThumbnailSequence::newSelectionLeader,
             [=](PageInfo const & page){
@@ -3103,28 +3103,17 @@ MainWindow::setupStatusBar()
 }
 
 void
-MainWindow::displayStatusBarPageSize()
+MainWindow::applyUnitsSettingToCoordinates(qreal& x, qreal& y, QString& units)
 {
-    QSizeF page_size = StatusBarProvider::getPageSize();
-
-    if (isBatchProcessingInProgress() || !isProjectLoaded() || !page_size.isValid()) {
-        statusLabelPhysSize->clear();
-        return;
-    }
-
     StatusLabelPhysSizeDisplayMode mode = StatusBarProvider::statusLabelPhysSizeDisplayMode;
-
-
-    QString val(tr("%1 x %2 %3"));
-    QString units;
     Dpi dpi = StatusBarProvider::getOriginalDpi();
 
     if (isOutputFilter()) {
         Dpi outputDpi = StatusBarProvider::getSettingsDpi();
         if (dpi != outputDpi) {
             // the image will be scaled
-            page_size.setHeight(page_size.height()*outputDpi.vertical() / dpi.vertical());
-            page_size.setWidth(page_size.width()*outputDpi.horizontal() / dpi.horizontal());
+            y = y * outputDpi.vertical() / dpi.vertical();
+            x = x * outputDpi.horizontal() / dpi.horizontal();
         }
     }
 
@@ -3134,26 +3123,41 @@ MainWindow::displayStatusBarPageSize()
         units = tr("px");
         break;
     case Inch:
-        page_size.setHeight(page_size.height()/dpi.vertical());
-        page_size.setWidth(page_size.width()/dpi.horizontal());
+        y /= dpi.vertical();
+        x /= dpi.horizontal();
         units = tr("in");
         break;
     case MM:
-        page_size.setHeight(page_size.height()/dpm.vertical()*1000);
-        page_size.setWidth(page_size.width()/dpm.horizontal()*1000);
+        y = y / dpm.vertical()*1000.;
+        x = x / dpm.horizontal()*1000.;
         units = tr("mm");
         break;
     case SM:
-        page_size.setHeight(page_size.height()/dpm.vertical()*100);
-        page_size.setWidth(page_size.width()/dpm.horizontal()*100);
+        y = y / dpm.vertical()*100.;
+        x = x / dpm.horizontal()*100.;
         units = tr("cm");
         break;
     default:
         break;
     }
 
-    val = val.arg(page_size.width()).arg(page_size.height()).arg(units);
-    statusLabelPhysSize->setText(val);
+}
+
+void
+MainWindow::displayStatusBarPageSize()
+{
+    QSizeF page_size = StatusBarProvider::getPageSize();
+
+    if (isBatchProcessingInProgress() || !isProjectLoaded() || !page_size.isValid()) {
+        statusLabelPhysSize->clear();
+        return;
+    }
+
+    qreal x = page_size.width();
+    qreal y = page_size.height();
+    QString units;
+    applyUnitsSettingToCoordinates(x, y, units);
+    statusLabelPhysSize->setText(tr("%1 x %2 %3").arg(x).arg(y).arg(units));
 }
 
 void
@@ -3166,5 +3170,9 @@ MainWindow::displayStatusBarMousePos()
         return;
     }
 
-    statusLabelMousePos->setText(tr("%1,%2").arg(pos.x()).arg(pos.y()));
+    qreal x = pos.x();
+    qreal y = pos.y();
+    QString dummy;
+    applyUnitsSettingToCoordinates(x, y, dummy);
+    statusLabelMousePos->setText(tr("%1, %2").arg(x,0,'f',1).arg(y,0,'f',1));
 }

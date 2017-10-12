@@ -222,6 +222,8 @@ private slots:
 
     void displayStatusBarMousePos();
 
+    void applyUnitsSettingToCoordinates(qreal& x, qreal& y, QString& units);
+
 private:
 	class PageSelectionProviderImpl;
 	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
