@@ -71,7 +71,7 @@ ImageView::ImageView(
 			boost::bind(&ImageView::cornerPosition, this, masks_by_corner[i])
 		);
 		m_corners[i].setMoveRequestCallback(
-			boost::bind(&ImageView::cornerMoveRequest, this, masks_by_corner[i], _1)
+            boost::bind(&ImageView::cornerMoveRequest, this, masks_by_corner[i], _1, _2)
 		);
 		m_corners[i].setDragFinishedCallback(
 			boost::bind(&ImageView::dragFinished, this)
@@ -91,7 +91,7 @@ ImageView::ImageView(
 			boost::bind(&ImageView::edgePosition, this, masks_by_edge[i])
 		);
 		m_edges[i].setMoveRequestCallback(
-			boost::bind(&ImageView::edgeMoveRequest, this, masks_by_edge[i], _1)
+            boost::bind(&ImageView::edgeMoveRequest, this, masks_by_edge[i], _1, _2)
 		);
 		m_edges[i].setDragFinishedCallback(
 			boost::bind(&ImageView::dragFinished, this)
@@ -264,25 +264,58 @@ ImageView::cornerPosition(int edge_mask) const
 }
 
 void
-ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos)
+ImageView::mouseMoveEvent(QMouseEvent* event)
+{
+    if (!m_moveStart.isNull() && !event->modifiers().testFlag(Qt::ShiftModifier)) {
+        m_moveStart = QPointF();
+    }
+
+    ImageViewBase::mouseMoveEvent(event);
+}
+
+void
+ImageView::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (!m_moveStart.isNull()) {
+        m_moveStart = QPointF();
+    }
+
+    ImageViewBase::mouseReleaseEvent(event);
+}
+
+void
+ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModifiers mask)
 {
 	QRectF r(virtualToWidget().mapRect(m_contentRect));
 	qreal const minw = m_minBoxSize.width();
 	qreal const minh = m_minBoxSize.height();
 
-	if (edge_mask & TOP) {
-		r.setTop(std::min(pos.y(), r.bottom() - minh));
-	} else if (edge_mask & BOTTOM) {
-		r.setBottom(std::max(pos.y(), r.top() + minh));
-	}
+    if (mask.testFlag(Qt::ShiftModifier)) {
+        if (!m_moveStart.isNull()) {
+            QPointF diff = pos - m_moveStart;
+            r.translate(diff.x(), diff.y());
+        }
+        m_moveStart = pos;
+        forceInsideImage(r, TOP | LEFT | RIGHT | BOTTOM);
+    } else {
+        m_moveStart = QPointF();
 
-	if (edge_mask & LEFT) {
-		r.setLeft(std::min(pos.x(), r.right() - minw));
-	} else if (edge_mask & RIGHT) {
-		r.setRight(std::max(pos.x(), r.left() + minw));
-	}
+        if (edge_mask & TOP) {
+            r.setTop(std::min(pos.y(), r.bottom() - minh));
+        } else if (edge_mask & BOTTOM) {
+            r.setBottom(std::max(pos.y(), r.top() + minh));
+        }
 
-	forceInsideImage(r, edge_mask);
+        if (edge_mask & LEFT) {
+            r.setLeft(std::min(pos.x(), r.right() - minw));
+        } else if (edge_mask & RIGHT) {
+            r.setRight(std::max(pos.x(), r.left() + minw));
+        }
+
+        forceInsideImage(r, edge_mask);
+    }
+
+
 	m_contentRect = widgetToVirtual().mapRect(r);
 	update();
 
@@ -309,9 +342,9 @@ ImageView::edgePosition(int const edge) const
 }
 
 void
-ImageView::edgeMoveRequest(int const edge, QLineF const& line)
+ImageView::edgeMoveRequest(int const edge, QLineF const& line, Qt::KeyboardModifiers mask)
 {
-	cornerMoveRequest(edge, line.p1());
+    cornerMoveRequest(edge, line.p1(), mask);
 }
 
 void
@@ -325,7 +358,7 @@ ImageView::forceInsideImage(QRectF& widget_rect, int const edge_mask) const
 {
 	qreal const minw = m_minBoxSize.width();
 	qreal const minh = m_minBoxSize.height();
-	QRectF const image_rect(getOccupiedWidgetRect());
+    QRectF const image_rect(virtualToWidget().mapRect(virtualDisplayRect()));
 
 	if ((edge_mask & LEFT) && widget_rect.left() < image_rect.left()) {
 		widget_rect.setLeft(image_rect.left());

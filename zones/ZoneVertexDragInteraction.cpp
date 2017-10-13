@@ -131,38 +131,54 @@ ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState
 	QTransform const from_screen(m_rContext.imageView().widgetToImage());
 	m_ptrVertex->setPoint(from_screen.map(event->pos() + QPointF(0.5, 0.5) + m_dragOffset));
 
-//begin of modified by monday2000
-//Ortho_Corner_Move_Square_Picture_Zones
-//added:
-
 	Qt::KeyboardModifiers mask = event->modifiers();
 
-	if (mask == Qt::ControlModifier) 
-	{
-		QTransform const to_screen(m_rContext.imageView().imageToWidget());
+    if (mask == Qt::ControlModifier)
+    {
+        QTransform const to_screen(m_rContext.imageView().imageToWidget());
 
-		QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;
-		QPointF prev = to_screen.map(m_ptrVertex->prev(SplineVertex::LOOP)->point());
-		QPointF next = to_screen.map(m_ptrVertex->next(SplineVertex::LOOP)->point());
+        QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;
+        QPointF prev = to_screen.map(m_ptrVertex->prev(SplineVertex::LOOP)->point());
+        QPointF next = to_screen.map(m_ptrVertex->next(SplineVertex::LOOP)->point());
 
-		int dx = next.x() - prev.x();
-		int dy = next.y() - prev.y();
+        int dx = next.x() - prev.x();
+        int dy = next.y() - prev.y();
 
-		if ((dx > 0 && dy > 0) || (dx < 0 && dy < 0))
-		{
-			prev.setX(current.x());
-			next.setY(current.y());
-		}
-		else
-		{
-			next.setX(current.x());	
-			prev.setY(current.y());
-		}		
+        if ((dx > 0 && dy > 0) || (dx < 0 && dy < 0))
+        {
+            prev.setX(current.x());
+            next.setY(current.y());
+        }
+        else
+        {
+            next.setX(current.x());
+            prev.setY(current.y());
+        }
 
-		m_ptrVertex->prev(SplineVertex::LOOP)->setPoint(from_screen.map(prev));
-		m_ptrVertex->next(SplineVertex::LOOP)->setPoint(from_screen.map(next));
-	}
-//end of modified by monday2000
+        m_ptrVertex->prev(SplineVertex::LOOP)->setPoint(from_screen.map(prev));
+        m_ptrVertex->next(SplineVertex::LOOP)->setPoint(from_screen.map(next));
+    }
+
+    if (mask.testFlag(Qt::ShiftModifier)) {
+        QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;
+
+        if (!m_moveStart.isNull()) {
+            QPointF diff = from_screen.map(current) - from_screen.map(m_moveStart);
+            SplineVertex::Ptr i = m_ptrSpline->firstVertex();
+            do {
+                if (i != m_ptrVertex) {
+                    QPointF current = i->point();
+                    current += diff;
+                    i->setPoint(current);
+                }
+
+                i = i->next(SplineVertex::NO_LOOP);
+            } while (i.get());
+        }
+        m_moveStart = current;
+    } else {
+        m_moveStart = QPointF();
+    }
 
 	checkProximity(interaction);
 	m_rContext.imageView().update();

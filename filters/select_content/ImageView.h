@@ -52,6 +52,9 @@ public:
 	virtual ~ImageView();
 signals:
 	void manualContentRectSet(QRectF const& content_rect);
+protected:
+    virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
 private slots:
 	void createContentBox();
 	
@@ -65,11 +68,11 @@ private:
 
 	QPointF cornerPosition(int edge_mask) const;
 
-	void cornerMoveRequest(int edge_mask, QPointF const& pos);
+    void cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModifiers mask);
 
 	QLineF edgePosition(int edge) const;
 
-	void edgeMoveRequest(int edge, QLineF const& line);
+    void edgeMoveRequest(int edge, QLineF const& line, Qt::KeyboardModifiers mask);
 
 	void dragFinished();
 
@@ -101,6 +104,8 @@ private:
 	QRectF m_pageRect;
 
 	QSizeF m_minBoxSize;
+
+    QPointF m_moveStart;
 };
 
 } // namespace select_content

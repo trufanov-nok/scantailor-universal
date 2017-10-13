@@ -65,7 +65,7 @@ Thumbnail::paintOverImage(
 	// toRect() is necessary because we turn off antialiasing.
 	// For some reason, if we let Qt round the coordinates,
 	// the result is slightly different.
-	painter.drawRect(content_rect.toRect());
+    painter.drawRect(content_rect.toAlignedRect());
 
 	if (m_deviant) {
 		paintDeviant(painter);
