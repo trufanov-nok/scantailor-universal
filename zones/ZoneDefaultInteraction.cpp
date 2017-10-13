@@ -44,7 +44,7 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
 	makeLastFollower(m_dragHandler);
 	m_dragHandler.makeFirstFollower(m_dragWatcher);
 
-	m_vertexProximity.setProximityStatusTip(tr("Drag the vertex."));
+    m_vertexProximity.setProximityStatusTip(tr("Drag the vertex. Hold Shift to move whole zone."));
 	m_segmentProximity.setProximityStatusTip(tr("Click to create a new vertex here."));
 	m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties."));
 	m_rContext.imageView().interactionState().setDefaultStatusTip(

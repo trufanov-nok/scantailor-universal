@@ -62,7 +62,7 @@ ImageView::ImageView(
 		tr("Use the context menu to enable / disable the content box.")
 	);
 
-	QString const drag_tip(tr("Drag lines or corners to resize the content box."));
+    QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold Shift to move it."));
 
 	// Setup corner drag handlers.
 	static int const masks_by_corner[] = { TOP|LEFT, TOP|RIGHT, BOTTOM|RIGHT, BOTTOM|LEFT };
