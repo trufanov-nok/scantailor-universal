@@ -146,7 +146,9 @@ create_new_content:
         if (regeneration_enforced || (new_params.isContentDetectionEnabled() && new_params.mode() == MODE_AUTO)) {
 			//std::cout << "ContentBoxFinder" << std::endl;
 			content_rect = ContentBoxFinder::findContentBox(status, data, page_rect, m_ptrDbg.get());
-		} else if (new_params.isContentDetectionEnabled() && new_params.mode() == MODE_MANUAL && new_params.contentRect().isValid()) {
+        } else if (new_params.isContentDetectionEnabled() && new_params.mode() == MODE_MANUAL &&
+                   // allow isNull as content rect may be deleted from page
+                   (new_params.contentRect().isValid() || new_params.contentRect().isNull())) {
 			content_rect = new_params.contentRect();
 		} else {
 			content_rect = page_rect;
