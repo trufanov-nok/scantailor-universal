@@ -314,9 +314,9 @@
            <widget class="QWidget" name="statusBarPanel" native="true">
             <property name="geometry">
              <rect>
-              <x>59</x>
+              <x>9</x>
               <y>92</y>
-              <width>181</width>
+              <width>231</width>
               <height>20</height>
              </rect>
             </property>
@@ -337,7 +337,7 @@
               <widget class="QLabel" name="statusLabelMousePos">
                <property name="minimumSize">
                 <size>
-                 <width>31</width>
+                 <width>100</width>
                  <height>0</height>
                 </size>
                </property>
