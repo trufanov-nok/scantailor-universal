@@ -218,7 +218,9 @@ void OptionsWidget::borderChanged()
 {
     m_uiData.setPageBorders(leftBorder->value(), topBorder->value(), rightBorder->value(), bottomBorder->value());
     commitCurrentParams();
-    emit reloadRequested();
+    if (!m_uiData.contentRect().isEmpty()) {
+        emit reloadRequested();
+    }
 }
 
 void
