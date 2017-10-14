@@ -18,9 +18,6 @@
 
 #include "RelinkablePath.h"
 #include <QStringList>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 
 RelinkablePath::RelinkablePath(QString const& path, Type type)
 :	m_normalizedPath(normalize(path))
@@ -35,7 +32,7 @@ RelinkablePath::normalize(QString const& path)
 	front_slashes.replace(QChar('\\'), QLatin1String("/"));
 	
 	QStringList new_components;
-	BOOST_FOREACH(QString const& comp, front_slashes.split(QChar('/'), QString::KeepEmptyParts)) {
+    for (QString const& comp: front_slashes.split(QChar('/'), QString::KeepEmptyParts)) {
 		if (comp.isEmpty()) {
 			if (new_components.isEmpty()
 #if _WIN32

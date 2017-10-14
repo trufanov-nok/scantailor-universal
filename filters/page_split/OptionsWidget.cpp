@@ -27,9 +27,6 @@
 #include "ProjectPages.h"
 #include "ScopedIncDec.h"
 #include <QPixmap>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <assert.h>
 
 namespace page_split
@@ -274,7 +271,7 @@ OptionsWidget::layoutTypeSet(
     Params const params = *( m_ptrSettings->getPageRecord(m_pageId.imageId()).params() );
 
     if (layout_type != AUTO_LAYOUT_TYPE) {
-        BOOST_FOREACH(PageId const& page_id, pages) {
+        for (PageId const& page_id: pages) {
             Settings::UpdateAction update_params;
             update_params.setLayoutType(layout_type);
             if (apply_cut) {
@@ -285,7 +282,7 @@ OptionsWidget::layoutTypeSet(
     } else {
         Settings::UpdateAction update;
         update.clearParams();
-        BOOST_FOREACH(PageId const& page_id, pages) {
+        for (PageId const& page_id: pages) {
             m_ptrSettings->updatePage(page_id.imageId(), update);
             if (page_id == m_pageId) {
                 autoBtn->setChecked(true);

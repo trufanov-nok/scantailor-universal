@@ -44,7 +44,6 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/member.hpp>
-#include <boost/foreach.hpp>
 #endif
 #include <algorithm>
 #include <vector>
@@ -377,7 +376,7 @@ ThumbnailPixmapCache::Impl::setThumbDir(QString const& thumb_dir)
 
 	m_thumbDir = thumb_dir;
 
-	BOOST_FOREACH(Item const& item, m_loadQueue) {
+	for (Item const& item: m_loadQueue) {
 		// This trick will make all queued tasks to expire.
 		m_totalLoadAttempts = std::max(
 			m_totalLoadAttempts,
@@ -836,7 +835,7 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
 	// Notify listeners.
 	ThumbnailLoadResult const load_result(result->status(), pixmap);
 	typedef boost::weak_ptr<CompletionHandler> WeakHandler;
-	BOOST_FOREACH (WeakHandler const& wh, completion_handlers) {
+	for (WeakHandler const& wh: completion_handlers) {
 		boost::shared_ptr<CompletionHandler> const sh(wh.lock());
 		if (sh.get()) {
 			(*sh)(load_result);

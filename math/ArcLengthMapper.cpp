@@ -17,7 +17,6 @@
 */
 
 #include "ArcLengthMapper.h"
-#include <boost/foreach.hpp>
 #include <math.h>
 #include <assert.h>
 
@@ -72,7 +71,7 @@ ArcLengthMapper::normalizeRange(double total_arc_len)
 	assert(total_arc_len != 0);
 
 	double const scale = total_arc_len / m_samples.back().arcLen;
-	BOOST_FOREACH(Sample& sample, m_samples) {
+	for (Sample& sample: m_samples) {
 		sample.arcLen *= scale;
 	}
 }

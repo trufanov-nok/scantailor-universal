@@ -25,9 +25,6 @@
 #include "PageInfo.h"
 #include "PageId.h"
 #include "imageproc/Constants.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <QPixmap>
 #include <QString>
 #include <QSettings>
@@ -155,7 +152,7 @@ OptionsWidget::OptionsWidget(
 	);
 	
 	typedef AlignmentByButton::value_type KeyVal;
-	BOOST_FOREACH (KeyVal const& kv, m_alignmentByButton) {
+	for (KeyVal const& kv: m_alignmentByButton) {
 		connect(
 			kv.first, SIGNAL(clicked()),
 			this, SLOT(alignmentButtonClicked())
@@ -179,7 +176,7 @@ OptionsWidget::preUpdateUI(
 	m_ignoreMarginChanges = true;
 
 	typedef AlignmentByButton::value_type KeyVal;
-	BOOST_FOREACH (KeyVal const& kv, m_alignmentByButton) {
+	for (KeyVal const& kv: m_alignmentByButton) {
 		if (kv.second == m_alignment) {
 			kv.first->setChecked(true);
 		}
@@ -451,7 +448,7 @@ OptionsWidget::applyMargins(std::set<PageId> const& pages)
 		return;
 	}
 	
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
 	}
 	
@@ -466,7 +463,7 @@ OptionsWidget::applyAlignment(std::set<PageId> const& pages)
 		return;
 	}
 	
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		m_ptrSettings->setPageAlignment(page_id, m_alignment);
 	}
 	

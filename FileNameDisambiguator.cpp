@@ -31,7 +31,6 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/foreach.hpp>
 #endif
 
 using namespace boost::multi_index;
@@ -201,7 +200,7 @@ FileNameDisambiguator::Impl::toXml(
 
 	QDomElement el(doc.createElement(name));
 
-	BOOST_FOREACH(Item const& item, m_unorderedItems) {
+	for (Item const& item: m_unorderedItems) {
 		QString const file_path_shorthand = file_path_packer(item.filePath);
 		if (file_path_shorthand.isEmpty()) {
 			// Unrepresentable file path - skipping this record.
@@ -268,7 +267,7 @@ FileNameDisambiguator::Impl::performRelinking(AbstractRelinker const& relinker)
 	QMutexLocker const locker(&m_mutex);
 	Container new_items;
 
-	BOOST_FOREACH(Item const& item, m_unorderedItems) {
+	for (Item const& item: m_unorderedItems) {
 		RelinkablePath const old_path(item.filePath, RelinkablePath::File);
 		Item new_item(relinker.substitutionPathFor(old_path), item.label);
 		new_items.insert(new_item);

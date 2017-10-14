@@ -17,7 +17,6 @@
 */
 
 #include "PageSequence.h"
-#include <boost/foreach.hpp>
 
 void
 PageSequence::append(PageInfo const& page_info)
@@ -61,7 +60,7 @@ PageSequence::selectAll() const
 {
 	std::set<PageId> selection;
 
-	BOOST_FOREACH(PageInfo const& page_info, m_pages) {
+	for (PageInfo const& page_info: m_pages) {
 		selection.insert(page_info.id());
 	}
 
@@ -101,7 +100,7 @@ PageSequence::selectEveryOther(PageId const& base) const
 
 	int const base_idx = it - m_pages.begin();
 	int idx = 0;
-	BOOST_FOREACH(PageInfo const& page_info, m_pages) {
+	for (PageInfo const& page_info: m_pages) {
 		if (((idx - base_idx) & 1) == 0) {
 			selection.insert(page_info.id());
 		}

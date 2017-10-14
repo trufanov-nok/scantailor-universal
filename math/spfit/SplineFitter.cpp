@@ -22,7 +22,6 @@
 #include "ConstraintSet.h"
 #include "ModelShape.h"
 #include "VirtualFunction.h"
-#include <boost/foreach.hpp>
 #include <stdexcept>
 
 namespace spfit

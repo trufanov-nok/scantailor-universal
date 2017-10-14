@@ -18,7 +18,6 @@
 
 #include "StageSequence.h"
 #include "ProjectPages.h"
-#include <boost/foreach.hpp>
 
 StageSequence::StageSequence(IntrusivePtr<ProjectPages> const& pages,
 	PageSelectionAccessor const& page_selection_accessor)
@@ -51,7 +50,7 @@ StageSequence::StageSequence(IntrusivePtr<ProjectPages> const& pages,
 void
 StageSequence::performRelinking(AbstractRelinker const& relinker)
 {
-	BOOST_FOREACH(FilterPtr& filter, m_filters) {
+	for (FilterPtr& filter: m_filters) {
 		filter->performRelinking(relinker);
 	}
 }
@@ -60,7 +59,7 @@ int
 StageSequence::findFilter(FilterPtr const& filter) const
 {
 	int idx = 0;
-	BOOST_FOREACH(FilterPtr const& f, m_filters) {
+	for (FilterPtr const& f: m_filters) {
 		if (f == filter) {
 			return idx;
 		}

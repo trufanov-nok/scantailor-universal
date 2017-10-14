@@ -40,7 +40,6 @@
 #include <QtGlobal>
 #include <QDebug>
 #ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #endif
@@ -261,7 +260,7 @@ TopBottomEdgeTracer::trace(
 	std::vector<std::vector<QPointF> > snakes;
 	snakes.reserve(endpoints1.size());
 	
-	BOOST_FOREACH(QPoint endpoint, endpoints1) {
+	for (QPoint endpoint: endpoints1) {
 		snakes.push_back(pathToSnake(grid, endpoint));
 		Vec2f const dir(downTheHillDirection(downscaled.rect(), snakes.back(), avg_bounds_dir));
 		downTheHillSnake(snakes.back(), grid, dir);
@@ -271,7 +270,7 @@ TopBottomEdgeTracer::trace(
 		dbg->add(visualizeSnakes(background, snakes, bounds), "down_the_hill_snakes");
 	}
 
-	BOOST_FOREACH(std::vector<QPointF>& snake, snakes) {
+	for (std::vector<QPointF>& snake: snakes) {
 		Vec2f const dir(-downTheHillDirection(downscaled.rect(), snake, avg_bounds_dir));
 		upTheHillSnake(snake, grid, dir);
 	}
@@ -282,8 +281,8 @@ TopBottomEdgeTracer::trace(
 
 	// Convert snakes back to the original coordinate system.
 	QTransform const upscaling_xform(downscaling_xform.inverted());
-	BOOST_FOREACH(std::vector<QPointF>& snake, snakes) {
-		BOOST_FOREACH(QPointF& pt, snake) {
+	for (std::vector<QPointF>& snake: snakes) {
+		for (QPointF& pt: snake) {
 			pt = upscaling_xform.map(pt);
 		}
 		output.addHorizontalCurve(snake);
@@ -622,7 +621,7 @@ TopBottomEdgeTracer::locateBestPathEndpoints(Grid<GridNode> const& grid, QLineF 
 		// Find the closest path.
 		Path* closest_path = 0;
 		int closest_sqdist = std::numeric_limits<int>::max();
-		BOOST_FOREACH(Path& path, best_paths) {
+		for (Path& path: best_paths) {
 			QPoint const delta(path.pt - pt);
 			int const sqdist = delta.x() * delta.x() + delta.y() * delta.y();
 			if (sqdist < closest_sqdist) {
@@ -644,7 +643,7 @@ TopBottomEdgeTracer::locateBestPathEndpoints(Grid<GridNode> const& grid, QLineF 
 			best_paths.push_back(Path(pt, node->pathCost));
 		} else {
 			// Find the one to kick out (if any).
-			BOOST_FOREACH(Path& path, best_paths) {
+			for (Path& path: best_paths) {
 				if (node->pathCost < path.cost) {
 					path = Path(pt, node->pathCost);
 					break;
@@ -655,7 +654,7 @@ TopBottomEdgeTracer::locateBestPathEndpoints(Grid<GridNode> const& grid, QLineF 
 
 	std::vector<QPoint> best_endpoints;
 
-	BOOST_FOREACH(Path const& path, best_paths) {
+	for (Path const& path: best_paths) {
 		if (path.cost < 0.95f) {
 			best_endpoints.push_back(path.pt);
 		}
@@ -785,7 +784,7 @@ TopBottomEdgeTracer::downTheHillDirection(
 
 	// Take the centroid of a snake.
 	QPointF centroid;
-	BOOST_FOREACH(QPointF const& pt, snake) {
+	for (QPointF const& pt: snake) {
 		centroid += pt;
 	}
 	centroid /= snake.size();
@@ -866,7 +865,7 @@ TopBottomEdgeTracer::downTheHillSnake(
 				float best_cost = NumericTraits<float>::max();
 				uint32_t best_prev_step_idx = step.prevStepIdx;
 
-				BOOST_FOREACH(uint32_t prev_step_idx, paths) {
+				for (uint32_t prev_step_idx: paths) {
 					Step const& prev_step = step_storage[prev_step_idx];
 					float cost = prev_step.pathCost + step.pathCost;
 
@@ -919,7 +918,7 @@ TopBottomEdgeTracer::downTheHillSnake(
 		
 		uint32_t best_path_idx = ~uint32_t(0);
 		float best_cost = NumericTraits<float>::max();
-		BOOST_FOREACH(uint32_t last_step_idx, paths) {
+		for (uint32_t last_step_idx: paths) {
 			Step const& step = step_storage[last_step_idx];
 			if (step.pathCost < best_cost) {
 				best_cost = step.pathCost;
@@ -1004,7 +1003,7 @@ TopBottomEdgeTracer::upTheHillSnake(
 				float best_cost = NumericTraits<float>::max();
 				uint32_t best_prev_step_idx = step.prevStepIdx;
 
-				BOOST_FOREACH(uint32_t prev_step_idx, paths) {
+				for (uint32_t prev_step_idx: paths) {
 					Step const& prev_step = step_storage[prev_step_idx];
 					float cost = prev_step.pathCost + step.pathCost;
 
@@ -1057,7 +1056,7 @@ TopBottomEdgeTracer::upTheHillSnake(
 		
 		uint32_t best_path_idx = ~uint32_t(0);
 		float best_cost = NumericTraits<float>::max();
-		BOOST_FOREACH(uint32_t last_step_idx, paths) {
+		for (uint32_t last_step_idx: paths) {
 			Step const& step = step_storage[last_step_idx];
 			if (step.pathCost < best_cost) {
 				best_cost = step.pathCost;
@@ -1248,7 +1247,7 @@ TopBottomEdgeTracer::visualizePaths(
 		+grid_stride - 1, +grid_stride, +grid_stride + 1
 	};
 
-	BOOST_FOREACH(QPoint const path_endpoint, path_endpoints) {
+	for (QPoint const path_endpoint: path_endpoints) {
 		int grid_offset = path_endpoint.x() + path_endpoint.y() * grid_stride;
 		int canvas_offset = path_endpoint.x() + path_endpoint.y() * canvas_stride;
 		for (;;) {
@@ -1284,8 +1283,8 @@ TopBottomEdgeTracer::visualizePaths(
 	uint32_t* const canvas_data = (uint32_t*)canvas.bits();
 	int const canvas_stride = canvas.bytesPerLine() / 4;
 	
-	BOOST_FOREACH(std::vector<QPoint> const& path, paths) {
-		BOOST_FOREACH(QPoint pt, path) {
+	for (std::vector<QPoint> const& path: paths) {
+		for (QPoint pt: path) {
 			canvas_data[pt.x() + pt.y() * canvas_stride] = 0x00ff0000;
 		}
 	}
@@ -1318,7 +1317,7 @@ TopBottomEdgeTracer::visualizeSnakes(
 
 	QRectF knot_rect(0, 0, 7, 7);
 
-	BOOST_FOREACH(std::vector<QPointF> const& snake, snakes) {
+	for (std::vector<QPointF> const& snake: snakes) {
 		if (snake.empty()) {
 			continue;
 		}
@@ -1326,7 +1325,7 @@ TopBottomEdgeTracer::visualizeSnakes(
 		painter.setPen(snake_pen);
 		painter.drawPolyline(&snake[0], snake.size());
 		painter.setPen(Qt::NoPen);
-		BOOST_FOREACH(QPointF const& knot, snake) {
+		for (QPointF const& knot: snake) {
 			knot_rect.moveCenter(knot);
 			painter.drawEllipse(knot_rect);
 		}
@@ -1354,7 +1353,7 @@ TopBottomEdgeTracer::visualizePolylines(
 	polyline_pen.setWidthF(4.0);
 	painter.setPen(polyline_pen);
 
-	BOOST_FOREACH(std::vector<QPointF> const& polyline, polylines) {
+	for (std::vector<QPointF> const& polyline: polylines) {
 		if (polyline.empty()) {
 			continue;
 		}

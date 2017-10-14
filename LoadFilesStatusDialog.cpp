@@ -18,9 +18,6 @@
 
 #include "LoadFilesStatusDialog.h"
 #include <QPushButton>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 
 LoadFilesStatusDialog::LoadFilesStatusDialog(QWidget* parent)
 :	QDialog(parent)
@@ -41,7 +38,7 @@ LoadFilesStatusDialog::setLoadedFiles(std::vector<QString> const& files)
 	ui.tabWidget->setTabText(0, m_loadedTabNameTemplate.arg(files.size()));
 
 	QString text;
-	BOOST_FOREACH(QString const& file, files) {
+	for (QString const& file: files) {
 		text.append(file);
 		text.append(QChar('\n'));
 	}
@@ -55,7 +52,7 @@ LoadFilesStatusDialog::setFailedFiles(std::vector<QString> const& files)
 	ui.tabWidget->setTabText(1, m_failedTabNameTemplate.arg(files.size()));
 
 	QString text;
-	BOOST_FOREACH(QString const& file, files) {
+	for (QString const& file: files) {
 		text.append(file);
 		text.append(QChar('\n'));
 	}

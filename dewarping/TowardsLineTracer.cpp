@@ -24,7 +24,6 @@
 #include <QRect>
 #include <QtGlobal>
 #ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #endif
@@ -165,7 +164,7 @@ TowardsLineTracer::setupSteps()
 	}
 
 	m_numSteps = 0;
-	BOOST_FOREACH(QPoint const dir, all_directions) {
+	for (QPoint const dir: all_directions) {
 		if (m_normalTowardsLine.dot(QPointF(dir)) > 0.0) {
 			Step& step = m_steps[m_numSteps];
 			step.vec = dir;

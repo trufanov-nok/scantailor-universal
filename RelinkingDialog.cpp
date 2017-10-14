@@ -22,9 +22,6 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QDebug>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <assert.h>
 
 RelinkingDialog::RelinkingDialog(QString const& project_file_path, QWidget* parent)

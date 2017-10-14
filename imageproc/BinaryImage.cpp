@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 #include "BinaryImage.h"
 #include "ByteOrder.h"
 #include "BitOps.h"
@@ -34,7 +33,6 @@
 #include <assert.h>
 //begin of modified by monday2000
 //Picture_Shape
-#include <boost/foreach.hpp>
 //end of modified by monday2000
 
 namespace imageproc
@@ -668,12 +666,12 @@ BinaryImage::rectangularizeAreas(BWColor content_color)
 	while (join) {
 		join = false;
 		std::vector<QRect> tmp;
-		BOOST_FOREACH(QRect area, areas) {
+		for (QRect area: areas) {
 			// take an area and try to join with something in tmp
 			QRect enlArea(area.adjusted(-overlap,-overlap, overlap, overlap));
 			bool intersected = false;
 			std::vector<QRect> tmp2;
-			BOOST_FOREACH(QRect ta, tmp) {
+			for (QRect ta: tmp) {
 				QRect enlTA(ta.adjusted(-overlap,-overlap, overlap, overlap));
 				if (enlArea.intersects(enlTA)) {
 					intersected = true;
@@ -692,7 +690,7 @@ BinaryImage::rectangularizeAreas(BWColor content_color)
 		//std::cout << areas.size() << std::endl;
 	}
 	//std::cout << areas.size() << std::endl;
-	BOOST_FOREACH(QRect area, areas) {
+	for (QRect area: areas) {
 		//std::cout << "l: " << area.left() << " r: " << area.right() << " t: " << area.top() << " b: " << area.bottom() << std::endl;
 		fill(area, WHITE);
 	}
@@ -760,12 +758,12 @@ BinaryImage::rectangularizeAreasQuadro(BWColor content_color, std::vector<QRect>
 	while (join) {
 		join = false;
 		std::vector<QRect> tmp;
-		BOOST_FOREACH(QRect area, areas) {
+		for (QRect area: areas) {
 			// take an area and try to join with something in tmp
 			QRect enlArea(area.adjusted(-overlap,-overlap, overlap, overlap));
 			bool intersected = false;
 			std::vector<QRect> tmp2;
-			BOOST_FOREACH(QRect ta, tmp) {
+			for (QRect ta: tmp) {
 				QRect enlTA(ta.adjusted(-overlap,-overlap, overlap, overlap));
 				if (enlArea.intersects(enlTA)) {
 					intersected = true;
@@ -783,7 +781,7 @@ BinaryImage::rectangularizeAreasQuadro(BWColor content_color, std::vector<QRect>
 		areas = tmp;		
 	}
 
-	BOOST_FOREACH(QRect& area, areas)
+	for (QRect& area: areas)
 	{		
 		QRect tmp_area = area;
 

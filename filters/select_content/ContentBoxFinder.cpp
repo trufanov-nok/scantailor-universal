@@ -42,9 +42,6 @@
 #include "imageproc/ConnectivityMap.h"
 #include "imageproc/InfluenceMap.h"
 #include "imageproc/SEDM.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <QRect>
 #include <QRectF>
 #include <QPolygonF>
@@ -875,7 +872,7 @@ ContentBoxFinder::estimateTextMask(
 			}
 		}
 		
-		BOOST_FOREACH (Range const range, ranges) {
+		for (Range const range: ranges) {
 			int const first = range.first - &hist[0];
 			int const last = range.second - &hist[0];
 			if (last - first < min_text_height - 1) {

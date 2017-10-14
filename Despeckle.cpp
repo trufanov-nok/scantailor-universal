@@ -24,9 +24,6 @@
 #include "imageproc/BinaryImage.h"
 #include "imageproc/ConnectivityMap.h"
 #include "imageproc/Connectivity.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <QtGlobal>
 #include <QImage>
 #include <QDebug>
@@ -809,7 +806,7 @@ Despeckle::despeckleInPlace(
 	status.throwIfCancelled();
 
 	// Tag connected components with ANCHORED_TO_BIG or ANCHORED_TO_SMALL.
-	BOOST_FOREACH(Connections::value_type const& pair, conns) {
+	for (Connections::value_type const& pair: conns) {
 		Connection const conn(pair.first);
 		uint32_t const sqdist = pair.second;
 		Component& comp1 = components[conn.lesser_label];
@@ -823,7 +820,7 @@ Despeckle::despeckleInPlace(
 	components[unified_big_component].setAnchoredToBig();
 	
 	bool have_anchored_to_small_but_not_big = false;
-	BOOST_FOREACH(Component const& comp, components) {
+	for (Component const& comp: components) {
 		have_anchored_to_small_but_not_big = comp.anchoredToSmallButNotBig();
 	}
 	
@@ -882,7 +879,7 @@ Despeckle::despeckleInPlace(
 	std::vector<Distance>().swap(distance_matrix);
 	
 	// Remove tags from components.
-	BOOST_FOREACH(Component& comp, components) {
+	for (Component& comp: components) {
 		comp.clearTags();
 	}
 	

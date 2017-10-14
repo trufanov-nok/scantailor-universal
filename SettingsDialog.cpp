@@ -25,7 +25,6 @@
 #include <MainWindow.h>
 #include <QDebug>
 #include <QResource>
-#include <boost/foreach.hpp>
 #include "filters/output/DespeckleLevel.h"
 #include "filters/output/Params.h"
 
@@ -114,7 +113,7 @@ void SettingsDialog::backupSettings()
     m_oldSettings.clear();
     QStringList sl = m_settings.allKeys();
 
-    BOOST_FOREACH(QString key, sl) {
+    for (QString key: sl) {
         m_oldSettings[key] = m_settings.value(key);
     }
 }
@@ -239,7 +238,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 
     treeWidget->blockSignals(true);
 
-    BOOST_FOREACH(QString name, settingsTreeTitles) {
+    for (QString name: settingsTreeTitles) {
 
         QStringList metadata = tree_data[idx++].split('\t', QString::KeepEmptyParts);
         Q_ASSERT(!metadata.isEmpty());
@@ -426,7 +425,7 @@ void SettingsDialog::loadTiffList()
     ui.cbTiffCompression->clear();
 
     ui.cbTiffCompression->blockSignals(true);
-    BOOST_FOREACH(QString const& s, tiff_list) {
+    for (QString const& s: tiff_list) {
         if (!s.trimmed().isEmpty()) {
             const QStringList& sl = s.split('\t');
             ui.cbTiffCompression->addItem(sl[0], sl[2]);

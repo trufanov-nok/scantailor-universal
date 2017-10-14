@@ -22,9 +22,6 @@
 #include "Settings.h"
 #include "Params.h"
 #include "ScopedIncDec.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 
 #include <QSettings>
 #include <iostream>
@@ -287,7 +284,7 @@ OptionsWidget::applySelection(std::set<PageId> const& pages, bool apply_content_
 		deps, m_uiData.mode(), m_uiData.contentDetection(), m_uiData.pageDetection(), m_uiData.fineTuning()
 	);
 
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		std::auto_ptr<Params> old_params = m_ptrSettings->getPageParams(page_id);
 
 		if (old_params.get()) {

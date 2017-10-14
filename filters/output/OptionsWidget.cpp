@@ -32,9 +32,6 @@
 #include "ScopedIncDec.h"
 #include "config.h"
 #include "StatusBarProvider.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <QtGlobal>
 #include <QVariant>
 #include <QColorDialog>
@@ -318,7 +315,7 @@ OptionsWidget::equalizeIlluminationToggled(bool const checked)
 void
 OptionsWidget::dpiChanged(std::set<PageId> const& pages, Dpi const& dpi)
 {
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		m_ptrSettings->setDpi(page_id, dpi);
 	}
 	emit invalidateAllThumbnails();
@@ -333,7 +330,7 @@ OptionsWidget::dpiChanged(std::set<PageId> const& pages, Dpi const& dpi)
 void
 OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 {
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
         m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyMode);
         m_ptrSettings->setPictureShape(page_id, m_currentPictureShape);
 	}
@@ -389,7 +386,7 @@ OptionsWidget::handleDespeckleLevelChange(DespeckleLevel const level)
 void
 OptionsWidget::applyDespeckleConfirmed(std::set<PageId> const& pages)
 {
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		m_ptrSettings->setDespeckleLevel(page_id, m_despeckleLevel);
 	}
 	emit invalidateAllThumbnails();
@@ -402,7 +399,7 @@ OptionsWidget::applyDespeckleConfirmed(std::set<PageId> const& pages)
 void
 OptionsWidget::dewarpingChanged(std::set<PageId> const& pages, DewarpingMode const& mode)
 {
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		m_ptrSettings->setDewarpingMode(page_id, mode);
 	}
 	emit invalidateAllThumbnails();
@@ -445,7 +442,7 @@ OptionsWidget::dewarpingChanged(std::set<PageId> const& pages, DewarpingMode con
 void
 OptionsWidget::applyDepthPerceptionConfirmed(std::set<PageId> const& pages)
 {
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		m_ptrSettings->setDepthPerception(page_id, m_depthPerception);
 	}
 	emit invalidateAllThumbnails();
@@ -895,7 +892,7 @@ void output::OptionsWidget::on_actionReset_to_default_value_triggered()
 
 void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& pages)
 {
-    BOOST_FOREACH(PageId const& page_id, pages) {
+    for (PageId const& page_id: pages) {
         m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyThreshold);
     }
 

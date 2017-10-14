@@ -26,9 +26,6 @@
 #include <QTransform>
 #include <QString>
 #include <QPointF>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 
 SerializableSpline::SerializableSpline(EditableSpline const& spline)
 {
@@ -72,7 +69,7 @@ SerializableSpline::toXml(QDomDocument& doc, QString const& name) const
 
 	QString const point_str("point");
 	XmlMarshaller marshaller(doc);
-	BOOST_FOREACH(QPointF const& pt, m_points) {
+    for (QPointF const& pt: m_points) {
 		el.appendChild(marshaller.pointF(pt, point_str));
 	}
 
@@ -84,7 +81,7 @@ SerializableSpline::transformed(QTransform const& xform) const
 {
 	SerializableSpline transformed(*this);
 
-	BOOST_FOREACH(QPointF& pt, transformed.m_points) {
+    for (QPointF& pt: transformed.m_points) {
 		pt = xform.map(pt);
 	}
 
@@ -97,7 +94,7 @@ SerializableSpline::transformed(
 {
 	SerializableSpline transformed(*this);
 
-	BOOST_FOREACH(QPointF& pt, transformed.m_points) {
+    for (QPointF& pt: transformed.m_points) {
 		pt = xform(pt);
 	}
 

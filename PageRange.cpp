@@ -17,7 +17,6 @@
 */
 
 #include "PageRange.h"
-#include <boost/foreach.hpp>
 
 std::set<PageId>
 PageRange::selectEveryOther(PageId const& base) const
@@ -35,7 +34,7 @@ PageRange::selectEveryOther(PageId const& base) const
 
 	int const base_idx = it - pages.begin();
 	int idx = 0;
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		if (((idx - base_idx) & 1) == 0) {
 			selection.insert(page_id);
 		}

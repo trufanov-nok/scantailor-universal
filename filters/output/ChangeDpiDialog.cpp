@@ -26,9 +26,6 @@
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QDebug>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <algorithm>
 #include <QSettings>
 
@@ -61,7 +58,7 @@ ChangeDpiDialog::ChangeDpiDialog(
 	m_customDpiString = QString::number(requested_dpi);
 	
 	int selected_index = -1;
-    BOOST_FOREACH(QString const cdpi, common_dpis) {
+    for (QString const cdpi: common_dpis) {
         if (cdpi.trimmed().toInt() == requested_dpi) {
 			selected_index = dpiSelector->count();
 		}

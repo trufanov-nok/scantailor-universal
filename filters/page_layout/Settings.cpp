@@ -30,7 +30,6 @@
 #include <QMutex>
 #include <QMutexLocker>
 #ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
@@ -433,7 +432,7 @@ Settings::Impl::performRelinking(AbstractRelinker const& relinker)
 	QMutexLocker locker(&m_mutex);
 	Container new_items;
 
-	BOOST_FOREACH(Item const& item, m_unorderedItems) {
+	for (Item const& item: m_unorderedItems) {
 		RelinkablePath const old_path(item.pageId.imageId().filePath(), RelinkablePath::File);
 		Item new_item(item);
 		new_item.pageId.imageId().setFilePath(relinker.substitutionPathFor(old_path));

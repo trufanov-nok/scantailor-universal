@@ -20,9 +20,6 @@
 #include "Utils.h"
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 
 namespace fix_orientation
 {
@@ -48,7 +45,7 @@ Settings::performRelinking(AbstractRelinker const& relinker)
 	QMutexLocker locker(&m_mutex);
 	PerImageRotation new_rotations;
 
-	BOOST_FOREACH(PerImageRotation::value_type const& kv, m_perImageRotation) {
+	for (PerImageRotation::value_type const& kv: m_perImageRotation) {
 		RelinkablePath const old_path(kv.first.filePath(), RelinkablePath::File);
 		ImageId new_image_id(kv.first);
 		new_image_id.setFilePath(relinker.substitutionPathFor(old_path));
@@ -72,7 +69,7 @@ Settings::applyRotation(
 {
 	QMutexLocker locker(&m_mutex);
 	
-	BOOST_FOREACH(PageId const& page, pages) {
+	for (PageId const& page: pages) {
 		setImageRotationLocked(page.imageId(), rotation);
 	}
 }

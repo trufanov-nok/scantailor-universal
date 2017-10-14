@@ -20,7 +20,6 @@
 #include "NumericTraits.h"
 #include "VecNT.h"
 #include "Constants.h"
-#include <boost/foreach.hpp>
 #include <limits>
 #include <algorithm>
 #include <stdexcept>
@@ -95,7 +94,7 @@ RastLineFinder::RastLineFinder(std::vector<QPointF> const& points, RastLineFinde
 	
 	double max_sqdist = 0;
 
-	BOOST_FOREACH(QPointF const& pt, points) {
+	for (QPointF const& pt: points) {
 		m_points.push_back(pt);
 		candidate_idxs.push_back(candidate_idxs.size());
 
@@ -188,7 +187,7 @@ RastLineFinder::pushIfGoodEnough(SearchSpace& ssp)
 void
 RastLineFinder::markPointsUnavailable(std::vector<unsigned> const& point_idxs)
 {
-	BOOST_FOREACH(unsigned idx, point_idxs) {
+	for (unsigned idx: point_idxs) {
 		m_points[idx].available = false;
 	}
 }
@@ -248,7 +247,7 @@ RastLineFinder::SearchSpace::SearchSpace(
 	Vec2d const min_towards_max_angle_vec(-min_angle_unit_vec.y(), min_angle_unit_vec.x());
 	Vec2d const max_towards_min_angle_vec(max_angle_unit_vec.y(), -max_angle_unit_vec.x());
 
-	BOOST_FOREACH(unsigned idx, candidate_idxs) {
+	for (unsigned idx: candidate_idxs) {
 		Point const& pnt = owner.m_points[idx];
 		if (!pnt.available) {
 			continue;

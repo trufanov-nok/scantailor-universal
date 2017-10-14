@@ -20,9 +20,6 @@
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
 #include <QMutexLocker>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <assert.h>
 
 namespace page_split
@@ -52,7 +49,7 @@ Settings::performRelinking(AbstractRelinker const& relinker)
 	QMutexLocker locker(&m_mutex);
 	PerPageRecords new_records;
 
-	BOOST_FOREACH(PerPageRecords::value_type const& kv, m_perPageRecords) {
+	for (PerPageRecords::value_type const& kv: m_perPageRecords) {
 		RelinkablePath const old_path(kv.first.filePath(), RelinkablePath::File);
 		ImageId new_image_id(kv.first);
 		new_image_id.setFilePath(relinker.substitutionPathFor(old_path));
@@ -96,7 +93,7 @@ Settings::setLayoutTypeFor(LayoutType const layout_type, std::set<PageId> const&
 	UpdateAction action;
 	//action.setLayoutType(layout_type);
 	
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		updatePageLocked(page_id.imageId(), action);
 	}
 }

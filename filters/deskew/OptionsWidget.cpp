@@ -24,9 +24,6 @@
 #include <Qt>
 #include <math.h>
 #include "ApplyDialog.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 
 namespace deskew
 {
@@ -92,7 +89,7 @@ OptionsWidget::appliedTo(std::set<PageId> const& pages)
 		m_uiData.dependencies(), m_uiData.mode()
 	);
 	m_ptrSettings->setDegress(pages, params);
-	BOOST_FOREACH(PageId const& page_id, pages) {
+	for (PageId const& page_id: pages) {
 		emit invalidateThumbnail(page_id);
 	}
 }

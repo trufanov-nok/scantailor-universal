@@ -22,7 +22,6 @@
 #include "NonCopyable.h"
 #include <boost/intrusive/list.hpp>
 #include <boost/type_traits/alignment_of.hpp>
-#include <boost/foreach.hpp>
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
@@ -105,7 +104,7 @@ template<typename T>
 FastQueue<T>::FastQueue(FastQueue const& other)
 :	m_chunkCapacity(other.m_chunkCapacity)
 {
-	BOOST_FOREACH(Chunk& chunk, other.m_chunkList) {
+	for (Chunk& chunk: other.m_chunkList) {
 		for (T const* obj = chunk->pBegin; obj != chunk->pEnd; ++obj) {
 			push(*obj);
 		}

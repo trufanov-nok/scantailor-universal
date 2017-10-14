@@ -22,9 +22,6 @@
 #include <QDomNode>
 #include <QDomElement>
 #include <QString>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <assert.h>
 
 EditableSpline::EditableSpline()
@@ -33,7 +30,7 @@ EditableSpline::EditableSpline()
 
 EditableSpline::EditableSpline(SerializableSpline const& spline)
 {
-	BOOST_FOREACH(QPointF const& pt, spline.toPolygon()) {
+    for (QPointF const& pt: spline.toPolygon()) {
 		appendVertex(pt);
 	}
 

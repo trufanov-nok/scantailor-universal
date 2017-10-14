@@ -18,7 +18,6 @@
 
 #include "ConstraintSet.h"
 #include "FittableSpline.h"
-#include <boost/foreach.hpp>
 #include <assert.h>
 
 namespace spfit
@@ -58,7 +57,7 @@ ConstraintSet::constrainSplinePoint(double t, QPointF const& pos)
 	// Fix the x coordinate.
 	LinearFunction f(m_pSpline->numControlPoints() * 2);
 	f.b = -pos.x();
-	BOOST_FOREACH(FittableSpline::LinearCoefficient const& coeff, coeffs) {
+    for (FittableSpline::LinearCoefficient const& coeff: coeffs) {
 		int const cp_idx = coeff.controlPointIdx;
 		f.a[cp_idx * 2] = coeff.coeff;
 
@@ -70,7 +69,7 @@ ConstraintSet::constrainSplinePoint(double t, QPointF const& pos)
 	// Fix the y coordinate.
 	f.a.fill(0);
 	f.b = -pos.y();
-	BOOST_FOREACH(FittableSpline::LinearCoefficient const& coeff, coeffs) {
+    for (FittableSpline::LinearCoefficient const& coeff: coeffs) {
 		int const cp_idx = coeff.controlPointIdx;
 		f.a[cp_idx * 2 + 1] = coeff.coeff;
 
@@ -138,7 +137,7 @@ ConstraintSet::constrainSplinePoint(double t, QLineF const& line)
 
 	LinearFunction f(m_pSpline->numControlPoints() * 2);
 	f.b = line.p1().y() * dx - line.p1().x() * dy;
-	BOOST_FOREACH(FittableSpline::LinearCoefficient const& coeff, coeffs) {
+    for (FittableSpline::LinearCoefficient const& coeff: coeffs) {
 		f.a[coeff.controlPointIdx * 2] = coeff.coeff * dy;
 		f.a[coeff.controlPointIdx * 2 + 1] = -coeff.coeff * dx;
 

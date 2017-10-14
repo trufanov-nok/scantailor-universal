@@ -21,9 +21,6 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 
 PropertySet::PropertySet(QDomElement const& el, PropertyFactory const& factory)
 {
@@ -50,7 +47,7 @@ PropertySet::PropertySet(PropertySet const& other)
 {
 	m_props.reserve(other.m_props.size());
 
-	BOOST_FOREACH(IntrusivePtr<Property> const& prop, other.m_props) {
+	for (IntrusivePtr<Property> const& prop: other.m_props) {
 		m_props.push_back(prop->clone());
 	}
 }
@@ -74,7 +71,7 @@ PropertySet::toXml(QDomDocument& doc, QString const& name) const
 	QString const property_str("property");
 	QDomElement props_el(doc.createElement(name));
 
-	BOOST_FOREACH(IntrusivePtr<Property> const& prop, m_props) {
+	for (IntrusivePtr<Property> const& prop: m_props) {
 		props_el.appendChild(prop->toXml(doc, property_str));
 	}
 

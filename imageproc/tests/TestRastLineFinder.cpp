@@ -21,7 +21,6 @@
 #include <QLineF>
 #include <vector>
 #include <set>
-#include <boost/foreach.hpp>
 #include <boost/test/auto_unit_test.hpp>
 
 namespace imageproc

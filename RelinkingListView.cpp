@@ -27,9 +27,6 @@
 #include <QBrush>
 #include <QColor>
 #include <QVariant>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <vector>
 
 class RelinkingListView::Delegate : public QStyledItemDelegate
@@ -156,7 +153,7 @@ RelinkingListView::drawStatusLayer(QPainter* painter)
 		painter->setPen(pen);
 		painter->setBrush(brush);
 
-		BOOST_FOREACH(IndicationGroup const& group, group_aggregator.groups()) {
+		for (IndicationGroup const& group: group_aggregator.groups()) {
 			if (group.status == status) {
 				qreal const radius = 0.5 * group.rect.width();
 				QRectF rect(group.rect);

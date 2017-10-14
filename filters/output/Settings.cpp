@@ -23,9 +23,6 @@
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
 #include "../../Utils.h"
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include <Qt>
 #include <QColor>
 #include <QMutexLocker>
@@ -71,28 +68,28 @@ Settings::performRelinking(AbstractRelinker const& relinker)
     PerPageZones new_picture_zones;
     PerPageZones new_fill_zones;
 
-    BOOST_FOREACH(PerPageParams::value_type const& kv, m_perPageParams) {
+    for (PerPageParams::value_type const& kv: m_perPageParams) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
         new_params.insert(PerPageParams::value_type(new_page_id, kv.second));
     }
 
-    BOOST_FOREACH(PerPageOutputParams::value_type const& kv, m_perPageOutputParams) {
+    for (PerPageOutputParams::value_type const& kv: m_perPageOutputParams) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
         new_output_params.insert(PerPageOutputParams::value_type(new_page_id, kv.second));
     }
 
-    BOOST_FOREACH(PerPageZones::value_type const& kv, m_perPagePictureZones) {
+    for (PerPageZones::value_type const& kv: m_perPagePictureZones) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
         new_picture_zones.insert(PerPageZones::value_type(new_page_id, kv.second));
     }
 
-    BOOST_FOREACH(PerPageZones::value_type const& kv, m_perPageFillZones) {
+    for (PerPageZones::value_type const& kv: m_perPageFillZones) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));

@@ -23,9 +23,6 @@
 #include "Grayscale.h"
 #include "BitOps.h"
 #include <QDebug>
-#ifndef Q_MOC_RUN
-#include <boost/foreach.hpp>
-#endif
 #include "MatT.h"
 #include "VecT.h"
 #include "MatrixCalc.h"
