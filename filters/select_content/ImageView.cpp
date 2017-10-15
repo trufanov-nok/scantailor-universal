@@ -62,7 +62,7 @@ ImageView::ImageView(
 		tr("Use the context menu to enable / disable the content box.")
 	);
 
-    QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold Shift to move it."));
+    QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold Shift to move it, Ctrl to move along axes, both to shrink/stretch."));
 
 	// Setup corner drag handlers.
 	static int const masks_by_corner[] = { TOP|LEFT, TOP|RIGHT, BOTTOM|RIGHT, BOTTOM|LEFT };
@@ -266,7 +266,9 @@ ImageView::cornerPosition(int edge_mask) const
 void
 ImageView::mouseMoveEvent(QMouseEvent* event)
 {
-    if (!m_moveStart.isNull() && !event->modifiers().testFlag(Qt::ShiftModifier)) {
+    if (!m_moveStart.isNull() &&
+            !event->modifiers().testFlag(Qt::ShiftModifier) &&
+            !event->modifiers().testFlag(Qt::ControlModifier)) {
         m_moveStart = QPointF();
     }
 
@@ -290,9 +292,21 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
 	qreal const minw = m_minBoxSize.width();
 	qreal const minh = m_minBoxSize.height();
 
-    if (mask.testFlag(Qt::ShiftModifier)) {
+    // Only Ctrl or only Shift is pressed
+    const bool move = mask.testFlag(Qt::ShiftModifier) ?
+                     !mask.testFlag(Qt::ControlModifier) :
+                      mask.testFlag(Qt::ControlModifier);
+    if (move) {
         if (!m_moveStart.isNull()) {
             QPointF diff = pos - m_moveStart;
+            if (mask.testFlag(Qt::ControlModifier))
+            {
+                if (edge_mask & TOP || edge_mask & BOTTOM) {
+                    diff.setX(0);
+                } else {
+                    diff.setY(0);
+                }
+            }
             r.translate(diff.x(), diff.y());
         }
         m_moveStart = pos;
@@ -300,16 +314,31 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
     } else {
         m_moveStart = QPointF();
 
-        if (edge_mask & TOP) {
-            r.setTop(std::min(pos.y(), r.bottom() - minh));
-        } else if (edge_mask & BOTTOM) {
-            r.setBottom(std::max(pos.y(), r.top() + minh));
-        }
+        if (!mask.testFlag(Qt::ControlModifier)) {
+            // Ctrl and Shift are pressed at the same time
+            if (edge_mask & TOP) {
+                r.setTop(std::min(pos.y(), r.bottom() - minh));
+            } else if (edge_mask & BOTTOM) {
+                r.setBottom(std::max(pos.y(), r.top() + minh));
+            }
 
-        if (edge_mask & LEFT) {
-            r.setLeft(std::min(pos.x(), r.right() - minw));
-        } else if (edge_mask & RIGHT) {
-            r.setRight(std::max(pos.x(), r.left() + minw));
+            if (edge_mask & LEFT) {
+                r.setLeft(std::min(pos.x(), r.right() - minw));
+            } else if (edge_mask & RIGHT) {
+                r.setRight(std::max(pos.x(), r.left() + minw));
+            }
+        } else {
+            if (edge_mask & TOP || edge_mask & BOTTOM) {
+                qreal dy = (edge_mask & TOP)? pos.y() - r.top() : r.bottom() - pos.y();
+                r.setTop(std::min(r.top() + dy, r.bottom() - minh));
+                r.setBottom(std::max(r.bottom() - dy, r.top() + minh));
+                edge_mask = TOP | BOTTOM;
+            } else {
+                qreal dx = (edge_mask & LEFT)? pos.x() - r.left() : r.right() - pos.x();
+                r.setLeft(std::min(r.left() + dx, r.right() - minw));
+                r.setRight(std::max(r.right() - dx, r.left() + minw));
+                edge_mask = LEFT | RIGHT;
+            }
         }
 
         forceInsideImage(r, edge_mask);
