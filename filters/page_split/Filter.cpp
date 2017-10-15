@@ -231,7 +231,7 @@ Filter::createCacheDrivenTask(
 	IntrusivePtr<deskew::CacheDrivenTask> const& next_task)
 {
 	return IntrusivePtr<CacheDrivenTask>(
-		new CacheDrivenTask(m_ptrSettings, next_task)
+        new CacheDrivenTask(m_ptrSettings, m_ptrPages, next_task)
 	);
 }
 

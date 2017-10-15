@@ -27,6 +27,7 @@ class QSizeF;
 class PageInfo;
 class AbstractFilterDataCollector;
 class ImageTransformation;
+class ProjectPages;
 
 namespace deskew
 {
@@ -44,6 +45,7 @@ class CacheDrivenTask : public RefCountable
 public:
 	CacheDrivenTask(
 		IntrusivePtr<Settings> const& settings,
+        IntrusivePtr<ProjectPages> projectPages,
 		IntrusivePtr<deskew::CacheDrivenTask> const& next_task);
 	
 	virtual ~CacheDrivenTask();
@@ -54,6 +56,7 @@ public:
 private:
 	IntrusivePtr<deskew::CacheDrivenTask> m_ptrNextTask;
 	IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<ProjectPages> m_projectPages;
 };
 
 } // namespace page_split
