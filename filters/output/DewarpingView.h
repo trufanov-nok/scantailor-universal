@@ -63,7 +63,7 @@ private:
 //begin of modified by monday2000
 //Marginal_Dewarping
 	//static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2);
-	static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2, DewarpingMode const* p_dewarpingMode = NULL);
+	static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2, DewarpingMode const* p_dewarpingMode = nullptr);
 //end of modified by monday2000
 	static void fitSpline(XSpline& spline, std::vector<QPointF> const& polyline);
 

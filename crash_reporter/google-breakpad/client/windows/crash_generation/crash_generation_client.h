@@ -92,7 +92,7 @@ class CrashGenerationClient {
  private:
   // Connects to the appropriate pipe and sets the pipe handle state.
   //
-  // Returns the pipe handle if everything goes well; otherwise Returns NULL.
+  // Returns the pipe handle if everything goes well; otherwise Returns nullptr.
   HANDLE ConnectToServer();
 
   // Performs a handshake with the server over the given pipe which should be

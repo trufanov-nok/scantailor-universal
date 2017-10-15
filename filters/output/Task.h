@@ -62,7 +62,7 @@ public:
 		ImageViewTab last_tab, bool batch, bool debug,
 		bool keep_orig_fore_subscan = false,
 //Original_Foreground_Mixed
-		QImage* p_orig_fore_subscan = NULL);
+		QImage* p_orig_fore_subscan = nullptr);
 	
 	virtual ~Task();
 	

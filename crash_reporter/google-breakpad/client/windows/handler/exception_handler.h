@@ -98,7 +98,7 @@ class ExceptionHandler {
   // minidump_id is a unique id for the dump, so the minidump
   // file is <dump_path>\<minidump_id>.dmp.  context is the parameter supplied
   // by the user as callback_context when the handler was created.  exinfo
-  // points to the exception record, or NULL if no exception occurred.
+  // points to the exception record, or nullptr if no exception occurred.
   // succeeded indicates whether a minidump file was successfully written.
   // assertion points to information about an assertion if the handler was
   // invoked by an assertion.
@@ -115,7 +115,7 @@ class ExceptionHandler {
   // return true directly (unless |succeeded| is true).
   //
   // For out-of-process dump generation, dump path and minidump ID will always
-  // be NULL. In case of out-of-process dump generation, the dump path and
+  // be nullptr. In case of out-of-process dump generation, the dump path and
   // minidump id are controlled by the server process and are not communicated
   // back to the crashing process.
   typedef bool (*MinidumpCallback)(const wchar_t* dump_path,
@@ -154,8 +154,8 @@ class ExceptionHandler {
                    int handler_types);
 
   // Creates a new ExcetpionHandler instance that can attempt to perform
-  // out-of-process dump generation if pipe_name is not NULL. If pipe_name is
-  // NULL, or if out-of-process dump generation registration step fails,
+  // out-of-process dump generation if pipe_name is not nullptr. If pipe_name is
+  // nullptr, or if out-of-process dump generation registration step fails,
   // in-process dump generation will be used. This also allows specifying
   // the dump type to generate.
   ExceptionHandler(const wstring& dump_path,
@@ -203,7 +203,7 @@ class ExceptionHandler {
   }
 
   // Returns whether out-of-process dump generation is used or not.
-  bool IsOutOfProcess() const { return crash_generation_client_.get() != NULL; }
+  bool IsOutOfProcess() const { return crash_generation_client_.get() != nullptr; }
 
  private:
   friend class AutoExceptionHandler;
@@ -262,9 +262,9 @@ class ExceptionHandler {
   // overflows and inconsistent dumps due to writing the dump from
   // the exception thread.  If the dump is requested as a result of an
   // exception, exinfo contains exception information, otherwise, it
-  // is NULL.  If the dump is requested as a result of an assertion
+  // is nullptr.  If the dump is requested as a result of an assertion
   // (such as an invalid parameter being passed to a CRT function),
-  // assertion contains data about the assertion, otherwise, it is NULL.
+  // assertion contains data about the assertion, otherwise, it is nullptr.
   bool WriteMinidumpOnHandlerThread(EXCEPTION_POINTERS* exinfo,
                                     MDRawAssertionInfo* assertion);
 
@@ -272,7 +272,7 @@ class ExceptionHandler {
   // on the handler thread.  requesting_thread_id is the ID of the thread
   // that requested the dump.  If the dump is requested as a result of
   // an exception, exinfo contains exception information, otherwise,
-  // it is NULL.
+  // it is nullptr.
   bool WriteMinidumpWithException(DWORD requesting_thread_id,
                                   EXCEPTION_POINTERS* exinfo,
                                   MDRawAssertionInfo* assertion);
@@ -321,7 +321,7 @@ class ExceptionHandler {
 
   // When installed_handler_ is true, previous_filter_ is the unhandled
   // exception filter that was set prior to installing ExceptionHandler as
-  // the unhandled exception filter and pointing it to |this|.  NULL indicates
+  // the unhandled exception filter and pointing it to |this|.  nullptr indicates
   // that there is no previous unhandled exception filter.
   LPTOP_LEVEL_EXCEPTION_FILTER previous_filter_;
 
@@ -366,11 +366,11 @@ class ExceptionHandler {
   DWORD requesting_thread_id_;
 
   // The exception info passed to the exception handler on the exception
-  // thread, if an exception occurred.  NULL for user-requested dumps.
+  // thread, if an exception occurred.  nullptr for user-requested dumps.
   EXCEPTION_POINTERS* exception_info_;
 
   // If the handler is invoked due to an assertion, this will contain a
-  // pointer to the assertion information.  It is NULL at other times.
+  // pointer to the assertion information.  It is nullptr at other times.
   MDRawAssertionInfo* assertion_;
 
   // The return value of the handler, passed from the handler thread back to

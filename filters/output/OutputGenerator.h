@@ -136,7 +136,7 @@ public:
 //Picture_Shape
 		DebugImages* dbg = 0, PictureShape picture_shape=FREE_SHAPE
 //Quadro_Zoner
-		, PageId* p_pageId = NULL, IntrusivePtr<Settings>* p_settings = NULL
+		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
 		) const;
 	
 	QSize outputImageSize() const;
@@ -163,7 +163,7 @@ private:
 		DebugImages* dbg = 0, 
 		PictureShape picture_shape=FREE_SHAPE
 //Quadro_Zoner
-		, PageId* p_pageId = NULL, IntrusivePtr<Settings>* p_settings = NULL
+		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
 		) const;
 
 	QImage processAsIs(
@@ -182,7 +182,7 @@ private:
 //Picture_Shape
 		DebugImages* dbg = 0, PictureShape picture_shape=FREE_SHAPE
 //Quadro_Zoner
-		, PageId* p_pageId = NULL, IntrusivePtr<Settings>* p_settings = NULL
+		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
 		) const;
 
 	QImage processWithDewarping(
@@ -200,7 +200,7 @@ private:
 		DebugImages* dbg = 0,
 		PictureShape picture_shape=FREE_SHAPE
 //Quadro_Zoner
-		, PageId* p_pageId = NULL, IntrusivePtr<Settings>* p_settings = NULL
+		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
 		) const;
 
 //Marginal_Dewarping

@@ -232,8 +232,8 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
     const QResource tree_metadata(":/SettingsTreeData.tsv");
     QStringList tree_data = QString::fromUtf8((char const*)tree_metadata.data(), tree_metadata.size()).split('\n');
 
-    QTreeWidgetItem* last_top_item = NULL;
-    QTreeWidgetItem* parent_item = NULL;
+    QTreeWidgetItem* last_top_item = nullptr;
+    QTreeWidgetItem* parent_item = nullptr;
     int idx = 0;
 
     treeWidget->blockSignals(true);
@@ -248,7 +248,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 
         parent_item = last_top_item; // level = 1
         for (int i = 0; i< level-2; i++) {
-            Q_ASSERT(parent_item != NULL);
+            Q_ASSERT(parent_item != nullptr);
             parent_item = parent_item->child(parent_item->childCount()-1);
         }
 

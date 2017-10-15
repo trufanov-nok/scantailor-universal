@@ -78,7 +78,7 @@ static bool TransactNamedPipeDebugHelper(HANDLE pipe,
                  in_buffer,
                  in_size,
                  bytes_count,
-                 NULL)) {
+                 nullptr)) {
     return false;
   }
 
@@ -86,7 +86,7 @@ static bool TransactNamedPipeDebugHelper(HANDLE pipe,
   // and read.
   // Sleep(5000);
 
-  return ReadFile(pipe, out_buffer, out_size, bytes_count, NULL) != FALSE;
+  return ReadFile(pipe, out_buffer, out_size, bytes_count, nullptr) != FALSE;
 }
 **/
 
@@ -98,10 +98,10 @@ CrashGenerationClient::CrashGenerationClient(
           dump_type_(dump_type),
           thread_id_(0),
           server_process_id_(0),
-          crash_event_(NULL),
-          crash_generated_(NULL),
-          server_alive_(NULL),
-          exception_pointers_(NULL),
+          crash_event_(nullptr),
+          crash_generated_(nullptr),
+          server_alive_(nullptr),
+          exception_pointers_(nullptr),
           custom_info_() {
   memset(&assert_info_, 0, sizeof(assert_info_));
   if (custom_info) {
@@ -172,13 +172,13 @@ HANDLE CrashGenerationClient::ConnectToServer() {
                               kPipeDesiredAccess,
                               kPipeFlagsAndAttributes);
   if (!pipe) {
-    return NULL;
+    return nullptr;
   }
 
   DWORD mode = kPipeMode;
-  if (!SetNamedPipeHandleState(pipe, &mode, NULL, NULL)) {
+  if (!SetNamedPipeHandleState(pipe, &mode, nullptr, nullptr)) {
     CloseHandle(pipe);
-    pipe = NULL;
+    pipe = nullptr;
   }
 
   return pipe;
@@ -192,9 +192,9 @@ bool CrashGenerationClient::RegisterClient(HANDLE pipe) {
                       &exception_pointers_,
                       &assert_info_,
                       custom_info_,
-                      NULL,
-                      NULL,
-                      NULL);
+                      nullptr,
+                      nullptr,
+                      nullptr);
   ProtocolMessage reply;
   DWORD bytes_count = 0;
   // The call to TransactNamedPipe below can be changed to a call
@@ -206,7 +206,7 @@ bool CrashGenerationClient::RegisterClient(HANDLE pipe) {
                          &reply,
                          sizeof(ProtocolMessage),
                          &bytes_count,
-                         NULL)) {
+                         nullptr)) {
     return false;
   }
 
@@ -217,7 +217,7 @@ bool CrashGenerationClient::RegisterClient(HANDLE pipe) {
   ProtocolMessage ack_msg;
   ack_msg.tag = MESSAGE_TAG_REGISTRATION_ACK;
 
-  if (!WriteFile(pipe, &ack_msg, sizeof(ack_msg), &bytes_count, NULL)) {
+  if (!WriteFile(pipe, &ack_msg, sizeof(ack_msg), &bytes_count, nullptr)) {
     return false;
   }
   crash_event_ = reply.dump_request_handle;
@@ -235,10 +235,10 @@ HANDLE CrashGenerationClient::ConnectToPipe(const wchar_t* pipe_name,
     HANDLE pipe = CreateFile(pipe_name,
                              pipe_access,
                              0,
-                             NULL,
+                             nullptr,
                              OPEN_EXISTING,
                              flags_attrs,
-                             NULL);
+                             nullptr);
     if (pipe != INVALID_HANDLE_VALUE) {
       return pipe;
     }
@@ -255,20 +255,20 @@ HANDLE CrashGenerationClient::ConnectToPipe(const wchar_t* pipe_name,
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 bool CrashGenerationClient::ValidateResponse(
     const ProtocolMessage& msg) const {
   return (msg.tag == MESSAGE_TAG_REGISTRATION_RESPONSE) &&
          (msg.pid != 0) &&
-         (msg.dump_request_handle != NULL) &&
-         (msg.dump_generated_handle != NULL) &&
-         (msg.server_alive_handle != NULL);
+         (msg.dump_request_handle != nullptr) &&
+         (msg.dump_generated_handle != nullptr) &&
+         (msg.server_alive_handle != nullptr);
 }
 
 bool CrashGenerationClient::IsRegistered() const {
-  return crash_event_ != NULL;
+  return crash_event_ != nullptr;
 }
 
 bool CrashGenerationClient::RequestDump(EXCEPTION_POINTERS* ex_info) {
@@ -293,7 +293,7 @@ bool CrashGenerationClient::RequestDump(MDRawAssertionInfo* assert_info) {
     return false;
   }
 
-  exception_pointers_ = NULL;
+  exception_pointers_ = nullptr;
 
   if (assert_info) {
     memcpy(&assert_info_, assert_info, sizeof(assert_info_));

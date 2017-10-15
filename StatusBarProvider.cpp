@@ -1,6 +1,6 @@
 #include "StatusBarProvider.h"
 
-QStatusBar* StatusBarProvider::m_statusBar = NULL;
+QStatusBar* StatusBarProvider::m_statusBar = nullptr;
 int StatusBarProvider::m_filterIdx = 0;
 QEvent::Type StatusBarProvider::StatusBarEventType = static_cast<QEvent::Type> (QEvent::registerEventType());
 int StatusBarProvider::m_outputFilterIdx = 0;

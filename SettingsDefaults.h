@@ -54,7 +54,7 @@ public:
         // and must be non null if called from other cpp modules
         // isGUI value is meaningful only in first case.
 
-        if (funcCallback != NULL) {
+        if (funcCallback != nullptr) {
             knownFuncs.append(funcCallback);
         } else {
             foreach (funcSettingsDefaults func, knownFuncs) {
@@ -67,7 +67,7 @@ public:
     // wrapper function that interfaces application main()
     static bool prepareDefaults(bool isGUI)
     {
-        return registerSettingsFunc(NULL, isGUI);
+        return registerSettingsFunc(nullptr, isGUI);
     }
 
 };

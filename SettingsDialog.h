@@ -74,7 +74,7 @@ private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
     void populateTreeWidget(QTreeWidget* treeWidget);
-    void setupItem(QTreeWidgetItem *item, QWidget* w = NULL, QString s = "", bool default_val = true);
+    void setupItem(QTreeWidgetItem *item, QWidget* w = nullptr, QString s = "", bool default_val = true);
     void backupSettings();
     void restoreSettings();
     void restoreSettingsTreeState(QTreeWidget* treeWidget);

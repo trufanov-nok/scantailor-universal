@@ -37,11 +37,11 @@ using std::wstring;
 namespace google_breakpad {
 
 MinidumpGenerator::MinidumpGenerator(const wstring& dump_path)
-    : dbghelp_module_(NULL),
-      rpcrt4_module_(NULL),
+    : dbghelp_module_(nullptr),
+      rpcrt4_module_(nullptr),
       dump_path_(dump_path),
-      write_dump_(NULL),
-      create_uuid_(NULL) {
+      write_dump_(nullptr),
+      create_uuid_(nullptr) {
   InitializeCriticalSection(&module_load_sync_);
   InitializeCriticalSection(&get_proc_address_sync_);
 }
@@ -92,10 +92,10 @@ bool MinidumpGenerator::WriteMinidump(HANDLE process_handle,
   HANDLE dump_file = CreateFile(dump_file_path.c_str(),
                                 GENERIC_WRITE,
                                 0,
-                                NULL,
+                                nullptr,
                                 CREATE_NEW,
                                 FILE_ATTRIBUTE_NORMAL,
-                                NULL);
+                                nullptr);
 
   if (dump_file == INVALID_HANDLE_VALUE) {
     return false;
@@ -106,10 +106,10 @@ bool MinidumpGenerator::WriteMinidump(HANDLE process_handle,
     full_dump_file = CreateFile(full_dump_file_path.c_str(),
                                 GENERIC_WRITE,
                                 0,
-                                NULL,
+                                nullptr,
                                 CREATE_NEW,
                                 FILE_ATTRIBUTE_NORMAL,
-                                NULL);
+                                nullptr);
 
     if (full_dump_file == INVALID_HANDLE_VALUE) {
       CloseHandle(dump_file);
@@ -117,7 +117,7 @@ bool MinidumpGenerator::WriteMinidump(HANDLE process_handle,
     }
   }
 
-  MINIDUMP_EXCEPTION_INFORMATION* dump_exception_pointers = NULL;
+  MINIDUMP_EXCEPTION_INFORMATION* dump_exception_pointers = nullptr;
   MINIDUMP_EXCEPTION_INFORMATION dump_exception_info;
 
   // Setup the exception information object only if it's a dump
@@ -196,9 +196,9 @@ bool MinidumpGenerator::WriteMinidump(HANDLE process_handle,
       dump_file,
       static_cast<MINIDUMP_TYPE>((dump_type & (~MiniDumpWithFullMemory))
                                   | MiniDumpNormal),
-      exception_pointers ? &dump_exception_info : NULL,
+      exception_pointers ? &dump_exception_info : nullptr,
       &user_streams,
-      NULL) != FALSE;
+      nullptr) != FALSE;
 
   bool result_full_memory = true;
   if (full_memory_dump) {
@@ -207,9 +207,9 @@ bool MinidumpGenerator::WriteMinidump(HANDLE process_handle,
         process_id,
         full_dump_file,
         static_cast<MINIDUMP_TYPE>(dump_type & (~MiniDumpNormal)),
-        exception_pointers ? &dump_exception_info : NULL,
+        exception_pointers ? &dump_exception_info : nullptr,
         &user_streams,
-        NULL) != FALSE;
+        nullptr) != FALSE;
   }
 
   bool result = result_minidump && result_full_memory;

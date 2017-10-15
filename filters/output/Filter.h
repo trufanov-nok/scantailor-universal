@@ -77,7 +77,7 @@ public:
 		//bool batch, bool debug);
         bool batch, bool debug,
 		bool keep_orig_fore_subscan = false, 
-		QImage* p_orig_fore_subscan = NULL);
+		QImage* p_orig_fore_subscan = nullptr);
 //end of modified by monday2000
 
 	IntrusivePtr<CacheDrivenTask> createCacheDrivenTask(

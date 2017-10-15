@@ -179,7 +179,7 @@ MainWindow::MainWindow()
     m_exportTimerId(0),
     m_keep_orig_fore_subscan(0),
     m_docking_enabled(true),
-    m_autosave_timer(NULL)
+    m_autosave_timer(nullptr)
 
 {
     GlobalStaticSettings::updateSettings();
@@ -1194,7 +1194,7 @@ MainWindow::pageContextMenuRequested(
 		QIcon(":/icons/user-trash.png"), tr("Remove from project ...")
 	);
 
-    QAction* regenerate = NULL;
+    QAction* regenerate = nullptr;
     bool regenerate_action_added = m_debug &&
             (m_curFilter != m_ptrStages->fixOrientationFilterIdx()) &&
             (m_curFilter != m_ptrStages->pageLayoutFilterIdx());
@@ -1820,7 +1820,7 @@ MainWindow::exportDialogClosed(QObject*)
 
 
 template<typename MixedPixel>
-bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2, bool keep_orig_fore_subscan = false, QImage* p_orig_fore_subscan = NULL)
+bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2, bool keep_orig_fore_subscan = false, QImage* p_orig_fore_subscan = nullptr)
 {
 	int const width = source_img.width();
 	int const height = source_img.height();
@@ -1876,7 +1876,7 @@ bool GenerateSubscans(QImage& source_img, QImage& subscan1, QImage& subscan2, bo
 	MixedPixel* subscan2_line = reinterpret_cast<MixedPixel*>(subscan2.bits());
 	int const subscan2_stride = subscan2.bytesPerLine() / sizeof(MixedPixel);
 
-	MixedPixel* orig_fore_line = NULL;
+    MixedPixel* orig_fore_line = nullptr;
 	int orig_fore_stride = 0;
 
 	if (keep_orig_fore_subscan)
@@ -2964,7 +2964,7 @@ void setupDockingPanel(QDockWidget* panel, bool enabled)
                                  QDockWidget::NoDockWidgetFeatures);
 
     if (!enabled) {
-        Q_ASSERT(panel->titleBarWidget() == NULL);
+        Q_ASSERT(panel->titleBarWidget() == nullptr);
 
         QWidget* titleWidget = new QWidget(panel);
         titleWidget->setVisible(false);
@@ -2973,8 +2973,8 @@ void setupDockingPanel(QDockWidget* panel, bool enabled)
         panel->setFloating(false);
     } else {
         QWidget* titleWidget = panel->titleBarWidget();
-        Q_ASSERT(titleWidget != NULL);
-        panel->setTitleBarWidget(NULL);
+        Q_ASSERT(titleWidget != nullptr);
+        panel->setTitleBarWidget(nullptr);
         titleWidget->deleteLater();
     }
 
@@ -3065,14 +3065,14 @@ void MainWindow::on_actionAbout_Qt_triggered()
 
 void
 MainWindow::pauseAutoSaveTimer() {
-    if (m_autosave_timer != NULL) {
+    if (m_autosave_timer != nullptr) {
         m_autosave_timer->blockSignals(true);
     }
 }
 
 void
 MainWindow::resumeAutoSaveTimer() {
-    if (m_autosave_timer != NULL) {
+    if (m_autosave_timer != nullptr) {
         m_autosave_timer->blockSignals(false);
     }
 }
@@ -3082,7 +3082,7 @@ MainWindow::createAutoSaveTimer()
 {
     int time = 60*1000*abs(QSettings().value("auto-save_project/time_period_min", 5).toInt());
 
-    if (m_autosave_timer == NULL) {
+    if (m_autosave_timer == nullptr) {
         m_autosave_timer = new QAutoSaveTimer(this);
         m_autosave_timer->start(time);
     } else {
@@ -3095,10 +3095,10 @@ MainWindow::createAutoSaveTimer()
 
 void
 MainWindow::destroyAutoSaveTimer() {
-    if (m_autosave_timer != NULL) {
+    if (m_autosave_timer != nullptr) {
         m_autosave_timer->stop();
         m_autosave_timer->deleteLater();
-        m_autosave_timer = NULL;
+        m_autosave_timer = nullptr;
     }
 }
 

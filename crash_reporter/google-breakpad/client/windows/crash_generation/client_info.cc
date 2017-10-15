@@ -48,11 +48,11 @@ ClientInfo::ClientInfo(CrashGenerationServer* crash_server,
       assert_info_(assert_info),
       custom_client_info_(custom_client_info),
       thread_id_(thread_id),
-      process_handle_(NULL),
-      dump_requested_handle_(NULL),
-      dump_generated_handle_(NULL),
-      dump_request_wait_handle_(NULL),
-      process_exit_wait_handle_(NULL) {
+      process_handle_(nullptr),
+      dump_requested_handle_(nullptr),
+      dump_generated_handle_(nullptr),
+      dump_request_wait_handle_(nullptr),
+      process_exit_wait_handle_(nullptr) {
   GetSystemTimeAsFileTime(&start_time_);
 }
 
@@ -62,19 +62,19 @@ bool ClientInfo::Initialize() {
     return false;
   }
 
-  dump_requested_handle_ = CreateEvent(NULL,    // Security attributes.
+  dump_requested_handle_ = CreateEvent(nullptr,    // Security attributes.
                                        TRUE,    // Manual reset.
                                        FALSE,   // Initial state.
-                                       NULL);   // Name.
+                                       nullptr);   // Name.
   if (!dump_requested_handle_) {
     return false;
   }
 
-  dump_generated_handle_ = CreateEvent(NULL,    // Security attributes.
+  dump_generated_handle_ = CreateEvent(nullptr,    // Security attributes.
                                        TRUE,    // Manual reset.
                                        FALSE,   // Initial state.
-                                       NULL);   // Name.
-  return dump_generated_handle_ != NULL;
+                                       nullptr);   // Name.
+  return dump_generated_handle_ != nullptr;
 }
 
 ClientInfo::~ClientInfo() {
@@ -108,7 +108,7 @@ bool ClientInfo::UnregisterWaits() {
     if (!UnregisterWait(dump_request_wait_handle_)) {
       success = false;
     } else {
-      dump_request_wait_handle_ = NULL;
+      dump_request_wait_handle_ = nullptr;
     }
   }
 
@@ -116,7 +116,7 @@ bool ClientInfo::UnregisterWaits() {
     if (!UnregisterWait(process_exit_wait_handle_)) {
       success = false;
     } else {
-      process_exit_wait_handle_ = NULL;
+      process_exit_wait_handle_ = nullptr;
     }
   }
 
@@ -176,7 +176,7 @@ bool ClientInfo::PopulateCustomInfo() {
   // If the scoped array for custom info already has an array, it will be
   // the same size as what we need. This is because the number of custom info
   // entries is always the same. So allocate memory only if scoped array has
-  // a NULL pointer.
+  // a nullptr pointer.
   if (!custom_info_entries_.get()) {
     // Allocate an extra entry for reporting uptime for the client process.
     custom_info_entries_.reset(
