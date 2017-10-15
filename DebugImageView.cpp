@@ -25,6 +25,9 @@
 #include <QImage>
 #include <QPointer>
 #include <memory>
+#include <QAction>
+#include <QFileDialog>
+#include <QMessageBox>
 
 class DebugImageView::ImageLoadResult : public AbstractCommand0<void>
 {
@@ -98,13 +101,52 @@ DebugImageView::imageLoaded(QImage const& image)
 		return;
 	}
 
-	if (currentWidget() == m_pPlaceholderWidget) {
-		std::auto_ptr<QWidget> image_view;
-		if (m_imageViewFactory.empty()) {
-			image_view.reset(new BasicImageView(image));
-		} else {
-			image_view.reset(m_imageViewFactory(image));
-		}
-		setCurrentIndex(addWidget(image_view.release()));
-	}
+    if (currentWidget() == m_pPlaceholderWidget) {
+        std::auto_ptr<QWidget> image_view;
+        if (m_imageViewFactory.empty()) {
+            image_view.reset(new BasicImageView(image));
+        } else {
+            image_view.reset(m_imageViewFactory(image));
+        }
+
+        if (!m_file.get().isEmpty()) {
+            QAction* save_as = new QAction(tr("Save image as..."), this);
+            connect(save_as, &QAction::triggered, [this](){
+                QString new_filename = QFileDialog::getSaveFileName(this, tr("Save debug image"),
+                                                                    QDir::currentPath(), tr("PNG images")+" (*.png)");
+                new_filename = new_filename.trimmed();
+                bool already_prompted_if_exists = true;
+                if (!new_filename.isEmpty()) {
+                    if (new_filename.toLower().right(4) != ".png") {
+                        new_filename += ".png";
+                        already_prompted_if_exists = false;
+                    }
+
+                    if (QFile::exists(new_filename)) {
+                        if (!already_prompted_if_exists) {
+                            if (QMessageBox::Cancel == QMessageBox::question(nullptr, tr("File saving"),
+                                                                             tr("%1 already exists.\nDo you want to replace it?")
+                                                                             .arg(QFileInfo(new_filename).fileName()),
+                                                                             QMessageBox::Yes, QMessageBox::Cancel)) {
+                                return;
+                            }
+                        }
+                        if (!QFile::remove(new_filename)) {
+                            QMessageBox::critical(nullptr, tr("File saving error"), tr("Can't remove file %1").arg(new_filename));
+                            return;
+                        }
+                    }
+
+                    if (!QFile::copy(m_file.get(), new_filename)) {
+                        QMessageBox::critical(nullptr, tr("File saving error"), tr("Can't copy file %1 to %2").arg(m_file.get()).arg(new_filename));
+                        return;
+                    }
+                }
+
+            });
+            image_view->addAction(save_as);
+            image_view->setContextMenuPolicy(Qt::ActionsContextMenu);
+        }
+        setCurrentIndex(addWidget(image_view.release()));
+    }
 }
