@@ -47,8 +47,8 @@ public:
     // reqquired for range-based for iteration
     std::vector<PageInfo>::iterator begin() {return m_pages.begin(); }
     std::vector<PageInfo>::iterator end() {return m_pages.end(); }
-    std::vector<PageInfo>::const_iterator cbegin() const {return m_pages.cbegin(); }
-    std::vector<PageInfo>::const_iterator cend() const {return m_pages.cend(); }
+    std::vector<PageInfo>::const_iterator begin() const {return m_pages.cbegin(); }
+    std::vector<PageInfo>::const_iterator end() const {return m_pages.cend(); }
 private:
     std::vector<PageInfo> m_pages;
 };

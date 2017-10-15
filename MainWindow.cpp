@@ -2172,17 +2172,14 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 	std::vector<PageId::SubPage> erase_variations; 
 	erase_variations.reserve(3);
 
-	PageSequence const& pages = allPages(); // get all the pages (input pages)	
-
-	unsigned const count = pages.numPages(); // input pages number	
+	PageSequence const& pages = allPages(); // get all the pages (input pages)		
 
 	PageId page_id;	
 
 	m_outpaths_vector.clear();
 
-	for (unsigned i = 0; i < count; ++i)
-	{
-		page_id = pages.pageAt(i).id();
+    for (const PageInfo& page: pages) {
+        page_id = page.id();
 
 		erase_variations.clear();
 
@@ -2761,7 +2758,7 @@ MainWindow::removeFromProject(std::set<PageId> const& pages)
 	m_ptrPages->removePages(pages);	
 	
 
-    PageSequence itemsInOrder = m_ptrThumbSequence->toPageSequence();
+    const PageSequence itemsInOrder = m_ptrThumbSequence->toPageSequence();
     std::set<PageId> new_selection;
 
     bool select_first_non_deleted = false;
@@ -2949,9 +2946,8 @@ MainWindow::createCompositeCacheDrivenTask(int const last_filter_idx)
 void
 MainWindow::updateDisambiguationRecords(PageSequence const& pages)
 {
-	int const count = pages.numPages();
-	for (int i = 0; i < count; ++i) {
-		m_outFileNameGen.disambiguator()->registerFile(pages.pageAt(i).imageId().filePath());
+    for (const PageInfo& page: pages) {
+        m_outFileNameGen.disambiguator()->registerFile(page.imageId().filePath());
 	}
 }
 

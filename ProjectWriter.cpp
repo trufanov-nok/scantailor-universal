@@ -45,9 +45,7 @@ ProjectWriter::ProjectWriter(
 	m_layoutDirection(page_sequence->layoutDirection())
 {
 	int next_id = 1;
-	size_t const num_pages = m_pageSequence.numPages();
-	for (size_t i = 0; i < num_pages; ++i) {
-		PageInfo const& page = m_pageSequence.pageAt(i);
+    for (const PageInfo& page: m_pageSequence) {
 		PageId const& page_id = page.id();
 		ImageId const& image_id = page_id.imageId();
 		QString const& file_path = image_id.filePath();
@@ -214,9 +212,7 @@ ProjectWriter::processPages(QDomDocument& doc) const
     }
 
 
-	size_t const num_pages = m_pageSequence.numPages();
-	for (size_t i = 0; i < num_pages; ++i) {
-		PageInfo const& page = m_pageSequence.pageAt(i);
+    for (const PageInfo& page: m_pageSequence) {
 		PageId const& page_id = page.id();
 		QDomElement page_el(doc.createElement("page"));
 		page_el.setAttribute("id", pageId(page_id));

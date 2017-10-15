@@ -62,11 +62,9 @@ ContentBoxPropagator::~ContentBoxPropagator()
 void
 ContentBoxPropagator::propagate(ProjectPages const& pages)
 {
-	PageSequence const sequence(pages.toPageSequence(PAGE_VIEW));
-	size_t const num_pages = sequence.numPages();
+    const PageSequence sequence(pages.toPageSequence(PAGE_VIEW));
 	
-	for (size_t i = 0; i < num_pages; ++i) {
-		PageInfo const& page_info = sequence.pageAt(i);
+    for (const PageInfo& page_info: sequence) {
 		Collector collector;
 		m_ptrTask->process(page_info, &collector);
 		if (collector.collected()) {

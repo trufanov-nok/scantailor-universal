@@ -218,8 +218,7 @@ ConsoleBatch::process()
 		// process pages
 		PageSequence page_sequence = m_ptrPages->toPageSequence(PAGE_VIEW);
  		setupFilter(j, page_sequence.selectAll());
-		for (unsigned i=0; i<page_sequence.numPages(); i++) {
-			PageInfo page = page_sequence.pageAt(i);
+        for (const PageInfo& page: page_sequence) {
 			if (cli.isVerbose())
 				std::cout << "\tProcessing: " << page.imageId().filePath().toLocal8Bit().constData() << "\n";
 			BackgroundTaskPtr bgTask = createCompositeTask(page, j);
