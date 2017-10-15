@@ -122,6 +122,7 @@ DespeckleView::DespeckleView(
 		std::auto_ptr<QWidget> widget(
 			new BasicImageView(visualization.image(), visualization.downscaledImage())
 		);
+        emit imageViewCreated(qobject_cast<ImageViewBase*>(widget.get()));
 		setCurrentIndex(addWidget(widget.release()));
 	}
 }
@@ -211,6 +212,7 @@ DespeckleView::despeckleDone(
 			visualization.image(), visualization.downscaledImage(), OutputMargins()
 		)
 	);
+    emit imageViewCreated(qobject_cast<ImageViewBase*>(widget.get()));
 
 	if (dbg && !dbg->empty()) {
 		std::auto_ptr<TabbedDebugImages> tab_widget(new TabbedDebugImages);
@@ -221,8 +223,7 @@ DespeckleView::despeckleDone(
 			tab_widget->addTab(new DebugImageView(file), label);
 		}
 		widget = tab_widget;
-	}
-
+	}    
 	setCurrentIndex(addWidget(widget.release()));
 }
 

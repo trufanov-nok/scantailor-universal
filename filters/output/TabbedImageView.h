@@ -22,6 +22,7 @@
 #include "ImageViewTab.h"
 #include <QTabWidget>
 #include <map>
+#include <QAbstractSlider>
 
 namespace output
 {
@@ -41,6 +42,10 @@ private slots:
 	void tabChangedSlot(int idx);
 private:
 	std::map<QWidget*, ImageViewTab> m_registry;
+    int m_previouslySelectedTabId;
+    qreal m_stored_zoom_lvl;
+    QAbstractSlider* m_stored_hrz_slider;
+    QAbstractSlider* m_stored_vrt_slider;
 };
 
 } // namespace output
