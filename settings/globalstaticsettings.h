@@ -53,6 +53,7 @@ public:
         m_binrization_threshold_control_default = settings.value("output/binrization_threshold_control_default", 0).toInt();
         m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
         m_disable_bw_smoothing = settings.value("mode_bw/disable_smoothing", false).toBool();
+        m_zone_editor_min_angle = settings.value("zone_editor/min_angle", 3.0).toReal();
     }
 
 private:
@@ -84,6 +85,7 @@ public:
     static int m_binrization_threshold_control_default;
     static bool m_use_horizontal_predictor;
     static bool m_disable_bw_smoothing;
+    static qreal m_zone_editor_min_angle;
 };
 
 #endif // GLOBALSTATICSETTINGS_H

@@ -20,6 +20,7 @@
 #include "ZoneInteractionContext.h"
 #include "EditableZoneSet.h"
 #include "ImageViewBase.h"
+#include "settings/globalstaticsettings.h"
 #include <QCursor>
 #include <QTransform>
 #include <QKeyEvent>
@@ -248,6 +249,7 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
 		// Finishing the spline.  Bridging the first and the last points
 		// will create another segment.
 		m_ptrSpline->setBridged(true);
+        m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
 		m_rContext.zones().addZone(m_ptrSpline);
 		m_rContext.zones().commit();
 
@@ -264,6 +266,7 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
 		// Finishing the spline.  Bridging the first and the last points
 		// will create another segment.
 		m_ptrSpline->setBridged(true);
+        m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
 		m_rContext.zones().addZone(m_ptrSpline);
 		m_rContext.zones().commit();
 
@@ -284,15 +287,12 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
 		Proximity const prox(screen_mouse_pos, m_ptrSpline->lastVertex()->point());
 		if (prox > interaction.proximityThreshold()) {
 			m_ptrSpline->appendVertex(image_mouse_pos);
+            m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
 			updateStatusTip();
 		}
 	}
 
-//begin of modified by monday2000
-//Square_Picture_Zones
-//added:
     }
-//end of modified by monday2000
 
 	event->accept();
 }

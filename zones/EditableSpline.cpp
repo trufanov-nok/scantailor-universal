@@ -23,6 +23,7 @@
 #include <QDomElement>
 #include <QString>
 #include <assert.h>
+#include <cmath>
 
 EditableSpline::EditableSpline()
 {
@@ -85,6 +86,47 @@ EditableSpline::toPolygon() const
 	}
 
 	return poly;
+}
+
+qreal get_angle(QVector<QPointF>& vec)
+{
+    const QPointF& a = vec[0];
+    const QPointF& b = vec[1];
+    const QPointF& c = vec[2];
+    const QPointF ab(b-a);
+    const QPointF cb(b-c);
+    qreal ang = (ab.x()*cb.x()+ab.y()*cb.y())/
+            (sqrt(ab.x()*ab.x()+ab.y()*ab.y())*sqrt(cb.x()*cb.x()+cb.y()*cb.y()));
+    ang = acos(ang)* 180.0 / 3.14159265;
+    return ang;
+}
+
+void _simplify(QVector<QPointF>& vec, SplineVertex::Ptr vertex, qreal ang, const SplineVertex::Loop loop)
+{
+    vec.append(vertex->point());
+    if (vec.count() == 3) {
+        if (fabs(get_angle(vec)) > 180.-ang) {
+            vec.remove(1);
+            vertex->prev(loop)->remove();
+        } else {
+            vec.pop_front();
+        }
+    }
+}
+
+void
+EditableSpline::simplify(qreal ang)
+{
+    SplineVertex::Ptr vertex(firstVertex());
+    QVector<QPointF> vec;
+    for (; vertex; vertex = vertex->next(SplineVertex::NO_LOOP)) {
+        _simplify(vec, vertex, ang, SplineVertex::NO_LOOP);
+    }
+
+    vertex = lastVertex()->next(SplineVertex::LOOP_IF_BRIDGED);
+    if (vertex) {
+        _simplify(vec, vertex, ang, SplineVertex::LOOP_IF_BRIDGED);
+    }
 }
 
 

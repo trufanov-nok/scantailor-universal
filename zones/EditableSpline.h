@@ -59,6 +59,8 @@ public:
 
     int segmentsCount() const;
 
+    void simplify(qreal ang = 0.1);
+
 	bool bridged() const { return m_sentinel.bridged(); }
 
 	void setBridged(bool bridged) { m_sentinel.setBridged(true); }
