@@ -313,31 +313,33 @@ ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& 
 
 	Qt::KeyboardModifiers mask = event->modifiers();
 
-	if (mask == Qt::ControlModifier) 
-	{
-		m_ctrl = true;
+    if (mask == Qt::ControlModifier)
+    {
+        if (m_ptrSpline->segmentsCount() == 0) {
+            m_ctrl = true;
 
-		QPointF screen_mouse_pos_mid1;
-		screen_mouse_pos_mid1.setX(last.x());
-		screen_mouse_pos_mid1.setY(screen_mouse_pos.y());		
+            QPointF screen_mouse_pos_mid1;
+            screen_mouse_pos_mid1.setX(last.x());
+            screen_mouse_pos_mid1.setY(screen_mouse_pos.y());
 
-		QPointF screen_mouse_pos_mid2;
-		screen_mouse_pos_mid2.setX(screen_mouse_pos.x());
-		screen_mouse_pos_mid2.setY(last.y());
+            QPointF screen_mouse_pos_mid2;
+            screen_mouse_pos_mid2.setX(screen_mouse_pos.x());
+            screen_mouse_pos_mid2.setY(last.y());
 
-		int dx = screen_mouse_pos.x() - last.x();
-		int dy = screen_mouse_pos.y() - last.y();
+            int dx = screen_mouse_pos.x() - last.x();
+            int dy = screen_mouse_pos.y() - last.y();
 
-		if ((dx > 0 && dy > 0) || (dx < 0 && dy < 0))
-		{
-			m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid1);
-			m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid2);
-		}
-		else
-		{
-			m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid1);
-			m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid2);
-		}
+            if ((dx > 0 && dy > 0) || (dx < 0 && dy < 0))
+            {
+                m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid1);
+                m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid2);
+            }
+            else
+            {
+                m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid1);
+                m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid2);
+            }
+        }
 	}
 //end of modified by monday2000
 

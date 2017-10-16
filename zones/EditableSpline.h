@@ -55,7 +55,9 @@ public:
 
 	SplineVertex::Ptr lastVertex() const{ return m_sentinel.lastVertex(); }
 
-	bool hasAtLeastSegments(int num) const;
+    bool hasAtLeastSegments(int num) const;
+
+    int segmentsCount() const;
 
 	bool bridged() const { return m_sentinel.bridged(); }
 

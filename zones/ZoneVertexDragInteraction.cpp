@@ -132,28 +132,22 @@ ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState
     {
         // Only Ctrl is pressed
         m_ptrVertex->setPoint(from_screen.map(event->pos() + QPointF(0.5, 0.5) + m_dragOffset));
-        QTransform const to_screen(m_rContext.imageView().imageToWidget());
 
-        QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;
-        QPointF prev = to_screen.map(m_ptrVertex->prev(SplineVertex::LOOP)->point());
-        QPointF next = to_screen.map(m_ptrVertex->next(SplineVertex::LOOP)->point());
+        if (m_ptrSpline->bridged() &&
+                // if dragging not a quadrangle - ignore Ctrl
+                // in closed polygon first point is equal to the last point
+                m_ptrSpline->toPolygon().count() == 5) {
+            QTransform const to_screen(m_rContext.imageView().imageToWidget());
 
-        int dx = next.x() - prev.x();
-        int dy = next.y() - prev.y();
+            const QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;
+            const QPointF diag_to_current = to_screen.map(m_ptrVertex->next(SplineVertex::LOOP)->
+                                                          next(SplineVertex::LOOP)->point());
+            const QPointF prev = QPointF(current.x(), diag_to_current.y());
+            const QPointF next = QPointF(diag_to_current.x(), current.y());
 
-        if ((dx > 0 && dy > 0) || (dx < 0 && dy < 0))
-        {
-            prev.setX(current.x());
-            next.setY(current.y());
+            m_ptrVertex->prev(SplineVertex::LOOP)->setPoint(from_screen.map(prev));
+            m_ptrVertex->next(SplineVertex::LOOP)->setPoint(from_screen.map(next));
         }
-        else
-        {
-            next.setX(current.x());
-            prev.setY(current.y());
-        }
-
-        m_ptrVertex->prev(SplineVertex::LOOP)->setPoint(from_screen.map(prev));
-        m_ptrVertex->next(SplineVertex::LOOP)->setPoint(from_screen.map(next));
     } else if (mask.testFlag(Qt::ShiftModifier)) {
         // Shift + ...
         QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;

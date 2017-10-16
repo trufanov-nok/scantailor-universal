@@ -58,6 +58,17 @@ EditableSpline::hasAtLeastSegments(int num) const
 	return num == 0;
 }
 
+int
+EditableSpline::segmentsCount() const
+{
+    int num = 0;
+    for (SegmentIterator it((EditableSpline&)*this); it.hasNext(); it.next()) {
+        num++;
+    }
+
+    return num;
+}
+
 QPolygonF
 EditableSpline::toPolygon() const
 {
