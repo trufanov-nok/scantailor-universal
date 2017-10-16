@@ -286,6 +286,39 @@ ImageView::mouseReleaseEvent(QMouseEvent* event)
 }
 
 void
+ImageView::keyPressEvent(QKeyEvent* event)
+{
+    int dx = 0; int dy = 0;
+    switch (event->key()) {
+    case Qt::Key_Up: dy--; break;
+    case Qt::Key_Down: dy++; break;
+    case Qt::Key_Right: dx++; break;
+    case Qt::Key_Left: dx--; break;
+    default:
+        ImageViewBase::keyPressEvent(event);
+        return; // stop processing
+    }
+
+    QRectF r(virtualToWidget().mapRect(m_contentRect));
+    if (dx || dy) {
+        r.translate(dx, dy);
+        forceInsideImage(r, TOP|BOTTOM|LEFT|RIGHT);
+    }
+
+    m_contentRect = widgetToVirtual().mapRect(r);
+    update();
+
+    if ( m_contentRect.isValid()) {
+        StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+        setCursorPosAdjustment(m_contentRect.topLeft());
+    }
+
+    emit manualContentRectSet(m_contentRect);
+
+    ImageViewBase::keyPressEvent(event);
+}
+
+void
 ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModifiers mask)
 {
 	QRectF r(virtualToWidget().mapRect(m_contentRect));
