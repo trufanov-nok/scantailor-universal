@@ -48,7 +48,7 @@ public:
 
 
     QStatusBarProviderEvent(QEvent::Type _t, const QStatusBarProviderEvent::NitificationTypeEnum _type): QEvent(_t), m_type(_type) { }
-    void setFlag(const NitificationTypeEnum _type) {m_type.setFlag(_type); }
+    void setFlag(const NitificationTypeEnum _type) { m_type |= _type; }
     bool testFlag(const NitificationTypeEnum _type) { return m_type.testFlag(_type); }
 private:
     NitificationType m_type;
