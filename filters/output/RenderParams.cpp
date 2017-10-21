@@ -36,13 +36,19 @@ RenderParams::RenderParams(ColorParams const& cp)
         case ColorParams::MIXED: {
             m_mask |= NEED_BINARIZATION|MIXED_OUTPUT;
 
-            const ColorGrayscaleOptions& opt = cp.colorGrayscaleOptions();
+            const ColorGrayscaleOptions& opt = cp.colorGrayscaleOptions();            
 
-            if (opt.colorLayerEnabled())
-                m_mask |= COLOR_LAYER;
-
-            if (opt.autoLayerEnabled())
+            if (opt.autoLayerEnabled()) {
                 m_mask |= AUTO_LAYER;
+            }
+
+            if (opt.pictureZonesLayerEnabled()) {
+                m_mask |= PICTURE_ZONES_LAYER;
+            }
+
+            if (opt.foregroundLayerEnabled()) {
+                m_mask |= FOREGROUND_LAYER;
+            }
             }
 
             // MOTE: continue to COLOR_GRAYSCALE to get colorGrayscaleOptions

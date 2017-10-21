@@ -49,8 +49,8 @@ OrderByModeProvider::precedes(
     if (cgoptsl.autoLayerEnabled() != cgoptsr.autoLayerEnabled()) {
         return cgoptsl.autoLayerEnabled() < cgoptsr.autoLayerEnabled();
     }
-    if (cgoptsl.colorLayerEnabled() != cgoptsr.colorLayerEnabled()) {
-        return cgoptsl.colorLayerEnabled() < cgoptsr.colorLayerEnabled();
+    if (cgoptsl.foregroundLayerEnabled() != cgoptsr.foregroundLayerEnabled()) {
+        return cgoptsl.foregroundLayerEnabled() < cgoptsr.foregroundLayerEnabled();
     }
     if (cgoptsl.normalizeIllumination() != cgoptsr.normalizeIllumination()) {
         return cgoptsl.normalizeIllumination() < cgoptsr.normalizeIllumination();

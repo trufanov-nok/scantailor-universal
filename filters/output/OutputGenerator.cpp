@@ -298,14 +298,10 @@ OutputGenerator::process(
 	DepthPerception const& depth_perception,
 //Original_Foreground_Mixed
 	bool keep_orig_fore_subscan,
-	imageproc::BinaryImage* auto_picture_mask,
+    imageproc::BinaryImage* auto_layer_mask,
 	imageproc::BinaryImage* speckles_image,
-//Picture_Shape
-	//DebugImages* const dbg) const
-	DebugImages* const dbg,
-	PictureShape picture_shape
-//Quadro_Zoner
-	, PageId* p_pageId,
+    DebugImages* const dbg,
+    PageId* p_pageId,
 	IntrusivePtr<Settings>* p_settings
 	) const
 {
@@ -314,12 +310,8 @@ OutputGenerator::process(
 			status, input, picture_zones, fill_zones,
 			dewarping_mode, distortion_model, depth_perception,
 			keep_orig_fore_subscan,
-			auto_picture_mask, speckles_image, dbg
-//Picture_Shape
-			, picture_shape
-//Quadro_Zoner
-			, p_pageId,
-			p_settings
+            auto_layer_mask, speckles_image, dbg,
+            p_pageId, p_settings
 		)
 	);
 	assert(!image.isNull());
@@ -511,13 +503,10 @@ OutputGenerator::processImpl(
 	DepthPerception const& depth_perception,
 //Original_Foreground_Mixed
 	bool keep_orig_fore_subscan,
-	imageproc::BinaryImage* auto_picture_mask,
+    imageproc::BinaryImage* auto_layer_mask,
 	imageproc::BinaryImage* speckles_image,
-//Picture_Shape
-	DebugImages* const dbg,
-	PictureShape picture_shape
-//Quadro_Zoner
-	, PageId* p_pageId,
+    DebugImages* const dbg,
+    PageId* p_pageId,
 	IntrusivePtr<Settings>* p_settings
 	) const
 {
@@ -539,20 +528,13 @@ OutputGenerator::processImpl(
 					status, input, picture_zones, fill_zones,
 					dewarping_mode, distortion_model, depth_perception,
 					keep_orig_fore_subscan,
-					auto_picture_mask, speckles_image, dbg
-//begin of modified by monday2000
-//Picture_Shape
-					, picture_shape
-//Quadro_Zoner
-					, p_pageId,
-					p_settings
-//end of modified by monday2000
+                    auto_layer_mask, speckles_image, dbg,
+                    p_pageId, p_settings
 					);
 		} else return processAsIs(
 			input, status, fill_zones, depth_perception, dbg
 			);
 	}
-//end of modified by monday2000
 
 	if (dewarping_mode == DewarpingMode::AUTO ||
 //begin of modified by monday2000
@@ -564,12 +546,8 @@ OutputGenerator::processImpl(
 			status, input, picture_zones, fill_zones,
 			dewarping_mode, distortion_model, depth_perception,
 			false,
-			auto_picture_mask, speckles_image, dbg
-//Picture_Shape
-			, picture_shape
-//Quadro_Zoner
-			, p_pageId,
-			p_settings
+            auto_layer_mask, speckles_image, dbg,
+            p_pageId, p_settings
 		);
 	} else if (!render_params.whiteMargins()) {
 		return processAsIs(
@@ -578,12 +556,8 @@ OutputGenerator::processImpl(
 	} else {
 		return processWithoutDewarping(
 			status, input, picture_zones, fill_zones,
-			auto_picture_mask, speckles_image, dbg
-//Picture_Shape
-			, picture_shape
-//Quadro_Zoner
-			, p_pageId,
-			p_settings
+            auto_layer_mask, speckles_image, dbg,
+            p_pageId, p_settings
 		);
 	}
 }
@@ -641,21 +615,13 @@ OutputGenerator::processAsIs(
 }
 
 QImage
-OutputGenerator::processWithoutDewarping(
-	TaskStatus const& status, FilterData const& input,
-//Quadro_Zoner
-	//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
-	ZoneSet& picture_zones, ZoneSet const& fill_zones,
-	imageproc::BinaryImage* auto_picture_mask,
-	imageproc::BinaryImage* speckles_image,
-//Picture_Shape
-	//DebugImages* dbg) const
-	DebugImages* dbg,
-	PictureShape picture_shape
-//Quadro_Zoner
-	, PageId* p_pageId,
-	IntrusivePtr<Settings>* p_settings
-	) const
+OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData const& input,
+    ZoneSet& picture_zones, ZoneSet const& fill_zones,
+    imageproc::BinaryImage* auto_layer_mask,
+    imageproc::BinaryImage* speckles_image,
+    DebugImages* dbg, PageId* p_pageId,
+    IntrusivePtr<Settings>* p_settings
+    ) const
 {
 	RenderParams const render_params(m_colorParams);
     const bool suppress_smoothing = GlobalStaticSettings::m_disable_bw_smoothing &&
@@ -782,47 +748,39 @@ OutputGenerator::processWithoutDewarping(
 	QSize const target_size(m_outRect.size().expandedTo(QSize(1, 1)));
 
 	BinaryImage bw_mask;
-    BinaryImage bw_auto_picture_mask;
+    BinaryImage bw_auto_layer_mask;
     if (render_params.mixedOutput()) {
         // This block should go before the block with
         // adjustBrightnessGrayscale(), which may convert
         // maybe_normalized from grayscale to color mode.
 
-        if (auto_picture_mask) {
-            if (auto_picture_mask->size() != target_size) {
-                BinaryImage(target_size).swap(*auto_picture_mask);
+        if (auto_layer_mask) {
+            if (auto_layer_mask->size() != target_size) {
+                BinaryImage(target_size).swap(*auto_layer_mask);
             }
 
-            auto_picture_mask->fill(BLACK);
+            auto_layer_mask->fill(BLACK);
         }
 
 
-        if (render_params.autoLayer())
+        if (render_params.anyLayer())
         {
             bw_mask = estimateBinarizationMask(
                         status, GrayImage(maybe_normalized),
                         normalize_illumination_rect,
                         small_margins_rect, dbg
                         );
+
+            if (dbg) {
+                dbg->add(bw_mask, "bw_mask");
+            }
             
             //Picture_Shape
-            //Quadro_Zoner
-            if (picture_shape == RECTANGULAR_SHAPE)
+            if (render_params.pictureZonesLayer())
             {
-                bw_mask.rectangularizeAreas(WHITE);
-
-                picture_zones.remove_auto_zones();
-
-                (*p_settings)->setPictureZones(*p_pageId, picture_zones);
-            }
-            else if (picture_shape == QUADRO_SHAPE)
-            {
-                if (picture_zones.auto_zones_found())
-                    bw_mask.fill(BLACK);
-                else
-                {
+                if (!picture_zones.auto_zones_found()) {
                     std::vector<QRect> areas;
-                    bw_mask.rectangularizeAreasQuadro(WHITE, areas);
+                    bw_mask.rectangularize(WHITE, areas, GlobalStaticSettings::m_picture_detection_sensitivity);
 
                     QTransform xform1(m_xform.transform());
                     xform1 *= QTransform().translate(-small_margins_rect.x(), -small_margins_rect.y());
@@ -840,40 +798,38 @@ OutputGenerator::processWithoutDewarping(
                         picture_zones.add(zone1);
                     }
 
+                    picture_zones.setPictureZonesSensitivity(GlobalStaticSettings::m_picture_detection_sensitivity);
                     (*p_settings)->setPictureZones(*p_pageId, picture_zones);
                 }
+
             }
             else
             {
                 picture_zones.remove_auto_zones();
-
                 (*p_settings)->setPictureZones(*p_pageId, picture_zones);
-            }
-            
-            if (dbg) {
-                dbg->add(bw_mask, "bw_mask");
+            }            
+
+            if (render_params.foregroundLayer()) {
+                bw_auto_layer_mask = bw_mask; // need it later
             }
 
-            if (render_params.colorLayer()) {
-                bw_auto_picture_mask = bw_mask; // need it later
-            }
 
-            if (!m_contentRect.isEmpty() && !render_params.colorLayer()) {
-                // if colorLayer - will do it later
-                QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
-                QRect const dst_rect(m_contentRect);
-                rasterOp<RopSrc>(*auto_picture_mask, dst_rect, bw_mask, src_rect.topLeft());
+            if (render_params.autoLayer()) {
+                if (!m_contentRect.isEmpty() && !render_params.foregroundLayer()) {
+                    // if foregroundLayer - will have to overwrite auto_layer_mask later
+                    // so just not wasting time
+                    QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
+                    QRect const dst_rect(m_contentRect);
+                    rasterOp<RopSrc>(*auto_layer_mask, dst_rect, bw_mask, src_rect.topLeft());
+                }
+            } else {
+                bw_mask = BinaryImage(maybe_normalized.size(), BLACK);
             }
         } else {
             bw_mask = BinaryImage(maybe_normalized.size(), BLACK);
         }
 
         status.throwIfCancelled();
-
-        modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones);
-        if (dbg) {
-            dbg->add(bw_mask, "bw_mask with zones");
-        }
     }
 
 	
@@ -918,6 +874,14 @@ OutputGenerator::processWithoutDewarping(
 		// It's "Color / Grayscale" mode, as we handle B/W above.
 		reserveBlackAndWhite(maybe_normalized);
 	} else {
+
+        if (!render_params.foregroundLayer()) {
+            modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones);
+            if (dbg) {
+                dbg->add(bw_mask, "bw_mask with zones");
+            }
+        }
+
 		BinaryImage bw_content(
 			binarize(maybe_smoothed, normalize_illumination_crop_area, &bw_mask)
 		);
@@ -954,24 +918,22 @@ OutputGenerator::processWithoutDewarping(
 		
 		status.throwIfCancelled();
 
-        if (render_params.colorLayer())
+        if (render_params.foregroundLayer())
         {
             bw_mask = bw_content;
             bw_mask.invert();
 
-            BinaryImage new_auto_picture_mask;
+            BinaryImage new_auto_layer_mask = bw_mask;
             if (render_params.autoLayer())
             {
-                new_auto_picture_mask = bw_mask;
-                rasterOp<RopAnd<RopSrc,RopDst> >(new_auto_picture_mask, bw_auto_picture_mask);
+                rasterOp<RopAnd<RopSrc,RopDst> >(new_auto_layer_mask, bw_auto_layer_mask);
 
-                modifyBinarizationMask(bw_auto_picture_mask, small_margins_rect, picture_zones, BINARIZATION_MASK_ERASER1 | BINARIZATION_MASK_PAINTER2);
-                rasterOp<RopAnd<RopSrc,RopDst> >(bw_mask, bw_auto_picture_mask);
+                modifyBinarizationMask(bw_auto_layer_mask, small_margins_rect, picture_zones, BINARIZATION_MASK_ERASER1 | BINARIZATION_MASK_PAINTER2);
+                rasterOp<RopAnd<RopSrc,RopDst> >(bw_mask, bw_auto_layer_mask);
                 modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones, BINARIZATION_MASK_ERASER3);
-                bw_auto_picture_mask.release();
+                bw_auto_layer_mask.release();
             } else {
                 // apply all zones directly to color layer mask as we have no autolayer.
-                new_auto_picture_mask = bw_mask;
                 modifyBinarizationMask(bw_mask, small_margins_rect, picture_zones);                
             }
 
@@ -979,7 +941,7 @@ OutputGenerator::processWithoutDewarping(
             if (!m_contentRect.isEmpty()) {
                 QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
                 QRect const dst_rect(m_contentRect);
-                rasterOp<RopSrc>(*auto_picture_mask, dst_rect, new_auto_picture_mask, src_rect.topLeft());
+                rasterOp<RopSrc>(*auto_layer_mask, dst_rect, new_auto_layer_mask, src_rect.topLeft());
             }
 
 
@@ -1033,25 +995,18 @@ OutputGenerator::processWithoutDewarping(
 }
 
 QImage
-OutputGenerator::processWithDewarping(
-	TaskStatus const& status, FilterData const& input,
-//Quadro_Zoner
-	//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
-	ZoneSet& picture_zones, ZoneSet const& fill_zones,
-	DewarpingMode dewarping_mode,
-	DistortionModel& distortion_model,
-	DepthPerception const& depth_perception,
+OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const& input,
+    ZoneSet& picture_zones, ZoneSet const& fill_zones,
+    DewarpingMode dewarping_mode,
+    DistortionModel& distortion_model,
+    DepthPerception const& depth_perception,
 //Original_Foreground_Mixed
-	bool keep_orig_fore_subscan,
-	imageproc::BinaryImage* auto_picture_mask,
-	imageproc::BinaryImage* speckles_image,
-//Picture_Shape
-	DebugImages* dbg,
-	PictureShape picture_shape
-//Quadro_Zoner
-	, PageId* p_pageId,
-	IntrusivePtr<Settings>* p_settings
-	) const
+    bool keep_orig_fore_subscan,
+    imageproc::BinaryImage* auto_layer_mask,
+    imageproc::BinaryImage* speckles_image,
+    DebugImages* dbg, PageId* p_pageId,
+    IntrusivePtr<Settings>* p_settings
+    ) const
 {
 	QSize const target_size(m_outRect.size().expandedTo(QSize(1, 1)));
 	if (m_outRect.isEmpty()) {
@@ -1197,35 +1152,23 @@ OutputGenerator::processWithDewarping(
 
 		status.throwIfCancelled();
 
-	} else if (render_params.mixedOutput()) {
+    } else if (render_params.anyLayer()) {
 
 		estimateBinarizationMask(
 			status, GrayImage(warped_gray_output),
 			normalize_illumination_rect,
 			small_margins_rect, dbg
 		).swap(warped_bw_mask);
+
 		if (dbg) {
 			dbg->add(warped_bw_mask, "warped_bw_mask");
 		}
 
-//Picture_Shape
-//Quadro_Zoner
-		if (picture_shape == RECTANGULAR_SHAPE)
+        if (render_params.pictureZonesLayer())
 		{
-			warped_bw_mask.rectangularizeAreas(WHITE);
-
-			picture_zones.remove_auto_zones();
-
-			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
-		}		
-		else if (picture_shape == QUADRO_SHAPE)
-		{
-			if (picture_zones.auto_zones_found())
-				warped_bw_mask.fill(BLACK);
-			else
-			{
+            if (!picture_zones.auto_zones_found()) {
 				std::vector<QRect> areas;
-				warped_bw_mask.rectangularizeAreasQuadro(WHITE, areas);				
+                warped_bw_mask.rectangularize(WHITE, areas, GlobalStaticSettings::m_picture_detection_sensitivity);
 
 				QTransform xform1(m_xform.transform());            
 				xform1 *= QTransform().translate(-small_margins_rect.x(), -small_margins_rect.y());
@@ -1243,46 +1186,54 @@ OutputGenerator::processWithDewarping(
 					picture_zones.add(zone1);
 				}			
 
+                picture_zones.setPictureZonesSensitivity(GlobalStaticSettings::m_picture_detection_sensitivity);
 				(*p_settings)->setPictureZones(*p_pageId, picture_zones);
+
 			}
+
 		}
 		else
 		{
 			picture_zones.remove_auto_zones();
-
 			(*p_settings)->setPictureZones(*p_pageId, picture_zones);
 		}
 
 		status.throwIfCancelled();
 
-		if (auto_picture_mask) {
-			if (auto_picture_mask->size() != target_size) {
-				BinaryImage(target_size).swap(*auto_picture_mask);
-			}
-			auto_picture_mask->fill(BLACK);
+        if (render_params.autoLayer()) {
 
-			if (!m_contentRect.isEmpty()) {
-				QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
-				QRect const dst_rect(m_contentRect);
-				rasterOp<RopSrc>(*auto_picture_mask, dst_rect, warped_bw_mask, src_rect.topLeft());
-			}
-		}
 
-		status.throwIfCancelled();
+            if (auto_layer_mask) {
+                if (auto_layer_mask->size() != target_size) {
+                    BinaryImage(target_size).swap(*auto_layer_mask);
+                }
+                auto_layer_mask->fill(BLACK);
 
-		modifyBinarizationMask(warped_bw_mask, small_margins_rect, picture_zones);
-		if (dbg) {
-			dbg->add(warped_bw_mask, "warped_bw_mask with zones");
-		}
+                if (!m_contentRect.isEmpty()) {
+                    QRect const src_rect(m_contentRect.translated(-small_margins_rect.topLeft()));
+                    QRect const dst_rect(m_contentRect);
+                    rasterOp<RopSrc>(*auto_layer_mask, dst_rect, warped_bw_mask, src_rect.topLeft());
+                }
+            }
 
-		status.throwIfCancelled();
+            status.throwIfCancelled();
 
-		// For Mixed output, we mask out pictures when calculating binarization threshold.
-		bw_threshold = calcBinarizationThreshold(
-			warped_gray_output, normalize_illumination_crop_area, &warped_bw_mask
-		);
-		
-		status.throwIfCancelled();
+            modifyBinarizationMask(warped_bw_mask, small_margins_rect, picture_zones);
+            if (dbg) {
+                dbg->add(warped_bw_mask, "warped_bw_mask with zones");
+            }
+
+            status.throwIfCancelled();
+
+            // For Mixed output, we mask out pictures when calculating binarization threshold.
+            bw_threshold = calcBinarizationThreshold(
+                        warped_gray_output, normalize_illumination_crop_area, &warped_bw_mask
+                        );
+
+            status.throwIfCancelled();
+        } else {
+            warped_bw_mask = BinaryImage(warped_gray_output.size(), BLACK);
+        }
 	}
 
 	if (dewarping_mode == DewarpingMode::AUTO) {

@@ -20,8 +20,9 @@ pageOutput
 	pageBlackWhiteMode
 	pageColorGrayscaleMode
 	pageMixedMode
-		pagePictureShapeDetection	picture_shape_detection/enabled
-			pageTryToMakeRectangleSmaller	picture_shape_detection/smaller_rect
+		pageAutoLayer
+		pagePictureZonesLayer	picture_zones_layer/enabled
+		pageForegroundLayer	foreground_layer/enabled
 	pageFillZones
 	pageDewarping
 	pageDespeckling

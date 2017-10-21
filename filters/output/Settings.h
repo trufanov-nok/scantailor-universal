@@ -64,8 +64,6 @@ public:
 
     void setColorParams(PageId const& page_id, ColorParams const& prms, ColorParamsApplyFilter const& filter = ColorParamsApplyFilter::CopyAll);
 
-	void setPictureShape(PageId const& page_id, PictureShape picture_shape);
-
 	void setDpi(PageId const& page_id, Dpi const& dpi);
 
 	void setDewarpingMode(PageId const& page_id, DewarpingMode const& mode);
@@ -91,7 +89,7 @@ public:
 	void setFillZones(PageId const& page_id, ZoneSet const& zones);
 	    
     int getTiffCompression();
-    const QString getTiffCompressioName() const;
+    const QString getTiffCompressionName() const;
     void setTiffCompression(QString const& compression);
 
 	/**

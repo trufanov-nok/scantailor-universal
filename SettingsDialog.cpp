@@ -224,8 +224,9 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             <<        tr("Black & White mode")
                                             <<        tr("Color/Grayscale mode")
                                             <<        tr("Mixed mode")
-                                            <<               tr("Picture shape detection")
-                                            <<                      tr("Quadro")
+                                            <<               tr("Auto layer")
+                                            <<               tr("Picture zones layer")
+                                            <<               tr("Foreground layer")
                                             <<        tr("Fill zones")
                                             <<        tr("Dewarping")
                                             <<        tr("Despeckling");
@@ -387,11 +388,6 @@ void SettingsDialog::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column
         if (item->childCount() > 0) {
             ui.treeWidget->expandItem(item);
         }
-
-        if (key == "picture_shape_detection/enabled" ||
-                key == "picture_shape_detection/smaller_rect") {
-            setupPictureShapeComboBox();
-        }
     }
 
 }
@@ -479,8 +475,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         cb->setCurrentIndex(idx!=-1?idx:0);
 
         cb->blockSignals(false);
-    } else if (currentPage == ui.pagePictureShapeDetection) {
-        setupPictureShapeComboBox();
+    } else if (currentPage == ui.pagePictureZonesLayer) {
+        ui.rectangularAreasSensitivityValue->setValue(m_settings.value("picture_zones_layer/sensitivity", 100).toInt());
     } else if (currentPage == ui.pageGeneral) {
         ui.startBatchProcessingDlgAllPages->setChecked(
                     !m_settings.value("batch_dialog/start_from_current_page", true).toBool());
@@ -491,31 +487,6 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     }
 
 }
-
-void SettingsDialog::setupPictureShapeComboBox()
-{
-    QComboBox* cb = ui.picturesShapeDefaultsValue;
-    cb->blockSignals(true);
-    cb->clear();
-    cb->addItem(tr("Free"),  output::FREE_SHAPE);
-    if (m_settings.value("picture_shape_detection/enabled", true).toBool()) {
-        cb->addItem(tr("Rectangular"),  output::RECTANGULAR_SHAPE);
-    }
-    if (m_settings.value("picture_shape_detection/smaller_rect", true).toBool()) {
-        cb->addItem(tr("Quadro"),  output::QUADRO_SHAPE);
-    }
-
-    int def = m_settings.value("picture_shape_detection/default", output::FREE_SHAPE).toInt();
-
-
-    int idx = cb->findData(def);
-    idx = idx!=-1?idx:0;
-    cb->setCurrentIndex(idx);
-
-    cb->blockSignals(false);
-    on_picturesShapeDefaultsValue_currentIndexChanged(idx);
-}
-
 
 void SettingsDialog::on_cbTiffCompression_currentIndexChanged(int index)
 {
@@ -577,12 +548,6 @@ void SettingsDialog::on_despecklingDefaultsValue_currentIndexChanged(int index)
     m_settings.setValue("despeckling/default_level", val);
 }
 
-void SettingsDialog::on_picturesShapeDefaultsValue_currentIndexChanged(int index)
-{
-    int val = ui.picturesShapeDefaultsValue->itemData(index).toInt();
-    m_settings.setValue("picture_shape_detection/default", val);
-}
-
 void SettingsDialog::on_startBatchProcessingDlgAllPages_toggled(bool checked)
 {
     m_settings.setValue("batch_dialog/start_from_current_page", !checked);
@@ -625,4 +590,9 @@ void SettingsDialog::on_useHorizontalPredictor_clicked(bool checked)
 void SettingsDialog::on_disableSmoothingBW_clicked(bool checked)
 {
     m_settings.setValue("mode_bw/disable_smoothing", checked);
+}
+
+void SettingsDialog::on_rectangularAreasSensitivityValue_valueChanged(int arg1)
+{
+    m_settings.setValue("picture_zones_layer/sensitivity", arg1);
 }

@@ -28,10 +28,6 @@
 #include "DespeckleLevel.h"
 #include <QSize>
 #include <QRect>
-//begin of modified by monday2000
-//Picture_Shape
-#include "Params.h"
-//end of modified by monday2000
 
 class ImageTransformation;
 class QDomDocument;
@@ -52,13 +48,9 @@ public:
 		Dpi const& dpi, ColorParams const& color_params,
 		DewarpingMode const& dewarping_mode,
 		dewarping::DistortionModel const& distortion_model,
-		DepthPerception const& depth_perception, DespeckleLevel despeckle_level, PictureShape picture_shape);
+        DepthPerception const& depth_perception, DespeckleLevel despeckle_level);
 	
-//begin of modified by monday2000
-//Picture_Shape_Bug	
-	//explicit OutputImageParams(QDomElement const& el);
-	explicit OutputImageParams(QDomElement const& el, int picture_shape_int=0);
-//end of modified by monday2000
+    explicit OutputImageParams(QDomElement const& el);
 
 	DewarpingMode const& dewarpingMode() const { return m_dewarpingMode; }
 
@@ -121,9 +113,6 @@ private:
 	
 	/** Non-geometric parameters used to generate the output image. */
 	ColorParams m_colorParams;
-
-	/** Shape of the pictures in image */
-	PictureShape m_pictureShape;
 
 	/** Two curves and two lines connecting their endpoints.  Used for dewarping. */
 	dewarping::DistortionModel m_distortionModel;

@@ -50,21 +50,31 @@ public:
 				== NEED_BINARIZATION;
 	}
 
-    bool colorLayer() const {
-        return (m_mask & COLOR_LAYER) != 0;
-    }
-
     bool autoLayer() const {
         return (m_mask & AUTO_LAYER) != 0;
     }
+
+    bool pictureZonesLayer() const {
+        return (m_mask & PICTURE_ZONES_LAYER) != 0;
+    }
+
+    bool foregroundLayer() const {
+        return (m_mask & FOREGROUND_LAYER) != 0;
+    }
+
+    bool anyLayer() const {
+        return autoLayer() || pictureZonesLayer() || foregroundLayer();
+    }
+
 private:
 	enum {
 		WHITE_MARGINS = 1,
 		NORMALIZE_ILLUMINATION = 2,
 		NEED_BINARIZATION = 4,
-        MIXED_OUTPUT = 8,
-        COLOR_LAYER = 16,
-        AUTO_LAYER = 32
+        MIXED_OUTPUT = 8,        
+        AUTO_LAYER = 16,
+        PICTURE_ZONES_LAYER = 32,
+        FOREGROUND_LAYER = 64
 	};
 	
 	int m_mask;

@@ -54,8 +54,6 @@ private slots:
 
     void on_despecklingDefaultsValue_currentIndexChanged(int index);
 
-    void on_picturesShapeDefaultsValue_currentIndexChanged(int index);
-
     void on_startBatchProcessingDlgAllPages_toggled(bool checked);
 
     void on_showStartBatchProcessingDlg_clicked(bool checked);
@@ -69,6 +67,8 @@ private slots:
     void on_useHorizontalPredictor_clicked(bool checked);
 
     void on_disableSmoothingBW_clicked(bool checked);
+
+    void on_rectangularAreasSensitivityValue_valueChanged(int arg1);
 
 private:
     void initLanguageList(QString cur_lang);

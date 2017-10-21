@@ -36,12 +36,10 @@ Params::Params()
 {
    QSettings s;
    m_despeckleLevel = (DespeckleLevel) s.value("despeckling/default_level", DESPECKLE_CAUTIOUS).toUInt();
-   m_pictureShape = (PictureShape) s.value("picture_shape_detection/default", output::FREE_SHAPE).toUInt();
 }
 
 Params::Params(QDomElement const& el)
 :	RegenParams(),
-    m_pictureShape((PictureShape)(el.attribute("pictureShape").toInt())),
     m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
 	m_distortionModel(el.namedItem("distortion-model").toElement()),
 	m_depthPerception(el.attribute("depthPerception")),
@@ -68,7 +66,6 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 	
 	QDomElement el(doc.createElement(name));
 	el.appendChild(m_distortionModel.toXml(doc, "distortion-model"));
-	el.setAttribute("pictureShape", (int)m_pictureShape);
 	el.setAttribute("depthPerception", m_depthPerception.toString());
 	el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
 	el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
@@ -136,8 +133,13 @@ Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& 
         m_colorParams = params;
         break;
     case CopyMode:
+        if (m_colorParams.colorMode() != params.colorMode()) {
+            // it's time to apply defaults
+            //TRUF m_pictureShape = (PictureShape) QSettings().value("picture_zones_layer/default", output::FREE_SHAPE).toUInt();
+        }
         m_colorParams.setColorMode(params.colorMode());
         m_colorParams.setColorGrayscaleOptions(params.colorGrayscaleOptions());
+
         break;
     case CopyThreshold:
         m_colorParams.setBlackWhiteOptions(params.blackWhiteOptions());

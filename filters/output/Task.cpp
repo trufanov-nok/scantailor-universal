@@ -210,8 +210,7 @@ Task::process(
 		generator.outputImageSize(), generator.outputContentRect(),
 		new_xform, params.outputDpi(), params.colorParams(),
 		params.dewarpingMode(), params.distortionModel(),
-		params.depthPerception(), params.despeckleLevel(), params.pictureShape()
-	);
+        params.depthPerception(), params.despeckleLevel());
 
 //begin of modified by monday2000
 //Quadro_Zoner
@@ -257,10 +256,6 @@ Task::process(
 			write_automask ? &automask_img : 0,
 			write_speckles_file ? &speckles_img : 0,
 			m_ptrDbg.get()
-//begin of modified by monday2000
-//Picture_Shape
-			, params.pictureShape()
-//end of modified by monday2000
 		);	
 
 //Original_Foreground_Mixed
@@ -297,6 +292,13 @@ Task::process(
 
 		if (!PictureZoneComparator::equal(stored_output_params->pictureZones(), new_picture_zones)) {
 			need_reprocess = true;
+            // currently there is no control to change sensitivity of a single page
+            // so force it to be equal default value
+            if (new_picture_zones.pictureZonesSensitivity() !=
+                    GlobalStaticSettings::m_picture_detection_sensitivity) {
+                new_picture_zones.remove_auto_zones();
+//                new_picture_zones.setPictureZonesSensitivity(GlobalStaticSettings::m_picture_detection_sensitivity);
+            }
 			break;
 		}
 
@@ -395,11 +397,7 @@ Task::process(
 			false,
 			write_automask ? &automask_img : 0,
             write_speckles_file ? &speckles_img : 0,
-            m_ptrDbg.get()
-//Picture_Shape
-			, params.pictureShape()
-//Quadro_Zoner
-            , &m_pageId, &m_ptrSettings
+            m_ptrDbg.get(), &m_pageId, &m_ptrSettings
 		);
 
 		if ((params.dewarpingMode() == DewarpingMode::AUTO && distortion_model.isValid())
@@ -627,6 +625,13 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 			picture_zone_editor.get(), SIGNAL(invalidateThumbnail(PageId const&)),
 			opt_widget, SIGNAL(invalidateThumbnail(PageId const&))
 		);
+
+        QObject::connect(
+            picture_zone_editor.get(), SIGNAL(disablePictureLayer()),
+            opt_widget, SLOT(disablePictureLayer())
+        );
+
+
 	}
 
 	// We make sure we never need to update the original <-> output

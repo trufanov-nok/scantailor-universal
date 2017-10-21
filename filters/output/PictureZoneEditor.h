@@ -61,6 +61,7 @@ public:
 	virtual ~PictureZoneEditor();
 signals:
 	void invalidateThumbnail(PageId const& page_id);
+    void disablePictureLayer();
 protected:
 	virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 private slots:
@@ -69,6 +70,8 @@ private slots:
 	void initiateBuildingScreenPictureMask();
 
 	void commitZones();
+
+    void zoneRemoved();
 
 	void updateRequested();
 private:

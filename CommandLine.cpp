@@ -263,10 +263,10 @@ CommandLine::setup()
 	m_layoutType = fetchLayoutType();
 	m_layoutDirection = fetchLayoutDirection();
 	m_colorMode = fetchColorMode();
-	m_defaultColorMode = fetchDefaultColorMode();
-	m_pictureShape = fetchPictureShape();
-    m_colorLayer =fetchColorLayer();
-    m_autoLayer =fetchAutoLayer();
+	m_defaultColorMode = fetchDefaultColorMode();    
+    m_autoLayer = fetchAutoLayer();
+    m_pictureZonesLayer = fetchPictureZonesLayer();
+    m_foregroundLayer = fetchForegroundLayer();
 	m_dpi = fetchDpi();
 	m_outputDpi = fetchDpi("output-dpi");
     m_defaultOutputDpi = fetchDpi("default-output-dpi");
@@ -503,31 +503,24 @@ CommandLine::fetchDefaultColorMode()
 	return output::ColorParams::BLACK_AND_WHITE;
 }
 
-output::PictureShape
-CommandLine::fetchPictureShape()
-{
-	if (! hasPictureShape())
-		return output::FREE_SHAPE;
-	
-	QString ps = m_options["picture-shape"].toLower();
-	
-	if (ps == "rectangular")
-		return output::RECTANGULAR_SHAPE;
-
-	return output::FREE_SHAPE;
-}
-
-bool
-CommandLine::fetchColorLayer()
-{
-    QString cm = m_options.value("colorLayer", "false").toLower();
-    return (cm != "false");
-}
-
 bool
 CommandLine::fetchAutoLayer()
 {
     QString cm = m_options.value("autoLayer", "true").toLower();
+    return (cm != "false");
+}
+
+bool
+CommandLine::fetchPictureZonesLayer()
+{
+    QString cm = m_options.value("pictureZonesLayer", "false").toLower();
+    return (cm != "false");
+}
+
+bool
+CommandLine::fetchForegroundLayer()
+{
+    QString cm = m_options.value("foregroundLayer", "false").toLower();
     return (cm != "false");
 }
 

@@ -95,7 +95,7 @@ CacheDrivenTask::process(
 				generator.outputImageSize(), generator.outputContentRect(),
 				new_xform, params.outputDpi(), params.colorParams(),
 				params.dewarpingMode(), params.distortionModel(),
-				params.depthPerception(), params.despeckleLevel(), params.pictureShape()
+                params.depthPerception(), params.despeckleLevel()
 			);
 
 			if (!stored_output_params->outputImageParams().matches(new_output_image_params)) {
@@ -103,9 +103,16 @@ CacheDrivenTask::process(
 				break;
 			}
 
-			ZoneSet const new_picture_zones(m_ptrSettings->pictureZonesForPage(page_info.id()));
+            ZoneSet new_picture_zones(m_ptrSettings->pictureZonesForPage(page_info.id()));
 			if (!PictureZoneComparator::equal(stored_output_params->pictureZones(), new_picture_zones)) {
 				need_reprocess = true;
+                if (new_picture_zones.pictureZonesSensitivity() !=
+                        GlobalStaticSettings::m_picture_detection_sensitivity) {
+                    // currently there is no control to change sensitivity of a single page
+                    // so force it to be equal default value
+                    new_picture_zones.remove_auto_zones();
+//                    new_picture_zones.setPictureZonesSensitivity(GlobalStaticSettings::m_picture_detection_sensitivity);
+                }
 				break;
 			}
 

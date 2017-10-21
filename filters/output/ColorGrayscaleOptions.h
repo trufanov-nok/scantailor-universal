@@ -29,9 +29,11 @@ namespace output
 class ColorGrayscaleOptions
 {
 public:
-    ColorGrayscaleOptions(bool whiteMargins = false, bool normalizeIllumination = false, bool autoLayer = true, bool colorLayer = false)
+    ColorGrayscaleOptions(bool whiteMargins = false, bool normalizeIllumination = false,
+                          bool autoLayer = true, bool pictureZonesLayer = false, bool foregroundLayer = false)
     : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination),
-      m_autoLayerEnabled(autoLayer), m_colorLayerEnabled(colorLayer) {}
+      m_autoLayerEnabled(autoLayer), m_pictureZonesLayerEnabled(pictureZonesLayer),
+      m_foregroundLayerEnabled(foregroundLayer) {}
 	
     ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode);
 	
@@ -45,13 +47,17 @@ public:
 	
 	void setNormalizeIllumination(bool val) { m_normalizeIllumination = val; }
 
-    bool colorLayerEnabled() const { return m_colorLayerEnabled; }
-
-    void setColorLayerEnabled(bool enabled) { m_colorLayerEnabled = enabled; }
-
     bool autoLayerEnabled() const { return m_autoLayerEnabled; }
 
     void setAutoLayerEnabled(bool enabled) { m_autoLayerEnabled = enabled; }
+
+    bool pictureZonesLayerEnabled() const { return m_pictureZonesLayerEnabled; }
+
+    void setPictureZonesLayerEnabled(bool enabled) { m_pictureZonesLayerEnabled = enabled; }
+
+    bool foregroundLayerEnabled() const { return m_foregroundLayerEnabled; }
+
+    void setForegroundLayerEnabled(bool enabled) { m_foregroundLayerEnabled = enabled; }
 	
 	bool operator==(ColorGrayscaleOptions const& other) const;
 	
@@ -60,7 +66,8 @@ private:
 	bool m_whiteMargins;
 	bool m_normalizeIllumination;
     bool m_autoLayerEnabled;
-    bool m_colorLayerEnabled;
+    bool m_pictureZonesLayerEnabled;
+    bool m_foregroundLayerEnabled;
 };
 
 } // namespace output

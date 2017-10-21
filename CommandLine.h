@@ -39,11 +39,6 @@
 #include "AutoManualMode.h"
 #include "Margins.h"
 #include "Despeckle.h"
-//begin of modified by monday2000
-//Picture_Shape
-#include "filters/output/Params.h"
-#include "filters/page_layout/Settings.h"
-//end of modified by monday2000
 
 namespace page_layout {
     class Alignment;
@@ -101,10 +96,10 @@ public:
 	bool hasContentDetection() const { return ! contains("disable-content-detection"); }
 	bool hasContentText() const { return !contains("disable-content-text-mask"); }
 	bool hasColorMode() const { return contains("color-mode") && !m_options["color-mode"].isEmpty(); }
-	bool hasDefaultColorMode() const { return contains("default-color-mode") && !m_options["default-color-mode"].isEmpty(); }
-	bool hasPictureShape() const { return contains("picture-shape") && !m_options["picture-shape"].isEmpty(); }
-    bool hasColorLayer() const { return contains("colorLayer"); }
+	bool hasDefaultColorMode() const { return contains("default-color-mode") && !m_options["default-color-mode"].isEmpty(); }	
     bool hasAutoLayer() const { return contains("autoLayer"); }
+    bool hasPictureZonesLayer() const { return contains("pictureZonesLayer"); }
+    bool hasForegroundLayer() const { return contains("foregroundLayer"); }
 	bool hasWhiteMargins() const { return contains("white-margins"); }
 	bool hasNormalizeIllumination() const { return contains("normalize-illumination"); }
 	bool hasThreshold() const { return contains("threshold") && !m_options["threshold"].isEmpty(); }
@@ -125,9 +120,9 @@ public:
 	Qt::LayoutDirection getLayoutDirection() const { return m_layoutDirection; }
 	output::ColorParams::ColorMode getColorMode() const { return m_colorMode; }
 	output::ColorParams::ColorMode getDefaultColorMode() const { return m_defaultColorMode; }
-	output::PictureShape getPictureShape() const { return m_pictureShape; }
-    bool getColorLayer() const { return m_colorLayer; }
     bool getAutoLayer() const { return m_autoLayer; }
+    bool getPictureZonesLayer() const { return m_pictureZonesLayer; }
+    bool getForegroundLayer() const { return m_foregroundLayer; }
 	Dpi getInputDpi() const { return m_dpi; }
 	Dpi getOutputDpi() const { return m_outputDpi; }
     Dpi getDefaultOutputDpi() const { return m_defaultOutputDpi; }
@@ -191,9 +186,9 @@ private:
 	Qt::LayoutDirection m_layoutDirection;
 	output::ColorParams::ColorMode m_colorMode;
 	output::ColorParams::ColorMode m_defaultColorMode;
-	output::PictureShape m_pictureShape;
-    bool m_colorLayer;
     bool m_autoLayer;
+    bool m_pictureZonesLayer;
+    bool m_foregroundLayer;
 	Dpi m_dpi;
 	Dpi m_outputDpi;
     Dpi m_defaultOutputDpi;
@@ -221,10 +216,10 @@ private:
 	void setup();
 	page_split::LayoutType fetchLayoutType();
 	output::ColorParams::ColorMode fetchColorMode();
-	output::ColorParams::ColorMode fetchDefaultColorMode();
-	output::PictureShape fetchPictureShape();
-    bool fetchColorLayer();
+	output::ColorParams::ColorMode fetchDefaultColorMode();    
     bool fetchAutoLayer();
+    bool fetchForegroundLayer();
+    bool fetchPictureZonesLayer();
 	Qt::LayoutDirection fetchLayoutDirection();
 	Dpi fetchDpi(QString oname="dpi");
 	Margins fetchMargins(QString base="margins", Margins def=Margins(10.0, 5.0, 10.0, 5.0));

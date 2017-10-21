@@ -100,6 +100,7 @@ public:
 	IntrusivePtr<PropertySet const> propertiesFor(EditableSpline::Ptr const& spline) const;
 signals:
 	void committed();
+    void manuallyDeleted();
 private:
 	Map m_splineMap;
 	PropertySet m_defaultProps;

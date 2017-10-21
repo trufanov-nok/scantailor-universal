@@ -123,6 +123,7 @@ PictureZoneEditor::PictureZoneEditor(
 	);
 
 	connect(&m_zones, SIGNAL(committed()), SLOT(commitZones()));
+    connect(&m_zones, SIGNAL(manuallyDeleted()), SLOT(zoneRemoved()));
 
 	makeLastFollower(*m_context.createDefaultInteraction());
 
@@ -318,9 +319,26 @@ PictureZoneEditor::commitZones()
 		zones.add(Zone(*zone.spline(), *zone.properties()));
 	}
 	
-	m_ptrSettings->setPictureZones(m_pageId, zones);
+	m_ptrSettings->setPictureZones(m_pageId, zones);   
 
 	emit invalidateThumbnail(m_pageId);
+}
+
+void
+PictureZoneEditor::zoneRemoved()
+{
+    ZoneSet zones = m_ptrSettings->pictureZonesForPage(m_pageId);
+
+    if (!zones.auto_zones_found()) {
+        // last automatically created picture zone was removed
+        // disable picture zones layer automatically
+        Params params = m_ptrSettings->getParams(m_pageId);
+        ColorParams c_params = params.colorParams();
+        ColorGrayscaleOptions opts = c_params.colorGrayscaleOptions();
+        if (opts.pictureZonesLayerEnabled()) {
+            emit disablePictureLayer();
+        }
+    }
 }
 
 void

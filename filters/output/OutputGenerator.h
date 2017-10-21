@@ -133,10 +133,8 @@ public:
 		bool keep_orig_fore_subscan = false,
 		imageproc::BinaryImage* auto_picture_mask = 0,
 		imageproc::BinaryImage* speckles_image = 0,
-//Picture_Shape
-		DebugImages* dbg = 0, PictureShape picture_shape=FREE_SHAPE
-//Quadro_Zoner
-		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
+        DebugImages* dbg = 0,
+        PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
 		) const;
 	
 	QSize outputImageSize() const;
@@ -157,13 +155,10 @@ private:
 		DepthPerception const& depth_perception,
 //Original_Foreground_Mixed
 		bool keep_orig_fore_subscan = false,
-		imageproc::BinaryImage* auto_picture_mask = 0,
+        imageproc::BinaryImage* auto_layer_mask = 0,
 		imageproc::BinaryImage* speckles_image = 0,
-//Picture_Shape
-		DebugImages* dbg = 0, 
-		PictureShape picture_shape=FREE_SHAPE
-//Quadro_Zoner
-		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
+        DebugImages* dbg = 0,
+        PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
 		) const;
 
 	QImage processAsIs(
@@ -172,18 +167,16 @@ private:
 		DepthPerception const& depth_perception,
 		DebugImages* dbg = 0) const;
 
-	QImage processWithoutDewarping(
-		TaskStatus const& status, FilterData const& input,
+    QImage processWithoutDewarping(TaskStatus const& status, FilterData const& input,
 //Quadro_Zoner
-		//ZoneSet const& picture_zones, ZoneSet const& fill_zones,
-		ZoneSet& picture_zones, ZoneSet const& fill_zones,
-		imageproc::BinaryImage* auto_picture_mask = 0,
-		imageproc::BinaryImage* speckles_image = 0,
+        //ZoneSet const& picture_zones, ZoneSet const& fill_zones,
+        ZoneSet& picture_zones, ZoneSet const& fill_zones,
+        imageproc::BinaryImage* auto_layer_mask = 0,
+        imageproc::BinaryImage* speckles_image = 0,
 //Picture_Shape
-		DebugImages* dbg = 0, PictureShape picture_shape=FREE_SHAPE
-//Quadro_Zoner
-		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
-		) const;
+        DebugImages* dbg = 0,
+        PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
+        ) const;
 
 	QImage processWithDewarping(
 		TaskStatus const& status, FilterData const& input,
@@ -194,13 +187,10 @@ private:
 		dewarping::DistortionModel& distortion_model,
 		DepthPerception const& depth_perception,
 		bool keep_orig_fore_subscan = false,
-		imageproc::BinaryImage* auto_picture_mask = 0,
+        imageproc::BinaryImage* auto_layer_mask = 0,
 		imageproc::BinaryImage* speckles_image = 0,
-//Picture_Shape
-		DebugImages* dbg = 0,
-		PictureShape picture_shape=FREE_SHAPE
-//Quadro_Zoner
-		, PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
+        DebugImages* dbg = 0,
+        PageId* p_pageId = nullptr, IntrusivePtr<Settings>* p_settings = nullptr
 		) const;
 
 //Marginal_Dewarping

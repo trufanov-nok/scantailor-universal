@@ -79,23 +79,12 @@ OptionsWidget::OptionsWidget(
     m_menuMode.addAction(actionModeBW);
     m_menuMode.addAction(actionModeColorOrGrayscale);
     m_menuMode.addAction(actionModeMixed);
-
-    m_menuPictureShape.addAction(actionPictureShapeFree);
-    m_menuPictureShape.addAction(actionPictureShapeRectangular);
-    m_menuPictureShape.addAction(actionPictureShapeQuadro);
 	
 	updateDpiDisplay();
 	updateColorsDisplay();
+    updateLayersDisplay();
 	updateDewarpingDisplay();
-	
-    connect(
-        colorLayerCB, SIGNAL(clicked(bool)),
-        this, SLOT(colorLayerCBToggled(bool))
-    );
-    connect(
-        autoLayerCB, SIGNAL(clicked(bool)),
-        this, SLOT(autoLayerCBToggled(bool))
-    );
+
 	connect(
 		whiteMarginsCB, SIGNAL(clicked(bool)),
 		this, SLOT(whiteMarginsToggled(bool))
@@ -134,10 +123,18 @@ OptionsWidget::OptionsWidget(
 void
 OptionsWidget::settingsChanged()
 {
-    QSettings s;
-    thresholdSlider->setMinimum(s.value("output/binrization_threshold_control_min", -50).toInt());
-    thresholdSlider->setMaximum(s.value("output/binrization_threshold_control_max", 50).toInt());
+    QSettings settings;
+    thresholdSlider->setMinimum(settings.value("output/binrization_threshold_control_min", -50).toInt());
+    thresholdSlider->setMaximum(settings.value("output/binrization_threshold_control_max", 50).toInt());
     thresholdLabel->setText(QString::number(thresholdSlider->value()));
+
+    updateLayersDisplay();
+}
+
+void
+OptionsWidget::disablePictureLayer()
+{
+    pictureZonesLayerCB->setChecked(false);
 }
 
 OptionsWidget::~OptionsWidget()
@@ -151,51 +148,13 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	m_pageId = page_id;
 	m_outputDpi = params.outputDpi();
 	m_colorParams = params.colorParams();
-    setCurrentPictureShape(params.pictureShape());
     m_dewarpingMode = params.dewarpingMode();
 	m_depthPerception = params.depthPerception();
     setDespeckleLevel(params.despeckleLevel());
 	updateDpiDisplay();
 	updateColorsDisplay();
+    updateLayersDisplay();
 	updateDewarpingDisplay();
-
-    if(m_currentMode == ColorParams::MIXED) {
-
-        bool picture_shape_visible = QSettings().value("picture_shape_detection/enabled", true).toBool();
-        pictureShapeOptions->setVisible(picture_shape_visible);
-
-        if (!picture_shape_visible && m_currentPictureShape != FREE_SHAPE) {
-            setCurrentPictureShape(FREE_SHAPE);
-        }
-
-        bool quadro_visible = false;
-        if (picture_shape_visible) {
-            quadro_visible = QSettings().value("picture_shape_detection/smaller_rect", true).toBool();
-        }
-
-        if (!quadro_visible && m_menuPictureShape.actions().contains(actionPictureShapeQuadro)) {
-            m_menuPictureShape.removeAction(actionPictureShapeQuadro);
-            if (m_currentPictureShape == QUADRO_SHAPE) {
-                setCurrentPictureShape(FREE_SHAPE);
-            }
-        }
-
-        if (quadro_visible && !m_menuPictureShape.actions().contains(actionPictureShapeQuadro)) {
-            m_menuPictureShape.addAction(actionPictureShapeQuadro);
-        }
-    }
-
-}
-
-void
-OptionsWidget::updatePictureShapeValueText()
-{
-    switch (m_currentPictureShape) {
-    case FREE_SHAPE: pictureShapeValue->setText(Utils::richTextForLink(actionPictureShapeFree->toolTip())); break;
-    case RECTANGULAR_SHAPE: pictureShapeValue->setText(Utils::richTextForLink(actionPictureShapeRectangular->toolTip())); break;
-    case QUADRO_SHAPE: pictureShapeValue->setText(Utils::richTextForLink(actionPictureShapeQuadro->toolTip())); break;
-    default: ;
-    }
 }
 
 void
@@ -209,6 +168,7 @@ OptionsWidget::tabChanged(ImageViewTab const tab)
 	m_lastTab = tab;
 	updateDpiDisplay();
 	updateColorsDisplay();
+    updateLayersDisplay();
 	updateDewarpingDisplay();
 	reloadIfNecessary();
 }
@@ -238,53 +198,18 @@ OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
 	m_colorParams.setColorMode((ColorParams::ColorMode)mode);
 
     ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
-    if (opt.colorLayerEnabled()) {
-        opt.setColorLayerEnabled(false);
+    if (opt.foregroundLayerEnabled()) {
+        opt.setForegroundLayerEnabled(false);
         m_colorParams.setColorGrayscaleOptions(opt);
     }
 
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
-    colorLayerCB->setCheckState(Qt::Unchecked);
-    autoLayerCB->setCheckState(Qt::Checked);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);    
+    autoLayerCB->setChecked(true);
+    pictureZonesLayerCB->setChecked(false);
+    foregroundLayerCB->setChecked(false);
 	updateColorsDisplay();
+    updateLayersDisplay();
 	emit reloadRequested();
-}
-
-void
-OptionsWidget::changePictureShape(PictureShape const shape)
-{
-    setCurrentPictureShape(shape);
-    m_ptrSettings->setPictureShape(m_pageId, m_currentPictureShape);
-    updatePictureShapeValueText();
-	emit reloadRequested();
-}
-
-void
-OptionsWidget::colorLayerCBToggled(bool const checked)
-{
-    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
-    opt.setColorLayerEnabled(checked);
-    m_colorParams.setColorGrayscaleOptions(opt);
-
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
-
-    updateColorsDisplay();
-    emit reloadRequested();
-}
-
-void
-OptionsWidget::autoLayerCBToggled(bool const checked)
-{
-    pictureShapeOptions->setVisible(checked);
-
-    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
-    opt.setAutoLayerEnabled(checked);
-    m_colorParams.setColorGrayscaleOptions(opt);
-
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
-
-    updateColorsDisplay();
-    emit reloadRequested();
 }
 
 void
@@ -332,7 +257,6 @@ OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 {
 	for (PageId const& page_id: pages) {
         m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyMode);
-        m_ptrSettings->setPictureShape(page_id, m_currentPictureShape);
 	}
 
     emit invalidateAllThumbnails();
@@ -428,6 +352,7 @@ OptionsWidget::dewarpingChanged(std::set<PageId> const& pages, DewarpingMode con
 				// These depend on the value of m_lastTab.
 				updateDpiDisplay();
 				updateColorsDisplay();
+                updateLayersDisplay();
 				updateDewarpingDisplay();
 
 				emit reloadRequested();
@@ -539,6 +464,39 @@ OptionsWidget::updateModeValueText()
             break;
     }
 }
+void
+OptionsWidget::updateLayersDisplay()
+{
+    QSettings settings;
+
+    autoLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
+    bool isChecked = m_colorParams.colorGrayscaleOptions().autoLayerEnabled() || m_dewarpingMode != DewarpingMode::OFF;
+    if (isChecked == autoLayerCB->isChecked()) {
+        on_autoLayerCB_toggled(autoLayerCB->isChecked());
+    } else {
+        autoLayerCB->setChecked(isChecked);
+    }
+
+    bool isVisible = settings.value("picture_zones_layer/enabled", true).toBool();
+    isChecked = m_colorParams.colorGrayscaleOptions().pictureZonesLayerEnabled();
+    pictureZonesLayerCB->setVisible(isVisible);
+    if ((isVisible && isChecked) == pictureZonesLayerCB->isChecked()) {
+        on_pictureZonesLayerCB_toggled(pictureZonesLayerCB->isChecked());
+    } else {
+        pictureZonesLayerCB->setChecked(isVisible && isChecked);
+    }
+
+    isVisible = settings.value("foreground_layer/enabled", true).toBool();
+    isChecked = m_colorParams.colorGrayscaleOptions().foregroundLayerEnabled() && m_dewarpingMode == DewarpingMode::OFF;
+    foregroundLayerCB->setVisible(isVisible);
+    foregroundLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
+
+    if ((isVisible && isChecked) == foregroundLayerCB->isChecked()) {
+        on_foregroundLayerCB_toggled(foregroundLayerCB->isChecked());
+    } else {
+        foregroundLayerCB->setChecked(isVisible && isChecked);
+    }
+}
 
 void
 OptionsWidget::updateColorsDisplay()
@@ -547,9 +505,6 @@ OptionsWidget::updateColorsDisplay()
 
 	bool color_grayscale_options_visible = false;
 	bool bw_options_visible = false;
-	bool picture_shape_visible = false;
-
-
 
     switch (m_currentMode) {
         case ColorParams::BLACK_AND_WHITE:
@@ -560,7 +515,6 @@ OptionsWidget::updateColorsDisplay()
             break;
         case ColorParams::MIXED:
             bw_options_visible = true;
-            picture_shape_visible = m_colorParams.colorGrayscaleOptions().autoLayerEnabled();
             color_grayscale_options_visible = true;
             break;
     }
@@ -577,15 +531,9 @@ OptionsWidget::updateColorsDisplay()
 	}
 	
 	modePanel->setVisible(m_lastTab != TAB_DEWARPING);
-	pictureShapeOptions->setVisible(picture_shape_visible);
     layersPanel->setVisible(m_currentMode == ColorParams::MIXED);
     bwOptions->setVisible(bw_options_visible);
 	despecklePanel->setVisible(bw_options_visible && m_lastTab != TAB_DEWARPING);
-
-	if (picture_shape_visible) {
-        updatePictureShapeValueText();
-	}
-	
 
 	if (bw_options_visible) {
         switch (m_despeckleLevel) {
@@ -607,10 +555,6 @@ OptionsWidget::updateColorsDisplay()
         thresholdSlider->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
 	}
 
-    autoLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
-    colorLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
-    colorLayerCB->setCheckState(m_colorParams.colorGrayscaleOptions().colorLayerEnabled() && m_dewarpingMode == DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
-    autoLayerCB->setCheckState(m_colorParams.colorGrayscaleOptions().autoLayerEnabled() || m_dewarpingMode != DewarpingMode::OFF? Qt::Checked : Qt::Unchecked);
 }
 
 void
@@ -754,26 +698,6 @@ void output::OptionsWidget::on_actionModeMixed_triggered()
     changeColorMode(ColorParams::MIXED);
 }
 
-void output::OptionsWidget::on_actionPictureShapeFree_triggered()
-{
-    changePictureShape(PictureShape::FREE_SHAPE);
-}
-
-void output::OptionsWidget::on_actionPictureShapeRectangular_triggered()
-{
-    changePictureShape(PictureShape::RECTANGULAR_SHAPE);
-}
-
-void output::OptionsWidget::on_actionPictureShapeQuadro_triggered()
-{
-    changePictureShape(PictureShape::QUADRO_SHAPE);
-}
-
-void output::OptionsWidget::on_pictureShapeValue_linkActivated(const QString &/*link*/)
-{
-    m_menuPictureShape.popup(pictureShapeValue->mapToGlobal(QPoint(0,pictureShapeValue->geometry().height())));
-}
-
 void output::OptionsWidget::on_despeckleSlider_valueChanged(int value)
 {
     switch(value) {
@@ -915,4 +839,55 @@ void output::OptionsWidget::on_applyThresholdButton_linkActivated(const QString 
         this, SLOT(applyThresholdConfirmed(std::set<PageId> const&))
     );
     dialog->show();
+}
+
+void output::OptionsWidget::on_pictureZonesLayerCB_toggled(bool checked)
+{
+    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+    if (opt.pictureZonesLayerEnabled() != checked) {
+        opt.setPictureZonesLayerEnabled(checked);
+        m_colorParams.setColorGrayscaleOptions(opt);
+
+        bool need_reload = true;
+        if (!checked) {
+            ZoneSet zones = m_ptrSettings->pictureZonesForPage(m_pageId);
+            need_reload = zones.auto_zones_found();
+            if (need_reload) {
+                zones.remove_auto_zones();
+                m_ptrSettings->setPictureZones(m_pageId, zones);
+            }
+        }
+
+        m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
+
+        if (need_reload) {
+            emit reloadRequested();
+        }
+    }
+}
+
+void output::OptionsWidget::on_foregroundLayerCB_toggled(bool checked)
+{
+    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+    if (opt.foregroundLayerEnabled() != checked) {
+        opt.setForegroundLayerEnabled(checked);
+        m_colorParams.setColorGrayscaleOptions(opt);
+
+        m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
+
+        emit reloadRequested();
+    }
+}
+
+void output::OptionsWidget::on_autoLayerCB_toggled(bool checked)
+{
+    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
+    if (opt.autoLayerEnabled() != checked) {
+        opt.setAutoLayerEnabled(checked);
+        m_colorParams.setColorGrayscaleOptions(opt);
+
+        m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
+
+        emit reloadRequested();
+    }
 }

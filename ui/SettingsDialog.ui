@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>19</number>
+       <number>22</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -1206,12 +1206,21 @@
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_12"/>
+          <layout class="QFormLayout" name="formLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="picturesShapeDefaultsLabel">
+             <property name="text">
+              <string>Default picture detection:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="pagePictureShapeDetection">
+      <widget class="QWidget" name="pageAutoLayer"/>
+      <widget class="QWidget" name="pagePictureZonesLayer">
        <layout class="QVBoxLayout" name="verticalLayout_50">
         <item>
          <widget class="QGroupBox" name="groupBox_34">
@@ -1239,22 +1248,22 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="optPictureShapeDetection">
+         <widget class="QGroupBox" name="optPictureZonesLayer">
           <property name="title">
            <string>Options</string>
           </property>
           <layout class="QFormLayout" name="formLayout_13">
            <item row="0" column="0">
-            <widget class="QLabel" name="picturesShapeDefaultsLabel">
+            <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>Default:</string>
+              <string>Sensitivity:</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <spacer name="horizontalSpacer_4">
+              <spacer name="horizontalSpacer_8">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1267,52 +1276,24 @@
               </spacer>
              </item>
              <item>
-              <widget class="QComboBox" name="picturesShapeDefaultsValue">
-               <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToContents</enum>
+              <widget class="QSpinBox" name="rectangularAreasSensitivityValue">
+               <property name="suffix">
+                <string>%</string>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>100</number>
                </property>
               </widget>
              </item>
             </layout>
            </item>
           </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="pageTryToMakeRectangleSmaller">
-       <layout class="QVBoxLayout" name="verticalLayout_51">
-        <item>
-         <widget class="QGroupBox" name="groupBox_36">
-          <property name="title">
-           <string>Description</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_28">
-           <item>
-            <widget class="QLabel" name="lblApplyCutDescr_21">
-             <property name="text">
-              <string>TextLabel</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="optTryToMakeRectangleSmaller">
-          <property name="title">
-           <string>Options</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_14"/>
          </widget>
         </item>
        </layout>

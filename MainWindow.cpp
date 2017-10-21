@@ -171,8 +171,6 @@ MainWindow::MainWindow()
 	m_ignoreSelectionChanges(0),
 	m_ignorePageOrderingChanges(0),
 	m_debug(false),
-//Picture_Shape_Bug
-	//m_closing(false)
 	m_closing(false),
 //Export_Subscans
     m_outpaths_vector(0),
@@ -379,7 +377,11 @@ MainWindow::settingsChanged()
         destroyAutoSaveTimer();
     }
 
+    float old_val = GlobalStaticSettings::m_picture_detection_sensitivity;
     GlobalStaticSettings::updateSettings();
+    if (old_val != GlobalStaticSettings::m_picture_detection_sensitivity) {
+        emit invalidateAllThumbnails();
+    }
 
     emit settingsUpdateRequest();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget

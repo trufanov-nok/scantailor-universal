@@ -9,3 +9,4 @@ int  GlobalStaticSettings::m_binrization_threshold_control_default = 0;
 bool GlobalStaticSettings::m_use_horizontal_predictor = false;
 bool GlobalStaticSettings::m_disable_bw_smoothing = false;
 qreal GlobalStaticSettings::m_zone_editor_min_angle = 3.0;
+float GlobalStaticSettings::m_picture_detection_sensitivity = 100.;

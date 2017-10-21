@@ -133,22 +133,17 @@ Settings::setColorParams(PageId const& page_id, ColorParams const& prms, ColorPa
         params.setColorParams(prms, filter);
         m_perPageParams.insert(it, PerPageParams::value_type(page_id, params));
     } else {
+        ColorParams::ColorMode old_mode = it->second.colorParams().colorMode();
+        if (old_mode == ColorParams::MIXED && prms.colorMode() != old_mode) {
+            //clearPictureAutoZonesForPage(page_id);
+            PerPageZones::iterator const itz(m_perPagePictureZones.find(page_id));
+            if (itz != m_perPagePictureZones.end()) {
+               ZoneSet zones = itz->second;
+               zones.remove_auto_zones();
+               itz->second = zones;
+            }
+        }
         it->second.setColorParams(prms, filter);
-    }
-}
-
-void
-Settings::setPictureShape(PageId const& page_id, PictureShape picture_shape)
-{
-    QMutexLocker const locker(&m_mutex);
-
-    PerPageParams::iterator const it(m_perPageParams.lower_bound(page_id));
-    if (it == m_perPageParams.end() || m_perPageParams.key_comp()(page_id, it->first)) {
-        Params params;
-        params.setPictureShape(picture_shape);
-        m_perPageParams.insert(it, PerPageParams::value_type(page_id, params));
-    } else {
-        it->second.setPictureShape(picture_shape);
     }
 }
 
@@ -374,7 +369,7 @@ Settings::getTiffCompression()
 }
 
 const QString
-Settings::getTiffCompressioName() const
+Settings::getTiffCompressionName() const
 {
     return QSettings().value("tiff_compression/method", "LZW").toString();
 }

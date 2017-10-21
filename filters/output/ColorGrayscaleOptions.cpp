@@ -30,7 +30,8 @@ ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_m
     m_whiteMargins = el.attribute("whiteMargins", default_value) == "1";
     m_normalizeIllumination = el.attribute("normalizeIllumination", default_value) == "1";
     m_autoLayerEnabled = el.attribute("autoLayer", default_value) == "1";
-    m_colorLayerEnabled = el.attribute("colorLayer", "0") == "1";
+    m_pictureZonesLayerEnabled = el.attribute("pictureZonesLayer", "0") == "1";
+    m_foregroundLayerEnabled = el.attribute("foregroundLayer", "0") == "1";
 }
 
 QDomElement
@@ -40,7 +41,8 @@ ColorGrayscaleOptions::toXml(QDomDocument& doc, QString const& name) const
 	el.setAttribute("whiteMargins", m_whiteMargins ? "1" : "0");
 	el.setAttribute("normalizeIllumination", m_normalizeIllumination ? "1" : "0");
     el.setAttribute("autoLayer", m_autoLayerEnabled ? "1" : "0");
-    el.setAttribute("colorLayer", m_colorLayerEnabled ? "1" : "0");
+    el.setAttribute("pictureZonesLayer", m_pictureZonesLayerEnabled ? "1" : "0");
+    el.setAttribute("foregroundLayer", m_foregroundLayerEnabled ? "1" : "0");
 	return el;
 }
 
@@ -59,7 +61,11 @@ ColorGrayscaleOptions::operator==(ColorGrayscaleOptions const& other) const
         return false;
     }
 
-    if (m_colorLayerEnabled != other.m_colorLayerEnabled) {
+    if (m_pictureZonesLayerEnabled != other.m_pictureZonesLayerEnabled) {
+        return false;
+    }
+
+    if (m_foregroundLayerEnabled != other.m_foregroundLayerEnabled) {
         return false;
     }
 	

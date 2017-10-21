@@ -21,6 +21,7 @@
 #include "Zone.h"
 #include "PropertySet.h"
 #include "PictureLayerProperty.h"
+#include "settings/globalstaticsettings.h"
 #include <QPolygonF>
 
 namespace output
@@ -28,16 +29,33 @@ namespace output
 
 bool
 PictureZoneComparator::equal(ZoneSet const& lhs, ZoneSet const& rhs)
-{
+{   
 	ZoneSet::const_iterator lhs_it(lhs.begin());
 	ZoneSet::const_iterator rhs_it(rhs.begin());
 	ZoneSet::const_iterator const lhs_end(lhs.end());
 	ZoneSet::const_iterator const rhs_end(rhs.end());
+    bool have_picture_zones = false;
 	for (; lhs_it != lhs_end && rhs_it != rhs_end; ++lhs_it, ++rhs_it) {
 		if (!equal(*lhs_it, *rhs_it)) {
 			return false;
 		}
+        if ( !have_picture_zones && (lhs_it.dereference().properties().locateOrDefault<output::ZoneCategoryProperty>()->zone_category() ==
+                                     output::ZoneCategoryProperty::RECTANGULAR_OUTLINE ||
+                                     rhs_it.dereference().properties().locateOrDefault<output::ZoneCategoryProperty>()->zone_category() ==
+                                     output::ZoneCategoryProperty::RECTANGULAR_OUTLINE)) {
+            have_picture_zones = true;
+        }
 	}
+
+    if (have_picture_zones) {
+        if (lhs.pictureZonesSensitivity() != rhs.pictureZonesSensitivity()) {
+            return false;
+        }
+
+        if (lhs.pictureZonesSensitivity() != GlobalStaticSettings::m_picture_detection_sensitivity) {
+            return false;
+        }
+    }
 
 	return (lhs_it == lhs_end && rhs_it == rhs_end);
 }

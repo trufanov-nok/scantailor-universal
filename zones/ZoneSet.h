@@ -20,6 +20,7 @@
 #define ZONE_SET_H_
 
 #include "Zone.h"
+#include "settings/globalstaticsettings.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <list>
 
@@ -56,7 +57,9 @@ public:
 	typedef const_iterator iterator;
 
 
-	ZoneSet() {}
+    ZoneSet(int pictureZonesSensitivity = GlobalStaticSettings::m_picture_detection_sensitivity):
+    m_pictureZonesSensitivity(pictureZonesSensitivity)
+    {}
 
 	ZoneSet(QDomElement const& el, PropertyFactory const& prop_factory);
 
@@ -76,8 +79,12 @@ public:
 	void remove_auto_zones();
 	bool auto_zones_found();
 //end of modified by monday2000
+    int pictureZonesSensitivity() const { return m_pictureZonesSensitivity; }
+
+    void setPictureZonesSensitivity(int val) { m_pictureZonesSensitivity = val; }
 private:
 	std::list<Zone> m_zones;
+    int  m_pictureZonesSensitivity;
 };
 
 #endif

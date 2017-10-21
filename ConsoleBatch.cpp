@@ -450,24 +450,23 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
 			params.setOutputDpi(outputDpi);
 		}
 
-		if (cli.hasPictureShape()) {
-			params.setPictureShape(cli.getPictureShape());
-		}
-
 		output::ColorParams colorParams = params.colorParams();
 		if (cli.hasColorMode())
 			colorParams.setColorMode(cli.getColorMode());
 
-        if (cli.hasWhiteMargins() || cli.hasNormalizeIllumination() || cli.hasColorLayer() || cli.hasAutoLayer()) {
+        if (cli.hasWhiteMargins() || cli.hasNormalizeIllumination() ||
+                cli.hasAutoLayer() || cli.hasPictureZonesLayer() || cli.hasForegroundLayer()) {
             output::ColorGrayscaleOptions cgo;
 			if (cli.hasWhiteMargins())
 				cgo.setWhiteMargins(true);
 			if (cli.hasNormalizeIllumination())
 				cgo.setNormalizeIllumination(true);
-            if (cli.hasColorLayer())
-                cgo.setColorLayerEnabled(true);
             if (cli.hasAutoLayer())
                 cgo.setAutoLayerEnabled(true);
+            if (cli.hasPictureZonesLayer())
+                cgo.setPictureZonesLayerEnabled(true);
+            if (cli.hasForegroundLayer())
+                cgo.setForegroundLayerEnabled(true);
 			colorParams.setColorGrayscaleOptions(cgo);
 		}
 

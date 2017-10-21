@@ -32,10 +32,6 @@
 #include "ImageViewTab.h"
 #include "Params.h"
 #include <set>
-//begin of modified by monday2000
-//Picture_Shape
-#include "Params.h"
-//end of modified by monday2000
 #include <QMenu>
 
 namespace dewarping
@@ -76,6 +72,8 @@ public slots:
 	void distortionModelChanged(dewarping::DistortionModel const& model);
 
     void settingsChanged();
+
+    void disablePictureLayer();
 private slots:
 	
 	void dpiChanged(std::set<PageId> const& pages, Dpi const& dpi);
@@ -85,12 +83,6 @@ private slots:
     void applyThresholdConfirmed(std::set<PageId> const& pages);
 
     void changeColorMode(ColorParams::ColorMode const mode);
-
-    void changePictureShape(PictureShape const shape);
-
-    void colorLayerCBToggled(bool checked);
-
-    void autoLayerCBToggled(bool checked);
 	
 	void whiteMarginsToggled(bool checked);
 	
@@ -128,14 +120,6 @@ private slots:
 
     void on_actionModeMixed_triggered();
 
-    void on_actionPictureShapeFree_triggered();
-
-    void on_actionPictureShapeRectangular_triggered();
-
-    void on_actionPictureShapeQuadro_triggered();
-
-    void on_pictureShapeValue_linkActivated(const QString &);
-
     void on_despeckleSlider_valueChanged(int value);
 
     void on_thresholdSlider_valueChanged();
@@ -145,6 +129,12 @@ private slots:
     void on_actionReset_to_default_value_triggered();
 
     void on_applyThresholdButton_linkActivated(const QString &);
+
+    void on_pictureZonesLayerCB_toggled(bool checked);
+
+    void on_foregroundLayerCB_toggled(bool checked);
+
+    void on_autoLayerCB_toggled(bool checked);
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -157,19 +147,13 @@ private:
 
 	void updateColorsDisplay();
 
+    void updateLayersDisplay();
+
 	void updateDewarpingDisplay();
 
     void updateModeValueText();
 
-    void updatePictureShapeValueText();
-
     void updateDespeckleValueText();
-
-    void setCurrentPictureShape(PictureShape v)
-    {
-        m_currentPictureShape = v;
-        updatePictureShapeValueText();
-    }
 
     void setModeValue(ColorParams::ColorMode v)
     {
@@ -198,8 +182,6 @@ private:
 	int m_ignoreThresholdChanges;
     QMenu m_menuMode;
     ColorParams::ColorMode m_currentMode;
-    QMenu m_menuPictureShape;
-    PictureShape m_currentPictureShape;
     bool m_ignore_system_wheel_settings;
 };
 

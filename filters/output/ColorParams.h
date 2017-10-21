@@ -47,7 +47,8 @@ public:
             bool defaults = (mode == ColorParams::MIXED);
             setColorGrayscaleOptions(ColorGrayscaleOptions(defaults, defaults));
         }
-        m_colorMode = mode; }
+        m_colorMode = mode;
+    }
 	
 	ColorGrayscaleOptions const& colorGrayscaleOptions() const {
 		return m_colorGrayscaleOptions;

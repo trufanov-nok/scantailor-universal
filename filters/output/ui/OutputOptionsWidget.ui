@@ -219,9 +219,16 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="colorLayerCB">
+          <widget class="QCheckBox" name="pictureZonesLayerCB">
            <property name="text">
-            <string>Color / Grayscale layer</string>
+            <string>Picture Zones layer</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="foregroundLayerCB">
+           <property name="text">
+            <string>Foreground layer</string>
            </property>
           </widget>
          </item>
@@ -240,66 +247,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item>
-       <widget class="QWidget" name="pictureShapeOptions" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_14">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="leftMargin">
-          <number>6</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="labelPictureShape">
-           <property name="text">
-            <string>Picture Shape:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_26">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="pictureShapeValue">
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
-           </property>
-           <property name="text">
-            <string notr="true">value</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::RichText</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -1102,11 +1049,6 @@
   <action name="actionPictureShapeRectangular">
    <property name="text">
     <string>&amp;Rectangular</string>
-   </property>
-  </action>
-  <action name="actionPictureShapeQuadro">
-   <property name="text">
-    <string>&amp;Quadro</string>
    </property>
   </action>
   <action name="actionReset_to_default_value">

@@ -103,7 +103,7 @@ Filter::saveSettings(
 	
 	QDomElement filter_el(doc.createElement("output"));
 	
-    filter_el.setAttribute("tiffCompressionMethod", m_ptrSettings->getTiffCompressioName());
+    filter_el.setAttribute("tiffCompressionMethod", m_ptrSettings->getTiffCompressionName());
 	
 	writer.enumPages(
 		boost::lambda::bind(
@@ -188,14 +188,7 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
 		
 		QDomElement const output_params_el(el.namedItem("output-params").toElement());
 		if (!output_params_el.isNull()) {
-//begin of modified by monday2000
-//Picture_Shape_Bug
-//added:
-			Params tmp_params = m_ptrSettings->getParams(page_id);
-			int picture_shape_int = (int)tmp_params.pictureShape();
-			//OutputParams const output_params(output_params_el);			
-			OutputParams const output_params(output_params_el, picture_shape_int);
-//end of modified by monday2000
+            OutputParams const output_params(output_params_el);
 			m_ptrSettings->setOutputParams(page_id, output_params);
 		}
 	}

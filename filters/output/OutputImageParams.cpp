@@ -36,13 +36,11 @@ OutputImageParams::OutputImageParams(
 	DewarpingMode const& dewarping_mode,
 	dewarping::DistortionModel const& distortion_model,
 	DepthPerception const& depth_perception,
-	DespeckleLevel const despeckle_level,
-	PictureShape const picture_shape)
+    DespeckleLevel const despeckle_level)
 :	m_size(out_image_size),
 	m_contentRect(content_rect),
 	m_dpi(dpi),
 	m_colorParams(color_params),
-	m_pictureShape(picture_shape),
 	m_distortionModel(distortion_model),
 	m_depthPerception(depth_perception),
 	m_dewarpingMode(dewarping_mode),
@@ -52,20 +50,12 @@ OutputImageParams::OutputImageParams(
 	xform.setPostCropArea(QPolygonF()); // Resets post-scale as well.
 	m_partialXform = xform.transform();
 }
-//begin of modified by monday2000
-//Picture_Shape_Bug	
-//OutputImageParams::OutputImageParams(QDomElement const& el)
-OutputImageParams::OutputImageParams(QDomElement const& el, int picture_shape_int)
-//end of modified by monday2000
+OutputImageParams::OutputImageParams(QDomElement const& el)
 :	m_size(XmlUnmarshaller::size(el.namedItem("size").toElement())),
 	m_contentRect(XmlUnmarshaller::rect(el.namedItem("content-rect").toElement())),
 	m_partialXform(el.namedItem("partial-xform").toElement()),
 	m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
-	m_colorParams(el.namedItem("color-params").toElement()),
-//begin of modified by monday2000
-//Picture_Shape_Bug
-	m_pictureShape((PictureShape)picture_shape_int),
-//end of modified by monday2000
+    m_colorParams(el.namedItem("color-params").toElement()),
 	m_distortionModel(el.namedItem("distortion-model").toElement()),
 	m_depthPerception(el.attribute("depthPerception")),
 	m_dewarpingMode(el.attribute("dewarpingMode")),
@@ -113,10 +103,6 @@ OutputImageParams::matches(OutputImageParams const& other) const
 	
 	if (!colorParamsMatch(m_colorParams, m_despeckleLevel,
 			other.m_colorParams, other.m_despeckleLevel)) {
-		return false;
-	}
-
-	if (m_pictureShape != other.m_pictureShape) {
 		return false;
 	}
 

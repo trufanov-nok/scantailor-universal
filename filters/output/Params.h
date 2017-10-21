@@ -32,8 +32,6 @@ class QDomElement;
 
 namespace output
 {
-    enum PictureShape { FREE_SHAPE, RECTANGULAR_SHAPE, QUADRO_SHAPE };
-
     enum ColorParamsApplyFilter
     {
         CopyMode = 1,
@@ -54,28 +52,7 @@ public:
 	
 	ColorParams const& colorParams() const { return m_colorParams; }
 
-	PictureShape pictureShape() const { return m_pictureShape; }
-	void setPictureShape(PictureShape ps) { m_pictureShape = ps; }
-
     void setColorParams(ColorParams const& params, ColorParamsApplyFilter const& filter = CopyAll);
-
-    bool const getColorLayer() { return m_colorParams.colorGrayscaleOptions().colorLayerEnabled(); }
-
-    void setColorLayer(bool const& enabled)
-    {
-        ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
-        opt.setColorLayerEnabled(enabled);
-        m_colorParams.setColorGrayscaleOptions(opt);
-    }
-
-    bool const getAutoLayer() { return m_colorParams.colorGrayscaleOptions().autoLayerEnabled(); }
-
-    void setAutoLayer(bool const& enabled)
-    {
-        ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
-        opt.setAutoLayerEnabled(enabled);
-        m_colorParams.setColorGrayscaleOptions(opt);
-    }
 
 	DewarpingMode const& dewarpingMode() const { return m_dewarpingMode; }
 
@@ -102,7 +79,6 @@ private:
 	static QString formatColorMode(ColorParams::ColorMode mode);
 	
 	ColorParams m_colorParams;
-	PictureShape m_pictureShape;
 
 	Dpi m_dpi;
 	dewarping::DistortionModel m_distortionModel;

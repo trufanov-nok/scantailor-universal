@@ -26,6 +26,8 @@ ZoneSet::ZoneSet(QDomElement const& el, PropertyFactory const& prop_factory)
 {
 	QString const zone_str("zone");
 
+    m_pictureZonesSensitivity = el.attribute("pictureZonesSensitivity", QString::number(GlobalStaticSettings::m_picture_detection_sensitivity)).toFloat();
+
 	QDomNode node(el.firstChild());
 	for (; !node.isNull(); node = node.nextSibling()) {
 		if (!node.isElement()) {
@@ -48,6 +50,9 @@ ZoneSet::toXml(QDomDocument& doc, QString const& name) const
 	QString const zone_str("zone");
 
 	QDomElement el(doc.createElement(name));
+
+    el.setAttribute("pictureZonesSensitivity", QString::number(m_pictureZonesSensitivity));
+
     for (Zone const& zone: m_zones) {
 		el.appendChild(zone.toXml(doc, zone_str));
 	}
