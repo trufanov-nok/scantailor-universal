@@ -132,6 +132,7 @@
 #include <QResource>
 #include <Qt>
 #include <QDebug>
+#include <QDate>
 #include <algorithm>
 #include <vector>
 #include <stddef.h>
@@ -2256,9 +2257,10 @@ void
 MainWindow::showAboutDialog()
 {
 	Ui::AboutDialog ui;
-	QDialog* dialog = new QDialog(this);
-	ui.setupUi(dialog);
-    ui.version->setText(QString::fromUtf8(VERSION));
+    QDialog* dialog = new QDialog(this);
+    ui.setupUi(dialog);
+    ui.version->setText(QString::fromUtf8(VERSION) + "\n" + tr("build on ") +
+                        QDate(BUILD_YEAR, BUILD_MONTH, BUILD_DAY).toString(Qt::SystemLocaleShortDate));
 
 	QResource license(":/GPLv3.html");
 	ui.licenseViewer->setHtml(QString::fromUtf8((char const*)license.data(), license.size()));
