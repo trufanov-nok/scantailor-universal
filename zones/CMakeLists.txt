@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 SET(
 	sources
+        LocalClipboard.h LocalClipboard.cpp
 	SplineVertex.cpp SplineVertex.h
 	SplineSegment.cpp SplineSegment.h
 	EditableSpline.cpp EditableSpline.h
@@ -17,8 +18,8 @@ SET(
 	ZoneCreationInteraction.cpp ZoneCreationInteraction.h
 	ZoneVertexDragInteraction.cpp ZoneVertexDragInteraction.h
         ZoneDragInteraction.cpp ZoneDragInteraction.h
-	ZoneContextMenuInteraction.cpp ZoneContextMenuInteraction.h
-	ZoneContextMenuItem.h
+	ZoneContextMenuInteraction.cpp ZoneContextMenuInteraction.h        
+        ZoneContextMenuItem.h
 )
 
 SOURCE_GROUP(Sources FILES ${sources})

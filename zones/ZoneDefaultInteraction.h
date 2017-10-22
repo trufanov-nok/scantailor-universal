@@ -28,6 +28,7 @@
 #include "SplineVertex.h"
 #include "SplineSegment.h"
 #include <QPointF>
+#include <QMenu>
 #include <QCoreApplication>
 
 class ZoneInteractionContext;
@@ -91,6 +92,8 @@ private:
 	EditableSpline::Ptr m_ptrNearestSegmentSpline;
     QPointF m_screenPointOnSegment;
     ShiftState m_lastShiftState;
+    QMenu m_defaultMenu;
+    QAction* m_pasteAction;
 };
 
 #endif

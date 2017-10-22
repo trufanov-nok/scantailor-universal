@@ -52,14 +52,11 @@ SerializableSpline::SerializableSpline(QDomElement const& el)
 	}
 }
 
-//begin of modified by monday2000
-//Quadro_Zoner
 SerializableSpline::SerializableSpline(QPolygonF const& polygon)
 {
-	for (int i = (int)polygon.size()-1; i>=0; i--)
-		m_points.push_back(polygon[i]);
+    for (QPointF vertex: polygon)
+        m_points.push_back(vertex);
 }
-//end of modified by monday2000	
 
 
 QDomElement

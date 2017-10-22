@@ -51,7 +51,7 @@ public:
 	SerializableSpline transformed(
 		boost::function<QPointF(QPointF const&)> const& xform) const;
 
-	QPolygonF toPolygon() const { return QPolygonF(m_points); }
+    QPolygonF toPolygon() const { return QPolygonF(m_points); }
 private:
 	QVector<QPointF> m_points;
 };

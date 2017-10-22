@@ -47,10 +47,12 @@ class ZoneContextMenuInteraction : public QObject, public InteractionHandler
 public:
 	struct StandardMenuItems
 	{
+        ZoneContextMenuItem copyItem;
 		ZoneContextMenuItem propertiesItem;
 		ZoneContextMenuItem deleteItem;
 
 		StandardMenuItems(
+            ZoneContextMenuItem const& copy_item,
 			ZoneContextMenuItem const& properties_item,
 			ZoneContextMenuItem const& delete_item);
 	};
@@ -121,11 +123,15 @@ private:
 
 	InteractionHandler* deleteRequest(EditableZoneSet::Zone const& zone);
 
+    InteractionHandler* copyRequest(EditableZoneSet::Zone const& zone);
+
 	InteractionHandler* propertiesRequest(EditableZoneSet::Zone const& zone);
 
 	ZoneContextMenuItem propertiesMenuItemFor(EditableZoneSet::Zone const& zone);
 
 	ZoneContextMenuItem deleteMenuItemFor(EditableZoneSet::Zone const& zone);
+
+    ZoneContextMenuItem copyMenuItemFor(EditableZoneSet::Zone const& zone);
 
 	ZoneInteractionContext& m_rContext;
 	std::vector<Zone> m_selectableZones;

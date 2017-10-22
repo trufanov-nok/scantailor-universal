@@ -21,6 +21,7 @@
 #include "EditableZoneSet.h"
 #include "ImageViewBase.h"
 #include "InteractionState.h"
+#include "LocalClipboard.h"
 #include <QTransform>
 #include <QPolygon>
 #include <QPointF>
@@ -32,6 +33,7 @@
 #include <Qt>
 #include <QMouseEvent>
 #include <QApplication>
+#include <QAction>
 #include <vector>
 #include <assert.h>
 
@@ -49,6 +51,37 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
 	m_rContext.imageView().interactionState().setDefaultStatusTip(
         tr("Click to start creating a new zone.")
 	);
+
+    m_pasteAction = m_defaultMenu.addAction(tr("&Paste"));
+    m_pasteAction->setShortcut(QKeySequence::Paste);
+
+    QObject::connect(m_pasteAction, &QAction::triggered, [=]() {
+        if (LocalClipboard::getInstance()->getConentType() == LocalClipboard::Spline) {
+            QTransform widget_to_virtual(m_rContext.imageView().widgetToImage());
+            QPolygonF new_spline = LocalClipboard::getInstance()->getSpline();
+            new_spline = widget_to_virtual.map(new_spline);
+            QTransform shift = QTransform().translate(100,100);
+
+            do {
+                bool found = false;
+                for (const EditableZoneSet::Zone& zone: m_rContext.zones()) {
+                    QPolygonF z = SerializableSpline(*zone.spline().get()).toPolygon();
+                    if (new_spline == z) {
+                        // we shouldn't mix SerializableSpline::toPlygon and EditableSpline::toPolygon
+                        // as order of vertexes might be different.
+                        found = true;
+                        new_spline = shift.map(new_spline);
+                        break;
+                    }
+                }
+                if (!found) {
+                    m_rContext.zones().addZone(EditableSpline::Ptr(new EditableSpline(SerializableSpline(new_spline))));
+                    m_rContext.zones().commit();
+                    break;
+                }
+            } while (true);
+        }
+    });
 }
 
 void
@@ -289,12 +322,15 @@ ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, Interaction
 	event->accept();
 
 	InteractionHandler* cm_interaction = m_rContext.createContextMenuInteraction(interaction);
-	if (!cm_interaction) {
-		return;
+    if (cm_interaction) {
+        makePeerPreceeder(*cm_interaction);
+        delete this;
+        return;
 	}
 
-    makePeerPreceeder(*cm_interaction);
-	delete this;
+    m_pasteAction->setEnabled(LocalClipboard::getInstance()->getConentType() == LocalClipboard::Spline);
+    m_defaultMenu.popup(event->globalPos());
+
 }
 
 void

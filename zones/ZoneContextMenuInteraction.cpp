@@ -22,6 +22,7 @@
 #include "ImageViewBase.h"
 #include "EditableZoneSet.h"
 #include "QtSignalForwarder.h"
+#include "LocalClipboard.h"
 #include <QRectF>
 #include <QPolygonF>
 #include <QMenu>
@@ -143,6 +144,7 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
 		}
 
 		StandardMenuItems const std_items(
+            copyMenuItemFor(*it),
 			propertiesMenuItemFor(*it),
 			deleteMenuItemFor(*it)
 		);
@@ -163,6 +165,38 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
 
 		m_ptrMenu->addSeparator();
 	}
+
+    QAction* paste = m_ptrMenu->addAction(tr("&Paste"));
+    paste->setEnabled(LocalClipboard::getInstance()->getConentType() == LocalClipboard::Spline);
+
+    if (paste->isEnabled()) {
+        QObject::connect(paste, &QAction::triggered, [=]()
+        {
+            QTransform widget_to_virtual(m_rContext.imageView().widgetToImage());
+            QPolygonF new_spline = LocalClipboard::getInstance()->getSpline();
+            new_spline = widget_to_virtual.map(new_spline);
+            QTransform shift = QTransform().translate(100,100);
+
+            do {
+                bool found = false;
+                for (const EditableZoneSet::Zone& zone: m_rContext.zones()) {
+                    QPolygonF z = SerializableSpline(*zone.spline().get()).toPolygon();
+                    if (new_spline == z) {
+                        // we shouldn't mix SerializableSpline::toPlygon and EditableSpline::toPolygon
+                        // as order of vertexes might be different.
+                        found = true;
+                        new_spline = shift.map(new_spline);
+                        break;
+                    }
+                }
+                if (!found) {
+                    m_rContext.zones().addZone(EditableSpline::Ptr(new EditableSpline(SerializableSpline(new_spline))));
+                    m_rContext.zones().commit();
+                    break;
+                }
+            } while (true);
+        });
+    }
 
 	// The queued connection is used to ensure it gets called *after*
 	// QAction::triggered().
@@ -260,14 +294,37 @@ ZoneContextMenuInteraction::deleteRequest(EditableZoneSet::Zone const& zone)
 	return m_rContext.createDefaultInteraction();
 }
 
+InteractionHandler*
+ZoneContextMenuInteraction::copyRequest(EditableZoneSet::Zone const& zone)
+{
+    QTransform const to_virtual(m_rContext.imageView().imageToWidget());
+    if (zone.spline().get()) {
+        LocalClipboard::getInstance()->setSpline(
+                    SerializableSpline(*zone.spline().get())
+                    .transformed(to_virtual).toPolygon());
+    }
+    return m_rContext.createDefaultInteraction();
+}
+
+
 ZoneContextMenuItem
 ZoneContextMenuInteraction::deleteMenuItemFor(
 	EditableZoneSet::Zone const& zone)
 {
 	return ZoneContextMenuItem(
-		tr("Delete"),
+        tr("&Delete..."),
 		boost::bind(&ZoneContextMenuInteraction::deleteRequest, this, zone)
 	);
+}
+
+ZoneContextMenuItem
+ZoneContextMenuInteraction::copyMenuItemFor(
+    EditableZoneSet::Zone const& zone)
+{
+    return ZoneContextMenuItem(
+        tr("&Copy"),
+        boost::bind(&ZoneContextMenuInteraction::copyRequest, this, zone)
+    );
 }
 
 ZoneContextMenuItem
@@ -275,7 +332,7 @@ ZoneContextMenuInteraction::propertiesMenuItemFor(
 	EditableZoneSet::Zone const& zone)
 {
 	return ZoneContextMenuItem(
-		tr("Properties"),
+        tr("&Properties..."),
 		boost::bind(&ZoneContextMenuInteraction::propertiesRequest, this, zone)
 	);
 }
@@ -294,10 +351,11 @@ ZoneContextMenuInteraction::highlightItem(int const zone_idx)
 
 std::vector<ZoneContextMenuItem>
 ZoneContextMenuInteraction::defaultMenuCustomizer(
-	EditableZoneSet::Zone const& zone, StandardMenuItems const& std_items)
+    EditableZoneSet::Zone const& /*zone*/, StandardMenuItems const& std_items)
 {
 	std::vector<ZoneContextMenuItem> items;
-	items.reserve(2);
+    items.reserve(3);
+    items.push_back(std_items.copyItem);
 	items.push_back(std_items.propertiesItem);
 	items.push_back(std_items.deleteItem);
 	return items;
@@ -307,9 +365,11 @@ ZoneContextMenuInteraction::defaultMenuCustomizer(
 /*========================== StandardMenuItem =========================*/
 
 ZoneContextMenuInteraction::StandardMenuItems::StandardMenuItems(
-	ZoneContextMenuItem const& properties_item,
-	ZoneContextMenuItem const& delete_item)
-:	propertiesItem(properties_item),
+    ZoneContextMenuItem const& copy_item,
+    ZoneContextMenuItem const& properties_item,
+    ZoneContextMenuItem const& delete_item)
+:	copyItem(copy_item),
+    propertiesItem(properties_item),
 	deleteItem(delete_item)
 {
 }
