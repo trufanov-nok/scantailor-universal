@@ -16,6 +16,7 @@ SET(
 	ZoneDefaultInteraction.cpp ZoneDefaultInteraction.h
 	ZoneCreationInteraction.cpp ZoneCreationInteraction.h
 	ZoneVertexDragInteraction.cpp ZoneVertexDragInteraction.h
+        ZoneDragInteraction.cpp ZoneDragInteraction.h
 	ZoneContextMenuInteraction.cpp ZoneContextMenuInteraction.h
 	ZoneContextMenuItem.h
 )

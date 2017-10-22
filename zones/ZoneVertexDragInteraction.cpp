@@ -107,7 +107,7 @@ ZoneVertexDragInteraction::onPaint(QPainter& painter, InteractionState const& in
 
 void
 ZoneVertexDragInteraction::onMouseReleaseEvent(
-	QMouseEvent* event, InteractionState& interaction)
+    QMouseEvent* event, InteractionState& /*interaction*/)
 {
 	if (event->button() == Qt::LeftButton) {
 		if (m_ptrVertex->point() == m_ptrVertex->next(SplineVertex::LOOP)->point() ||
@@ -150,32 +150,8 @@ ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState
             m_ptrVertex->prev(SplineVertex::LOOP)->setPoint(from_screen.map(prev));
             m_ptrVertex->next(SplineVertex::LOOP)->setPoint(from_screen.map(next));
         }
-    } else if (mask.testFlag(Qt::ShiftModifier)) {
-        // Shift + ...
-        QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;
-
-        if (!m_moveStart.isNull()) {
-            QPointF diff = from_screen.map(current) - from_screen.map(m_moveStart);
-
-            if (mask.testFlag(Qt::ControlModifier)) {
-                diff.setX(0); //Shift+Ctrl
-            } else if (mask.testFlag(Qt::MetaModifier)) {
-                diff.setY(0); //Shift+Meta
-            }
-
-            SplineVertex::Ptr i = m_ptrSpline->firstVertex();
-            do {
-                // m_ptrVertex is changed in this loop too
-                QPointF current = i->point();
-                current += diff;
-                i->setPoint(current);
-                i = i->next(SplineVertex::NO_LOOP);
-            } while (i.get());
-        }
-        m_moveStart = current;
     } else {
         // No modifiers
-        m_moveStart = QPointF();
         m_ptrVertex->setPoint(from_screen.map(event->pos() + QPointF(0.5, 0.5) + m_dragOffset));
     }
 

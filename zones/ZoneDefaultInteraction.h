@@ -34,6 +34,8 @@ class ZoneInteractionContext;
 
 class ZoneDefaultInteraction : public InteractionHandler
 {
+    enum ShiftState {ShiftStatePressed, ShiftStateUnpressed, ShiftStateUnknown};
+
 	Q_DECLARE_TR_FUNCTIONS(ZoneDefaultInteraction)
 public:
 	ZoneDefaultInteraction(ZoneInteractionContext& context);
@@ -42,7 +44,7 @@ protected:
 
 	virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 
-	virtual void onProximityUpdate(QPointF const& mouse_pos, InteractionState& interaction);
+    virtual void onProximityUpdate(QPointF const& mouse_pos, InteractionState& interaction) override;
 
 	virtual void onMousePressEvent(QMouseEvent* event, InteractionState& interaction);
 
@@ -51,6 +53,12 @@ protected:
 	virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction);
 
 	virtual void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction);
+
+    virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
+
+    virtual void onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) override;
+private:
+    void onProximityUpdate(QPointF const& mouse_pos, InteractionState& interaction, ShiftState forseShiftHold);
 private:
 	ZoneInteractionContext& m_rContext;
 	BasicSplineVisualizer m_visualizer;
@@ -76,11 +84,13 @@ private:
 	// These are valid if m_vertexProximity is the proximity leader.
 	SplineVertex::Ptr m_ptrNearestVertex;
 	EditableSpline::Ptr m_ptrNearestVertexSpline;
+    EditableSpline::Ptr m_ptrNearestZoneSpline;
 
 	// These are valid if m_segmentProximity is the proximity leader.
 	SplineSegment m_nearestSegment;
 	EditableSpline::Ptr m_ptrNearestSegmentSpline;
-	QPointF m_screenPointOnSegment;
+    QPointF m_screenPointOnSegment;
+    ShiftState m_lastShiftState;
 };
 
 #endif

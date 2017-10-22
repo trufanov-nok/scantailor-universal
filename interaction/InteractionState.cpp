@@ -36,7 +36,7 @@ InteractionState::Captor::operator=(CopyHelper other)
 InteractionState::InteractionState()
 :	m_proximityThreshold(Proximity::fromDist(10.0)),
 	m_bestProximityPriority(std::numeric_limits<int>::min()),
-	m_redrawRequested(false)
+    m_redrawRequested(false)
 {
 }
 

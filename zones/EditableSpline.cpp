@@ -31,6 +31,18 @@ EditableSpline::EditableSpline()
 
 EditableSpline::EditableSpline(SerializableSpline const& spline)
 {
+    copyFromSerializableSpline(spline);
+}
+
+void
+EditableSpline::copyFromSerializableSpline(SerializableSpline const& spline)
+{
+    SplineVertex::Ptr vertex = m_sentinel.firstVertex();
+    while (vertex.get()) {
+        vertex->remove();
+        vertex = m_sentinel.firstVertex();
+    }
+
     for (QPointF const& pt: spline.toPolygon()) {
 		appendVertex(pt);
 	}

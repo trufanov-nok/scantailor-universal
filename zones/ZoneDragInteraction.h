@@ -16,11 +16,12 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ZONE_VERTEX_DRAG_INTERACTION_H_
-#define ZONE_VERTEX_DRAG_INTERACTION_H_
+#ifndef ZONE_DRAG_INTERACTION_H_
+#define ZONE_DRAG_INTERACTION_H_
 
 #include "BasicSplineVisualizer.h"
 #include "EditableSpline.h"
+#include "SerializableSpline.h"
 #include "InteractionHandler.h"
 #include "InteractionState.h"
 #include <QPointF>
@@ -28,28 +29,32 @@
 
 class ZoneInteractionContext;
 
-class ZoneVertexDragInteraction : public InteractionHandler
+class ZoneDragInteraction : public InteractionHandler
 {
-	Q_DECLARE_TR_FUNCTIONS(ZoneVertexDragInteraction)
+    Q_DECLARE_TR_FUNCTIONS(ZoneDragInteraction)
 public:
-	ZoneVertexDragInteraction(
+	ZoneDragInteraction(
 		ZoneInteractionContext& context, InteractionState& interaction,
-		EditableSpline::Ptr const& spline, SplineVertex::Ptr const& vertex);
+        EditableSpline::Ptr const& spline, SplineVertex::Ptr const& vertex);
 protected:
 	virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 
 	virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction);
 
 	virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction);
+
+    virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
 private:
 	void checkProximity(InteractionState const& interaction);
 
 	ZoneInteractionContext& m_rContext;
-	EditableSpline::Ptr m_ptrSpline;
-	SplineVertex::Ptr m_ptrVertex;
+    EditableSpline::Ptr m_ptrSpline;
+    SerializableSpline m_savedSpline;
+    SplineVertex::Ptr m_ptrVertex;
 	InteractionState::Captor m_interaction;
 	BasicSplineVisualizer m_visualizer;
 	QPointF m_dragOffset;
+    QPointF m_moveStart;
 };
 
 #endif

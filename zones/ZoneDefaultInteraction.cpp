@@ -20,6 +20,7 @@
 #include "ZoneInteractionContext.h"
 #include "EditableZoneSet.h"
 #include "ImageViewBase.h"
+#include "InteractionState.h"
 #include <QTransform>
 #include <QPolygon>
 #include <QPointF>
@@ -30,22 +31,23 @@
 #include <QLinearGradient>
 #include <Qt>
 #include <QMouseEvent>
+#include <QApplication>
 #include <vector>
 #include <assert.h>
 
 ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
 :	m_rContext(context),
 	m_dragHandler(context.imageView()),
-	m_dragWatcher(m_dragHandler)
+    m_dragWatcher(m_dragHandler)
 {
 	makeLastFollower(m_dragHandler);
 	m_dragHandler.makeFirstFollower(m_dragWatcher);
 
-    m_vertexProximity.setProximityStatusTip(tr("Drag the vertex. Hold Shift to move whole zone."));
+    m_vertexProximity.setProximityStatusTip(tr("Drag the vertex."));
 	m_segmentProximity.setProximityStatusTip(tr("Click to create a new vertex here."));
-	m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties."));
+    m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties. Hold Shift to move."));
 	m_rContext.imageView().interactionState().setDefaultStatusTip(
-		tr("Click to start creating a new picture zone.")
+        tr("Click to start creating a new zone.")
 	);
 }
 
@@ -126,6 +128,12 @@ ZoneDefaultInteraction::onPaint(QPainter& painter, InteractionState const& inter
 void
 ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionState& interaction)
 {
+    onProximityUpdate(mouse_pos, interaction, ShiftStateUnknown);
+}
+
+void
+ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionState& interaction, ShiftState shiftState)
+{
 	m_screenMousePos = mouse_pos;
 
 	QTransform const to_screen(m_rContext.imageView().imageToWidget());
@@ -149,7 +157,10 @@ ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionS
 			QPainterPath path;
 			path.setFillRule(Qt::WindingFill);
 			path.addPolygon(spline->toPolygon());
-			has_zone_under_mouse = path.contains(image_mouse_pos);
+            if (path.contains(image_mouse_pos)) {
+                m_ptrNearestZoneSpline = spline;
+                has_zone_under_mouse = true;
+            }
 		}
 
 		// Process vertices.
@@ -185,7 +196,19 @@ ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionS
 	if (has_zone_under_mouse) {
 		Proximity const zone_area_proximity(std::min(best_vertex_proximity, best_segment_proximity));
 		interaction.updateProximity(m_zoneAreaProximity, zone_area_proximity, -1, zone_area_proximity);
-	}
+        if (shiftState == ShiftStatePressed ||
+                (shiftState == ShiftStateUnknown && m_lastShiftState == ShiftStatePressed) ) {
+            m_zoneAreaProximity.setProximityCursor(QCursor(Qt::DragMoveCursor));
+        } else {
+            m_zoneAreaProximity.setProximityCursor(QCursor());
+        }
+    } else {
+        m_zoneAreaProximity.setProximityCursor(QCursor());
+    }
+
+    if (shiftState != ShiftStateUnknown) {
+        m_lastShiftState = shiftState;
+    }
 }
 
 void
@@ -194,6 +217,18 @@ ZoneDefaultInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& 
 	if (interaction.captured()) {
 		return;
 	}
+
+    if (event->modifiers().testFlag(Qt::ShiftModifier) &&
+            interaction.proximityLeader(m_zoneAreaProximity)) {
+        makePeerPreceeder(
+            *m_rContext.createDragInteraction(
+                interaction, m_ptrNearestZoneSpline, m_ptrNearestVertex
+            )
+        );
+        delete this;
+        event->accept();
+    }
+
 	if (event->button() != Qt::LeftButton) {
 		return;
 	}
@@ -245,6 +280,7 @@ ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& i
 
 	m_screenMousePos = to_screen.map(event->pos() + QPointF(0.5, 0.5));
 	m_rContext.imageView().update();
+    m_lastShiftState = event->modifiers().testFlag(Qt::ShiftModifier)? ShiftStatePressed:ShiftStateUnpressed;
 }
 
 void
@@ -257,6 +293,22 @@ ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, Interaction
 		return;
 	}
 
-	makePeerPreceeder(*cm_interaction);
+    makePeerPreceeder(*cm_interaction);
 	delete this;
+}
+
+void
+ZoneDefaultInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& interaction)
+{
+    if (event->key() == Qt::Key_Shift) {
+        onProximityUpdate(m_screenMousePos, interaction, ShiftStatePressed);
+    }
+}
+
+void
+ZoneDefaultInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction)
+{
+    if (event->key() == Qt::Key_Shift) {
+        onProximityUpdate(m_screenMousePos, interaction, ShiftStateUnpressed);
+    }
 }

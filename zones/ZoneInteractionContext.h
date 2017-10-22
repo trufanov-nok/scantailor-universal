@@ -49,6 +49,13 @@ public:
 		)
 	> VertexDragInteractionCreator;
 
+    typedef boost::function<
+        InteractionHandler* (
+            InteractionState& interaction,
+            EditableSpline::Ptr const& spline, SplineVertex::Ptr const& vertex
+        )
+    > DragInteractionCreator;
+
 	typedef boost::function<
 		InteractionHandler* (InteractionState& interaction)
 	> ContextMenuInteractionCreator;
@@ -82,14 +89,24 @@ public:
 	}
 
 	virtual InteractionHandler* createVertexDragInteraction(
-			InteractionState& interaction, EditableSpline::Ptr const& spline,
-			SplineVertex::Ptr const& vertex) {
-		return m_vertexDragInteractionCreator(interaction, spline, vertex);
+            InteractionState& interaction, EditableSpline::Ptr const& spline,
+            SplineVertex::Ptr const& vertex) {
+        return m_vertexDragInteractionCreator(interaction, spline, vertex);
 	}
 
 	void setVertexDragInteractionCreator(VertexDragInteractionCreator const& creator) {
 		m_vertexDragInteractionCreator = creator;
 	}
+
+    virtual InteractionHandler* createDragInteraction(
+            InteractionState& interaction, EditableSpline::Ptr const& spline,
+            SplineVertex::Ptr const& vertex) {
+        return m_dragInteractionCreator(interaction, spline, vertex);
+    }
+
+    void setDragInteractionCreator(DragInteractionCreator const& creator) {
+        m_dragInteractionCreator = creator;
+    }
 
 	/**
 	 * \note This function may refuse to create a context menu interaction by returning null.
@@ -127,6 +144,13 @@ private:
 		InteractionState& interaction, EditableSpline::Ptr const& spline,
 		SplineVertex::Ptr const& vertex);
 
+    /**
+     * Creates an instance of ZoneDragInteraction.
+     */
+    InteractionHandler* createStdDragInteraction(
+        InteractionState& interaction, EditableSpline::Ptr const& spline,
+        SplineVertex::Ptr const& vertex);
+
 	/**
 	 * Creates an instance of ZoneContextMenuInteraction.  May return null.
 	 */
@@ -139,6 +163,7 @@ private:
 	DefaultInteractionCreator m_defaultInteractionCreator;
 	ZoneCreationInteractionCreator m_zoneCreationInteractionCreator;
 	VertexDragInteractionCreator m_vertexDragInteractionCreator;
+    DragInteractionCreator m_dragInteractionCreator;
 	ContextMenuInteractionCreator m_contextMenuInteractionCreator;
 	ShowPropertiesCommand m_showPropertiesCommand;
 };

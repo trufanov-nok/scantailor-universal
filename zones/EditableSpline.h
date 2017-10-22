@@ -49,6 +49,8 @@ public:
 
 	EditableSpline(SerializableSpline const& spline);
 
+    void copyFromSerializableSpline(SerializableSpline const& spline);
+
 	void appendVertex(QPointF const& pt);
 
 	SplineVertex::Ptr firstVertex() const { return m_sentinel.firstVertex(); }
