@@ -651,6 +651,16 @@ ImageViewBase::contextMenuEvent(QContextMenuEvent* event)
 }
 
 void
+ImageViewBase::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    event->setAccepted(false);
+    m_rootInteractionHandler.mouseDoubleClickEvent(event, m_interactionState);
+    event->setAccepted(true);
+    updateStatusTipAndCursor();
+    maybeQueueRedraw();
+}
+
+void
 ImageViewBase::resizeEvent(QResizeEvent* event)
 {
 	QAbstractScrollArea::resizeEvent(event);

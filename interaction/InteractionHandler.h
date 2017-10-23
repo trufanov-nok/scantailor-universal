@@ -61,6 +61,8 @@ public:
 
 	void contextMenuEvent(QContextMenuEvent* event, InteractionState& interaction);
 
+    void mouseDoubleClickEvent(QMouseEvent *event, InteractionState& interaction);
+
 	void makePeerPreceeder(InteractionHandler& handler);
 
 	void makePeerFollower(InteractionHandler& handler);
@@ -99,6 +101,9 @@ protected:
 
 	virtual void onContextMenuEvent(
 		QContextMenuEvent* event, InteractionState& interaction) {}
+
+    virtual void onMouseDoubleClickEvent(
+            QMouseEvent *event, InteractionState& interaction) {}
 
 	static bool defaultInteractionPermitter(InteractionState const& interaction);
 private:

@@ -22,6 +22,7 @@
 #include "ImageViewBase.h"
 #include "InteractionState.h"
 #include "LocalClipboard.h"
+#include "settings/globalstaticsettings.h"
 #include <QTransform>
 #include <QPolygon>
 #include <QPointF>
@@ -48,9 +49,12 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
     m_vertexProximity.setProximityStatusTip(tr("Drag the vertex."));
 	m_segmentProximity.setProximityStatusTip(tr("Click to create a new vertex here."));
     m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties. Hold Shift to move."));
-	m_rContext.imageView().interactionState().setDefaultStatusTip(
-        tr("Click to start creating a new zone.")
-	);
+    QString status_tip(tr("Click to start creating a new zone."));
+
+    if (!LocalClipboard::getInstance()->getLatestZonePolygon().isEmpty()) {
+        status_tip.append(" ").append(tr("Ctrl + double click to repeat the last zone."));
+    }
+    m_rContext.imageView().interactionState().setDefaultStatusTip(status_tip);
 
     m_pasteAction = m_defaultMenu.addAction(tr("&Paste"));
     m_pasteAction->setShortcut(QKeySequence::Paste);

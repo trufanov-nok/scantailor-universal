@@ -21,6 +21,8 @@
 #include "EditableZoneSet.h"
 #include "ImageViewBase.h"
 #include "settings/globalstaticsettings.h"
+#include "SerializableSpline.h"
+#include "LocalClipboard.h"
 #include <QCursor>
 #include <QTransform>
 #include <QKeyEvent>
@@ -251,6 +253,7 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
 		m_ptrSpline->setBridged(true);
         m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
 		m_rContext.zones().addZone(m_ptrSpline);
+        LocalClipboard::getInstance()->setLatestZonePolygon(m_ptrSpline->toPolygon());
 		m_rContext.zones().commit();
 
 		makePeerPreceeder(*m_rContext.createDefaultInteraction());
@@ -268,6 +271,7 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
 		m_ptrSpline->setBridged(true);
         m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
 		m_rContext.zones().addZone(m_ptrSpline);
+        LocalClipboard::getInstance()->setLatestZonePolygon(m_ptrSpline->toPolygon());
 		m_rContext.zones().commit();
 
 		makePeerPreceeder(*m_rContext.createDefaultInteraction());
@@ -355,6 +359,30 @@ ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& 
 
 	m_rContext.imageView().update();
 }
+
+void
+ZoneCreationInteraction::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*interaction*/)
+{
+    if (event->modifiers() == Qt::ControlModifier && // Only Ctrl is pressed
+            !LocalClipboard::getInstance()->getLatestZonePolygon().isEmpty()) {
+        // Paste latest created/changed zone. Middle of zone should be ~ mouse_pos
+        // This is useful for mass creation of fill zones.
+        QTransform const from_screen(m_rContext.imageView().widgetToImage());
+        const QPointF mouse_pos = from_screen.map(event->localPos());
+
+        QPolygonF new_zone = LocalClipboard::getInstance()->getLatestZonePolygon();
+        QRectF r = new_zone.boundingRect();
+        new_zone.translate(mouse_pos.x() - r.left() - r.width()/2, mouse_pos.y() - r.top() - r.height()/2);
+
+        EditableSpline::Ptr spline (new EditableSpline(SerializableSpline(new_zone)));
+        spline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
+        m_rContext.zones().addZone(spline);
+        m_rContext.zones().commit();
+
+        return;
+    }
+}
+
 
 void
 ZoneCreationInteraction::updateStatusTip()

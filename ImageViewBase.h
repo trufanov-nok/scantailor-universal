@@ -247,6 +247,8 @@ protected:
 
 	virtual void contextMenuEvent(QContextMenuEvent* event);
 
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
+
 	virtual void resizeEvent(QResizeEvent* event);
 
 	virtual void enterEvent(QEvent* event);

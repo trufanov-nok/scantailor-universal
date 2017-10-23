@@ -24,7 +24,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QContextMenuEvent>
-#ifndef Q_MOC_RUn
+#ifndef Q_MOC_RUN
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/bind.hpp>
@@ -229,6 +229,23 @@ InteractionHandler::contextMenuEvent(
 	onContextMenuEvent(event, interaction);
 	ScopedClearAcceptance guard(event);
 	DISPATCH(followers, contextMenuEvent(event, interaction));
+}
+
+void
+InteractionHandler::mouseDoubleClickEvent(
+    QMouseEvent *event, InteractionState& interaction)
+{
+    RETURN_IF_ACCEPTED(event);
+
+    // Keep them alive in case this object gets destroyed.
+    IntrusivePtr<HandlerList> preceeders(m_ptrPreceeders);
+    IntrusivePtr<HandlerList> followers(m_ptrFollowers);
+
+    DISPATCH(preceeders, mouseDoubleClickEvent(event, interaction));
+    RETURN_IF_ACCEPTED(event);
+    onMouseDoubleClickEvent(event, interaction);
+    ScopedClearAcceptance guard(event);
+    DISPATCH(followers, mouseDoubleClickEvent(event, interaction));
 }
 
 void

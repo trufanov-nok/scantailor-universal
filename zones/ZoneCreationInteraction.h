@@ -48,6 +48,8 @@ protected:
 	virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction);
 
 	virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction);
+
+    virtual void onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) override;
 private:
 	void updateStatusTip();
 

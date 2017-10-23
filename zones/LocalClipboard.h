@@ -51,6 +51,9 @@ public:
         }
         return m_instance;
     }
+
+    const QPolygonF& getLatestZonePolygon() const { return m_LatestZonePolygon; }
+    void setLatestZonePolygon(const QPolygonF& val) { m_LatestZonePolygon = val; }
 private:
 
     void clear(const ConentType type)
@@ -63,6 +66,7 @@ private:
 
     ConentType m_content;
     QPolygonF m_spline;
+    QPolygonF m_LatestZonePolygon;
     static LocalClipboard* m_instance;
 };
 

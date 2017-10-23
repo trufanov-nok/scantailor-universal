@@ -21,6 +21,7 @@
 #include "EditableZoneSet.h"
 #include "ImageViewBase.h"
 #include "settings/globalstaticsettings.h"
+#include "LocalClipboard.h"
 #include <QTransform>
 #include <QMouseEvent>
 #include <QPainter>
@@ -118,6 +119,7 @@ ZoneVertexDragInteraction::onMouseReleaseEvent(
 		}
 
         m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
+        LocalClipboard::getInstance()->setLatestZonePolygon(m_ptrSpline->toPolygon());
 		m_rContext.zones().commit();
 		makePeerPreceeder(*m_rContext.createDefaultInteraction());
 		delete this;        
