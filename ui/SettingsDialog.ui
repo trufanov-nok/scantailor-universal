@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>22</number>
+       <number>18</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -1086,6 +1086,13 @@
               <widget class="QSpinBox" name="ThresholdDefaultsValue"/>
              </item>
             </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="originalPageDisplayOnKeyHold">
+             <property name="text">
+              <string>Hold spacebar to display original page</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

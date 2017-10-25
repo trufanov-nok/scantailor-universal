@@ -59,6 +59,7 @@
 #include "ErrorWidget.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/PolygonUtils.h"
+#include "imageproc/DrawOver.h"
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -97,11 +98,13 @@ public:
 		BinaryImage const& picture_mask,
 		DespeckleState const& despeckle_state,
 		DespeckleVisualization const& despeckle_visualization,
+        QPolygonF const& content_rect_phys,
 		bool batch, bool debug);
 	
-	virtual void updateUI(FilterUiInterface* ui);
+	virtual void updateUI(FilterUiInterface* ui);    
 	
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
+    QImage* getAlternativeImage();
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
@@ -118,6 +121,7 @@ private:
 	DespeckleState m_despeckleState;
 	DespeckleVisualization m_despeckleVisualization;
 	DespeckleLevel m_despeckleLevel;
+    QPolygonF const m_contentRectPhys;
 	bool m_batchProcessing;
 	bool m_debug;
 };
@@ -489,6 +493,7 @@ Task::process(
 				new_xform, generator.outputContentRect(),
 				m_pageId, data.origImage(), out_img, automask_img,
 				despeckle_state, despeckle_visualization,
+                content_rect_phys,
 				m_batchProcessing, m_debug
 			)
 		);
@@ -548,6 +553,7 @@ Task::UiUpdater::UiUpdater(
 	BinaryImage const& picture_mask,
 	DespeckleState const& despeckle_state,
 	DespeckleVisualization const& despeckle_visualization,
+    QPolygonF const& content_rect_phys,
 	bool const batch, bool const debug)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
@@ -563,6 +569,7 @@ Task::UiUpdater::UiUpdater(
 	m_pictureMask(picture_mask),
 	m_despeckleState(despeckle_state),
 	m_despeckleVisualization(despeckle_visualization),
+    m_contentRectPhys(content_rect_phys),
 	m_batchProcessing(batch),
 	m_debug(debug)
 {
@@ -586,6 +593,18 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	std::auto_ptr<ImageViewBase> image_view(
 		new ImageView(m_outputImage, m_downscaledOutputImage)
 	);
+
+    std::shared_ptr<QImage> alt_image_ptr;
+    std::shared_ptr<QPixmap> alt_downscaled_pixmap_ptr;
+
+    if (QSettings().value("output/display_orig_page_on_key_press", false).toBool()) {
+        alt_image_ptr.reset(getAlternativeImage());
+        if (alt_image_ptr) {
+            image_view->setAlternativeImage(alt_image_ptr, shared_ptr<QPixmap>());
+            alt_downscaled_pixmap_ptr = image_view->getAlternativePixmap();
+        }
+    }
+
 	QPixmap const downscaled_output_pixmap(image_view->downscaledPixmap());
 
 	std::auto_ptr<ImageViewBase> dewarping_view(
@@ -598,7 +617,9 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 			m_params.distortionModel(), opt_widget->depthPerception()
 		)
 	);
-	QPixmap const downscaled_orig_pixmap(dewarping_view->downscaledPixmap());
+
+    QPixmap const downscaled_orig_pixmap(dewarping_view->downscaledPixmap());
+
 	QObject::connect(
 		opt_widget, SIGNAL(depthPerceptionChanged(double)),
 		dewarping_view.get(), SLOT(depthPerceptionChanged(double))
@@ -662,6 +683,11 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 			orig_to_output, output_to_orig, m_pageId, m_ptrSettings
 		)
 	);
+
+    if (alt_image_ptr) {
+        qobject_cast<FillZoneEditor*>(fill_zone_editor.get())->setAlternativeImage(alt_image_ptr, alt_downscaled_pixmap_ptr);
+    }
+
 	QObject::connect(
 		fill_zone_editor.get(), SIGNAL(invalidateThumbnail(PageId const&)),
 		opt_widget, SIGNAL(invalidateThumbnail(PageId const&))
@@ -678,6 +704,15 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 				m_despeckleState, m_despeckleVisualization, m_debug
 			)
 		);
+
+        QObject::connect(qobject_cast<DespeckleView*>(despeckle_view.get()), &DespeckleView::imageViewCreated,
+                         [=](ImageViewBase* ivb) {
+            if (ivb && alt_image_ptr) {
+                ivb->setAlternativeImage(alt_image_ptr, alt_downscaled_pixmap_ptr);
+            }
+        });
+
+
 		QObject::connect(
 			opt_widget, SIGNAL(despeckleLevelChanged(DespeckleLevel, bool*)),
 			despeckle_view.get(), SLOT(despeckleLevelChanged(DespeckleLevel, bool*))
@@ -700,6 +735,74 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	);
 
 	ui->setImageWidget(tab_widget.release(), ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());
+}
+
+
+QVector<QRgb> _gray_palette;
+
+QImage*
+Task::UiUpdater::getAlternativeImage()
+{
+    QRect outRect(m_xform.resultingRect().toAlignedRect());
+    QRect contentRect(m_xform.transform().map(m_contentRectPhys).boundingRect().toAlignedRect());
+
+    if (contentRect.left() < 0) {
+        int dx = -1*contentRect.left();
+        outRect.adjust(0,0,dx,0);      // size increase
+        contentRect.adjust(dx,0,dx,0); // shift
+    }
+    if (contentRect.top() < 0) {
+        int dy = -1*contentRect.top();
+        outRect.adjust(0,0,0,dy);      // size increase
+        contentRect.adjust(0,dy,0,dy); // shift
+    }
+    if (outRect.left() < 0) {
+        int dx = -1*outRect.left();
+        contentRect.adjust(0,0,dx,0);  // size increase
+        outRect.adjust(dx,0,dx,0);     // shift
+    }
+    if (outRect.top() < 0) {
+        int dy = -1*outRect.top();
+        contentRect.adjust(0,0,0,dy);  // size increase
+        outRect.adjust(0,dy,0,dy);     // shift
+    }
+
+    QPolygonF const orig_image_crop_area(
+                m_xform.transformBack().map(m_xform.resultingPreCropArea())
+                );
+
+    QImage src(orig_image_crop_area.boundingRect().size().toSize(), m_origImage.format());
+    src.fill(Qt::white);
+    src = m_origImage.copy(orig_image_crop_area.boundingRect().toRect());
+    src = src.transformed(m_xform.transform());
+    QRect const src_rect(contentRect.translated(-m_xform.resultingPreCropArea().boundingRect().toRect().topLeft()));
+
+
+
+    QSize const target_size(outRect.size().expandedTo(QSize(1, 1)));
+
+    QImage* res = new QImage(target_size, m_origImage.format());
+    if (res->format() == QImage::Format_Indexed8) {
+        if (_gray_palette.size() < 256) {
+            // init gray_palette
+            for (int i = 0; i < 256; ++i) {
+                _gray_palette[i] = qRgb(i, i, i);
+            }
+        }
+        res->setColorTable(_gray_palette);
+    }
+    res->fill(Qt::white);
+    QRect const dst_rect(contentRect);
+
+
+    if (src.format() != res->format()) {
+        src = src.convertToFormat(res->format());
+    }
+    imageproc::drawOver(*res, dst_rect, src, src_rect);
+    res->setDotsPerMeterX(m_outputImage.dotsPerMeterX());
+    res->setDotsPerMeterY(m_outputImage.dotsPerMeterY());
+
+    return res;
 }
 
 } // namespace output

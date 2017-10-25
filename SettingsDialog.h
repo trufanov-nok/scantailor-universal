@@ -70,6 +70,8 @@ private slots:
 
     void on_rectangularAreasSensitivityValue_valueChanged(int arg1);
 
+    void on_originalPageDisplayOnKeyHold_clicked(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

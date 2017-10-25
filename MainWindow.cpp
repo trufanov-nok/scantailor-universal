@@ -575,7 +575,7 @@ MainWindow::createBatchProcessingWidget()
 		Ui::BatchProcessingLowerPanel ui;
 	};
 	LowerPanel* lower_panel = new LowerPanel(m_ptrBatchProcessingWidget.get());
-	m_checkBeepWhenFinished = bind(&QCheckBox::isChecked, lower_panel->ui.beepWhenFinished);
+    m_checkBeepWhenFinished = std::bind(&QCheckBox::isChecked, lower_panel->ui.beepWhenFinished);
 
 	int row = 0; // Row 0 is reserved.
 	layout->addWidget(stop_btn, ++row, 1, Qt::AlignCenter);

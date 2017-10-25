@@ -162,7 +162,8 @@ ImageViewBase::ImageViewBase(
 	m_ignoreResizeEvents(0),
     m_hqTransformEnabled(true),    
     m_lastCursorPos(0,0),
-    m_cursorPosAdjustment(m_virtualImageCropArea.boundingRect().topLeft())
+    m_cursorPosAdjustment(m_virtualImageCropArea.boundingRect().topLeft()),
+    m_displayAlternative(false)
 {
 #ifdef ENABLE_OPENGL
 	if (QSettings().value("settings/use_3d_acceleration", false) != false) {
@@ -194,8 +195,8 @@ ImageViewBase::ImageViewBase(
 	}
 	
 	m_pixmapToImage.scale(
-		(double)m_image.width() / m_pixmap.width(),
-		(double)m_image.height() / m_pixmap.height()
+        (double)image.width() / m_pixmap.width(),
+        (double)image.height() / m_pixmap.height()
 	);
 	
 	m_widgetFocalPoint = centeredWidgetFocalPoint();
@@ -210,9 +211,15 @@ ImageViewBase::ImageViewBase(
 	
 	updateWidgetTransformAndFixFocalPoint(CENTER_IF_FITS);
 
-	interactionState().setDefaultStatusTip(
-		tr("Use the mouse wheel or +/- to zoom.  When zoomed, dragging is possible.")
-	);
+    if (!QSettings().value("output/display_orig_page_on_key_press", false).toBool()) {
+        interactionState().setDefaultStatusTip(
+                    tr("Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible.")
+                    );
+    } else {
+        interactionState().setDefaultStatusTip(
+            tr("Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible. Hold space to display original page.")
+                    );
+    }
 	ensureStatusTip(interactionState().statusTip());
 
 	connect(horizontalScrollBar(), SIGNAL(sliderReleased()), SLOT(updateScrollBars()));
@@ -220,7 +227,7 @@ ImageViewBase::ImageViewBase(
 	connect(horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(reactToScrollBars()));
 	connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(reactToScrollBars()));
 
-    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(image)));
     m_cursorPosTimer.setSingleShot(true);
     connect(&m_cursorPosTimer, &QTimer::timeout, [=](){
         QPointF pos;
@@ -248,6 +255,10 @@ ImageViewBase::hqTransformSetEnabled(bool const enabled)
 		}
 		if (!m_hqPixmap.isNull()) {
 			m_hqPixmap = QPixmap();
+
+            if (!m_alternativeHqPixmap.isNull()) {
+                m_alternativeHqPixmap = QPixmap();
+            }
 			update();
 		}
 	} else if (enabled && !m_hqTransformEnabled) {
@@ -386,7 +397,7 @@ ImageViewBase::updateTransform(ImagePresentation const& presentation)
 
 	updateWidgetTransform();
 	update();
-    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(get_image())));
 }
 
 void
@@ -404,7 +415,7 @@ ImageViewBase::updateTransformAndFixFocalPoint(
 
 	updateWidgetTransformAndFixFocalPoint(mode);
 	update();
-    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(get_image())));
 }
 
 void
@@ -436,7 +447,7 @@ ImageViewBase::updateTransformPreservingScale(ImagePresentation const& presentat
 	updateWidgetTransform();
 	
 	update();
-    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(m_image)));
+    StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(get_image())));
 }
 
 void
@@ -479,14 +490,14 @@ ImageViewBase::paintEvent(QPaintEvent* event)
 	if (validateHqPixmap()) {
 		// HQ pixmap maps one to one to screen pixels, so antialiasing is not necessary.
 		painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
-		painter.drawPixmap(m_hqPixmapPos, m_hqPixmap);
+        painter.drawPixmap(m_hqPixmapPos, get_hq_pixmap());
 	} else {
 		scheduleHqVersionRebuild();
 
 		painter.setWorldTransform(
 			m_pixmapToImage * m_imageToVirtual * m_virtualToWidget
 		);
-		PixmapRenderer::drawPixmap(painter, m_pixmap);
+        PixmapRenderer::drawPixmap(painter, get_pixmap());
 	}
 
 	painter.setRenderHints(QPainter::Antialiasing, true);
@@ -499,7 +510,7 @@ ImageViewBase::paintEvent(QPaintEvent* event)
 	QPolygonF const image_area(
 		PolygonUtils::round(
 			m_virtualToWidget.map(
-				m_imageToVirtual.map(QRectF(m_image.rect()))
+                m_imageToVirtual.map(QRectF(get_image().rect()))
 			)
 		)
 	);
@@ -552,7 +563,12 @@ ImageViewBase::keyPressEvent(QKeyEvent* event)
 	m_rootInteractionHandler.keyPressEvent(event, m_interactionState);
 	event->setAccepted(true);
 	updateStatusTipAndCursor();
-	maybeQueueRedraw();
+    if (event->key() == Qt::Key_Space && m_alternativeImage) {
+        m_displayAlternative = true;
+        update();
+    } else {
+        maybeQueueRedraw();
+    }
 }
 
 void
@@ -562,7 +578,12 @@ ImageViewBase::keyReleaseEvent(QKeyEvent* event)
 	m_rootInteractionHandler.keyReleaseEvent(event, m_interactionState);
 	event->setAccepted(true);
 	updateStatusTipAndCursor();
-	maybeQueueRedraw();
+    if (event->key() == Qt::Key_Space && m_alternativeImage) {
+        m_displayAlternative = false;
+        update();
+    } else {
+        maybeQueueRedraw();
+    }
 }
 
 void
@@ -1048,11 +1069,11 @@ ImageViewBase::validateHqPixmap() const
 		return false;
 	}
 
-	if (m_hqPixmap.isNull()) {
+    if (get_hq_pixmap().isNull()) {
 		return false;
 	}
 
-	if (m_hqSourceId != m_image.cacheKey()) {
+    if (m_hqSourceId != get_image().cacheKey()) {
 		return false;
 	}
 
@@ -1085,7 +1106,7 @@ ImageViewBase::initiateBuildingHqVersion()
 		return;
 	}
 
-	m_hqPixmap = QPixmap();
+    set_hq_pixmap(QPixmap());
 
 	if (m_ptrHqTransformTask.get()) {
 		m_ptrHqTransformTask->cancel();
@@ -1094,14 +1115,14 @@ ImageViewBase::initiateBuildingHqVersion()
 
 	QTransform const xform(m_imageToVirtual * m_virtualToWidget);
 	IntrusivePtr<HqTransformTask> const task(
-		new HqTransformTask(this, m_image, xform, viewport()->size())
+        new HqTransformTask(this, get_image(), xform, viewport()->size())
 	);
 	
 	backgroundExecutor().enqueueTask(task);
 	
 	m_ptrHqTransformTask = task;
 	m_hqXform = xform;
-	m_hqSourceId = m_image.cacheKey();
+    m_hqSourceId = get_image().cacheKey();
 }
 
 /**
@@ -1115,7 +1136,7 @@ ImageViewBase::hqVersionBuilt(
 		return;
 	}
 	
-	m_hqPixmap = QPixmap::fromImage(image);
+    set_hq_pixmap(QPixmap::fromImage(image));
 	m_hqPixmapPos = origin;
 	m_ptrHqTransformTask.reset();
 	update();
@@ -1156,6 +1177,21 @@ ImageViewBase::backgroundExecutor()
 	return executor;
 }
 
+void
+ImageViewBase::setAlternativeImage(shared_ptr<QImage> image, shared_ptr<QPixmap> pixmap)
+{
+    m_alternativeImage = image;
+    if (m_alternativeImage) {
+        if (!pixmap) {
+            QPixmap new_pixmap = QPixmap::fromImage(createDownscaledImage(*m_alternativeImage));
+            m_alternativePixmap.reset(new QPixmap(new_pixmap));
+        } else {
+            m_alternativePixmap = pixmap;
+        }
+    } else {
+        m_alternativePixmap.reset();
+    }
+}
 
 /*==================== ImageViewBase::HqTransformTask ======================*/
 
@@ -1177,7 +1213,7 @@ ImageViewBase::HqTransformTask::operator()()
 		return IntrusivePtr<AbstractCommand0<void> >();
 	}
 	
-	QRect const target_rect(
+    QRect const target_rect(
 		m_xform.map(
 			QRectF(m_image.rect())
 		).boundingRect().toRect().intersected(

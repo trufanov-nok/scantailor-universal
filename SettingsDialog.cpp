@@ -461,6 +461,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.ThresholdDefaultsValue->setMaximum(ui.ThresholdMaxValue->value());
         connect( ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
         connect( ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
+
+        ui.originalPageDisplayOnKeyHold->setChecked( m_settings.value("output/display_orig_page_on_key_press", false).toBool() );
     } else if (currentPage == ui.pageDespeckling) {
         QComboBox* cb = ui.despecklingDefaultsValue;
         cb->blockSignals(true);
@@ -595,4 +597,9 @@ void SettingsDialog::on_disableSmoothingBW_clicked(bool checked)
 void SettingsDialog::on_rectangularAreasSensitivityValue_valueChanged(int arg1)
 {
     m_settings.setValue("picture_zones_layer/sensitivity", arg1);
+}
+
+void SettingsDialog::on_originalPageDisplayOnKeyHold_clicked(bool checked)
+{
+    m_settings.setValue("output/display_orig_page_on_key_press", checked);
 }
