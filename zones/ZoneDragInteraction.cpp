@@ -44,7 +44,8 @@ ZoneDragInteraction::ZoneDragInteraction(
 	m_dragOffset = to_screen.map(vertex->point()) - screen_mouse_pos;
 
     m_interaction.setInteractionCursor(QCursor(Qt::DragMoveCursor));
-    m_interaction.setInteractionStatusTip(tr("Press Esc to cancel"));
+    m_interaction.setInteractionStatusTip(tr("Press %1 to cancel")
+                                          .arg(GlobalStaticSettings::getShortcutText(ZoneCancel)));
 	interaction.capture(m_interaction);
 	checkProximity(interaction);
 }
@@ -84,19 +85,22 @@ void
 ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction)
 {
 	QTransform const from_screen(m_rContext.imageView().widgetToImage());	
-	Qt::KeyboardModifiers mask = event->modifiers();
+    const Qt::KeyboardModifiers mask = event->modifiers();
 
-    if (mask.testFlag(Qt::ShiftModifier)) {
-        // Shift + ...
+    const bool move = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask);
+    const bool nove_hor = GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask);
+    const bool nove_vert = GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
+
+    if (move||nove_hor||nove_vert) {
         QPointF current = event->pos() + QPointF(0.5, 0.5) + m_dragOffset;
 
         if (!m_moveStart.isNull()) {
             QPointF diff = from_screen.map(current) - from_screen.map(m_moveStart);
 
-            if (mask.testFlag(Qt::ControlModifier)) {
-                diff.setX(0); //Shift+Ctrl
-            } else if (mask.testFlag(Qt::MetaModifier)) {
-                diff.setY(0); //Shift+Meta
+            if (nove_hor) {
+                diff.setX(0);
+            } else if (nove_vert) {
+                diff.setY(0);
             }
 
             SplineVertex::Ptr i = m_ptrSpline->firstVertex();
@@ -127,7 +131,7 @@ ZoneDragInteraction::checkProximity(InteractionState const& /*interaction*/)
 void
 ZoneDragInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& /*interaction*/)
 {
-    if (event->key() == Qt::Key_Escape) {
+    if (GlobalStaticSettings::checkKeysMatch(ZoneCancel, event->modifiers(), (Qt::Key) event->key())) {
         m_ptrSpline->copyFromSerializableSpline(m_savedSpline);
         m_rContext.zones().commit();
         makePeerPreceeder(*m_rContext.createDefaultInteraction());

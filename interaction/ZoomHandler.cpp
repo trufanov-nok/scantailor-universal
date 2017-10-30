@@ -19,6 +19,7 @@
 #include "ZoomHandler.h"
 #include "InteractionState.h"
 #include "ImageViewBase.h"
+#include "settings/globalstaticsettings.h"
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QRectF>
@@ -96,16 +97,14 @@ ZoomHandler::onKeyPressEvent(QKeyEvent* event, InteractionState& interaction)
 
 	double zoom = m_rImageView.zoomLevel();
 
-	switch (event->key()) {
-		case Qt::Key_Plus:
-			zoom *= 1.12246205; // == 2^( 1/6);
-			break;
-		case Qt::Key_Minus:
-			zoom *= 0.89089872; // == 2^(-1/6);
-			break;
-		default:
-			return;
-	}
+    const Qt::Key key = (Qt::Key) event->key();
+    if (GlobalStaticSettings::checkKeysMatch(PageViewZoomOut, event->modifiers(), key)) {
+        zoom *= 0.89089872; // == 2^(-1/6);
+    } else if (GlobalStaticSettings::checkKeysMatch(PageViewZoomIn, event->modifiers(), key)) {
+        zoom *= 1.12246205; // == 2^( 1/6);
+    } else {
+        return;
+    }
 
 	QPointF focus_point = QRectF(m_rImageView.rect()).center();
 

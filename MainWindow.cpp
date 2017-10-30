@@ -380,11 +380,13 @@ MainWindow::settingsChanged()
 
     float old_val = GlobalStaticSettings::m_picture_detection_sensitivity;
     GlobalStaticSettings::updateSettings();
+    GlobalStaticSettings::updateHotkeys();
     if (old_val != GlobalStaticSettings::m_picture_detection_sensitivity) {
         emit invalidateAllThumbnails();
     }
 
     emit settingsUpdateRequest();
+    applyShortcutsSettings();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget
 }
 
@@ -3215,4 +3217,39 @@ MainWindow::displayStatusBarMousePos()
     QString dummy;
     applyUnitsSettingToCoordinates(x, y, dummy);
     statusLabelMousePos->setText(tr("%1, %2").arg(x,0,'f',1).arg(y,0,'f',1));
+}
+
+
+
+void
+MainWindow::applyShortcutsSettings()
+{
+    actionNewProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectNew));
+    actionOpenProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectOpen));
+    actionSaveProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectSave));
+    actionSaveProjectAs->setShortcut(GlobalStaticSettings::createShortcut(ProjectSaveAs));
+    actionPrevPage->setShortcut(GlobalStaticSettings::createShortcut(PagePrev));
+    actionPrevPageQ->setShortcut(GlobalStaticSettings::createShortcut(PagePrev, 1));
+    actionFirstPage->setShortcut(GlobalStaticSettings::createShortcut(PageFirst));
+    actionLastPage->setShortcut(GlobalStaticSettings::createShortcut(PageLast));
+    actionNextPage->setShortcut(GlobalStaticSettings::createShortcut(PageNext));
+    actionNextPageW->setShortcut(GlobalStaticSettings::createShortcut(PageNext, 1));
+    actionCloseProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectClose));
+    actionQuit->setShortcut(GlobalStaticSettings::createShortcut(AppQuit));
+
+    actionSwitchFilter1->setShortcut(GlobalStaticSettings::createShortcut(StageFixOrientation));
+    actionSwitchFilter2->setShortcut(GlobalStaticSettings::createShortcut(StageSplitPages));
+    actionSwitchFilter3->setShortcut(GlobalStaticSettings::createShortcut(StageDeskew));
+    actionSwitchFilter4->setShortcut(GlobalStaticSettings::createShortcut(StageSelectContent));
+    actionSwitchFilter5->setShortcut(GlobalStaticSettings::createShortcut(StageMargins));
+    actionSwitchFilter6->setShortcut(GlobalStaticSettings::createShortcut(StageOutput));
+
+    thumbView->setStatusTip(tr("Use %1, %2, %3 (or %4), %5 (or %6) to navigate between pages.")
+                          .arg(GlobalStaticSettings::getShortcutText(PageFirst))
+                          .arg(GlobalStaticSettings::getShortcutText(PageLast))
+                          .arg(GlobalStaticSettings::getShortcutText(PagePrev))
+                          .arg(GlobalStaticSettings::getShortcutText(PagePrev, 1))
+                          .arg(GlobalStaticSettings::getShortcutText(PageNext))
+                          .arg(GlobalStaticSettings::getShortcutText(PageNext, 1))
+                          );
 }

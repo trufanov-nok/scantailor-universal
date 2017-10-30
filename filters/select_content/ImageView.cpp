@@ -21,6 +21,7 @@
 #include "ImageTransformation.h"
 #include "ImagePresentation.h"
 #include "StatusBarProvider.h"
+#include "settings/globalstaticsettings.h"
 #include <QMouseEvent>
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -62,7 +63,11 @@ ImageView::ImageView(
 		tr("Use the context menu to enable / disable the content box.")
 	);
 
-    QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold Shift to move it, Ctrl to move along axes, both to shrink/stretch."));
+    QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold %1 to move it, %2 to move along axes, %3 to shrink/stretch.")
+                           .arg(GlobalStaticSettings::getShortcutText(ContentMove))
+                           .arg(GlobalStaticSettings::getShortcutText(ContentMoveAxes))
+                           .arg(GlobalStaticSettings::getShortcutText(ContentStretch)));
+
 
 	// Setup corner drag handlers.
 	static int const masks_by_corner[] = { TOP|LEFT, TOP|RIGHT, BOTTOM|RIGHT, BOTTOM|LEFT };
@@ -110,8 +115,9 @@ ImageView::ImageView(
 	
 	QAction* create = m_pNoContentMenu->addAction(tr("Create Content Box"));
 	QAction* remove = m_pHaveContentMenu->addAction(tr("Remove Content Box"));
-	create->setShortcut(QKeySequence("Ins"));
-    remove->setShortcut(QKeySequence("Delete"));
+
+    create->setShortcut(GlobalStaticSettings::createShortcut(ContentInsert));
+    remove->setShortcut(GlobalStaticSettings::createShortcut(ContentDelete));
 	addAction(create);
 	addAction(remove);
 	connect(create, SIGNAL(triggered(bool)), this, SLOT(createContentBox()));
@@ -267,8 +273,8 @@ void
 ImageView::mouseMoveEvent(QMouseEvent* event)
 {
     if (!m_moveStart.isNull() &&
-            !event->modifiers().testFlag(Qt::ShiftModifier) &&
-            !event->modifiers().testFlag(Qt::ControlModifier)) {
+            !GlobalStaticSettings::checkModifiersMatch(ContentMove, event->modifiers()) &&
+            !GlobalStaticSettings::checkModifiersMatch(ContentMoveAxes, event->modifiers())) {
         m_moveStart = QPointF();
     }
 
@@ -289,12 +295,17 @@ void
 ImageView::keyPressEvent(QKeyEvent* event)
 {
     int dx = 0; int dy = 0;
-    switch (event->key()) {
-    case Qt::Key_Up: dy--; break;
-    case Qt::Key_Down: dy++; break;
-    case Qt::Key_Right: dx++; break;
-    case Qt::Key_Left: dx--; break;
-    default:
+    const Qt::KeyboardModifiers mask = event->modifiers();
+    const Qt::Key key = (Qt::Key) event->key();
+    if (GlobalStaticSettings::checkKeysMatch(ContentMoveUp, mask, key)) {
+        dy--;
+    } else if (GlobalStaticSettings::checkKeysMatch(ContentMoveDown, mask, key)) {
+        dy++;
+    } else if (GlobalStaticSettings::checkKeysMatch(ContentMoveLeft, mask, key)) {
+        dx--;
+    } else if (GlobalStaticSettings::checkKeysMatch(ContentMoveRight, mask, key)) {
+        dx++;
+    } else {
         ImageViewBase::keyPressEvent(event);
         return; // stop processing
     }
@@ -326,13 +337,12 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
 	qreal const minh = m_minBoxSize.height();
 
     // Only Ctrl or only Shift is pressed
-    const bool move = mask.testFlag(Qt::ShiftModifier) ?
-                     !mask.testFlag(Qt::ControlModifier) :
-                      mask.testFlag(Qt::ControlModifier);
-    if (move) {
+    const bool move = GlobalStaticSettings::checkModifiersMatch(ContentMove, mask);
+    const bool move_along_exes = GlobalStaticSettings::checkModifiersMatch(ContentMoveAxes, mask);
+    if (move || move_along_exes) {
         if (!m_moveStart.isNull()) {
             QPointF diff = pos - m_moveStart;
-            if (mask.testFlag(Qt::ControlModifier))
+            if (move_along_exes)
             {
                 if (edge_mask & TOP || edge_mask & BOTTOM) {
                     diff.setX(0);
@@ -347,8 +357,7 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
     } else {
         m_moveStart = QPointF();
 
-        if (!mask.testFlag(Qt::ControlModifier)) {
-            // Ctrl and Shift are pressed at the same time
+        if (!GlobalStaticSettings::checkModifiersMatch(ContentStretch, mask)) {
             if (edge_mask & TOP) {
                 r.setTop(std::min(pos.y(), r.bottom() - minh));
             } else if (edge_mask & BOTTOM) {
@@ -361,6 +370,7 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
                 r.setRight(std::max(pos.x(), r.left() + minw));
             }
         } else {
+            // Ctrl and Shift are pressed at the same time
             if (edge_mask & TOP || edge_mask & BOTTOM) {
                 qreal dy = (edge_mask & TOP)? pos.y() - r.top() : r.bottom() - pos.y();
                 r.setTop(std::min(r.top() + dy, r.bottom() - minh));

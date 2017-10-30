@@ -18,6 +18,7 @@
 
 #include "DragHandler.h"
 #include "ImageViewBase.h"
+#include "settings/globalstaticsettings.h"
 #include <QMouseEvent>
 #include <QPointF>
 #include <QPoint>
@@ -43,7 +44,8 @@ void
 DragHandler::init()
 {
 	m_interaction.setInteractionStatusTip(
-		tr("Unrestricted dragging is possible by holding down the Shift key.")
+        tr("Unrestricted dragging is possible by holding down the %1 key.")
+                .arg(GlobalStaticSettings::getShortcutText(PageViewMoveNoRestrictions))
 	);
 }
 
@@ -86,7 +88,11 @@ DragHandler::onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction)
 		adjusted_fp += movement;
 
 		// These will call update() if necessary.
-		if (event->modifiers() & Qt::ShiftModifier) {
+        const Qt::KeyboardModifiers mask = event->modifiers();
+
+        if (GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) ||
+                GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
+                GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask)) {
 			m_rImageView.setWidgetFocalPoint(adjusted_fp);
 		} else {
 			m_rImageView.adjustAndSetWidgetFocalPoint(adjusted_fp);

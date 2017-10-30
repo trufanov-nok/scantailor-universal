@@ -1,4 +1,5 @@
 pageGeneral
+	pageHotKeysManager
 	pageDocking	docking_panels/enabled	0
 	pageAutoSaveProject	auto-save_project/enabled	0
 	pageTiffCompression

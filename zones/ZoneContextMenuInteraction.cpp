@@ -23,6 +23,7 @@
 #include "EditableZoneSet.h"
 #include "QtSignalForwarder.h"
 #include "LocalClipboard.h"
+#include "settings/globalstaticsettings.h"
 #include <QRectF>
 #include <QPolygonF>
 #include <QMenu>
@@ -167,6 +168,7 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
 	}
 
     QAction* paste = m_ptrMenu->addAction(tr("&Paste"));
+    paste->setShortcut(GlobalStaticSettings::createShortcut(ZonePaste));
     paste->setEnabled(LocalClipboard::getInstance()->getConentType() == LocalClipboard::Spline);
 
     if (paste->isEnabled()) {

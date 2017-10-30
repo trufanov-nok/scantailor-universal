@@ -30,6 +30,7 @@
 #include "imageproc/Transform.h"
 #include "StatusBarProvider.h"
 #include "config.h"
+#include "settings/globalstaticsettings.h"
 #include <QScrollBar>
 #include <QPointer>
 #include <QAtomicInt>
@@ -209,16 +210,17 @@ ImageViewBase::ImageViewBase(
 		this, SLOT(initiateBuildingHqVersion())
 	);
 	
-	updateWidgetTransformAndFixFocalPoint(CENTER_IF_FITS);
+	updateWidgetTransformAndFixFocalPoint(CENTER_IF_FITS);    
+    QString plus_minus = GlobalStaticSettings::getShortcutText(PageViewZoomIn) + "/" +
+            GlobalStaticSettings::getShortcutText(PageViewZoomOut);
+    QString default_tooltip = tr("Use the mouse wheel or %1 to zoom. When zoomed, dragging is possible.").arg(plus_minus);
 
     if (!QSettings().value("output/display_orig_page_on_key_press", false).toBool()) {
-        interactionState().setDefaultStatusTip(
-                    tr("Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible.")
-                    );
+        interactionState().setDefaultStatusTip( default_tooltip );
     } else {
-        interactionState().setDefaultStatusTip(
-            tr("Use the mouse wheel or +/- to zoom. When zoomed, dragging is possible. Hold space to display original page.")
-                    );
+        QString orig_image_hint = tr("Hold %1 to display original page.")
+                .arg(GlobalStaticSettings::getShortcutText(PageViewDisplayOriginal));
+        interactionState().setDefaultStatusTip( default_tooltip + " " + orig_image_hint );
     }
 	ensureStatusTip(interactionState().statusTip());
 
@@ -563,7 +565,10 @@ ImageViewBase::keyPressEvent(QKeyEvent* event)
 	m_rootInteractionHandler.keyPressEvent(event, m_interactionState);
 	event->setAccepted(true);
 	updateStatusTipAndCursor();
-    if (event->key() == Qt::Key_Space && m_alternativeImage) {
+    if (m_alternativeImage &&
+        GlobalStaticSettings::checkKeysMatch(PageViewDisplayOriginal,
+                                             event->modifiers(),
+                                             (Qt::Key)event->key())) {
         m_displayAlternative = true;
         update();
     } else {
@@ -578,7 +583,10 @@ ImageViewBase::keyReleaseEvent(QKeyEvent* event)
 	m_rootInteractionHandler.keyReleaseEvent(event, m_interactionState);
 	event->setAccepted(true);
 	updateStatusTipAndCursor();
-    if (event->key() == Qt::Key_Space && m_alternativeImage) {
+    if (m_alternativeImage &&
+        GlobalStaticSettings::checkKeysMatch(PageViewDisplayOriginal,
+                                             event->modifiers(),
+                                             (Qt::Key)event->key())) {
         m_displayAlternative = false;
         update();
     } else {

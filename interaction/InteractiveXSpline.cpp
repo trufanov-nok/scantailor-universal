@@ -20,6 +20,7 @@
 #include "Proximity.h"
 #include "VecNT.h"
 #include "MatrixCalc.h"
+#include "settings/globalstaticsettings.h"
 #include <QCursor>
 #include <QMouseEvent>
 #include <Qt>
@@ -73,9 +74,13 @@ InteractiveXSpline::setSpline(XSpline const& spline)
 
 		if (i == 0 || i == num_control_points - 1) {
 			// Endpoints can't be deleted.
-            new_control_points[i].handler.setProximityStatusTip(tr("This point can be dragged. Hold Ctrl or Shift to drag along axes."));
+            new_control_points[i].handler.setProximityStatusTip(tr("This point can be dragged. Hold %1 or %2 to drag along axes.")
+                                                                .arg(GlobalStaticSettings::getShortcutText(DewarpingMoveHorizontally))
+                                                                .arg(GlobalStaticSettings::getShortcutText(DewarpingMoveVertically)));
 		} else {
-			new_control_points[i].handler.setProximityStatusTip(tr("Drag this point or delete it by pressing Del or D."));
+            new_control_points[i].handler.setProximityStatusTip(tr("Drag this point or delete it by pressing %1 or %2.")
+                                                                .arg(GlobalStaticSettings::getShortcutText(DewarpingDeletePoint))
+                                                                .arg(GlobalStaticSettings::getShortcutText(DewarpingDeletePoint, 1)));
 		}
 		new_control_points[i].handler.setInteractionCursor(Qt::BlankCursor);
 		new_control_points[i].handler.setObject(&new_control_points[i].point);
@@ -184,23 +189,20 @@ InteractiveXSpline::onKeyPressEvent(
 		return;
 	}
 
-	switch (event->key()) {
-		case Qt::Key_Delete:
-		case Qt::Key_D:
-			int const num_control_points = m_spline.numControlPoints();
-			// Check if one of our control points is a proximity leader.
-			// Note that we don't consider the endpoints.
-			for (int i = 1; i < num_control_points - 1; ++i) {
-				if (m_controlPoints[i].handler.proximityLeader(interaction)) {
-					m_spline.eraseControlPoint(i);
-					setSpline(m_spline);
-					interaction.setRedrawRequested(true);
-					event->accept();
-					break;
-				}
-			}
-			break;
-	}
+    if (GlobalStaticSettings::checkKeysMatch(DewarpingDeletePoint, event->modifiers(), (Qt::Key) event->key())) {
+        int const num_control_points = m_spline.numControlPoints();
+        // Check if one of our control points is a proximity leader.
+        // Note that we don't consider the endpoints.
+        for (int i = 1; i < num_control_points - 1; ++i) {
+            if (m_controlPoints[i].handler.proximityLeader(interaction)) {
+                m_spline.eraseControlPoint(i);
+                setSpline(m_spline);
+                interaction.setRedrawRequested(true);
+                event->accept();
+                break;
+            }
+        }
+    }
 
 	
 }
@@ -228,13 +230,14 @@ InteractiveXSpline::controlPointMoveRequest(int idx, QPointF const& pos, Qt::Key
 {
 	QPointF const storage_pt(m_toStorage(pos));
     bool swap_sides = false;
-    bool modified = mask.testFlag(Qt::ControlModifier) || mask.testFlag(Qt::ShiftModifier);
+    bool move_hor = GlobalStaticSettings::checkModifiersMatch(DewarpingMoveHorizontally, mask);
+    bool move_vert = GlobalStaticSettings::checkModifiersMatch(DewarpingMoveVertically, mask);
 
-    if (modified) {
+    if (move_hor || move_vert) {
         double ang =findAngle(m_toStorage(QPointF(0,0)), m_toStorage(QPointF(1,0)));
         swap_sides = (ang >= 45 && ang <= 135); // page has been rotated
 
-        if (mask.testFlag(Qt::ShiftModifier)) {
+        if (move_hor) {
            swap_sides = !swap_sides;
         }
     }
@@ -258,9 +261,9 @@ InteractiveXSpline::controlPointMoveRequest(int idx, QPointF const& pos, Qt::Key
 				MatrixCalc<double> mc;
 				(mc(mat, 2, 2)*mc(pt, 2, 1)).write(pt);
 
-                if (!modified) { // default behavior
+                if (!move_hor && !move_vert) { // default behavior
 					m_spline.moveControlPoint(i, pt + origin);
-                } else { // Ctrl or Shift is pressed
+                } else {
                     Vec2d shift = storage_pt - old_pos;
                     QPointF new_position = m_spline.controlPointPosition(i) + shift;
 

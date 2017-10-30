@@ -23,6 +23,7 @@
 #include "settings/globalstaticsettings.h"
 #include "SerializableSpline.h"
 #include "LocalClipboard.h"
+#include "settings/globalstaticsettings.h"
 #include <QCursor>
 #include <QTransform>
 #include <QKeyEvent>
@@ -55,7 +56,7 @@ ZoneCreationInteraction::ZoneCreationInteraction(
 //added:
 	m_nextVertexImagePos_mid1 = m_nextVertexImagePos;
 	m_nextVertexImagePos_mid2 = m_nextVertexImagePos;
-	m_ctrl = false;
+    m_RectZoneMode = false;
 //end of modified by monday2000
 
 	makeLastFollower(m_dragHandler);
@@ -118,7 +119,7 @@ ZoneCreationInteraction::onPaint(QPainter& painter, InteractionState const& inte
 	gradient_mid2.setColorAt(1.0, stop_color);
 
 	if(m_nextVertexImagePos != m_nextVertexImagePos_mid1 &&
-		m_nextVertexImagePos != m_nextVertexImagePos_mid2 && m_ctrl)
+        m_nextVertexImagePos != m_nextVertexImagePos_mid2 && m_RectZoneMode)
 	{
 		m_visualizer.drawVertex(
 			painter, to_screen.map(m_nextVertexImagePos_mid1), m_visualizer.highlightBrightColor()
@@ -210,9 +211,9 @@ ZoneCreationInteraction::onPaint(QPainter& painter, InteractionState const& inte
 }
 
 void
-ZoneCreationInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& interaction)
+ZoneCreationInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& /*interaction*/)
 {
-	if (event->key() == Qt::Key_Escape) {
+    if (GlobalStaticSettings::checkKeysMatch(ZoneCancel, event->modifiers(), (Qt::Key) event->key())) {
 		makePeerPreceeder(*m_rContext.createDefaultInteraction());
 		m_rContext.imageView().update();
 		delete this;
@@ -241,7 +242,7 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
 //added:
 
 	if(m_nextVertexImagePos != m_nextVertexImagePos_mid1 &&
-		m_nextVertexImagePos != m_nextVertexImagePos_mid2 && m_ctrl)
+        m_nextVertexImagePos != m_nextVertexImagePos_mid2 && m_RectZoneMode)
 	{
 		m_ptrSpline->appendVertex(m_nextVertexImagePos_mid1);
 		m_ptrSpline->appendVertex(image_mouse_pos);
@@ -315,12 +316,10 @@ ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& 
 //begin of modified by monday2000
 //Square_Picture_Zones
 
-	Qt::KeyboardModifiers mask = event->modifiers();
-
-    if (mask == Qt::ControlModifier)
+    if (GlobalStaticSettings::checkModifiersMatch(ZoneRectangle, event->modifiers()))
     {
         if (m_ptrSpline->segmentsCount() == 0) {
-            m_ctrl = true;
+            m_RectZoneMode = true;
 
             QPointF screen_mouse_pos_mid1;
             screen_mouse_pos_mid1.setX(last.x());
@@ -363,7 +362,7 @@ ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& 
 void
 ZoneCreationInteraction::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*interaction*/)
 {
-    if (event->modifiers() == Qt::ControlModifier && // Only Ctrl is pressed
+    if ( GlobalStaticSettings::checkModifiersMatch(ZoneClone, event->modifiers()) &&
             !LocalClipboard::getInstance()->getLatestZonePolygon().isEmpty()) {
         // Paste latest created/changed zone. Middle of zone should be ~ mouse_pos
         // This is useful for mass creation of fill zones.
@@ -378,8 +377,6 @@ ZoneCreationInteraction::onMouseDoubleClickEvent(QMouseEvent* event, Interaction
         spline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
         m_rContext.zones().addZone(spline);
         m_rContext.zones().commit();
-
-        return;
     }
 }
 
@@ -391,12 +388,16 @@ ZoneCreationInteraction::updateStatusTip()
 
 	if (m_ptrSpline->hasAtLeastSegments(2)) {
 		if (m_nextVertexImagePos == m_ptrSpline->firstVertex()->point()) {
-			tip = tr("Click to finish this zone.  ESC to cancel.");
+            tip = tr("Click to finish this zone. %1 to cancel.")
+                    .arg(GlobalStaticSettings::getShortcutText(ZoneCancel));
 		} else {
-			tip = tr("Connect first and last points to finish this zone.  ESC to cancel.");
+            tip = tr("Connect first and last points to finish this zone. %1 to cancel.")
+                    .arg(GlobalStaticSettings::getShortcutText(ZoneCancel));
 		}
 	} else {
-        tip = tr("Zones need to have at least 3 points. Hold Ctrl for rectangle. ESC to cancel.");
+        tip = tr("Zones need to have at least 3 points. Hold %2 for rectangle. %1 to cancel.")
+                .arg(GlobalStaticSettings::getShortcutText(ZoneCancel))
+                .arg(GlobalStaticSettings::getShortcutText(ZoneRectangle));
 	}
 
 	m_interaction.setInteractionStatusTip(tip);

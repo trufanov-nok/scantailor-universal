@@ -27,6 +27,7 @@
 #include <QResource>
 #include "filters/output/DespeckleLevel.h"
 #include "filters/output/Params.h"
+#include "settings/globalstaticsettings.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
     :	QDialog(parent), m_accepted(false)
@@ -202,7 +203,8 @@ void
 SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 {
     const QStringList settingsTreeTitles = (QStringList()
-                                            << tr("General")                                            
+                                            << tr("General")
+                                            <<        tr("Hotkey management")
                                             <<        tr("Docking")
                                             <<        tr("Auto-save project")
                                             <<        tr("Tiff compression")
@@ -486,6 +488,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
                     !m_settings.value("batch_dialog/remember_choice", false).toBool());
     } else if (currentPage == ui.pageBlackWhiteMode) {
         ui.disableSmoothingBW->setChecked(m_settings.value("mode_bw/disable_smoothing", false).toBool());
+    } else if (currentPage == ui.pageHotKeysManager) {
+        ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
     }
 
 }
@@ -602,4 +606,128 @@ void SettingsDialog::on_rectangularAreasSensitivityValue_valueChanged(int arg1)
 void SettingsDialog::on_originalPageDisplayOnKeyHold_clicked(bool checked)
 {
     m_settings.setValue("output/display_orig_page_on_key_press", checked);
+}
+
+void SettingsDialog::on_lblHotKeyManager_linkActivated(const QString &link)
+{
+    QStringList sl = link.split("_");
+    HotKeysId id = (HotKeysId) sl[0].toUInt();
+    uint seq_pos = sl[1].toUInt();
+    if (const HotKeyInfo* info = GlobalStaticSettings::m_hotKeyManager.get(id)) {
+        QHotKeyInputDialog input_dialog(info->editorType(), this);
+        HotKeySequence seq = info->sequences()[seq_pos];
+        QString val = QHotKeys::hotkeysToString(seq.m_modifierSequence, seq.m_keySequence);
+        input_dialog.setTextValue(val);
+        if (input_dialog.exec() == QDialog::Accepted) {
+            HotKeySequence new_seq(input_dialog.modifiers(), input_dialog.keys());
+            HotKeyInfo new_info = *info;
+            new_info.sequences().replace(seq_pos, new_seq);
+            GlobalStaticSettings::m_hotKeyManager.replace(id, new_info);
+            GlobalStaticSettings::m_hotKeyManager.save(&m_settings);
+            ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
+        }
+    }
+
+
+}
+
+
+
+
+QHotKeyInputDialog::QHotKeyInputDialog(const KeyType& editor_type, QWidget *parent, Qt::WindowFlags flags): QInputDialog(parent, flags),
+    m_editorType(editor_type),
+    m_modifiersPressed(Qt::NoModifier),
+    m_modifiersList({Qt::Key_Control, Qt::Key_Alt, Qt::Key_Shift, Qt::Key_Meta}),
+    m_edit(nullptr)
+{
+    setInputMode(InputMode::TextInput);
+    setWindowTitle(tr("Edit key sequence"));
+    if (editor_type == ModifierAllowed) {
+        setLabelText(tr("Hold the modification keys (Ctrl, Shift, Alt, Meta)\nand press [Enter] to edit the shortcut:"));
+    } else {
+        setLabelText(tr("Hold the keys and press [Enter] to edit the shortcut:"));
+    }
+    QList<QLineEdit*> l = findChildren<QLineEdit*>();
+    if (!l.isEmpty()) {
+        m_edit = l.first();
+        m_edit->setReadOnly(true);
+        m_edit->installEventFilter(this);
+        connect(m_edit, &QLineEdit::textChanged, [this](const QString& val) {
+            QList<QDialogButtonBox*> l = findChildren<QDialogButtonBox*>();
+            if (!l.isEmpty()) {
+               l.first()->button(QDialogButtonBox::Ok)->setEnabled(!val.isEmpty());
+            }
+        });
+    }
+
+}
+
+void QHotKeyInputDialog::updateLabel()
+{
+    QString val = QHotKeys::hotkeysToString(m_modifiersPressed, m_keysPressed.toList().toVector());
+    setTextValue(val);
+}
+
+void QHotKeyInputDialog::keyPressEvent(QKeyEvent *event)
+{
+    if (event) {
+        if (m_editorType & ModifierAllowed) {
+            m_modifiersPressed = event->modifiers();
+        }
+
+        if (m_editorType & KeysAllowed) {
+            const Qt::Key& key = (Qt::Key) event->key();
+            if (!m_modifiersList.contains(key)) {
+                m_keysPressed += key;
+            }
+        }
+        updateLabel();
+        event->accept();
+    }
+}
+
+void QHotKeyInputDialog::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event) {
+        if (m_editorType & ModifierAllowed) {
+            m_modifiersPressed = event->modifiers();
+        }
+
+        if (m_editorType & KeysAllowed) {
+            const Qt::Key& key = (Qt::Key) event->key();
+            if (!m_modifiersList.contains(key)) {
+                m_keysPressed -= key;
+            }
+        }
+        updateLabel();
+        event->accept();
+    }
+}
+
+bool QHotKeyInputDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event && event->type() == QEvent::KeyPress) {
+        if (obj && obj == m_edit) {
+            QKeyEvent* e = (QKeyEvent*) event;
+            if (e->key() == Qt::Key_Return) {
+                QList<QDialogButtonBox*> l = findChildren<QDialogButtonBox*>();
+                if (!l.isEmpty()) {
+                    if (l.first()->button(QDialogButtonBox::Ok)->isEnabled()) {
+                        accept();
+                        return true;
+                    };
+                }
+            }
+            keyPressEvent(e);
+            return true;
+        }
+    }
+    return false;
+}
+
+void SettingsDialog::on_btnResetHotKeys_clicked()
+{
+    GlobalStaticSettings::m_hotKeyManager.resetToDefaults();
+    GlobalStaticSettings::m_hotKeyManager.save(&m_settings);
+    ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
 }

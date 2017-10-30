@@ -129,7 +129,7 @@ private:
 
     void setDockingPanels(bool enabled);
 
-
+    void applyShortcutsSettings();
 signals:
 	void StartExportTimerSignal();
     void settingsUpdateRequest();

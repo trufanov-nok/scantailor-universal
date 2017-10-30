@@ -20,8 +20,10 @@
 #define SETTINGS_DIALOG_H_
 
 #include "ui_SettingsDialog.h"
-#include "QSettings"
+#include "settings/hotkeysmanager.h"
+#include <QSettings>
 #include <QDialog>
+#include <QInputDialog>
 
 class SettingsDialog : public QDialog
 {
@@ -72,6 +74,10 @@ private slots:
 
     void on_originalPageDisplayOnKeyHold_clicked(bool checked);
 
+    void on_lblHotKeyManager_linkActivated(const QString &link);
+
+    void on_btnResetHotKeys_clicked();
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
@@ -87,6 +93,26 @@ private:
     QSettings m_settings;
     QSettings::SettingsMap m_oldSettings;
     bool m_accepted;
+};
+
+class QHotKeyInputDialog: public QInputDialog
+{
+public:
+    QHotKeyInputDialog(const KeyType& editor_type, QWidget *parent = Q_NULLPTR, Qt::WindowFlags flags = Qt::WindowFlags());
+    const Qt::KeyboardModifiers& modifiers() const { return m_modifiersPressed; }
+    const QVector<Qt::Key> keys() const { return m_keysPressed.toList().toVector(); }
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+private:
+    void updateLabel();
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+
+    KeyType m_editorType;
+    QSet<Qt::Key> m_keysPressed;
+    Qt::KeyboardModifiers m_modifiersPressed;
+    QVector<Qt::Key> m_modifiersList;
+    QLineEdit* m_edit;
 };
 
 #endif

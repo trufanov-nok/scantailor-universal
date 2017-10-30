@@ -22,6 +22,7 @@
 #include "ImagePresentation.h"
 #include "InteractionState.h"
 #include "imageproc/Constants.h"
+#include "settings/globalstaticsettings.h"
 #include <QAction>
 #include <QRect>
 #include <QSizeF>
@@ -62,7 +63,9 @@ ImageView::ImageView(
 	setMouseTracking(true);
 
 	interactionState().setDefaultStatusTip(
-		tr("Use Ctrl+Wheel to rotate or Ctrl+Shift+Wheel for finer rotation.")
+        tr("Use %1+Wheel to rotate or %2+Wheel for finer rotation.")
+                .arg(GlobalStaticSettings::getShortcutText(DeskewChange))
+                .arg(GlobalStaticSettings::getShortcutText(DeskewChangePrec))
 	);
 
 	QString const tip(tr("Drag this handle to rotate the image."));
@@ -215,9 +218,9 @@ ImageView::onWheelEvent(QWheelEvent* event, InteractionState& interaction)
 
 	double degree_fraction = 0;
 
-	if (event->modifiers() == Qt::ControlModifier) {
+    if (GlobalStaticSettings::checkModifiersMatch(DeskewChange, event->modifiers())) {
 		degree_fraction = 0.1;
-	} else if (event->modifiers() == (Qt::ControlModifier|Qt::ShiftModifier)) {
+    } else if (GlobalStaticSettings::checkModifiersMatch(DeskewChangePrec, event->modifiers())) {
 		degree_fraction = 0.05;
 	} else {
 		return;

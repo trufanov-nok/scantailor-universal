@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>783</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
@@ -161,9 +161,6 @@
            <width>16777215</width>
            <height>16777215</height>
           </size>
-         </property>
-         <property name="statusTip">
-          <string>Use Home, End, PgUp (or Q), PgDown (or W) to navigate between pages.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -275,7 +272,7 @@
           <x>0</x>
           <y>0</y>
           <width>256</width>
-          <height>188</height>
+          <height>187</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -653,6 +650,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

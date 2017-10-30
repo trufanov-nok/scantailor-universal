@@ -91,7 +91,7 @@ private:
 	SplineSegment m_nearestSegment;
 	EditableSpline::Ptr m_ptrNearestSegmentSpline;
     QPointF m_screenPointOnSegment;
-    ShiftState m_lastShiftState;
+    ShiftState m_lastMovingState;
     QMenu m_defaultMenu;
     QAction* m_pasteAction;
 };

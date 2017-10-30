@@ -83,7 +83,7 @@ private:
 //begin of modified by monday2000
 //Square_Picture_Zones
 //added
-	bool m_ctrl;
+    bool m_RectZoneMode;
 	QPointF m_nextVertexImagePos_mid1;
 	QPointF m_nextVertexImagePos_mid2;
 //end of modified by monday2000

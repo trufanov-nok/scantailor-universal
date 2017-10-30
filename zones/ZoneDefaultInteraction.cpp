@@ -48,16 +48,18 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
 
     m_vertexProximity.setProximityStatusTip(tr("Drag the vertex."));
 	m_segmentProximity.setProximityStatusTip(tr("Click to create a new vertex here."));
-    m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties. Hold Shift to move."));
+    m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties. Hold %1 to move.")
+                                              .arg(GlobalStaticSettings::getShortcutText(ZoneMove)));
     QString status_tip(tr("Click to start creating a new zone."));
 
     if (!LocalClipboard::getInstance()->getLatestZonePolygon().isEmpty()) {
-        status_tip.append(" ").append(tr("Ctrl + double click to repeat the last zone."));
+        status_tip.append(" ").append(tr("%1 + double click to repeat the last zone.")
+                                      .arg(GlobalStaticSettings::getShortcutText(ZoneClone)));
     }
     m_rContext.imageView().interactionState().setDefaultStatusTip(status_tip);
 
     m_pasteAction = m_defaultMenu.addAction(tr("&Paste"));
-    m_pasteAction->setShortcut(QKeySequence::Paste);
+    m_pasteAction->setShortcut(GlobalStaticSettings::createShortcut(ZonePaste));
 
     QObject::connect(m_pasteAction, &QAction::triggered, [=]() {
         if (LocalClipboard::getInstance()->getConentType() == LocalClipboard::Spline) {
@@ -234,7 +236,7 @@ ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionS
 		Proximity const zone_area_proximity(std::min(best_vertex_proximity, best_segment_proximity));
 		interaction.updateProximity(m_zoneAreaProximity, zone_area_proximity, -1, zone_area_proximity);
         if (shiftState == ShiftStatePressed ||
-                (shiftState == ShiftStateUnknown && m_lastShiftState == ShiftStatePressed) ) {
+                (shiftState == ShiftStateUnknown && m_lastMovingState == ShiftStatePressed) ) {
             m_zoneAreaProximity.setProximityCursor(QCursor(Qt::DragMoveCursor));
         } else {
             m_zoneAreaProximity.setProximityCursor(QCursor());
@@ -244,7 +246,7 @@ ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionS
     }
 
     if (shiftState != ShiftStateUnknown) {
-        m_lastShiftState = shiftState;
+        m_lastMovingState = shiftState;
     }
 }
 
@@ -255,15 +257,21 @@ ZoneDefaultInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& 
 		return;
 	}
 
-    if (event->modifiers().testFlag(Qt::ShiftModifier) &&
-            interaction.proximityLeader(m_zoneAreaProximity)) {
-        makePeerPreceeder(
-            *m_rContext.createDragInteraction(
-                interaction, m_ptrNearestZoneSpline, m_ptrNearestVertex
-            )
-        );
-        delete this;
-        event->accept();
+
+
+    if (interaction.proximityLeader(m_zoneAreaProximity)) {
+        const Qt::KeyboardModifiers mask = event->modifiers();
+        if (GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) ||
+                GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
+                GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask)) {
+            makePeerPreceeder(
+                        *m_rContext.createDragInteraction(
+                            interaction, m_ptrNearestZoneSpline, m_ptrNearestVertex
+                            )
+                        );
+            delete this;
+            event->accept();
+        }
     }
 
 	if (event->button() != Qt::LeftButton) {
@@ -317,7 +325,11 @@ ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& i
 
 	m_screenMousePos = to_screen.map(event->pos() + QPointF(0.5, 0.5));
 	m_rContext.imageView().update();
-    m_lastShiftState = event->modifiers().testFlag(Qt::ShiftModifier)? ShiftStatePressed:ShiftStateUnpressed;
+    const Qt::KeyboardModifiers mask = event->modifiers();
+    const bool moved = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) ||
+                    GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
+                    GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
+    m_lastMovingState = moved? ShiftStatePressed:ShiftStateUnpressed;
 }
 
 void
@@ -340,7 +352,11 @@ ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, Interaction
 void
 ZoneDefaultInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& interaction)
 {
-    if (event->key() == Qt::Key_Shift) {
+    const Qt::KeyboardModifiers mask = event->modifiers();
+    const bool moved = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) ||
+                    GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
+                    GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
+    if (moved) {
         onProximityUpdate(m_screenMousePos, interaction, ShiftStatePressed);
     }
 }
@@ -348,7 +364,16 @@ ZoneDefaultInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& inte
 void
 ZoneDefaultInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction)
 {
-    if (event->key() == Qt::Key_Shift) {
+    const Qt::KeyboardModifiers mask = event->modifiers();
+    const bool moved = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) ||
+                    GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
+                    GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
+
+    if (moved) {
         onProximityUpdate(m_screenMousePos, interaction, ShiftStateUnpressed);
+    }
+
+    if (GlobalStaticSettings::checkKeysMatch(ZonePaste, event->modifiers(), (Qt::Key) event->key())) {
+        m_pasteAction->triggered();
     }
 }

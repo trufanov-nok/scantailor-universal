@@ -130,15 +130,13 @@ void
 ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction)
 {
 	QTransform const from_screen(m_rContext.imageView().widgetToImage());	
-	Qt::KeyboardModifiers mask = event->modifiers();
 
-    if (mask == Qt::ControlModifier)
-    {
-        // Only Ctrl is pressed
+    if (GlobalStaticSettings::checkModifiersMatch(ZoneRectangle, event->modifiers()))
+    {        
         m_ptrVertex->setPoint(from_screen.map(event->pos() + QPointF(0.5, 0.5) + m_dragOffset));
 
         if (m_ptrSpline->bridged() &&
-                // if dragging not a quadrangle - ignore Ctrl
+                // if dragging not a quadrangle - ignore event
                 // in closed polygon first point is equal to the last point
                 m_ptrSpline->toPolygon().count() == 5) {
             QTransform const to_screen(m_rContext.imageView().imageToWidget());

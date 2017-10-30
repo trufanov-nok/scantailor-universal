@@ -419,6 +419,13 @@ QT5_ADD_RESOURCES(resource_sources resources/resources.qrc)
 SOURCE_GROUP("Generated" FILES ${resource_sources})
 
 SET(
+        settings_sources
+        settings/fancylineedit.cpp settings/fancylineedit.h
+        settings/execmenu.cpp settings/execmenu.h
+        settings/hotkeysmanager.cpp settings/hotkeysmanager.h
+)
+
+SET(
         common_sources
         BackgroundExecutor.cpp BackgroundExecutor.h
         OpenGLSupport.cpp OpenGLSupport.h
@@ -512,6 +519,7 @@ SET(
         version.h
         config.h.in
         ${common_ui_files}
+        ${settings_sources}
 )
 
 SET(
@@ -538,10 +546,8 @@ SET(
         main.cpp
         ExportDialog.cpp ExportDialog.h
         StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
-        settings/fancylineedit.cpp settings/fancylineedit.h
-        settings/execmenu.cpp settings/execmenu.h
         AutoSaveTimer.cpp AutoSaveTimer.h        
-
+        #${settings_sources}
 )
 
 SET(

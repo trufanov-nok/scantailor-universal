@@ -1,6 +1,6 @@
 #ifndef GLOBALSTATICSETTINGS_H
 #define GLOBALSTATICSETTINGS_H
-
+#include "settings/hotkeysmanager.h"
 #include <QSettings>
 
 class GlobalStaticSettings
@@ -54,7 +54,55 @@ public:
         m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
         m_disable_bw_smoothing = settings.value("mode_bw/disable_smoothing", false).toBool();
         m_zone_editor_min_angle = settings.value("zone_editor/min_angle", 3.0).toReal();        
-        m_picture_detection_sensitivity = settings.value("picture_zones_layer/sensitivity", 100).toInt();        
+        m_picture_detection_sensitivity = settings.value("picture_zones_layer/sensitivity", 100).toInt();                
+    }    
+
+    static void updateHotkeys()
+    {
+        if (!m_hotKeyManager.load()) {
+            m_hotKeyManager.resetToDefaults();
+        }
+    }
+
+    static QKeySequence createShortcut(const HotKeysId& id, int idx = 0)
+    {
+        const HotKeySequence& seq = m_hotKeyManager.get(id)->sequences()[idx];
+        QString str = QHotKeys::hotkeysToString(seq.m_modifierSequence, seq.m_keySequence);
+        return QKeySequence(str);
+    }
+
+    static QString getShortcutText(const HotKeysId& id, int idx = 0)
+    {
+        const HotKeySequence& seq = m_hotKeyManager.get(id)->sequences()[idx];
+        return QHotKeys::hotkeysToString(seq.m_modifierSequence, seq.m_keySequence);
+    }
+
+    static bool checkKeysMatch(const HotKeysId& id, const Qt::KeyboardModifiers& modifiers, const Qt::Key& key)
+    {
+        const HotKeyInfo* i = m_hotKeyManager.get(id);
+        for (const HotKeySequence& seq: i->sequences()) {
+            if (seq.m_modifierSequence == modifiers &&
+                    seq.m_keySequence.count() == 1 &&
+                    seq.m_keySequence[0] == key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static bool checkModifiersMatch(const HotKeysId& id, const Qt::KeyboardModifiers& modifiers)
+    {
+        if (modifiers == Qt::NoModifier ) {
+            return false;
+        }
+
+        const HotKeyInfo* i = m_hotKeyManager.get(id);
+        for (const HotKeySequence& seq: i->sequences()) {
+            if (seq.m_modifierSequence == modifiers) {
+                return true;
+            }
+        }
+        return false;
     }
 
 private:
@@ -88,6 +136,7 @@ public:
     static bool m_disable_bw_smoothing;
     static qreal m_zone_editor_min_angle;
     static float m_picture_detection_sensitivity;
+    static QHotKeys m_hotKeyManager;
 };
 
 #endif // GLOBALSTATICSETTINGS_H
