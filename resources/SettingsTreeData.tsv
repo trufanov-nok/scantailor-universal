@@ -16,7 +16,7 @@ pageSelectContent
 pageMargins
 	pageOriginalAlignment	original_alignment/enabled
 		pageAutoMargins	auto_margins/enabled
-    pageDeviantMargins	margins_deviant/enabled	0
+	pageDeviantMargins	margins_deviant/enabled	0
 pageOutput
 	pageBlackWhiteMode
 	pageColorGrayscaleMode
