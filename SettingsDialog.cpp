@@ -637,9 +637,15 @@ void SettingsDialog::on_lblHotKeyManager_linkActivated(const QString &link)
 QHotKeyInputDialog::QHotKeyInputDialog(const KeyType& editor_type, QWidget *parent, Qt::WindowFlags flags): QInputDialog(parent, flags),
     m_editorType(editor_type),
     m_modifiersPressed(Qt::NoModifier),
-    m_modifiersList({Qt::Key_Control, Qt::Key_Alt, Qt::Key_Shift, Qt::Key_Meta}),
     m_edit(nullptr)
 {
+	{
+		m_modifiersList.append(Qt::Key_Control);
+		m_modifiersList.append(Qt::Key_Alt);
+		m_modifiersList.append(Qt::Key_Shift);
+		m_modifiersList.append(Qt::Key_Meta);
+	}
+
     setInputMode(InputMode::TextInput);
     setWindowTitle(tr("Edit key sequence"));
     if (editor_type == ModifierAllowed) {

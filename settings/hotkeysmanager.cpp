@@ -50,18 +50,20 @@ void QHotKeys::resetToDefaults()
 
     m_data.append(group_stages);
 
+	QVector<HotKeySequence> vec;
 
     data.clear();
     data.append(HotKeyInfo(PageFirst, QObject::tr("First page\t\t"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Home)));
     data.append(HotKeyInfo(PageLast, QObject::tr("Last page\t\t"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_End)));
-    data.append(HotKeyInfo(PagePrev, QObject::tr("Previous page\t"), KeysAndModifiers, HotKey,
-                           QVector<HotKeySequence>({HotKeySequence(Qt::NoModifier, Qt::Key_PageUp),
-                                                    HotKeySequence(Qt::NoModifier, Qt::Key_Q)})));
-    data.append(HotKeyInfo(PageNext, QObject::tr("Next page\t\t"), KeysAndModifiers, HotKey,
-                           QVector<HotKeySequence>({HotKeySequence(Qt::NoModifier, Qt::Key_PageDown),
-                                                    HotKeySequence(Qt::NoModifier, Qt::Key_W)})));
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageUp));
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Q));
+    data.append(HotKeyInfo(PagePrev, QObject::tr("Previous page\t"), KeysAndModifiers, HotKey, vec));
+	vec.clear();
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageDown));
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_W));
+    data.append(HotKeyInfo(PageNext, QObject::tr("Next page\t\t"), KeysAndModifiers, HotKey, vec));
 
     HotKeyGroup group_pages("page_navigation", QObject::tr("Pages navigation"));
     group_pages.setHotKeys(data);
@@ -134,9 +136,12 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ControlModifier, Qt::Key_V)));
     data.append(HotKeyInfo(ZoneClone, QObject::tr("Clone last modified zone\t"), ModifierAllowed, MouseDoubleCLick,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ZoneDelete, QObject::tr("Delete zone\t\t"), KeysAndModifiers, HotKey,
-                           {HotKeySequence(Qt::NoModifier, Qt::Key_Delete),
-                            HotKeySequence(Qt::NoModifier, Qt::Key_D)}));
+	vec.clear();
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
+
+
+    data.append(HotKeyInfo(ZoneDelete, QObject::tr("Delete zone\t\t"), KeysAndModifiers, HotKey, vec));
     data.append(HotKeyInfo(ZoneCancel, QObject::tr("Cancel move or creation\t"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Escape)));
 
@@ -151,9 +156,10 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(DewarpingMoveHorizontally, QObject::tr("Move horizontally\t"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(DewarpingDeletePoint, QObject::tr("Delete control point\t"), KeysAndModifiers, HotKey,
-                           QVector<HotKeySequence>({HotKeySequence(Qt::NoModifier, Qt::Key_Delete),
-                                                    HotKeySequence(Qt::NoModifier, Qt::Key_D)})));
+	vec.clear();
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
+	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
+    data.append(HotKeyInfo(DewarpingDeletePoint, QObject::tr("Delete control point\t"), KeysAndModifiers, HotKey, vec));
 
     HotKeyGroup group_dewarping("dewarping", QObject::tr("Distortion model (dewarping)"));
     group_dewarping.setHotKeys(data);

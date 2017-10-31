@@ -74,7 +74,7 @@ struct HotKeySequence {
     HotKeySequence(Qt::KeyboardModifiers modifier, QVector<Qt::Key> keys):
         m_modifierSequence(modifier), m_keySequence(keys) {}
     HotKeySequence(Qt::KeyboardModifiers modifier, Qt::Key key):
-        m_modifierSequence(modifier), m_keySequence(QVector<Qt::Key>({key})) {}
+        m_modifierSequence(modifier), m_keySequence(QVector<Qt::Key>(1, key)) {}
 
     Qt::KeyboardModifiers m_modifierSequence;
     QVector<Qt::Key> m_keySequence;
@@ -85,7 +85,7 @@ public:
     HotKeyInfo() {}
     HotKeyInfo(const HotKeysId id, const QString& title, const KeyType editorType, const HotKeyType displayType,
                const HotKeySequence sequence):
-        HotKeyInfo(id, title, editorType, displayType, QVector<HotKeySequence>({sequence})) {}
+        HotKeyInfo(id, title, editorType, displayType, QVector<HotKeySequence>(1,sequence)) {}
 
     HotKeyInfo(const HotKeysId id, const QString& title, const KeyType editorType, const HotKeyType displayType,
                const QVector<HotKeySequence>& sequences):
