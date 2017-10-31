@@ -13,17 +13,17 @@ void QHotKeys::resetToDefaults()
     m_data.clear();
 
     QVector<HotKeyInfo> data;
-    data.append(HotKeyInfo(ProjectNew, QObject::tr("New project\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ProjectNew, QObject::tr("New project"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_N)));
-    data.append(HotKeyInfo(ProjectOpen, QObject::tr("Open project\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ProjectOpen, QObject::tr("Open project"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_O)));
-    data.append(HotKeyInfo(ProjectSave, QObject::tr("Save project\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ProjectSave, QObject::tr("Save project"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_S)));
-    data.append(HotKeyInfo(ProjectSaveAs, QObject::tr("Save project as\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ProjectSaveAs, QObject::tr("Save project as"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_S)));
-    data.append(HotKeyInfo(ProjectClose, QObject::tr("Close project\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ProjectClose, QObject::tr("Close project"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_W)));
-    data.append(HotKeyInfo(AppQuit, QObject::tr("Quit\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(AppQuit, QObject::tr("Quit"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_Q)));
 
     HotKeyGroup group_menu("menu_actions", QObject::tr("Main menu"));
@@ -32,20 +32,20 @@ void QHotKeys::resetToDefaults()
     m_data.append(group_menu);
 
     data.clear();
-    data.append(HotKeyInfo(StageFixOrientation, QObject::tr("Fix Orientation\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(StageFixOrientation, QObject::tr("Fix Orientation"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_1)));
-    data.append(HotKeyInfo(StageSplitPages, QObject::tr("Split Pages\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(StageSplitPages, QObject::tr("Split Pages"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_2)));
-    data.append(HotKeyInfo(StageDeskew, QObject::tr("Deskew\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(StageDeskew, QObject::tr("Deskew"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_3)));
-    data.append(HotKeyInfo(StageSelectContent, QObject::tr("Select Content\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(StageSelectContent, QObject::tr("Select Content"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_4)));
-    data.append(HotKeyInfo(StageMargins, QObject::tr("Margins\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(StageMargins, QObject::tr("Margins"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_5)));
-    data.append(HotKeyInfo(StageOutput, QObject::tr("Output\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(StageOutput, QObject::tr("Output"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_6)));
 
-    HotKeyGroup group_stages("stage_navigation", QObject::tr("Satges navigation"));
+    HotKeyGroup group_stages("stage_navigation", QObject::tr("Stages navigation"));
     group_stages.setHotKeys(data);
 
     m_data.append(group_stages);
@@ -53,17 +53,17 @@ void QHotKeys::resetToDefaults()
 	QVector<HotKeySequence> vec;
 
     data.clear();
-    data.append(HotKeyInfo(PageFirst, QObject::tr("First page\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(PageFirst, QObject::tr("First page"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Home)));
-    data.append(HotKeyInfo(PageLast, QObject::tr("Last page\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(PageLast, QObject::tr("Last page"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_End)));
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageUp));
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Q));
-    data.append(HotKeyInfo(PagePrev, QObject::tr("Previous page\t"), KeysAndModifiers, HotKey, vec));
+    data.append(HotKeyInfo(PagePrev, QObject::tr("Previous page"), KeysAndModifiers, HotKey, vec));
 	vec.clear();
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageDown));
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_W));
-    data.append(HotKeyInfo(PageNext, QObject::tr("Next page\t\t"), KeysAndModifiers, HotKey, vec));
+    data.append(HotKeyInfo(PageNext, QObject::tr("Next page"), KeysAndModifiers, HotKey, vec));
 
     HotKeyGroup group_pages("page_navigation", QObject::tr("Pages navigation"));
     group_pages.setHotKeys(data);
@@ -72,9 +72,9 @@ void QHotKeys::resetToDefaults()
 
     data.clear();
 
-    data.append(HotKeyInfo(DeskewChange, QObject::tr("Change angle\t"), ModifierAllowed, MouseWheel,
+    data.append(HotKeyInfo(DeskewChange, QObject::tr("Change angle"), ModifierAllowed, MouseWheel,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(DeskewChangePrec, QObject::tr("Change angle precisely\t"), ModifierAllowed, MouseWheel,
+    data.append(HotKeyInfo(DeskewChangePrec, QObject::tr("Change angle precisely"), ModifierAllowed, MouseWheel,
                            HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
     HotKeyGroup group_deskew("deskew", QObject::tr("Deskew"));
     group_deskew.setHotKeys(data);
@@ -83,23 +83,23 @@ void QHotKeys::resetToDefaults()
 
     data.clear();
 
-    data.append(HotKeyInfo(ContentMove, QObject::tr("Move content zone\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ContentMove, QObject::tr("Move content zone"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ContentMoveAxes, QObject::tr("Move along axes\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ContentMoveAxes, QObject::tr("Move along axes"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ContentStretch, QObject::tr("Stretch or sqeeze\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ContentStretch, QObject::tr("Stretch or sqeeze"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ContentInsert, QObject::tr("Create zone\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ContentInsert, QObject::tr("Create zone"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Insert)));
-    data.append(HotKeyInfo(ContentDelete, QObject::tr("Delete zone\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ContentDelete, QObject::tr("Delete zone"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Delete)));
-    data.append(HotKeyInfo(ContentMoveUp, QObject::tr("Move zone up\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ContentMoveUp, QObject::tr("Move zone up"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Up)));
-    data.append(HotKeyInfo(ContentMoveDown, QObject::tr("Move zone down\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ContentMoveDown, QObject::tr("Move zone down"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Down)));
-    data.append(HotKeyInfo(ContentMoveLeft, QObject::tr("Move zone left\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ContentMoveLeft, QObject::tr("Move zone left"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Left)));
-    data.append(HotKeyInfo(ContentMoveRight, QObject::tr("Move zone right\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ContentMoveRight, QObject::tr("Move zone right"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Right)));
 
     HotKeyGroup group_content("content_detection", QObject::tr("Content selection"));
@@ -109,13 +109,13 @@ void QHotKeys::resetToDefaults()
 
     data.clear();
 
-    data.append(HotKeyInfo(PageViewZoomIn, QObject::tr("Zoom in\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(PageViewZoomIn, QObject::tr("Zoom in"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Plus)));
-    data.append(HotKeyInfo(PageViewZoomOut, QObject::tr("Zoom out\t\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(PageViewZoomOut, QObject::tr("Zoom out"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Minus)));
-    data.append(HotKeyInfo(PageViewDisplayOriginal, QObject::tr("Display original image\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(PageViewDisplayOriginal, QObject::tr("Display original image"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Space)));
-    data.append(HotKeyInfo(PageViewMoveNoRestrictions, QObject::tr("Move without constraints\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(PageViewMoveNoRestrictions, QObject::tr("Move without constraints"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
     HotKeyGroup group_page_view("page_view", QObject::tr("General page view"));
     group_page_view.setHotKeys(data);
@@ -124,25 +124,25 @@ void QHotKeys::resetToDefaults()
 
     data.clear();
 
-    data.append(HotKeyInfo(ZoneRectangle, QObject::tr("Create rectangle zone\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ZoneRectangle, QObject::tr("Create rectangle zone"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ZoneMove, QObject::tr("Move zone\t\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ZoneMove, QObject::tr("Move zone"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ZoneMoveVertically, QObject::tr("Move zone vertically\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ZoneMoveVertically, QObject::tr("Move zone vertically"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier|Qt::MetaModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ZoneMoveHorizontally, QObject::tr("Move zone horyzontally\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ZoneMoveHorizontally, QObject::tr("Move zone horyzontally"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ZonePaste, QObject::tr("Paste from clipboard\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ZonePaste, QObject::tr("Paste from clipboard"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_V)));
-    data.append(HotKeyInfo(ZoneClone, QObject::tr("Clone last modified zone\t"), ModifierAllowed, MouseDoubleCLick,
+    data.append(HotKeyInfo(ZoneClone, QObject::tr("Clone last modified zone"), ModifierAllowed, MouseDoubleCLick,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
 	vec.clear();
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
 
 
-    data.append(HotKeyInfo(ZoneDelete, QObject::tr("Delete zone\t\t"), KeysAndModifiers, HotKey, vec));
-    data.append(HotKeyInfo(ZoneCancel, QObject::tr("Cancel move or creation\t"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(ZoneDelete, QObject::tr("Delete zone"), KeysAndModifiers, HotKey, vec));
+    data.append(HotKeyInfo(ZoneCancel, QObject::tr("Cancel move or creation"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Escape)));
 
     HotKeyGroup group_zones("zones_editor", QObject::tr("Zones edit"));
@@ -152,14 +152,14 @@ void QHotKeys::resetToDefaults()
 
     data.clear();
 
-    data.append(HotKeyInfo(DewarpingMoveVertically, QObject::tr("Move vertically\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(DewarpingMoveVertically, QObject::tr("Move vertically"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(DewarpingMoveHorizontally, QObject::tr("Move horizontally\t"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(DewarpingMoveHorizontally, QObject::tr("Move horizontally"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
 	vec.clear();
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
-    data.append(HotKeyInfo(DewarpingDeletePoint, QObject::tr("Delete control point\t"), KeysAndModifiers, HotKey, vec));
+    data.append(HotKeyInfo(DewarpingDeletePoint, QObject::tr("Delete control point"), KeysAndModifiers, HotKey, vec));
 
     HotKeyGroup group_dewarping("dewarping", QObject::tr("Distortion model (dewarping)"));
     group_dewarping.setHotKeys(data);
@@ -276,15 +276,16 @@ const QString QHotKeys::hotkeysToString(const Qt::KeyboardModifiers modifiers, c
 
 const QString QHotKeys::toDisplayableText() const
 {
-    QString res = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\"> \
-            <html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\"> \
-            p, li { white-space: pre-wrap; margin-top:1px; margin-bottom:1px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;} \
-            </style></head><body>";
+    QString res = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">"
+            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">"
+            "p, li { white-space: pre-wrap; }</style></head><body>"
+            "<table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px;"
+                           " margin-right:0px;\"  cellspacing=\"0\" cellpadding=\"0\">";
 
     for (HotKeyGroup grp: m_data) {
-        res += "<p><b>" + grp.title() + "</b></p>";
+        res += "<tr><td><b>" + grp.title() + "</b></td></tr>";
         for (HotKeyInfo keys: grp.hotKeys()) {
-            res += "<p>"+ keys.title();
+            res += "<tr><td>"+ keys.title() + "</td>";
             QString keys_seq;
             bool add_or = false;
             int seq_pos = 0;
@@ -315,11 +316,11 @@ const QString QHotKeys::toDisplayableText() const
                 }
                 keys_seq += Utils::richTextForLink(modifier + key_seq, QString::number(keys.id()) + "_" + QString::number(seq_pos++));
             }
-            res += keys_seq + "</p>";
+            res += "<td>" + keys_seq + "</td></tr>";
         }
     }
 
-    return res + "</body></html>";
+    return res + "</table></body></html>";
 }
 
 const HotKeyInfo* QHotKeys::get( const HotKeysId& id) const
@@ -445,10 +446,10 @@ void HotKeyGroup::save(QSettings &settings) const
 const QString HotKeyInfo::hotKeyTypeToString(const HotKeyType &val)
 {
     switch (val) {
-    case MouseClick: return QString(QObject::tr("Click"));
-    case MouseHold: return QString(QObject::tr("Mouse hold"));
-    case MouseWheel: return QString(QObject::tr("Wheel"));
-    case MouseDoubleCLick: return QString(QObject::tr("Double click"));
+    case MouseClick: return QString(QObject::tr("click"));
+    case MouseHold: return QString(QObject::tr("mouse"));
+    case MouseWheel: return QString(QObject::tr("wheel"));
+    case MouseDoubleCLick: return QString(QObject::tr("double click"));
     default:
         return QString();
     }
