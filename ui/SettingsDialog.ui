@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>16</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -598,8 +598,8 @@ If project was never saved before this will create UnnamedAutoSave.Scantailor fi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>89</width>
-                <height>900</height>
+                <width>359</width>
+                <height>240</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_57">
@@ -1136,44 +1136,7 @@ The Deviant page on this stage is defined as a page which content zone square di
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="pageFineTunePageCorners">
-       <layout class="QVBoxLayout" name="verticalLayout_41">
-        <item>
-         <widget class="QGroupBox" name="groupBox_16">
-          <property name="title">
-           <string>Description</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_18">
-           <item>
-            <widget class="QLabel" name="lblApplyCutDescr_11">
-             <property name="text">
-              <string>TextLabel</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="optFineTunePageCorners">
-          <property name="title">
-           <string>Options</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_4"/>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="pageBordersPanel">
+      <widget class="QWidget" name="pagePageDetecton">
        <layout class="QVBoxLayout" name="verticalLayout_42">
         <item>
          <widget class="QGroupBox" name="groupBox_18">
@@ -1181,31 +1144,227 @@ The Deviant page on this stage is defined as a page which content zone square di
            <string>Description</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_19">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_12">
-             <property name="text">
-              <string>TextLabel</string>
+            <widget class="QScrollArea" name="scrollArea_9">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="widgetResizable">
+              <bool>true</bool>
              </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_9">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>359</width>
+                <height>360</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_41">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblPageDetectontDescr">
+                 <property name="text">
+                  <string>By default application tries to find a content area on whole page. But sometimes user have an scan bigger than page. This could happen if you scan whole possible scanner area even if your pages are smaller than it. In this case you might end up with a big image with huge black borders. If page detection is enabled the application tries to find a real page area in image before content area detection. In case of success the content area is searched inside area found only. Technically it preprocess image to excludes black borders from page area. The following enhancements could be applied (in order they're listed):
+
+Fine tune page corners - move corners of detected page area towards the center of page while the corner pixel won't be non black.
+
+Page detection target size - you may specify real physical size of a single page if it's known. Application will choose a best matching it page area in case there will be several alternatives.
+
+Page borders - after page area is found this will decrease it by given borders. The borders (if any) are highlighted with yellow in page view panel.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="optBordersPanel">
+         <widget class="QGroupBox" name="optPageDetecton">
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_5"/>
+          <layout class="QFormLayout" name="formLayout_5">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="gbPageDetectionFineTuneCorners">
+             <property name="title">
+              <string>Fine tune page corners:</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_72">
+              <item>
+               <widget class="QCheckBox" name="cbPageDetectionFineTuneCorners">
+                <property name="text">
+                 <string>Default value for page: enabled</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="gbPageDetectionTargetSize">
+             <property name="title">
+              <string>Target page size in MM:</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_14">
+              <item>
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>Width:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="pageDetectionTargetWidth">
+                <property name="maximum">
+                 <double>999999.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Height:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="pageDetectionTargetHeight">
+                <property name="maximum">
+                 <double>999999.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QGroupBox" name="gbPageDetectionBorders">
+             <property name="title">
+              <string>Default borders in MM:</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_13">
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_2">
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_13">
+                    <property name="text">
+                     <string>Left:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QDoubleSpinBox" name="pageDetectionLeftBorder"/>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QLabel" name="label_15">
+                    <property name="text">
+                     <string>Right:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QDoubleSpinBox" name="pageDetectionRightBorder"/>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QDoubleSpinBox" name="pageDetectionTopBorder"/>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="label_14">
+                    <property name="text">
+                     <string>Top:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="2">
+                   <widget class="QDoubleSpinBox" name="pageDetectionBottomBorder"/>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QLabel" name="label_16">
+                    <property name="text">
+                     <string>Bottom:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -1246,8 +1405,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>86</width>
-                <height>1005</height>
+                <width>359</width>
+                <height>390</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -1273,7 +1432,13 @@ The Deviant page on this stage is defined as a page which content zone square di
 
 Hard margin - is that between the solid lines. They are set by the user. You can either move over any solid line, be it an inner or outer edge, or set the margins through numerical values.
 
-Soft margin - is that between the solid and the dotted line. These margins are automatically added to bring the page size to the same size of other pages. If you see a dotted line - this means that somewhere in the project there is a page with that width (usable area of Hard + margin), and (possibly others) with that height. This is one big page causing the soft margins in all the other pages, if only for not leveling them off.</string>
+Soft margin - is that between the solid and the dotted line. These margins are automatically added to bring the page size to the same size of other pages. If you see a dotted line - this means that somewhere in the project there is a page with that width (usable area of Hard + margin), and (possibly others) with that height. This is one big page causing the soft margins in all the other pages, if only for not leveling them off.
+
+Alignment mode could be: manual, auto and original (optional feature).
+Manual mode means user can specify it with buttons for each page.
+Auto mode - application tries to choose alignment automatically based on content area position on page
+Original mode stands for no alignment at all.
+</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -1298,7 +1463,217 @@ Soft margin - is that between the solid and the dotted line. These margins are a
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_6"/>
+          <layout class="QFormLayout" name="formLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Default margins:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Default alignment:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QComboBox" name="cbMarginUnits">
+             <item>
+              <property name="text">
+               <string>Millimeters (mm)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Inches (in)</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="cbAlignmentMode">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string comment="manual">Manual</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string comment="auto">Auto</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="marginDefaultTopVal">
+               <property name="statusTip">
+                <string>Top</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_10">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="5" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QDoubleSpinBox" name="marginDefaultLeftVal">
+               <property name="statusTip">
+                <string>Left</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_11">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="marginDefaultRightVal">
+               <property name="statusTip">
+                <string>Right</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="6" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <spacer name="horizontalSpacer_12">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="marginDefaultBottomVal">
+               <property name="statusTip">
+                <string>Bottom</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_13">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="cbAlignment">
+             <item>
+              <property name="text">
+               <string>Top</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Top-left</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Top-right</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Left</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Right</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Bottom-left</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Bottom-right</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Bottom</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QCheckBox" name="cbMarginsMatchSize">
+             <property name="text">
+              <string>Match size with other pages</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -1342,15 +1717,16 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_21">
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_14">
+            <widget class="QLabel" name="lblAutoMarginsDescr">
              <property name="text">
-              <string>TextLabel</string>
+              <string>Auto margins let you automatically calculate margin values for content area to match its size with page area. Page area is usually equal to image area (after page splitting) but could be affected with optional page detection feature on content selection stage.
+Enforces original alignment mode.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -1365,44 +1741,18 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_7"/>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="pageOriginalAlignment">
-       <layout class="QVBoxLayout" name="verticalLayout_45">
-        <item>
-         <widget class="QGroupBox" name="groupBox_24">
-          <property name="title">
-           <string>Description</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_22">
-           <item>
-            <widget class="QLabel" name="lblApplyCutDescr_15">
+          <layout class="QVBoxLayout" name="verticalLayout_71">
+           <item alignment="Qt::AlignTop">
+            <widget class="QCheckBox" name="cbMarginsAuto">
              <property name="text">
-              <string>TextLabel</string>
+              <string>Switched on for page by default</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <property name="wordWrap">
+             <property name="checked">
               <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="optOriginalAlignment">
-          <property name="title">
-           <string>Options</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_8"/>
          </widget>
         </item>
        </layout>
@@ -1443,8 +1793,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>95</width>
-                <height>810</height>
+                <width>359</width>
+                <height>195</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_69">

@@ -19,10 +19,19 @@
 #ifndef MARGINS_H_
 #define MARGINS_H_
 
+#include <QSettings>
+
 class Margins
 {
 public:
-	Margins() : m_top(), m_bottom(), m_left(), m_right() {}
+    Margins()
+    {
+        QSettings settings;
+        m_top = settings.value("margins/default_top", 0).toDouble();
+        m_bottom = settings.value("margins/default_bottom", 0).toDouble();
+        m_left = settings.value("margins/default_left", 0).toDouble();
+        m_right = settings.value("margins/default_right", 0).toDouble();
+    }
 	
 	Margins(double left, double top, double right, double bottom)
 	: m_top(top), m_bottom(bottom), m_left(left), m_right(right) {}
@@ -42,6 +51,11 @@ public:
 	double right() const { return m_right; }
 	
 	void setRight(double val) { m_right = val; }
+
+    inline bool operator == (const Margins& rhs) {
+        return ((m_top == rhs.m_top) && (m_bottom == rhs.m_bottom) &&
+                (m_left == rhs.m_left) && (m_right == rhs.m_right));
+    }
 private:
 	double m_top;
 	double m_bottom;

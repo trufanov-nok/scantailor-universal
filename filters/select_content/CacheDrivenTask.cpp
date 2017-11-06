@@ -57,7 +57,7 @@ CacheDrivenTask::process(
         Params p(*params.get());
         Params::Regenerate val = p.getForceReprocess();
         need_reprocess = val & Params::RegenerateThumbnail;
-        if (need_reprocess) {
+        if (need_reprocess && !m_ptrNextTask) {
             val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
             p.setForceReprocess(val);
             m_ptrSettings->setPageParams(page_info.id(), p);

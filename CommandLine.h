@@ -70,13 +70,26 @@ public:
 	QString const& outputProjectFile() const { return m_outputProjectFile; }
 
     bool isContentDetectionEnabled() const { return !contains("disable-content-detection"); }
-    bool isPageDetectionEnabled() const { return contains("enable-page-detection"); }
+    bool isPageDetectionEnabled() const { return ( contains("enable-page-detection") ||
+                                                   QSettings().value("page_detection/enabled", false).toBool()); }
     bool isForcePageDetectionDisabled() const { return contains("force-disable-page-detection"); }
-    bool isFineTuningEnabled() const { return contains("enable-fine-tuning"); }
+    bool isFineTuningEnabled() const {
+        if (contains("enable-fine-tuning")) {
+            return true;
+        } else {
+            QSettings settings;
+            if (isPageDetectionEnabled() &&
+                    settings.value("page_detection/fine_tune_page_corners", false).toBool()) {
+                return settings.value("page_detection/fine_tune_page_corners/default", false).toBool();
+            }
+            return false;
+        }
+    }
     bool isAutoMarginsEnabled() const { return contains("enable-auto-margins"); }
 
 	bool hasMargins(QString base="margins") const;
-    bool hasPageBorders() const { return hasMargins("page-borders"); }
+    bool hasPageBorders() const { return (hasMargins("page-borders") ||
+                                          (isPageDetectionEnabled() && QSettings().value("page_detection/borders", false).toBool())); }
 	bool hasAlignment() const;
 	bool hasOutputDpi() const;
 	bool hasLanguage() const;
@@ -112,7 +125,8 @@ public:
 	bool hasTiffForceGrayscale() const { return contains("tiff-force-grayscale"); }
 	bool hasTiffForceKeepColorSpace() const { return contains("tiff-force-keep-color-space"); }
 	bool hasWindowTitle() const { return contains("window-title") && !m_options["window-title"].isEmpty(); }
-	bool hasPageDetectionBox() const { return contains("page-detection-box") && !m_options["page-detection-box"].isEmpty(); }
+    bool hasPageDetectionBox() const { return ( (contains("page-detection-box") && !m_options["page-detection-box"].isEmpty()) ||
+                (isPageDetectionEnabled() && QSettings().value("page_detection/borders", false).toBool())); }
 	bool hasPageDetectionTolerance() const { return contains("page-detection-tolerance") && !m_options["page-detection-tolerance"].isEmpty(); }
  	bool hasDisableCheckOutput() const { return contains("disable-check-output"); }
 
@@ -222,8 +236,17 @@ private:
     bool fetchPictureZonesLayer();
 	Qt::LayoutDirection fetchLayoutDirection();
 	Dpi fetchDpi(QString oname="dpi");
-	Margins fetchMargins(QString base="margins", Margins def=Margins(10.0, 5.0, 10.0, 5.0));
-    Margins fetchPageBorders() { return fetchMargins("page-borders", Margins(0,0,0,0)); }
+    Margins fetchMargins(QString base="margins", Margins def = Margins());
+    Margins fetchPageBorders() { Margins res = fetchMargins("page-borders", Margins(0,0,0,0));
+                                 if (res == Margins(0,0,0,0) && hasPageBorders()) {
+                                     QSettings settings;
+                                     res = Margins(settings.value("page_detection/borders/left", 0).toDouble(),
+                                                   settings.value("page_detection/borders/top", 0).toDouble(),
+                                                   settings.value("page_detection/borders/right", 0).toDouble(),
+                                                   settings.value("page_detection/borders/bottom", 0).toDouble());
+                                 }
+                                 return res;
+                               }
 	page_layout::Alignment fetchAlignment();
 	Despeckle::Level fetchContentDetection();
 	QRectF fetchContentRect();

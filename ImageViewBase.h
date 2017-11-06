@@ -85,7 +85,7 @@ public:
 	 */
 	ImageViewBase(
 		QImage const& image, ImagePixmapUnion const& downscaled_version,
-		ImagePresentation const& presentation, Margins const& margins = Margins());
+        ImagePresentation const& presentation, Margins const& margins = Margins(0,0,0,0));
 	
 	virtual ~ImageViewBase();
 

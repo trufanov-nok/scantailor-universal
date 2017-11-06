@@ -27,19 +27,23 @@ namespace page_layout
 {
 
     
-Alignment::Alignment()
-	: m_vert(VCENTER), m_hor(HCENTER), m_tolerance(DEFAULT_TOLERANCE), m_autoMargins(false)
+Alignment::Alignment()	
 {
-    CommandLine cli = CommandLine::get();
-    m_isNull = cli.getDefaultNull(); 
+    *this = Alignment::load();
 }
     
-Alignment::Alignment(Vertical vert, Horizontal hor)
-	: m_vert(vert), m_hor(hor), m_tolerance(DEFAULT_TOLERANCE), m_autoMargins(false)
+Alignment::Alignment(Vertical vert, Horizontal hor)	
 {
-    CommandLine cli = CommandLine::get();
-    m_isNull = cli.getDefaultNull(); 
+    *this = Alignment::load();
+    m_vert = vert;
+    m_hor = hor;
 }
+
+Alignment::Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance, bool auto_marg )
+    : m_vert(vert), m_hor(hor), m_isNull(is_null), m_tolerance(tolerance), m_autoMargins(auto_marg)
+{
+}
+
 
 Alignment::Alignment(QDomElement const& el)
 {
@@ -125,6 +129,44 @@ Alignment::toXml(QDomDocument& doc, QString const& name) const
 	el.setAttribute("tolerance", QString::number(m_tolerance));
 	el.setAttribute("autoMargins", m_autoMargins ? "true" : "false");
 	return el;
+}
+
+void
+Alignment::save(QSettings* _settings) const
+{
+    std::unique_ptr<QSettings> ptr;
+    if (!_settings) {
+        ptr.reset(new QSettings());
+        _settings = ptr.get();
+    }
+
+    QSettings& settings = *_settings;
+    settings.setValue("margins/default_alignment_vert", m_vert);
+    settings.setValue("margins/default_alignment_hor", m_hor);
+    settings.setValue("margins/default_alignment_null", m_isNull);
+    settings.setValue("margins/default_alignment_tolerance", m_tolerance);
+    settings.setValue("margins/default_alignment_auto_margins", m_autoMargins);
+}
+
+Alignment
+Alignment::load(QSettings* _settings)
+{
+    std::unique_ptr<QSettings> ptr;
+    if (!_settings) {
+        ptr.reset(new QSettings());
+        _settings = ptr.get();
+    }
+
+    QSettings& settings = *_settings;
+    Vertical vert = (Vertical) settings.value("margins/default_alignment_vert", Vertical::VCENTER).toUInt();
+    Horizontal hor = (Horizontal) settings.value("margins/default_alignment_hor", Horizontal::HCENTER).toUInt();
+    CommandLine cli = CommandLine::get();
+
+    bool isnull = cli.getDefaultNull();
+            //settings.value("margins/default_alignment_null", m_isNull).toBool();
+    double toler = settings.value("margins/default_alignment_tolerance", DEFAULT_TOLERANCE).toDouble();
+    bool auto_margins = settings.value("margins/default_alignment_auto_margins", false).toBool();
+    return Alignment(vert, hor, isnull, toler, auto_margins);
 }
 
 } // namespace page_layout

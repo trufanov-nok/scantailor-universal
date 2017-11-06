@@ -20,6 +20,7 @@
 #include "SettingsDialog.moc"
 #include "OpenGLSupport.h"
 #include "config.h"
+#include "imageproc/Constants.h"
 #include <QVariant>
 #include <QDir>
 #include <MainWindow.h>
@@ -215,12 +216,10 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             << tr("Deskew")
                                             <<        tr("Mark deviant pages")
                                             << tr("Select Content")
-                                            <<        tr("Fine Tune page corners")
-                                            <<        tr("Borders Panel")
+                                            <<        tr("Page detection")
                                             <<        tr("Mark deviant pages")
-                                            << tr("Margins")
-                                            <<        tr("Original alignment")
-                                            <<                tr("Auto margins")
+                                            << tr("Page layout")
+                                            <<        tr("Auto margins")
                                             <<        tr("Mark deviant pages")
                                             << tr("Output")
                                             <<        tr("Black & White mode")
@@ -490,6 +489,28 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.disableSmoothingBW->setChecked(m_settings.value("mode_bw/disable_smoothing", false).toBool());
     } else if (currentPage == ui.pageHotKeysManager) {
         ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
+    } else if (currentPage == ui.pagePageDetecton) {
+        ui.gbPageDetectionFineTuneCorners->setChecked(m_settings.value("page_detection/fine_tune_page_corners", false).toBool());
+        ui.cbPageDetectionFineTuneCorners->setChecked(m_settings.value("page_detection/fine_tune_page_corners/default", false).toBool());
+        ui.gbPageDetectionBorders->setChecked(m_settings.value("page_detection/borders", false).toBool());
+        ui.gbPageDetectionTargetSize->setChecked(m_settings.value("page_detection/target_page_size/enabled", false).toBool());
+        ui.pageDetectionTopBorder->setValue(m_settings.value("page_detection/borders/top", 0).toDouble());
+        ui.pageDetectionLeftBorder->setValue(m_settings.value("page_detection/borders/left", 0).toDouble());
+        ui.pageDetectionRightBorder->setValue(m_settings.value("page_detection/borders/right", 0).toDouble());
+        ui.pageDetectionBottomBorder->setValue(m_settings.value("page_detection/borders/bottom", 0).toDouble());
+        const QSizeF target_size = m_settings.value("page_detection/target_page_size", QSizeF(210,297)).toSizeF();
+        ui.pageDetectionTargetWidth->setValue(target_size.width());
+        ui.pageDetectionTargetHeight->setValue(target_size.height());
+    } else if (currentPage == ui.pageMargins) {
+        int old_idx = ui.cbMarginUnits->currentIndex();
+        int idx = m_settings.value("margins/default_units", 0).toUInt();
+        ui.cbMarginUnits->setCurrentIndex(idx);
+        if (idx == old_idx) { // otherwise wan't be called atomatically
+            on_cbMarginUnits_currentIndexChanged(idx);
+        }
+        displayAlignment();
+    } else if (currentPage == ui.pageAutoMargins) {
+        displayAlignment();
     }
 
 }
@@ -736,4 +757,295 @@ void SettingsDialog::on_btnResetHotKeys_clicked()
     GlobalStaticSettings::m_hotKeyManager.resetToDefaults();
     GlobalStaticSettings::m_hotKeyManager.save(&m_settings);
     ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
+}
+
+void SettingsDialog::on_marginDefaultTopVal_valueChanged(int arg1)
+{
+    m_settings.setValue("margins/default_top", arg1 * m_unitToMM);
+}
+
+void SettingsDialog::on_marginDefaultLeftVal_valueChanged(int arg1)
+{
+    m_settings.setValue("margins/default_left", arg1 * m_unitToMM);
+}
+
+void SettingsDialog::on_marginDefaultRightVal_valueChanged(int arg1)
+{
+    m_settings.setValue("margins/default_right", arg1 * m_unitToMM);
+}
+
+void SettingsDialog::on_marginDefaultBottomVal_valueChanged(int arg1)
+{
+    m_settings.setValue("margins/default_bottom", arg1 * m_unitToMM);
+}
+
+void SettingsDialog::on_cbMarginUnits_currentIndexChanged(int index)
+{
+    m_settings.setValue("margins/default_units", index);
+
+    int decimals = 0;
+    double step = 0.0;
+
+    if (index == 0) { // mm
+        m_mmToUnit = 1.0;
+        m_unitToMM = 1.0;
+        decimals = 1;
+        step = 1.0;
+    } else { // in
+        m_mmToUnit = imageproc::constants::MM2INCH;
+        m_unitToMM = imageproc::constants::INCH2MM;
+        decimals = 2;
+        step = 0.01;
+    }
+
+    ui.marginDefaultTopVal->setDecimals(decimals);
+    ui.marginDefaultTopVal->setSingleStep(step);
+    ui.marginDefaultBottomVal->setDecimals(decimals);
+    ui.marginDefaultBottomVal->setSingleStep(step);
+    ui.marginDefaultLeftVal->setDecimals(decimals);
+    ui.marginDefaultLeftVal->setSingleStep(step);
+    ui.marginDefaultRightVal->setDecimals(decimals);
+    ui.marginDefaultRightVal->setSingleStep(step);
+
+    updateMarginsDisplay();
+}
+
+void SettingsDialog::displayAlignment()
+{
+    const bool old_val = ui.cbMarginsMatchSize->isChecked();
+    ui.cbMarginsMatchSize->setChecked(m_alignment.isNull());
+    if (old_val == ui.cbMarginsMatchSize->isChecked()) {
+        enableDisableAlignmentButtons();
+    }
+
+    ui.cbAlignmentMode->blockSignals(true);
+    ui.cbAlignment->blockSignals(true);
+
+    bool original_alignment_enabled = m_settings.value("original_alignment/enabled", true).toBool();
+    int orig_idx = ui.cbAlignmentMode->findData(page_layout::Alignment::Vertical::VORIGINAL);
+    if (orig_idx != -1 && !original_alignment_enabled) {
+        int cur_idx = ui.cbAlignmentMode->currentIndex();
+        if (cur_idx == orig_idx) {
+            cur_idx = 0;
+        }
+        ui.cbAlignmentMode->removeItem(orig_idx);
+        ui.cbAlignmentMode->setCurrentIndex(cur_idx);
+    } else if (orig_idx == -1 && original_alignment_enabled) {
+        ui.cbAlignmentMode->addItem(tr("Original"), page_layout::Alignment::Vertical::VORIGINAL);
+    }
+
+    ui.cbMarginsAuto->setEnabled(m_settings.value("auto_margins/enabled", true).toBool());
+
+    if (!ui.cbMarginsAuto->isEnabled()) {
+         ui.cbMarginsAuto->setChecked(false);
+    } else {
+        ui.cbMarginsAuto->setChecked(m_alignment.isAutoMarginsEnabled());
+    }
+
+    const page_layout::Alignment::Vertical vert = m_alignment.vertical();
+    const page_layout::Alignment::Horizontal hor = m_alignment.horizontal();
+
+
+    switch (vert) {
+    case page_layout::Alignment::Vertical::VAUTO:
+        ui.cbAlignmentMode->setCurrentIndex(1);
+        break;
+    case page_layout::Alignment::Vertical::VORIGINAL:
+        ui.cbAlignmentMode->setCurrentIndex(2);
+        break;
+    default:
+        ui.cbAlignmentMode->setCurrentIndex(0);
+        break;
+    }
+
+
+    if (vert == page_layout::Alignment::Vertical::TOP) {
+        switch (hor) {
+        case page_layout::Alignment::Horizontal::HCENTER:
+            ui.cbAlignment->setCurrentIndex(0);
+            break;
+        case page_layout::Alignment::Horizontal::LEFT:
+            ui.cbAlignment->setCurrentIndex(1);
+            break;
+        case page_layout::Alignment::Horizontal::RIGHT:
+            ui.cbAlignment->setCurrentIndex(2);
+            break;
+        default:
+            break;
+        }
+    } else if (vert == page_layout::Alignment::Vertical::VCENTER) {
+        switch (hor) {
+        case page_layout::Alignment::Horizontal::HCENTER:
+            ui.cbAlignment->setCurrentIndex(8);
+            break;
+        case page_layout::Alignment::Horizontal::LEFT:
+            ui.cbAlignment->setCurrentIndex(3);
+            break;
+        case page_layout::Alignment::Horizontal::RIGHT:
+            ui.cbAlignment->setCurrentIndex(4);
+            break;
+        default:
+            break;
+        }
+    } else if (vert == page_layout::Alignment::Vertical::BOTTOM) {
+        switch (hor) {
+        case page_layout::Alignment::Horizontal::HCENTER:
+            ui.cbAlignment->setCurrentIndex(7);
+            break;
+        case page_layout::Alignment::Horizontal::LEFT:
+            ui.cbAlignment->setCurrentIndex(5);
+            break;
+        case page_layout::Alignment::Horizontal::RIGHT:
+            ui.cbAlignment->setCurrentIndex(6);
+            break;
+        default:
+            break;
+        }
+    }
+    ui.cbAlignmentMode->blockSignals(false);
+    ui.cbAlignment->blockSignals(false);        
+}
+
+void SettingsDialog::on_cbAlignmentMode_currentIndexChanged(int index)
+{
+  ui.cbAlignment->setEnabled(index == 0);
+  switch (index) {
+  case 0:  m_alignment.setVertical(page_layout::Alignment::TOP);
+           m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
+      break;
+  case 1: m_alignment.setVertical(page_layout::Alignment::VAUTO);
+      m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
+      break;
+  case 2: m_alignment.setVertical(page_layout::Alignment::VORIGINAL);
+      m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
+      break;
+  default:
+      on_cbAlignment_currentIndexChanged(ui.cbAlignment->currentIndex());
+      break;
+  }
+
+}
+
+void SettingsDialog::on_cbAlignment_currentIndexChanged(int index)
+{
+    switch (index) {
+    case 0: m_alignment.setVertical(page_layout::Alignment::TOP);
+        m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
+        break;
+    case 1: m_alignment.setVertical(page_layout::Alignment::TOP);
+        m_alignment.setHorizontal(page_layout::Alignment::LEFT);
+        break;
+    case 2: m_alignment.setVertical(page_layout::Alignment::TOP);
+        m_alignment.setHorizontal(page_layout::Alignment::RIGHT);
+        break;
+    case 3: m_alignment.setVertical(page_layout::Alignment::VCENTER);
+        m_alignment.setHorizontal(page_layout::Alignment::LEFT);
+        break;
+    case 4: m_alignment.setVertical(page_layout::Alignment::VCENTER);
+        m_alignment.setHorizontal(page_layout::Alignment::RIGHT);
+        break;
+    case 5: m_alignment.setVertical(page_layout::Alignment::BOTTOM);
+        m_alignment.setHorizontal(page_layout::Alignment::LEFT);
+        break;
+    case 6: m_alignment.setVertical(page_layout::Alignment::BOTTOM);
+        m_alignment.setHorizontal(page_layout::Alignment::RIGHT);
+        break;
+    case 7: m_alignment.setVertical(page_layout::Alignment::BOTTOM);
+        m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
+        break;
+    case 8: m_alignment.setVertical(page_layout::Alignment::VCENTER);
+        m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
+        break;
+    default:
+        break;
+    }
+}
+
+void SettingsDialog::on_cbMarginsAuto_clicked(bool checked)
+{
+    m_alignment.setAutoMargins(checked);
+}
+
+void SettingsDialog::enableDisableAlignmentButtons()
+{
+    bool const enabled = m_settings.value("margins/default_align_with_others", true).toBool() &&
+            (ui.cbAlignmentMode->currentIndex() == 0);
+
+    ui.marginDefaultBottomVal->setEnabled(enabled);
+    ui.marginDefaultTopVal->setEnabled(enabled);
+    ui.marginDefaultLeftVal->setEnabled(enabled);
+    ui.marginDefaultRightVal->setEnabled(enabled);
+}
+
+void SettingsDialog::on_cbMarginsMatchSize_clicked(bool checked)
+{
+    m_settings.setValue("margins/default_align_with_others", checked);
+    enableDisableAlignmentButtons();
+
+//    ui.cbAlignmentMode->setEnabled(!checked);
+//    ui.cbAlignment->setEnabled(!checked);
+    m_alignment.setNull(checked);
+}
+
+void SettingsDialog::updateMarginsDisplay()
+{
+    ui.marginDefaultTopVal->setValue(m_settings.value("margins/default_top", 0).toUInt()* m_mmToUnit);
+    ui.marginDefaultBottomVal->setValue(m_settings.value("margins/default_bottom", 0).toUInt()* m_mmToUnit);
+    ui.marginDefaultLeftVal->setValue(m_settings.value("margins/default_left", 0).toUInt()* m_mmToUnit);
+    ui.marginDefaultRightVal->setValue(m_settings.value("margins/default_right", 0).toUInt()* m_mmToUnit);
+}
+
+void SettingsDialog::on_gbPageDetectionFineTuneCorners_toggled(bool arg1)
+{
+    m_settings.setValue("page_detection/fine_tune_page_corners", arg1);
+}
+
+void SettingsDialog::on_gbPageDetectionBorders_toggled(bool arg1)
+{
+    m_settings.setValue("page_detection/borders", arg1);
+}
+
+void SettingsDialog::on_cbPageDetectionFineTuneCorners_clicked(bool checked)
+{
+    m_settings.setValue("page_detection/fine_tune_page_corners/default", checked);
+}
+
+void SettingsDialog::on_pageDetectionTargetWidth_valueChanged(double arg1)
+{
+    m_settings.setValue("page_detection/target_page_size", QSizeF(arg1, ui.pageDetectionTargetHeight->value()));
+}
+
+void SettingsDialog::on_pageDetectionTargetHeight_valueChanged(double arg1)
+{
+    m_settings.setValue("page_detection/target_page_size", QSizeF(ui.pageDetectionTargetWidth->value(), arg1));
+}
+
+void SettingsDialog::on_gbPageDetectionTargetSize_toggled(bool arg1)
+{
+     m_settings.setValue("page_detection/target_page_size/enabled", arg1);
+}
+
+void SettingsDialog::on_pageDetectionTargetBorders_valueChanged(double arg1)
+{
+    m_settings.setValue("page_detection/target_page_size", QSizeF(ui.pageDetectionTargetWidth->value(), arg1));
+}
+
+void SettingsDialog::on_pageDetectionTopBorder_valueChanged(double arg1)
+{
+    m_settings.setValue("page_detection/borders/top", arg1);
+}
+
+void SettingsDialog::on_pageDetectionRightBorder_valueChanged(double arg1)
+{
+    m_settings.setValue("page_detection/borders/right", arg1);
+}
+
+void SettingsDialog::on_pageDetectionLeftBorder_valueChanged(double arg1)
+{
+    m_settings.setValue("page_detection/borders/left", arg1);
+}
+
+void SettingsDialog::on_pageDetectionBottomBorder_valueChanged(double arg1)
+{
+    m_settings.setValue("page_detection/borders/bottom", arg1);
 }

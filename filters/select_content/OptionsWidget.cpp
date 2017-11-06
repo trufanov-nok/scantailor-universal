@@ -71,13 +71,25 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	pageDetectAutoBtn->setEnabled(false);
     pageDetectDisableBtn->setEnabled(false);
 
-    bool fine_tune_corners_enabled = QSettings().value("fine_tune_page_corners/enabled", true).toBool();
+    QSettings setting;
+    const bool page_detection_enabled = setting.value("page_detection/enabled", false).toBool();
+
+
+    bool fine_tune_corners_enabled = page_detection_enabled;
+    if (fine_tune_corners_enabled) {
+        fine_tune_corners_enabled = setting.value("page_detection/fine_tune_page_corners", false).toBool();
+    }
+
     panelFineTuneCorners->setVisible(fine_tune_corners_enabled);
     if (!fine_tune_corners_enabled) {
         fineTuneBtn->setChecked(false);
     }
 
-    bool border_panel_visible = QSettings().value("content_selection_borders_panel/enabled", true).toBool();
+    bool border_panel_visible = page_detection_enabled;
+    if (border_panel_visible) {
+        border_panel_visible = setting.value("page_detection/borders", false).toBool();
+    }
+
     gbBordersPanel->setVisible(border_panel_visible);
 
     gbPageBox->setVisible(fine_tune_corners_enabled || border_panel_visible);

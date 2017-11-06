@@ -139,7 +139,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
         Params p(*params.get());
         Params::Regenerate val = p.getForceReprocess();
         need_reprocess = val & Params::RegeneratePage;
-        if (need_reprocess) {
+        if (need_reprocess && !m_ptrNextTask) {
             val = (Params::Regenerate) (val & ~Params::RegeneratePage);
             p.setForceReprocess(val);
             m_ptrSettings->setPageParams(m_pageId, p);

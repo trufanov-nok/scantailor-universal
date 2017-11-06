@@ -33,7 +33,7 @@ public:
 	BasicImageView(
 		QImage const& image,
 		ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
-		Margins const& margins = Margins());
+        Margins const& margins = Margins(0,0,0,0));
 	
 	virtual ~BasicImageView();
 private:

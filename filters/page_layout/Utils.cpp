@@ -136,7 +136,7 @@ Utils::calcSoftMarginsMM(
 		std::cout << "\tskip soft margins: " <<  "\n";
 #endif
 		// This means we are not aligning this page with others.
-		return Margins();
+        return Margins(0,0,0,0);
 	}
 
 #ifdef DEBUG

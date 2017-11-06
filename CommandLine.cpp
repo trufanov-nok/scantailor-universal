@@ -846,13 +846,21 @@ QSizeF CommandLine::fetchPageDetectionBox() const
     }
     
     QRegularExpression rx("^([\\d\\.]+)x([\\d\\.]+)$");
-    QRegularExpressionMatch match = rx.match((m_options["page-detection-box"]));
-    if (match.hasMatch()) {
-        return QSizeF(match.captured(1).toFloat(), match.captured(2).toFloat());
-	}
-    
-    std::cout << "invalid --page-detection-box=" << m_options["page-detection-box"].toLocal8Bit().constData() << std::endl;
-    exit(1);    
+    if (m_options.contains("page-detection-box")) {
+        QRegularExpressionMatch match = rx.match((m_options["page-detection-box"]));
+        if (match.hasMatch()) {
+            return QSizeF(match.captured(1).toFloat(), match.captured(2).toFloat());
+        }
+        std::cout << "invalid --page-detection-box=" << m_options["page-detection-box"].toLocal8Bit().constData() << std::endl;
+        exit(1);
+    } else {
+        QSettings settings;
+        if (settings.value("page_detection/target_page_size/enabled",false).toBool()) {
+            return settings.value("page_detection/target_page_size", QSizeF(210,297)).toSizeF();
+        } else {
+            return QSizeF();
+        }
+    }
 }
 
 double CommandLine::fetchPageDetectionTolerance() const
@@ -866,10 +874,11 @@ double CommandLine::fetchPageDetectionTolerance() const
 
 bool CommandLine::fetchDefaultNull() 
 {
-    m_defaultNull = false;
     
     if (contains("match-layout-default") && m_options["match-layout-default"] == "false") {
         m_defaultNull = true;
+    } else {
+        m_defaultNull = QSettings().value("margins/default_alignment_null", false).toBool();
     }
     
     return m_defaultNull;

@@ -19,11 +19,14 @@
 #ifndef PAGE_LAYOUT_ALIGNMENT_H_
 #define PAGE_LAYOUT_ALIGNMENT_H_
 
+#include <QSettings>
+#include <iostream>
+
 class QDomDocument;
 class QDomElement;
 class QString;
 
-#include <iostream>
+
 
 class CommandLine;
 
@@ -45,6 +48,8 @@ public:
 	Alignment();
     
     Alignment(Vertical vert, Horizontal hor);
+
+    Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance, bool auto_marg );
 	
 	Alignment(QDomElement const& el);
 	
@@ -76,6 +81,9 @@ public:
 	}
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
+
+    void save(QSettings* settings = nullptr) const;
+    static Alignment load(QSettings* settings = nullptr);
 private:
 	Vertical m_vert;
 	Horizontal m_hor;

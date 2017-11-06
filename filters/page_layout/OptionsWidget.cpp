@@ -158,6 +158,8 @@ OptionsWidget::OptionsWidget(
 			this, SLOT(alignmentButtonClicked())
 		);
 	}
+
+   unitsComboBox->setCurrentIndex(QSettings().value("margins/default_units", 0).toUInt());
 }
 
 OptionsWidget::~OptionsWidget()
@@ -217,19 +219,15 @@ OptionsWidget::preUpdateUI(
     }
 
 
-    bool auto_margins_visible = false;
-    if (original_alignment_visible) {
-        auto_margins_visible = QSettings().value("auto_margins/enabled", true).toBool();
-    }
-
     m_ignoreMarginChanges = old_ignore;
-    if (auto_margins_visible) {
+    autoMarginsLayout_2->setVisible(QSettings().value("auto_margins/enabled", true).toBool());
+    if (autoMarginsLayout_2->isVisible()) {
         autoMargins->setChecked(m_alignment.isAutoMarginsEnabled());
     } else {
         autoMargins->setChecked(false);
-    }
+    }    
     m_ignoreMarginChanges = true;
-    autoMargins->setVisible(auto_margins_visible);
+
 
 	enableDisableAlignmentButtons();
 	

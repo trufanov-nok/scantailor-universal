@@ -30,7 +30,7 @@ public:
         RegenerateAll = 3
     };
 
-    RegenParams(): m_forceReprocess(RegenerateNone) {}
+    RegenParams(Regenerate val = RegenerateNone): m_forceReprocess(val) {}
 		
     virtual void setForceReprocess(Regenerate val) { m_forceReprocess = val; }
 

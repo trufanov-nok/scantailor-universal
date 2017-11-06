@@ -10,12 +10,10 @@ pageSplitPages
 pageDeskew
 	pageDeviantDeskew	deskew_deviant/enabled	0
 pageSelectContent
-	pageFineTunePageCorners	fine_tune_page_corners/enabled
-	pageBordersPanel	content_selection_borders_panel/enabled
+	pagePageDetecton	page_detection/enabled	0
 	pageDeviantContent	select_content_deviant/enabled	0
 pageMargins
-	pageOriginalAlignment	original_alignment/enabled
-		pageAutoMargins	auto_margins/enabled
+	pageAutoMargins	auto_margins/enabled	0
 	pageDeviantMargins	margins_deviant/enabled	0
 pageOutput
 	pageBlackWhiteMode

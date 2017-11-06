@@ -21,6 +21,7 @@
 
 #include "ui_SettingsDialog.h"
 #include "settings/hotkeysmanager.h"
+#include "filters/page_layout/Alignment.h"
 #include <QSettings>
 #include <QDialog>
 #include <QInputDialog>
@@ -78,6 +79,46 @@ private slots:
 
     void on_btnResetHotKeys_clicked();
 
+    void on_marginDefaultTopVal_valueChanged(int arg1);
+
+    void on_marginDefaultLeftVal_valueChanged(int arg1);
+
+    void on_marginDefaultRightVal_valueChanged(int arg1);
+
+    void on_marginDefaultBottomVal_valueChanged(int arg1);
+
+    void on_cbMarginUnits_currentIndexChanged(int index);
+
+    void on_cbAlignmentMode_currentIndexChanged(int index);
+
+    void on_cbAlignment_currentIndexChanged(int index);
+
+    void on_cbMarginsAuto_clicked(bool checked);
+
+    void on_cbMarginsMatchSize_clicked(bool checked);
+
+    void on_gbPageDetectionFineTuneCorners_toggled(bool arg1);
+
+    void on_gbPageDetectionBorders_toggled(bool arg1);
+
+    void on_cbPageDetectionFineTuneCorners_clicked(bool checked);
+
+    void on_pageDetectionTargetWidth_valueChanged(double arg1);
+
+    void on_pageDetectionTargetHeight_valueChanged(double arg1);
+
+    void on_gbPageDetectionTargetSize_toggled(bool arg1);
+
+    void on_pageDetectionTargetBorders_valueChanged(double arg1);
+
+    void on_pageDetectionTopBorder_valueChanged(double arg1);
+
+    void on_pageDetectionRightBorder_valueChanged(double arg1);
+
+    void on_pageDetectionLeftBorder_valueChanged(double arg1);
+
+    void on_pageDetectionBottomBorder_valueChanged(double arg1);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
@@ -88,11 +129,17 @@ private:
     void restoreSettingsTreeState(QTreeWidget* treeWidget);
     void storeSettingsTreeState(QTreeWidget* treeWidget);
     void setupPictureShapeComboBox();
+    void displayAlignment();
+    void updateMarginsDisplay();
+    void enableDisableAlignmentButtons();
 private:
 	Ui::SettingsDialog ui;
     QSettings m_settings;
     QSettings::SettingsMap m_oldSettings;
     bool m_accepted;
+    page_layout::Alignment m_alignment;
+    double m_mmToUnit;
+    double m_unitToMM;
 };
 
 class QHotKeyInputDialog: public QInputDialog

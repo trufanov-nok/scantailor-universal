@@ -107,9 +107,11 @@ Task::process(TaskStatus const& status, FilterData const& data)
         need_reprocess = val & Params::RegeneratePage;
         if (need_reprocess) {
             regeneration_enforced = true;
-            val = (Params::Regenerate) (val & ~Params::RegeneratePage);
-            p.setForceReprocess(val);
-            m_ptrSettings->setPageParams(m_pageId, p);
+            if (!m_ptrNextTask) {
+                val = (Params::Regenerate) (val & ~Params::RegeneratePage);
+                p.setForceReprocess(val);
+                m_ptrSettings->setPageParams(m_pageId, p);
+            }
         }
     }
 
