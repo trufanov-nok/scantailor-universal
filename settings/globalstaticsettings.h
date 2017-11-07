@@ -2,6 +2,7 @@
 #define GLOBALSTATICSETTINGS_H
 #include "settings/hotkeysmanager.h"
 #include <QSettings>
+#include <memory>
 
 class GlobalStaticSettings
 {
@@ -54,7 +55,11 @@ public:
         m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
         m_disable_bw_smoothing = settings.value("mode_bw/disable_smoothing", false).toBool();
         m_zone_editor_min_angle = settings.value("zone_editor/min_angle", 3.0).toReal();        
-        m_picture_detection_sensitivity = settings.value("picture_zones_layer/sensitivity", 100).toInt();                
+        m_picture_detection_sensitivity = settings.value("picture_zones_layer/sensitivity", 100).toInt();
+        if (settings.contains("foreground_layer_adj_override")) {
+           m_ForegroundLayerAdjustment.reset(new int (settings.value("foreground_layer_adj_override", 0).toInt()));
+        }
+
     }    
 
     static void updateHotkeys()
@@ -137,6 +142,7 @@ public:
     static qreal m_zone_editor_min_angle;
     static float m_picture_detection_sensitivity;
     static QHotKeys m_hotKeyManager;
+    static std::unique_ptr<int> m_ForegroundLayerAdjustment;
 };
 
 #endif // GLOBALSTATICSETTINGS_H

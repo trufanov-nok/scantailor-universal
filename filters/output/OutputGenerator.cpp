@@ -885,6 +885,14 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
 		BinaryImage bw_content(
 			binarize(maybe_smoothed, normalize_illumination_crop_area, &bw_mask)
 		);
+
+        std::unique_ptr<BinaryImage> foreground_mask = nullptr;
+        if (render_params.foregroundLayer() &&
+                GlobalStaticSettings::m_ForegroundLayerAdjustment) {
+            foreground_mask.reset( new BinaryImage (binarize(maybe_smoothed, normalize_illumination_crop_area, &bw_mask,
+                                                        GlobalStaticSettings::m_ForegroundLayerAdjustment.get()) ) );
+        }
+
 		maybe_smoothed = QImage(); // Save memory.
 		if (dbg) {
 			dbg->add(bw_content, "binarized_and_cropped");
@@ -897,6 +905,9 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
             if (dbg) {
                 dbg->add(bw_content, "edges_smoothed");
             }
+            if (foreground_mask) {
+                morphologicalSmoothInPlace(*foreground_mask, status);
+            }
         }
 
 		status.throwIfCancelled();
@@ -904,6 +915,9 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
 		// We don't want speckles in non-B/W areas, as they would
 		// then get visualized on the Despeckling tab.
 		rasterOp<RopAnd<RopSrc, RopDst> >(bw_content, bw_mask);
+        if (foreground_mask) {
+            rasterOp<RopAnd<RopSrc, RopDst> >(*foreground_mask, bw_mask);
+        }
 
 		status.throwIfCancelled();
 
@@ -915,12 +929,24 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
 			bw_content, small_margins_rect, m_contentRect,
 			m_despeckleLevel, speckles_image, m_dpi, status, dbg
 		);
+
+        if (foreground_mask) {
+            maybeDespeckleInPlace(
+                *foreground_mask, small_margins_rect, m_contentRect,
+                m_despeckleLevel, speckles_image, m_dpi, status, nullptr
+            );
+        }
 		
 		status.throwIfCancelled();
 
         if (render_params.foregroundLayer())
         {
-            bw_mask = bw_content;
+            if (foreground_mask) {
+                bw_mask = foreground_mask->release();
+                foreground_mask.reset(nullptr);
+            } else {
+                bw_mask = bw_content;
+            }
             bw_mask.invert();
 
             BinaryImage new_auto_layer_mask = bw_mask;
@@ -1919,10 +1945,14 @@ OutputGenerator::smoothToGrayscale(QImage const& src, Dpi const& dpi)
 }
 
 BinaryThreshold
-OutputGenerator::adjustThreshold(BinaryThreshold threshold) const
+OutputGenerator::adjustThreshold(BinaryThreshold threshold, const int *adjustment) const
 {
-	int const adjusted = threshold +
-		m_colorParams.blackWhiteOptions().thresholdAdjustment();
+    int adjusted = threshold;
+    if (!adjustment) {
+        adjusted += m_colorParams.blackWhiteOptions().thresholdAdjustment();
+    } else {
+        adjusted += *adjustment;
+    }
 
 	// Hard-bounding threshold values is necessary for example
 	// if all the content went into the picture mask.
@@ -1960,11 +1990,11 @@ OutputGenerator::calcBinarizationThreshold(
 }
 
 BinaryImage
-OutputGenerator::binarize(QImage const& image, BinaryImage const& mask) const
+OutputGenerator::binarize(QImage const& image, BinaryImage const& mask, const int* adjustment) const
 {
 	GrayscaleHistogram hist(image, mask);
 	BinaryThreshold const bw_thresh(BinaryThreshold::otsuThreshold(hist));
-	BinaryImage binarized(image, adjustThreshold(bw_thresh));
+    BinaryImage binarized(image, adjustThreshold(bw_thresh, adjustment));
 	
 	// Fill masked out areas with white.
 	rasterOp<RopAnd<RopSrc, RopDst> >(binarized, mask);
@@ -1974,14 +2004,14 @@ OutputGenerator::binarize(QImage const& image, BinaryImage const& mask) const
 
 BinaryImage
 OutputGenerator::binarize(QImage const& image,
-	QPolygonF const& crop_area, BinaryImage const* mask) const
+    QPolygonF const& crop_area, BinaryImage const* mask, const int *adjustment) const
 {
 	QPainterPath path;
 	path.addPolygon(crop_area);
 	
 	if (path.contains(image.rect()) && !mask) {
 		BinaryThreshold const bw_thresh(BinaryThreshold::otsuThreshold(image));
-		return BinaryImage(image, adjustThreshold(bw_thresh));
+        return BinaryImage(image, adjustThreshold(bw_thresh, adjustment));
 	} else {
 		BinaryImage modified_mask(image.size(), BLACK);
 		PolygonRasterizer::fillExcept(modified_mask, WHITE, crop_area, Qt::WindingFill);
@@ -1991,7 +2021,7 @@ OutputGenerator::binarize(QImage const& image,
 			rasterOp<RopAnd<RopSrc, RopDst> >(modified_mask, *mask);
 		}
 		
-		return binarize(image, modified_mask);
+        return binarize(image, modified_mask, adjustment);
 	}
 }
 

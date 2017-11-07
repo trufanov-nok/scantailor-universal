@@ -244,8 +244,7 @@ private:
         QRect const& mask_rect, ZoneSet const& zones,
         int filter = BINARIZATION_MASK_ERASER1 | BINARIZATION_MASK_PAINTER2 | BINARIZATION_MASK_ERASER3) const;
 	
-	imageproc::BinaryThreshold adjustThreshold(
-		imageproc::BinaryThreshold threshold) const;
+    imageproc::BinaryThreshold adjustThreshold(imageproc::BinaryThreshold threshold, const int *adjustment = nullptr) const;
 	
 	imageproc::BinaryThreshold calcBinarizationThreshold(
 		QImage const& image, imageproc::BinaryImage const& mask) const;
@@ -254,12 +253,10 @@ private:
 		QImage const& image, QPolygonF const& crop_area,
 		imageproc::BinaryImage const* mask = 0) const;
 
-	imageproc::BinaryImage binarize(
-		QImage const& image, imageproc::BinaryImage const& mask) const;
+    imageproc::BinaryImage binarize(QImage const& image, imageproc::BinaryImage const& mask, const int *adjustment = nullptr) const;
 	
-	imageproc::BinaryImage binarize(
-		QImage const& image, QPolygonF const& crop_area,
-		imageproc::BinaryImage const* mask = 0) const;
+    imageproc::BinaryImage binarize(QImage const& image, QPolygonF const& crop_area,
+        imageproc::BinaryImage const* mask = 0, const int * adjustment = nullptr) const;
 	
 	void maybeDespeckleInPlace(
 		imageproc::BinaryImage& image, QRect const& image_rect,
