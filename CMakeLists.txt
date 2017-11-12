@@ -383,7 +383,7 @@ ENDIF(MSVC)
 IF(WIN32)
         SET(TRANSLATIONS_DIR_REL "translations")
 ELSE(WIN32)
-        SET(TRANSLATIONS_DIR_REL "share/scantailor/translations")
+        SET(TRANSLATIONS_DIR_REL "share/scantailor-universal/translations")
 ENDIF(WIN32)
 SET(TRANSLATIONS_DIR_ABS "${CMAKE_INSTALL_PREFIX}/${TRANSLATIONS_DIR_REL}")
 

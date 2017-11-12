@@ -1,0 +1,242 @@
+[DEBREATE-0.7.13]
+<<CTRL>>
+Package: scantailor-universal
+Version: 0.0.1
+Maintainer: Alexander Trufanov <trufanovan@gmail.com>
+Section: graphics
+Homepage: https://github.com/trufanov-nok/scantailor
+Architecture: amd64
+Priority: optional
+Depends: libqt5widgets5 (>=5.4), libqt5xml5 (>=5.4), libqt5gui5 (>=5.4), libqt5core5a (>=5.4), libtiff5 (>=4.0.3), libjpeg8 (>=8c), libgcc1 (>=1.3.0), libc6 (>=2.14), libpng16-16 (>=1.6.2-1), libstdc++6 (>=5.2)
+Description: Alternative version of ScanTailor: iinteractive post-processing tool for scanned pages
+ Scan Tailor is an interactive post-processing tool for scanned pages. It
+ performs operations such as page splitting, deskewing, adding/removing
+ borders, and others. You give it raw scans, and you get pages ready to be
+ printed or assembled into a PDF or DJVU file. Scanning, optical character
+ recognition, and assembling multi-page documents are out of scope of this
+ project.
+
+<</CTRL>>
+<<FILES>>
+1
+/home/truf/dev/pl/scantailor/build/scantailor-universal* -> scantailor-universal -> /usr/bin
+/home/truf/dev/pl/scantailor/build/scantailor-universal-cli* -> scantailor-universal-cli -> /usr/bin
+/home/truf/dev/pl/scantailor/build/scantailor_ru.qm -> scantailor_ru.qm -> /usr/share/scantailor-universal/translations
+/home/truf/dev/pl/scantailor/build/scantailor-universal.svg -> scantailor-universal.svg -> /usr/share/pixmaps
+<</FILES>>
+<<SCRIPTS>>
+<<PREINST>>
+0
+<</PREINST>>
+<<POSTINST>>
+0
+<</POSTINST>>
+<<PRERM>>
+0
+<</PRERM>>
+<<POSTRM>>
+0
+<</POSTRM>>
+<</SCRIPTS>>
+<<CHANGELOG>>
+<<DEST>>DEFAULT<</DEST>>
+
+<</CHANGELOG>>
+<<COPYRIGHT>>
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/trufanov-nok/scantailor
+
+Files: *
+Copyright: 2007-2013 Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	   2011 Petr Kovar <pejuko@gmail.com>
+License: GPL-3+
+
+Files: imageproc/GaussBlur.cpp
+Copyright: 2007-2013 Joseph Artsimovich <joseph.artsimovich@gmail.com>
+	   1995 Spencer Kimball, Peter Mattis
+License: GPL-3+
+Comment: Based on code from the GIMP project.
+
+Files: compat/pstdint.h
+Copyright: 2005-2007 Paul Hsieh
+License: BDS-3-clause(modified)
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ .
+ Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ .
+ Redistributions in binary form must not misrepresent the orignal
+ source in the documentation and/or other materials provided
+ with the distribution.
+ .
+ The names of the authors nor its contributors may be used to
+ endorse or promote products derived from this software without
+ specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Files: crash_reporter/google-breakpad/*
+Copyright: 2006-2008 Google Inc.
+License: BSD-3-clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+ .
+     * Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+     * Redistributions in binary form must reproduce the above
+ copyright notice, this list of conditions and the following disclaimer
+ in the documentation and/or other materials provided with the
+ distribution.
+     * Neither the name of Google Inc. nor the names of its
+ contributors may be used to endorse or promote products derived from
+ this software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Files: crash_reporter/google-breakpad/processor/scoped_ptr.h
+Copyright:  2001-2002 Peter Dimov
+	    1998-1999 Greg Colvin, Beman Dawes
+License: other
+ Permission to copy, use, modify, sell and distribute this software
+ is granted provided this copyright notice appears in all copies.
+ This software is provided "as is" without express or implied
+ warranty, and with no claim as to its suitability for any purpose.
+
+Files: resources/icons/aqua-sphere*
+       resources/icons/keep-in-view.png
+       resources/icons/layout-type-auto.png
+       resources/icons/left_page*
+       resources/icons/right_page*
+       resources/icons/single_page*
+       resources/icons/two_pages*
+Copyright: Scan Tailor developers or contributors
+License: GPL-3+
+
+Files: resources/icons/stock-*
+Copyright: The GNU Image Manipulation Project (GIMP), http://gimp.org/
+License: GPL-2+
+
+Files: resources/icons/object-*
+Copyright: F-Spot, http://f-spot.org/
+License: GPL-2+
+
+Files: resources/icons/play-*
+       resources/icons/stop-*
+Copyright: Amarok (derived from default-theme-clean.svg),  http://amarok.kde.org/
+License: GPL-2+
+
+Files: resources/icons/big-*
+       resources/icons/insert-*
+       resources/icons/user-trash.png
+Copyright: not-applicable 
+License: public-domain
+ The icons in this repository are herefore released into the Public Domain.
+Comment: Origin of files: http://tango.freedesktop.org/
+
+Files: packaging/osx/user-config.jam
+Copyright: 2002-2007 Vladimir Prus
+	   2003-2005 Douglas Gregor
+	   2004 John Maddock
+License: BSL-1.0
+ Permission is hereby granted, free of charge, to any person or organization
+ obtaining a copy of the software and accompanying documentation covered by
+ this license (the "Software") to use, reproduce, display, distribute,
+ execute, and transmit the Software, and to prepare derivative works of the
+ Software, and to permit third-parties to whom the Software is furnished to
+ do so, all subject to the following:
+ .
+ The copyright notices in the Software and this entire statement, including
+ the above license grant, this restriction and the following disclaimer,
+ must be included in all copies of the Software, in whole or in part, and
+ all derivative works of the Software, unless such copies or derivative
+ works are solely in the form of machine-executable object code generated by
+ a source language processor.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+ FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE. 
+
+License: GPL-3+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ .
+ On Debian systems the full text of the GNU General Public License
+ can be found in the `/usr/share/common-licenses/GPL-3' file.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .
+ On Debian systems the full text of the GNU General Public License
+ can be found in the `/usr/share/common-licenses/GPL-2' file.
+
+<</COPYRIGHT>>
+<<MENU>>
+1
+[FILENAME=scantailor-universal.desktop]
+Name=Scan Tailor Universal
+Version=1.0
+Exec=scantailor-universal %f
+Comment=Interactive post-processing tool for scanned pages
+Icon=scantailor-universal
+Type=Application
+Terminal=false
+StartupNotify=true
+Encoding=UTF-8
+Categories=2DGraphics;Graphics;RasterGraphics;Scanning;Qt;
+<</MENU>>
+<<BUILD>>
+1
+1
+1
+strip
+<</BUILD>>
