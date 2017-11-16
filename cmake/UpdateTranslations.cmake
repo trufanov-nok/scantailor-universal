@@ -90,7 +90,7 @@ MACRO(UPDATE_TRANSLATIONS_TARGET _target) #, _sets
 	SET(_commands "")
 	FOREACH(_set ${ARGN})
 		LIST(
-			APPEND _commands COMMAND "${QT_LUPDATE_EXECUTABLE}" -locations absolute
+			APPEND _commands COMMAND "${Qt5_LUPDATE_EXECUTABLE}" -locations absolute
 			-pro "${CMAKE_BINARY_DIR}/update_translations_${_set}.pro"
 		)
 	ENDFOREACH()
