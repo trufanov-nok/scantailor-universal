@@ -23,7 +23,6 @@
 #include "TiffMetadataLoader.h"
 #include "JpegMetadataLoader.h"
 #include "GenericMetadataLoader.h"
-#include "SettingsDefaults.h"
 #include <QMetaType>
 #include <QtPlugin>
 #include <QLocale>
@@ -164,9 +163,6 @@ int main(int argc, char** argv)
 		return 0;
 	}
 	
-	
-
-    SettingsDefaults::prepareDefaults(true);
 
 	QSettings settings;
 	

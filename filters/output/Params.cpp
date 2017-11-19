@@ -132,17 +132,35 @@ Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& 
     case CopyAll:
         m_colorParams = params;
         break;
-    case CopyMode:
+    case CopyMode: {
         if (m_colorParams.colorMode() != params.colorMode()) {
             // it's time to apply defaults
             //TRUF m_pictureShape = (PictureShape) QSettings().value("picture_zones_layer/default", output::FREE_SHAPE).toUInt();
         }
         m_colorParams.setColorMode(params.colorMode());
         m_colorParams.setColorGrayscaleOptions(params.colorGrayscaleOptions());
-
+    }
         break;
-    case CopyThreshold:
-        m_colorParams.setBlackWhiteOptions(params.blackWhiteOptions());
+
+    case CopyAllThresholds: {
+        BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
+        opt.setThresholdAdjustment(params.blackWhiteOptions().thresholdAdjustment());
+        opt.setThresholdForegroundAdjustment(params.blackWhiteOptions().thresholdForegroundAdjustment());
+        m_colorParams.setBlackWhiteOptions(opt);
+    }
+        break;
+
+    case CopyThreshold: {
+        BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
+        opt.setThresholdAdjustment(params.blackWhiteOptions().thresholdAdjustment());
+        m_colorParams.setBlackWhiteOptions(opt);
+    }
+        break;
+    case CopyForegroundThreshold: {
+        BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
+        opt.setThresholdForegroundAdjustment(params.blackWhiteOptions().thresholdForegroundAdjustment());
+        m_colorParams.setBlackWhiteOptions(opt);
+    }
         break;
     }
 }

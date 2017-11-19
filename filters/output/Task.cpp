@@ -723,7 +723,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 	tab_widget->setDocumentMode(true);
 	tab_widget->setTabPosition(QTabWidget::East);
 	tab_widget->addTab(image_view.release(), tr("Output"), TAB_OUTPUT);
-	tab_widget->addTab(picture_zone_editor.release(), tr("Picture Zones"), TAB_PICTURE_ZONES);
+    tab_widget->addTab(picture_zone_editor.release(), tr("Layers"), TAB_PICTURE_ZONES);
 	tab_widget->addTab(fill_zone_editor.release(), tr("Fill Zones"), TAB_FILL_ZONES);
 	tab_widget->addTab(dewarping_view.release(), tr("Dewarping"), TAB_DEWARPING);
 	tab_widget->addTab(despeckle_view.release(), tr("Despeckling"), TAB_DESPECKLING);

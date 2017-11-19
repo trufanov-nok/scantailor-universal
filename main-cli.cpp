@@ -25,7 +25,6 @@
 
 #include "CommandLine.h"
 #include "ConsoleBatch.h"
-#include "SettingsDefaults.h"
 #include "config.h"
 
 
@@ -43,7 +42,6 @@ int main(int argc, char **argv)
     app.setOrganizationName(ORGANIZATION_NAME);
     app.setOrganizationDomain(ORGANIZATION_DOMAIN);
     QSettings::setDefaultFormat(QSettings::IniFormat);
-    SettingsDefaults::prepareDefaults(false);
 
     // parse command line arguments
 	CommandLine cli(app.arguments(), false);

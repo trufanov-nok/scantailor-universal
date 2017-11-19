@@ -79,13 +79,13 @@ private slots:
 
     void on_btnResetHotKeys_clicked();
 
-    void on_marginDefaultTopVal_valueChanged(int arg1);
+    void on_marginDefaultTopVal_valueChanged(double arg1);
 
-    void on_marginDefaultLeftVal_valueChanged(int arg1);
+    void on_marginDefaultLeftVal_valueChanged(double arg1);
 
-    void on_marginDefaultRightVal_valueChanged(int arg1);
+    void on_marginDefaultRightVal_valueChanged(double arg1);
 
-    void on_marginDefaultBottomVal_valueChanged(int arg1);
+    void on_marginDefaultBottomVal_valueChanged(double arg1);
 
     void on_cbMarginUnits_currentIndexChanged(int index);
 
@@ -109,8 +109,6 @@ private slots:
 
     void on_gbPageDetectionTargetSize_toggled(bool arg1);
 
-    void on_pageDetectionTargetBorders_valueChanged(double arg1);
-
     void on_pageDetectionTopBorder_valueChanged(double arg1);
 
     void on_pageDetectionRightBorder_valueChanged(double arg1);
@@ -118,6 +116,8 @@ private slots:
     void on_pageDetectionLeftBorder_valueChanged(double arg1);
 
     void on_pageDetectionBottomBorder_valueChanged(double arg1);
+
+    void on_cbForegroundLayerSeparateControl_clicked(bool checked);
 
 private:
     void initLanguageList(QString cur_lang);

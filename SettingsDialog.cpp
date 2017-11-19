@@ -77,7 +77,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 void SettingsDialog::initLanguageList(QString cur_lang)
 {
     ui.language->clear();
-    ui.language->addItem("English", "en");;
+    ui.language->addItem("English", "en");
 
     const QStringList language_file_filter("scantailor_*.qm");
     QStringList fileNames = QDir().entryList(language_file_filter);
@@ -511,6 +511,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         displayAlignment();
     } else if (currentPage == ui.pageAutoMargins) {
         displayAlignment();
+    } else if (currentPage == ui.pageForegroundLayer) {
+        ui.cbForegroundLayerSeparateControl->setChecked(m_settings.value("foreground_layer/control_threshold", false).toBool());
     }
 
 }
@@ -759,22 +761,22 @@ void SettingsDialog::on_btnResetHotKeys_clicked()
     ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
 }
 
-void SettingsDialog::on_marginDefaultTopVal_valueChanged(int arg1)
+void SettingsDialog::on_marginDefaultTopVal_valueChanged(double arg1)
 {
     m_settings.setValue("margins/default_top", arg1 * m_unitToMM);
 }
 
-void SettingsDialog::on_marginDefaultLeftVal_valueChanged(int arg1)
+void SettingsDialog::on_marginDefaultLeftVal_valueChanged(double arg1)
 {
     m_settings.setValue("margins/default_left", arg1 * m_unitToMM);
 }
 
-void SettingsDialog::on_marginDefaultRightVal_valueChanged(int arg1)
+void SettingsDialog::on_marginDefaultRightVal_valueChanged(double arg1)
 {
     m_settings.setValue("margins/default_right", arg1 * m_unitToMM);
 }
 
-void SettingsDialog::on_marginDefaultBottomVal_valueChanged(int arg1)
+void SettingsDialog::on_marginDefaultBottomVal_valueChanged(double arg1)
 {
     m_settings.setValue("margins/default_bottom", arg1 * m_unitToMM);
 }
@@ -1025,11 +1027,6 @@ void SettingsDialog::on_gbPageDetectionTargetSize_toggled(bool arg1)
      m_settings.setValue("page_detection/target_page_size/enabled", arg1);
 }
 
-void SettingsDialog::on_pageDetectionTargetBorders_valueChanged(double arg1)
-{
-    m_settings.setValue("page_detection/target_page_size", QSizeF(ui.pageDetectionTargetWidth->value(), arg1));
-}
-
 void SettingsDialog::on_pageDetectionTopBorder_valueChanged(double arg1)
 {
     m_settings.setValue("page_detection/borders/top", arg1);
@@ -1048,4 +1045,9 @@ void SettingsDialog::on_pageDetectionLeftBorder_valueChanged(double arg1)
 void SettingsDialog::on_pageDetectionBottomBorder_valueChanged(double arg1)
 {
     m_settings.setValue("page_detection/borders/bottom", arg1);
+}
+
+void SettingsDialog::on_cbForegroundLayerSeparateControl_clicked(bool checked)
+{
+    m_settings.setValue("foreground_layer/control_threshold", checked);
 }

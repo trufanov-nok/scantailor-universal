@@ -27,12 +27,14 @@ namespace output
 {
 
 BlackWhiteOptions::BlackWhiteOptions():
-    m_thresholdAdjustment(GlobalStaticSettings::m_binrization_threshold_control_default)
+    m_thresholdAdjustment(GlobalStaticSettings::m_binrization_threshold_control_default),
+    m_thresholdForegroundAdjustment(m_thresholdAdjustment)
 {   
 }
 
 BlackWhiteOptions::BlackWhiteOptions(QDomElement const& el)
-:	m_thresholdAdjustment(el.attribute("thresholdAdj").toInt())
+:	m_thresholdAdjustment(el.attribute("thresholdAdj").toInt()),
+    m_thresholdForegroundAdjustment(el.attribute("thresholdForegAdj").toInt())
 {
 }
 
@@ -41,6 +43,7 @@ BlackWhiteOptions::toXml(QDomDocument& doc, QString const& name) const
 {
 	QDomElement el(doc.createElement(name));
 	el.setAttribute("thresholdAdj", m_thresholdAdjustment);
+    el.setAttribute("thresholdForegAdj", m_thresholdForegroundAdjustment);
 	return el;
 }
 
@@ -50,6 +53,9 @@ BlackWhiteOptions::operator==(BlackWhiteOptions const& other) const
 	if (m_thresholdAdjustment != other.m_thresholdAdjustment) {
 		return false;
 	}
+    if (m_thresholdForegroundAdjustment != other.m_thresholdForegroundAdjustment) {
+        return false;
+    }
 	
 	return true;
 }

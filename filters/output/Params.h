@@ -36,7 +36,9 @@ namespace output
     {
         CopyMode = 1,
         CopyThreshold = 2,
-        CopyAll = CopyMode | CopyThreshold
+        CopyForegroundThreshold = 4,
+        CopyAllThresholds = CopyThreshold | CopyForegroundThreshold,
+        CopyAll = CopyMode | CopyThreshold | CopyForegroundThreshold
     };
 
 class Params: public RegenParams

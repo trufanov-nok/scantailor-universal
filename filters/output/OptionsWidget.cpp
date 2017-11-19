@@ -69,8 +69,13 @@ OptionsWidget::OptionsWidget(
 
 	thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
     thresholdSlider->addAction(actionReset_to_default_value);
-    m_ignore_system_wheel_settings = QSettings().value("mouse/ignore_system_wheel_settings", true).toBool();
+    QSettings _settings;
+    bwForegroundOptions->setVisible(_settings.value("foreground_layer/control_threshold", false).toBool());
+    thresholdForegroundSlider->setToolTip(QString::number(thresholdForegroundSlider->value()));
+    thresholdForegroundSlider->addAction(actionReset_to_default_value_foeground);
+    m_ignore_system_wheel_settings = _settings.value("mouse/ignore_system_wheel_settings", true).toBool();
     thresholdSlider->installEventFilter(this);
+    thresholdForegroundSlider->installEventFilter(this);
     if (m_ignore_system_wheel_settings){
         despeckleSlider->installEventFilter(this);
         depthPerceptionSlider->installEventFilter(this);
@@ -117,6 +122,11 @@ OptionsWidget::OptionsWidget(
         this, &OptionsWidget::on_thresholdSlider_valueChanged
     );
 
+    connect(
+        thresholdForegroundSlider, &QSlider::sliderReleased,
+        this, &OptionsWidget::on_thresholdForegroundSlider_valueChanged
+    );
+
     settingsChanged();
 }
 
@@ -127,6 +137,10 @@ OptionsWidget::settingsChanged()
     thresholdSlider->setMinimum(settings.value("output/binrization_threshold_control_min", -50).toInt());
     thresholdSlider->setMaximum(settings.value("output/binrization_threshold_control_max", 50).toInt());
     thresholdLabel->setText(QString::number(thresholdSlider->value()));
+
+    thresholdForegroundSlider->setMinimum(settings.value("output/binrization_threshold_control_min", -50).toInt());
+    thresholdForegroundSlider->setMaximum(settings.value("output/binrization_threshold_control_max", 50).toInt());
+    thresholdForegroundLabel->setText(QString::number(thresholdForegroundSlider->value()));
 
     updateLayersDisplay();
 }
@@ -505,6 +519,7 @@ OptionsWidget::updateColorsDisplay()
 
 	bool color_grayscale_options_visible = false;
 	bool bw_options_visible = false;
+    bool foreground_treshhold_options_visible = false;
 
     switch (m_currentMode) {
         case ColorParams::BLACK_AND_WHITE:
@@ -516,6 +531,7 @@ OptionsWidget::updateColorsDisplay()
         case ColorParams::MIXED:
             bw_options_visible = true;
             color_grayscale_options_visible = true;
+            foreground_treshhold_options_visible = QSettings().value("foreground_layer/control_threshold", false).toBool();
             break;
     }
 	
@@ -554,6 +570,11 @@ OptionsWidget::updateColorsDisplay()
 		ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
         thresholdSlider->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
 	}
+
+    bwForegroundOptions->setVisible(foreground_treshhold_options_visible);
+    if (foreground_treshhold_options_visible) {
+       thresholdForegroundSlider->setValue(m_colorParams.blackWhiteOptions().thresholdForegroundAdjustment());
+    }
 
 }
 
@@ -788,12 +809,61 @@ void output::OptionsWidget::on_thresholdSlider_valueChanged()
     }
 
     opt.setThresholdAdjustment(value);
-    m_colorParams.setBlackWhiteOptions(opt);
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyThreshold);
-    emit reloadRequested();
+    if (!bwForegroundOptions->isVisible()) {
+        opt.setThresholdForegroundAdjustment(value);
+        m_colorParams.setBlackWhiteOptions(opt);
+        m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyAllThresholds);
+    } else {
+        m_colorParams.setBlackWhiteOptions(opt);
+        m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyThreshold);
+    }
 
+    emit reloadRequested();
     emit invalidateThumbnail(m_pageId);
 }
+
+void output::OptionsWidget::on_thresholdForegroundSlider_valueChanged()
+{
+    if (m_ignoreThresholdChanges) {
+        return;
+    }
+
+    int value = thresholdForegroundSlider->value();
+
+    QString const tooltip_text(QString::number(value));
+    thresholdForegroundSlider->setToolTip(tooltip_text);
+    thresholdForegroundLabel->setNum(value);
+
+    // Show the tooltip immediately.
+    QPoint const center(thresholdForegroundSlider->rect().center());
+    QPoint tooltip_pos(thresholdForegroundSlider->mapFromGlobal(QCursor::pos()));
+    tooltip_pos.setY(center.y());
+    tooltip_pos.setX(qBound(0, tooltip_pos.x(), thresholdForegroundSlider->width()));
+    tooltip_pos = thresholdForegroundSlider->mapToGlobal(tooltip_pos);
+    QToolTip::showText(tooltip_pos, tooltip_text, thresholdForegroundSlider);
+
+    if (thresholdForegroundSlider->isSliderDown()) {
+        // Wait for it to be released.
+        // We could have just disabled tracking, but in that case we wouldn't
+        // be able to show tooltips with a precise value.
+        return;
+    }
+
+
+    BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+    if (opt.thresholdForegroundAdjustment() == value) {
+        // Didn't change.
+        return;
+    }
+
+    opt.setThresholdForegroundAdjustment(value);
+    m_colorParams.setBlackWhiteOptions(opt);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyForegroundThreshold);
+
+    emit reloadRequested();
+    emit invalidateThumbnail(m_pageId);
+}
+
 
 void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
 {
@@ -814,10 +884,10 @@ void output::OptionsWidget::on_actionReset_to_default_value_triggered()
     thresholdSlider->setValue(def);
 }
 
-void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& pages)
+void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& pages, ColorParamsApplyFilter const& paramFilter)
 {
     for (PageId const& page_id: pages) {
-        m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyThreshold);
+        m_ptrSettings->setColorParams(page_id, m_colorParams, paramFilter);
     }
 
     emit invalidateAllThumbnails();
@@ -834,10 +904,9 @@ void output::OptionsWidget::on_applyThresholdButton_linkActivated(const QString 
     );
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(tr("Apply Threshold"));
-    connect(
-        dialog, SIGNAL(accepted(std::set<PageId> const&)),
-        this, SLOT(applyThresholdConfirmed(std::set<PageId> const&))
-    );
+    connect(dialog, &ApplyColorsDialog::accepted, [this](std::set<PageId> const& set){
+                    applyThresholdConfirmed(set, ColorParamsApplyFilter::CopyThreshold);
+                }   );
     dialog->show();
 }
 
@@ -890,4 +959,23 @@ void output::OptionsWidget::on_autoLayerCB_toggled(bool checked)
 
         emit reloadRequested();
     }
+}
+
+void output::OptionsWidget::on_applyForegroundThresholdButton_linkActivated(const QString &/*link*/)
+{
+    ApplyColorsDialog* dialog = new ApplyColorsDialog(
+        this, m_pageId, m_pageSelectionAccessor
+    );
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Apply Foregorund layer threshold"));
+    connect(dialog, &ApplyColorsDialog::accepted, [this](std::set<PageId> const& set){
+                    applyThresholdConfirmed(set, ColorParamsApplyFilter::CopyForegroundThreshold);
+                }   );
+    dialog->show();
+}
+
+void output::OptionsWidget::on_actionReset_to_default_value_foeground_triggered()
+{
+    int def = QSettings().value("output/binrization_threshold_control_default", 0).toInt();
+    thresholdForegroundSlider->setValue(def);
 }

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>634</width>
-    <height>405</height>
+    <height>486</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,7 +48,7 @@
        <item>
         <widget class="QTreeWidget" name="treeWidget">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
            <horstretch>1</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>16</number>
+       <number>26</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -222,8 +222,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>359</width>
-                <height>120</height>
+                <width>74</width>
+                <height>540</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
@@ -382,7 +382,7 @@ Batch processing - a simple dialog that appears if you press the launch button a
              <x>0</x>
              <y>0</y>
              <width>424</width>
-             <height>301</height>
+             <height>45</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_51">
@@ -598,8 +598,8 @@ If project was never saved before this will create UnnamedAutoSave.Scantailor fi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>359</width>
-                <height>240</height>
+                <width>89</width>
+                <height>900</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_57">
@@ -1172,8 +1172,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>359</width>
-                <height>360</height>
+                <width>98</width>
+                <height>1395</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -1405,8 +1405,8 @@ Page borders - after page area is found this will decrease it by given borders. 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>359</width>
-                <height>390</height>
+                <width>86</width>
+                <height>1455</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -1793,8 +1793,8 @@ Enforces original alignment mode.</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>359</width>
-                <height>195</height>
+                <width>95</width>
+                <height>810</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_69">
@@ -2019,25 +2019,78 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
       <widget class="QWidget" name="pageBlackWhiteMode">
        <layout class="QVBoxLayout" name="verticalLayout_46">
         <item>
-         <widget class="QGroupBox" name="groupBox_28">
+         <widget class="QGroupBox" name="groupBox_27">
           <property name="title">
            <string>Description</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_24">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_17">
-             <property name="text">
-              <string>TextLabel</string>
+            <widget class="QScrollArea" name="scrollArea_11">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="widgetResizable">
+              <bool>true</bool>
              </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_11">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>86</width>
+                <height>1005</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_74">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblBlackWhiteModeDescr">
+                 <property name="text">
+                  <string>Black and White is suitable for any images and some drawings. There is an option to &quot;despeckle&quot;, and to increase or decrease the line thickness (i.e. of the text). In general it is best to not despeckle if the image is reasonably clean as despeckling can result in the loss of some portions of text. This may be compensated for to a degree by increasing the line thickness but it's probably important to experiment on a few pages before applying to the entire project.
+Making black and white image from grayscale or color source requires binarization. Binarization contains several steps which could be seen in debug mode. One of these is image smoothing. In few cases better results could be achieved if smoothing is disabled, but it's enabled by default.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -2048,8 +2101,8 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_10">
-           <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_75">
+           <item>
             <widget class="QCheckBox" name="disableSmoothingBW">
              <property name="text">
               <string>Disable smoothing</string>
@@ -2064,25 +2117,79 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
       <widget class="QWidget" name="pageColorGrayscaleMode">
        <layout class="QVBoxLayout" name="verticalLayout_48">
         <item>
-         <widget class="QGroupBox" name="groupBox_30">
+         <widget class="QGroupBox" name="groupBox_28">
           <property name="title">
            <string>Description</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_25">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_18">
-             <property name="text">
-              <string>TextLabel</string>
+            <widget class="QScrollArea" name="scrollArea_12">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="widgetResizable">
+              <bool>true</bool>
              </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_12">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>76</width>
+                <height>540</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_76">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblColorGrayscaleModeDescr">
+                 <property name="text">
+                  <string>In this mode page content is not changed.
+Margins can be filled with white or left as is. If the margins are filled in white, then the option to equalise illumination also becomes available.
+Equalise illumination option normalizes the background color, bringing it to white, and normalizes contrast, increasing it in the shaded areas.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -2101,25 +2208,79 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
       <widget class="QWidget" name="pageMixedMode">
        <layout class="QVBoxLayout" name="verticalLayout_49">
         <item>
-         <widget class="QGroupBox" name="groupBox_32">
+         <widget class="QGroupBox" name="groupBox_29">
           <property name="title">
            <string>Description</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_26">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_19">
-             <property name="text">
-              <string>TextLabel</string>
+            <widget class="QScrollArea" name="scrollArea_13">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="widgetResizable">
+              <bool>true</bool>
              </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_13">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>94</width>
+                <height>765</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_77">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblMixedModeDescr">
+                 <property name="text">
+                  <string>Mixed mode is used for projects in which there are scans from half-tone images (grayscale or color). Pictures will be automatically detected and displayed as it is, just as in the &quot;Colour / Gray&quot; with the included equalised illumination. The rest of the page is displayed in black and white.
+
+Automatic image works well enough, but if the picture merges smoothly into the background the result may be unsatisfactory. In this case, you must create and configure the picture zone images. It is important to note that the creation of zones of images is possible only in mixed mode.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -2130,12 +2291,87 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_3">
-           <item row="0" column="0">
-            <widget class="QLabel" name="picturesShapeDefaultsLabel">
-             <property name="text">
-              <string>Default picture detection:</string>
+          <layout class="QFormLayout" name="formLayout_3"/>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pageAutoLayer">
+       <layout class="QVBoxLayout" name="verticalLayout_80">
+        <item>
+         <widget class="QGroupBox" name="groupBox_30">
+          <property name="title">
+           <string>Description</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_78">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QScrollArea" name="scrollArea_14">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_14">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>86</width>
+                <height>630</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_79">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblAutoLayerDescr">
+                 <property name="text">
+                  <string>Auto layer is switched on by default and contains automatically detected areas which are most likely pictures and should be left grayscaled/colored while other converted to b/w.
+The result is binary mask and could be viewed in Layers tab. It's highlighted by blue and glowing.
+This mask can't be changed directly but only switched on/off. User could also create zones (polygons) with &quot;subtract from Auto layer&quot; or &quot;Add to Auto layer&quot; flags to modify it.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -2143,29 +2379,82 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="pageAutoLayer"/>
       <widget class="QWidget" name="pagePictureZonesLayer">
        <layout class="QVBoxLayout" name="verticalLayout_50">
         <item>
-         <widget class="QGroupBox" name="groupBox_34">
+         <widget class="QGroupBox" name="groupBox_31">
           <property name="title">
            <string>Description</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_27">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_20">
-             <property name="text">
-              <string>TextLabel</string>
+            <widget class="QScrollArea" name="scrollArea_15">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="widgetResizable">
+              <bool>true</bool>
              </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_15">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>86</width>
+                <height>1725</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_81">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblPictureZonesLayerDescr">
+                 <property name="text">
+                  <string>Picture zones layer works on top of Auto layer results and could be useful if your pictures are known to be rectangles. Auto layer is build automatically and doesn't make any assumptions on areas geometry. Picture zones layer tries to improve its mask assuming all picture areas found should be rectangles.
+This layer doesn't modify auto layer mask but automatically creates rectangle zones on top of it. So usually it covers all auto layer with polygons. User can change these polygons as regular picture zones.
+In case sensitivity parameter is 100% the picture detection algorithm looks for the separate picture areas and adds a minimal bounding rect for each of them as a zone. In this case zone contains pixels from auto layer mask and may contain pixels that are not included in auto layer mask but still inside the rect. If sensitivity is less than 100% the algorithm additionally investigates each side of bounding rect and tries to move it towards the center of rect while the line of pixels behind it contains more than N% of pixels that are not from auto layer mask. Decreasing sensitivity may help to better fit picture zone over picture area by ignoring pixels-outliers incorrectly included in auto layer mask. Usually, the sensitivity is 75-100% </string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -2222,39 +2511,103 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="pageShowAsASelectionZone">
-       <layout class="QVBoxLayout" name="verticalLayout_52">
+      <widget class="QWidget" name="pageForegroundLayer">
+       <layout class="QVBoxLayout" name="verticalLayout_45">
         <item>
-         <widget class="QGroupBox" name="groupBox_38">
+         <widget class="QGroupBox" name="groupBox_16">
           <property name="title">
            <string>Description</string>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_29">
+          <layout class="QVBoxLayout" name="verticalLayout_22">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_22">
-             <property name="text">
-              <string>TextLabel</string>
+            <widget class="QScrollArea" name="scrollArea_10">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="widgetResizable">
+              <bool>true</bool>
              </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_10">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>79</width>
+                <height>1680</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_73">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblForegroundLayerDescr">
+                 <property name="text">
+                  <string>Foreground layer allows user to fill page with white while keeping its content grayscaled or colored. Technically, it binarizes image to a b/w mask and uses such mask to separate background from foreground. Then background is filled with white while foreground is kept as is.
+It could be useful if you have some colored text, arrows or other glyphs which could be hardly represented as a rectangle picture.
+Foreground layer could be adjusted with zones. Use zones with &quot;subtract from all layers&quot; property to left a part of image below it in b/w mode. Or &quot;subtract to auto layer&quot; to remove auto layer mask below it. By default auto layer masks (if enabled) and foreground layer masks are combined.
+
+As Foreground layer is using binarization to separate content from background it's uses binarization threshold value. By default it's the same value that used for b/w layer. But sometimes you may need bigger threshold to be used for mask detection while keeping b/w threshold for regular binarization. In this case you can switch on &quot;Separate threshold control&quot; check box and make additional threshold control visible for foreground layer.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="optShowAsASelectionZone">
+         <widget class="QGroupBox" name="optGeneral_2">
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_15"/>
+          <layout class="QFormLayout" name="formLayout_4">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="cbForegroundLayerSeparateControl">
+             <property name="text">
+              <string>Separate threshold control</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -2268,15 +2621,15 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_30">
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_23">
+            <widget class="QLabel" name="lblFillZonesDescr">
              <property name="text">
-              <string>TextLabel</string>
+              <string>Fill zones tab allows user to specify zones that will be filled with background cover. This is usually used to remove the library stamps, and spots that are too big to be automatically removed with Despeckle function.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -2305,15 +2658,16 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_31">
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_24">
+            <widget class="QLabel" name="lblDewarpingDescr">
              <property name="text">
-              <string>TextLabel</string>
+              <string>Dewarping tries to detect and fix distortion of page surface by analyzing lines of text on it. It assumes that the lines should be horizontal.
+Automatic and manual modes are supported.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -2342,15 +2696,15 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_32">
            <item>
-            <widget class="QLabel" name="lblApplyCutDescr_25">
+            <widget class="QLabel" name="lblDespecklingDescr">
              <property name="text">
-              <string>TextLabel</string>
+              <string>Despeckling mode tries to automatically clean page content from spots. It analyses only areas of page rendered in b/w. In a nutshell it looks for connected set of black pixels that could be bounded with a rect smaller then Despeckling mode sensitivity rect - in this case these pixels are filled with background color. Currently 3 levels of sensitivity are supported.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
              <property name="wordWrap">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>

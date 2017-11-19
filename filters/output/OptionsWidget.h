@@ -80,7 +80,7 @@ private slots:
 
 	void applyColorsConfirmed(std::set<PageId> const& pages);
 
-    void applyThresholdConfirmed(std::set<PageId> const& pages);
+    void applyThresholdConfirmed(std::set<PageId> const& pages, ColorParamsApplyFilter const& paramFilter);
 
     void changeColorMode(ColorParams::ColorMode const mode);
 	
@@ -123,6 +123,7 @@ private slots:
     void on_despeckleSlider_valueChanged(int value);
 
     void on_thresholdSlider_valueChanged();
+    void on_thresholdForegroundSlider_valueChanged();
 
     void on_dpiValue_linkActivated(const QString &);
 
@@ -135,6 +136,10 @@ private slots:
     void on_foregroundLayerCB_toggled(bool checked);
 
     void on_autoLayerCB_toggled(bool checked);
+
+    void on_applyForegroundThresholdButton_linkActivated(const QString &link);
+
+    void on_actionReset_to_default_value_foeground_triggered();
 
 private:
     bool eventFilter(QObject *obj, QEvent *event);

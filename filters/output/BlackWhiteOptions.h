@@ -38,12 +38,17 @@ public:
 	int thresholdAdjustment() const { return m_thresholdAdjustment; }
 	
 	void setThresholdAdjustment(int val) { m_thresholdAdjustment = val; }
+
+    int thresholdForegroundAdjustment() const { return m_thresholdForegroundAdjustment; }
+
+    void setThresholdForegroundAdjustment(int val) { m_thresholdForegroundAdjustment = val; }
 		
 	bool operator==(BlackWhiteOptions const& other) const;
 	
 	bool operator!=(BlackWhiteOptions const& other) const;
 private:
 	int m_thresholdAdjustment;
+    int m_thresholdForegroundAdjustment;
 };
 
 } // namespace output

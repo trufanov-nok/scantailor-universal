@@ -687,13 +687,7 @@ MainWindow::timerEvent(QTimerEvent* const event)
     pauseAutoSaveTimer();
 	if (closeProjectInteractive()) {
 		m_closing = true;
-		QSettings settings;
-        settings.setValue("main_window/maximized", isMaximized());
-		if (!isMaximized()) {
-			settings.setValue(
-                "main_window/non_maximized_geometry", saveGeometry()
-			);
-		}
+        saveWindowSettigns();
 		close();
 	}
 
@@ -1790,6 +1784,7 @@ MainWindow::closeProject()
 void
 MainWindow::openSettingsDialog()
 {
+    saveWindowSettigns();
 	SettingsDialog* dialog = new SettingsDialog(this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowModality(Qt::WindowModal);
@@ -3252,4 +3247,16 @@ MainWindow::applyShortcutsSettings()
                           .arg(GlobalStaticSettings::getShortcutText(PageNext))
                           .arg(GlobalStaticSettings::getShortcutText(PageNext, 1))
                           );
+}
+
+void
+MainWindow::saveWindowSettigns()
+{
+    QSettings settings;
+    settings.setValue("main_window/maximized", isMaximized());
+    if (!isMaximized()) {
+        settings.setValue(
+            "main_window/non_maximized_geometry", saveGeometry()
+        );
+    }
 }
