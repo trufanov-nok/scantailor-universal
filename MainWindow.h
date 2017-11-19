@@ -125,6 +125,7 @@ public slots:
 private:
     enum MainAreaAction { UPDATE_MAIN_AREA, CLEAR_MAIN_AREA };
 
+    void jumpToPage(int cnt);
 //Settings processing
 
     void setDockingPanels(bool enabled);
@@ -142,9 +143,9 @@ private slots:
 
 	void goLastPage();
 
-	void goNextPage();
+    void goNextPage(int cnt = 1);
 	
-	void goPrevPage();
+    void goPrevPage(int cnt = -1);
 	
 	void goToPage(PageId const& page_id);
 	
@@ -224,6 +225,10 @@ private slots:
     void displayStatusBarMousePos();
 
     void applyUnitsSettingToCoordinates(qreal& x, qreal& y, QString& units);
+
+    void on_actionJumpPageF_triggered();
+
+    void on_actionJumpPageB_triggered();
 
 private:
 	class PageSelectionProviderImpl;

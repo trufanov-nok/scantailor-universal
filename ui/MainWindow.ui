@@ -635,6 +635,22 @@
     <string>About &amp;Qt</string>
    </property>
   </action>
+  <action name="actionJumpPageF">
+   <property name="text">
+    <string>Jump Forward</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+PgDown</string>
+   </property>
+  </action>
+  <action name="actionJumpPageB">
+   <property name="text">
+    <string>Jump Backward</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+PgUp</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

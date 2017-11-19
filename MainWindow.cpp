@@ -207,6 +207,8 @@ MainWindow::MainWindow()
 	addAction(actionPrevPage);
 	addAction(actionPrevPageQ);
 	addAction(actionNextPageW);
+    addAction(actionJumpPageB);
+    addAction(actionJumpPageF);
 	
 	addAction(actionSwitchFilter1);
 	addAction(actionSwitchFilter2);
@@ -1098,33 +1100,44 @@ MainWindow::goLastPage()
 }
 
 void
-MainWindow::goNextPage()
+MainWindow::jumpToPage(int cnt)
 {
-	if (isBatchProcessingInProgress() || !isProjectLoaded()) {
-		return;
-	}
-	
-	PageInfo const next_page(
-		m_ptrThumbSequence->nextPage(m_ptrThumbSequence->selectionLeader().id())
-	);
-	if (!next_page.isNull()) {
-		goToPage(next_page.id());
-	}
+    if (isBatchProcessingInProgress() || !isProjectLoaded() || cnt == 0) {
+        return;
+    }
+
+    const bool jump_prev = cnt < 0;
+    cnt = abs(cnt);
+
+    PageId pg_id(m_ptrThumbSequence->selectionLeader().id());
+    if (pg_id.isNull()) {
+        return;
+    }
+
+    while (cnt-- > 0) {
+        PageId _id = jump_prev ? m_ptrThumbSequence->prevPage(pg_id).id() :
+                                 m_ptrThumbSequence->nextPage(pg_id).id();
+        if (!_id.isNull()) {
+            pg_id = _id;
+        } else {
+            break;
+        }
+    }
+
+    goToPage(pg_id);
+}
+
+
+void
+MainWindow::goNextPage(int cnt)
+{
+    jumpToPage(cnt);
 }
 
 void
-MainWindow::goPrevPage()
+MainWindow::goPrevPage(int cnt)
 {
-	if (isBatchProcessingInProgress() || !isProjectLoaded()) {
-		return;
-	}
-	
-	PageInfo const prev_page(
-		m_ptrThumbSequence->prevPage(m_ptrThumbSequence->selectionLeader().id())
-	);
-	if (!prev_page.isNull()) {
-		goToPage(prev_page.id());
-	}
+    jumpToPage(cnt);
 }
 
 void
@@ -3229,6 +3242,8 @@ MainWindow::applyShortcutsSettings()
     actionLastPage->setShortcut(GlobalStaticSettings::createShortcut(PageLast));
     actionNextPage->setShortcut(GlobalStaticSettings::createShortcut(PageNext));
     actionNextPageW->setShortcut(GlobalStaticSettings::createShortcut(PageNext, 1));
+    actionJumpPageF->setShortcut(GlobalStaticSettings::createShortcut(PageJumpForward));
+    actionJumpPageB->setShortcut(GlobalStaticSettings::createShortcut(PageJumpBackward));
     actionCloseProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectClose));
     actionQuit->setShortcut(GlobalStaticSettings::createShortcut(AppQuit));
 
@@ -3259,4 +3274,18 @@ MainWindow::saveWindowSettigns()
             "main_window/non_maximized_geometry", saveGeometry()
         );
     }
+}
+
+void MainWindow::on_actionJumpPageF_triggered()
+{
+    QSettings settings;
+    int pg_jmp = settings.value("hot_keys/jump_forward_pg_num", 5).toUInt();
+    jumpToPage(pg_jmp);
+}
+
+void MainWindow::on_actionJumpPageB_triggered()
+{
+    QSettings settings;
+    int pg_jmp = settings.value("hot_keys/jump_backward_pg_num", 5).toUInt();
+    jumpToPage(-1*pg_jmp);
 }
