@@ -1230,6 +1230,26 @@
     <string>&amp;Reset to default value</string>
    </property>
   </action>
+  <action name="actionactionDespeckleOff">
+   <property name="text">
+    <string>actionDespeckleOff</string>
+   </property>
+  </action>
+  <action name="actionactionDespeckleCautious">
+   <property name="text">
+    <string>actionDespeckleCautious</string>
+   </property>
+  </action>
+  <action name="actionactionDespeckleNormal">
+   <property name="text">
+    <string>actionDespeckleNormal</string>
+   </property>
+  </action>
+  <action name="actionactionDespeckleAggressive">
+   <property name="text">
+    <string>actionDespeckleAggressive</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../resources/resources.qrc"/>

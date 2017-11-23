@@ -127,6 +127,12 @@ OptionsWidget::OptionsWidget(
         this, &OptionsWidget::on_thresholdForegroundSlider_valueChanged
     );
 
+    addAction(actionactionDespeckleOff);
+    addAction(actionactionDespeckleNormal);
+    addAction(actionactionDespeckleCautious);
+    addAction(actionactionDespeckleAggressive);
+    updateShortcuts();
+
     settingsChanged();
 }
 
@@ -142,7 +148,17 @@ OptionsWidget::settingsChanged()
     thresholdForegroundSlider->setMaximum(settings.value("output/binrization_threshold_control_max", 50).toInt());
     thresholdForegroundLabel->setText(QString::number(thresholdForegroundSlider->value()));
 
+    updateShortcuts();
     updateLayersDisplay();
+}
+
+void
+OptionsWidget::updateShortcuts()
+{
+    actionactionDespeckleOff->setShortcut(GlobalStaticSettings::createShortcut(DespeckleMode0));
+    actionactionDespeckleCautious->setShortcut(GlobalStaticSettings::createShortcut(DespeckleMode1));
+    actionactionDespeckleNormal->setShortcut(GlobalStaticSettings::createShortcut(DespeckleMode2));
+    actionactionDespeckleAggressive->setShortcut(GlobalStaticSettings::createShortcut(DespeckleMode3));
 }
 
 void
@@ -978,4 +994,24 @@ void output::OptionsWidget::on_actionReset_to_default_value_foeground_triggered(
 {
     int def = QSettings().value("output/binrization_threshold_control_default", 0).toInt();
     thresholdForegroundSlider->setValue(def);
+}
+
+void output::OptionsWidget::on_actionactionDespeckleOff_triggered()
+{
+    despeckleOffBtn->click();
+}
+
+void output::OptionsWidget::on_actionactionDespeckleCautious_triggered()
+{
+    despeckleCautiousBtn->click();
+}
+
+void output::OptionsWidget::on_actionactionDespeckleNormal_triggered()
+{
+    despeckleNormalBtn->click();
+}
+
+void output::OptionsWidget::on_actionactionDespeckleAggressive_triggered()
+{
+    despeckleAggressiveBtn->click();
 }

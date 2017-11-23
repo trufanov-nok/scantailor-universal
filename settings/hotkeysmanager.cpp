@@ -8,6 +8,11 @@
 const uint _KeySchemeVer = 2;
 const uint _KeySchemeLastCompatibleVer = _KeySchemeVer;
 
+QHotKeys::QHotKeys()
+{
+    load();
+}
+
 void QHotKeys::resetToDefaults()
 {
     m_data.clear();
@@ -174,6 +179,52 @@ void QHotKeys::resetToDefaults()
     group_dewarping.setHotKeys(data);
 
     m_data.append(group_dewarping);
+
+    data.clear();
+
+    data.append(HotKeyInfo(DespeckleMode0, QObject::tr("Switch off despeckling"), KeysAndModifiers, HotKey,
+                           HotKeySequence(Qt::NoModifier, Qt::Key_Z)));
+    data.append(HotKeyInfo(DespeckleMode1, QObject::tr("Switch to cautious mode"), KeysAndModifiers, HotKey,
+                           HotKeySequence(Qt::NoModifier, Qt::Key_X)));
+    data.append(HotKeyInfo(DespeckleMode2, QObject::tr("Switch to normal mode"), KeysAndModifiers, HotKey,
+                           HotKeySequence(Qt::NoModifier, Qt::Key_C)));
+    data.append(HotKeyInfo(DespeckleMode3, QObject::tr("Switch to aggressive mode"), KeysAndModifiers, HotKey,
+                           HotKeySequence(Qt::NoModifier, Qt::Key_V)));
+    HotKeyGroup group_despeckling("despeckling", QObject::tr("Despeckling"));
+    group_despeckling.setHotKeys(data);
+
+    m_data.append(group_despeckling);
+}
+
+void QHotKeys::mergeHotkeys(const QVector<HotKeyGroup>& new_data)
+{
+    for (const HotKeyGroup& new_grp: new_data) {
+        bool grp_found = false;
+        for (HotKeyGroup& old_grp:  m_data) {
+            if (old_grp.id() == new_grp.id()) {
+                grp_found = true;
+
+                for (const HotKeyInfo& new_hk: new_grp.hotKeys()) {
+                    int idx = -1;
+                    for (int i = 0; i < old_grp.hotKeys().count(); i++) {
+                        if (new_hk.id() == old_grp.hotKeys()[i].id()) {
+                            idx = i;
+                            break;
+                        }
+                    }
+                    if (idx == -1) {
+                        old_grp.hotKeys().append(new_hk);
+                    } else {
+                        old_grp.hotKeys().replace(idx, new_hk);
+                    }
+                }
+                break;
+            }
+        }
+        if (!grp_found) {
+            m_data.append(new_grp);
+        }
+    }
 }
 
 bool QHotKeys::load(QSettings *_settings)
@@ -186,7 +237,8 @@ bool QHotKeys::load(QSettings *_settings)
 
     QSettings& settings = *_settings;
 
-    m_data.clear();
+    resetToDefaults();
+    QVector<HotKeyGroup> loaded_data;
 
     if (settings.contains("hot_keys/scheme_ver")) {
         uint scheme = settings.value("hot_keys/scheme_ver", 0).toUInt();
@@ -206,8 +258,9 @@ bool QHotKeys::load(QSettings *_settings)
             QString group_id = settings.value(QString("hot_keys/group_%1").arg(i), "").toString();
             HotKeyGroup grp(group_id, "");
             grp.load(settings);
-            m_data.append(grp);
+            loaded_data.append(grp);
         }
+        mergeHotkeys(loaded_data);
         return true;
     }
     return false;

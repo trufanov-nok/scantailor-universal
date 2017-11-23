@@ -64,9 +64,7 @@ public:
 
     static void updateHotkeys()
     {
-        if (!m_hotKeyManager.load()) {
-            m_hotKeyManager.resetToDefaults();
-        }
+        m_hotKeyManager.load();
     }
 
     static QKeySequence createShortcut(const HotKeysId& id, int idx = 0)

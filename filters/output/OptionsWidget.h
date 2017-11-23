@@ -141,6 +141,14 @@ private slots:
 
     void on_actionReset_to_default_value_foeground_triggered();
 
+    void on_actionactionDespeckleOff_triggered();
+
+    void on_actionactionDespeckleCautious_triggered();
+
+    void on_actionactionDespeckleNormal_triggered();
+
+    void on_actionactionDespeckleAggressive_triggered();
+
 private:
     bool eventFilter(QObject *obj, QEvent *event);
 
@@ -174,6 +182,8 @@ private:
         }
         updateDespeckleValueText();
     }
+
+    void updateShortcuts();
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageSelectionAccessor m_pageSelectionAccessor;

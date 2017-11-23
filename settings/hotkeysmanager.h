@@ -68,7 +68,11 @@ enum HotKeysId {
     ZoneCancel,
     DewarpingMoveVertically = 100,
     DewarpingMoveHorizontally,
-    DewarpingDeletePoint
+    DewarpingDeletePoint,
+    DespeckleMode0 = 130,
+    DespeckleMode1,
+    DespeckleMode2,
+    DespeckleMode3
 };
 
 struct HotKeySequence {
@@ -129,6 +133,7 @@ private:
 
 class QHotKeys {
 public:
+    QHotKeys();
     void resetToDefaults();
     bool load(QSettings *_settings = nullptr);
     void save(QSettings* settings= nullptr) const;
@@ -138,6 +143,8 @@ public:
     static const QString modifiersToString(const Qt::KeyboardModifiers modifiers);
     static const QString keysToString(const QVector<Qt::Key>& keys);
     static const QString hotkeysToString(const Qt::KeyboardModifiers modifiers, const QVector<Qt::Key>& keys);
+private:
+    void mergeHotkeys(const QVector<HotKeyGroup>& new_data);
 private:
     QVector<HotKeyGroup> m_data;
 };
