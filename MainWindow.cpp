@@ -182,7 +182,7 @@ MainWindow::MainWindow()
 
 {
     GlobalStaticSettings::updateSettings();
-	m_maxLogicalThumbSize = QSize(250, 160);
+    m_maxLogicalThumbSize = QSize(250, 160);
 	m_ptrThumbSequence.reset(new ThumbnailSequence(m_maxLogicalThumbSize));    
 	setupUi(this);
     setupStatusBar();
@@ -1193,6 +1193,12 @@ MainWindow::pageContextMenuRequested(
 	
 	QMenu menu;
 
+    QAction* goto_page = menu.addAction(
+        tr("Go to page ...")
+    );
+
+    menu.addSeparator();
+
 	QAction* ins_before = menu.addAction(
 		QIcon(":/icons/insert-before-16.png"), tr("Insert before ...")
 	);
@@ -1217,7 +1223,16 @@ MainWindow::pageContextMenuRequested(
     }
 	
 	QAction* action = menu.exec(screen_pos);
-	if (action == ins_before) {
+    if (action == goto_page) {
+        bool ok;
+        const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
+        int page_no = QInputDialog::getInt(this, tr("Go to page"), tr("Page number:"),
+                                           1, 1, pages.end() - pages.begin(), 1, &ok,
+                                           Qt::Dialog|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint);
+        if (ok) {
+            goToPage(pages.pageAt(page_no - 1).id());
+        }
+    } else if (action == ins_before) {
 		showInsertFileDialog(BEFORE, page_info.imageId());
 	} else if (action == ins_after) {
 		showInsertFileDialog(AFTER, page_info.imageId());
