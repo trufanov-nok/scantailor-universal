@@ -152,6 +152,8 @@ public:
 	
     bool setSelection(PageId const& page_id, const ThumbnailSequence::SelectionAction action);
 
+    void setSelection(QSet<PageId> const& page_ids, ThumbnailSequence::SelectionAction const action);
+
 	PageInfo selectionLeader() const;
 
 	PageInfo prevPage(PageId const& page_id) const;
@@ -413,6 +415,12 @@ bool
 ThumbnailSequence::setSelection(PageId const& page_id, ThumbnailSequence::SelectionAction const action)
 {
     return m_ptrImpl->setSelection(page_id, action);
+}
+
+void
+ThumbnailSequence::setSelection(QSet<PageId> const& page_ids, ThumbnailSequence::SelectionAction const action)
+{
+    m_ptrImpl->setSelection(page_ids, action);
 }
 
 PageInfo
@@ -868,6 +876,58 @@ ThumbnailSequence::Impl::setSelection(PageId const& page_id, ThumbnailSequence::
 	m_rOwner.emitNewSelectionLeader(id_it->pageInfo, id_it->composite, flags);
 
 	return true;
+}
+
+void
+ThumbnailSequence::Impl::setSelection(QSet<PageId> const& page_ids, ThumbnailSequence::SelectionAction const action)
+{
+    if (action != ThumbnailSequence::KEEP_SELECTION) {
+        // Clear selection from all items except the one for which
+        // selection is requested.
+        SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
+        while (it != m_selectedThenUnselected.end()) {
+            Item const& item = *it;
+            if (!item.isSelected()) {
+                break;
+            }
+
+            ++it;
+
+            if (!page_ids.contains(item.pageId())) {
+                item.setSelected(false);
+                moveToUnselected(&item);
+            }
+        }
+    }
+
+    Item const* old_pSelectionLeader = m_pSelectionLeader;
+    if (m_pSelectionLeader != 0) {
+        m_pSelectionLeader->setSelectionLeader(false);
+        m_pSelectionLeader = nullptr;
+    }
+
+    if (page_ids.isEmpty()) {
+        return;
+    }
+
+    ItemsById::iterator id_it(m_itemsById.begin());
+    while (id_it != m_itemsById.end()) {
+        if (page_ids.contains(id_it->pageId())) {
+            m_pSelectionLeader = &*id_it;
+            m_pSelectionLeader->setSelected(true);
+            moveToSelected(m_pSelectionLeader);
+        }
+        ++ id_it;
+    }
+
+    m_pSelectionLeader->setSelectionLeader(true);
+
+    SelectionFlags flags = DEFAULT_SELECTION_FLAGS;
+    if (m_pSelectionLeader == old_pSelectionLeader) {
+        flags |= REDUNDANT_SELECTION;
+    }
+
+    m_rOwner.emitNewSelectionLeader(m_pSelectionLeader->pageInfo, m_pSelectionLeader->composite, flags);
 }
 
 PageInfo

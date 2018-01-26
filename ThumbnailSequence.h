@@ -141,6 +141,8 @@ public:
 	 */
     bool setSelection(PageId const& page_id, const SelectionAction action = ThumbnailSequence::RESET_SELECTION);
 
+    void setSelection(QSet<PageId> const& page_ids, ThumbnailSequence::SelectionAction const action);
+
 	/**
 	 * \brief Returns the current selection leader.
 	 *

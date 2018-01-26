@@ -1176,6 +1176,32 @@ MainWindow::currentPageChanged(
 
 }
 
+void getPageNumbersFromStr(const QString& str, QVector<int>& results)
+{
+    results.clear();
+
+    QRegularExpression rx("(\\d+)([: -]*)");
+    QRegularExpressionMatchIterator i = rx.globalMatch(str);
+    int interval_start = 0;
+
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        int val = match.captured(1).toInt();
+        const QString tail = match.captured(2);
+        if (tail.contains('-') || tail.contains(':')) {
+            if (interval_start == 0) {
+                interval_start = val;
+            }
+        } else {
+            while (interval_start > 0 && interval_start < val) {
+                results.push_back(interval_start++);
+            }
+            results.push_back(val);
+            interval_start = 0;
+        }
+    }
+}
+
 void
 MainWindow::pageContextMenuRequested(
 	PageInfo const& page_info_, QPoint const& screen_pos, bool selected)
@@ -1195,6 +1221,10 @@ MainWindow::pageContextMenuRequested(
 
     QAction* goto_page = menu.addAction(
         tr("Go to page ...")
+    );
+
+    QAction* select_pages = menu.addAction(
+        tr("Select pages ...")
     );
 
     menu.addSeparator();
@@ -1227,11 +1257,55 @@ MainWindow::pageContextMenuRequested(
         bool ok;
         const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
         int page_no = QInputDialog::getInt(this, tr("Go to page"), tr("Page number:"),
-                                           1, 1, pages.end() - pages.begin(), 1, &ok,
-                                           Qt::Dialog|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint);
+                                           1, 1, pages.numPages(), 1, &ok,
+                                           Qt::Dialog);
         if (ok) {
             goToPage(pages.pageAt(page_no - 1).id());
         }
+    } else if (action == select_pages) {
+        QInputDialog dlg(this, Qt::Dialog);
+        dlg.setInputMode(QInputDialog::TextInput);
+        dlg.setOption(QInputDialog::UsePlainTextEditForTextInput);
+        dlg.setWindowTitle(tr("Select pages by number"));
+        dlg.setToolTip(tr("Numbers should start from 1\n Line ends are ignored\n" \
+                          "Any non digit symbols are interpreted as number separators\n" \
+                          "Number followed by '-' or ':' treated as a start of page sequence\n"));
+        const QString default_label_text(tr("Input page numbers:"));
+        dlg.setLabelText(default_label_text);
+        QVector<int> res;
+        connect(&dlg, &QInputDialog::textValueChanged, [&dlg, &default_label_text, &res](const QString &text) {
+            getPageNumbersFromStr(text, res);
+            if (!res.isEmpty()) {
+                dlg.setLabelText(tr("Pages to be selected: %1").arg(res.count()));
+            } else {
+                dlg.setLabelText(default_label_text);
+            }
+        });
+
+        if (dlg.exec() == QDialog::Accepted && !res.isEmpty()) {
+            const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
+
+            QSet<PageId> page_ids;
+            for (const int page_no: res) {
+                page_ids += pages.pageAt(page_no-1).id();
+            }
+
+            m_ptrThumbSequence->setSelection(page_ids, ThumbnailSequence::RESET_SELECTION);
+
+//            const int pages_cnt = pages.numPages();
+//            for (int i = 0; i < res.count(); i++) {
+//                const int page_no = res[i];
+//                if (page_no > 0 && page_no <= pages_cnt) {
+//                    const PageId id = pages.pageAt(page_no-1).id();
+//                    if (!id.isNull()) {
+//                        m_ptrThumbSequence->setSelection(id, (i>0) ? ThumbnailSequence::KEEP_SELECTION :
+//                                                                     ThumbnailSequence::RESET_SELECTION);
+//                    }
+//                }
+//            }
+            updateMainArea();
+        }
+
     } else if (action == ins_before) {
 		showInsertFileDialog(BEFORE, page_info.imageId());
 	} else if (action == ins_after) {

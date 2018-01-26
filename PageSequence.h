@@ -34,7 +34,7 @@ public:
 
     PageInfo const& pageAt(PageId page) const;
 	
-	PageInfo const& pageAt(size_t idx) const;
+    PageInfo const& pageAt(size_t idx) const;
 
     int pageNo(PageId const& page) const;
 

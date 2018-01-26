@@ -94,3 +94,11 @@ bool operator<(PageId const& lhs, PageId const& rhs)
 		return lhs.subPage() < rhs.subPage();
 	}
 }
+
+uint qHash(const PageId &tag, uint seed)
+{
+    return qHash(tag.imageId().filePath(), seed) ^
+           qHash(tag.imageId().page(), seed) ^
+           qHash(tag.subPage(), seed^0xA11A);
+}
+
