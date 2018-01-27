@@ -775,7 +775,7 @@ Task::UiUpdater::getAlternativeImage()
     src.fill(Qt::white);
     src = m_origImage.copy(orig_image_crop_area.boundingRect().toRect());
     src = src.transformed(m_xform.transform());
-    QRect const src_rect(contentRect.translated(-m_xform.resultingPreCropArea().boundingRect().toRect().topLeft()));
+    QRect src_rect(contentRect.translated(-m_xform.resultingPreCropArea().boundingRect().toRect().topLeft()));
 
 
 
@@ -785,19 +785,26 @@ Task::UiUpdater::getAlternativeImage()
     if (res->format() == QImage::Format_Indexed8) {
         if (_gray_palette.size() < 256) {
             // init gray_palette
-            for (int i = 0; i < 256; ++i) {
+            for (int i = 0; i < _gray_palette.size(); ++i) {
                 _gray_palette[i] = qRgb(i, i, i);
+            }
+            for (int i = _gray_palette.size(); i < 256; ++i) {
+                _gray_palette.append(qRgb(i, i, i));
             }
         }
         res->setColorTable(_gray_palette);
     }
     res->fill(Qt::white);
-    QRect const dst_rect(contentRect);
+    QRect dst_rect(contentRect);
 
 
     if (src.format() != res->format()) {
         src = src.convertToFormat(res->format());
     }
+
+    src_rect = src_rect.intersected(src.rect()); // to be 100% safe
+    dst_rect.setSize(src_rect.size());
+
     imageproc::drawOver(*res, dst_rect, src, src_rect);
     res->setDotsPerMeterX(m_outputImage.dotsPerMeterX());
     res->setDotsPerMeterY(m_outputImage.dotsPerMeterY());
