@@ -1600,7 +1600,7 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
 //begin of modified by monday2000
 		QImage tmp_image(dewarped_bw_content.toQImage()); 
 		maybe_deskew(&tmp_image, dewarping_mode);		
-		return tmp_image;		
+        return tmp_image.convertToFormat(QImage::Format_Mono);
 //end of modified by monday2000
 	}
 
