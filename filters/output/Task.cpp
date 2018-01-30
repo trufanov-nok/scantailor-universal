@@ -60,6 +60,7 @@
 #include "imageproc/BinaryImage.h"
 #include "imageproc/PolygonUtils.h"
 #include "imageproc/DrawOver.h"
+#include "imageproc/Transform.h"
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -86,20 +87,19 @@ class Task::UiUpdater : public FilterResult
 {
 	Q_DECLARE_TR_FUNCTIONS(output::Task::UiUpdater)
 public:
-	UiUpdater(IntrusivePtr<Filter> const& filter,
-		IntrusivePtr<Settings> const& settings,
-		std::auto_ptr<DebugImages> dbg_img,
-		Params const& params,
-		ImageTransformation const& xform,
-		QRect const& virt_content_rect,
-		PageId const& page_id,
-		QImage const& orig_image,
-		QImage const& output_image,
-		BinaryImage const& picture_mask,
-		DespeckleState const& despeckle_state,
-		DespeckleVisualization const& despeckle_visualization,
-        QPolygonF const& content_rect_phys,
-		bool batch, bool debug);
+    UiUpdater(IntrusivePtr<Filter> const& filter,
+        IntrusivePtr<Settings> const& settings,
+        std::auto_ptr<DebugImages> dbg_img,
+        Params const& params,
+        ImageTransformation const& xform,
+        QRect const& virt_content_rect,
+        PageId const& page_id,
+        QImage const& orig_image,
+        QImage const& output_image,
+        BinaryImage const& picture_mask,
+        DespeckleState const& despeckle_state,
+        DespeckleVisualization const& despeckle_visualization,
+        bool batch, bool debug);
 	
 	virtual void updateUI(FilterUiInterface* ui);    
 	
@@ -121,9 +121,8 @@ private:
 	DespeckleState m_despeckleState;
 	DespeckleVisualization m_despeckleVisualization;
 	DespeckleLevel m_despeckleLevel;
-    QPolygonF const m_contentRectPhys;
-	bool m_batchProcessing;
-	bool m_debug;
+    bool m_batchProcessing;
+    bool m_debug;
 };
 
 
@@ -493,7 +492,6 @@ Task::process(
 				new_xform, generator.outputContentRect(),
 				m_pageId, data.origImage(), out_img, automask_img,
 				despeckle_state, despeckle_visualization,
-                content_rect_phys,
 				m_batchProcessing, m_debug
 			)
 		);
@@ -553,7 +551,6 @@ Task::UiUpdater::UiUpdater(
 	BinaryImage const& picture_mask,
 	DespeckleState const& despeckle_state,
 	DespeckleVisualization const& despeckle_visualization,
-    QPolygonF const& content_rect_phys,
 	bool const batch, bool const debug)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
@@ -569,7 +566,6 @@ Task::UiUpdater::UiUpdater(
 	m_pictureMask(picture_mask),
 	m_despeckleState(despeckle_state),
 	m_despeckleVisualization(despeckle_visualization),
-    m_contentRectPhys(content_rect_phys),
 	m_batchProcessing(batch),
 	m_debug(debug)
 {
@@ -744,7 +740,7 @@ QImage*
 Task::UiUpdater::getAlternativeImage()
 {
     QRect outRect(m_xform.resultingRect().toAlignedRect());
-    QRect contentRect(m_xform.transform().map(m_contentRectPhys).boundingRect().toAlignedRect());
+    QRect contentRect(m_virtContentRect);
 
     if (contentRect.left() < 0) {
         int dx = -1*contentRect.left();
@@ -767,17 +763,9 @@ Task::UiUpdater::getAlternativeImage()
         outRect.adjust(0,dy,0,dy);     // shift
     }
 
-    QPolygonF const orig_image_crop_area(
-                m_xform.transformBack().map(m_xform.resultingPreCropArea())
-                );
 
-    QImage src(orig_image_crop_area.boundingRect().size().toSize(), m_origImage.format());
-    src.fill(Qt::white);
-    src = m_origImage.copy(orig_image_crop_area.boundingRect().toRect());
-    src = src.transformed(m_xform.transform());
-    QRect src_rect(contentRect.translated(-m_xform.resultingPreCropArea().boundingRect().toRect().topLeft()));
-
-
+    QImage src = transform(m_origImage, m_xform.transform(),
+                contentRect, imageproc::OutsidePixels::assumeColor(Qt::white));
 
     QSize const target_size(outRect.size().expandedTo(QSize(1, 1)));
 
@@ -795,15 +783,14 @@ Task::UiUpdater::getAlternativeImage()
         res->setColorTable(_gray_palette);
     }
     res->fill(Qt::white);
-    QRect dst_rect(contentRect);
-
 
     if (src.format() != res->format()) {
         src = src.convertToFormat(res->format());
     }
 
-    src_rect = src_rect.intersected(src.rect()); // to be 100% safe
-    dst_rect.setSize(src_rect.size());
+    QRect const src_rect(src.rect());
+    QRect dst_rect(contentRect);
+    dst_rect.setSize(src_rect.size()); //to be 100% safe
 
     imageproc::drawOver(*res, dst_rect, src, src_rect);
     res->setDotsPerMeterX(m_outputImage.dotsPerMeterX());
