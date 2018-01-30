@@ -743,24 +743,16 @@ Task::UiUpdater::getAlternativeImage()
     QRect contentRect(m_virtContentRect);
 
     if (contentRect.left() < 0) {
-        int dx = -1*contentRect.left();
-        outRect.adjust(0,0,dx,0);      // size increase
-        contentRect.adjust(dx,0,dx,0); // shift
+        contentRect.setLeft(0);
     }
     if (contentRect.top() < 0) {
-        int dy = -1*contentRect.top();
-        outRect.adjust(0,0,0,dy);      // size increase
-        contentRect.adjust(0,dy,0,dy); // shift
+        contentRect.setTop(0);
     }
     if (outRect.left() < 0) {
-        int dx = -1*outRect.left();
-        contentRect.adjust(0,0,dx,0);  // size increase
-        outRect.adjust(dx,0,dx,0);     // shift
+        outRect.setLeft(0);
     }
     if (outRect.top() < 0) {
-        int dy = -1*outRect.top();
-        contentRect.adjust(0,0,0,dy);  // size increase
-        outRect.adjust(0,dy,0,dy);     // shift
+        outRect.setTop(0);
     }
 
 
