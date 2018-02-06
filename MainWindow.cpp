@@ -502,7 +502,7 @@ MainWindow::switchToNewProject(
       selection.insert(m_ptrThumbSequence->firstPage().id());
     }
 
-    ensurePageVisible(selection);
+    ensurePageVisible(selection, m_ptrThumbSequence->selectionLeader().id());
 
 	removeFilterOptionsWidget();
 	updateProjectActions();
@@ -801,6 +801,7 @@ MainWindow::resetThumbSequence(
 	}
 
     std::set<PageId> _selection = m_ptrThumbSequence->selectedItems();
+    const PageId _selectionLeader = m_ptrThumbSequence->selectionLeader().id();
 
     m_ptrThumbSequence->reset(
 		m_ptrPages->toPageSequence(getCurrentView()),
@@ -815,59 +816,53 @@ MainWindow::resetThumbSequence(
 		);
 	}    
 
-    ensurePageVisible(_selection, action);
+    ensurePageVisible(_selection, _selectionLeader, action);
 }
 
 void
-MainWindow::ensurePageVisible(std::set<PageId>& _selectedPages, ThumbnailSequence::SelectionAction const action)
+MainWindow::ensurePageVisible(const std::set<PageId> &_selectedPages, PageId selectionLeader, ThumbnailSequence::SelectionAction const action)
 {
-    QVector<PageId> selection;
-    foreach (PageId page, _selectedPages) {
-        selection.append(page);
-    }
-    qSort(selection);
 
-    if (selection.isEmpty()) {
-        PageId leader = m_ptrThumbSequence->selectionLeader().id();
-        if (!leader.isNull()) {
-            selection.append(leader);
+    QVector<PageId> to_be_selected;
+    for (const PageId page: _selectedPages) {
+        to_be_selected.append(page);
+    }    
+
+    if (!selectionLeader.isNull() &&
+        !to_be_selected.contains(selectionLeader)) {
+        to_be_selected.append(selectionLeader);
+    }
+
+    qSort(to_be_selected);
+
+    QSet<PageId> maybe_selected;
+    PageSequence const displayed_pages = m_ptrThumbSequence->toPageSequenceById();
+
+    foreach (const PageId page, to_be_selected) {
+        for (std::vector<PageInfo>::const_iterator it = displayed_pages.begin();
+             it != displayed_pages.end(); ++it) {
+            if (it->id().imageId() == page.imageId()) {
+                if (page.subPage() == it->id().subPage()) {
+                    maybe_selected += page;
+                } else if (( it->id().subPage() == PageId::SINGLE_PAGE ) !=
+                           ( page.subPage() == PageId::SINGLE_PAGE )) { // different levels
+                    maybe_selected += it->id();
+                    if (selectionLeader.imageId() == page.imageId()) {
+                        selectionLeader = it->id();
+                    }
+                }
+            }
+            if (page.imageId() < it->id().imageId()) {
+                break;
+            }
         }
     }
 
-    QVector<PageId> selected;
-    foreach (const PageId page, selection){
-        const PageId page_left(page.imageId(), PageId::LEFT_PAGE);
-        const PageId page_right(page.imageId(), PageId::RIGHT_PAGE);
-        const PageId page_single(page.imageId(), PageId::SINGLE_PAGE);
-        if (m_ptrThumbSequence->setSelection(page, action)) {
-            selected.append(page);
-        } else if (page.subPage() == PageId::SINGLE_PAGE &&
-                   // Guess it was a page that now splitted
-                   m_ptrThumbSequence->setSelection(page_right, action) &&
-                   m_ptrThumbSequence->setSelection(page_left, action)) {
-            selected.append(page_left);
-            selected.append(page_right);
-        } else if (m_ptrThumbSequence->setSelection(page_left, action)) {
-            selected.append(page_left);
-        } else if (m_ptrThumbSequence->setSelection(page_right, action)) {
-            selected.append(page_right);
-        } else if (m_ptrThumbSequence->setSelection(page_single, action)) {
-            selected.append(page_single);
-        } else if (m_ptrThumbSequence->setSelection(m_ptrThumbSequence->firstPage().id())){
-            // Last resort.
-            selected.append(m_ptrThumbSequence->firstPage().id());
-        }
+    m_ptrThumbSequence->setSelection(maybe_selected, action);
+    m_ptrThumbSequence->setSelection(selectionLeader, ThumbnailSequence::KEEP_SELECTION);
 
-    }
 
-    if (ThumbnailSequence::KEEP_SELECTION == action && !selected.isEmpty()) {
-        qSort(selected);
-        QRectF rect(m_ptrThumbSequence->pageSceneRect(selected[0]));
-        if (!rect.isNull()) {
-            rect.setHeight(thumbView->height() - 10);
-            thumbView->ensureVisible(rect, 0, 0);
-        }
-    }
+    thumbView->ensureVisible(m_ptrThumbSequence->selectionLeaderSceneRect(), 0, 0);
 }
 
 void
@@ -1472,6 +1467,7 @@ MainWindow::pageOrderingChanged(int idx)
 	m_ptrStages->filterAt(m_curFilter)->selectPageOrder(idx);
 
     std::set<PageId> _selection = m_ptrThumbSequence->selectedItems();
+    const PageId _selectionLeader = m_ptrThumbSequence->selectionLeader().id();
 
 	m_ptrThumbSequence->reset(
 		m_ptrPages->toPageSequence(getCurrentView()),
@@ -1479,7 +1475,7 @@ MainWindow::pageOrderingChanged(int idx)
 		currentPageOrderProvider()
 	);
 
-    ensurePageVisible(_selection);
+    ensurePageVisible(_selection, _selectionLeader);
 }
 
 void
@@ -2900,7 +2896,7 @@ MainWindow::removeFromProject(std::set<PageId> const& pages)
                 m_ptrThumbSequence->setSelection(m_ptrThumbSequence->firstPage().id());
             }
         } else {
-            ensurePageVisible(new_selection);
+            ensurePageVisible(new_selection, m_ptrThumbSequence->selectionLeader().id());
         }
 
 

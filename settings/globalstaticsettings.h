@@ -60,6 +60,8 @@ public:
            m_ForegroundLayerAdjustment.reset(new int (settings.value("foreground_layer_adj_override", 0).toInt()));
         }
 
+        m_highlightColorAdjustment = 100 + settings.value("thumbnails/non_focused_selection_highlight_color_adj", 40).toInt();
+
     }    
 
     static void updateHotkeys()
@@ -141,6 +143,7 @@ public:
     static float m_picture_detection_sensitivity;
     static QHotKeys m_hotKeyManager;
     static std::unique_ptr<int> m_ForegroundLayerAdjustment;
+    static int m_highlightColorAdjustment;
 };
 
 #endif // GLOBALSTATICSETTINGS_H

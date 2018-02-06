@@ -100,6 +100,8 @@ public:
 	
 	PageSequence toPageSequence() const;
 
+    PageSequence toPageSequenceById() const;
+
 	/**
 	 * \brief Updates appearance and possibly position of a thumbnail.
 	 *

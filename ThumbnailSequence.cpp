@@ -28,6 +28,7 @@
 #include "RefCountable.h"
 #include "IntrusivePtr.h"
 #include "ScopedIncDec.h"
+#include "settings/globalstaticsettings.h"
 #ifndef Q_MOC_RUN
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -70,11 +71,7 @@
 #include <algorithm>
 #include <stddef.h>
 #include <assert.h>
-//begin of modified by monday2000
-//Export_Subscans
-//added:
 #include <QMessageBox>
-//end of modified by monday2000
 
 using namespace ::boost::multi_index;
 using namespace ::boost::lambda;
@@ -143,6 +140,8 @@ public:
 	IntrusivePtr<PageOrderProvider const> pageOrderProvider() const;
 
 	PageSequence toPageSequence() const;
+
+    PageSequence toPageSequenceById() const;
 	
 	void invalidateThumbnail(PageId const& page_id);
 
@@ -393,6 +392,12 @@ ThumbnailSequence::toPageSequence() const
 	return m_ptrImpl->toPageSequence();
 }
 
+PageSequence
+ThumbnailSequence::toPageSequenceById() const
+{
+    return m_ptrImpl->toPageSequenceById();
+}
+
 void
 ThumbnailSequence::invalidateThumbnail(PageId const& page_id)
 {
@@ -611,6 +616,18 @@ ThumbnailSequence::Impl::toPageSequence() const
 	}
 
 	return pages;
+}
+
+PageSequence
+ThumbnailSequence::Impl::toPageSequenceById() const
+{
+    PageSequence pages;
+
+    for (Item const& item: m_itemsById) {
+        pages.append(item.pageInfo);
+    }
+
+    return pages;
 }
 
 void
@@ -838,42 +855,42 @@ ThumbnailSequence::Impl::setSelection(PageId const& page_id, ThumbnailSequence::
 		return false;
 	}
 	
-	bool const was_selection_leader = (&*id_it == m_pSelectionLeader);
-	
-    if (action != ThumbnailSequence::KEEP_SELECTION) {
-        // Clear selection from all items except the one for which
-        // selection is requested.
-        SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
-        while (it != m_selectedThenUnselected.end()) {
-            Item const& item = *it;
-            if (!item.isSelected()) {
-                break;
-            }
+    // Clear selection from all items except the one for which
+    // selection is requested.
+    SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
+    while (it != m_selectedThenUnselected.end()) {
+        Item const& item = *it;
+        if (!item.isSelected()) {
+            break;
+        }
 
-            ++it;
+        ++it;
 
-            if (&*id_it != &item) {
+        if (&*id_it != &item) {
+            if (action == ThumbnailSequence::KEEP_SELECTION) {
+                if (m_pSelectionLeader == &item) {
+                    item.setSelectionLeader(false);
+                }
+            } else {
                 item.setSelected(false);
                 moveToUnselected(&item);
-                if (m_pSelectionLeader == &item) {
-                    m_pSelectionLeader = 0;
-                }
             }
         }
     }
-	
-	if (!was_selection_leader) {
-		m_pSelectionLeader = &*id_it;
-		m_pSelectionLeader->setSelectionLeader(true);
-		moveToSelected(m_pSelectionLeader);
-	}
-	
-	SelectionFlags flags = DEFAULT_SELECTION_FLAGS;
-	if (was_selection_leader) {
-		flags |= REDUNDANT_SELECTION;
-	}
-	
-	m_rOwner.emitNewSelectionLeader(id_it->pageInfo, id_it->composite, flags);
+
+    if (m_pSelectionLeader) {
+        SelectionFlags flags = DEFAULT_SELECTION_FLAGS;
+        if (!m_pSelectionLeader->isSelectionLeader()) {
+            // need new selection leader
+            m_pSelectionLeader = &*id_it;
+            m_pSelectionLeader->setSelectionLeader(true);
+            moveToSelected(m_pSelectionLeader);
+        } else {
+            flags |= REDUNDANT_SELECTION;
+        }
+
+        m_rOwner.emitNewSelectionLeader(m_pSelectionLeader->pageInfo, m_pSelectionLeader->composite, flags);
+    }
 
 	return true;
 }
@@ -881,53 +898,60 @@ ThumbnailSequence::Impl::setSelection(PageId const& page_id, ThumbnailSequence::
 void
 ThumbnailSequence::Impl::setSelection(QSet<PageId> const& page_ids, ThumbnailSequence::SelectionAction const action)
 {
-    if (action != ThumbnailSequence::KEEP_SELECTION) {
-        // Clear selection from all items except the one for which
-        // selection is requested.
-        SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
-        while (it != m_selectedThenUnselected.end()) {
-            Item const& item = *it;
-            if (!item.isSelected()) {
-                break;
-            }
+    // Clear selection from all items except the one for which
+    // selection is requested.
+    SelectedThenUnselected::iterator it(m_selectedThenUnselected.begin());
+    while (it != m_selectedThenUnselected.end()) {
+        Item const& item = *it;
+        if (!item.isSelected()) {
+            break;
+        }
 
-            ++it;
+        ++it;
 
-            if (!page_ids.contains(item.pageId())) {
+        if (!page_ids.contains(item.pageId())) {
+            if (action == ThumbnailSequence::KEEP_SELECTION) {
+                if (m_pSelectionLeader == &item) {
+                    item.setSelectionLeader(false);
+                }
+            } else {
                 item.setSelected(false);
                 moveToUnselected(&item);
             }
         }
     }
 
-    Item const* old_pSelectionLeader = m_pSelectionLeader;
-    if (m_pSelectionLeader != 0) {
-        m_pSelectionLeader->setSelectionLeader(false);
-        m_pSelectionLeader = nullptr;
-    }
-
     if (page_ids.isEmpty()) {
+        if (m_pSelectionLeader) {
+            setSelection(m_pSelectionLeader->pageId(), action);
+        }
         return;
     }
+
+    bool const need_new_selection_leader = !(m_pSelectionLeader && m_pSelectionLeader->isSelectionLeader());
 
     ItemsById::iterator id_it(m_itemsById.begin());
     while (id_it != m_itemsById.end()) {
         if (page_ids.contains(id_it->pageId())) {
-            m_pSelectionLeader = &*id_it;
-            m_pSelectionLeader->setSelected(true);
-            moveToSelected(m_pSelectionLeader);
+            Item const* item = &*id_it;
+            item->setSelected(true);
+            moveToSelected(item);
+            if (need_new_selection_leader) {
+                m_pSelectionLeader = item;
+            }
         }
         ++ id_it;
     }
 
-    m_pSelectionLeader->setSelectionLeader(true);
-
-    SelectionFlags flags = DEFAULT_SELECTION_FLAGS;
-    if (m_pSelectionLeader == old_pSelectionLeader) {
-        flags |= REDUNDANT_SELECTION;
+    if (m_pSelectionLeader) {
+        SelectionFlags flags = DEFAULT_SELECTION_FLAGS;
+        if (need_new_selection_leader) {
+            m_pSelectionLeader->setSelectionLeader(true);
+        } else {
+            flags |= REDUNDANT_SELECTION;
+        }
+        m_rOwner.emitNewSelectionLeader(m_pSelectionLeader->pageInfo, m_pSelectionLeader->composite, flags);
     }
-
-    m_rOwner.emitNewSelectionLeader(m_pSelectionLeader->pageInfo, m_pSelectionLeader->composite, flags);
 }
 
 PageInfo
@@ -1616,9 +1640,7 @@ ThumbnailSequence::Item::setSelectionLeader(bool selection_leader) const
 	
 	if (was_selected != m_isSelected || was_selection_leader != m_isSelectionLeader) {
 		composite->updateAppearence(m_isSelected, m_isSelectionLeader);
-	}
-	if (was_selected != m_isSelected) {
-		composite->update();
+        composite->update();
 	}
 }
 
@@ -1747,13 +1769,14 @@ ThumbnailSequence::CompositeItem::boundingRect() const
 
 void
 ThumbnailSequence::CompositeItem::paint(
-	QPainter* painter, QStyleOptionGraphicsItem const* option, QWidget *widget)
+    QPainter* painter, QStyleOptionGraphicsItem const* /*option*/, QWidget */*widget*/)
 {
 	if (m_pItem->isSelected()) {
-		painter->fillRect(
-			boundingRect(),
-			QApplication::palette().color(QPalette::Highlight)
-		);
+        QColor clr = QApplication::palette().color(QPalette::Highlight);
+        if (!m_pItem->isSelectionLeader()) {
+            clr = clr.lighter(GlobalStaticSettings::m_highlightColorAdjustment);
+        }
+        painter->fillRect( boundingRect(), clr );
 	}
 }
 

@@ -269,7 +269,7 @@ private:
 
     void resetThumbSequence(IntrusivePtr<PageOrderProvider const> const& page_order_provider, const ThumbnailSequence::SelectionAction action = ThumbnailSequence::RESET_SELECTION);
 
-    void ensurePageVisible(std::set<PageId>& _selectedPages, ThumbnailSequence::SelectionAction const action = ThumbnailSequence::KEEP_SELECTION);
+    void ensurePageVisible(const std::set<PageId>& _selectedPages, PageId selectionLeader, ThumbnailSequence::SelectionAction const action = ThumbnailSequence::KEEP_SELECTION);
 	
 	void removeWidgetsFromLayout(QLayout* layout);
 	
