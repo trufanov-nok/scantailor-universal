@@ -207,6 +207,10 @@ MainWindow::MainWindow()
 	addAction(actionPrevPage);
 	addAction(actionPrevPageQ);
 	addAction(actionNextPageW);
+    addAction(actionFirstSelectedPage);
+    addAction(actionLastSelectedPage);
+    addAction(actionNextSelectedPage);
+    addAction(actionPrevSelectedPage);
     addAction(actionJumpPageB);
     addAction(actionJumpPageF);
 	
@@ -224,6 +228,10 @@ MainWindow::MainWindow()
 	connect(actionLastPage, SIGNAL(triggered(bool)), SLOT(goLastPage()));
 	connect(actionPrevPage, SIGNAL(triggered(bool)), SLOT(goPrevPage()));
 	connect(actionNextPage, SIGNAL(triggered(bool)), SLOT(goNextPage()));
+    connect(actionFirstSelectedPage, &QAction::triggered, [this](){goFirstPage(true);});
+    connect(actionLastSelectedPage, &QAction::triggered, [this](){goLastPage(true);});
+    connect(actionPrevSelectedPage, &QAction::triggered, [this](){goPrevPage(-1, true);});
+    connect(actionNextSelectedPage, &QAction::triggered, [this](){goNextPage(1, true);});
 	connect(actionPrevPageQ, SIGNAL(triggered(bool)), this, SLOT(goPrevPage()));
 	connect(actionNextPageW, SIGNAL(triggered(bool)), this, SLOT(goNextPage()));
 	connect(actionAbout, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
@@ -1069,33 +1077,33 @@ MainWindow::performRelinking(IntrusivePtr<AbstractRelinker> const& relinker)
 }
 
 void
-MainWindow::goFirstPage()
+MainWindow::goFirstPage(bool in_selection)
 {
 	if (isBatchProcessingInProgress() || !isProjectLoaded()) {
 		return;
 	}
 	
-	PageInfo const first_page(m_ptrThumbSequence->firstPage());
+    PageInfo const first_page(m_ptrThumbSequence->firstPage(in_selection));
 	if (!first_page.isNull()) {
-		goToPage(first_page.id());
+        goToPage(first_page.id(), in_selection? ThumbnailSequence::KEEP_SELECTION : ThumbnailSequence::RESET_SELECTION);
 	}
 }
 
 void
-MainWindow::goLastPage()
+MainWindow::goLastPage(bool in_selection)
 {
 	if (isBatchProcessingInProgress() || !isProjectLoaded()) {
 		return;
 	}
 	
-	PageInfo const last_page(m_ptrThumbSequence->lastPage());
+    PageInfo const last_page(m_ptrThumbSequence->lastPage(in_selection));
 	if (!last_page.isNull()) {
-		goToPage(last_page.id());
+        goToPage(last_page.id(), in_selection? ThumbnailSequence::KEEP_SELECTION : ThumbnailSequence::RESET_SELECTION);
 	}
 }
 
 void
-MainWindow::jumpToPage(int cnt)
+MainWindow::jumpToPage(int cnt, bool in_selection)
 {
     if (isBatchProcessingInProgress() || !isProjectLoaded() || cnt == 0) {
         return;
@@ -1110,8 +1118,8 @@ MainWindow::jumpToPage(int cnt)
     }
 
     while (cnt-- > 0) {
-        PageId _id = jump_prev ? m_ptrThumbSequence->prevPage(pg_id).id() :
-                                 m_ptrThumbSequence->nextPage(pg_id).id();
+        PageId _id = jump_prev ? m_ptrThumbSequence->prevPage(pg_id, in_selection).id() :
+                                 m_ptrThumbSequence->nextPage(pg_id, in_selection).id();
         if (!_id.isNull()) {
             pg_id = _id;
         } else {
@@ -1119,28 +1127,28 @@ MainWindow::jumpToPage(int cnt)
         }
     }
 
-    goToPage(pg_id);
+    goToPage(pg_id, in_selection? ThumbnailSequence::KEEP_SELECTION : ThumbnailSequence::RESET_SELECTION);
 }
 
 
 void
-MainWindow::goNextPage(int cnt)
+MainWindow::goNextPage(int cnt, bool in_selection)
 {
-    jumpToPage(cnt);
+    jumpToPage(cnt, in_selection);
 }
 
 void
-MainWindow::goPrevPage(int cnt)
+MainWindow::goPrevPage(int cnt, bool in_selection)
 {
-    jumpToPage(cnt);
+    jumpToPage(cnt, in_selection);
 }
 
 void
-MainWindow::goToPage(PageId const& page_id)
+MainWindow::goToPage(PageId const& page_id, ThumbnailSequence::SelectionAction const action)
 {
 	focusButton->setChecked(true);
 	
-	m_ptrThumbSequence->setSelection(page_id);
+    m_ptrThumbSequence->setSelection(page_id, action);
 	
 	// If the page was already selected, it will be reloaded.
 	// That's by design.
@@ -3327,7 +3335,11 @@ MainWindow::applyShortcutsSettings()
     actionFirstPage->setShortcut(GlobalStaticSettings::createShortcut(PageFirst));
     actionLastPage->setShortcut(GlobalStaticSettings::createShortcut(PageLast));
     actionNextPage->setShortcut(GlobalStaticSettings::createShortcut(PageNext));
-    actionNextPageW->setShortcut(GlobalStaticSettings::createShortcut(PageNext, 1));
+    actionNextPageW->setShortcut(GlobalStaticSettings::createShortcut(PageNext, 1));    
+    actionFirstSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PageFirstSelected));
+    actionLastSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PageLastSelected));
+    actionPrevSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PagePrevSelected));
+    actionNextSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PageNextSelected));
     actionJumpPageF->setShortcut(GlobalStaticSettings::createShortcut(PageJumpForward));
     actionJumpPageB->setShortcut(GlobalStaticSettings::createShortcut(PageJumpBackward));
     actionCloseProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectClose));

@@ -70,6 +70,16 @@ void QHotKeys::resetToDefaults()
 	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_W));
     data.append(HotKeyInfo(PageNext, QObject::tr("Next page"), KeysAndModifiers, HotKey, vec));
 
+    data.append(HotKeyInfo(PageFirstSelected, QObject::tr("First selected page"), KeysAndModifiers, HotKey,
+                               HotKeySequence(Qt::AltModifier, Qt::Key_Home)));
+    data.append(HotKeyInfo(PageLastSelected, QObject::tr("Last selected page"), KeysAndModifiers, HotKey,
+                               HotKeySequence(Qt::AltModifier, Qt::Key_End)));
+    data.append(HotKeyInfo(PagePrevSelected, QObject::tr("Previous selected page"), KeysAndModifiers, HotKey,
+                               HotKeySequence(Qt::AltModifier, Qt::Key_PageUp)));
+    data.append(HotKeyInfo(PageNextSelected, QObject::tr("Next selected page"), KeysAndModifiers, HotKey,
+                               HotKeySequence(Qt::AltModifier, Qt::Key_PageDown)));
+
+
     QSettings _sett;
     int pg_jmp = _sett.value("hot_keys/jump_forward_pg_num", 5).toUInt();
     data.append(HotKeyInfo(PageJumpForward, QObject::tr("Jump %n pages forward", "plurals for \"page\" may be used", pg_jmp), KeysAndModifiers, HotKey,

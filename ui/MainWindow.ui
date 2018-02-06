@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>783</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
@@ -272,7 +272,7 @@
           <x>0</x>
           <y>0</y>
           <width>256</width>
-          <height>187</height>
+          <height>185</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -649,6 +649,50 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+PgUp</string>
+   </property>
+  </action>
+  <action name="actionFirstSelectedPage">
+   <property name="text">
+    <string>First Selected Page</string>
+   </property>
+   <property name="toolTip">
+    <string>First Selected Page</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Home</string>
+   </property>
+  </action>
+  <action name="actionLastSelectedPage">
+   <property name="text">
+    <string>Last Selected Page</string>
+   </property>
+   <property name="toolTip">
+    <string>Last Selected Page</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+End</string>
+   </property>
+  </action>
+  <action name="actionNextSelectedPage">
+   <property name="text">
+    <string>Next Selected Page</string>
+   </property>
+   <property name="toolTip">
+    <string>Next Selected Page</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+PgDown</string>
+   </property>
+  </action>
+  <action name="actionPrevSelectedPage">
+   <property name="text">
+    <string>Previous Selected Page</string>
+   </property>
+   <property name="toolTip">
+    <string>Previous Selected Page</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+PgUp</string>
    </property>
   </action>
  </widget>

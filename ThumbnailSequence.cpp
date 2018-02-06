@@ -155,13 +155,13 @@ public:
 
 	PageInfo selectionLeader() const;
 
-	PageInfo prevPage(PageId const& page_id) const;
+    PageInfo prevPage(PageId const& page_id, const bool in_selection) const;
 
-	PageInfo nextPage(PageId const& page_id) const;
+    PageInfo nextPage(PageId const& page_id, const bool in_selection) const;
 
-	PageInfo firstPage() const;
+    PageInfo firstPage(const bool in_selection) const;
 
-	PageInfo lastPage() const;
+    PageInfo lastPage(const bool in_selection) const;
 
 	void insert(PageInfo const& new_page,
 		BeforeOrAfter before_or_after, ImageId const& image);
@@ -435,27 +435,27 @@ ThumbnailSequence::selectionLeader() const
 }
 
 PageInfo
-ThumbnailSequence::prevPage(PageId const& reference_page) const
+ThumbnailSequence::prevPage(PageId const& reference_page, bool const in_selection) const
 {
-	return m_ptrImpl->prevPage(reference_page);
+    return m_ptrImpl->prevPage(reference_page, in_selection);
 }
 
 PageInfo
-ThumbnailSequence::nextPage(PageId const& reference_page) const
+ThumbnailSequence::nextPage(PageId const& reference_page, bool const in_selection) const
 {
-	return m_ptrImpl->nextPage(reference_page);
+    return m_ptrImpl->nextPage(reference_page, in_selection);
 }
 
 PageInfo
-ThumbnailSequence::firstPage() const
+ThumbnailSequence::firstPage(bool const in_selection) const
 {
-	return m_ptrImpl->firstPage();
+    return m_ptrImpl->firstPage(in_selection);
 }
 
 PageInfo
-ThumbnailSequence::lastPage() const
+ThumbnailSequence::lastPage(bool const in_selection) const
 {
-	return m_ptrImpl->lastPage();
+    return m_ptrImpl->lastPage(in_selection);
 }
 
 void
@@ -965,7 +965,7 @@ ThumbnailSequence::Impl::selectionLeader() const
 }
 
 PageInfo
-ThumbnailSequence::Impl::prevPage(PageId const& reference_page) const
+ThumbnailSequence::Impl::prevPage(PageId const& reference_page, bool const in_selection) const
 {
 	ItemsInOrder::iterator ord_it;
 
@@ -976,18 +976,23 @@ ThumbnailSequence::Impl::prevPage(PageId const& reference_page) const
 		ord_it = m_items.project<ItemsInOrderTag>(m_itemsById.find(reference_page));
 	}
 
-	if (ord_it != m_itemsInOrder.end()) {
-		if (ord_it != m_itemsInOrder.begin()) {
-			--ord_it;
-			return ord_it->pageInfo;
-		}
-	}
+    if (ord_it == m_itemsInOrder.end() ||
+            ord_it == m_itemsInOrder.begin()) {
+        return PageInfo();
+    }
+
+    do {
+        --ord_it;
+        if (!in_selection || ord_it->isSelected()) {
+            return ord_it->pageInfo;
+        }
+    } while (ord_it != m_itemsInOrder.begin());
 
 	return PageInfo();
 }
 
 PageInfo
-ThumbnailSequence::Impl::nextPage(PageId const& reference_page) const
+ThumbnailSequence::Impl::nextPage(PageId const& reference_page, bool const in_selection) const
 {
 	ItemsInOrder::iterator ord_it;
 
@@ -998,34 +1003,62 @@ ThumbnailSequence::Impl::nextPage(PageId const& reference_page) const
 		ord_it = m_items.project<ItemsInOrderTag>(m_itemsById.find(reference_page));
 	}
 
-	if (ord_it != m_itemsInOrder.end()) {
-		++ord_it;
-		if (ord_it != m_itemsInOrder.end()) {
-			return ord_it->pageInfo;
-		}
-	}
+    if (ord_it == m_itemsInOrder.end()) {
+        return PageInfo();
+    }
+
+    ++ord_it;
+
+    while (ord_it != m_itemsInOrder.end()) {
+        if (!in_selection || ord_it->isSelected()) {
+            return ord_it->pageInfo;
+        }
+        ++ord_it;
+    }
 
 	return PageInfo();
 }
 
 PageInfo
-ThumbnailSequence::Impl::firstPage() const
+ThumbnailSequence::Impl::firstPage(bool const in_selection) const
 {
 	if (m_items.empty()) {
 		return PageInfo();
 	}
 
-	return m_itemsInOrder.front().pageInfo;
+    if (!in_selection) {
+        return m_itemsInOrder.front().pageInfo;
+    } else {
+        for (ItemsInOrder::const_iterator it = m_itemsInOrder.begin();
+             it != m_itemsInOrder.end(); ++it) {
+            if (it->isSelected()) {
+                return it->pageInfo;
+            }
+        }
+        return PageInfo();
+    }
 }
 
 PageInfo
-ThumbnailSequence::Impl::lastPage() const
+ThumbnailSequence::Impl::lastPage(bool const in_selection) const
 {
 	if (m_items.empty()) {
 		return PageInfo();
 	}
 
-	return m_itemsInOrder.back().pageInfo;
+    if (!in_selection) {
+        return m_itemsInOrder.back().pageInfo;
+    } else {
+        ItemsInOrder::const_iterator it = m_itemsInOrder.end();
+        do {
+            --it;
+            if (it->isSelected()) {
+                return it->pageInfo;
+            }
+        } while (it != m_itemsInOrder.begin());
+
+        return PageInfo();
+    }
 }
 
 void

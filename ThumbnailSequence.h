@@ -158,7 +158,7 @@ public:
 	 * A null PageInfo is returned if the given page wasn't found or
 	 * there are no pages preceding it.
 	 */
-	PageInfo prevPage(PageId const& reference_page) const;
+    PageInfo prevPage(PageId const& reference_page, const bool in_selection = false) const;
 
 	/**
 	 * \brief Returns the page immediately following the given one.
@@ -166,21 +166,21 @@ public:
 	 * A null PageInfo is returned if the given page wasn't found or
 	 * there are no pages following it.
 	 */
-	PageInfo nextPage(PageId const& reference_page) const;
+    PageInfo nextPage(PageId const& reference_page, bool const in_selection = false) const;
 	
 	/**
 	 * \brief Returns the first page in the sequence.
 	 *
 	 * A null PageInfo is returned if the sequence is empty.
 	 */
-	PageInfo firstPage() const;
+    PageInfo firstPage(const bool in_selection = false) const;
 
 	/**
 	 * \brief Returns the last page in the sequence.
 	 *
 	 * A null PageInfo is returned if the sequence is empty.
 	 */
-	PageInfo lastPage() const;
+    PageInfo lastPage(const bool in_selection = false) const;
 
 	/**
 	 * \brief Inserts a page before the first page with matching ImageId.

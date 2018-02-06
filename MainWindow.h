@@ -125,7 +125,7 @@ public slots:
 private:
     enum MainAreaAction { UPDATE_MAIN_AREA, CLEAR_MAIN_AREA };
 
-    void jumpToPage(int cnt);
+    void jumpToPage(int cnt, bool in_selection = false);
 //Settings processing
 
     void setDockingPanels(bool enabled);
@@ -139,15 +139,15 @@ signals:
     void UpdateStatusBarPageSize();
     void UpdateStatusBarMousePos();
 private slots:
-	void goFirstPage();
+    void goFirstPage(bool in_selection = false);
 
-	void goLastPage();
+    void goLastPage(bool in_selection = false);
 
-    void goNextPage(int cnt = 1);
+    void goNextPage(int cnt = 1, bool in_selection = false);
 	
-    void goPrevPage(int cnt = -1);
+    void goPrevPage(int cnt = -1, bool in_selection = false);
 	
-	void goToPage(PageId const& page_id);
+    void goToPage(PageId const& page_id, const ThumbnailSequence::SelectionAction action = ThumbnailSequence::RESET_SELECTION);
 	
 	void currentPageChanged(
 		PageInfo const& page_info, QRectF const& thumb_rect,
