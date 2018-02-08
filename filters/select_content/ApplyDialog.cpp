@@ -45,12 +45,12 @@ ApplyDialog::ApplyDialog(
 	m_pBtnGroup->addButton(thisEveryOtherRB);
 	m_pBtnGroup->addButton(everyOtherSelectedRB);
 	
-	/*
+
 	if (m_selectedPages.size() <= 1) {
 		selectedPagesWidget->setEnabled(false);
 		everyOtherSelectedWidget->setEnabled(false);
 		everyOtherSelectedHint->setText(selectedPagesHint->text());
-	} else if (m_selectedRanges.size() > 1) {
+    }/* else if (m_selectedRanges.size() > 1) {
 		everyOtherSelectedWidget->setEnabled(false);
 		everyOtherSelectedHint->setText(tr("Can't do: more than one group is selected."));
 	}
@@ -87,9 +87,20 @@ ApplyDialog::onSubmit()
 			}
 		}
 	} else if (everyOtherSelectedRB->isChecked()) {
-		assert(m_selectedRanges.size() == 1);
-		PageRange const& range = m_selectedRanges.front();
-		range.selectEveryOther(m_curPage).swap(pages);
+        if (m_selectedRanges.size() == 1) {
+            m_selectedRanges.front().selectEveryOther(m_curPage).swap(pages);
+        } else {
+            std::set<PageId> tmp;
+            m_pages.selectEveryOther(m_curPage).swap(tmp);
+            for (PageRange const& range: m_selectedRanges) {
+                for (PageId const& page: range.pages) {
+                    if (tmp.find(page) != tmp.end()) {
+                        pages.insert(page);
+                    }
+                }
+            }
+        }
+
 	}
 	
 	emit applySelection(pages, applyContentBoxOption->isChecked());

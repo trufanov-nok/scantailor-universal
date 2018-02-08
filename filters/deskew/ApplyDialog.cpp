@@ -31,6 +31,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
 	m_pages(page_selection_accessor.allPages()),
 	m_curPage(cur_page),
 	m_selectedPages(page_selection_accessor.selectedPages()),
+    m_selectedRanges(page_selection_accessor.selectedRanges()),
 	m_pScopeGroup(new QButtonGroup(this))
 {
 	setupUi(this);
@@ -41,9 +42,13 @@ ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
 	m_pScopeGroup->addButton(thisEveryOtherRB);
 	m_pScopeGroup->addButton(selectedPagesRB);
 	m_pScopeGroup->addButton(everyOtherSelectedRB);
-	if (m_selectedPages.size() <= 1) {
-		selectedPagesWidget->setEnabled(false);
-	}
+    if (m_selectedPages.size() <= 1) {
+        selectedPagesWidget->setEnabled(false);
+        everyOtherSelectedHint->setText(selectedPagesHint->text());
+    } /*else if (m_selectedRanges.size() > 1) {
+        everyOtherSelectedRB->setEnabled(false);
+        everyOtherSelectedHint->setText(tr("Can't do: more than one group is selected."));
+    }*/
 	
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
@@ -80,12 +85,20 @@ ApplyDialog::onSubmit()
 		}
 		emit appliedTo(pages);
 	} else if (everyOtherSelectedRB->isChecked()) {
-		std::set<PageId>::iterator it = m_selectedPages.begin();
-		for (int i=0; it != m_selectedPages.end(); ++it, ++i) {
-			if (i % 2 == 0) {
-				pages.insert(*it);
-			}
-		}
+        if (m_selectedRanges.size() == 1) {
+            m_selectedRanges.front().selectEveryOther(m_curPage).swap(pages);
+        } else {
+            std::set<PageId> tmp;
+            m_pages.selectEveryOther(m_curPage).swap(tmp);
+            for (PageRange const& range: m_selectedRanges) {
+                for (PageId const& page: range.pages) {
+                    if (tmp.find(page) != tmp.end()) {
+                        pages.insert(page);
+                    }
+                }
+            }
+
+        }
 		emit appliedTo(pages);
 	}
 	accept();

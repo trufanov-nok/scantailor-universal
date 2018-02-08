@@ -24,6 +24,7 @@
 #include "PageLayout.h"
 #include "PageId.h"
 #include "PageSequence.h"
+#include "PageRange.h"
 #include "IntrusivePtr.h"
 #include <QDialog>
 #include <set>
@@ -61,6 +62,7 @@ private:
 	
 	PageSequence m_pages;
 	std::set<PageId> m_selectedPages;
+    std::vector<PageRange> m_selectedRanges;
 	PageId m_curPage;
 	QButtonGroup* m_pScopeGroup;
 	LayoutType m_layoutType;

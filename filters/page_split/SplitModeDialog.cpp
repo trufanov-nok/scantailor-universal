@@ -37,6 +37,7 @@ SplitModeDialog::SplitModeDialog(
 :	QDialog(parent),
 	m_pages(page_selection_accessor.allPages()),
 	m_selectedPages(page_selection_accessor.selectedPages()),
+    m_selectedRanges(page_selection_accessor.selectedRanges()),
 	m_curPage(cur_page),
 	m_pScopeGroup(new QButtonGroup(this)),
 	m_layoutType(layout_type),
@@ -134,12 +135,19 @@ SplitModeDialog::onSubmit()
 		}
         
 	} else if (everyOtherSelectedRB->isChecked()) {
-		std::set<PageId>::iterator it = m_selectedPages.begin();
-		for (int i=0; it != m_selectedPages.end(); ++it, ++i) {
-			if (i % 2 == 0) {
-				pages.insert(*it);
-			}
-		}
+        if (m_selectedRanges.size() == 1) {
+            m_selectedRanges.front().selectEveryOther(m_curPage).swap(pages);
+        } else {
+            std::set<PageId> tmp;
+            m_pages.selectEveryOther(m_curPage).swap(tmp);
+            for (PageRange const& range: m_selectedRanges) {
+                for (PageId const& page: range.pages) {
+                    if (tmp.find(page) != tmp.end()) {
+                        pages.insert(page);
+                    }
+                }
+            }
+        }
 	}
     
 	emit accepted(pages, false, layout_type, applyCutOption->isChecked());

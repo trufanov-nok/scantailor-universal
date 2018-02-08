@@ -21,6 +21,7 @@
 #include "ui_DeskewApplyDialog.h"
 #include "PageId.h"
 #include "PageSequence.h"
+#include "PageRange.h"
 #include "IntrusivePtr.h"
 #include <QDialog>
 #include <set>
@@ -48,6 +49,7 @@ private:
 	PageSequence m_pages;
 	PageId m_curPage;
 	std::set<PageId> m_selectedPages;
+    std::vector<PageRange> m_selectedRanges;
 	QButtonGroup* m_pScopeGroup;
 };
 
