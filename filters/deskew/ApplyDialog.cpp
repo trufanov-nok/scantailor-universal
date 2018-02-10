@@ -45,10 +45,10 @@ ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
     if (m_selectedPages.size() <= 1) {
         selectedPagesWidget->setEnabled(false);
         everyOtherSelectedHint->setText(selectedPagesHint->text());
-    } /*else if (m_selectedRanges.size() > 1) {
+    } else if (m_selectedRanges.size() > 1) {
         everyOtherSelectedRB->setEnabled(false);
         everyOtherSelectedHint->setText(tr("Can't do: more than one group is selected."));
-    }*/
+    }
 	
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
