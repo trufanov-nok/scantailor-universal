@@ -259,6 +259,8 @@ OptionsWidget::marginsSetExternally(Margins const& margins_mm)
 void
 OptionsWidget::unitsChanged(int const idx)
 {
+    ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
+
 	int decimals = 0;
 	double step = 0.0;
 	
