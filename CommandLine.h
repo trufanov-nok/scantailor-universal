@@ -236,8 +236,8 @@ private:
     bool fetchPictureZonesLayer();
 	Qt::LayoutDirection fetchLayoutDirection();
 	Dpi fetchDpi(QString oname="dpi");
-    Margins fetchMargins(QString base="margins", Margins def = Margins());
-    Margins fetchPageBorders() { Margins res = fetchMargins("page-borders", Margins(0,0,0,0));
+    MarginsWithAuto fetchMargins(QString base="margins", MarginsWithAuto def = MarginsWithAuto());
+    Margins fetchPageBorders() { Margins res = (Margins)fetchMargins("page-borders", MarginsWithAuto(0,0,0,0));
                                  if (res == Margins(0,0,0,0) && hasPageBorders()) {
                                      QSettings settings;
                                      res = Margins(settings.value("page_detection/borders/left", 0).toDouble(),

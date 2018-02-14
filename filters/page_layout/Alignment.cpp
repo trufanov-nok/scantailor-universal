@@ -39,8 +39,8 @@ Alignment::Alignment(Vertical vert, Horizontal hor)
     m_hor = hor;
 }
 
-Alignment::Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance, bool auto_marg )
-    : m_vert(vert), m_hor(hor), m_isNull(is_null), m_tolerance(tolerance), m_autoMargins(auto_marg)
+Alignment::Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance)
+    : m_vert(vert), m_hor(hor), m_isNull(is_null), m_tolerance(tolerance)
 {
 }
 
@@ -54,8 +54,7 @@ Alignment::Alignment(QDomElement const& el)
 	QString const hor(el.attribute("hor"));
 	m_isNull = el.attribute("null").toInt() != 0;
 	m_tolerance = el.attribute("tolerance", QString::number(DEFAULT_TOLERANCE)).toDouble();
-	m_autoMargins = el.attribute("autoMargins") == "true" ? true: false;
-	
+
 	if (vert == "top") {
 		m_vert = TOP;
 	} else if (vert == "bottom") {
@@ -127,7 +126,6 @@ Alignment::toXml(QDomDocument& doc, QString const& name) const
 	el.setAttribute("hor", QLatin1String(hor));
 	el.setAttribute("null", m_isNull ? 1 : 0);
 	el.setAttribute("tolerance", QString::number(m_tolerance));
-	el.setAttribute("autoMargins", m_autoMargins ? "true" : "false");
 	return el;
 }
 
@@ -145,7 +143,6 @@ Alignment::save(QSettings* _settings) const
     settings.setValue("margins/default_alignment_hor", m_hor);
     settings.setValue("margins/default_alignment_null", m_isNull);
     settings.setValue("margins/default_alignment_tolerance", m_tolerance);
-    settings.setValue("margins/default_alignment_auto_margins", m_autoMargins);
 }
 
 Alignment
@@ -165,8 +162,7 @@ Alignment::load(QSettings* _settings)
     bool isnull = cli.getDefaultNull();
             //settings.value("margins/default_alignment_null", m_isNull).toBool();
     double toler = settings.value("margins/default_alignment_tolerance", DEFAULT_TOLERANCE).toDouble();
-    bool auto_margins = settings.value("margins/default_alignment_auto_margins", false).toBool();
-    return Alignment(vert, hor, isnull, toler, auto_margins);
+    return Alignment(vert, hor, isnull, toler);
 }
 
 } // namespace page_layout

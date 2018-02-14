@@ -150,3 +150,21 @@ XmlMarshaller::margins(Margins const& margins, QString const& name)
 	el.setAttribute("bottom", Utils::doubleToString(margins.bottom()));
 	return el;
 }
+
+QDomElement
+XmlMarshaller::marginsHandler(MarginsWithAuto const& margins, QString const& name)
+{
+    QDomElement el(m_doc.createElement(name));
+    el.setAttribute("left", Utils::doubleToString(margins.left()));
+    el.setAttribute("right", Utils::doubleToString(margins.right()));
+    el.setAttribute("top", Utils::doubleToString(margins.top()));
+    el.setAttribute("bottom", Utils::doubleToString(margins.bottom()));
+    el.setAttribute("autoMargins", margins.isAutoMarginsEnabled()? "true" : "false");
+    if (margins.isAutoMarginsEnabled()) {
+        el.setAttribute("backup_left", Utils::doubleToString(margins.backup()->left()));
+        el.setAttribute("backup_right", Utils::doubleToString(margins.backup()->right()));
+        el.setAttribute("backup_top", Utils::doubleToString(margins.backup()->top()));
+        el.setAttribute("backup_bottom", Utils::doubleToString(margins.backup()->bottom()));
+    }
+    return el;
+}

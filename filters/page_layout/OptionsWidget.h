@@ -26,6 +26,7 @@
 #include "Margins.h"
 #include "Alignment.h"
 #include "PageId.h"
+#include "ApplyDialog.h"
 #include <QIcon>
 #include <memory>
 #include <map>
@@ -51,8 +52,8 @@ public:
 	
 	virtual ~OptionsWidget();
 	
-	void preUpdateUI(PageId const& page_id,
-		Margins const& margins_mm, Alignment const& alignment);
+    void preUpdateUI(PageId const& page_id,
+        const MarginsWithAuto &margins_mm, Alignment const& alignment);
 	
 	void postUpdateUI();
 	
@@ -70,11 +71,11 @@ signals:
 	
 	void alignmentChanged(Alignment const& alignment);
 	
-	void marginsSetLocally(Margins const& margins_mm);
+    void marginsSetLocally(Margins const& margins_mm);
 	
 	void aggregateHardSizeChanged();
 public slots:
-	void marginsSetExternally(Margins const& margins_mm);
+    void marginsSetExternally(const Margins &margins_mm, bool keep_auto_margins = false);
 private slots:
 	void unitsChanged(int idx);
 	
@@ -98,7 +99,7 @@ private slots:
 	
 	void showApplyAlignmentDialog();
 	
-	void applyMargins(std::set<PageId> const& pages);
+    void applyMargins(const ApplyDialog::MarginsApplyType type, std::set<PageId> const& pages);
 	
 	void applyAlignment(std::set<PageId> const& pages);
 private:
@@ -118,7 +119,7 @@ private:
 	double m_mmToUnit;
 	double m_unitToMM;
 	PageId m_pageId;
-	Margins m_marginsMM;
+    MarginsWithAuto m_marginsMM;
 	Alignment m_alignment;
 	int m_ignoreMarginChanges;
 	bool m_leftRightLinked;

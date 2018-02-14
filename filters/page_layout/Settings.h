@@ -26,6 +26,7 @@
 
 class PageId;
 class Margins;
+class MarginsWithAuto;
 class PageSequence;
 class AbstractRelinker;
 class QSizeF;
@@ -43,7 +44,7 @@ class Settings : public RefCountable
 public:
 	enum AggregateSizeChanged { AGGREGATE_SIZE_UNCHANGED, AGGREGATE_SIZE_CHANGED };
 	
-	static Margins defaultHardMarginsMM();
+    static MarginsWithAuto defaultHardMarginsMM();
 
 	Settings();
 	
@@ -106,7 +107,7 @@ public:
 	 * If no margins were assigned to the specified page, the default
 	 * margins are returned.
 	 */
-	Margins getHardMarginsMM(PageId const& page_id) const;
+    MarginsWithAuto getHardMarginsMM(PageId const& page_id) const;
 	
 	/**
 	 * \brief Sets hard margins for the specified page.
@@ -115,7 +116,7 @@ public:
 	 * Soft margins are those added to extend the page to match its
 	 * size with other pages.
 	 */
-	void setHardMarginsMM(PageId const& page_id, Margins const& margins_mm);
+    void setHardMarginsMM(PageId const& page_id, const MarginsWithAuto &margins_mm);
 	
 	/**
 	 * \brief Returns the alignment for the specified page.

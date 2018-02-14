@@ -37,12 +37,22 @@ class ApplyDialog : public QDialog, private Ui::PageLayoutApplyDialog
 {
 	Q_OBJECT
 public:
-	ApplyDialog(QWidget* parent, PageId const& cur_page,
-		PageSelectionAccessor const& page_selection_accessor);
+    enum DialogType {
+        Margins,
+        Alignment
+    };
+    enum MarginsApplyType {
+        MarginsValues,
+        AutoMarginState
+    };
+public:
+    ApplyDialog(QWidget* parent, PageId const& cur_page,
+        PageSelectionAccessor const& page_selection_accessor, const DialogType dlg_type, const bool is_auto_margin_enabled = false);
 	
 	virtual ~ApplyDialog();
 signals:
 	void accepted(std::set<PageId> const& pages);
+    void accepted_margins(MarginsApplyType const type, std::set<PageId> const& pages);
 private slots:
 	void onSubmit();
 private:
@@ -51,6 +61,7 @@ private:
 	std::vector<PageRange> m_selectedRanges;
 	PageId m_curPage;
 	QButtonGroup* m_pScopeGroup;
+    DialogType m_dlgType;
 };
 
 } // namespace page_layout

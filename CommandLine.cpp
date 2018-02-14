@@ -524,10 +524,10 @@ CommandLine::fetchForegroundLayer()
     return (cm != "false");
 }
 
-Margins
-CommandLine::fetchMargins(QString base, Margins def)
+MarginsWithAuto
+CommandLine::fetchMargins(QString base, MarginsWithAuto def)
 {
-	Margins margins(def);
+    MarginsWithAuto margins(def);
 
 	if (m_options.contains(base)) {
 		double m = m_options.value(base).toDouble();
@@ -551,6 +551,8 @@ CommandLine::fetchMargins(QString base, Margins def)
 		margins.setTop(m_options.value(tstr).toFloat());
 	if (m_options.contains(bstr))
 		margins.setBottom(m_options.value(bstr).toFloat());
+
+    margins.setAutoMargins(isAutoMarginsEnabled());
 
 	return margins;
 }
@@ -600,9 +602,7 @@ CommandLine::fetchAlignment()
 		if (a == "right") alignment.setHorizontal(page_layout::Alignment::RIGHT);
 		if (a == "original") alignment.setHorizontal(page_layout::Alignment::HORIGINAL);
 		if (a == "auto") alignment.setHorizontal(page_layout::Alignment::HAUTO);
-	}
-
-	alignment.setAutoMargins(isAutoMarginsEnabled());
+    }
 
 	return alignment;
 }

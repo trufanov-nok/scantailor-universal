@@ -85,6 +85,25 @@ XmlUnmarshaller::margins(QDomElement const& el)
 	return margins;
 }
 
+MarginsWithAuto
+XmlUnmarshaller::marginsHandler(QDomElement const& el)
+{
+    MarginsWithAuto margins;
+    if (el.attribute("autoMargins") == "true") {
+        margins.setLeft(el.attribute("backup_left").toDouble());
+        margins.setRight(el.attribute("backup_right").toDouble());
+        margins.setTop(el.attribute("backup_top").toDouble());
+        margins.setBottom(el.attribute("backup_bottom").toDouble());
+        margins.setAutoMargins(true);
+    }
+
+    margins.setLeft(el.attribute("left").toDouble());
+    margins.setRight(el.attribute("right").toDouble());
+    margins.setTop(el.attribute("top").toDouble());
+    margins.setBottom(el.attribute("bottom").toDouble());
+    return margins;
+}
+
 QPointF
 XmlUnmarshaller::pointF(QDomElement const& el)
 {

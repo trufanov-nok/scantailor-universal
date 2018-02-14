@@ -26,6 +26,7 @@ class QSizeF;
 class Dpi;
 class OrthogonalRotation;
 class Margins;
+class MarginsWithAuto;
 class QPointF;
 class QLineF;
 class QRect;
@@ -46,6 +47,8 @@ public:
 	static OrthogonalRotation rotation(QDomElement const& el);
 	
 	static Margins margins(QDomElement const& el);
+
+    static MarginsWithAuto marginsHandler(QDomElement const& el);
 	
 	static QPointF pointF(QDomElement const& el);
 	

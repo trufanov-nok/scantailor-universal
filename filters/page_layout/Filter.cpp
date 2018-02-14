@@ -123,7 +123,7 @@ Filter::performRelinking(AbstractRelinker const& relinker)
 void
 Filter::preUpdateUI(FilterUiInterface* ui, PageId const& page_id)
 {
-	Margins const margins_mm(m_ptrSettings->getHardMarginsMM(page_id));
+    MarginsWithAuto const margins_mm(m_ptrSettings->getHardMarginsMM(page_id));
 	Alignment const alignment(m_ptrSettings->getPageAlignment(page_id));
 	m_ptrOptionsWidget->preUpdateUI(page_id, margins_mm, alignment);
 	ui->setOptionsWidget(m_ptrOptionsWidget.get(), ui->KEEP_OWNERSHIP);

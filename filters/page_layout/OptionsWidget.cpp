@@ -19,7 +19,6 @@
 #include "OptionsWidget.h"
 #include "OptionsWidget.moc"
 #include "Settings.h"
-#include "ApplyDialog.h"
 #include "../../Utils.h"
 #include "ScopedIncDec.h"
 #include "PageInfo.h"
@@ -139,7 +138,7 @@ OptionsWidget::OptionsWidget(
 		this, SLOT(leftRightLinkClicked())
 	);
 	connect(
-		applyMarginsBtn, SIGNAL(clicked()),
+        applyMarginsBtn, SIGNAL(clicked()),
 		this, SLOT(showApplyMarginsDialog())
 	);
 	connect(
@@ -168,7 +167,7 @@ OptionsWidget::~OptionsWidget()
 
 void
 OptionsWidget::preUpdateUI(
-	PageId const& page_id, Margins const& margins_mm, Alignment const& alignment)
+    PageId const& page_id, MarginsWithAuto const& margins_mm, Alignment const& alignment)
 {
 	m_pageId = page_id;
 	m_marginsMM = margins_mm;
@@ -220,15 +219,13 @@ OptionsWidget::preUpdateUI(
 
 
     m_ignoreMarginChanges = old_ignore;
-    autoMarginsLayout_2->setVisible(QSettings().value("auto_margins/enabled", true).toBool());
-    if (autoMarginsLayout_2->isVisible()) {
-        autoMargins->setChecked(m_alignment.isAutoMarginsEnabled());
-    } else {
-        autoMargins->setChecked(false);
-    }    
+
+    const bool auto_margins_enabled = QSettings().value("auto_margins/enabled", false).toBool();
+    autoMarginsLayout_2->setVisible(auto_margins_enabled);
+    autoMargins->setChecked(auto_margins_enabled &&
+                            m_marginsMM.isAutoMarginsEnabled());
+
     m_ignoreMarginChanges = true;
-
-
 	enableDisableAlignmentButtons();
 	
 	m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
@@ -250,10 +247,15 @@ OptionsWidget::postUpdateUI()
 }
 
 void
-OptionsWidget::marginsSetExternally(Margins const& margins_mm)
+OptionsWidget::marginsSetExternally(Margins const& margins_mm, bool keep_auto_margins)
 {
-	m_marginsMM = margins_mm;
-	updateMarginsDisplay();
+    if (!(static_cast<Margins const&>(m_marginsMM) == margins_mm)) {
+        if (!keep_auto_margins && m_marginsMM.isAutoMarginsEnabled()) {
+            m_marginsMM.setAutoMargins(false);
+        }
+        m_marginsMM = margins_mm;
+    }
+    updateMarginsDisplay();
 }
 
 void
@@ -295,7 +297,7 @@ OptionsWidget::horMarginsChanged(double const val)
 		return;
 	}
 	
-	if (m_leftRightLinked) {
+    if (m_leftRightLinked  && !m_marginsMM.isAutoMarginsEnabled()) {
 		ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
 		leftMarginSpinBox->setValue(val);
 		rightMarginSpinBox->setValue(val);
@@ -304,7 +306,7 @@ OptionsWidget::horMarginsChanged(double const val)
 	m_marginsMM.setLeft(leftMarginSpinBox->value() * m_unitToMM);
 	m_marginsMM.setRight(rightMarginSpinBox->value() * m_unitToMM);
 	
-	emit marginsSetLocally(m_marginsMM);
+    emit marginsSetLocally(static_cast<Margins>(m_marginsMM));
 }
 
 void
@@ -314,7 +316,7 @@ OptionsWidget::vertMarginsChanged(double const val)
 		return;
 	}
 	
-	if (m_topBottomLinked) {
+    if (m_topBottomLinked && !m_marginsMM.isAutoMarginsEnabled()) {
 		ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
 		topMarginSpinBox->setValue(val);
 		bottomMarginSpinBox->setValue(val);
@@ -323,7 +325,7 @@ OptionsWidget::vertMarginsChanged(double const val)
 	m_marginsMM.setTop(topMarginSpinBox->value() * m_unitToMM);
 	m_marginsMM.setBottom(bottomMarginSpinBox->value() * m_unitToMM);
 	
-	emit marginsSetLocally(m_marginsMM);
+    emit marginsSetLocally(static_cast<Margins>(m_marginsMM));
 }
 
 void
@@ -360,18 +362,14 @@ OptionsWidget::autoMarginsChanged(bool checked)
 		return;
 	}
 
-	alignmentMode->setEnabled(!checked);
-    int idx = alignmentMode->findData(Alignment::VORIGINAL); // autoMargin item has userData==1
-    if (idx != -1) {
-        alignmentMode->setCurrentIndex(idx);
+    m_marginsMM.setAutoMargins(checked);
+    m_ptrSettings->setHardMarginsMM(m_pageId, m_marginsMM);
+    if (checked) {
+        emit reloadRequested();
+    } else {
+        updateMarginsDisplay();
+        emit marginsSetLocally(static_cast<Margins>(m_marginsMM));
     }
-	enableDisableAlignmentButtons();
-	m_alignment.setAutoMargins(checked);
-	m_alignment.setVertical(Alignment::VORIGINAL);
-	m_alignment.setHorizontal(Alignment::HORIGINAL);
-	m_ptrSettings->setPageAlignment(m_pageId, m_alignment);
-	m_ptrSettings->updateContentRect();
-	emit reloadRequested();
 }
 
 void
@@ -415,13 +413,13 @@ void
 OptionsWidget::showApplyMarginsDialog()
 {
 	ApplyDialog* dialog = new ApplyDialog(
-		this, m_pageId, m_pageSelectionAccessor
+        this, m_pageId, m_pageSelectionAccessor, ApplyDialog::Margins, m_marginsMM.isAutoMarginsEnabled()
 	);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowTitle(tr("Apply Margins"));
-	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&)),
-		this, SLOT(applyMargins(std::set<PageId> const&))
+    connect(
+        dialog, &ApplyDialog::accepted_margins,
+        this, &OptionsWidget::applyMargins
 	);
 	dialog->show();
 }
@@ -430,7 +428,7 @@ void
 OptionsWidget::showApplyAlignmentDialog()
 {
 	ApplyDialog* dialog = new ApplyDialog(
-		this, m_pageId, m_pageSelectionAccessor
+        this, m_pageId, m_pageSelectionAccessor, ApplyDialog::Alignment
 	);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowTitle(tr("Apply Alignment"));
@@ -442,15 +440,36 @@ OptionsWidget::showApplyAlignmentDialog()
 }
 
 void
-OptionsWidget::applyMargins(std::set<PageId> const& pages)
+OptionsWidget::applyMargins(ApplyDialog::MarginsApplyType const type, std::set<PageId> const& pages)
 {
 	if (pages.empty()) {
 		return;
 	}
 	
-	for (PageId const& page_id: pages) {
-		m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
-	}
+    if (!QSettings().value("auto_margins/enabled", false).toBool()) {
+        for (PageId const& page_id: pages) {
+            m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
+        }
+    } else if (type == ApplyDialog::MarginsValues) {
+        const Margins& val = static_cast<Margins&>(m_marginsMM);
+        for (PageId const& page_id: pages) {
+            MarginsWithAuto mh =  m_ptrSettings->getHardMarginsMM(page_id);
+            if (!mh.isAutoMarginsEnabled()){
+                static_cast<Margins&>(mh) = val;
+                m_ptrSettings->setHardMarginsMM(page_id, mh);
+            }
+        }
+    } else { //type == ApplyDialog::AutoMarginState
+        const bool val = m_marginsMM.isAutoMarginsEnabled();
+        for (PageId const& page_id: pages) {
+            MarginsWithAuto mh =  m_ptrSettings->getHardMarginsMM(page_id);
+            if (mh.isAutoMarginsEnabled() != val) {
+                mh.setAutoMargins(val);
+                m_ptrSettings->setHardMarginsMM(page_id, mh);
+            }
+        }
+    }
+
 	
 	emit aggregateHardSizeChanged();
 	emit invalidateAllThumbnails();
@@ -479,6 +498,9 @@ OptionsWidget::updateMarginsDisplay()
 	bottomMarginSpinBox->setValue(m_marginsMM.bottom() * m_mmToUnit);
 	leftMarginSpinBox->setValue(m_marginsMM.left() * m_mmToUnit);
 	rightMarginSpinBox->setValue(m_marginsMM.right() * m_mmToUnit);
+
+    panelMarginsControls->setEnabled(!m_marginsMM.isAutoMarginsEnabled());
+    autoMargins->setChecked(m_marginsMM.isAutoMarginsEnabled());
 }
 
 void

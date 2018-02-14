@@ -28,6 +28,7 @@ class QSizeF;
 class Dpi;
 class OrthogonalRotation;
 class Margins;
+class MarginsWithAuto;
 class QPointF;
 class QLineF;
 class QPolygonF;
@@ -60,6 +61,8 @@ public:
 	QDomElement polygonF(QPolygonF const& poly, QString const& name);
 	
 	QDomElement margins(Margins const& margins, QString const& name);
+
+    QDomElement marginsHandler(MarginsWithAuto const& margins, QString const& name);
 private:
 	QDomDocument m_doc;
 };

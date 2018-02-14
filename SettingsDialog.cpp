@@ -510,7 +510,11 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         }
         displayAlignment();
     } else if (currentPage == ui.pageAutoMargins) {
-        displayAlignment();
+        if (!ui.cbMarginsAuto->isEnabled()) {
+             ui.cbMarginsAuto->setChecked(false);
+        } else {
+            ui.cbMarginsAuto->setChecked(m_settings.value("margins/default_auto_margins", false).toBool());
+        }
     } else if (currentPage == ui.pageForegroundLayer) {
         ui.cbForegroundLayerSeparateControl->setChecked(m_settings.value("foreground_layer/control_threshold", false).toBool());
     }
@@ -836,14 +840,6 @@ void SettingsDialog::displayAlignment()
         ui.cbAlignmentMode->addItem(tr("Original"), page_layout::Alignment::Vertical::VORIGINAL);
     }
 
-    ui.cbMarginsAuto->setEnabled(m_settings.value("auto_margins/enabled", true).toBool());
-
-    if (!ui.cbMarginsAuto->isEnabled()) {
-         ui.cbMarginsAuto->setChecked(false);
-    } else {
-        ui.cbMarginsAuto->setChecked(m_alignment.isAutoMarginsEnabled());
-    }
-
     const page_layout::Alignment::Vertical vert = m_alignment.vertical();
     const page_layout::Alignment::Horizontal hor = m_alignment.horizontal();
 
@@ -965,7 +961,7 @@ void SettingsDialog::on_cbAlignment_currentIndexChanged(int index)
 
 void SettingsDialog::on_cbMarginsAuto_clicked(bool checked)
 {
-    m_alignment.setAutoMargins(checked);
+    m_settings.setValue("margins/default_auto_margins", checked);
 }
 
 void SettingsDialog::enableDisableAlignmentButtons()

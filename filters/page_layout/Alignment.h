@@ -49,7 +49,7 @@ public:
     
     Alignment(Vertical vert, Horizontal hor);
 
-    Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance, bool auto_marg );
+    Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance);
 	
 	Alignment(QDomElement const& el);
 	
@@ -67,13 +67,10 @@ public:
 
     double tolerance() const { return m_tolerance; }
     void setTolerance(double t) { m_tolerance = t; }
-
-    bool isAutoMarginsEnabled() const { return m_autoMargins; }
-    void setAutoMargins(bool state) { m_autoMargins = state; }
 	
 	bool operator==(Alignment const& other) const {
 		return m_vert == other.m_vert && m_hor == other.m_hor
-				&& m_isNull == other.m_isNull && m_autoMargins == other.m_autoMargins;
+                && m_isNull == other.m_isNull;
 	}
 	
 	bool operator!=(Alignment const& other) const {
@@ -89,7 +86,6 @@ private:
 	Horizontal m_hor;
 	bool m_isNull;
 	double m_tolerance;
-	bool m_autoMargins;
 };
 
 } // namespace page_layout

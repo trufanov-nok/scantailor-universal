@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>240</width>
-    <height>561</height>
+    <width>254</width>
+    <height>567</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,163 +69,165 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Top</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2" rowspan="2">
-           <widget class="QToolButton" name="topBottomLink">
-            <property name="minimumSize">
-             <size>
-              <width>24</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../resources/resources.qrc">
-              <normaloff>:/icons/stock-vchain-broken-24.png</normaloff>
-              <normalon>:/icons/stock-vchain-24.png</normalon>:/icons/stock-vchain-broken-24.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>9</width>
-              <height>24</height>
-             </size>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Bottom</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="bottomMarginSpinBox">
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <double>999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Left</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QDoubleSpinBox" name="leftMarginSpinBox">
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <double>999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2" rowspan="2">
-           <widget class="QToolButton" name="leftRightLink">
-            <property name="minimumSize">
-             <size>
-              <width>24</width>
-              <height>48</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../resources/resources.qrc">
-              <normaloff>:/icons/stock-vchain-broken-24.png</normaloff>
-              <normalon>:/icons/stock-vchain-24.png</normalon>:/icons/stock-vchain-broken-24.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>9</width>
-              <height>24</height>
-             </size>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Right</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QDoubleSpinBox" name="rightMarginSpinBox">
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <double>999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="topMarginSpinBox">
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <double>999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+       <widget class="QWidget" name="panelMarginsControls" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Top</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" rowspan="2">
+            <widget class="QToolButton" name="topBottomLink">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>48</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../resources/resources.qrc">
+               <normaloff>:/icons/stock-vchain-broken-24.png</normaloff>
+               <normalon>:/icons/stock-vchain-24.png</normalon>:/icons/stock-vchain-broken-24.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>9</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="autoRaise">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Bottom</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="bottomMarginSpinBox">
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <double>999.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Left</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="leftMarginSpinBox">
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <double>999.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" rowspan="2">
+            <widget class="QToolButton" name="leftRightLink">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>48</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../resources/resources.qrc">
+               <normaloff>:/icons/stock-vchain-broken-24.png</normaloff>
+               <normalon>:/icons/stock-vchain-24.png</normalon>:/icons/stock-vchain-broken-24.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>9</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <property name="autoRaise">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Right</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QDoubleSpinBox" name="rightMarginSpinBox">
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <double>999.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="topMarginSpinBox">
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <double>999.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <widget class="QWidget" name="autoMarginsLayout_2" native="true">
@@ -293,8 +295,8 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>1</width>
-            <height>1</height>
+            <width>13</width>
+            <height>13</height>
            </size>
           </property>
          </spacer>
@@ -313,8 +315,8 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>1</width>
-            <height>1</height>
+            <width>13</width>
+            <height>13</height>
            </size>
           </property>
          </spacer>

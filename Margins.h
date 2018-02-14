@@ -20,6 +20,7 @@
 #define MARGINS_H_
 
 #include <QSettings>
+#include <memory>
 
 class Margins
 {
@@ -52,7 +53,7 @@ public:
 	
 	void setRight(double val) { m_right = val; }
 
-    inline bool operator == (const Margins& rhs) {
+    inline bool operator == (const Margins& rhs) const {
         return ((m_top == rhs.m_top) && (m_bottom == rhs.m_bottom) &&
                 (m_left == rhs.m_left) && (m_right == rhs.m_right));
     }
@@ -61,6 +62,62 @@ private:
 	double m_bottom;
 	double m_left;
 	double m_right;
+};
+
+class MarginsWithAuto: public Margins
+{
+public:
+    MarginsWithAuto(double left, double top, double right, double bottom)
+    : Margins(top, bottom, left, right) {
+        setAutoMargins(QSettings().value("margins/default_auto_margins", false).toBool());
+    }
+
+    MarginsWithAuto(const Margins& m): Margins(m) {
+        setAutoMargins(QSettings().value("margins/default_auto_margins", false).toBool());
+    }
+
+    MarginsWithAuto(): Margins() {
+        setAutoMargins(QSettings().value("margins/default_auto_margins", false).toBool());
+    }
+
+    MarginsWithAuto & operator= ( Margins rhs )
+    {
+        // copy all except autoMargins state and backup data
+        static_cast<Margins&>(*this) = rhs;
+        return *this;
+    }
+
+    bool isAutoMarginsEnabled() const { return m_backuppedData.get() != nullptr; }
+
+    void setAutoMargins(bool state)
+    {
+        if (state && !m_backuppedData.get()) {
+            backupValues();
+        } else if (!state && m_backuppedData.get()) {
+            restoreValues();
+        }
+    }
+
+    Margins* const backup() const { return m_backuppedData.get(); }
+private:
+    void backupValues()
+    {
+        if (!m_backuppedData) {
+            m_backuppedData.reset(new Margins(*this));
+        }
+    }
+
+    bool restoreValues()
+    {
+        if (m_backuppedData) {
+            static_cast<Margins&>(*this) = *m_backuppedData;
+            m_backuppedData.reset();
+            return true;
+        }
+        return false;
+    }
+private:
+    std::shared_ptr<Margins> m_backuppedData;
 };
 
 #endif

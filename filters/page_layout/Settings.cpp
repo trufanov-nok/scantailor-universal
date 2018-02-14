@@ -53,14 +53,14 @@ class Settings::Item
 {
 public:
 	PageId pageId;
-	Margins hardMarginsMM;
+    MarginsWithAuto hardMarginsMM;
 	QRectF pageRect;
 	QRectF contentRect;
 	QSizeF contentSizeMM;
 	Alignment alignment;
 	
-	Item(PageId const& page_id, Margins const& hard_margins_mm, QRectF const& page_rect,
-		QRectF const& content_rect, QSizeF const& content_size_mm, Alignment const& alignment);
+    Item(PageId const& page_id, const MarginsWithAuto &hard_margins_mm, QRectF const& page_rect,
+        QRectF const& content_rect, QSizeF const& content_size_mm, Alignment const& alignment);
 	
 	double hardWidthMM() const;
 	
@@ -77,13 +77,13 @@ public:
 class Settings::ModifyMargins
 {
 public:
-	ModifyMargins(Margins const& margins_mm) : m_marginsMM(margins_mm) {}
+    ModifyMargins(MarginsWithAuto const& margins_mm) : m_marginsMM(margins_mm) {}
 	
 	void operator()(Item& item) {
 		item.hardMarginsMM = m_marginsMM;
 	}
 private:
-	Margins m_marginsMM;
+    MarginsWithAuto m_marginsMM;
 };
 
 
@@ -144,9 +144,9 @@ public:
     void setContentRect(QRectF const rect) { m_contentRect = rect; }
 	QRectF const& getPageRect() { return m_pageRect; }
 	
-	Margins getHardMarginsMM(PageId const& page_id) const;
+    MarginsWithAuto getHardMarginsMM(PageId const& page_id) const;
 	
-	void setHardMarginsMM(PageId const& page_id, Margins const& margins_mm);
+    void setHardMarginsMM(PageId const& page_id, const MarginsWithAuto &margins_mm);
 	
 	Alignment getPageAlignment(PageId const& page_id) const;
 	
@@ -215,7 +215,7 @@ private:
 	DescHeightOrder& m_descHeightOrder;
 	QRectF const m_invalidRect;
 	QSizeF const m_invalidSize;
-	Margins const m_defaultHardMarginsMM;
+    MarginsWithAuto const m_defaultHardMarginsMM;
 	Alignment const m_defaultAlignment;
 	QRectF m_contentRect;
 	QRectF m_pageRect;
@@ -224,9 +224,11 @@ private:
 
 /*=============================== Settings ==================================*/
 
-Margins Settings::defaultHardMarginsMM()
+MarginsWithAuto Settings::defaultHardMarginsMM()
 { 
-	return CommandLine::get().getDefaultMargins();
+    MarginsWithAuto margins;
+    margins = CommandLine::get().getDefaultMargins();
+    return margins;
 }
 
 Settings::Settings()
@@ -310,14 +312,14 @@ Settings::getPageRect()
 	return m_ptrImpl->getPageRect();
 }
 
-Margins
+MarginsWithAuto
 Settings::getHardMarginsMM(PageId const& page_id) const
 {
 	return m_ptrImpl->getHardMarginsMM(page_id);
 }
 
 void
-Settings::setHardMarginsMM(PageId const& page_id, Margins const& margins_mm)
+Settings::setHardMarginsMM(PageId const& page_id, MarginsWithAuto const& margins_mm)
 {
 	m_ptrImpl->setHardMarginsMM(page_id, margins_mm);
 }
@@ -365,7 +367,7 @@ Settings::getAggregateHardSizeMM(
 /*============================== Settings::Item =============================*/
 
 Settings::Item::Item(
-	PageId const& page_id, Margins const& hard_margins_mm, QRectF const& page_rect,
+    PageId const& page_id, MarginsWithAuto const& hard_margins_mm, QRectF const& page_rect,
 	QRectF const& content_rect, QSizeF const& content_size_mm, Alignment const& align)
 :	pageId(page_id),
 	hardMarginsMM(hard_margins_mm),
@@ -584,7 +586,7 @@ Settings::Impl::updateContentRect()
 	return m_contentRect;
 }
 
-Margins
+MarginsWithAuto
 Settings::Impl::getHardMarginsMM(PageId const& page_id) const
 {
 	QMutexLocker const locker(&m_mutex);
@@ -599,7 +601,7 @@ Settings::Impl::getHardMarginsMM(PageId const& page_id) const
 
 void
 Settings::Impl::setHardMarginsMM(
-	PageId const& page_id, Margins const& margins_mm)
+    PageId const& page_id, MarginsWithAuto const& margins_mm)
 {
 	QMutexLocker const locker(&m_mutex);
 	

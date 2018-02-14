@@ -427,7 +427,7 @@ ConsoleBatch::setupPageLayout(std::set<PageId> allPages)
 			}
 		}
 		if (cli.hasMargins())
-			page_layout->getSettings()->setHardMarginsMM(page, cli.getMargins());
+            page_layout->getSettings()->setHardMarginsMM(page, MarginsWithAuto(cli.getMargins()));
 		if (cli.hasAlignment())
 			page_layout->getSettings()->setPageAlignment(page, alignment);
 	}

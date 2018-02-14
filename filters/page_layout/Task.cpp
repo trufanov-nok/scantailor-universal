@@ -96,16 +96,20 @@ Task::process(
 		Utils::calcRectSizeMM(data.xform(), content_rect)
 	);
 
-	Alignment alignment(m_ptrSettings->getPageAlignment(m_pageId));
-	if (alignment.isAutoMarginsEnabled()) {
-		Margins const& margins_mm = Utils::calcMarginsMM(data.xform(), page_rect, content_rect);
-		m_ptrSettings->setHardMarginsMM(
-			m_pageId, margins_mm
-		);
-		if (m_ptrFilter->optionsWidget() != 0) {
-			m_ptrFilter->optionsWidget()->marginsSetExternally(margins_mm);
-		}
-	}
+    MarginsWithAuto marginsHndl;
+    if (const Params* prm = m_ptrSettings->getPageParams(m_pageId).get()) {
+        marginsHndl = prm->hardMarginsMM();
+    }
+    if (marginsHndl.isAutoMarginsEnabled()) {
+        Margins const& margins_mm = Utils::calcMarginsMM(data.xform(), page_rect, content_rect);
+        marginsHndl = margins_mm;
+        m_ptrSettings->setHardMarginsMM(
+                    m_pageId, marginsHndl
+                    );
+        if (m_ptrFilter->optionsWidget() != 0) {
+            m_ptrFilter->optionsWidget()->marginsSetExternally(marginsHndl, true);
+        }
+    }
 
 	QSizeF agg_hard_size_before;
 	QSizeF agg_hard_size_after;
@@ -207,12 +211,12 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		opt_widget, SIGNAL(invalidateAllThumbnails())
 	);
 	QObject::connect(
-		view, SIGNAL(marginsSetLocally(Margins const&)),
-		opt_widget, SLOT(marginsSetExternally(Margins const&))
+        view, SIGNAL(marginsSetLocally(Margins)),
+        opt_widget, SLOT(marginsSetExternally(Margins const&))
 	);
 	QObject::connect(
-		opt_widget, SIGNAL(marginsSetLocally(Margins const&)),
-		view, SLOT(marginsSetExternally(Margins const&))
+        opt_widget, SIGNAL(marginsSetLocally(Margins const&)),
+        view, SLOT(marginsSetExternally(Margins const&))
 	);
 	QObject::connect(
 		opt_widget, SIGNAL(topBottomLinkToggled(bool)),

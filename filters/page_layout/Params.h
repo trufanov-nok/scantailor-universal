@@ -36,12 +36,12 @@ class Params: public RegenParams
 {
 	// Member-wise copying is OK.
 public:
-	Params(Margins const& hard_margins_mm, QRectF const& page_rect, QRectF const& content_rect,
+    Params(MarginsWithAuto const& hard_margins_mm, QRectF const& page_rect, QRectF const& content_rect,
 		QSizeF const& content_size_mm, Alignment const& alignment);
 	
 	Params(QDomElement const& el);
 	
-	Margins const& hardMarginsMM() const { return m_hardMarginsMM; }
+    MarginsWithAuto const& hardMarginsMM() const { return m_hardMarginsMM; }
 	
 	QRectF const& contentRect() const { return m_contentRect; }
 	QRectF const& pageRect() const { return m_pageRect; }
@@ -54,7 +54,7 @@ public:
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
-	Margins m_hardMarginsMM;
+    MarginsWithAuto m_hardMarginsMM;
     QRectF m_pageRect;
 	QRectF m_contentRect;
 	QSizeF m_contentSizeMM;

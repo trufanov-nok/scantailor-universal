@@ -203,7 +203,7 @@ ImageView::leftRightLinkToggled(bool const linked)
 {
 	m_leftRightLinked = linked;
 	if (linked) {
-		Margins margins_mm(calcHardMarginsMM());
+        Margins margins_mm(calcHardMarginsMM());
 		if (margins_mm.left() != margins_mm.right()) {
 			double const new_margin = std::min(
 				margins_mm.left(), margins_mm.right()
@@ -703,7 +703,9 @@ ImageView::origRectToSizeMM(QRectF const& rect) const
 ImageView::AggregateSizeChanged
 ImageView::commitHardMargins(Margins const& margins_mm)
 {
-	m_ptrSettings->setHardMarginsMM(m_pageId, margins_mm);
+    MarginsWithAuto marginsHndl = m_ptrSettings->getHardMarginsMM(m_pageId);
+    marginsHndl = margins_mm;
+    m_ptrSettings->setHardMarginsMM(m_pageId, marginsHndl);
 	m_aggregateHardSizeMM = m_ptrSettings->getAggregateHardSizeMM();
 	
 	AggregateSizeChanged changed = AGGREGATE_SIZE_UNCHANGED;

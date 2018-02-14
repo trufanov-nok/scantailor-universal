@@ -20,19 +20,22 @@
 #include "ApplyDialog.moc"
 #include "PageSelectionAccessor.h"
 #include <QButtonGroup>
+#include <QSettings>
 #include <assert.h>
 
 namespace page_layout
 {
 
 ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
-	PageSelectionAccessor const& page_selection_accessor)
+    PageSelectionAccessor const& page_selection_accessor,
+    const DialogType dlg_type, bool const is_auto_margin_enabled)
 :	QDialog(parent),
 	m_pages(page_selection_accessor.allPages()),
 	m_selectedPages(page_selection_accessor.selectedPages()),
 	m_selectedRanges(page_selection_accessor.selectedRanges()),
 	m_curPage(cur_page),
-	m_pScopeGroup(new QButtonGroup(this))
+    m_pScopeGroup(new QButtonGroup(this)),
+    m_dlgType(dlg_type)
 {
 	setupUi(this);
 	m_pScopeGroup->addButton(thisPageRB);
@@ -54,7 +57,16 @@ ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
     }
 
 	
-	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+
+    if (m_dlgType == Margins) {
+        const bool auto_margins_enabled = QSettings().value("auto_margins/enabled", false).toBool();
+        groupBoxWhatToAppy->setVisible(auto_margins_enabled);
+        autoMarginRB->setChecked(auto_margins_enabled && is_auto_margin_enabled);
+    } else {
+        groupBoxWhatToAppy->setVisible(false);
+    }
+
 }
 
 ApplyDialog::~ApplyDialog()
@@ -72,7 +84,11 @@ ApplyDialog::onSubmit()
 	} else if (thisPageAndFollowersRB->isChecked()) {
 		m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
 	} else if (selectedPagesRB->isChecked()) {
-		emit accepted(m_selectedPages);
+        if (m_dlgType == Margins) {
+            emit accepted_margins(marginValuesRB->isChecked()?MarginsValues:AutoMarginState, m_selectedPages);
+        } else {
+            emit accepted(m_selectedPages);
+        }
 		accept();
 		return;
 	} else if (everyOtherRB->isChecked()) {
@@ -102,7 +118,11 @@ ApplyDialog::onSubmit()
         }
 	}
 	
-	emit accepted(pages);
+    if (m_dlgType == Margins) {
+        emit accepted_margins(marginValuesRB->isChecked()?MarginsValues:AutoMarginState, pages);
+    } else {
+        emit accepted(pages);
+    }
 	
 	// We assume the default connection from accepted() to accept()
 	// was removed.
