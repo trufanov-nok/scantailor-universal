@@ -26,7 +26,7 @@
 namespace page_layout
 {
 
-Params::Params(const MarginsWithAuto &hard_margins_mm, QRectF const& content_rect, QRectF const& page_rect,
+Params::Params(const MarginsWithAuto &hard_margins_mm, QRectF const& page_rect, QRectF const& content_rect,
     QSizeF const& content_size_mm, Alignment const& alignment)
 :	RegenParams(),
     m_hardMarginsMM(hard_margins_mm),
