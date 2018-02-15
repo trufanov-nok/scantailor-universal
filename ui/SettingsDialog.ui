@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>634</width>
-    <height>486</height>
+    <width>704</width>
+    <height>506</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -181,7 +181,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>26</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -222,8 +222,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>74</width>
-                <height>540</height>
+                <width>382</width>
+                <height>194</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
@@ -382,7 +382,7 @@ Batch processing - a simple dialog that appears if you press the launch button a
              <x>0</x>
              <y>0</y>
              <width>424</width>
-             <height>45</height>
+             <height>51</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_51">
@@ -598,8 +598,8 @@ If project was never saved before this will create UnnamedAutoSave.Scantailor fi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>89</width>
-                <height>900</height>
+                <width>96</width>
+                <height>1020</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_57">
@@ -814,8 +814,8 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>86</width>
-                <height>1200</height>
+                <width>93</width>
+                <height>1360</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_60">
@@ -1059,8 +1059,8 @@ The Deviant page on this stage is defined as a page which absolute deskew angle 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>76</width>
-                <height>1485</height>
+                <width>82</width>
+                <height>1683</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_63">
@@ -1172,8 +1172,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>98</width>
-                <height>1395</height>
+                <width>105</width>
+                <height>1598</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -1405,8 +1405,8 @@ Page borders - after page area is found this will decrease it by given borders. 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>86</width>
-                <height>1455</height>
+                <width>93</width>
+                <height>1649</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -1793,8 +1793,8 @@ Enforces original alignment mode.</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>95</width>
-                <height>810</height>
+                <width>103</width>
+                <height>901</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_69">
@@ -2052,8 +2052,8 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>86</width>
-                <height>1005</height>
+                <width>93</width>
+                <height>1122</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_74">
@@ -2150,8 +2150,8 @@ Making black and white image from grayscale or color source requires binarizatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>76</width>
-                <height>540</height>
+                <width>82</width>
+                <height>612</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_76">
@@ -2241,8 +2241,8 @@ Equalise illumination option normalizes the background color, bringing it to whi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>94</width>
-                <height>765</height>
+                <width>101</width>
+                <height>884</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_77">
@@ -2332,8 +2332,8 @@ Automatic image works well enough, but if the picture merges smoothly into the b
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>86</width>
-                <height>630</height>
+                <width>93</width>
+                <height>714</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_79">
@@ -2415,8 +2415,8 @@ This mask can't be changed directly but only switched on/off. User could also cr
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>86</width>
-                <height>1725</height>
+                <width>93</width>
+                <height>1955</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_81">
@@ -2547,8 +2547,8 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>79</width>
-                <height>1680</height>
+                <width>85</width>
+                <height>1904</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_73">
@@ -2788,8 +2788,8 @@ Automatic and manual modes are supported.</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>100</width>
-                <height>1305</height>
+                <width>108</width>
+                <height>1479</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">
@@ -2854,7 +2854,7 @@ Debug images are saved as png in temporary folder with unique filenames for cach
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
      </property>
     </widget>
    </item>

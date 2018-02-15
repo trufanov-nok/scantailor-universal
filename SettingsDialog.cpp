@@ -64,14 +64,12 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
     connect(ui.buttonBox, SIGNAL(accepted()), SLOT(commitChanges()));
     connect(ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(ui.buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::on_dialogButtonClicked);
 
     // pageGeneral is displayed by default
     initLanguageList(((MainWindow*)parent)->getLanguage());
 
-    ui.startBatchProcessingDlgAllPages->setChecked(
-                !m_settings.value("batch_dialog/start_from_current_page", true).toBool());
-    ui.showStartBatchProcessingDlg->setChecked(
-                !m_settings.value("batch_dialog/remember_choice", false).toBool());
+    on_stackedWidget_currentChanged(0);
 }
 
 void SettingsDialog::initLanguageList(QString cur_lang)
@@ -137,6 +135,28 @@ SettingsDialog::~SettingsDialog()
     } else {
         storeSettingsTreeState(ui.treeWidget);
         emit settingsChanged();
+    }
+}
+
+void
+SettingsDialog::on_dialogButtonClicked(QAbstractButton * btn)
+{
+    if (ui.buttonBox->buttonRole(btn) == QDialogButtonBox::ResetRole) {
+        if (QMessageBox::question(this, tr("Restore defaults"),
+                                  tr("All settings will be set to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
+                                  QMessageBox::Cancel) != QMessageBox::Cancel) {
+            const QStringList keys = m_settings.allKeys();
+            for (const QString& key: keys) {
+                if (!key.startsWith("project/recent")) {
+                    m_settings.remove(key);
+                }
+            }
+            GlobalStaticSettings::updateSettings();
+            GlobalStaticSettings::updateHotkeys();
+            populateTreeWidget(ui.treeWidget);
+            restoreSettingsTreeState(ui.treeWidget);
+            on_stackedWidget_currentChanged(0);
+        }
     }
 }
 
@@ -239,6 +259,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
     int idx = 0;
 
     treeWidget->blockSignals(true);
+    treeWidget->clear();
 
     for (QString name: settingsTreeTitles) {
 
@@ -481,8 +502,11 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     } else if (currentPage == ui.pagePictureZonesLayer) {
         ui.rectangularAreasSensitivityValue->setValue(m_settings.value("picture_zones_layer/sensitivity", 100).toInt());
     } else if (currentPage == ui.pageGeneral) {
+        bool val = m_settings.value("batch_dialog/start_from_current_page", true).toBool();
         ui.startBatchProcessingDlgAllPages->setChecked(
-                    !m_settings.value("batch_dialog/start_from_current_page", true).toBool());
+                    !val);
+        ui.startBatchProcessingDlgFromSelected->setChecked(
+                    val);
         ui.showStartBatchProcessingDlg->setChecked(
                     !m_settings.value("batch_dialog/remember_choice", false).toBool());
     } else if (currentPage == ui.pageBlackWhiteMode) {
