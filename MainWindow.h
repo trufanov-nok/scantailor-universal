@@ -54,12 +54,13 @@
 #include "ExportDialog.h"
 //end of modified by monday2000
 #include "AutoSaveTimer.h"
+#include "PageSequence.h"
+#include "PageSelectionProvider.h"
 
 class AbstractFilter;
 class AbstractRelinker;
 class ThumbnailPixmapCache;
 class ProjectPages;
-class PageSequence;
 class StageSequence;
 class PageOrderProvider;
 class PageSelectionAccessor;
@@ -138,6 +139,7 @@ signals:
     void NewOpenProjectPanelShown();
     void UpdateStatusBarPageSize();
     void UpdateStatusBarMousePos();
+    void toBeRemoved(const std::set<PageId> pages);
 private slots:
     void goFirstPage(bool in_selection = false);
 
@@ -231,7 +233,6 @@ private slots:
     void on_actionJumpPageB_triggered();
 
 private:
-	class PageSelectionProviderImpl;
 	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
 	
 	typedef IntrusivePtr<AbstractFilter> FilterPtr;
@@ -396,6 +397,33 @@ private:
     bool m_docking_enabled;
 
     QTimer* m_autosave_timer;
+};
+
+class PageSelectionProviderImpl : public PageSelectionProvider
+{
+Q_OBJECT
+public:
+    PageSelectionProviderImpl(MainWindow* wnd) : m_ptrWnd(wnd)
+    {
+       QObject::connect(m_ptrWnd, &MainWindow::toBeRemoved,
+                        this, &PageSelectionProviderImpl::toBeRemoved, Qt::DirectConnection);
+    }
+
+    virtual PageSequence allPages() const {
+        return m_ptrWnd ? m_ptrWnd->allPages() : PageSequence();
+    }
+
+    virtual std::set<PageId> selectedPages() const {
+        return m_ptrWnd ? m_ptrWnd->selectedPages() : std::set<PageId>();
+    }
+
+    std::vector<PageRange> selectedRanges() const {
+        return m_ptrWnd ? m_ptrWnd->selectedRanges() : std::vector<PageRange>();
+    }
+signals:
+    void toBeRemoved(const std::set<PageId> pages);
+private:
+    QPointer<MainWindow> m_ptrWnd;
 };
 
 #endif

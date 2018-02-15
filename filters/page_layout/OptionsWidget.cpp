@@ -46,6 +46,10 @@ OptionsWidget::OptionsWidget(
 	m_leftRightLinked(true),
 	m_topBottomLinked(true)
 {
+
+    connect(&m_pageSelectionAccessor, &PageSelectionAccessor::toBeRemoved,
+            this, &OptionsWidget::toBeRemoved, Qt::DirectConnection);
+
 	{
 		QSettings app_settings;
 		m_leftRightLinked = app_settings.value("margins/leftRightLinked", true).toBool();
@@ -523,6 +527,14 @@ OptionsWidget::enableDisableAlignmentButtons()
 	alignBottomLeftBtn->setEnabled(enabled);
 	alignBottomBtn->setEnabled(enabled);
 	alignBottomRightBtn->setEnabled(enabled);
+}
+
+void OptionsWidget::toBeRemoved(const std::set<PageId> pages)
+{
+    // This supposed to keep aggregate hard margins size updated
+    // In case user has removed pages with biggest sizes from project
+    m_ptrSettings->removePages(pages);
+    emit invalidateAllThumbnails();
 }
 
 } // namespace page_layout

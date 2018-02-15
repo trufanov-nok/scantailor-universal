@@ -23,6 +23,7 @@
 #include "RefCountable.h"
 #include "Margins.h"
 #include <memory>
+#include <set>
 
 class PageId;
 class Margins;
@@ -61,6 +62,11 @@ public:
 	 * \brief Removes all stored data for pages that are not in the provided list.
 	 */
 	void removePagesMissingFrom(PageSequence const& pages);
+
+    /**
+     * \brief Removes stored data for pages in the provided list.
+     */
+    void removePages(std::set<PageId> const& pages);
 
 	/**
 	 * \brief Check that we have all the essential parameters for every

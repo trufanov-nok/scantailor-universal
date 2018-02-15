@@ -23,9 +23,7 @@
 #include "RecentProjects.h"
 #include "WorkerThread.h"
 #include "ProjectPages.h"
-#include "PageSequence.h"
 #include "PageSelectionAccessor.h"
-#include "PageSelectionProvider.h"
 #include "StageSequence.h"
 #include "ThumbnailSequence.h"
 #include "PageOrderOption.h"
@@ -140,27 +138,6 @@
 #include <assert.h>
 
 #include <iostream>
-
-class MainWindow::PageSelectionProviderImpl : public PageSelectionProvider
-{
-public:
-	PageSelectionProviderImpl(MainWindow* wnd) : m_ptrWnd(wnd) {}
-	
-	virtual PageSequence allPages() const {
-		return m_ptrWnd ? m_ptrWnd->allPages() : PageSequence();
-	}
-
-	virtual std::set<PageId> selectedPages() const {
-		return m_ptrWnd ? m_ptrWnd->selectedPages() : std::set<PageId>();
-	}
-	
-	std::vector<PageRange> selectedRanges() const {
-		return m_ptrWnd ? m_ptrWnd->selectedRanges() : std::vector<PageRange>();
-	}
-private:
-	QPointer<MainWindow> m_ptrWnd;
-};
-
 
 MainWindow::MainWindow()
 :	m_ptrPages(new ProjectPages),
@@ -2824,7 +2801,7 @@ MainWindow::showRemovePagesDialog(std::set<PageId> const& pages)
 	dialog->setWindowModality(Qt::WindowModal);
 	if (dialog->exec() == QDialog::Accepted) {
 		removeFromProject(pages);
-		eraseOutputFiles(pages);
+		eraseOutputFiles(pages);        
 	}
 }
 
@@ -2857,6 +2834,8 @@ MainWindow::insertImage(ImageInfo const& new_image,
 void
 MainWindow::removeFromProject(std::set<PageId> const& pages)
 {
+    emit toBeRemoved(pages); // direct signal call
+
 	m_ptrInteractiveQueue->cancelAndRemove(pages);
 	if (m_ptrBatchQueue.get()) {
 		m_ptrBatchQueue->cancelAndRemove(pages);

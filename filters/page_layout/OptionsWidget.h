@@ -102,6 +102,8 @@ private slots:
     void applyMargins(const ApplyDialog::MarginsApplyType type, std::set<PageId> const& pages);
 	
 	void applyAlignment(std::set<PageId> const& pages);
+
+    void toBeRemoved(const std::set<PageId> pages);
 private:
 	typedef std::map<QToolButton*, Alignment> AlignmentByButton;
 	

@@ -128,6 +128,8 @@ public:
 	void performRelinking(AbstractRelinker const& relinker);
 	
 	void removePagesMissingFrom(PageSequence const& pages);
+
+    void removePages(const std::set<PageId> &pages);
 	
 	bool checkEverythingDefined(
 		PageSequence const& pages, PageId const* ignore) const;
@@ -256,6 +258,12 @@ void
 Settings::removePagesMissingFrom(PageSequence const& pages)
 {
 	m_ptrImpl->removePagesMissingFrom(pages);
+}
+
+void
+Settings::removePages(const std::set<PageId> &pages)
+{
+    m_ptrImpl->removePages(pages);
 }
 
 bool
@@ -465,6 +473,22 @@ Settings::Impl::removePagesMissingFrom(PageSequence const& pages)
 			m_unorderedItems.erase(it++);
 		}
 	}
+}
+
+void
+Settings::Impl::removePages(std::set<PageId> const& pages)
+{
+    QMutexLocker const locker(&m_mutex);
+
+    UnorderedItems::const_iterator it(m_unorderedItems.begin());
+    UnorderedItems::const_iterator const end(m_unorderedItems.end());
+    while (it != end) {
+        if (pages.find(it->pageId) != pages.end()){
+            m_unorderedItems.erase(it++);
+        } else {
+            ++it;
+        }
+    }
 }
 
 bool

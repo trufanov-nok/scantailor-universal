@@ -19,10 +19,23 @@
 #include "PageSelectionAccessor.h"
 #include "PageSequence.h"
 
+
+PageSelectionAccessor::PageSelectionAccessor( const PageSelectionAccessor& src ) {
+    m_ptrProvider = src.m_ptrProvider;
+    if (m_ptrProvider.get()) {
+        QObject::connect(m_ptrProvider.get(), SIGNAL(toBeRemoved(const std::set<PageId>)),
+                         this, SIGNAL(toBeRemoved(const std::set<PageId>)), Qt::DirectConnection);
+    }
+}
+
 PageSelectionAccessor::PageSelectionAccessor(
 	IntrusivePtr<PageSelectionProvider const> const& provider)
 :	m_ptrProvider(provider)
 {
+    if (provider.get()) {
+        QObject::connect(provider.get(), SIGNAL(toBeRemoved(const std::set<PageId>)),
+                         this, SIGNAL(toBeRemoved(const std::set<PageId>)), Qt::DirectConnection);
+    }
 }
 
 PageSequence

@@ -23,15 +23,19 @@
 #include "PageId.h"
 #include "PageRange.h"
 #include "IntrusivePtr.h"
+#include <QObject>
 #include <set>
 #include <vector>
 
 class PageSequence;
 
-class PageSelectionAccessor
+class PageSelectionAccessor: public QObject
 {
+Q_OBJECT
 	// Member-wise copying is OK.
 public:
+    PageSelectionAccessor( const PageSelectionAccessor& src);
+
 	explicit PageSelectionAccessor(
 		IntrusivePtr<PageSelectionProvider const> const& provider);
 	
@@ -40,6 +44,8 @@ public:
 	std::set<PageId> selectedPages() const;
 	
 	std::vector<PageRange> selectedRanges() const;
+signals:
+    void toBeRemoved(const std::set<PageId> pages);
 private:
 	IntrusivePtr<PageSelectionProvider const> m_ptrProvider;
 };
