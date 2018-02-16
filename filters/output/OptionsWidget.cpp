@@ -727,18 +727,21 @@ void output::OptionsWidget::on_actionModeBW_triggered()
 {
     modeValue->setText(Utils::richTextForLink(actionModeBW->toolTip()));
     changeColorMode(ColorParams::BLACK_AND_WHITE);
+    emit invalidateThumbnail(m_pageId);
 }
 
 void output::OptionsWidget::on_actionModeColorOrGrayscale_triggered()
 {
     modeValue->setText(Utils::richTextForLink(actionModeColorOrGrayscale->toolTip()));
     changeColorMode(ColorParams::COLOR_GRAYSCALE);
+    emit invalidateThumbnail(m_pageId);
 }
 
 void output::OptionsWidget::on_actionModeMixed_triggered()
 {
     modeValue->setText(Utils::richTextForLink(actionModeMixed->toolTip()));
     changeColorMode(ColorParams::MIXED);
+    emit invalidateThumbnail(m_pageId);
 }
 
 void output::OptionsWidget::on_despeckleSlider_valueChanged(int value)
@@ -750,6 +753,7 @@ void output::OptionsWidget::on_despeckleSlider_valueChanged(int value)
     case 3: handleDespeckleLevelChange(DESPECKLE_AGGRESSIVE); break;
     default: ;
     }
+    emit invalidateThumbnail(m_pageId);
 }
 
 int sum_y = 0;
@@ -955,6 +959,7 @@ void output::OptionsWidget::on_pictureZonesLayerCB_toggled(bool checked)
             emit reloadRequested();
         }
     }
+    emit invalidateThumbnail(m_pageId);
 }
 
 void output::OptionsWidget::on_foregroundLayerCB_toggled(bool checked)
@@ -967,6 +972,7 @@ void output::OptionsWidget::on_foregroundLayerCB_toggled(bool checked)
         m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 
         emit reloadRequested();
+        emit invalidateThumbnail(m_pageId);
     }
 }
 
@@ -980,6 +986,7 @@ void output::OptionsWidget::on_autoLayerCB_toggled(bool checked)
         m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
 
         emit reloadRequested();
+        emit invalidateThumbnail(m_pageId);
     }
 }
 
