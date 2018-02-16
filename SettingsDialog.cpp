@@ -65,7 +65,9 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     connect(ui.buttonBox, SIGNAL(accepted()), SLOT(commitChanges()));
     connect(ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
     connect(ui.buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::on_dialogButtonClicked);
-
+    if (QPushButton* btn = ui.buttonBox->button(QDialogButtonBox::RestoreDefaults)) {
+        btn->setToolTip(tr("Reset settings in file: %1").arg(m_settings.fileName()));
+    }
     // pageGeneral is displayed by default
     initLanguageList(((MainWindow*)parent)->getLanguage());
 
