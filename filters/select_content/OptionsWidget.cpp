@@ -92,7 +92,7 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 
     gbBordersPanel->setVisible(border_panel_visible);
 
-    gbPageBox->setVisible(fine_tune_corners_enabled || border_panel_visible);
+    gbPageBox->setVisible(page_detection_enabled);
 
 }
 
