@@ -477,10 +477,10 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.dpiDefaultYValue->setValue(m_settings.value("output/default_dpi_y", 600).toUInt());
 
         ui.ThresholdMinValue->setValue( m_settings.value("output/binrization_threshold_control_min", -50).toInt() );
-        ui.ThresholdMaxValue->setValue( m_settings.value("output/binrization_threshold_control_max", 50).toInt() );
-        ui.ThresholdDefaultsValue->setValue( m_settings.value("output/binrization_threshold_control_default", 0).toInt());
+        ui.ThresholdMaxValue->setValue( m_settings.value("output/binrization_threshold_control_max", 50).toInt() );        
         ui.ThresholdDefaultsValue->setMinimum(ui.ThresholdMinValue->value());
         ui.ThresholdDefaultsValue->setMaximum(ui.ThresholdMaxValue->value());
+        ui.ThresholdDefaultsValue->setValue( m_settings.value("output/binrization_threshold_control_default", 0).toInt());
         connect( ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
         connect( ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
 
