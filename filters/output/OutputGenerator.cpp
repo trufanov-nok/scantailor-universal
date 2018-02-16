@@ -260,17 +260,23 @@ OutputGenerator::OutputGenerator(
     */
 
     // Sometimes `toAlignedRect()` may return rect with coordinate < 0.0
-    if (m_contentRect.left() < 0) {
-        m_contentRect.setLeft(0);
-    }
-    if (m_contentRect.top() < 0) {
-        m_contentRect.setTop(0);
-    }
     if (m_outRect.left() < 0) {
         m_outRect.setLeft(0);
     }
     if (m_outRect.top() < 0) {
         m_outRect.setTop(0);
+    }
+    if (m_contentRect.left() < m_outRect.left()) {
+        m_contentRect.setLeft(m_outRect.left());
+    }
+    if (m_contentRect.top() < m_outRect.top()) {
+        m_contentRect.setTop(m_outRect.top());
+    }
+    if (m_contentRect.right() > m_outRect.right()) {
+        m_contentRect.setRight(m_outRect.right());
+    }
+    if (m_contentRect.bottom() > m_outRect.bottom()) {
+        m_contentRect.setBottom(m_outRect.bottom());
     }
 
     assert(m_outRect.topLeft() == QPoint(0, 0));

@@ -742,18 +742,25 @@ Task::UiUpdater::getAlternativeImage()
     QRect outRect(m_xform.resultingRect().toAlignedRect());
     QRect contentRect(m_virtContentRect);
 
-    if (contentRect.left() < 0) {
-        contentRect.setLeft(0);
-    }
-    if (contentRect.top() < 0) {
-        contentRect.setTop(0);
-    }
     if (outRect.left() < 0) {
         outRect.setLeft(0);
     }
     if (outRect.top() < 0) {
         outRect.setTop(0);
     }
+    if (contentRect.left() < outRect.left()) {
+        contentRect.setLeft(outRect.left());
+    }
+    if (contentRect.top() < outRect.top()) {
+        contentRect.setTop(outRect.top());
+    }
+    if (contentRect.right() > outRect.right()) {
+        contentRect.setRight(outRect.right());
+    }
+    if (contentRect.bottom() > outRect.bottom()) {
+        contentRect.setBottom(outRect.bottom());
+    }
+
 
 
     QImage src = transform(m_origImage, m_xform.transform(),
