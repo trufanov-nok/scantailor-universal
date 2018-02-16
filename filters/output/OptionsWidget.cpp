@@ -536,6 +536,7 @@ OptionsWidget::updateColorsDisplay()
 	bool color_grayscale_options_visible = false;
 	bool bw_options_visible = false;
     bool foreground_treshhold_options_visible = false;
+    bool despeckle_controls_enbled = true;
 
     switch (m_currentMode) {
         case ColorParams::BLACK_AND_WHITE:
@@ -543,6 +544,7 @@ OptionsWidget::updateColorsDisplay()
             break;
         case ColorParams::COLOR_GRAYSCALE:
             color_grayscale_options_visible = true;
+            despeckle_controls_enbled = false;
             break;
         case ColorParams::MIXED:
             bw_options_visible = true;
@@ -565,9 +567,14 @@ OptionsWidget::updateColorsDisplay()
 	modePanel->setVisible(m_lastTab != TAB_DEWARPING);
     layersPanel->setVisible(m_currentMode == ColorParams::MIXED);
     bwOptions->setVisible(bw_options_visible);
-	despecklePanel->setVisible(bw_options_visible && m_lastTab != TAB_DEWARPING);
+    despecklingPanel->setVisible(despeckle_controls_enbled && m_lastTab != TAB_DEWARPING);
 
-	if (bw_options_visible) {
+    if (bw_options_visible) {
+		ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
+        thresholdSlider->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
+	}
+
+    if (despeckle_controls_enbled) {
         switch (m_despeckleLevel) {
             case DESPECKLE_OFF:
                 despeckleOffBtn->setChecked(true);
@@ -582,10 +589,9 @@ OptionsWidget::updateColorsDisplay()
                 despeckleAggressiveBtn->setChecked(true);
                 break;
         }
-
-		ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
-        thresholdSlider->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
-	}
+    } else {
+        despeckleOffBtn->setChecked(true);
+    }
 
     bwForegroundOptions->setVisible(foreground_treshhold_options_visible);
     if (foreground_treshhold_options_visible) {
