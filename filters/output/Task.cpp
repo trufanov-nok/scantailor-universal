@@ -258,7 +258,7 @@ Task::process(
 			m_keep_orig_fore_subscan,
 			write_automask ? &automask_img : 0,
 			write_speckles_file ? &speckles_img : 0,
-			m_ptrDbg.get()
+            m_ptrDbg.get(), &m_pageId, &m_ptrSettings
 		);	
 
 //Original_Foreground_Mixed
