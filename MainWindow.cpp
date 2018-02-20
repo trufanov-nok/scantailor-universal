@@ -2082,8 +2082,8 @@ MainWindow::ExportNextFile()
 	QImage subscan1;
 	QImage subscan2;
 
-	QString text_dir = m_export_dir + QDir::separator() + "1"; //folder for foreground subscans
-	QString pic_dir = m_export_dir + QDir::separator() + "2"; //folder for background subscans
+    QString text_dir = m_export_dir + QDir::separator() + "txt"; //folder for foreground subscans
+    QString pic_dir = m_export_dir + QDir::separator() + "pic"; //folder for background subscans
 
 	QString out_file_path = m_outpaths_vector[m_pos_export];
 
@@ -2239,8 +2239,8 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 	}
 	QDir().mkdir(m_export_dir);
 
-	QString text_dir = m_export_dir + QDir::separator() + "1"; //folder for foreground subscans
-	QString pic_dir = m_export_dir + QDir::separator() + "2"; //folder for background subscans					
+    QString text_dir = m_export_dir + QDir::separator() + "txt"; //folder for foreground subscans
+    QString pic_dir = m_export_dir + QDir::separator() + "pic"; //folder for background subscans
 
 	m_split_subscans = split_subscans;
 	m_generate_blank_back_subscans = generate_blank_back_subscans;
