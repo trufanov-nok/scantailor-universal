@@ -30,8 +30,8 @@
 #include <QMessageBox>
 #include <QTimer>
 
-ExportDialog::ExportDialog(QWidget* parent)
-:	QDialog(parent)
+ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
+:	QDialog(parent), m_defaultOutDir(defaultOutDir)
 {
 	ui.setupUi(this);
 
@@ -48,7 +48,7 @@ ExportDialog::ExportDialog(QWidget* parent)
 	);
 
 	ui.SplitMixed->setChecked(settings.value("settings/split_mixed").toBool());	
-	ui.DefaultOutputFolder->setChecked(settings.value("settings/default_output_folder").toBool());	
+    ui.DefaultOutputFolder->setChecked(settings.value("settings/default_output_folder").toBool());
 	ui.labelFilesProcessed->clear();
 	ui.ExportButton->setText(tr("Export"));	
 	ui.OkButton->setText(tr("Close"));
@@ -81,6 +81,13 @@ ExportDialog::OnCheckDefaultOutputFolder(bool state)
 	QSettings settings;
 
 	settings.setValue("settings/default_output_folder", state);
+    ui.groupBoxExport->setEnabled(!state);
+    if (state) {
+        m_prevOutDir = ui.outExportDirLine->text();
+        ui.outExportDirLine->setText(m_defaultOutDir);
+    } else {
+        ui.outExportDirLine->setText(m_prevOutDir);
+    }
 }
 
 void

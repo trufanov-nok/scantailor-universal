@@ -1882,7 +1882,7 @@ MainWindow::openSettingsDialog()
 void
 MainWindow::openExportDialog()
 {
-	m_p_export_dialog = new ExportDialog(this);	
+    m_p_export_dialog = new ExportDialog(this, m_outFileNameGen.outDir());
 
 	m_p_export_dialog->setAttribute(Qt::WA_DeleteOnClose);
 	m_p_export_dialog->setWindowModality(Qt::WindowModal);

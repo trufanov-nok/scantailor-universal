@@ -29,7 +29,7 @@ class ExportDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	ExportDialog(QWidget* parent = 0);
+    ExportDialog(QWidget* parent, const QString& defaultOutDir);
 
 	virtual ~ExportDialog();
 
@@ -63,7 +63,9 @@ private:
 
 	bool m_autoOutDir;
 	void setExportOutputDir(QString const& dir);
-	int m_count;	
+    int m_count;
+    QString const m_defaultOutDir;
+    QString m_prevOutDir;
 };
 
 #endif
