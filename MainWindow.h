@@ -264,6 +264,8 @@ private:
 	
 	IntrusivePtr<PageOrderProvider const> currentPageOrderProvider() const;
 
+    IntrusivePtr<PageOrderProvider const> defaultPageOrderProvider() const;
+
 	void updateSortOptions();
 
     void setupStatusBar();    

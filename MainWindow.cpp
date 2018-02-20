@@ -745,6 +745,17 @@ MainWindow::currentPageOrderProvider() const
 	return filter->pageOrderOptions()[idx].provider();
 }
 
+IntrusivePtr<PageOrderProvider const>
+MainWindow::defaultPageOrderProvider() const
+{
+    IntrusivePtr<AbstractFilter> const filter(m_ptrStages->filterAt(m_curFilter));
+    if (filter->pageOrderOptions().size() > 0) {
+        return filter->pageOrderOptions()[0].provider();
+    } else {
+        return IntrusivePtr<PageOrderProvider const>();
+    }
+}
+
 void
 MainWindow::updateSortOptions()
 {
@@ -2198,7 +2209,7 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 
 // Checking whether all the output thumbnails don't have a question mark on them
 
-	m_ptrThumbSequence_export.reset(new ThumbnailSequence(m_maxLogicalThumbSize));
+	m_ptrThumbSequence_export.reset(new ThumbnailSequence(m_maxLogicalThumbSize));    
 
 	if (m_ptrThumbnailCache.get()) {
 		IntrusivePtr<CompositeCacheDrivenTask> const task(
@@ -2217,7 +2228,7 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 	
 	m_ptrThumbSequence_export->reset(
 		m_ptrPages->toPageSequence(m_ptrStages->filterAt(5)->getView()),
-		ThumbnailSequence::RESET_SELECTION, currentPageOrderProvider()
+        ThumbnailSequence::RESET_SELECTION, defaultPageOrderProvider()
 	);
 
 	if (!m_ptrThumbSequence_export->AllThumbnailsComplete()) 
@@ -2229,14 +2240,12 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 
 // Getting the output filenames	
 
-	if (default_out_dir)
-	{
+    if (default_out_dir) {
 		m_export_dir = m_outFileNameGen.outDir() + QDir::separator() + "export";
-	}
-	else
-	{
+    } else {
 		m_export_dir = export_dir_path + QDir::separator() + "export";
 	}
+
 	QDir().mkdir(m_export_dir);
 
     QString text_dir = m_export_dir + QDir::separator() + "txt"; //folder for foreground subscans
@@ -2255,7 +2264,7 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 	std::vector<PageId::SubPage> erase_variations; 
 	erase_variations.reserve(3);
 
-	PageSequence const& pages = allPages(); // get all the pages (input pages)		
+    PageSequence const& pages = m_ptrThumbSequence_export->toPageSequence(); // get all the pages (input pages)
 
 	PageId page_id;	
 
