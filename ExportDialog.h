@@ -41,7 +41,7 @@ public:
 
 signals:
 	void ExportOutputSignal(QString export_dir_path, bool default_out_dir, bool split_subscans,
-		bool generate_blank_back_subscans, bool keep_original_color_illum_fore_subscans);
+        bool generate_blank_back_subscans, bool use_sep_suffix_for_pics, bool keep_original_color_illum_fore_subscans);
 	void ExportStopSignal();
 	void SetStartExportSignal();	
 
@@ -56,7 +56,8 @@ private slots:
 	void outExportDirEdited(QString const&);
 	//void tabChanged(int tab);	
 	void OnCheckGenerateBlankBackSubscans(bool);
-	void OnCheckKeepOriginalColorIllumForeSubscans(bool);
+    void OnCheckUseSepSuffixForPics(bool);
+	void OnCheckKeepOriginalColorIllumForeSubscans(bool);    
 
 private:
 	Ui::ExportDialog ui;

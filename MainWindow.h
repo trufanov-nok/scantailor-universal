@@ -118,7 +118,7 @@ public slots:
 	void openProject(QString const& project_file);
 //Export_Subscans
 	void ExportOutput(QString export_dir_path, bool default_out_dir, bool split_subscans,
-		bool generate_blank_back_subscans, bool orig_fore_subscan);
+        bool generate_blank_back_subscans, bool use_sep_suffix_for_pics, bool orig_fore_subscan);
 	void ExportStop();
 	void SetStartExport();
     void settingsChanged();
@@ -387,6 +387,7 @@ private:
 	QString m_export_dir;
 	bool m_split_subscans;
 	bool m_generate_blank_back_subscans;
+    bool m_use_sep_suffix_for_pics;
 	int m_pos_export;
 //Original_Foreground_Mixed
 	bool m_keep_orig_fore_subscan;

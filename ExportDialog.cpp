@@ -56,9 +56,11 @@ ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
 	//connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 
 	connect(ui.GenerateBlankBackSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckGenerateBlankBackSubscans(bool)));
+    connect(ui.UseSepSuffixForPics, SIGNAL(toggled(bool)), this, SLOT(OnCheckUseSepSuffixForPics(bool)));
 	connect(ui.KeepOriginalColorIllumForeSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckKeepOriginalColorIllumForeSubscans(bool)));
 
 	ui.GenerateBlankBackSubscans->setChecked(settings.value("settings/generate_blank_back_subscans").toBool());
+    ui.UseSepSuffixForPics->setChecked(settings.value("settings/use_sep_suffix_for_background_subscans").toBool());
 	ui.KeepOriginalColorIllumForeSubscans->setChecked(settings.value("settings/keep_original_color_illum_fore_subscans").toBool());
 	//ui.KeepOriginalColorIllumForeSubscans->setVisible(false);
 }
@@ -200,10 +202,11 @@ ExportDialog::startExport(void)
 	bool split_subscans = ui.SplitMixed->isChecked();
 	bool default_out_dir = ui.DefaultOutputFolder->isChecked();
 	bool generate_blank_back_subscans = ui.GenerateBlankBackSubscans->isChecked();
+    bool use_sep_suffix_for_pics = ui.UseSepSuffixForPics->isChecked();
 	bool keep_original_color_illum_fore_subscans = ui.KeepOriginalColorIllumForeSubscans->isChecked();
 
 	emit ExportOutputSignal(export_dir_path, default_out_dir, split_subscans, 
-		generate_blank_back_subscans, keep_original_color_illum_fore_subscans);
+        generate_blank_back_subscans, use_sep_suffix_for_pics, keep_original_color_illum_fore_subscans);
 }
 
 void
@@ -247,6 +250,12 @@ ExportDialog::OnCheckGenerateBlankBackSubscans(bool state)
 	QSettings settings;	
 
 	settings.setValue("settings/generate_blank_back_subscans", state);
+}
+
+void
+ExportDialog::OnCheckUseSepSuffixForPics(bool state)
+{
+    QSettings().setValue("settings/use_sep_suffix_for_background_subscans", state);
 }
 
 void

@@ -87,6 +87,16 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QCheckBox" name="UseSepSuffixForPics">
+         <property name="toolTip">
+          <string>For better compatibility with DjVu Imager</string>
+         </property>
+         <property name="text">
+          <string>Use .sep.tif extension instead of .tif for background subscans</string>
+         </property>
+        </widget>
+       </item>
        <item alignment="Qt::AlignTop">
         <widget class="QCheckBox" name="KeepOriginalColorIllumForeSubscans">
          <property name="text">

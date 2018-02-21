@@ -1899,7 +1899,7 @@ MainWindow::openExportDialog()
 	m_p_export_dialog->setWindowModality(Qt::WindowModal);
 	m_p_export_dialog->show();
 
-	connect(m_p_export_dialog, SIGNAL(ExportOutputSignal(QString, bool, bool, bool, bool)), this, SLOT(ExportOutput(QString, bool, bool, bool, bool)));
+    connect(m_p_export_dialog, &ExportDialog::ExportOutputSignal, this, &MainWindow::ExportOutput);
 	connect(m_p_export_dialog, SIGNAL(ExportStopSignal()), this, SLOT(ExportStop()));
 	connect(m_p_export_dialog, SIGNAL(SetStartExportSignal()), this, SLOT(SetStartExport()));
     connect(m_p_export_dialog, SIGNAL(destroyed(QObject*)), this, SLOT(exportDialogClosed(QObject*)));
@@ -2107,7 +2107,9 @@ MainWindow::ExportNextFile()
 	name += st_num;
 
 	QString out_file_path1 = text_dir + QDir::separator() + name + ".tif";
-	QString out_file_path2 = pic_dir + QDir::separator() + name + ".tif";
+
+    QString out_file_path2 = m_use_sep_suffix_for_pics? ".sep.tif": ".tif";
+    out_file_path2 = pic_dir + QDir::separator() + name + out_file_path2;
 
 	QString out_file_path_no_split = m_export_dir + QDir::separator() + name + ".tif";
 
@@ -2186,7 +2188,7 @@ MainWindow::ExportNextFile()
 
 void 
 MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool split_subscans,
-						 bool generate_blank_back_subscans, 
+                         bool generate_blank_back_subscans, bool use_sep_suffix_for_pics,
 						 bool keep_orig_fore_subscan)
 {
 	if (isBatchProcessingInProgress())
@@ -2253,6 +2255,7 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 
 	m_split_subscans = split_subscans;
 	m_generate_blank_back_subscans = generate_blank_back_subscans;
+    m_use_sep_suffix_for_pics = use_sep_suffix_for_pics;
 	m_keep_orig_fore_subscan = keep_orig_fore_subscan;
 	
 	if (split_subscans) 
