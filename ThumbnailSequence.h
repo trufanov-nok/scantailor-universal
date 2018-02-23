@@ -218,6 +218,8 @@ public:
 //added:
 	bool AllThumbnailsComplete();
 //end of modified by monday2000
+
+    void setMaxLogicalThumbSize(QSizeF const& max_size);
 signals:
 	void newSelectionLeader(
 		PageInfo const& page_info, QRectF const& thumb_rect,
@@ -234,7 +236,7 @@ signals:
 	 * In the absence of any pages, all the area is considered to be
 	 * below the last page.
 	 */
-	void pastLastPageContextMenuRequested(QPoint const& screen_pos);
+	void pastLastPageContextMenuRequested(QPoint const& screen_pos);    
 private:
 	class Item;
 	class Impl;

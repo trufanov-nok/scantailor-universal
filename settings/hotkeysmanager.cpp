@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include "CommandLine.h"
 
-const uint _KeySchemeVer = 2;
+const uint _KeySchemeVer = 3;
 const uint _KeySchemeLastCompatibleVer = _KeySchemeVer;
 
 QHotKeys::QHotKeys()
@@ -87,6 +87,9 @@ void QHotKeys::resetToDefaults()
     pg_jmp = _sett.value("hot_keys/jump_backward_pg_num", 5).toUInt();
     data.append(HotKeyInfo(PageJumpBackward, QObject::tr("Jump %n pages backward", "plurals for \"page\" may be used", pg_jmp), KeysAndModifiers, HotKey,
                                HotKeySequence(Qt::ControlModifier, Qt::Key_PageUp)));
+
+    data.append(HotKeyInfo(ThumbSizeChange, QObject::tr("Change size of thumbnails"), ModifierAllowed, MouseWheel,
+                               HotKeySequence(Qt::AltModifier, Qt::Key_unknown)));
 
 
     HotKeyGroup group_pages("page_navigation", QObject::tr("Pages navigation"));

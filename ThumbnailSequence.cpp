@@ -185,6 +185,8 @@ public:
 //added:
 	bool AllThumbnailsComplete();
 //end of modified by monday2000
+
+    void setMaxLogicalThumbSize(QSizeF const&);
 private:
 	class ItemsByIdTag;
 	class ItemsInOrderTag;
@@ -206,7 +208,7 @@ private:
 	typedef Container::index<ItemsInOrderTag>::type ItemsInOrder;
 	typedef Container::index<SelectedThenUnselectedTag>::type SelectedThenUnselected;
 	
-	void invalidateThumbnailImpl(ItemsById::iterator id_it);
+    void invalidateThumbnailImpl(ItemsById::iterator id_it);
 
 	void sceneContextMenuEvent(QGraphicsSceneContextMenuEvent* evt);
 
@@ -254,7 +256,7 @@ private:
 	
 	void commitSceneRect();
 	
-	static int const SPACING = 10;
+    static int const MIN_SPACING = 3;
 	ThumbnailSequence& m_rOwner;
 	QSizeF m_maxLogicalThumbSize;
 	Container m_items;
@@ -329,6 +331,13 @@ public:
 	
 	virtual void paint(QPainter* painter,
 		QStyleOptionGraphicsItem const* option, QWidget *widget);
+
+    int row() const { return m_row; }
+
+    int col() const {return m_col; }
+
+    void setPosInView(int row, int col) { m_row = row; m_col = col; }
+
 protected:
 	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* event);
 	
@@ -345,6 +354,8 @@ private:
 	ThumbnailSequence::Item const* m_pItem;
 	QGraphicsItem* m_pThumb;
 	LabelGroup* m_pLabelGroup;
+    int m_row;
+    int m_col;
 };
 
 
@@ -705,43 +716,95 @@ ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it
         ord_end = after_new;
     }
 
-    double xoffset = SPACING;
-    double yoffset = SPACING;
-    int view_width = m_graphicsScene.views().first()->width();
+    int view_width = 0;
+    if (!m_graphicsScene.views().isEmpty()) {
+      QGraphicsView* gv = m_graphicsScene.views().first();
+      view_width = gv->width();
+      view_width -= gv->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+      if (gv->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, gv)) {
+          view_width -= gv->frameWidth() * 2;
+      }
+    }
+    assert(view_width > 0);
+
+    // look for a beginning of a row
+    double yoffset = MIN_SPACING;
+    int cur_row = 0;
 
     if (ord_it != m_itemsInOrder.begin()) {
-        ItemsInOrder::iterator prev(ord_it);
-        --prev;
-        xoffset = prev->composite->pos().x() + prev->composite->boundingRect().width() + SPACING;
-        if (xoffset <= view_width) {
-            yoffset = prev->composite->pos().y();
-        } else {
-            xoffset = SPACING;
-            yoffset = prev->composite->pos().y() + prev->composite->boundingRect().height() + SPACING;
-        }
+        // can't use ord_it->composite->pos() here as it's invalid
+        ItemsInOrder::iterator it(ord_it);
+        //get previous item in order
+        const CompositeItem* composite = nullptr;
+        do {
+            composite = (--it)->composite;
+        } while (composite->col() != 0);
+        cur_row = composite->row();
+        yoffset = composite->pos().y(); // take ordinate of any prev page
+        ord_it = it;
     }
 
-    // Reposition items between the old and the new position of our item,
-    // including the item itself.
-    for (; ord_it != ord_end; ++ord_it) {
-        ord_it->composite->setPos(xoffset, yoffset);
-        xoffset += ord_it->composite->boundingRect().width() + SPACING;
-        if (xoffset > view_width) {
-            xoffset = SPACING;
-            yoffset += ord_it->composite->boundingRect().height() + SPACING;
-        }
-    }
+    // now ord_it is at beginning of a current OR PREVIOUS row
+    // we can't try to find only current row start bcs of some problems
+    // in case of insert new page after last page in row.
 
-    // Reposition the items following both the new and the old position
-    // of the item, if the item size has changed.
-    if (old_size != new_size) {
-        for (; ord_it != m_itemsInOrder.end(); ++ord_it) {
-            ord_it->composite->setPos(xoffset, yoffset);
-            xoffset += ord_it->composite->boundingRect().width() + SPACING;
+    ord_end = m_itemsInOrder.end();
+    // we'll cancel item pos recalculation in case of no changes
+    // and more than 1 rows is processed (in case we are at prev row start)
+
+    int starting_row = cur_row;
+    while (ord_it != ord_end) {
+        int _col = 0;
+        double sum_item_widths = 0;
+        double xoffset = MIN_SPACING;
+        for (ItemsInOrder::iterator row_it = ord_it; row_it != ord_end; ++row_it) {
+            const double item_width = row_it->composite->boundingRect().width();
+            xoffset += item_width;
             if (xoffset > view_width) {
-                xoffset = SPACING;
-                yoffset += ord_it->composite->boundingRect().height() + SPACING;
+                if (_col == 0) {
+                    // at least one page must be in a row
+                    _col = 1;
+                    sum_item_widths = item_width;
+                }
+                break;
             }
+            sum_item_widths += item_width;
+            xoffset += MIN_SPACING;
+            ++_col;
+        }
+
+        _col = std::max(_col, 1); // make sure it's == num_items-1
+
+        // split exceding width between margins of pages in a row
+        double adj_spacing = ((double)view_width - sum_item_widths) / (_col+1);
+        xoffset = adj_spacing;
+
+        double next_yoffset = 0;
+        bool changes = false;
+        for (int col = 0; col < _col; ++ord_it, ++col) {
+            CompositeItem* composite = ord_it->composite;
+            const QPointF new_pos(xoffset, yoffset);
+            if (composite->pos() != new_pos) {
+                composite->setPos(new_pos);
+                if (!changes) {
+                    changes = true;
+                }
+            }
+
+            composite->setPosInView(cur_row, col);
+            xoffset += composite->boundingRect().width() + adj_spacing;
+            next_yoffset = std::max(composite->boundingRect().height() + MIN_SPACING, next_yoffset);
+        }
+
+        if (!changes && (cur_row == starting_row)) {
+            changes = true; // we might start from prev row
+        }
+
+        if (changes && ord_it != ord_end) {
+            yoffset += next_yoffset;
+            cur_row++;
+        } else {
+            break;
         }
     }
 
@@ -789,24 +852,61 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
 	}
 	
 	m_sceneRect = QRectF(0.0, 0.0, 0.0, 0.0);
-	double xoffset = SPACING;
-    double yoffset = SPACING;
 
-    int num_items = 0;
-    int view_width = !m_graphicsScene.views().isEmpty() ? m_graphicsScene.views().first()->width() : 0;
-	for (ord_it = m_itemsInOrder.begin(); ord_it != ord_end; ++ord_it, ++num_items) {
-		CompositeItem* composite = ord_it->composite;
-		composite->setPos(xoffset, yoffset);
-		composite->updateSceneRect(m_sceneRect);
-		composite->updateAppearence(ord_it->isSelected(), ord_it->isSelectionLeader());
+    int view_width = 0;
+    if (!m_graphicsScene.views().isEmpty()) {
+      QGraphicsView* gv = m_graphicsScene.views().first();
+      view_width = gv->width();
+      view_width -= gv->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+      if (gv->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, gv)) {
+          view_width -= gv->frameWidth() * 2;
+      }
+    }
 
-        xoffset += composite->boundingRect().width() + SPACING;
-        if (xoffset > view_width) {
-            xoffset = SPACING;
-            yoffset += composite->boundingRect().height() + SPACING;
+    double yoffset = MIN_SPACING;
+    ord_it = m_itemsInOrder.begin();
+
+    int cur_row = 0;
+
+    while (ord_it != ord_end) {
+        int items_in_row = 0;
+        double sum_item_widths = 0;
+        double xoffset = MIN_SPACING;
+        for (ItemsInOrder::iterator row_it = ord_it; row_it != ord_end; ++row_it) {
+            const double item_width = row_it->composite->boundingRect().width();
+            xoffset += item_width;
+            if (xoffset > view_width) {
+                if (items_in_row == 0) {
+                    items_in_row = 1; // at least one page must be in a row
+                    sum_item_widths = item_width;
+                }
+                break;
+            }
+            items_in_row++;
+            sum_item_widths += item_width;
+            xoffset += MIN_SPACING;
         }
-		m_graphicsScene.addItem(composite);
-	}
+
+        // split exceding width between margins of pages in a row
+        double adj_spacing = ((double)view_width - sum_item_widths) / (items_in_row+1);
+        xoffset = adj_spacing;
+        double next_yoffset = 0;
+        for (int col = 0; col < items_in_row; ++col, ++ord_it) {
+            CompositeItem* composite = ord_it->composite;
+            composite->setPos(xoffset, yoffset);
+            composite->setPosInView(cur_row, col);
+            composite->updateSceneRect(m_sceneRect);
+            composite->updateAppearence(ord_it->isSelected(), ord_it->isSelectionLeader());
+            m_graphicsScene.addItem(composite);
+            xoffset += composite->boundingRect().width() + adj_spacing;
+            next_yoffset = std::max(composite->boundingRect().height() + MIN_SPACING, next_yoffset);
+        }
+
+        if (ord_it != ord_end) {
+            yoffset += next_yoffset;
+            cur_row++;
+        }
+    }
 	
 	commitSceneRect();
 }
@@ -846,6 +946,12 @@ ThumbnailSequence::AllThumbnailsComplete()
 	return m_ptrImpl->AllThumbnailsComplete();
 }
 // end of modified by monday2000
+
+void
+ThumbnailSequence::setMaxLogicalThumbSize(QSizeF const& max_size)
+{
+    m_ptrImpl->setMaxLogicalThumbSize(max_size);
+}
 
 bool
 ThumbnailSequence::Impl::setSelection(PageId const& page_id, ThumbnailSequence::SelectionAction const action)
@@ -1067,7 +1173,6 @@ ThumbnailSequence::Impl::insert(
 	BeforeOrAfter before_or_after, ImageId const& image)
 {
 	ItemsInOrder::iterator ord_it;
-
 	if (before_or_after == BEFORE && image.isNull()) {
 		ord_it = m_itemsInOrder.end();
 	} else {
@@ -1075,7 +1180,7 @@ ThumbnailSequence::Impl::insert(
 		// we are not searching for PageId(image) exactly, which implies
 		// PageId::SINGLE_PAGE configuration, but rather we search for
 		// a page with any configuration, as long as it references the same image. 
-		ItemsById::iterator id_it(m_itemsById.lower_bound(PageId(image)));
+        ItemsById::iterator id_it(m_itemsById.lower_bound(PageId(image)));
 		if (id_it == m_itemsById.end() || id_it->pageInfo.imageId() != image) {
 			// Reference page not found.
 			return;
@@ -1099,71 +1204,75 @@ ThumbnailSequence::Impl::insert(
 		m_itemsInOrder.begin(), m_itemsInOrder.end(), page_info.id(),
 		/*page_incomplete=*/true, ord_it
 	);
-	
-	double offset = 0.0;
-	if (!m_items.empty()) {
-		if (ord_it != m_itemsInOrder.end()) {
-			offset = ord_it->composite->pos().y();
-		} else {
-			ItemsInOrder::iterator it(ord_it);
-			--it;
-			offset = it->composite->y()
-				+ it->composite->boundingRect().height() + SPACING;
-		}
-	}
-	std::auto_ptr<CompositeItem> composite(
-		getCompositeItem(0, page_info)
-	);
-	composite->setPos(0.0, offset);
-	composite->updateSceneRect(m_sceneRect);
-	
-	QPointF const pos_delta(0.0, composite->boundingRect().height() + SPACING);
-	
-	Item const item(page_info, composite.get());
-	std::pair<ItemsInOrder::iterator, bool> const ins(
-		m_itemsInOrder.insert(ord_it, item)
-	);
-	composite->setItem(&*ins.first);
-	m_graphicsScene.addItem(composite.release());
-	
-	ItemsInOrder::iterator const ord_end(m_itemsInOrder.end());
-	for (; ord_it != ord_end; ++ord_it) {
-		ord_it->composite->setPos(ord_it->composite->pos() + pos_delta);
-		ord_it->composite->updateSceneRect(m_sceneRect);
-	}
-	
+
+
+    std::auto_ptr<CompositeItem> composite(
+        getCompositeItem(0, page_info)
+    );
+
+    Item const item(page_info, composite.get());
+    std::pair<ItemsInOrder::iterator, bool> const ins(
+        m_itemsInOrder.insert(ord_it, item)
+    );
+    composite->setItem(&*ins.first);
+    m_graphicsScene.addItem(composite.release());
+
+
+
+    // there are some problems with insertion AFTER last page in row
+    // so just invalidate all
+//    if (before_or_after == AFTER) {
+//        invalidateAllThumbnails();
+//    } else {
+        ItemsById::iterator it (m_itemsById.end());
+        it = m_itemsById.find(page_info.id());
+        if (it == m_itemsById.begin() || it == m_itemsById.end()) {
+            invalidateAllThumbnails();
+        } else {
+            invalidateThumbnailImpl(it);
+        }
+//    }
+
 	commitSceneRect();
 }
 
 void
 ThumbnailSequence::Impl::removePages(std::set<PageId> const& to_remove)
 {
-	m_sceneRect = QRectF(0, 0, 0, 0);
-
-	std::set<PageId>::const_iterator const to_remove_end(to_remove.end());
-	QPointF pos_delta(0, 0);
+    std::set<PageId>::const_iterator const to_remove_end(to_remove.end());
 
 	ItemsInOrder::iterator ord_it(m_itemsInOrder.begin());
 	ItemsInOrder::iterator const ord_end(m_itemsInOrder.end());
-	while (ord_it != ord_end) {
-		if (to_remove.find(ord_it->pageInfo.id()) == to_remove_end) {
-			// Keeping this page.
-			if (pos_delta != QPointF(0, 0)) {
-				ord_it->composite->setPos(ord_it->composite->pos() + pos_delta);
-			}
-			ord_it->composite->updateSceneRect(m_sceneRect);
-			++ord_it;
-		} else {
-			// Removing this page.
-			if (m_pSelectionLeader == &*ord_it) {
-				m_pSelectionLeader = 0;
-			}
-			pos_delta.ry() -= ord_it->composite->boundingRect().height() + SPACING;
-			delete ord_it->composite;
-			m_itemsInOrder.erase(ord_it++);
-		}
-	}
+    ItemsInOrder::iterator first_after_removed(ord_end);
+    bool something_removed = false;
 
+	while (ord_it != ord_end) {
+        if (to_remove.find(ord_it->pageInfo.id()) != to_remove_end) {
+            // Removing this page.
+            if (m_pSelectionLeader == &*ord_it) {
+                m_pSelectionLeader = 0;
+            }
+            delete ord_it->composite;
+            m_itemsInOrder.erase(ord_it++);
+            something_removed = true;
+		} else {
+            // Keeping this page.
+            if (something_removed &&
+                    first_after_removed == ord_end) {
+                first_after_removed = ord_it;
+            }
+            ++ord_it;
+		}
+    }
+
+    ItemsById::iterator const start_it =
+                    m_itemsById.find(first_after_removed->pageInfo.id());
+    if (start_it != m_itemsById.end()) {
+        // recalculate pos for items since first before removed till end
+        invalidateThumbnailImpl(start_it);
+    } else {
+        invalidateAllThumbnails();
+    }
 	commitSceneRect();
 }
 
@@ -1482,6 +1591,12 @@ ThumbnailSequence::Impl::clearSelection()
 	}
 }
 
+void
+ThumbnailSequence::Impl::setMaxLogicalThumbSize(QSizeF const& max_size)
+{
+    m_maxLogicalThumbSize = max_size;
+}
+
 ThumbnailSequence::Impl::ItemsInOrder::iterator
 ThumbnailSequence::Impl::itemInsertPosition(
 	ItemsInOrder::iterator const begin, ItemsInOrder::iterator const end,
@@ -1575,7 +1690,7 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 	std::auto_ptr<QGraphicsSimpleTextItem> bold_text_item(new QGraphicsSimpleTextItem);
 	bold_text_item->setText(text);
 	QFont bold_font(bold_text_item->font());
-	bold_font.setWeight(QFont::Bold);
+//	bold_font.setWeight(QFont::Bold);
 	bold_text_item->setFont(bold_font);
 	bold_text_item->setBrush(QApplication::palette().highlightedText());
 	
@@ -1595,7 +1710,7 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 			pixmap_resource = ":/icons/right_page_thumb.png";
 			break;
 		default:
-			return std::auto_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item));
+            return std::auto_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item));
 	}
 	
 	QPixmap const pixmap(pixmap_resource);
@@ -1745,15 +1860,18 @@ ThumbnailSequence::CompositeItem::CompositeItem(
 :	m_rOwner(owner),
 	m_pItem(0),
 	m_pThumb(thumbnail.get()),
-	m_pLabelGroup(label_group.get())
+    m_pLabelGroup(label_group.get()), m_row(0), m_col(0)
 {
 	QSizeF const thumb_size(thumbnail->boundingRect().size());
 	QSizeF const label_size(label_group->boundingRect().size());
 	
 	int const thumb_label_spacing = 1;
-	thumbnail->setPos(-0.5 * thumb_size.width(), 0.0);
+
+    // we'll manually manage alignment bcs of *list* mode
+    thumbnail->setPos(0.0/*-0.5 * thumb_size.width()*/, 0.0);
+
 	label_group->setPos(
-		thumbnail->pos().x() + thumb_size.width() - label_size.width(),
+        std::max(thumbnail->pos().x() + thumb_size.width() - label_size.width(), 0.),
 		thumb_size.height() + thumb_label_spacing
 	);
 	
@@ -1796,7 +1914,7 @@ QRectF
 ThumbnailSequence::CompositeItem::boundingRect() const
 {
 	QRectF rect(QGraphicsItemGroup::boundingRect());
-	rect.adjust(-100, -5, 100, 3);
+    rect.adjust(-5, -5, 5, 3);
 	return rect;
 }
 
