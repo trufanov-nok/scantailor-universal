@@ -660,6 +660,7 @@ void output::OptionsWidget::on_depthPerceptionSlider_valueChanged(int value)
     depthPerceptionValue->setText(QString::number(0.1 * value));
 
     // Propagate the signal.
+    m_ptrSettings->setDepthPerception(m_pageId, m_depthPerception);
     emit depthPerceptionChanged(m_depthPerception.value());
 }
 
