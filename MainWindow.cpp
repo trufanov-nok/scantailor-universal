@@ -317,6 +317,10 @@ MainWindow::MainWindow()
 
     //Process settings
     settingsChanged();
+    QByteArray arr = settings.value("main_window/state").toByteArray();
+    if (!arr.isEmpty()) {
+        restoreState(arr);
+    }
 
     scrollArea->horizontalScrollBar()->setDisabled(true);
     filterOptions->installEventFilter(this);
@@ -327,7 +331,8 @@ MainWindow::~MainWindow()
 {
     destroyAutoSaveTimer();
 
-    QSettings().setValue("thumbnails/max_thumb_size", m_maxLogicalThumbSize);
+    QSettings settings;
+    settings.setValue("main_window/state", saveState());
 
     m_ptrInteractiveQueue->cancelAndClear();
     if (m_ptrBatchQueue.get()) {
@@ -345,10 +350,8 @@ MainWindow::settingsChanged()
 {
     QSettings settings;
     if (settings.value("main_window/maximized") == false) {
-        QVariant const geom(
-            settings.value("main_window/non_maximized_geometry")
-        );
-        if (!restoreGeometry(geom.toByteArray())) {
+        QByteArray arr = settings.value("main_window/non_maximized_geometry").toByteArray();
+        if (arr.isEmpty() || !restoreGeometry(arr)) {
             resize(1014, 689); // A sensible value.
         }
     }
@@ -3128,7 +3131,7 @@ void
 MainWindow::setDockingPanels(bool enabled)
 {
     if (enabled != m_docking_enabled) {
-        setupDockingPanel(dockWidget, enabled);
+        setupDockingPanel(dockWidgetThumbnails, enabled);
         setupDockingPanel(dockWidget_4, enabled);
 
         m_docking_enabled = enabled;
