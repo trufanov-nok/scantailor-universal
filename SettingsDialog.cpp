@@ -229,6 +229,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             << tr("General")
                                             <<        tr("Hotkey management")
                                             <<        tr("Docking")
+                                            <<        tr("Thumbnails panel")
                                             <<        tr("Auto-save project")
                                             <<        tr("Tiff compression")
                                             <<        tr("Debug mode"))
@@ -511,6 +512,18 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
                     val);
         ui.showStartBatchProcessingDlg->setChecked(
                     !m_settings.value("batch_dialog/remember_choice", false).toBool());
+    } else if (currentPage == ui.pageThumbnails) {
+        ui.cbThumbsListOrder->setChecked(m_settings.value("thumbnails/list_multiple_items_in_row", true).toBool());
+        ui.sbThumbsCacheImgSize->setValue(m_settings.value("thumbnails/max_cache_pixmap_size", QSize(200, 200)).toSize().height());
+        ui.sbThumbsMinSpacing->setValue(m_settings.value("thumbnails/min_spacing", 3).toInt());
+        ui.sbThumbsBoundaryAdjTop->setValue(m_settings.value("thumbnails/boundary_adj_top", 5).toInt());
+        ui.sbThumbsBoundaryAdjBottom->setValue(m_settings.value("thumbnails/boundary_adj_bottom", 5).toInt());
+        ui.sbThumbsBoundaryAdjLeft->setValue(m_settings.value("thumbnails/boundary_adj_left", 5).toInt());
+        ui.sbThumbsBoundaryAdjRight->setValue(m_settings.value("thumbnails/boundary_adj_right", 3).toInt());
+        ui.gbFixedMaxLogicalThumbSize->setChecked(m_settings.value("thumbnails/fixed_thumb_size", false).toBool());
+        const QSizeF max_logical_thumb_size = m_settings.value("thumbnails/max_thumb_size", QSizeF(250., 160.)).toSizeF();
+        ui.sbFixedMaxLogicalThumbSizeHeight->setValue(max_logical_thumb_size.height());
+        ui.sbFixedMaxLogicalThumbSizeWidth->setValue(max_logical_thumb_size.width());
     } else if (currentPage == ui.pageBlackWhiteMode) {
         ui.disableSmoothingBW->setChecked(m_settings.value("mode_bw/disable_smoothing", false).toBool());
     } else if (currentPage == ui.pageHotKeysManager) {
@@ -1072,4 +1085,68 @@ void SettingsDialog::on_pageDetectionBottomBorder_valueChanged(double arg1)
 void SettingsDialog::on_cbForegroundLayerSeparateControl_clicked(bool checked)
 {
     m_settings.setValue("foreground_layer/control_threshold", checked);
+}
+
+void SettingsDialog::on_sbThumbsCacheImgSize_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/max_cache_pixmap_size", QSize(arg1,arg1));
+}
+
+void SettingsDialog::on_sbThumbsMinSpacing_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/min_spacing", arg1);
+}
+
+void SettingsDialog::on_sbThumbsBoundaryAdjTop_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/boundary_adj_top", arg1);
+}
+
+void SettingsDialog::on_sbThumbsBoundaryAdjBottom_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/boundary_adj_bottom", arg1);
+}
+
+void SettingsDialog::on_sbThumbsBoundaryAdjLeft_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/boundary_adj_left", arg1);
+}
+
+void SettingsDialog::on_sbThumbsBoundaryAdjRight_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/boundary_adj_right", arg1);
+}
+
+void SettingsDialog::on_cbThumbsListOrder_toggled(bool checked)
+{
+    m_settings.setValue("thumbnails/list_multiple_items_in_row", checked);
+}
+
+void SettingsDialog::on_gbFixedMaxLogicalThumbSize_toggled(bool arg1)
+{
+    m_settings.setValue("thumbnails/fixed_thumb_size", arg1);
+}
+
+void SettingsDialog::on_sbFixedMaxLogicalThumbSizeHeight_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/max_thumb_size", QSizeF(ui.sbFixedMaxLogicalThumbSizeWidth->value(), arg1));
+}
+
+void SettingsDialog::on_sbFixedMaxLogicalThumbSizeWidth_valueChanged(int arg1)
+{
+    m_settings.setValue("thumbnails/max_thumb_size", QSizeF(arg1, ui.sbFixedMaxLogicalThumbSizeHeight->value()));
+}
+
+void SettingsDialog::on_btnThumbDefaults_clicked()
+{
+    if (QMessageBox::question(this, tr("Restore defaults"),
+                              tr("Thumbnails view settings will be resetted to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
+                              QMessageBox::Cancel) != QMessageBox::Cancel) {
+        for (const QString& key: m_settings.allKeys()) {
+            if (key.startsWith("thumbnails/")) {
+                m_settings.remove(key);
+            }
+        }
+    }
+    on_stackedWidget_currentChanged(0);
 }

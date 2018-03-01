@@ -186,7 +186,10 @@ public:
 	bool AllThumbnailsComplete();
 //end of modified by monday2000
 
-    void setMaxLogicalThumbSize(QSizeF const&);
+    void setMaxLogicalThumbSize(QSizeF const& max_size) { m_maxLogicalThumbSize = max_size; }
+
+    QSizeF maxLogicalThumbSize() const { return m_maxLogicalThumbSize; }
+
 private:
 	class ItemsByIdTag;
 	class ItemsInOrderTag;
@@ -256,7 +259,6 @@ private:
 	
 	void commitSceneRect();
 	
-    static int const MIN_SPACING = 3;
 	ThumbnailSequence& m_rOwner;
 	QSizeF m_maxLogicalThumbSize;
 	Container m_items;
@@ -728,7 +730,7 @@ ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it
     assert(view_width > 0);
 
     // look for a beginning of a row
-    double yoffset = MIN_SPACING;
+    double yoffset = GlobalStaticSettings::m_thumbsMinSpacing;
     int cur_row = 0;
 
     if (ord_it != m_itemsInOrder.begin()) {
@@ -756,11 +758,11 @@ ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it
     while (ord_it != ord_end) {
         int _col = 0;
         double sum_item_widths = 0;
-        double xoffset = MIN_SPACING;
+        double xoffset = GlobalStaticSettings::m_thumbsMinSpacing;
         for (ItemsInOrder::iterator row_it = ord_it; row_it != ord_end; ++row_it) {
             const double item_width = row_it->composite->boundingRect().width();
             xoffset += item_width;
-            if (xoffset > view_width) {
+            if (xoffset > view_width || !GlobalStaticSettings::m_thumbsListOrderAllowed) {
                 if (_col == 0) {
                     // at least one page must be in a row
                     _col = 1;
@@ -769,7 +771,7 @@ ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it
                 break;
             }
             sum_item_widths += item_width;
-            xoffset += MIN_SPACING;
+            xoffset += GlobalStaticSettings::m_thumbsMinSpacing;
             ++_col;
         }
 
@@ -793,7 +795,7 @@ ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it
 
             composite->setPosInView(cur_row, col);
             xoffset += composite->boundingRect().width() + adj_spacing;
-            next_yoffset = std::max(composite->boundingRect().height() + MIN_SPACING, next_yoffset);
+            next_yoffset = std::max(composite->boundingRect().height() + GlobalStaticSettings::m_thumbsMinSpacing, next_yoffset);
         }
 
         if (!changes && (cur_row == starting_row)) {
@@ -862,8 +864,9 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
           view_width -= gv->frameWidth() * 2;
       }
     }
+    assert(view_width > 0);
 
-    double yoffset = MIN_SPACING;
+    double yoffset = GlobalStaticSettings::m_thumbsMinSpacing;
     ord_it = m_itemsInOrder.begin();
 
     int cur_row = 0;
@@ -871,11 +874,11 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
     while (ord_it != ord_end) {
         int items_in_row = 0;
         double sum_item_widths = 0;
-        double xoffset = MIN_SPACING;
+        double xoffset = GlobalStaticSettings::m_thumbsMinSpacing;
         for (ItemsInOrder::iterator row_it = ord_it; row_it != ord_end; ++row_it) {
             const double item_width = row_it->composite->boundingRect().width();
             xoffset += item_width;
-            if (xoffset > view_width) {
+            if (xoffset > view_width || !GlobalStaticSettings::m_thumbsListOrderAllowed) {
                 if (items_in_row == 0) {
                     items_in_row = 1; // at least one page must be in a row
                     sum_item_widths = item_width;
@@ -884,7 +887,7 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
             }
             items_in_row++;
             sum_item_widths += item_width;
-            xoffset += MIN_SPACING;
+            xoffset += GlobalStaticSettings::m_thumbsMinSpacing;
         }
 
         // split exceding width between margins of pages in a row
@@ -899,7 +902,7 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
             composite->updateAppearence(ord_it->isSelected(), ord_it->isSelectionLeader());
             m_graphicsScene.addItem(composite);
             xoffset += composite->boundingRect().width() + adj_spacing;
-            next_yoffset = std::max(composite->boundingRect().height() + MIN_SPACING, next_yoffset);
+            next_yoffset = std::max(composite->boundingRect().height() + GlobalStaticSettings::m_thumbsMinSpacing, next_yoffset);
         }
 
         if (ord_it != ord_end) {
@@ -951,6 +954,12 @@ void
 ThumbnailSequence::setMaxLogicalThumbSize(QSizeF const& max_size)
 {
     m_ptrImpl->setMaxLogicalThumbSize(max_size);
+}
+
+QSizeF
+ThumbnailSequence::maxLogicalThumbSize() const
+{
+    return m_ptrImpl->maxLogicalThumbSize();
 }
 
 bool
@@ -1591,12 +1600,6 @@ ThumbnailSequence::Impl::clearSelection()
 	}
 }
 
-void
-ThumbnailSequence::Impl::setMaxLogicalThumbSize(QSizeF const& max_size)
-{
-    m_maxLogicalThumbSize = max_size;
-}
-
 ThumbnailSequence::Impl::ItemsInOrder::iterator
 ThumbnailSequence::Impl::itemInsertPosition(
 	ItemsInOrder::iterator const begin, ItemsInOrder::iterator const end,
@@ -1914,7 +1917,11 @@ QRectF
 ThumbnailSequence::CompositeItem::boundingRect() const
 {
 	QRectF rect(QGraphicsItemGroup::boundingRect());
-    rect.adjust(-5, -5, 5, 3);
+
+    rect.adjust(-GlobalStaticSettings::m_thumbsBoundaryAdjLeft,
+                -GlobalStaticSettings::m_thumbsBoundaryAdjTop,
+                GlobalStaticSettings::m_thumbsBoundaryAdjBottom,
+                GlobalStaticSettings::m_thumbsBoundaryAdjRight);
 	return rect;
 }
 

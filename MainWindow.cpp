@@ -356,6 +356,15 @@ MainWindow::settingsChanged()
         }
     }
 
+    m_maxLogicalThumbSize = settings.value("thumbnails/max_thumb_size", QSizeF(250., 160.)).toSizeF();
+    if (m_ptrThumbSequence.get()) {
+        if (m_ptrThumbSequence->maxLogicalThumbSize() != m_maxLogicalThumbSize) {
+            m_ptrThumbSequence->setMaxLogicalThumbSize(m_maxLogicalThumbSize);
+            setupThumbView();
+            resetThumbSequence(currentPageOrderProvider(), ThumbnailSequence::KEEP_SELECTION);
+        }
+    }
+
     setDockingPanels(settings.value("docking_panels/enabled", false).toBool());
 
     QString default_lang = QLocale::system().name().toLower();
@@ -382,6 +391,7 @@ MainWindow::settingsChanged()
     emit settingsUpdateRequest();
     applyShortcutsSettings();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget
+    emit invalidateAllThumbnails();
 }
 
 PageSequence
@@ -619,34 +629,36 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
         }
     }
 
-    if (obj == thumbView || obj == thumbView->verticalScrollBar()) {
-        if (ev->type() == QEvent::Wheel) {
-            Qt::KeyboardModifiers mods = GlobalStaticSettings::m_hotKeyManager.get(ThumbSizeChange)->
-                    sequences().first().m_modifierSequence;
-            QWheelEvent* wev = static_cast<QWheelEvent*>(ev);
+    if (!GlobalStaticSettings::m_fixedMaxLogicalThumbSize) {
+        if (obj == thumbView || obj == thumbView->verticalScrollBar()) {
+            if (ev->type() == QEvent::Wheel) {
+                Qt::KeyboardModifiers mods = GlobalStaticSettings::m_hotKeyManager.get(ThumbSizeChange)->
+                        sequences().first().m_modifierSequence;
+                QWheelEvent* wev = static_cast<QWheelEvent*>(ev);
 
-            if ((wev->modifiers() & mods) == mods) {
+                if ((wev->modifiers() & mods) == mods) {
 
-                const QPoint& angleDelta = wev->angleDelta();
-                _wheel_val_sum_thumbs += angleDelta.x() + angleDelta.y();
+                    const QPoint& angleDelta = wev->angleDelta();
+                    _wheel_val_sum_thumbs += angleDelta.x() + angleDelta.y();
 
-                if (abs(_wheel_val_sum_thumbs) >= 30) {
-                    wev->accept();
+                    if (abs(_wheel_val_sum_thumbs) >= 30) {
+                        wev->accept();
 
-                    const int dy = (_wheel_val_sum_thumbs > 0) ? 10 : -10;
-                    _wheel_val_sum_thumbs = 0;
+                        const int dy = (_wheel_val_sum_thumbs > 0) ? 10 : -10;
+                        _wheel_val_sum_thumbs = 0;
 
-                    m_maxLogicalThumbSize += QSizeF(dy, dy);
-                    if (m_maxLogicalThumbSize.width() < 25.) { m_maxLogicalThumbSize.setWidth(25.); }
-                    if (m_maxLogicalThumbSize.height() < 16.) { m_maxLogicalThumbSize.setHeight(16.); }
+                        m_maxLogicalThumbSize += QSizeF(dy, dy);
+                        if (m_maxLogicalThumbSize.width() < 25.) { m_maxLogicalThumbSize.setWidth(25.); }
+                        if (m_maxLogicalThumbSize.height() < 16.) { m_maxLogicalThumbSize.setHeight(16.); }
 
-                    if (m_ptrThumbSequence.get()) {
-                        m_ptrThumbSequence->setMaxLogicalThumbSize(m_maxLogicalThumbSize);
+                        if (m_ptrThumbSequence.get()) {
+                            m_ptrThumbSequence->setMaxLogicalThumbSize(m_maxLogicalThumbSize);
+                        }
+
+                        setupThumbView();
+                        resetThumbSequence(currentPageOrderProvider(), ThumbnailSequence::KEEP_SELECTION);
+                        return true;
                     }
-
-                    setupThumbView();
-                    resetThumbSequence(currentPageOrderProvider(), ThumbnailSequence::KEEP_SELECTION);
-                    return true;
                 }
             }
         }

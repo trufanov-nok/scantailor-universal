@@ -220,6 +220,8 @@ public:
 //end of modified by monday2000
 
     void setMaxLogicalThumbSize(QSizeF const& max_size);
+
+    QSizeF maxLogicalThumbSize() const;
 signals:
 	void newSelectionLeader(
 		PageInfo const& page_info, QRectF const& thumb_rect,

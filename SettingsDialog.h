@@ -120,6 +120,28 @@ private slots:
 
     void on_cbForegroundLayerSeparateControl_clicked(bool checked);
 
+    void on_sbThumbsCacheImgSize_valueChanged(int arg1);
+
+    void on_sbThumbsMinSpacing_valueChanged(int arg1);
+
+    void on_sbThumbsBoundaryAdjTop_valueChanged(int arg1);
+
+    void on_sbThumbsBoundaryAdjBottom_valueChanged(int arg1);
+
+    void on_sbThumbsBoundaryAdjLeft_valueChanged(int arg1);
+
+    void on_sbThumbsBoundaryAdjRight_valueChanged(int arg1);
+
+    void on_cbThumbsListOrder_toggled(bool checked);
+
+    void on_gbFixedMaxLogicalThumbSize_toggled(bool arg1);
+
+    void on_sbFixedMaxLogicalThumbSizeHeight_valueChanged(int arg1);
+
+    void on_sbFixedMaxLogicalThumbSizeWidth_valueChanged(int arg1);
+
+    void on_btnThumbDefaults_clicked();
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

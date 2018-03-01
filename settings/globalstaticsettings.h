@@ -62,6 +62,15 @@ public:
 
         m_highlightColorAdjustment = 100 + settings.value("thumbnails/non_focused_selection_highlight_color_adj", 40).toInt();
 
+        m_thumbsListOrderAllowed = settings.value("thumbnails/list_multiple_items_in_row", true).toBool();
+        m_thumbsMinSpacing = settings.value("thumbnails/min_spacing", 3).toInt();
+        m_thumbsBoundaryAdjTop = settings.value("thumbnails/boundary_adj_top", 5).toInt();
+        m_thumbsBoundaryAdjBottom = settings.value("thumbnails/boundary_adj_bottom", 5).toInt();
+        m_thumbsBoundaryAdjLeft = settings.value("thumbnails/boundary_adj_left", 5).toInt();
+        m_thumbsBoundaryAdjRight = settings.value("thumbnails/boundary_adj_right", 3).toInt();
+        m_fixedMaxLogicalThumbSize = settings.value("thumbnails/fixed_thumb_size", false).toBool();
+
+
     }    
 
     static void updateHotkeys()
@@ -144,6 +153,15 @@ public:
     static QHotKeys m_hotKeyManager;
     static std::unique_ptr<int> m_ForegroundLayerAdjustment;
     static int m_highlightColorAdjustment;
+
+    static bool m_thumbsListOrderAllowed;
+    static int m_thumbsMinSpacing;
+    static int m_thumbsBoundaryAdjTop;
+    static int m_thumbsBoundaryAdjBottom;
+    static int m_thumbsBoundaryAdjLeft;
+    static int m_thumbsBoundaryAdjRight;
+    static bool m_fixedMaxLogicalThumbSize;
+
 };
 
 #endif // GLOBALSTATICSETTINGS_H
