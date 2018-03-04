@@ -93,7 +93,7 @@ CacheDrivenTask::process(
 	QPolygonF const page_rect_phys(
 		Utils::calcPageRectPhys(
 			xform, content_rect_phys, *params,
-			m_ptrSettings->getAggregateHardSizeMM(), m_ptrSettings->getContentRect()
+            m_ptrSettings->getAggregateHardSizeMM()
 		)
 	);
 	ImageTransformation new_xform(xform);

@@ -137,8 +137,6 @@ Filter::saveSettings(
 	using namespace boost::lambda;
 	    
 	QDomElement filter_el(doc.createElement("page-layout"));
-    XmlMarshaller marshaller(doc);
-    filter_el.appendChild(marshaller.rectF(m_ptrSettings->getContentRect(), "contentRect"));
 
 	writer.enumPages(
 		boost::lambda::bind(
@@ -175,11 +173,6 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
 	QDomElement const filter_el(
 		filters_el.namedItem("page-layout").toElement()
 	);
-
-    QDomElement const rect_el = filter_el.namedItem("contentRect").toElement();
-    if (!rect_el.isNull()) {
-        m_ptrSettings->setContentRect(XmlUnmarshaller::rectF(rect_el));
-    }
 	
 	QString const page_tag_name("page");
 	QDomNode node(filter_el.firstChild());

@@ -60,7 +60,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 
     if (m_dlgType == Margins) {
-        const bool auto_margins_enabled = QSettings().value("auto_margins/enabled", false).toBool();
+        const bool auto_margins_enabled = QSettings().value("margins/auto_margins_enabled", false).toBool();
         groupBoxWhatToAppy->setVisible(auto_margins_enabled);
         autoMarginRB->setChecked(auto_margins_enabled && is_auto_margin_enabled);
     } else {

@@ -7,6 +7,7 @@ SET(
 	Utils.cpp Utils.h
 	ImageView.cpp ImageView.h
 	Filter.cpp Filter.h
+        alignmentwidget.cpp alignmentwidget.h
 	OptionsWidget.cpp OptionsWidget.h
 	Task.cpp Task.h
 	CacheDrivenTask.cpp CacheDrivenTask.h

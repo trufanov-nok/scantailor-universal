@@ -13,8 +13,9 @@ pageDeskew
 pageSelectContent
 	pagePageDetecton	page_detection/enabled	0
 	pageDeviantContent	select_content_deviant/enabled	0
-pageMargins
-	pageAutoMargins	auto_margins/enabled	0
+pagePageLayout
+	pageMargins
+	pageAlignment
 	pageDeviantMargins	margins_deviant/enabled	0
 pageOutput
 	pageBlackWhiteMode

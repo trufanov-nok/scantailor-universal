@@ -71,6 +71,16 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     // pageGeneral is displayed by default
     initLanguageList(((MainWindow*)parent)->getLanguage());
 
+    m_alignment = Alignment::load(&m_settings);
+    connect(ui.widgetAlignment, &AlignmentWidget::alignmentChanged, [this]() {
+        QString txt = Alignment::getVerboseDescription(*ui.widgetAlignment->alignment());
+        if (txt.isEmpty()) {
+            txt = tr("Not applicable. Page size is equalt to content zone with margins." \
+                     " So content position is defined by margins.");
+        }
+        ui.lblSelectedAlignment->setText(txt);
+    });
+
     on_stackedWidget_currentChanged(0);
 }
 
@@ -127,14 +137,17 @@ void SettingsDialog::restoreSettings()
     for (QSettings::SettingsMap::const_iterator it = m_oldSettings.constBegin(); it != m_oldSettings.constEnd(); ++it) {
         m_settings.setValue(it.key(), *it);
     }
+    m_alignment = Alignment::load(&m_settings);
 }
 
 SettingsDialog::~SettingsDialog()
 {
+
     if (!m_accepted) {
         restoreSettings();
         storeSettingsTreeState(ui.treeWidget);
     } else {
+        m_alignment.save(&m_settings);
         storeSettingsTreeState(ui.treeWidget);
         emit settingsChanged();
     }
@@ -242,7 +255,8 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             <<        tr("Page detection")
                                             <<        tr("Mark deviant pages")
                                             << tr("Page layout")
-                                            <<        tr("Auto margins")
+                                            <<        tr("Margins")
+                                            <<        tr("Alignment")
                                             <<        tr("Mark deviant pages")
                                             << tr("Output")
                                             <<        tr("Black & White mode")
@@ -540,6 +554,16 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         const QSizeF target_size = m_settings.value("page_detection/target_page_size", QSizeF(210,297)).toSizeF();
         ui.pageDetectionTargetWidth->setValue(target_size.width());
         ui.pageDetectionTargetHeight->setValue(target_size.height());
+    } else if (currentPage == ui.pageAlignment) {
+//        m_alignment = loadAlignment(); // done via Alignment::load(QSettings*)        
+        bool val = m_settings.value("alignment/automagnet_enabled", false).toBool();
+        ui.cbAlignmentAuto->setChecked(val);
+        ui.widgetAlignment->setUseAutoMagnetAlignment(val);
+        val = m_settings.value("alignment/original_enabled", false).toBool();
+        ui.cbAlignmentOriginal->setChecked(val);
+        ui.widgetAlignment->setUseOriginalProportionsAlignment(val);
+
+        ui.widgetAlignment->setAlignment(&m_alignment);
     } else if (currentPage == ui.pageMargins) {
         int old_idx = ui.cbMarginUnits->currentIndex();
         int idx = m_settings.value("margins/default_units", 0).toUInt();
@@ -547,9 +571,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         if (idx == old_idx) { // otherwise wan't be called atomatically
             on_cbMarginUnits_currentIndexChanged(idx);
         }
-        displayAlignment();
-    } else if (currentPage == ui.pageAutoMargins) {
-        if (!ui.cbMarginsAuto->isEnabled()) {
+        ui.gbMarginsAuto->setChecked(m_settings.value("margins/auto_margins_enabled", false).toBool());
+        if (!ui.gbMarginsAuto->isChecked()) {
              ui.cbMarginsAuto->setChecked(false);
         } else {
             ui.cbMarginsAuto->setChecked(m_settings.value("margins/default_auto_margins", false).toBool());
@@ -855,173 +878,9 @@ void SettingsDialog::on_cbMarginUnits_currentIndexChanged(int index)
     updateMarginsDisplay();
 }
 
-void SettingsDialog::displayAlignment()
-{
-    const bool old_val = ui.cbMarginsMatchSize->isChecked();
-    ui.cbMarginsMatchSize->setChecked(m_alignment.isNull());
-    if (old_val == ui.cbMarginsMatchSize->isChecked()) {
-        enableDisableAlignmentButtons();
-    }
-
-    ui.cbAlignmentMode->blockSignals(true);
-    ui.cbAlignment->blockSignals(true);
-
-    bool original_alignment_enabled = m_settings.value("original_alignment/enabled", true).toBool();
-    int orig_idx = ui.cbAlignmentMode->findData(page_layout::Alignment::Vertical::VORIGINAL);
-    if (orig_idx != -1 && !original_alignment_enabled) {
-        int cur_idx = ui.cbAlignmentMode->currentIndex();
-        if (cur_idx == orig_idx) {
-            cur_idx = 0;
-        }
-        ui.cbAlignmentMode->removeItem(orig_idx);
-        ui.cbAlignmentMode->setCurrentIndex(cur_idx);
-    } else if (orig_idx == -1 && original_alignment_enabled) {
-        ui.cbAlignmentMode->addItem(tr("Original"), page_layout::Alignment::Vertical::VORIGINAL);
-    }
-
-    const page_layout::Alignment::Vertical vert = m_alignment.vertical();
-    const page_layout::Alignment::Horizontal hor = m_alignment.horizontal();
-
-
-    switch (vert) {
-    case page_layout::Alignment::Vertical::VAUTO:
-        ui.cbAlignmentMode->setCurrentIndex(1);
-        break;
-    case page_layout::Alignment::Vertical::VORIGINAL:
-        ui.cbAlignmentMode->setCurrentIndex(2);
-        break;
-    default:
-        ui.cbAlignmentMode->setCurrentIndex(0);
-        break;
-    }
-
-
-    if (vert == page_layout::Alignment::Vertical::TOP) {
-        switch (hor) {
-        case page_layout::Alignment::Horizontal::HCENTER:
-            ui.cbAlignment->setCurrentIndex(0);
-            break;
-        case page_layout::Alignment::Horizontal::LEFT:
-            ui.cbAlignment->setCurrentIndex(1);
-            break;
-        case page_layout::Alignment::Horizontal::RIGHT:
-            ui.cbAlignment->setCurrentIndex(2);
-            break;
-        default:
-            break;
-        }
-    } else if (vert == page_layout::Alignment::Vertical::VCENTER) {
-        switch (hor) {
-        case page_layout::Alignment::Horizontal::HCENTER:
-            ui.cbAlignment->setCurrentIndex(8);
-            break;
-        case page_layout::Alignment::Horizontal::LEFT:
-            ui.cbAlignment->setCurrentIndex(3);
-            break;
-        case page_layout::Alignment::Horizontal::RIGHT:
-            ui.cbAlignment->setCurrentIndex(4);
-            break;
-        default:
-            break;
-        }
-    } else if (vert == page_layout::Alignment::Vertical::BOTTOM) {
-        switch (hor) {
-        case page_layout::Alignment::Horizontal::HCENTER:
-            ui.cbAlignment->setCurrentIndex(7);
-            break;
-        case page_layout::Alignment::Horizontal::LEFT:
-            ui.cbAlignment->setCurrentIndex(5);
-            break;
-        case page_layout::Alignment::Horizontal::RIGHT:
-            ui.cbAlignment->setCurrentIndex(6);
-            break;
-        default:
-            break;
-        }
-    }
-    ui.cbAlignmentMode->blockSignals(false);
-    ui.cbAlignment->blockSignals(false);        
-}
-
-void SettingsDialog::on_cbAlignmentMode_currentIndexChanged(int index)
-{
-  ui.cbAlignment->setEnabled(index == 0);
-  switch (index) {
-  case 0:  m_alignment.setVertical(page_layout::Alignment::TOP);
-           m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
-      break;
-  case 1: m_alignment.setVertical(page_layout::Alignment::VAUTO);
-      m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
-      break;
-  case 2: m_alignment.setVertical(page_layout::Alignment::VORIGINAL);
-      m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
-      break;
-  default:
-      on_cbAlignment_currentIndexChanged(ui.cbAlignment->currentIndex());
-      break;
-  }
-
-}
-
-void SettingsDialog::on_cbAlignment_currentIndexChanged(int index)
-{
-    switch (index) {
-    case 0: m_alignment.setVertical(page_layout::Alignment::TOP);
-        m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
-        break;
-    case 1: m_alignment.setVertical(page_layout::Alignment::TOP);
-        m_alignment.setHorizontal(page_layout::Alignment::LEFT);
-        break;
-    case 2: m_alignment.setVertical(page_layout::Alignment::TOP);
-        m_alignment.setHorizontal(page_layout::Alignment::RIGHT);
-        break;
-    case 3: m_alignment.setVertical(page_layout::Alignment::VCENTER);
-        m_alignment.setHorizontal(page_layout::Alignment::LEFT);
-        break;
-    case 4: m_alignment.setVertical(page_layout::Alignment::VCENTER);
-        m_alignment.setHorizontal(page_layout::Alignment::RIGHT);
-        break;
-    case 5: m_alignment.setVertical(page_layout::Alignment::BOTTOM);
-        m_alignment.setHorizontal(page_layout::Alignment::LEFT);
-        break;
-    case 6: m_alignment.setVertical(page_layout::Alignment::BOTTOM);
-        m_alignment.setHorizontal(page_layout::Alignment::RIGHT);
-        break;
-    case 7: m_alignment.setVertical(page_layout::Alignment::BOTTOM);
-        m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
-        break;
-    case 8: m_alignment.setVertical(page_layout::Alignment::VCENTER);
-        m_alignment.setHorizontal(page_layout::Alignment::HCENTER);
-        break;
-    default:
-        break;
-    }
-}
-
 void SettingsDialog::on_cbMarginsAuto_clicked(bool checked)
 {
     m_settings.setValue("margins/default_auto_margins", checked);
-}
-
-void SettingsDialog::enableDisableAlignmentButtons()
-{
-    bool const enabled = m_settings.value("margins/default_align_with_others", true).toBool() &&
-            (ui.cbAlignmentMode->currentIndex() == 0);
-
-    ui.marginDefaultBottomVal->setEnabled(enabled);
-    ui.marginDefaultTopVal->setEnabled(enabled);
-    ui.marginDefaultLeftVal->setEnabled(enabled);
-    ui.marginDefaultRightVal->setEnabled(enabled);
-}
-
-void SettingsDialog::on_cbMarginsMatchSize_clicked(bool checked)
-{
-    m_settings.setValue("margins/default_align_with_others", checked);
-    enableDisableAlignmentButtons();
-
-//    ui.cbAlignmentMode->setEnabled(!checked);
-//    ui.cbAlignment->setEnabled(!checked);
-    m_alignment.setNull(checked);
 }
 
 void SettingsDialog::updateMarginsDisplay()
@@ -1149,4 +1008,16 @@ void SettingsDialog::on_btnThumbDefaults_clicked()
         }
     }
     on_stackedWidget_currentChanged(0);
+}
+
+void SettingsDialog::on_cbAlignmentAuto_toggled(bool checked)
+{
+    m_settings.setValue("alignment/automagnet_enabled", checked);
+    ui.widgetAlignment->setUseAutoMagnetAlignment(checked);
+}
+
+void SettingsDialog::on_cbAlignmentOriginal_toggled(bool checked)
+{
+    m_settings.setValue("alignment/original_enabled", checked);
+    ui.widgetAlignment->setUseOriginalProportionsAlignment(checked);
 }

@@ -38,9 +38,27 @@ const double DEFAULT_TOLERANCE=0.2;
 class Alignment
 {
 public:
-	enum Vertical { TOP, VCENTER, BOTTOM, VAUTO, VORIGINAL };
-	
-	enum Horizontal { LEFT, HCENTER, RIGHT, HAUTO, HORIGINAL };
+
+    static const int maskVertical = 0x00FF;
+    static const int maskHorizontal = 0xFF00;
+
+    enum Vertical
+    {
+        TOP = 1,
+        VCENTER = 1 << 1,
+        BOTTOM = 1 << 2,
+        VAUTO = 1 << 3,
+        VORIGINAL = 1 << 4
+    };
+
+    enum Horizontal
+    {
+        LEFT = 1 << 8,
+        HCENTER = 1 << 9,
+        RIGHT = 1 << 10,
+        HAUTO = 1 << 11,
+        HORIGINAL = 1 << 12
+    };
 	
 	/**
 	 * \brief Constructs a null alignment.
@@ -53,24 +71,28 @@ public:
 	
 	Alignment(QDomElement const& el);
 	
-	Vertical vertical() const { return m_vert; }
+    Vertical vertical() const { return static_cast<Vertical>(m_val & maskVertical); }    
+
+    void setVertical(Vertical vert) { m_val = vert | horizontal(); }
 	
-	void setVertical(Vertical vert) { m_vert = vert; }
+    Horizontal horizontal() const { return static_cast<Horizontal>(m_val & maskHorizontal); }
 	
-	Horizontal horizontal() const { return m_hor; }
-	
-	void setHorizontal(Horizontal hor) { m_hor = hor; }
+    void setHorizontal(Horizontal hor) { m_val = vertical() | hor; }
+
+    int compositeAlignment() const { return m_val; }
+
+    void setCompositeAlignment(int val) { m_val = val; }
 	
 	bool isNull() const { return m_isNull; }
 	
 	void setNull(bool is_null) { m_isNull = is_null; }
 
     double tolerance() const { return m_tolerance; }
+
     void setTolerance(double t) { m_tolerance = t; }
 	
 	bool operator==(Alignment const& other) const {
-		return m_vert == other.m_vert && m_hor == other.m_hor
-                && m_isNull == other.m_isNull;
+        return m_val == other.m_val && m_isNull == other.m_isNull;
 	}
 	
 	bool operator!=(Alignment const& other) const {
@@ -81,9 +103,14 @@ public:
 
     void save(QSettings* settings = nullptr) const;
     static Alignment load(QSettings* settings = nullptr);
+
+    static QString getVerboseDescription(const Alignment& alignment);
+    static const QString verticalToStr(Vertical val);
+    static const QString horizontalToStr(Horizontal val);
+    static Vertical strToVertical(const QString &val);
+    static Horizontal strToHorizontal(const QString &val);
 private:
-	Vertical m_vert;
-	Horizontal m_hor;
+    int m_val;
 	bool m_isNull;
 	double m_tolerance;
 };

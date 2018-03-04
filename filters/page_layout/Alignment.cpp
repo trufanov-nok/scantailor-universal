@@ -35,12 +35,11 @@ Alignment::Alignment()
 Alignment::Alignment(Vertical vert, Horizontal hor)	
 {
     *this = Alignment::load();
-    m_vert = vert;
-    m_hor = hor;
+    m_val = vert|hor;
 }
 
 Alignment::Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance)
-    : m_vert(vert), m_hor(hor), m_isNull(is_null), m_tolerance(tolerance)
+    : m_val(vert|hor), m_isNull(is_null), m_tolerance(tolerance)
 {
 }
 
@@ -55,75 +54,16 @@ Alignment::Alignment(QDomElement const& el)
 	m_isNull = el.attribute("null").toInt() != 0;
 	m_tolerance = el.attribute("tolerance", QString::number(DEFAULT_TOLERANCE)).toDouble();
 
-	if (vert == "top") {
-		m_vert = TOP;
-	} else if (vert == "bottom") {
-		m_vert = BOTTOM;
-	} else if (vert == "auto") {
-		m_vert = VAUTO;
-	} else if (vert == "original") {
-		m_vert = VORIGINAL;
-	} else {
-		m_vert = VCENTER;
-	}
-	
-	if (hor == "left") {
-		m_hor = LEFT;
-	} else if (hor == "right") {
-		m_hor = RIGHT;
-	} else if (hor == "auto") {
-		m_hor = HAUTO;
-	} else if (vert == "original") {
-		m_hor = HORIGINAL;
-	} else {
-		m_hor = HCENTER;
-	}
+    m_val = strToVertical(vert);
+    m_val |= strToHorizontal(hor);
 }
 
 QDomElement
 Alignment::toXml(QDomDocument& doc, QString const& name) const
 {
-	char const* vert = 0;
-	switch (m_vert) {
-		case TOP:
-			vert = "top";
-			break;
-		case VCENTER:
-			vert = "vcenter";
-			break;
-		case BOTTOM:
-			vert = "bottom";
-			break;
-		case VAUTO:
-			vert = "auto";
-			break;
-		case VORIGINAL:
-			vert = "original";
-			break;
-	}
-	
-	char const* hor = 0;
-	switch (m_hor) {
-		case LEFT:
-			hor = "left";
-			break;
-		case HCENTER:
-			hor = "hcenter";
-			break;
-		case RIGHT:
-			hor = "right";
-			break;
-		case HAUTO:
-			hor = "auto";
-			break;
-		case HORIGINAL:
-			hor = "original";
-			break;
-	}
-	
 	QDomElement el(doc.createElement(name));
-	el.setAttribute("vert", QLatin1String(vert));
-	el.setAttribute("hor", QLatin1String(hor));
+    el.setAttribute("vert", verticalToStr(vertical()));
+    el.setAttribute("hor", horizontalToStr(horizontal()));
 	el.setAttribute("null", m_isNull ? 1 : 0);
 	el.setAttribute("tolerance", QString::number(m_tolerance));
 	return el;
@@ -139,10 +79,10 @@ Alignment::save(QSettings* _settings) const
     }
 
     QSettings& settings = *_settings;
-    settings.setValue("margins/default_alignment_vert", m_vert);
-    settings.setValue("margins/default_alignment_hor", m_hor);
-    settings.setValue("margins/default_alignment_null", m_isNull);
-    settings.setValue("margins/default_alignment_tolerance", m_tolerance);
+    settings.setValue("alignment/default_alignment_vert", verticalToStr(vertical()));
+    settings.setValue("alignment/default_alignment_hor", horizontalToStr(horizontal()));
+    settings.setValue("alignment/default_alignment_null", m_isNull);
+    settings.setValue("alignment/default_alignment_tolerance", m_tolerance);
 }
 
 Alignment
@@ -155,14 +95,195 @@ Alignment::load(QSettings* _settings)
     }
 
     QSettings& settings = *_settings;
-    Vertical vert = (Vertical) settings.value("margins/default_alignment_vert", Vertical::VCENTER).toUInt();
-    Horizontal hor = (Horizontal) settings.value("margins/default_alignment_hor", Horizontal::HCENTER).toUInt();
+    Vertical vert = strToVertical( settings.value("alignment/default_alignment_vert", verticalToStr(Vertical::VCENTER)).toString() );
+    Horizontal hor = strToHorizontal( settings.value("alignment/default_alignment_hor", horizontalToStr(Horizontal::HCENTER)).toString() );
     CommandLine cli = CommandLine::get();
 
     bool isnull = cli.getDefaultNull();
-            //settings.value("margins/default_alignment_null", m_isNull).toBool();
-    double toler = settings.value("margins/default_alignment_tolerance", DEFAULT_TOLERANCE).toDouble();
+    /* read in cli.getDefaultNull(); */
+//    m_isNull = settings.value("alignment/default_alignment_null", false).toBool();
+    double toler = settings.value("alignment/default_alignment_tolerance", DEFAULT_TOLERANCE).toDouble();
     return Alignment(vert, hor, isnull, toler);
+}
+
+QString
+Alignment::getVerboseDescription(const Alignment& alignment)
+{
+    QString txt;
+    if (alignment.isNull()) {
+        return txt;
+    }
+
+    const int val = alignment.compositeAlignment();
+    bool has_side = false;
+    bool has_corner = false;
+    bool has_center = false;
+    bool has_auto_magnet = false;
+    bool has_orig_props = false;
+
+
+    QString direction;
+
+    if (val & Alignment::HCENTER) {
+        direction = QObject::tr(" horizontally");
+        has_center = true;
+    }
+
+    if (val & Alignment::VCENTER) {
+        direction = direction.isEmpty() ? QObject::tr(" vertically") : "";
+        has_center = true;
+    }
+
+    if (has_center) {
+        direction = QObject::tr("centered%1").arg(direction);
+    }
+
+    QString hside;
+    if (val & Alignment::LEFT) {
+        hside = QObject::tr("left");
+        has_side = true;
+    } else if (val & Alignment::RIGHT) {
+        hside = QObject::tr("right");
+        has_side = true;
+    }
+
+    QString vside;
+    if (val & Alignment::TOP) {
+        vside = QObject::tr("top");
+        has_side = true;
+    }
+    if (val & Alignment::BOTTOM) {
+        vside = QObject::tr("bottom");
+        has_side = true;
+    }
+
+    QString corner = !hside.isEmpty() && !vside.isEmpty() ? QObject::tr("%1-%2 corner").arg(vside).arg(hside) : "";
+    if (!corner.isEmpty()) {
+        has_corner = true;
+        has_side = false;
+    } else {
+        hside = hside + vside + QObject::tr(" side");
+    }
+
+    QString auto_magnet;
+    if (val & Alignment::HAUTO) {
+        auto_magnet = QObject::tr(" by width");
+        has_auto_magnet = true;
+    }
+    if (val & Alignment::VAUTO) {
+        auto_magnet = auto_magnet.isEmpty()? QObject::tr(" by height") : "";
+        has_auto_magnet = true;
+    }
+
+    if (has_auto_magnet) {
+        auto_magnet = QObject::tr("automatically%1").arg(auto_magnet);
+    }
+
+    QString original_proportions;
+    if (val & Alignment::HORIGINAL) {
+        original_proportions = QObject::tr(" horizontal");
+        has_orig_props = true;
+    }
+    if (val & Alignment::VORIGINAL) {
+        original_proportions = original_proportions.isEmpty()? QObject::tr(" vertical") : "";
+        has_orig_props = true;
+    }
+
+    if (has_orig_props) {
+        original_proportions = QObject::tr("proportional to original%1 position").arg(original_proportions);
+    }
+
+    const QString plus = QObject::tr("%1 + %2");
+
+    if (has_corner) {
+        txt = corner;
+    } else {
+        if (has_side) {
+            txt = txt.isEmpty()? hside : plus.arg(txt).arg(hside);
+        }
+
+        if (has_auto_magnet) {
+            txt = txt.isEmpty()? auto_magnet : plus.arg(txt).arg(auto_magnet);
+        }
+
+        if (has_center) {
+            txt = txt.isEmpty()? direction : plus.arg(txt).arg(direction);
+        }
+
+        if (has_orig_props) {
+            txt = txt.isEmpty()? original_proportions : plus.arg(txt).arg(original_proportions);
+        }
+    }
+
+    return txt;
+}
+
+const QString
+Alignment::verticalToStr(Vertical val)
+{
+    switch (val) {
+    case TOP:
+        return "top";
+    case VCENTER:
+        return "vcenter";
+    case BOTTOM:
+        return "bottom";
+    case VAUTO:
+        return "vauto";
+    case VORIGINAL:
+        return "voriginal";
+    }
+    return "";
+}
+
+const QString
+Alignment::horizontalToStr(Horizontal val)
+{
+    switch (val) {
+    case LEFT:
+        return "left";
+    case HCENTER:
+        return "hcenter";
+    case RIGHT:
+        return "right";
+    case HAUTO:
+        return "hauto";
+    case HORIGINAL:
+        return "horiginal";
+    }
+    return "";
+}
+
+Alignment::Vertical
+Alignment::strToVertical(const QString& val)
+{
+    if (val == "top") {
+        return TOP;
+    } else if (val == "bottom") {
+        return BOTTOM;
+    } else if (val == "vauto") {
+        return VAUTO;
+    } else if (val == "voriginal") {
+        return VORIGINAL;
+    } else {
+        return VCENTER;
+    }
+}
+
+Alignment::Horizontal
+Alignment::strToHorizontal(const QString &val)
+{
+    if (val == "left") {
+        return LEFT;
+    } else if (val == "right") {
+        return RIGHT;
+    } else if (val == "hauto") {
+        return HAUTO;
+    } else if (val == "horiginal") {
+        return HORIGINAL;
+    } else {
+        return HCENTER;
+    }
 }
 
 } // namespace page_layout

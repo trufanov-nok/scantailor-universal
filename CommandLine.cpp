@@ -878,7 +878,7 @@ bool CommandLine::fetchDefaultNull()
     if (contains("match-layout-default") && m_options["match-layout-default"] == "false") {
         m_defaultNull = true;
     } else {
-        m_defaultNull = QSettings().value("margins/default_alignment_null", false).toBool();
+        m_defaultNull = QSettings().value("alignment/default_alignment_null", false).toBool();
     }
     
     return m_defaultNull;

@@ -51,6 +51,7 @@ public:
 		QImage const& image,
 		ImageTransformation const& xform,
 		QRectF const& adapted_content_rect,
+        QRectF const& page_rect,
 		bool agg_size_changed, bool batch);
 	
 	virtual void updateUI(FilterUiInterface* ui);
@@ -64,6 +65,7 @@ private:
 	QImage m_downscaledImage;
 	ImageTransformation m_xform;
 	QRectF m_adaptedContentRect;
+    QRectF m_pageRect;
 	bool m_aggSizeChanged;
 	bool m_batchProcessing;
 };
@@ -114,9 +116,9 @@ Task::process(
 	QSizeF agg_hard_size_before;
 	QSizeF agg_hard_size_after;
 	Params const params(
-		m_ptrSettings->updateContentSizeAndGetParams(
+        m_ptrSettings->getParams(
 			m_pageId, page_rect, content_rect, content_size_mm,
-            &agg_hard_size_before, &agg_hard_size_after, m_ptrNextTask
+            &agg_hard_size_before, &agg_hard_size_after
 		)
 	);
 	
@@ -131,7 +133,7 @@ Task::process(
 		QPolygonF const page_rect_phys(
 			Utils::calcPageRectPhys(
 				data.xform(), content_rect_phys,
-				params, agg_hard_size_after, m_ptrSettings->getContentRect()
+                params, agg_hard_size_after
 			)
 		);
 
@@ -145,9 +147,9 @@ Task::process(
 		return FilterResultPtr(
 			new UiUpdater(
 				m_ptrFilter, m_ptrSettings, m_pageId,
-				data.origImage(), data.xform(), adapted_content_rect,
+                data.origImage(), data.xform(), adapted_content_rect, page_rect,
 				agg_hard_size_before != agg_hard_size_after,
-				m_batchProcessing
+                m_batchProcessing
 			)
 		);
 	} else {
@@ -164,6 +166,7 @@ Task::UiUpdater::UiUpdater(
 	PageId const& page_id,
 	QImage const& image, ImageTransformation const& xform,
 	QRectF const& adapted_content_rect,
+    QRectF const& page_rect,
 	bool const agg_size_changed, bool const batch)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
@@ -172,6 +175,7 @@ Task::UiUpdater::UiUpdater(
 	m_downscaledImage(ImageView::createDownscaledImage(image)),
 	m_xform(xform),
 	m_adaptedContentRect(adapted_content_rect),
+    m_pageRect(page_rect),
 	m_aggSizeChanged(agg_size_changed),
 	m_batchProcessing(batch)
 {
@@ -196,9 +200,9 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 	
-	ImageView* view = new ImageView(
+    ImageView* view = new ImageView(
 		m_ptrSettings, m_pageId, m_image, m_downscaledImage,
-		m_xform, m_adaptedContentRect, *opt_widget
+        m_xform, m_adaptedContentRect, m_pageRect, *opt_widget
 	);
 	ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
 	

@@ -55,6 +55,7 @@ public:
 		QImage const& image, QImage const& downscaled_image,
 		ImageTransformation const& xform,
 		QRectF const& adapted_content_rect,
+        QRectF const& page_rect,
 		OptionsWidget const& opt_widget);
 	
 	virtual ~ImageView();
@@ -168,6 +169,11 @@ private:
 	 * Content box in virtual image coordinates.
 	 */
 	QRectF const m_innerRect;
+
+    /**
+     * Page rect (after page detection, if any) in original image coordinates.
+     */
+    QRectF const m_pageRect;
 	
 	/**
 	 * \brief Content box + hard margins in virtual image coordinates.

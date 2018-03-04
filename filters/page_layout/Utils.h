@@ -72,12 +72,11 @@ public:
 	 * \return Non-negative margins that extend \p hard_size_mm to
 	 *         \p aggregate_hard_size_mm.
 	 */
-	static Margins calcSoftMarginsMM(
-		QSizeF const& hard_size_mm,
-		QSizeF const& aggregate_hard_size_mm,
-		Alignment const& alignment,
-		QRectF const& contentRect,
-		QRectF const& agg_content_rect);
+    static Margins calcSoftMarginsMM(QSizeF const& hard_size_mm,
+        QSizeF const& aggregate_hard_size_mm,
+        Alignment const& alignment,
+        QRectF const& contentRect,
+        QRectF const& page_rect);
 	
 	static Margins calcMarginsMM(
 		ImageTransformation const& xform, QRectF const& page_rect, QRectF const& content_rect
@@ -91,10 +90,9 @@ public:
 	 * \param aggregate_hard_size_mm Maximum width and height across all pages.
 	 * \return Page rectangle (as a polygon) in physical image coordinates.
 	 */
-	static QPolygonF calcPageRectPhys(
-		ImageTransformation const& xform,
-		QPolygonF const& content_rect_phys,
-		Params const& params, QSizeF const& aggregate_hard_size_mm, QRectF const& agg_content_rect);
+    static QPolygonF calcPageRectPhys(ImageTransformation const& xform,
+        QPolygonF const& content_rect_phys,
+        Params const& params, QSizeF const& aggregate_hard_size_mm);
 private:
 	static QPointF getRightUnitVector(QPolygonF const& poly_rect);
 	

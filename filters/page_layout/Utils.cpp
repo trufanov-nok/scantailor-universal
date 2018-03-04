@@ -129,7 +129,7 @@ Utils::calcMarginsMM(ImageTransformation const& xform, QRectF const& page_rect, 
 Margins
 Utils::calcSoftMarginsMM(
 	QSizeF const& hard_size_mm, QSizeF const& aggregate_hard_size_mm,
-	Alignment const& alignment, QRectF const& contentRect, QRectF const& agg_content_rect)
+    Alignment const& alignment, QRectF const& contentRect, QRectF const& page_rect)
 {
 	if (alignment.isNull()) {
 #ifdef DEBUG
@@ -140,10 +140,10 @@ Utils::calcSoftMarginsMM(
 	}
 
 #ifdef DEBUG
-	std::cout << "left: " << agg_content_rect.left() << " ";
-	std::cout << "top: " << agg_content_rect.top() << " ";
-	std::cout << "right: " << agg_content_rect.right() << " ";
-	std::cout << "bottom: " << agg_content_rect.bottom() << " ";
+    std::cout << "left: " << page_rect.left() << " ";
+    std::cout << "top: " << page_rect.top() << " ";
+    std::cout << "right: " << page_rect.right() << " ";
+    std::cout << "bottom: " << page_rect.bottom() << " ";
 	std::cout << "\n";
 
 	std::cout << "contentLeft: " << contentRect.left() << " ";
@@ -166,10 +166,10 @@ Utils::calcSoftMarginsMM(
 			aggregate_hard_size_mm.height() - hard_size_mm.height();
 
 	// detect original borders in page mirror
-	double leftBorder = double(contentRect.left() - agg_content_rect.left() + 1) / double(agg_content_rect.width() + 1);
-	double rightBorder = double(agg_content_rect.right() - contentRect.right() + 1) / double(agg_content_rect.width() + 1);
-	double topBorder = double(contentRect.top() - agg_content_rect.top() + 1) / double(agg_content_rect.height() + 1);
-	double bottomBorder = double(agg_content_rect.bottom() - contentRect.bottom() + 1) / double(agg_content_rect.height() + 1);
+    double leftBorder = double(contentRect.left() - page_rect.left() + 1) / double(page_rect.width() + 1);
+    double rightBorder = double(page_rect.right() - contentRect.right() + 1) / double(page_rect.width() + 1);
+    double topBorder = double(contentRect.top() - page_rect.top() + 1) / double(page_rect.height() + 1);
+    double bottomBorder = double(page_rect.bottom() - contentRect.bottom() + 1) / double(page_rect.height() + 1);
 	
 	// borders in new page layout in mm
 	double aggLeftBorder = 0.0;
@@ -201,7 +201,7 @@ Utils::calcSoftMarginsMM(
 		double newBottomBorder = aggBottomBorder / aggregate_hard_size_mm.height();
 
 		// content mass index
-		double cmi = double(contentRect.width() * contentRect.height()) / double(agg_content_rect.width() * agg_content_rect.height());
+        double cmi = double(contentRect.width() * contentRect.height()) / double(page_rect.width() * page_rect.height());
 
 		double hTolerance = myAlign.tolerance();
 		double vTolerance = myAlign.tolerance() * 0.7;
@@ -247,6 +247,20 @@ Utils::calcSoftMarginsMM(
 				}
 			}
 		}
+
+        // if some of alignments were resolved to ORIGINAL but Original is disabled in settings - reset them to CENTER
+        if (int val = myAlign.compositeAlignment() & (Alignment::VORIGINAL | Alignment::HORIGINAL) ) {
+            if (!QSettings().value("alignment/original_enabled", false).toBool()) {
+                // ugly, but don't want instantiate QSetings without a reason
+                if (val & Alignment::maskHorizontal) {
+                    myAlign.setHorizontal( Alignment::HCENTER );
+                }
+                if (val & Alignment::maskVertical) {
+                    myAlign.setVertical( Alignment::VCENTER );
+                }
+            }
+        }
+
 	}
 #ifdef DEBUG
 	std::cout << "\n";
@@ -318,7 +332,7 @@ Utils::calcSoftMarginsMM(
 QPolygonF
 Utils::calcPageRectPhys(
 	ImageTransformation const& xform, QPolygonF const& content_rect_phys,
-	Params const& params, QSizeF const& aggregate_hard_size_mm, QRectF const& agg_content_rect)
+    Params const& params, QSizeF const& aggregate_hard_size_mm)
 {
 	PhysicalTransformation const phys_xform(xform.origDpi());
 	
@@ -331,7 +345,7 @@ Utils::calcPageRectPhys(
 	);
 	Margins soft_margins_mm(
 		calcSoftMarginsMM(
-			hard_size_mm, aggregate_hard_size_mm, params.alignment(), params.contentRect(), agg_content_rect
+            hard_size_mm, aggregate_hard_size_mm, params.alignment(), params.contentRect(), params.pageRect()
 		)
 	);
 

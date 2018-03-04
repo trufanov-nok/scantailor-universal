@@ -138,12 +138,9 @@ public:
 	
 	void setPageParams(PageId const& page_id, Params const& params);
 	
-    Params updateContentSizeAndGetParams(PageId const& page_id, QRectF const& page_rect, QRectF const& content_rect, QSizeF const& content_size_mm,
-        QSizeF* agg_hard_size_before, QSizeF* agg_hard_size_after, bool suppress_content_rect_update);
+    Params getParams(PageId const& page_id, QRectF const& page_rect, QRectF const& content_rect, QSizeF const& content_size_mm,
+        QSizeF* agg_hard_size_before, QSizeF* agg_hard_size_after);
 
-	QRectF const& updateContentRect();
-	QRectF const& getContentRect() { return m_contentRect; }
-    void setContentRect(QRectF const rect) { m_contentRect = rect; }
 	QRectF const& getPageRect() { return m_pageRect; }
 	
     MarginsWithAuto getHardMarginsMM(PageId const& page_id) const;
@@ -286,32 +283,14 @@ Settings::setPageParams(PageId const& page_id, Params const& params)
 }
 
 Params
-Settings::updateContentSizeAndGetParams(
+Settings::getParams(
 	PageId const& page_id, QRectF const& page_rect, QRectF const& content_rect, QSizeF const& content_size_mm,
-    QSizeF* agg_hard_size_before, QSizeF* agg_hard_size_after, bool suppress_content_rect_update)
+    QSizeF* agg_hard_size_before, QSizeF* agg_hard_size_after)
 {
-	return m_ptrImpl->updateContentSizeAndGetParams(
+    return m_ptrImpl->getParams(
 		page_id, page_rect, content_rect, content_size_mm,
-        agg_hard_size_before, agg_hard_size_after, suppress_content_rect_update
+        agg_hard_size_before, agg_hard_size_after
 	);
-}
-
-QRectF const&
-Settings::updateContentRect()
-{
-	return m_ptrImpl->updateContentRect();
-}
-
-QRectF const&
-Settings::getContentRect()
-{
-	return m_ptrImpl->getContentRect();
-}
-
-void
-Settings::setContentRect(QRectF const rect)
-{
-    m_ptrImpl->setContentRect(rect);
 }
 
 QRectF const&
@@ -544,9 +523,9 @@ Settings::Impl::setPageParams(PageId const& page_id, Params const& params)
 }
 
 Params
-Settings::Impl::updateContentSizeAndGetParams(
+Settings::Impl::getParams(
 	PageId const& page_id, QRectF const& page_rect, QRectF const& content_rect, QSizeF const& content_size_mm,
-    QSizeF* agg_hard_size_before, QSizeF* agg_hard_size_after, bool suppress_content_rect_update)
+    QSizeF* agg_hard_size_before, QSizeF* agg_hard_size_after)
 {
 	QMutexLocker const locker(&m_mutex);
 	
@@ -570,44 +549,10 @@ Settings::Impl::updateContentSizeAndGetParams(
 		*agg_hard_size_after = getAggregateHardSizeMMLocked();
 	}
 
-    if (!suppress_content_rect_update) {
-        updateContentRect();
-    }
-
 	return Params(
 		item_it->hardMarginsMM, item_it->pageRect, item_it->contentRect,
 		item_it->contentSizeMM, item_it->alignment
 	);
-}
-
-QRectF const&
-Settings::Impl::updateContentRect()
-{
-	Container::iterator it = m_items.begin();
-	if (it == m_items.end()) return m_contentRect;
-
-	m_contentRect = it->contentRect;
-	for (; it != m_items.end(); it++) {
-		if (it->contentRect == m_invalidRect) continue;
-		if (it->alignment.isNull()) continue;
-
-		QRectF icr(it->contentRect);
-
-	/*
-		std::cout << "\tupateContentRect: " << it->pageId.imageId().filePath().toLocal8Bit().constData() << "\n";
-	std::cout << "m_contentRect.left(): " << m_contentRect.left() << " right(): " << m_contentRect.right() << " top: " << m_contentRect.top() << " bottom: " << m_contentRect.bottom() << std::endl;
-	std::cout << "icr.left(): " << icr.left() << " right(): " << icr.right() << " top: " << icr.top() << " bottom: " << icr.bottom() << std::endl;
-	*/
-
-		if (icr.left() < m_contentRect.left()) m_contentRect.setLeft(icr.left());
-		if (icr.right() > m_contentRect.right()) m_contentRect.setRight(icr.right());
-		if (icr.top() < m_contentRect.top()) m_contentRect.setTop(icr.top());
-		if (icr.bottom() > m_contentRect.bottom()) m_contentRect.setBottom(icr.bottom());
-
-	//std::cout << "icr.left(): " << icr.left() << " right(): " << icr.right() << " top: " << icr.top() << " bottom: " << icr.bottom() << std::endl;
-	}
-
-	return m_contentRect;
 }
 
 MarginsWithAuto

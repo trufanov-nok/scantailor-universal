@@ -85,15 +85,11 @@ private slots:
 
 	void autoMarginsChanged(bool checked);
 	
-	void alignmentModeChanged(int idx);
+    void alignmentChangedExt();
 
 	void topBottomLinkClicked();
 	
 	void leftRightLinkClicked();
-	
-	void alignWithOthersToggled();
-
-	void alignmentButtonClicked();
 	
 	void showApplyMarginsDialog();
 	
@@ -104,20 +100,19 @@ private slots:
 	void applyAlignment(std::set<PageId> const& pages);
 
     void toBeRemoved(const std::set<PageId> pages);
+
 private:
-	typedef std::map<QToolButton*, Alignment> AlignmentByButton;
 	
 	void updateMarginsDisplay();
 	
 	void updateLinkDisplay(QToolButton* button, bool linked);
-	
-	void enableDisableAlignmentButtons();
+
+    void displayAlignmentText();
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageSelectionAccessor m_pageSelectionAccessor;
 	QIcon m_chainIcon;
-	QIcon m_brokenChainIcon;
-	AlignmentByButton m_alignmentByButton;
+	QIcon m_brokenChainIcon;	
 	double m_mmToUnit;
 	double m_unitToMM;
 	PageId m_pageId;

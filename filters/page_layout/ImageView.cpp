@@ -51,11 +51,10 @@ using namespace imageproc;
 namespace page_layout
 {
 
-ImageView::ImageView(
-	IntrusivePtr<Settings> const& settings, PageId const& page_id,
-	QImage const& image, QImage const& downscaled_image,
-	ImageTransformation const& xform,
-	QRectF const& adapted_content_rect, OptionsWidget const& opt_widget)
+ImageView::ImageView(IntrusivePtr<Settings> const& settings, PageId const& page_id,
+    QImage const& image, QImage const& downscaled_image,
+    ImageTransformation const& xform,
+    QRectF const& adapted_content_rect, const QRectF &page_rect, OptionsWidget const& opt_widget)
 :	ImageViewBase(
 		image, downscaled_image,
 		ImagePresentation(xform.transform(), xform.resultingPreCropArea()),
@@ -68,6 +67,7 @@ ImageView::ImageView(
 	m_pageId(page_id),
 	m_physXform(xform.origDpi()),
 	m_innerRect(adapted_content_rect),
+    m_pageRect(page_rect),
 	m_aggregateHardSizeMM(settings->getAggregateHardSizeMM()),
 	m_committedAggregateHardSizeMM(m_aggregateHardSizeMM),
 	m_alignment(opt_widget.alignment()),
@@ -553,8 +553,6 @@ ImageView::recalcBoxesAndFit(Margins const& margins_mm)
 	QPolygonF poly_mm(virt_to_mm.map(m_innerRect));
 	Utils::extendPolyRectWithMargins(poly_mm, margins_mm);
 
-	m_ptrSettings->updateContentRect();
-
 	QRectF const middle_rect(mm_to_virt.map(poly_mm).boundingRect());
 	
 	QSizeF const hard_size_mm(
@@ -563,9 +561,9 @@ ImageView::recalcBoxesAndFit(Margins const& margins_mm)
 	);
 	Margins const soft_margins_mm(
 		Utils::calcSoftMarginsMM(
-			hard_size_mm, m_aggregateHardSizeMM, m_alignment, m_ptrSettings->getPageParams(m_pageId)->contentRect(), m_ptrSettings->getContentRect()
-			//hard_size_mm, m_aggregateHardSizeMM, m_alignment, m_middleRect, m_ptrSettings->getContentRect()
-//			hard_size_mm, m_aggregateHardSizeMM, m_alignment, m_xform.resultingRect(), m_ptrSettings->getPageParams(m_pageId)->contentRect()
+                    hard_size_mm, m_aggregateHardSizeMM, m_alignment,
+                    m_ptrSettings->getPageParams(m_pageId)->contentRect(),
+                    m_pageRect
 		)
 	);
 	
@@ -664,8 +662,6 @@ ImageView::recalcOuterRect()
 	QTransform const mm_to_virt(m_physXform.mmToPixels() * imageToVirtual());
 
 	QPolygonF poly_mm(virt_to_mm.map(m_middleRect));
-	
-	m_ptrSettings->updateContentRect();
 
 	QSizeF const hard_size_mm(
 		QLineF(poly_mm[0], poly_mm[1]).length(),
@@ -673,7 +669,7 @@ ImageView::recalcOuterRect()
 	);
 	Margins const soft_margins_mm(
 		Utils::calcSoftMarginsMM(
-			hard_size_mm, m_aggregateHardSizeMM, m_alignment, m_ptrSettings->getPageParams(m_pageId)->contentRect(), m_ptrSettings->getContentRect()
+            hard_size_mm, m_aggregateHardSizeMM, m_alignment, m_ptrSettings->getPageParams(m_pageId)->contentRect(), m_pageRect
 			//hard_size_mm, m_aggregateHardSizeMM, m_alignment, m_middleRect, m_ptrSettings->getContentRect()
 			//hard_size_mm, m_aggregateHardSizeMM, m_alignment, m_xform.resultingRect(), m_ptrSettings->getPageParams(m_pageId)->contentRect()
 		)

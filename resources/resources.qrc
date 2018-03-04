@@ -56,5 +56,16 @@
         <file>icons/editclear.png</file>
         <file>TiffCompressionMethods.tsv</file>
         <file>SettingsTreeData.tsv</file>
+        <file>icons/auto-magnet.png</file>
+        <file>icons/gimp-undo-history.png</file>
+        <file>icons/auto-magnet-hor.png</file>
+        <file>icons/auto-magnet-none.png</file>
+        <file>icons/auto-magnet-ver.png</file>
+        <file>icons/gimp-center-none.png</file>
+        <file>icons/stock-center-24-hor.png</file>
+        <file>icons/stock-center-24-ver.png</file>
+        <file>icons/stock-gravity-center-24-hor.png</file>
+        <file>icons/stock-gravity-center-24-ver.png</file>
+        <file>icons/stock-gravity-center-24.png</file>
     </qresource>
 </RCC>

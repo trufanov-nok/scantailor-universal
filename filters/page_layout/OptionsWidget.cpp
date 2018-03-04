@@ -24,6 +24,7 @@
 #include "PageInfo.h"
 #include "PageId.h"
 #include "imageproc/Constants.h"
+#include "alignmentwidget.h"
 #include <QPixmap>
 #include <QString>
 #include <QSettings>
@@ -66,44 +67,6 @@ OptionsWidget::OptionsWidget(
 	setupUi(this);
 	updateLinkDisplay(topBottomLink, m_topBottomLinked);
 	updateLinkDisplay(leftRightLink, m_leftRightLinked);
-	enableDisableAlignmentButtons();
-	
-	Utils::mapSetValue(
-		m_alignmentByButton, alignTopLeftBtn,
-		Alignment(Alignment::TOP, Alignment::LEFT)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignTopBtn,
-		Alignment(Alignment::TOP, Alignment::HCENTER)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignTopRightBtn,
-		Alignment(Alignment::TOP, Alignment::RIGHT)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignLeftBtn,
-		Alignment(Alignment::VCENTER, Alignment::LEFT)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignCenterBtn,
-		Alignment(Alignment::VCENTER, Alignment::HCENTER)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignRightBtn,
-		Alignment(Alignment::VCENTER, Alignment::RIGHT)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignBottomLeftBtn,
-		Alignment(Alignment::BOTTOM, Alignment::LEFT)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignBottomBtn,
-		Alignment(Alignment::BOTTOM, Alignment::HCENTER)
-	);
-	Utils::mapSetValue(
-		m_alignmentByButton, alignBottomRightBtn,
-		Alignment(Alignment::BOTTOM, Alignment::RIGHT)
-	);
 	
 	connect(
 		unitsComboBox, SIGNAL(currentIndexChanged(int)),
@@ -130,10 +93,6 @@ OptionsWidget::OptionsWidget(
 		this, SLOT(autoMarginsChanged(bool))
 	);
 	connect(
-		alignmentMode, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(alignmentModeChanged(int))
-	);
-	connect(
 		topBottomLink, SIGNAL(clicked()),
 		this, SLOT(topBottomLinkClicked())
 	);
@@ -146,23 +105,13 @@ OptionsWidget::OptionsWidget(
 		this, SLOT(showApplyMarginsDialog())
 	);
 	connect(
-		alignWithOthersCB, SIGNAL(toggled(bool)),
-		this, SLOT(alignWithOthersToggled())
-	);
-	connect(
 		applyAlignmentBtn, SIGNAL(clicked()),
 		this, SLOT(showApplyAlignmentDialog())
 	);
-	
-	typedef AlignmentByButton::value_type KeyVal;
-	for (KeyVal const& kv: m_alignmentByButton) {
-		connect(
-			kv.first, SIGNAL(clicked()),
-			this, SLOT(alignmentButtonClicked())
-		);
-	}
 
    unitsComboBox->setCurrentIndex(QSettings().value("margins/default_units", 0).toUInt());
+
+   connect(widgetAlignment, &AlignmentWidget::alignmentChanged, this, &OptionsWidget::alignmentChangedExt);
 }
 
 OptionsWidget::~OptionsWidget()
@@ -179,58 +128,23 @@ OptionsWidget::preUpdateUI(
 
 	bool old_ignore = m_ignoreMarginChanges;
 	m_ignoreMarginChanges = true;
-
-	typedef AlignmentByButton::value_type KeyVal;
-	for (KeyVal const& kv: m_alignmentByButton) {
-		if (kv.second == m_alignment) {
-			kv.first->setChecked(true);
-		}
-	}
 	
 	updateMarginsDisplay();
-	
-	alignWithOthersCB->blockSignals(true);
-	alignWithOthersCB->setChecked(!alignment.isNull());
-	alignWithOthersCB->blockSignals(false);
-
-	alignmentMode->blockSignals(true);
-	if (alignment.vertical() == Alignment::VAUTO)
-		alignmentMode->setCurrentIndex(0);
-	else if (alignment.vertical() == Alignment::VORIGINAL)
-		alignmentMode->setCurrentIndex(2);
-	else
-		alignmentMode->setCurrentIndex(1);
-	alignmentMode->blockSignals(false);
-	
-    bool original_alignment_visible = QSettings().value("original_alignment/enabled", true).toBool();
-
-    int old_idx = alignmentMode->currentIndex();
-    if (old_idx < 0) {
-        old_idx = 0;
-        alignmentMode->setCurrentIndex(old_idx);
-    }
-
-    int idx_original_item = alignmentMode->findData(Alignment::VORIGINAL);
-    if (original_alignment_visible && idx_original_item == -1) {
-        alignmentMode->addItem(tr("Original"), Alignment::VORIGINAL);
-        alignmentMode->setCurrentIndex(old_idx);
-    }
-
-    if (!original_alignment_visible && idx_original_item != -1) {
-        alignmentMode->removeItem(idx_original_item);
-        alignmentMode->setCurrentIndex(old_idx!=idx_original_item?old_idx:0);
-    }
-
 
     m_ignoreMarginChanges = old_ignore;
 
-    const bool auto_margins_enabled = QSettings().value("auto_margins/enabled", false).toBool();
+    const bool auto_margins_enabled = QSettings().value("margins/auto_margins_enabled", false).toBool();
     autoMarginsLayout_2->setVisible(auto_margins_enabled);
     autoMargins->setChecked(auto_margins_enabled &&
                             m_marginsMM.isAutoMarginsEnabled());
 
     m_ignoreMarginChanges = true;
-	enableDisableAlignmentButtons();
+
+    QSettings setting;
+    widgetAlignment->setUseAutoMagnetAlignment(setting.value("alignment/automagnet_enabled", false).toBool());
+    widgetAlignment->setUseOriginalProportionsAlignment(setting.value("alignment/original_enabled", false).toBool());
+    widgetAlignment->setAlignment(&m_alignment);
+    displayAlignmentText();
 	
 	m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
 	m_topBottomLinked = m_topBottomLinked && (margins_mm.top() == margins_mm.bottom());
@@ -351,15 +265,6 @@ OptionsWidget::leftRightLinkClicked()
 }
 
 void
-OptionsWidget::alignWithOthersToggled()
-{
-	m_alignment.setNull(!alignWithOthersCB->isChecked());
-	enableDisableAlignmentButtons();
-	emit alignmentChanged(m_alignment);
-}
-
-
-void
 OptionsWidget::autoMarginsChanged(bool checked)
 {
 	if (m_ignoreMarginChanges) {
@@ -377,39 +282,9 @@ OptionsWidget::autoMarginsChanged(bool checked)
 }
 
 void
-OptionsWidget::alignmentModeChanged(int idx)
-{
-	switch (idx) {
-		case 0:
-			m_alignment.setVertical(Alignment::VAUTO);
-			m_alignment.setHorizontal(Alignment::HCENTER);
-			break;
-		case 1:
-			m_alignment.setVertical(Alignment::TOP);
-			m_alignment.setHorizontal(Alignment::HCENTER);
-			break;
-		case 2:
-			m_alignment.setVertical(Alignment::VORIGINAL);
-			m_alignment.setHorizontal(Alignment::HCENTER);
-			break;
-	}
-
-	m_ptrSettings->updateContentRect();
-	enableDisableAlignmentButtons();
-	emit alignmentChanged(m_alignment);
-}
-
-
-void
-OptionsWidget::alignmentButtonClicked()
-{
-	QToolButton* const button = dynamic_cast<QToolButton*>(sender());
-	assert(button);
-	
-	AlignmentByButton::iterator const it(m_alignmentByButton.find(button));
-	assert(it != m_alignmentByButton.end());
-	
-	m_alignment = it->second;
+OptionsWidget::alignmentChangedExt()
+{	
+    displayAlignmentText();
 	emit alignmentChanged(m_alignment);
 }
 
@@ -450,7 +325,7 @@ OptionsWidget::applyMargins(ApplyDialog::MarginsApplyType const type, std::set<P
 		return;
 	}
 	
-    if (!QSettings().value("auto_margins/enabled", false).toBool()) {
+    if (!QSettings().value("margins/auto_margins_enabled", false).toBool()) {
         for (PageId const& page_id: pages) {
             m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
         }
@@ -513,20 +388,16 @@ OptionsWidget::updateLinkDisplay(QToolButton* button, bool const linked)
 	button->setIcon(linked ? m_chainIcon : m_brokenChainIcon);
 }
 
-void
-OptionsWidget::enableDisableAlignmentButtons()
+void OptionsWidget::displayAlignmentText()
 {
-	bool const enabled = alignWithOthersCB->isChecked() && (alignmentMode->currentIndex() == 1);
-	
-	alignTopLeftBtn->setEnabled(enabled);
-	alignTopBtn->setEnabled(enabled);
-	alignTopRightBtn->setEnabled(enabled);
-	alignLeftBtn->setEnabled(enabled);
-	alignCenterBtn->setEnabled(enabled);
-	alignRightBtn->setEnabled(enabled);
-	alignBottomLeftBtn->setEnabled(enabled);
-	alignBottomBtn->setEnabled(enabled);
-	alignBottomRightBtn->setEnabled(enabled);
+    QString res = Alignment::getVerboseDescription(m_alignment);
+    if (res.isEmpty()) {
+        lblCurrentAlignment->setText(tr("No alignment needed."));
+        return;
+    }   
+
+    res = tr("Alignment: %1").arg(res);
+    lblCurrentAlignment->setText(res);
 }
 
 void OptionsWidget::toBeRemoved(const std::set<PageId> pages)
@@ -538,4 +409,3 @@ void OptionsWidget::toBeRemoved(const std::set<PageId> pages)
 }
 
 } // namespace page_layout
-

@@ -90,13 +90,7 @@ private slots:
 
     void on_cbMarginUnits_currentIndexChanged(int index);
 
-    void on_cbAlignmentMode_currentIndexChanged(int index);
-
-    void on_cbAlignment_currentIndexChanged(int index);
-
     void on_cbMarginsAuto_clicked(bool checked);
-
-    void on_cbMarginsMatchSize_clicked(bool checked);
 
     void on_gbPageDetectionFineTuneCorners_toggled(bool arg1);
 
@@ -142,6 +136,10 @@ private slots:
 
     void on_btnThumbDefaults_clicked();
 
+    void on_cbAlignmentAuto_toggled(bool checked);
+
+    void on_cbAlignmentOriginal_toggled(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
@@ -152,9 +150,7 @@ private:
     void restoreSettingsTreeState(QTreeWidget* treeWidget);
     void storeSettingsTreeState(QTreeWidget* treeWidget);
     void setupPictureShapeComboBox();
-    void displayAlignment();
     void updateMarginsDisplay();
-    void enableDisableAlignmentButtons();
 private:
 	Ui::SettingsDialog ui;
     QSettings m_settings;

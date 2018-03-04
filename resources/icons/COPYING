@@ -39,7 +39,8 @@ stock-gravity-south-west-24.png
 stock-gravity-west-24.png
 stock-vchain-24.png
 stock-vchain-broken-24.png
-
+gimp-center-none.png
+gimp-undo-history.png
 
 Origin: F-Spot
 Website: http://f-spot.org/
@@ -102,3 +103,9 @@ Website: https://www.qt.io/
 Original license: GNU GPL version 3 or above
 Files:
 editclear.png
+
+Origin: qBittorrent BitTorrent client
+Website: https://www.qbittorrent.org/
+Original license: GNU GPL version 2
+Files:
+auto-magnet.png
