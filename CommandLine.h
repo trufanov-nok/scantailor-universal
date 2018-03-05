@@ -71,7 +71,7 @@ public:
 
     bool isContentDetectionEnabled() const { return !contains("disable-content-detection"); }
     bool isPageDetectionEnabled() const { return ( contains("enable-page-detection") ||
-                                                   QSettings().value("page_detection/enabled", false).toBool()); }
+                                                   QSettings().value(_key_content_sel_page_detection_enabled, _key_content_sel_page_detection_enabled_def).toBool()); }
     bool isForcePageDetectionDisabled() const { return contains("force-disable-page-detection"); }
     bool isFineTuningEnabled() const {
         if (contains("enable-fine-tuning")) {
@@ -79,8 +79,8 @@ public:
         } else {
             QSettings settings;
             if (isPageDetectionEnabled() &&
-                    settings.value("page_detection/fine_tune_page_corners", false).toBool()) {
-                return settings.value("page_detection/fine_tune_page_corners/default", false).toBool();
+                    settings.value(_key_content_sel_page_detection_fine_tune_corners, _key_content_sel_page_detection_fine_tune_corners_def).toBool()) {
+                return settings.value(_key_content_sel_page_detection_fine_tune_corners_is_on_by_def, _key_content_sel_page_detection_fine_tune_corners_is_on_by_def_def).toBool();
             }
             return false;
         }
@@ -89,7 +89,7 @@ public:
 
 	bool hasMargins(QString base="margins") const;
     bool hasPageBorders() const { return (hasMargins("page-borders") ||
-                                          (isPageDetectionEnabled() && QSettings().value("page_detection/borders", false).toBool())); }
+                                          (isPageDetectionEnabled() && QSettings().value(_key_content_sel_page_detection_borders, _key_content_sel_page_detection_borders_def).toBool())); }
 	bool hasAlignment() const;
 	bool hasOutputDpi() const;
 	bool hasLanguage() const;
@@ -126,7 +126,7 @@ public:
 	bool hasTiffForceKeepColorSpace() const { return contains("tiff-force-keep-color-space"); }
 	bool hasWindowTitle() const { return contains("window-title") && !m_options["window-title"].isEmpty(); }
     bool hasPageDetectionBox() const { return ( (contains("page-detection-box") && !m_options["page-detection-box"].isEmpty()) ||
-                (isPageDetectionEnabled() && QSettings().value("page_detection/borders", false).toBool())); }
+                (isPageDetectionEnabled() && QSettings().value(_key_content_sel_page_detection_borders, _key_content_sel_page_detection_borders_def).toBool())); }
 	bool hasPageDetectionTolerance() const { return contains("page-detection-tolerance") && !m_options["page-detection-tolerance"].isEmpty(); }
  	bool hasDisableCheckOutput() const { return contains("disable-check-output"); }
 
@@ -240,10 +240,10 @@ private:
     Margins fetchPageBorders() { Margins res = (Margins)fetchMargins("page-borders", MarginsWithAuto(0,0,0,0));
                                  if (res == Margins(0,0,0,0) && hasPageBorders()) {
                                      QSettings settings;
-                                     res = Margins(settings.value("page_detection/borders/left", 0).toDouble(),
-                                                   settings.value("page_detection/borders/top", 0).toDouble(),
-                                                   settings.value("page_detection/borders/right", 0).toDouble(),
-                                                   settings.value("page_detection/borders/bottom", 0).toDouble());
+                                     res = Margins(settings.value(_key_content_sel_page_detection_borders_left, _key_content_sel_page_detection_borders_left_def).toDouble(),
+                                                   settings.value(_key_content_sel_page_detection_borders_top, _key_content_sel_page_detection_borders_top_def).toDouble(),
+                                                   settings.value(_key_content_sel_page_detection_borders_right, _key_content_sel_page_detection_borders_right).toDouble(),
+                                                   settings.value(_key_content_sel_page_detection_borders_bottom, _key_content_sel_page_detection_borders_bottom_def).toDouble());
                                  }
                                  return res;
                                }

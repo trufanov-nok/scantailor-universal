@@ -21,7 +21,7 @@
 #include "PageSelectionAccessor.h"
 #include <QPixmap>
 #include <QButtonGroup>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <assert.h>
 #include <iostream>
 
@@ -67,7 +67,7 @@ SplitModeDialog::SplitModeDialog(
 	connect(modeManual, SIGNAL(pressed()), this, SLOT(manualModeSelected()));
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
     QSettings settings;
-    if (!settings.value("apply_cut/enabled", true).toBool())
+    if (!settings.value(_key_page_split_apply_cut_enabled, _key_page_split_apply_cut_enabled_def).toBool())
     {
         optionsBox->setVisible(false);
         applyCutOption->setChecked(false);
@@ -75,7 +75,7 @@ SplitModeDialog::SplitModeDialog(
         applyCutOption->setChecked(false);
         applyCutOption->setDisabled(true);
     } else {
-        applyCutOption->setChecked(settings.value("apply_cut/default", false).toBool());
+        applyCutOption->setChecked(settings.value(_key_page_split_apply_cut_default, _key_page_split_apply_cut_default_def).toBool());
     }
 
 }

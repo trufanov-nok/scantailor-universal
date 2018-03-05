@@ -250,7 +250,7 @@ Utils::calcSoftMarginsMM(
 
         // if some of alignments were resolved to ORIGINAL but Original is disabled in settings - reset them to CENTER
         if (int val = myAlign.compositeAlignment() & (Alignment::VORIGINAL | Alignment::HORIGINAL) ) {
-            if (!QSettings().value("alignment/original_enabled", false).toBool()) {
+            if (!QSettings().value(_key_alignment_original_enabled, _key_alignment_original_enabled_def).toBool()) {
                 // ugly, but don't want instantiate QSetings without a reason
                 if (val & Alignment::maskHorizontal) {
                     myAlign.setHorizontal( Alignment::HCENTER );

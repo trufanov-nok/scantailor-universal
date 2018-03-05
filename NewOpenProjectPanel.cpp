@@ -35,7 +35,7 @@
 #include <QRect>
 #include <QPoint>
 #include <QRegion>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QString>
 #include <QFileInfo>
 #include <QLabel>

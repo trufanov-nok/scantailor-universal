@@ -21,7 +21,7 @@
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
 #include <QMutexLocker>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <cmath>
 #include <iostream>
 #include "CommandLine.h" 

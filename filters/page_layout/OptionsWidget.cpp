@@ -27,7 +27,7 @@
 #include "alignmentwidget.h"
 #include <QPixmap>
 #include <QString>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QVariant>
 #include <assert.h>
 
@@ -53,8 +53,8 @@ OptionsWidget::OptionsWidget(
 
 	{
 		QSettings app_settings;
-		m_leftRightLinked = app_settings.value("margins/leftRightLinked", true).toBool();
-		m_topBottomLinked = app_settings.value("margins/topBottomLinked", true).toBool();
+        m_leftRightLinked = app_settings.value(_key_margins_linked_hor, _key_margins_linked_hor_def).toBool();
+        m_topBottomLinked = app_settings.value(_key_margins_linked_ver, _key_margins_linked_ver_def).toBool();
 	}
 
 	m_chainIcon.addPixmap(
@@ -109,7 +109,7 @@ OptionsWidget::OptionsWidget(
 		this, SLOT(showApplyAlignmentDialog())
 	);
 
-   unitsComboBox->setCurrentIndex(QSettings().value("margins/default_units", 0).toUInt());
+   unitsComboBox->setCurrentIndex(QSettings().value(_key_margins_default_units, _key_margins_default_units_def).toUInt());
 
    connect(widgetAlignment, &AlignmentWidget::alignmentChanged, this, &OptionsWidget::alignmentChangedExt);
 }
@@ -133,7 +133,7 @@ OptionsWidget::preUpdateUI(
 
     m_ignoreMarginChanges = old_ignore;
 
-    const bool auto_margins_enabled = QSettings().value("margins/auto_margins_enabled", false).toBool();
+    const bool auto_margins_enabled = QSettings().value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool();
     autoMarginsLayout_2->setVisible(auto_margins_enabled);
     autoMargins->setChecked(auto_margins_enabled &&
                             m_marginsMM.isAutoMarginsEnabled());
@@ -141,9 +141,10 @@ OptionsWidget::preUpdateUI(
     m_ignoreMarginChanges = true;
 
     QSettings setting;
-    widgetAlignment->setUseAutoMagnetAlignment(setting.value("alignment/automagnet_enabled", false).toBool());
-    widgetAlignment->setUseOriginalProportionsAlignment(setting.value("alignment/original_enabled", false).toBool());
+    widgetAlignment->setUseAutoMagnetAlignment(setting.value(_key_alignment_automagnet_enabled, _key_alignment_automagnet_enabled_def).toBool());
+    widgetAlignment->setUseOriginalProportionsAlignment(setting.value(_key_alignment_original_enabled, _key_alignment_original_enabled_def).toBool());
     widgetAlignment->setAlignment(&m_alignment);
+
     displayAlignmentText();
 	
 	m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
@@ -250,7 +251,7 @@ void
 OptionsWidget::topBottomLinkClicked()
 {
 	m_topBottomLinked = !m_topBottomLinked;
-	QSettings().setValue("margins/topBottomLinked", m_topBottomLinked);
+    QSettings().setValue(_key_margins_linked_ver, m_topBottomLinked);
 	updateLinkDisplay(topBottomLink, m_topBottomLinked);
 	topBottomLinkToggled(m_topBottomLinked);
 }
@@ -259,7 +260,7 @@ void
 OptionsWidget::leftRightLinkClicked()
 {
 	m_leftRightLinked = !m_leftRightLinked;
-	QSettings().setValue("margins/leftRightLinked", m_leftRightLinked);
+    QSettings().setValue(_key_margins_linked_hor, m_leftRightLinked);
 	updateLinkDisplay(leftRightLink, m_leftRightLinked);
 	leftRightLinkToggled(m_leftRightLinked);
 }
@@ -325,7 +326,7 @@ OptionsWidget::applyMargins(ApplyDialog::MarginsApplyType const type, std::set<P
 		return;
 	}
 	
-    if (!QSettings().value("margins/auto_margins_enabled", false).toBool()) {
+    if (!QSettings().value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool()) {
         for (PageId const& page_id: pages) {
             m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
         }

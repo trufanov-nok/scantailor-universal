@@ -23,7 +23,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFileInfo>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QVariant>
 
 OutOfMemoryDialog::OutOfMemoryDialog(QWidget* parent)
@@ -79,7 +79,7 @@ OutOfMemoryDialog::saveProjectAs()
 		project_dir = QFileInfo(m_projectFile).absolutePath();
 	} else {
 		QSettings settings;
-		project_dir = settings.value("project/lastDir").toString();
+        project_dir = settings.value(_key_project_last_dir).toString();
 	}
 
 	QString project_file(
@@ -102,7 +102,7 @@ OutOfMemoryDialog::saveProjectAs()
 
 		QSettings settings;
 		settings.setValue(
-			"project/lastDir",
+            _key_project_last_dir,
 			QFileInfo(m_projectFile).absolutePath()
 		);
 

@@ -22,7 +22,7 @@
 #include "ui_SettingsDialog.h"
 #include "settings/hotkeysmanager.h"
 #include "filters/page_layout/Alignment.h"
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QDialog>
 #include <QInputDialog>
 

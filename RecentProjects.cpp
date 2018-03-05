@@ -17,7 +17,7 @@
 */
 
 #include "RecentProjects.h"
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QFile>
 #include <algorithm>
 
@@ -27,10 +27,10 @@ RecentProjects::read()
 	QSettings settings;
 	std::list<QString> new_list;
 	
-	int const size = settings.beginReadArray("project/recent");
+    int const size = settings.beginReadArray(_key_recent_projects);
 	for (int i = 0; i < size; ++i) {
 		settings.setArrayIndex(i);
-		QString const path(settings.value("path").toString());
+        QString const path(settings.value(_key_recent_projects_item).toString());
 		new_list.push_back(path);
 	}
 	settings.endArray();
@@ -42,14 +42,14 @@ void
 RecentProjects::write(int const max_items) const
 {
 	QSettings settings;
-	settings.beginWriteArray("project/recent");
+    settings.beginWriteArray(_key_recent_projects);
 	int idx = 0;
     for (QString const& path: m_projectFiles) {
 		if (idx >= max_items) {
 			break;
 		}
 		settings.setArrayIndex(idx);
-		settings.setValue("path", path);
+        settings.setValue(_key_recent_projects_item, path);
 		++idx;
 	}
 	settings.endArray();

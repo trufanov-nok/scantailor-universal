@@ -46,7 +46,7 @@
 #include <QResizeEvent>
 #include <QStatusTipEvent>
 #include <QApplication>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QVariant>
 #include <Qt>
 #include <QDebug>
@@ -167,7 +167,7 @@ ImageViewBase::ImageViewBase(
     m_displayAlternative(false)
 {
 #ifdef ENABLE_OPENGL
-	if (QSettings().value("settings/use_3d_acceleration", false) != false) {
+    if (QSettings().value(_key_use_3d_accel, _key_use_3d_accel_def) != false) {
 		if (OpenGLSupport::supported()) {
 			QGLFormat format;
 			format.setSampleBuffers(true);
@@ -215,7 +215,7 @@ ImageViewBase::ImageViewBase(
             GlobalStaticSettings::getShortcutText(PageViewZoomOut);
     QString default_tooltip = tr("Use the mouse wheel or %1 to zoom. When zoomed, dragging is possible.").arg(plus_minus);
 
-    if (!QSettings().value("output/display_orig_page_on_key_press", false).toBool()) {
+    if (!QSettings().value(_key_output_show_orig_on_space, _key_output_show_orig_on_space_def).toBool()) {
         interactionState().setDefaultStatusTip( default_tooltip );
     } else {
         QString orig_image_hint = tr("Hold %1 to display original page.")

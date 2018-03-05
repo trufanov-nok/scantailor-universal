@@ -26,7 +26,7 @@
 #include <QMap>
 #include <QRegularExpression>
 #include <QStringList>
-#include <QSettings>
+#include "settings/ini_keys.h"
 
 #include "Dpi.h"
 #include "ImageId.h"
@@ -453,8 +453,8 @@ CommandLine::fetchDpi(QString oname)
 
     if (oname == "default-output-dpi") {
         QSettings settings;
-        xdpi = settings.value("output/default_dpi_x", 600).toUInt();
-        ydpi = settings.value("output/default_dpi_y", 600).toUInt();
+        xdpi = settings.value(_key_output_default_dpi_x, _key_output_default_dpi_x_def).toUInt();
+        ydpi = settings.value(_key_output_default_dpi_y, _key_output_default_dpi_y_def).toUInt();
     }
 
 	if (m_options.contains(oname+"-x")) {
@@ -855,8 +855,8 @@ QSizeF CommandLine::fetchPageDetectionBox() const
         exit(1);
     } else {
         QSettings settings;
-        if (settings.value("page_detection/target_page_size/enabled",false).toBool()) {
-            return settings.value("page_detection/target_page_size", QSizeF(210,297)).toSizeF();
+        if (settings.value(_key_content_sel_page_detection_target_page_size_enabled, _key_content_sel_page_detection_target_page_size_enabled_def).toBool()) {
+            return settings.value(_key_content_sel_page_detection_target_page_size, _key_content_sel_page_detection_target_page_size_def).toSizeF();
         } else {
             return QSizeF();
         }
@@ -878,7 +878,7 @@ bool CommandLine::fetchDefaultNull()
     if (contains("match-layout-default") && m_options["match-layout-default"] == "false") {
         m_defaultNull = true;
     } else {
-        m_defaultNull = QSettings().value("alignment/default_alignment_null", false).toBool();
+        m_defaultNull = QSettings().value(_key_alignment_default_alig_null, _key_alignment_default_alig_null_def).toBool();
     }
     
     return m_defaultNull;

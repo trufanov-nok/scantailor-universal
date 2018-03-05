@@ -18,7 +18,7 @@
 
 #include "OpenGLSupport.h"
 #include "config.h"
-#include <QSettings>
+#include "settings/ini_keys.h"
 #ifdef ENABLE_OPENGL
 #include <QGLFormat>
 #include <QGLWidget>

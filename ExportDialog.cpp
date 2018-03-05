@@ -23,7 +23,7 @@
 #include "ExportDialog.moc"
 #include "OpenGLSupport.h"
 #include "config.h"
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QVariant>
 #include <QDir>
 #include <QFileDialog>
@@ -47,8 +47,8 @@ ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
 		this, SLOT(outExportDirEdited(QString const&))
 	);
 
-	ui.SplitMixed->setChecked(settings.value("settings/split_mixed").toBool());	
-    ui.DefaultOutputFolder->setChecked(settings.value("settings/default_output_folder").toBool());
+    ui.SplitMixed->setChecked(settings.value(_key_export_split_mixed).toBool());
+    ui.DefaultOutputFolder->setChecked(settings.value(_key_export_default_output_folder).toBool());
 	ui.labelFilesProcessed->clear();
 	ui.ExportButton->setText(tr("Export"));	
 	ui.OkButton->setText(tr("Close"));
@@ -59,9 +59,9 @@ ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
     connect(ui.UseSepSuffixForPics, SIGNAL(toggled(bool)), this, SLOT(OnCheckUseSepSuffixForPics(bool)));
 	connect(ui.KeepOriginalColorIllumForeSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckKeepOriginalColorIllumForeSubscans(bool)));
 
-	ui.GenerateBlankBackSubscans->setChecked(settings.value("settings/generate_blank_back_subscans").toBool());
-    ui.UseSepSuffixForPics->setChecked(settings.value("settings/use_sep_suffix_for_background_subscans").toBool());
-	ui.KeepOriginalColorIllumForeSubscans->setChecked(settings.value("settings/keep_original_color_illum_fore_subscans").toBool());
+    ui.GenerateBlankBackSubscans->setChecked(settings.value(_key_export_generate_blank_subscans).toBool());
+    ui.UseSepSuffixForPics->setChecked(settings.value(_key_export_use_sep_suffix).toBool());
+    ui.KeepOriginalColorIllumForeSubscans->setChecked(settings.value(_key_export_keep_original_color).toBool());
 	//ui.KeepOriginalColorIllumForeSubscans->setVisible(false);
 }
 
@@ -74,7 +74,7 @@ ExportDialog::OnCheckSplitMixed(bool state)
 {
 	QSettings settings;	
 
-	settings.setValue("settings/split_mixed", state);
+    settings.setValue(_key_export_split_mixed, state);
 }
 
 void
@@ -82,7 +82,7 @@ ExportDialog::OnCheckDefaultOutputFolder(bool state)
 {
 	QSettings settings;
 
-	settings.setValue("settings/default_output_folder", state);
+    settings.setValue(_key_export_default_output_folder, state);
     ui.groupBoxExport->setEnabled(!state);
     if (state) {
         m_prevOutDir = ui.outExportDirLine->text();
@@ -249,13 +249,13 @@ ExportDialog::OnCheckGenerateBlankBackSubscans(bool state)
 {
 	QSettings settings;	
 
-	settings.setValue("settings/generate_blank_back_subscans", state);
+    settings.setValue(_key_export_generate_blank_subscans, state);
 }
 
 void
 ExportDialog::OnCheckUseSepSuffixForPics(bool state)
 {
-    QSettings().setValue("settings/use_sep_suffix_for_background_subscans", state);
+    QSettings().setValue(_key_export_use_sep_suffix, state);
 }
 
 void
@@ -263,5 +263,5 @@ ExportDialog::OnCheckKeepOriginalColorIllumForeSubscans(bool state)
 {		
 	QSettings settings;	
 
-	settings.setValue("settings/keep_original_color_illum_fore_subscans", state);
+    settings.setValue(_key_export_keep_original_color, state);
 }

@@ -18,7 +18,7 @@
 */
 
 #include <QCoreApplication>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QString>
 #include <QStringList>
 #include <iostream>

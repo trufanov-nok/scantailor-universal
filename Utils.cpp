@@ -22,7 +22,7 @@
 #include <QFile>
 #include <QDir>
 #include <QtGlobal>
-#include <QSettings>
+#include "settings/ini_keys.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -73,7 +73,7 @@ Utils::outputDirToThumbDir(QString const& output_dir)
 IntrusivePtr<ThumbnailPixmapCache>
 Utils::createThumbnailCache(QString const& output_dir)
 {
-    QSize const max_pixmap_size = QSettings().value("thumbnails/max_cache_pixmap_size", QSize(200, 200)).toSize();
+    QSize const max_pixmap_size = QSettings().value(_key_thumbnails_max_cache_pixmap_size, _key_thumbnails_max_cache_pixmap_size_def).toSize();
 	QString const thumbs_cache_path(outputDirToThumbDir(output_dir));
 	
 	return IntrusivePtr<ThumbnailPixmapCache>(

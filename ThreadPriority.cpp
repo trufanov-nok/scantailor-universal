@@ -17,7 +17,7 @@
 */
 
 #include "ThreadPriority.h"
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <assert.h>
 
 QThread::Priority

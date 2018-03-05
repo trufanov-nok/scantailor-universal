@@ -52,7 +52,7 @@ Alignment::Alignment(QDomElement const& el)
 	QString const vert(el.attribute("vert"));
 	QString const hor(el.attribute("hor"));
 	m_isNull = el.attribute("null").toInt() != 0;
-	m_tolerance = el.attribute("tolerance", QString::number(DEFAULT_TOLERANCE)).toDouble();
+    m_tolerance = el.attribute("tolerance", QString::number(_key_alignment_default_alig_tolerance_def)).toDouble();
 
     m_val = strToVertical(vert);
     m_val |= strToHorizontal(hor);
@@ -79,10 +79,10 @@ Alignment::save(QSettings* _settings) const
     }
 
     QSettings& settings = *_settings;
-    settings.setValue("alignment/default_alignment_vert", verticalToStr(vertical()));
-    settings.setValue("alignment/default_alignment_hor", horizontalToStr(horizontal()));
-    settings.setValue("alignment/default_alignment_null", m_isNull);
-    settings.setValue("alignment/default_alignment_tolerance", m_tolerance);
+    settings.setValue(_key_alignment_default_alig_vert, verticalToStr(vertical()));
+    settings.setValue(_key_alignment_default_alig_hor, horizontalToStr(horizontal()));
+    settings.setValue(_key_alignment_default_alig_null, m_isNull);
+    settings.setValue(_key_alignment_default_alig_tolerance, m_tolerance);
 }
 
 Alignment
@@ -95,14 +95,14 @@ Alignment::load(QSettings* _settings)
     }
 
     QSettings& settings = *_settings;
-    Vertical vert = strToVertical( settings.value("alignment/default_alignment_vert", verticalToStr(Vertical::VCENTER)).toString() );
-    Horizontal hor = strToHorizontal( settings.value("alignment/default_alignment_hor", horizontalToStr(Horizontal::HCENTER)).toString() );
+    Vertical vert = strToVertical( settings.value(_key_alignment_default_alig_vert, verticalToStr(Vertical::VCENTER)).toString() );
+    Horizontal hor = strToHorizontal( settings.value(_key_alignment_default_alig_hor, horizontalToStr(Horizontal::HCENTER)).toString() );
     CommandLine cli = CommandLine::get();
 
     bool isnull = cli.getDefaultNull();
     /* read in cli.getDefaultNull(); */
-//    m_isNull = settings.value("alignment/default_alignment_null", false).toBool();
-    double toler = settings.value("alignment/default_alignment_tolerance", DEFAULT_TOLERANCE).toDouble();
+//    m_isNull = settings.value(_key_alignment_default_alig_null, _key_alignment_default_alig_null_def).toBool();
+    double toler = settings.value(_key_alignment_default_alig_tolerance, _key_alignment_default_alig_tolerance_def).toDouble();
     return Alignment(vert, hor, isnull, toler);
 }
 

@@ -36,7 +36,7 @@
 #include <QVectorIterator>
 #include <QMessageBox>
 #include <QTimerEvent>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QBrush>
 #include <QColor>
 #include <QDebug>
@@ -215,7 +215,7 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
 	m_metadataLoadFailed(false),
 	m_autoOutDir(true)
 {
-    QString filter = QSettings().value("main_window/filetype_filter", "*.png *.tiff *.tif *.jpeg *.jpg *.bmp").toString();
+    QString filter = QSettings().value(_key_app_open_filetype_filter, _key_app_open_filetype_filter_def).toString();
     foreach (QString ext, filter.toLower().split(' ', QString::SkipEmptyParts)) {
      ext = ext.trimmed();
      if (int i = ext.lastIndexOf('.')) {
@@ -321,7 +321,7 @@ ProjectFilesDialog::inpDirBrowse()
 	
 	QString initial_dir(inpDirLine->text());
 	if (initial_dir.isEmpty() || !QDir(initial_dir).exists()) {
-		initial_dir = settings.value("lastInputDir").toString();
+        initial_dir = settings.value(_key_project_last_input_dir).toString();
 	}
 	if (initial_dir.isEmpty() || !QDir(initial_dir).exists()) {
 		initial_dir = QDir::home().absolutePath();
@@ -340,7 +340,7 @@ ProjectFilesDialog::inpDirBrowse()
 	
 	if (!dir.isEmpty()) {
 		setInputDir(dir);
-		settings.setValue("lastInputDir", dir);
+        settings.setValue(_key_project_last_input_dir, dir);
 	}
 }
 

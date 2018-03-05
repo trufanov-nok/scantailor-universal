@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <QSettings>
+#include "settings/ini_keys.h"
 
 namespace imageproc
 {

@@ -19,7 +19,7 @@
 #ifndef PAGE_LAYOUT_ALIGNMENT_H_
 #define PAGE_LAYOUT_ALIGNMENT_H_
 
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <iostream>
 
 class QDomDocument;
@@ -32,8 +32,6 @@ class CommandLine;
 
 namespace page_layout
 {
-
-const double DEFAULT_TOLERANCE=0.2;
 
 class Alignment
 {

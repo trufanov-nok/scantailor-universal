@@ -42,7 +42,7 @@
 #include <QSize>
 #include <Qt>
 #include <QDebug>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <tiff.h>
 #include <QMenu>
 #include <QWheelEvent>
@@ -70,10 +70,10 @@ OptionsWidget::OptionsWidget(
 	thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
     thresholdSlider->addAction(actionReset_to_default_value);
     QSettings _settings;
-    bwForegroundOptions->setVisible(_settings.value("foreground_layer/control_threshold", false).toBool());
+    bwForegroundOptions->setVisible(_settings.value(_key_output_foreground_layer_control_threshold, _key_output_foreground_layer_control_threshold_def).toBool());
     thresholdForegroundSlider->setToolTip(QString::number(thresholdForegroundSlider->value()));
     thresholdForegroundSlider->addAction(actionReset_to_default_value_foeground);
-    m_ignore_system_wheel_settings = _settings.value("mouse/ignore_system_wheel_settings", true).toBool();
+    m_ignore_system_wheel_settings = _settings.value(_key_mouse_ignore_system_wheel_settings, _key_mouse_ignore_system_wheel_settings_def).toBool();
     thresholdSlider->installEventFilter(this);
     thresholdForegroundSlider->installEventFilter(this);
     if (m_ignore_system_wheel_settings){
@@ -140,12 +140,12 @@ void
 OptionsWidget::settingsChanged()
 {
     QSettings settings;
-    thresholdSlider->setMinimum(settings.value("output/binrization_threshold_control_min", -50).toInt());
-    thresholdSlider->setMaximum(settings.value("output/binrization_threshold_control_max", 50).toInt());
+    thresholdSlider->setMinimum(settings.value(_key_output_bin_threshold_min, _key_output_bin_threshold_min_def).toInt());
+    thresholdSlider->setMaximum(settings.value(_key_output_bin_threshold_max, _key_output_bin_threshold_max_def).toInt());
     thresholdLabel->setText(QString::number(thresholdSlider->value()));
 
-    thresholdForegroundSlider->setMinimum(settings.value("output/binrization_threshold_control_min", -50).toInt());
-    thresholdForegroundSlider->setMaximum(settings.value("output/binrization_threshold_control_max", 50).toInt());
+    thresholdForegroundSlider->setMinimum(settings.value(_key_output_bin_threshold_min, _key_output_bin_threshold_min_def).toInt());
+    thresholdForegroundSlider->setMaximum(settings.value(_key_output_bin_threshold_max, _key_output_bin_threshold_max_def).toInt());
     thresholdForegroundLabel->setText(QString::number(thresholdForegroundSlider->value()));
 
     updateShortcuts();
@@ -507,7 +507,7 @@ OptionsWidget::updateLayersDisplay()
         autoLayerCB->setChecked(isChecked);
     }
 
-    bool isVisible = settings.value("picture_zones_layer/enabled", true).toBool();
+    bool isVisible = settings.value(_key_output_picture_layer_enabled, _key_output_picture_layer_enabled_def).toBool();
     isChecked = m_colorParams.colorGrayscaleOptions().pictureZonesLayerEnabled();
     pictureZonesLayerCB->setVisible(isVisible);
     if ((isVisible && isChecked) == pictureZonesLayerCB->isChecked()) {
@@ -516,7 +516,7 @@ OptionsWidget::updateLayersDisplay()
         pictureZonesLayerCB->setChecked(isVisible && isChecked);
     }
 
-    isVisible = settings.value("foreground_layer/enabled", true).toBool();
+    isVisible = settings.value(_key_output_foreground_layer_enabled, _key_output_foreground_layer_enabled_def).toBool();
     isChecked = m_colorParams.colorGrayscaleOptions().foregroundLayerEnabled() && m_dewarpingMode == DewarpingMode::OFF;
     foregroundLayerCB->setVisible(isVisible);
     foregroundLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
@@ -549,7 +549,7 @@ OptionsWidget::updateColorsDisplay()
         case ColorParams::MIXED:
             bw_options_visible = true;
             color_grayscale_options_visible = true;
-            foreground_treshhold_options_visible = QSettings().value("foreground_layer/control_threshold", false).toBool();
+            foreground_treshhold_options_visible = QSettings().value(_key_output_foreground_layer_control_threshold, _key_output_foreground_layer_control_threshold_def).toBool();
             break;
     }
 	
@@ -907,7 +907,7 @@ void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
 
 void output::OptionsWidget::on_actionReset_to_default_value_triggered()
 {
-    int def = QSettings().value("output/binrization_threshold_control_default", 0).toInt();
+    int def = QSettings().value(_key_output_bin_threshold_default, _key_output_bin_threshold_default_def).toInt();
     thresholdSlider->setValue(def);
 }
 
@@ -1006,7 +1006,7 @@ void output::OptionsWidget::on_applyForegroundThresholdButton_linkActivated(cons
 
 void output::OptionsWidget::on_actionReset_to_default_value_foeground_triggered()
 {
-    int def = QSettings().value("output/binrization_threshold_control_default", 0).toInt();
+    int def = QSettings().value(_key_output_bin_threshold_default, _key_output_bin_threshold_default_def).toInt();
     thresholdForegroundSlider->setValue(def);
 }
 

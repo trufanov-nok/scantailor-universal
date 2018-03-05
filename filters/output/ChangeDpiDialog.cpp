@@ -27,7 +27,7 @@
 #include <QLineEdit>
 #include <QDebug>
 #include <algorithm>
-#include <QSettings>
+#include "settings/ini_keys.h"
 
 namespace output
 {
@@ -52,7 +52,7 @@ ChangeDpiDialog::ChangeDpiDialog(
 	
 	dpiSelector->setValidator(new QIntValidator(dpiSelector));
 	
-    QStringList common_dpis = QSettings().value("dpi/change_dpi_list","300,400,600").toString().split(',');
+    QStringList common_dpis = QSettings().value(_key_dpi_change_list, _key_dpi_change_list_def).toString().split(',');
 	
 	int const requested_dpi = std::max(dpi.horizontal(), dpi.vertical());
 	m_customDpiString = QString::number(requested_dpi);

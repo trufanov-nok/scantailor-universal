@@ -23,10 +23,10 @@
 #include "TiffMetadataLoader.h"
 #include "JpegMetadataLoader.h"
 #include "GenericMetadataLoader.h"
+#include "settings/ini_keys.h"
 #include <QMetaType>
 #include <QtPlugin>
 #include <QLocale>
-#include <QSettings>
 #include <QDir>
 #include <QString>
 #include <QStringList>
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
     if (cli.hasLanguage())
         main_wnd->changeLanguage(cli.getLanguage(), true);
 
-    if (settings.value("main_window/maximized") == false) {
+    if (settings.value(_key_app_maximized, _key_app_maximized_def) == false) {
 		main_wnd->show();
 	} else {
         //main_wnd->showMaximized(); // didn't work for some Win machines.

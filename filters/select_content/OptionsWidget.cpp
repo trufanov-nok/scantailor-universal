@@ -23,7 +23,7 @@
 #include "Params.h"
 #include "ScopedIncDec.h"
 
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <iostream>
 
 namespace select_content
@@ -51,7 +51,7 @@ OptionsWidget::OptionsWidget(
     connect(topBorder, SIGNAL(valueChanged(double)), this, SLOT(borderChanged()));
     connect(bottomBorder, SIGNAL(valueChanged(double)), this, SLOT(borderChanged()));
 
-    m_force_reload = QSettings().value("content_selection/force_STE_reload_tweak", false).toBool();
+    m_force_reload = QSettings().value(_key_content_sel_STE_tweak, _key_content_sel_STE_tweak_def).toBool();
 }
 
 OptionsWidget::~OptionsWidget()
@@ -72,12 +72,12 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
     pageDetectDisableBtn->setEnabled(false);
 
     QSettings setting;
-    const bool page_detection_enabled = setting.value("page_detection/enabled", false).toBool();
+    const bool page_detection_enabled = setting.value(_key_content_sel_page_detection_enabled, _key_content_sel_page_detection_enabled_def).toBool();
 
 
     bool fine_tune_corners_enabled = page_detection_enabled;
     if (fine_tune_corners_enabled) {
-        fine_tune_corners_enabled = setting.value("page_detection/fine_tune_page_corners", false).toBool();
+        fine_tune_corners_enabled = setting.value(_key_content_sel_page_detection_fine_tune_corners, _key_content_sel_page_detection_fine_tune_corners_def).toBool();
     }
 
     panelFineTuneCorners->setVisible(fine_tune_corners_enabled);
@@ -87,7 +87,7 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 
     bool border_panel_visible = page_detection_enabled;
     if (border_panel_visible) {
-        border_panel_visible = setting.value("page_detection/borders", false).toBool();
+        border_panel_visible = setting.value(_key_content_sel_page_detection_borders, _key_content_sel_page_detection_borders_def).toBool();
     }
 
     gbBordersPanel->setVisible(border_panel_visible);

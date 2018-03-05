@@ -28,7 +28,7 @@
 #include <QMutexLocker>
 #include <tiff.h>
 #include <QResource>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QRegularExpression>
 
 namespace output
@@ -358,7 +358,7 @@ getCompressionVal(const QString& compression)
 int
 Settings::getTiffCompression()
 {
-    QString name = QSettings().value("tiff_compression/method", "LZW").toString();
+    QString name = QSettings().value(_key_tiff_compr_method, _key_tiff_compr_method_def).toString();
     if (m_compressionName == name) {
         return m_compression;
     }
@@ -371,7 +371,7 @@ Settings::getTiffCompression()
 const QString
 Settings::getTiffCompressionName() const
 {
-    return QSettings().value("tiff_compression/method", "LZW").toString();
+    return QSettings().value(_key_tiff_compr_method, _key_tiff_compr_method_def).toString();
 }
 
 
@@ -383,7 +383,7 @@ Settings::setTiffCompression(QString const& compression)
         m_compressionName = compression;
     }
     // QSettings might be out of sync
-    QSettings().setValue("tiff_compression/method", m_compressionName);
+    QSettings().setValue(_key_tiff_compr_method, m_compressionName);
 }
 
 } // namespace output

@@ -122,7 +122,7 @@
 #include <QMessageBox>
 #include <QPalette>
 #include <QStyle>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QDomDocument>
 #include <QSortFilterProxyModel>
 #include <QFileSystemModel>
@@ -160,7 +160,7 @@ MainWindow::MainWindow()
 {
     GlobalStaticSettings::updateSettings();
     QSettings settings;
-    m_maxLogicalThumbSize = settings.value("thumbnails/max_thumb_size", QSizeF(250., 160.)).toSizeF();
+    m_maxLogicalThumbSize = settings.value(_key_thumbnails_max_thumb_size, _key_thumbnails_max_thumb_size_def).toSizeF();
     m_ptrThumbSequence.reset(new ThumbnailSequence(m_maxLogicalThumbSize));
     setupUi(this);
     setupStatusBar();
@@ -317,7 +317,7 @@ MainWindow::MainWindow()
 
     //Process settings
     settingsChanged();
-    QByteArray arr = settings.value("main_window/state").toByteArray();
+    QByteArray arr = settings.value(_key_app_state).toByteArray();
     if (!arr.isEmpty()) {
         restoreState(arr);
     }
@@ -332,7 +332,7 @@ MainWindow::~MainWindow()
     destroyAutoSaveTimer();
 
     QSettings settings;
-    settings.setValue("main_window/state", saveState());
+    settings.setValue(_key_app_state, saveState());
 
     m_ptrInteractiveQueue->cancelAndClear();
     if (m_ptrBatchQueue.get()) {
@@ -349,14 +349,14 @@ void
 MainWindow::settingsChanged()
 {
     QSettings settings;
-    if (settings.value("main_window/maximized") == false) {
-        QByteArray arr = settings.value("main_window/non_maximized_geometry").toByteArray();
+    if (settings.value(_key_app_maximized, _key_app_maximized_def) == false) {
+        QByteArray arr = settings.value(_key_app_geometry).toByteArray();
         if (arr.isEmpty() || !restoreGeometry(arr)) {
             resize(1014, 689); // A sensible value.
         }
     }
 
-    m_maxLogicalThumbSize = settings.value("thumbnails/max_thumb_size", QSizeF(250., 160.)).toSizeF();
+    m_maxLogicalThumbSize = settings.value(_key_thumbnails_max_thumb_size, _key_thumbnails_max_thumb_size_def).toSizeF();
     if (m_ptrThumbSequence.get()) {
         if (m_ptrThumbSequence->maxLogicalThumbSize() != m_maxLogicalThumbSize) {
             m_ptrThumbSequence->setMaxLogicalThumbSize(m_maxLogicalThumbSize);
@@ -365,15 +365,15 @@ MainWindow::settingsChanged()
         }
     }
 
-    setDockingPanels(settings.value("docking_panels/enabled", false).toBool());
+    setDockingPanels(settings.value(_key_app_docking_enabled, _key_app_docking_enabled_def).toBool());
 
     QString default_lang = QLocale::system().name().toLower();
     default_lang.truncate(default_lang.lastIndexOf('_'));
-    changeLanguage(settings.value("main_window/language", default_lang).toString());
+    changeLanguage(settings.value(_key_app_language, default_lang).toString());
 
-    m_debug = settings.value("debug_mode/enabled", false).toBool();
+    m_debug = settings.value(_key_debug_enabled, _key_debug_enabled_def).toBool();
 
-    bool autoSaveIsOn = settings.value("auto-save_project/enabled", false).toBool();
+    bool autoSaveIsOn = settings.value(_key_autosave_enabled, _key_autosave_enabled_def).toBool();
 
     if (autoSaveIsOn) {
         createAutoSaveTimer();
@@ -1551,10 +1551,9 @@ MainWindow::startBatchProcessing()
     m_ptrInteractiveQueue->cancelAndClear();
 
     QSettings settings;
-    const QString show_dlg_key("batch_dialog/remember_choice");
-    const QString processAll_key("batch_dialog/start_from_current_page");
-    bool show_dlg = !settings.value(show_dlg_key, false).toBool();
-    bool processAll = !settings.value(processAll_key, true).toBool();
+
+    bool show_dlg = !settings.value(_key_batch_dialog_remember_choice, _key_batch_dialog_remember_choice_def).toBool();
+    bool processAll = !settings.value(_key_batch_dialog_start_from_current, _key_batch_dialog_start_from_current_def).toBool();
 
     if (show_dlg) {
         StartBatchProcessingDialog dialog(this, processAll);
@@ -1564,8 +1563,8 @@ MainWindow::startBatchProcessing()
             return;
         }
         processAll = dialog.isAllPagesChecked();
-        settings.setValue(show_dlg_key, dialog.isRememberChoiceChecked());
-        settings.setValue(processAll_key, !processAll);
+        settings.setValue(_key_batch_dialog_remember_choice, dialog.isRememberChoiceChecked());
+        settings.setValue(_key_batch_dialog_start_from_current, !processAll);
     }
 
     m_ptrBatchQueue.reset(
@@ -1675,13 +1674,8 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
 
             QApplication::alert(this); // Flash the taskbar entry.
             if (m_checkBeepWhenFinished()) {
-#if defined(Q_OS_UNIX)
-                QString ext_play_cmd("play /usr/share/sounds/freedesktop/stereo/bell.oga");
-#else
-                QString ext_play_cmd;
-#endif
                 QSettings settings;
-                QString cmd = settings.value("main_window/external_alarm_cmd", ext_play_cmd).toString();
+                QString cmd = settings.value(_key_app_alert_cmd, _key_app_alert_cmd_def).toString();
                 if (cmd.isEmpty()) {
                     QApplication::beep();
                 } else {
@@ -1781,7 +1775,7 @@ MainWindow::saveProjectAsTriggered()
         project_dir = QFileInfo(m_projectFile).absolutePath();
     } else {
         QSettings settings;
-        project_dir = settings.value("project/lastDir").toString();
+        project_dir = settings.value(_key_project_last_dir).toString();
     }
 
     QString project_file(
@@ -1804,7 +1798,7 @@ MainWindow::saveProjectAsTriggered()
 
         QSettings settings;
         settings.setValue(
-            "project/lastDir",
+            _key_project_last_dir,
             QFileInfo(m_projectFile).absolutePath()
         );
 
@@ -1857,7 +1851,7 @@ MainWindow::openProject()
     setAutoSaveInputDir("");
 
     QSettings settings;
-    QString const project_dir(settings.value("project/lastDir").toString());
+    QString const project_dir(settings.value(_key_project_last_dir).toString());
 
     QString const project_file(
         QFileDialog::getOpenFileName(
@@ -1914,7 +1908,7 @@ MainWindow::projectOpened(ProjectOpeningContext* context)
 
     QSettings settings;
     settings.setValue(
-        "project/lastDir",
+        _key_project_last_dir,
         QFileInfo(context->projectFile()).absolutePath()
     );
 
@@ -2769,7 +2763,7 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
     );
     dialog->setFileMode(QFileDialog::ExistingFiles);
     dialog->setProxyModel(new ProxyModel(*m_ptrPages));
-    QString filter = QSettings().value("main_window/filetype_filter", "*.png *.tiff *.tif *.jpeg *.jpg *.bmp").toString();
+    QString filter = QSettings().value(_key_app_open_filetype_filter, _key_app_open_filetype_filter_def).toString();
     dialog->setNameFilter(tr("Images not in project (%1)").arg(filter));
     // XXX: Adding individual pages from a multi-page TIFF where
     // some of the pages are already in project is not supported right now.
@@ -3147,7 +3141,6 @@ MainWindow::setDockingPanels(bool enabled)
         setupDockingPanel(dockWidget_4, enabled);
 
         m_docking_enabled = enabled;
-        QSettings().setValue("function_availability/docking_panels", m_docking_enabled);
     }
 }
 
@@ -3183,7 +3176,7 @@ MainWindow::changeLanguage(QString lang, bool dont_store)
         qApp->installTranslator(&m_translator);
         if (!dont_store) {
             QSettings settings;
-            settings.setValue("main_window/language", lang);
+            settings.setValue(_key_app_language, lang);
         }
         m_current_lang = lang;
     } else {
@@ -3239,7 +3232,7 @@ MainWindow::resumeAutoSaveTimer() {
 void
 MainWindow::createAutoSaveTimer()
 {
-    int time = 60*1000*abs(QSettings().value("auto-save_project/time_period_min", 5).toInt());
+    int time = 60*1000*abs(QSettings().value(_key_autosave_time_period_min, _key_autosave_time_period_min_def).toInt());
 
     if (m_autosave_timer == nullptr) {
         m_autosave_timer = new QAutoSaveTimer(this);
@@ -3264,7 +3257,7 @@ MainWindow::destroyAutoSaveTimer() {
 void
 MainWindow::setAutoSaveInputDir(const QString dir)
 {
-    QSettings().setValue("auto-save_project/_inputDir", dir);
+    QSettings().setValue(_key_autosave_inputdir, dir);
 }
 
 
@@ -3417,10 +3410,10 @@ void
 MainWindow::saveWindowSettigns()
 {
     QSettings settings;
-    settings.setValue("main_window/maximized", isMaximized());
+    settings.setValue(_key_app_maximized, isMaximized());
     if (!isMaximized()) {
         settings.setValue(
-            "main_window/non_maximized_geometry", saveGeometry()
+            _key_app_geometry, saveGeometry()
         );
     }
 }
@@ -3428,13 +3421,13 @@ MainWindow::saveWindowSettigns()
 void MainWindow::on_actionJumpPageF_triggered()
 {
     QSettings settings;
-    int pg_jmp = settings.value("hot_keys/jump_forward_pg_num", 5).toUInt();
+    int pg_jmp = settings.value(_key_hot_keys_jump_forward_pg_num, _key_hot_keys_jump_forward_pg_num_def).toUInt();
     jumpToPage(pg_jmp);
 }
 
 void MainWindow::on_actionJumpPageB_triggered()
 {
     QSettings settings;
-    int pg_jmp = settings.value("hot_keys/jump_backward_pg_num", 5).toUInt();
+    int pg_jmp = settings.value(_key_hot_keys_jump_backward_pg_num, _key_hot_keys_jump_backward_pg_num_def).toUInt();
     jumpToPage(-1*pg_jmp);
 }

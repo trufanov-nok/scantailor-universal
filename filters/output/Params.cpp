@@ -26,7 +26,7 @@
 #include <QDomElement>
 #include <QByteArray>
 #include <QString>
-#include <QSettings>
+#include "settings/ini_keys.h"
 
 namespace output
 {
@@ -35,7 +35,7 @@ Params::Params()
 :  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi())
 {
    QSettings s;
-   m_despeckleLevel = (DespeckleLevel) s.value("despeckling/default_level", DESPECKLE_CAUTIOUS).toUInt();
+   m_despeckleLevel = (DespeckleLevel) s.value(_key_output_despeckling_default_lvl, _key_output_despeckling_default_lvl_def).toUInt();
 }
 
 Params::Params(QDomElement const& el)

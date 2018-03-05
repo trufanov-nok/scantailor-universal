@@ -57,7 +57,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     //        ui.use3DAcceleration->setToolTip(tr("Your hardware / driver don't provide the necessary features."));
     //    } else {
     //        ui.use3DAcceleration->setChecked(
-    //                    settings.value("settings/use_3d_acceleration", false).toBool()
+    //                    settings.value(_key_use_3d_accel, _key_use_3d_accel_def).toBool()
     //                    );
     //    }
 #endif
@@ -162,7 +162,7 @@ SettingsDialog::on_dialogButtonClicked(QAbstractButton * btn)
                                   QMessageBox::Cancel) != QMessageBox::Cancel) {
             const QStringList keys = m_settings.allKeys();
             for (const QString& key: keys) {
-                if (!key.startsWith("project/recent")) {
+                if (!key.startsWith(_key_recent_projects)) {
                     m_settings.remove(key);
                 }
             }
@@ -369,7 +369,7 @@ void conditionalExpand(QTreeWidgetItem* item, int& idx, const QStringList& state
 
 void SettingsDialog::restoreSettingsTreeState(QTreeWidget* treeWidget)
 {
-    QStringList tree_expand_state = m_settings.value("main_window/settings_tree_state","").toString().split(',',QString::KeepEmptyParts);
+    QStringList tree_expand_state = m_settings.value(_key_app_settings_tree_state).toString().split(',',QString::KeepEmptyParts);
     int idx = 0;
     for (int i = 0; i < treeWidget->topLevelItemCount(); i++) {
         conditionalExpand(treeWidget->topLevelItem(i), idx, tree_expand_state);
@@ -390,7 +390,7 @@ void SettingsDialog::storeSettingsTreeState(QTreeWidget* treeWidget)
     for (int i = 0; i < treeWidget->topLevelItemCount(); i++) {
         saveExpandState(treeWidget->topLevelItem(i), tree_expand_state);
     }
-    m_settings.setValue("main_window/settings_tree_state",tree_expand_state.join(','));
+    m_settings.setValue(_key_app_settings_tree_state,tree_expand_state.join(','));
 }
 
 
@@ -433,17 +433,17 @@ void SettingsDialog::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column
 
 void SettingsDialog::on_language_currentIndexChanged(int index)
 {
-    m_settings.setValue("main_window/language", ui.language->itemData(index).toString());
+    m_settings.setValue(_key_app_language, ui.language->itemData(index).toString());
 }
 
 void SettingsDialog::on_cbApplyCutDefault_clicked(bool checked)
 {
-    m_settings.setValue("apply_cut/default", checked);
+    m_settings.setValue(_key_page_split_apply_cut_default, checked);
 }
 
 void SettingsDialog::loadTiffList()
 {
-    bool filtered_only = !m_settings.value("tiff_compression/show_all", false).toBool();
+    bool filtered_only = !m_settings.value(_key_tiff_compr_show_all, _key_tiff_compr_show_all_def).toBool();
     ui.cbTiffFilter->blockSignals(true);
     ui.cbTiffFilter->setChecked(filtered_only);
     ui.cbTiffFilter->blockSignals(false);
@@ -455,7 +455,7 @@ void SettingsDialog::loadTiffList()
     }
 
 
-    QString old_val = m_settings.value("tiff_compression/method", "LZW").toString();
+    QString old_val = m_settings.value(_key_tiff_compr_method, _key_tiff_compr_method_def).toString();
 
     ui.cbTiffCompression->clear();
 
@@ -483,25 +483,25 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
 {
     const QWidget* currentPage = ui.stackedWidget->currentWidget();
     if (currentPage == ui.pageApplyCut) {
-        ui.cbApplyCutDefault->setChecked(m_settings.value("apply_cut/default", false).toBool());
+        ui.cbApplyCutDefault->setChecked(m_settings.value(_key_page_split_apply_cut_default, _key_page_split_apply_cut_default_def).toBool());
     } else if (currentPage == ui.pageTiffCompression) {
         loadTiffList();
-        ui.useHorizontalPredictor->setChecked(m_settings.value("tiff_compression/use_horizontal_predictor", false).toBool());
+        ui.useHorizontalPredictor->setChecked(m_settings.value(_key_tiff_compr_horiz_pred, _key_tiff_compr_horiz_pred_def).toBool());
     } else if (currentPage == ui.pageAutoSaveProject) {
-        ui.sbSavePeriod->setValue(abs(m_settings.value("auto-save_project/time_period_min", 5).toInt()));
+        ui.sbSavePeriod->setValue(abs(m_settings.value(_key_autosave_time_period_min, _key_autosave_time_period_min_def).toInt()));
     } else if (currentPage == ui.pageOutput) {
-        ui.dpiDefaultXValue->setValue(m_settings.value("output/default_dpi_x", 600).toUInt());
-        ui.dpiDefaultYValue->setValue(m_settings.value("output/default_dpi_y", 600).toUInt());
+        ui.dpiDefaultXValue->setValue(m_settings.value(_key_output_default_dpi_x, _key_output_default_dpi_x_def).toUInt());
+        ui.dpiDefaultYValue->setValue(m_settings.value(_key_output_default_dpi_y, _key_output_default_dpi_y_def).toUInt());
 
-        ui.ThresholdMinValue->setValue( m_settings.value("output/binrization_threshold_control_min", -50).toInt() );
-        ui.ThresholdMaxValue->setValue( m_settings.value("output/binrization_threshold_control_max", 50).toInt() );        
+        ui.ThresholdMinValue->setValue( m_settings.value(_key_output_bin_threshold_min, _key_output_bin_threshold_min_def).toInt() );
+        ui.ThresholdMaxValue->setValue( m_settings.value(_key_output_bin_threshold_max, _key_output_bin_threshold_max_def).toInt() );
         ui.ThresholdDefaultsValue->setMinimum(ui.ThresholdMinValue->value());
         ui.ThresholdDefaultsValue->setMaximum(ui.ThresholdMaxValue->value());
-        ui.ThresholdDefaultsValue->setValue( m_settings.value("output/binrization_threshold_control_default", 0).toInt());
+        ui.ThresholdDefaultsValue->setValue( m_settings.value(_key_output_bin_threshold_default, _key_output_bin_threshold_default_def).toInt());
         connect( ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
         connect( ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
 
-        ui.originalPageDisplayOnKeyHold->setChecked( m_settings.value("output/display_orig_page_on_key_press", false).toBool() );
+        ui.originalPageDisplayOnKeyHold->setChecked( m_settings.value(_key_output_show_orig_on_space, _key_output_show_orig_on_space_def).toBool() );
     } else if (currentPage == ui.pageDespeckling) {
         QComboBox* cb = ui.despecklingDefaultsValue;
         cb->blockSignals(true);
@@ -510,75 +510,75 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         cb->addItem(tr("Cuatious"),  output::DESPECKLE_CAUTIOUS);
         cb->addItem(tr("Normal"),  output::DESPECKLE_NORMAL);
         cb->addItem(tr("Aggresive"),  output::DESPECKLE_AGGRESSIVE);
-        int def = m_settings.value("despeckling/default_level", output::DESPECKLE_CAUTIOUS).toInt();
+        int def = m_settings.value(_key_output_despeckling_default_lvl, output::DESPECKLE_CAUTIOUS).toInt();
 
         int idx = cb->findData(def);
         cb->setCurrentIndex(idx!=-1?idx:0);
 
         cb->blockSignals(false);
     } else if (currentPage == ui.pagePictureZonesLayer) {
-        ui.rectangularAreasSensitivityValue->setValue(m_settings.value("picture_zones_layer/sensitivity", 100).toInt());
+        ui.rectangularAreasSensitivityValue->setValue(m_settings.value(_key_picture_zones_layer_sensitivity, _key_picture_zones_layer_sensitivity_def).toInt());
     } else if (currentPage == ui.pageGeneral) {
-        bool val = m_settings.value("batch_dialog/start_from_current_page", true).toBool();
+        bool val = m_settings.value(_key_batch_dialog_start_from_current, _key_batch_dialog_start_from_current_def).toBool();
         ui.startBatchProcessingDlgAllPages->setChecked(
                     !val);
         ui.startBatchProcessingDlgFromSelected->setChecked(
                     val);
         ui.showStartBatchProcessingDlg->setChecked(
-                    !m_settings.value("batch_dialog/remember_choice", false).toBool());
+                    !m_settings.value(_key_batch_dialog_remember_choice, _key_batch_dialog_remember_choice_def).toBool());
     } else if (currentPage == ui.pageThumbnails) {
-        ui.cbThumbsListOrder->setChecked(m_settings.value("thumbnails/list_multiple_items_in_row", true).toBool());
-        ui.sbThumbsCacheImgSize->setValue(m_settings.value("thumbnails/max_cache_pixmap_size", QSize(200, 200)).toSize().height());
-        ui.sbThumbsMinSpacing->setValue(m_settings.value("thumbnails/min_spacing", 3).toInt());
-        ui.sbThumbsBoundaryAdjTop->setValue(m_settings.value("thumbnails/boundary_adj_top", 5).toInt());
-        ui.sbThumbsBoundaryAdjBottom->setValue(m_settings.value("thumbnails/boundary_adj_bottom", 5).toInt());
-        ui.sbThumbsBoundaryAdjLeft->setValue(m_settings.value("thumbnails/boundary_adj_left", 5).toInt());
-        ui.sbThumbsBoundaryAdjRight->setValue(m_settings.value("thumbnails/boundary_adj_right", 3).toInt());
-        ui.gbFixedMaxLogicalThumbSize->setChecked(m_settings.value("thumbnails/fixed_thumb_size", false).toBool());
-        const QSizeF max_logical_thumb_size = m_settings.value("thumbnails/max_thumb_size", QSizeF(250., 160.)).toSizeF();
+        ui.cbThumbsListOrder->setChecked(m_settings.value(_key_thumbnails_multiple_items_in_row, _key_thumbnails_multiple_items_in_row_def).toBool());
+        ui.sbThumbsCacheImgSize->setValue(m_settings.value(_key_thumbnails_max_cache_pixmap_size, _key_thumbnails_max_cache_pixmap_size_def).toSize().height());
+        ui.sbThumbsMinSpacing->setValue(m_settings.value(_key_thumbnails_min_spacing, _key_thumbnails_min_spacing_def).toInt());
+        ui.sbThumbsBoundaryAdjTop->setValue(m_settings.value(_key_thumbnails_boundary_adj_top, _key_thumbnails_boundary_adj_top_def).toInt());
+        ui.sbThumbsBoundaryAdjBottom->setValue(m_settings.value(_key_thumbnails_boundary_adj_bottom, _key_thumbnails_boundary_adj_bottom_def).toInt());
+        ui.sbThumbsBoundaryAdjLeft->setValue(m_settings.value(_key_thumbnails_boundary_adj_left, _key_thumbnails_boundary_adj_left_def).toInt());
+        ui.sbThumbsBoundaryAdjRight->setValue(m_settings.value(_key_thumbnails_boundary_adj_right, _key_thumbnails_boundary_adj_right_def).toInt());
+        ui.gbFixedMaxLogicalThumbSize->setChecked(m_settings.value(_key_thumbnails_fixed_thumb_size, _key_thumbnails_fixed_thumb_size_def).toBool());
+        const QSizeF max_logical_thumb_size = m_settings.value(_key_thumbnails_max_thumb_size, _key_thumbnails_max_thumb_size_def).toSizeF();
         ui.sbFixedMaxLogicalThumbSizeHeight->setValue(max_logical_thumb_size.height());
         ui.sbFixedMaxLogicalThumbSizeWidth->setValue(max_logical_thumb_size.width());
     } else if (currentPage == ui.pageBlackWhiteMode) {
-        ui.disableSmoothingBW->setChecked(m_settings.value("mode_bw/disable_smoothing", false).toBool());
+        ui.disableSmoothingBW->setChecked(m_settings.value(_key_mode_bw_disable_smoothing, _key_mode_bw_disable_smoothing_def).toBool());
     } else if (currentPage == ui.pageHotKeysManager) {
         ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
     } else if (currentPage == ui.pagePageDetecton) {
-        ui.gbPageDetectionFineTuneCorners->setChecked(m_settings.value("page_detection/fine_tune_page_corners", false).toBool());
-        ui.cbPageDetectionFineTuneCorners->setChecked(m_settings.value("page_detection/fine_tune_page_corners/default", false).toBool());
-        ui.gbPageDetectionBorders->setChecked(m_settings.value("page_detection/borders", false).toBool());
-        ui.gbPageDetectionTargetSize->setChecked(m_settings.value("page_detection/target_page_size/enabled", false).toBool());
-        ui.pageDetectionTopBorder->setValue(m_settings.value("page_detection/borders/top", 0).toDouble());
-        ui.pageDetectionLeftBorder->setValue(m_settings.value("page_detection/borders/left", 0).toDouble());
-        ui.pageDetectionRightBorder->setValue(m_settings.value("page_detection/borders/right", 0).toDouble());
-        ui.pageDetectionBottomBorder->setValue(m_settings.value("page_detection/borders/bottom", 0).toDouble());
-        const QSizeF target_size = m_settings.value("page_detection/target_page_size", QSizeF(210,297)).toSizeF();
+        ui.gbPageDetectionFineTuneCorners->setChecked(m_settings.value(_key_content_sel_page_detection_fine_tune_corners, _key_content_sel_page_detection_fine_tune_corners_def).toBool());
+        ui.cbPageDetectionFineTuneCorners->setChecked(m_settings.value(_key_content_sel_page_detection_fine_tune_corners_is_on_by_def, _key_content_sel_page_detection_fine_tune_corners_is_on_by_def_def).toBool());
+        ui.gbPageDetectionBorders->setChecked(m_settings.value(_key_content_sel_page_detection_borders, _key_content_sel_page_detection_borders_def).toBool());
+        ui.gbPageDetectionTargetSize->setChecked(m_settings.value(_key_content_sel_page_detection_target_page_size_enabled, _key_content_sel_page_detection_target_page_size_enabled_def).toBool());
+        ui.pageDetectionTopBorder->setValue(m_settings.value(_key_content_sel_page_detection_borders_top, _key_content_sel_page_detection_borders_top_def).toDouble());
+        ui.pageDetectionLeftBorder->setValue(m_settings.value(_key_content_sel_page_detection_borders_left, _key_content_sel_page_detection_borders_left_def).toDouble());
+        ui.pageDetectionRightBorder->setValue(m_settings.value(_key_content_sel_page_detection_borders_right, _key_content_sel_page_detection_borders_right).toDouble());
+        ui.pageDetectionBottomBorder->setValue(m_settings.value(_key_content_sel_page_detection_borders_bottom, _key_content_sel_page_detection_borders_bottom_def).toDouble());
+        const QSizeF target_size = m_settings.value(_key_content_sel_page_detection_target_page_size, _key_content_sel_page_detection_target_page_size_def).toSizeF();
         ui.pageDetectionTargetWidth->setValue(target_size.width());
         ui.pageDetectionTargetHeight->setValue(target_size.height());
     } else if (currentPage == ui.pageAlignment) {
 //        m_alignment = loadAlignment(); // done via Alignment::load(QSettings*)        
-        bool val = m_settings.value("alignment/automagnet_enabled", false).toBool();
+        bool val = m_settings.value(_key_alignment_automagnet_enabled, _key_alignment_automagnet_enabled_def).toBool();
         ui.cbAlignmentAuto->setChecked(val);
         ui.widgetAlignment->setUseAutoMagnetAlignment(val);
-        val = m_settings.value("alignment/original_enabled", false).toBool();
+        val = m_settings.value(_key_alignment_original_enabled, _key_alignment_original_enabled_def).toBool();
         ui.cbAlignmentOriginal->setChecked(val);
         ui.widgetAlignment->setUseOriginalProportionsAlignment(val);
 
         ui.widgetAlignment->setAlignment(&m_alignment);
     } else if (currentPage == ui.pageMargins) {
         int old_idx = ui.cbMarginUnits->currentIndex();
-        int idx = m_settings.value("margins/default_units", 0).toUInt();
+        int idx = m_settings.value(_key_margins_default_units, _key_margins_default_units_def).toUInt();
         ui.cbMarginUnits->setCurrentIndex(idx);
         if (idx == old_idx) { // otherwise wan't be called atomatically
             on_cbMarginUnits_currentIndexChanged(idx);
         }
-        ui.gbMarginsAuto->setChecked(m_settings.value("margins/auto_margins_enabled", false).toBool());
+        ui.gbMarginsAuto->setChecked(m_settings.value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool());
         if (!ui.gbMarginsAuto->isChecked()) {
              ui.cbMarginsAuto->setChecked(false);
         } else {
-            ui.cbMarginsAuto->setChecked(m_settings.value("margins/default_auto_margins", false).toBool());
+            ui.cbMarginsAuto->setChecked(m_settings.value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
         }
     } else if (currentPage == ui.pageForegroundLayer) {
-        ui.cbForegroundLayerSeparateControl->setChecked(m_settings.value("foreground_layer/control_threshold", false).toBool());
+        ui.cbForegroundLayerSeparateControl->setChecked(m_settings.value(_key_output_foreground_layer_control_threshold, _key_output_foreground_layer_control_threshold_def).toBool());
     }
 
 }
@@ -586,18 +586,18 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
 void SettingsDialog::on_cbTiffCompression_currentIndexChanged(int index)
 {
     ui.lblTiffDetails->setText(ui.cbTiffCompression->itemData(index).toString());
-    m_settings.setValue("tiff_compression/method", ui.cbTiffCompression->currentText());
+    m_settings.setValue(_key_tiff_compr_method, ui.cbTiffCompression->currentText());
 }
 
 void SettingsDialog::on_cbTiffFilter_clicked(bool checked)
 {
-    m_settings.setValue("tiff_compression/show_all", !checked);
+    m_settings.setValue(_key_tiff_compr_show_all, !checked);
     loadTiffList();
 }
 
 void SettingsDialog::on_sbSavePeriod_valueChanged(int arg1)
 {
-    m_settings.setValue("auto-save_project/time_period_min", arg1);
+    m_settings.setValue(_key_autosave_time_period_min, arg1);
 }
 
 void SettingsDialog::onThresholdValueChanged(int)
@@ -630,8 +630,8 @@ void SettingsDialog::onThresholdValueChanged(int)
         ui.ThresholdMaxValue->setValue(max);
     }
 
-    m_settings.setValue("output/binrization_threshold_control_min", min);
-    m_settings.setValue("output/binrization_threshold_control_max", max);
+    m_settings.setValue(_key_output_bin_threshold_min, min);
+    m_settings.setValue(_key_output_bin_threshold_max, max);
 
     ui.ThresholdDefaultsValue->setMinimum(min);
     ui.ThresholdDefaultsValue->setMaximum(max);
@@ -640,17 +640,17 @@ void SettingsDialog::onThresholdValueChanged(int)
 void SettingsDialog::on_despecklingDefaultsValue_currentIndexChanged(int index)
 {
     int val = ui.despecklingDefaultsValue->itemData(index).toInt();
-    m_settings.setValue("despeckling/default_level", val);
+    m_settings.setValue(_key_output_despeckling_default_lvl, val);
 }
 
 void SettingsDialog::on_startBatchProcessingDlgAllPages_toggled(bool checked)
 {
-    m_settings.setValue("batch_dialog/start_from_current_page", !checked);
+    m_settings.setValue(_key_batch_dialog_start_from_current, !checked);
 }
 
 void SettingsDialog::on_showStartBatchProcessingDlg_clicked(bool checked)
 {
-    m_settings.setValue("batch_dialog/remember_choice", !checked);
+    m_settings.setValue(_key_batch_dialog_remember_choice, !checked);
 }
 
 void SettingsDialog::on_ThresholdDefaultsValue_valueChanged(int arg1)
@@ -664,37 +664,37 @@ void SettingsDialog::on_ThresholdDefaultsValue_valueChanged(int arg1)
         ui.ThresholdDefaultsValue->blockSignals(false);
     }
 
-    m_settings.setValue("output/binrization_threshold_control_default", val);
+    m_settings.setValue(_key_output_bin_threshold_default, val);
 }
 
 void SettingsDialog::on_dpiDefaultYValue_valueChanged(int arg1)
 {
-    m_settings.setValue("output/default_dpi_y", arg1);
+    m_settings.setValue(_key_output_default_dpi_y, arg1);
 }
 
 void SettingsDialog::on_dpiDefaultXValue_valueChanged(int arg1)
 {
-    m_settings.setValue("output/default_dpi_x", arg1);
+    m_settings.setValue(_key_output_default_dpi_x, arg1);
 }
 
 void SettingsDialog::on_useHorizontalPredictor_clicked(bool checked)
 {
-    m_settings.setValue("tiff_compression/use_horizontal_predictor", checked);
+    m_settings.setValue(_key_tiff_compr_horiz_pred, checked);
 }
 
 void SettingsDialog::on_disableSmoothingBW_clicked(bool checked)
 {
-    m_settings.setValue("mode_bw/disable_smoothing", checked);
+    m_settings.setValue(_key_mode_bw_disable_smoothing, checked);
 }
 
 void SettingsDialog::on_rectangularAreasSensitivityValue_valueChanged(int arg1)
 {
-    m_settings.setValue("picture_zones_layer/sensitivity", arg1);
+    m_settings.setValue(_key_picture_zones_layer_sensitivity, arg1);
 }
 
 void SettingsDialog::on_originalPageDisplayOnKeyHold_clicked(bool checked)
 {
-    m_settings.setValue("output/display_orig_page_on_key_press", checked);
+    m_settings.setValue(_key_output_show_orig_on_space, checked);
 }
 
 void SettingsDialog::on_lblHotKeyManager_linkActivated(const QString &link)
@@ -829,27 +829,27 @@ void SettingsDialog::on_btnResetHotKeys_clicked()
 
 void SettingsDialog::on_marginDefaultTopVal_valueChanged(double arg1)
 {
-    m_settings.setValue("margins/default_top", arg1 * m_unitToMM);
+    m_settings.setValue(_key_margins_default_top, arg1 * m_unitToMM);
 }
 
 void SettingsDialog::on_marginDefaultLeftVal_valueChanged(double arg1)
 {
-    m_settings.setValue("margins/default_left", arg1 * m_unitToMM);
+    m_settings.setValue(_key_margins_default_left, arg1 * m_unitToMM);
 }
 
 void SettingsDialog::on_marginDefaultRightVal_valueChanged(double arg1)
 {
-    m_settings.setValue("margins/default_right", arg1 * m_unitToMM);
+    m_settings.setValue(_key_margins_default_right, arg1 * m_unitToMM);
 }
 
 void SettingsDialog::on_marginDefaultBottomVal_valueChanged(double arg1)
 {
-    m_settings.setValue("margins/default_bottom", arg1 * m_unitToMM);
+    m_settings.setValue(_key_margins_default_bottom, arg1 * m_unitToMM);
 }
 
 void SettingsDialog::on_cbMarginUnits_currentIndexChanged(int index)
 {
-    m_settings.setValue("margins/default_units", index);
+    m_settings.setValue(_key_margins_default_units, index);
 
     int decimals = 0;
     double step = 0.0;
@@ -880,120 +880,120 @@ void SettingsDialog::on_cbMarginUnits_currentIndexChanged(int index)
 
 void SettingsDialog::on_cbMarginsAuto_clicked(bool checked)
 {
-    m_settings.setValue("margins/default_auto_margins", checked);
+    m_settings.setValue(_key_margins_auto_margins_default, checked);
 }
 
 void SettingsDialog::updateMarginsDisplay()
 {
-    ui.marginDefaultTopVal->setValue(m_settings.value("margins/default_top", 0).toUInt()* m_mmToUnit);
-    ui.marginDefaultBottomVal->setValue(m_settings.value("margins/default_bottom", 0).toUInt()* m_mmToUnit);
-    ui.marginDefaultLeftVal->setValue(m_settings.value("margins/default_left", 0).toUInt()* m_mmToUnit);
-    ui.marginDefaultRightVal->setValue(m_settings.value("margins/default_right", 0).toUInt()* m_mmToUnit);
+    ui.marginDefaultTopVal->setValue(m_settings.value(_key_margins_default_top, _key_margins_default_top_def).toUInt()* m_mmToUnit);
+    ui.marginDefaultBottomVal->setValue(m_settings.value(_key_margins_default_bottom, _key_margins_default_bottom_def).toUInt()* m_mmToUnit);
+    ui.marginDefaultLeftVal->setValue(m_settings.value(_key_margins_default_left, _key_margins_default_left_def).toUInt()* m_mmToUnit);
+    ui.marginDefaultRightVal->setValue(m_settings.value(_key_margins_default_right, _key_margins_default_right_def).toUInt()* m_mmToUnit);
 }
 
 void SettingsDialog::on_gbPageDetectionFineTuneCorners_toggled(bool arg1)
 {
-    m_settings.setValue("page_detection/fine_tune_page_corners", arg1);
+    m_settings.setValue(_key_content_sel_page_detection_fine_tune_corners, arg1);
 }
 
 void SettingsDialog::on_gbPageDetectionBorders_toggled(bool arg1)
 {
-    m_settings.setValue("page_detection/borders", arg1);
+    m_settings.setValue(_key_content_sel_page_detection_borders, arg1);
 }
 
 void SettingsDialog::on_cbPageDetectionFineTuneCorners_clicked(bool checked)
 {
-    m_settings.setValue("page_detection/fine_tune_page_corners/default", checked);
+    m_settings.setValue(_key_content_sel_page_detection_fine_tune_corners_is_on_by_def, checked);
 }
 
 void SettingsDialog::on_pageDetectionTargetWidth_valueChanged(double arg1)
 {
-    m_settings.setValue("page_detection/target_page_size", QSizeF(arg1, ui.pageDetectionTargetHeight->value()));
+    m_settings.setValue(_key_content_sel_page_detection_target_page_size, QSizeF(arg1, ui.pageDetectionTargetHeight->value()));
 }
 
 void SettingsDialog::on_pageDetectionTargetHeight_valueChanged(double arg1)
 {
-    m_settings.setValue("page_detection/target_page_size", QSizeF(ui.pageDetectionTargetWidth->value(), arg1));
+    m_settings.setValue(_key_content_sel_page_detection_target_page_size, QSizeF(ui.pageDetectionTargetWidth->value(), arg1));
 }
 
 void SettingsDialog::on_gbPageDetectionTargetSize_toggled(bool arg1)
 {
-     m_settings.setValue("page_detection/target_page_size/enabled", arg1);
+     m_settings.setValue(_key_content_sel_page_detection_target_page_size_enabled, arg1);
 }
 
 void SettingsDialog::on_pageDetectionTopBorder_valueChanged(double arg1)
 {
-    m_settings.setValue("page_detection/borders/top", arg1);
+    m_settings.setValue(_key_content_sel_page_detection_borders_top, arg1);
 }
 
 void SettingsDialog::on_pageDetectionRightBorder_valueChanged(double arg1)
 {
-    m_settings.setValue("page_detection/borders/right", arg1);
+    m_settings.setValue(_key_content_sel_page_detection_borders_right, arg1);
 }
 
 void SettingsDialog::on_pageDetectionLeftBorder_valueChanged(double arg1)
 {
-    m_settings.setValue("page_detection/borders/left", arg1);
+    m_settings.setValue(_key_content_sel_page_detection_borders_left, arg1);
 }
 
 void SettingsDialog::on_pageDetectionBottomBorder_valueChanged(double arg1)
 {
-    m_settings.setValue("page_detection/borders/bottom", arg1);
+    m_settings.setValue(_key_content_sel_page_detection_borders_bottom, arg1);
 }
 
 void SettingsDialog::on_cbForegroundLayerSeparateControl_clicked(bool checked)
 {
-    m_settings.setValue("foreground_layer/control_threshold", checked);
+    m_settings.setValue(_key_output_foreground_layer_control_threshold, checked);
 }
 
 void SettingsDialog::on_sbThumbsCacheImgSize_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/max_cache_pixmap_size", QSize(arg1,arg1));
+    m_settings.setValue(_key_thumbnails_max_cache_pixmap_size, QSize(arg1,arg1));
 }
 
 void SettingsDialog::on_sbThumbsMinSpacing_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/min_spacing", arg1);
+    m_settings.setValue(_key_thumbnails_min_spacing, arg1);
 }
 
 void SettingsDialog::on_sbThumbsBoundaryAdjTop_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/boundary_adj_top", arg1);
+    m_settings.setValue(_key_thumbnails_boundary_adj_top, arg1);
 }
 
 void SettingsDialog::on_sbThumbsBoundaryAdjBottom_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/boundary_adj_bottom", arg1);
+    m_settings.setValue(_key_thumbnails_boundary_adj_bottom, arg1);
 }
 
 void SettingsDialog::on_sbThumbsBoundaryAdjLeft_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/boundary_adj_left", arg1);
+    m_settings.setValue(_key_thumbnails_boundary_adj_left, arg1);
 }
 
 void SettingsDialog::on_sbThumbsBoundaryAdjRight_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/boundary_adj_right", arg1);
+    m_settings.setValue(_key_thumbnails_boundary_adj_right, arg1);
 }
 
 void SettingsDialog::on_cbThumbsListOrder_toggled(bool checked)
 {
-    m_settings.setValue("thumbnails/list_multiple_items_in_row", checked);
+    m_settings.setValue(_key_thumbnails_multiple_items_in_row, checked);
 }
 
 void SettingsDialog::on_gbFixedMaxLogicalThumbSize_toggled(bool arg1)
 {
-    m_settings.setValue("thumbnails/fixed_thumb_size", arg1);
+    m_settings.setValue(_key_thumbnails_fixed_thumb_size, arg1);
 }
 
 void SettingsDialog::on_sbFixedMaxLogicalThumbSizeHeight_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/max_thumb_size", QSizeF(ui.sbFixedMaxLogicalThumbSizeWidth->value(), arg1));
+    m_settings.setValue(_key_thumbnails_max_thumb_size, QSizeF(ui.sbFixedMaxLogicalThumbSizeWidth->value(), arg1));
 }
 
 void SettingsDialog::on_sbFixedMaxLogicalThumbSizeWidth_valueChanged(int arg1)
 {
-    m_settings.setValue("thumbnails/max_thumb_size", QSizeF(arg1, ui.sbFixedMaxLogicalThumbSizeHeight->value()));
+    m_settings.setValue(_key_thumbnails_max_thumb_size, QSizeF(arg1, ui.sbFixedMaxLogicalThumbSizeHeight->value()));
 }
 
 void SettingsDialog::on_btnThumbDefaults_clicked()
@@ -1002,7 +1002,7 @@ void SettingsDialog::on_btnThumbDefaults_clicked()
                               tr("Thumbnails view settings will be resetted to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
                               QMessageBox::Cancel) != QMessageBox::Cancel) {
         for (const QString& key: m_settings.allKeys()) {
-            if (key.startsWith("thumbnails/")) {
+            if (key.startsWith(_key_thumbnails_category)) {
                 m_settings.remove(key);
             }
         }
@@ -1012,12 +1012,12 @@ void SettingsDialog::on_btnThumbDefaults_clicked()
 
 void SettingsDialog::on_cbAlignmentAuto_toggled(bool checked)
 {
-    m_settings.setValue("alignment/automagnet_enabled", checked);
+    m_settings.setValue(_key_alignment_automagnet_enabled, checked);
     ui.widgetAlignment->setUseAutoMagnetAlignment(checked);
 }
 
 void SettingsDialog::on_cbAlignmentOriginal_toggled(bool checked)
 {
-    m_settings.setValue("alignment/original_enabled", checked);
+    m_settings.setValue(_key_alignment_original_enabled, checked);
     ui.widgetAlignment->setUseOriginalProportionsAlignment(checked);
 }

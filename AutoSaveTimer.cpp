@@ -1,7 +1,7 @@
 #include "AutoSaveTimer.h"
 #include <QFile>
 #include <QDir>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QDebug>
 
 QAutoSaveTimer::QAutoSaveTimer(MainWindow *obj): QTimer(obj), m_MW(obj)
@@ -35,7 +35,7 @@ QAutoSaveTimer::copyFileTo(const QString &sFromPath, const QString &sToPath) {
 const QString
 QAutoSaveTimer::getAutoSaveInputDir()
 {
-    return QSettings().value("auto-save_project/_inputDir", "").toString();
+    return QSettings().value(_key_autosave_inputdir, "").toString();
 }
 
 void

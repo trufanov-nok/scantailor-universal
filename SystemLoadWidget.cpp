@@ -19,6 +19,7 @@
 #include "SystemLoadWidget.h"
 #include "SystemLoadWidget.moc"
 #include "ThreadPriority.h"
+#include "settings/ini_keys.h"
 #include <QToolTip>
 
 SystemLoadWidget::SystemLoadWidget(QWidget* parent)
@@ -26,7 +27,7 @@ SystemLoadWidget::SystemLoadWidget(QWidget* parent)
 {
 	ui.setupUi(this);
 
-	ThreadPriority const prio(ThreadPriority::load("settings/batch_processing_priority"));
+    ThreadPriority const prio(ThreadPriority::load(_key_batch_processing_priority));
 	ui.slider->setRange(ThreadPriority::Minimum, ThreadPriority::Maximum);
 	ui.slider->setValue(prio.value());
 
@@ -52,7 +53,7 @@ SystemLoadWidget::sliderMoved(int prio)
 void
 SystemLoadWidget::valueChanged(int prio)
 {
-	ThreadPriority((ThreadPriority::Priority)prio).save("settings/batch_processing_priority");
+    ThreadPriority((ThreadPriority::Priority)prio).save(_key_batch_processing_priority);
 }
 
 void

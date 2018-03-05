@@ -20,7 +20,7 @@
 #include "ApplyDialog.moc"
 #include "PageSelectionAccessor.h"
 #include <QButtonGroup>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <assert.h>
 
 namespace page_layout
@@ -60,7 +60,7 @@ ApplyDialog::ApplyDialog(QWidget* parent, PageId const& cur_page,
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 
     if (m_dlgType == Margins) {
-        const bool auto_margins_enabled = QSettings().value("margins/auto_margins_enabled", false).toBool();
+        const bool auto_margins_enabled = QSettings().value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool();
         groupBoxWhatToAppy->setVisible(auto_margins_enabled);
         autoMarginRB->setChecked(auto_margins_enabled && is_auto_margin_enabled);
     } else {

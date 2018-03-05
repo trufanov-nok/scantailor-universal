@@ -20,7 +20,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include "settings/globalstaticsettings.h"
 
 namespace output

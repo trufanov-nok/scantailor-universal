@@ -3,7 +3,7 @@
 #include "ui_StartBatchProcessingDialog.h"
 
 
-#include <QSettings>
+#include "settings/ini_keys.h"
 
 StartBatchProcessingDialog::StartBatchProcessingDialog(QWidget *parent, bool isAllPages) :
     QDialog(parent),

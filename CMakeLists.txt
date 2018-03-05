@@ -423,6 +423,7 @@ SET(
         settings/fancylineedit.cpp settings/fancylineedit.h
         settings/execmenu.cpp settings/execmenu.h
         settings/hotkeysmanager.cpp settings/hotkeysmanager.h
+        settings/ini_keys.h
 )
 
 SET(

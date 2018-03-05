@@ -81,10 +81,10 @@ void QHotKeys::resetToDefaults()
 
 
     QSettings _sett;
-    int pg_jmp = _sett.value("hot_keys/jump_forward_pg_num", 5).toUInt();
+    int pg_jmp = _sett.value(_key_hot_keys_jump_forward_pg_num, _key_hot_keys_jump_forward_pg_num_def).toUInt();
     data.append(HotKeyInfo(PageJumpForward, QObject::tr("Jump %n pages forward", "plurals for \"page\" may be used", pg_jmp), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_PageDown)));
-    pg_jmp = _sett.value("hot_keys/jump_backward_pg_num", 5).toUInt();
+    pg_jmp = _sett.value(_key_hot_keys_jump_backward_pg_num, _key_hot_keys_jump_backward_pg_num_def).toUInt();
     data.append(HotKeyInfo(PageJumpBackward, QObject::tr("Jump %n pages backward", "plurals for \"page\" may be used", pg_jmp), KeysAndModifiers, HotKey,
                                HotKeySequence(Qt::ControlModifier, Qt::Key_PageUp)));
 
@@ -253,8 +253,8 @@ bool QHotKeys::load(QSettings *_settings)
     resetToDefaults();
     QVector<HotKeyGroup> loaded_data;
 
-    if (settings.contains("hot_keys/scheme_ver")) {
-        uint scheme = settings.value("hot_keys/scheme_ver", 0).toUInt();
+    if (settings.contains(_key_hot_keys_scheme_ver)) {
+        uint scheme = settings.value(_key_hot_keys_scheme_ver, 0).toUInt();
         if (scheme < _KeySchemeLastCompatibleVer) {
             // settings contains outdated hotkeys scheme and it shoud be resetted.
             // this might be needed if new HotKayIds were added into existing group
@@ -266,9 +266,9 @@ bool QHotKeys::load(QSettings *_settings)
             }
             return false;
         }
-        uint count = settings.value("hot_keys/count", 0).toUInt();
+        uint count = settings.value(_key_hot_keys_cnt, 0).toUInt();
         for (uint i = 0; i < count; i++) {
-            QString group_id = settings.value(QString("hot_keys/group_%1").arg(i), "").toString();
+            QString group_id = settings.value(QString(_key_hot_keys_group_id).arg(i), "").toString();
             HotKeyGroup grp(group_id, "");
             grp.load(settings);
             loaded_data.append(grp);
@@ -289,12 +289,12 @@ void QHotKeys::save(QSettings *_settings) const
 
     QSettings& settings = *_settings;
 
-    settings.setValue("hot_keys/scheme_ver", _KeySchemeVer);
-    settings.setValue("hot_keys/count", m_data.count());
+    settings.setValue(_key_hot_keys_scheme_ver, _KeySchemeVer);
+    settings.setValue(_key_hot_keys_cnt, m_data.count());
 
     for (int i = 0; i < m_data.count(); i++) {
         const HotKeyGroup& grp = m_data[i];
-        settings.setValue(QString("hot_keys/group_%1").arg(i), grp.id());
+        settings.setValue(QString(_key_hot_keys_group_id).arg(i), grp.id());
         grp.save(settings);
     }
 }

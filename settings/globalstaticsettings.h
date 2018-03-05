@@ -1,7 +1,8 @@
 #ifndef GLOBALSTATICSETTINGS_H
 #define GLOBALSTATICSETTINGS_H
 #include "settings/hotkeysmanager.h"
-#include <QSettings>
+#include "settings/ini_keys.h"
+#include "settings/ini_keys.h"
 #include <memory>
 
 class GlobalStaticSettings
@@ -47,28 +48,28 @@ public:
     static void updateSettings()
     {
         QSettings settings;
-        setDrawDeskewDeviants(settings.value("deskew_deviant/enabled", false).toBool());
-        setDrawContentDeviants(settings.value("select_content_deviant/enabled", false).toBool());
-        setDrawMarginDeviants(settings.value("margins_deviant/enabled", false).toBool());
+        setDrawDeskewDeviants(settings.value(_key_deskew_deviant_enabled, _key_deskew_deviant_enabled_def).toBool());
+        setDrawContentDeviants(settings.value(_key_select_content_deviant_enabled, _key_select_content_deviant_enabled_def).toBool());
+        setDrawMarginDeviants(settings.value(_key_margins_deviant_enabled, _key_margins_deviant_enabled_def).toBool());
 
-        m_binrization_threshold_control_default = settings.value("output/binrization_threshold_control_default", 0).toInt();
-        m_use_horizontal_predictor = settings.value("tiff_compression/use_horizontal_predictor", false).toBool();
-        m_disable_bw_smoothing = settings.value("mode_bw/disable_smoothing", false).toBool();
-        m_zone_editor_min_angle = settings.value("zone_editor/min_angle", 3.0).toReal();        
-        m_picture_detection_sensitivity = settings.value("picture_zones_layer/sensitivity", 100).toInt();
-        if (settings.contains("foreground_layer_adj_override")) {
-           m_ForegroundLayerAdjustment.reset(new int (settings.value("foreground_layer_adj_override", 0).toInt()));
+        m_binrization_threshold_control_default = settings.value(_key_output_bin_threshold_default, _key_output_bin_threshold_default_def).toInt();
+        m_use_horizontal_predictor = settings.value(_key_tiff_compr_horiz_pred, _key_tiff_compr_horiz_pred_def).toBool();
+        m_disable_bw_smoothing = settings.value(_key_mode_bw_disable_smoothing, _key_mode_bw_disable_smoothing_def).toBool();
+        m_zone_editor_min_angle = settings.value(_key_zone_editor_min_angle, _key_zone_editor_min_angle_def).toReal();
+        m_picture_detection_sensitivity = settings.value(_key_picture_zones_layer_sensitivity, _key_picture_zones_layer_sensitivity_def).toInt();
+        if (settings.contains(_key_foreground_layer_adj_override)) {
+           m_ForegroundLayerAdjustment.reset(new int (settings.value(_key_foreground_layer_adj_override, _key_foreground_layer_adj_override_def).toInt()));
         }
 
-        m_highlightColorAdjustment = 100 + settings.value("thumbnails/non_focused_selection_highlight_color_adj", 40).toInt();
+        m_highlightColorAdjustment = 100 + settings.value(_key_thumbnails_non_focused_selection_highlight_color_adj, _key_thumbnails_non_focused_selection_highlight_color_adj_def).toInt();
 
-        m_thumbsListOrderAllowed = settings.value("thumbnails/list_multiple_items_in_row", true).toBool();
-        m_thumbsMinSpacing = settings.value("thumbnails/min_spacing", 3).toInt();
-        m_thumbsBoundaryAdjTop = settings.value("thumbnails/boundary_adj_top", 5).toInt();
-        m_thumbsBoundaryAdjBottom = settings.value("thumbnails/boundary_adj_bottom", 5).toInt();
-        m_thumbsBoundaryAdjLeft = settings.value("thumbnails/boundary_adj_left", 5).toInt();
-        m_thumbsBoundaryAdjRight = settings.value("thumbnails/boundary_adj_right", 3).toInt();
-        m_fixedMaxLogicalThumbSize = settings.value("thumbnails/fixed_thumb_size", false).toBool();
+        m_thumbsListOrderAllowed = settings.value(_key_thumbnails_multiple_items_in_row, _key_thumbnails_multiple_items_in_row_def).toBool();
+        m_thumbsMinSpacing = settings.value(_key_thumbnails_min_spacing, _key_thumbnails_min_spacing_def).toInt();
+        m_thumbsBoundaryAdjTop = settings.value(_key_thumbnails_boundary_adj_top, _key_thumbnails_boundary_adj_top_def).toInt();
+        m_thumbsBoundaryAdjBottom = settings.value(_key_thumbnails_boundary_adj_bottom, _key_thumbnails_boundary_adj_bottom_def).toInt();
+        m_thumbsBoundaryAdjLeft = settings.value(_key_thumbnails_boundary_adj_left, _key_thumbnails_boundary_adj_left_def).toInt();
+        m_thumbsBoundaryAdjRight = settings.value(_key_thumbnails_boundary_adj_right, _key_thumbnails_boundary_adj_right_def).toInt();
+        m_fixedMaxLogicalThumbSize = settings.value(_key_thumbnails_fixed_thumb_size, _key_thumbnails_fixed_thumb_size_def).toBool();
 
 
     }    

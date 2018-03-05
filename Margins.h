@@ -19,7 +19,7 @@
 #ifndef MARGINS_H_
 #define MARGINS_H_
 
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <memory>
 
 class Margins
@@ -28,10 +28,10 @@ public:
     Margins()
     {
         QSettings settings;
-        m_top = settings.value("margins/default_top", 0).toDouble();
-        m_bottom = settings.value("margins/default_bottom", 0).toDouble();
-        m_left = settings.value("margins/default_left", 0).toDouble();
-        m_right = settings.value("margins/default_right", 0).toDouble();
+        m_top = settings.value(_key_margins_default_top, _key_margins_default_top_def).toDouble();
+        m_bottom = settings.value(_key_margins_default_bottom, _key_margins_default_bottom_def).toDouble();
+        m_left = settings.value(_key_margins_default_left, _key_margins_default_left_def).toDouble();
+        m_right = settings.value(_key_margins_default_right, _key_margins_default_right_def).toDouble();
     }
 	
 	Margins(double left, double top, double right, double bottom)
@@ -69,15 +69,15 @@ class MarginsWithAuto: public Margins
 public:
     MarginsWithAuto(double left, double top, double right, double bottom)
     : Margins(top, bottom, left, right) {
-        setAutoMargins(QSettings().value("margins/default_auto_margins", false).toBool());
+        setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
     }
 
     MarginsWithAuto(const Margins& m): Margins(m) {
-        setAutoMargins(QSettings().value("margins/default_auto_margins", false).toBool());
+        setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
     }
 
     MarginsWithAuto(): Margins() {
-        setAutoMargins(QSettings().value("margins/default_auto_margins", false).toBool());
+        setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
     }
 
     MarginsWithAuto & operator= ( Margins rhs )

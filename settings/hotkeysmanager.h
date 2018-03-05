@@ -4,7 +4,7 @@
 #include <Qt>
 #include <QString>
 #include <QMouseEvent>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QObject>
 
 enum KeyType {

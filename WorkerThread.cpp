@@ -22,7 +22,7 @@
 #include <QCoreApplication>
 #include <QThread>
 #include <QEvent>
-#include <QSettings>
+#include "settings/ini_keys.h"
 #include <QtGlobal> // For Q_OS_LINUX
 #include <new>
 #include <assert.h>
@@ -160,7 +160,7 @@ WorkerThread::Dispatcher::updateThreadPriority(BackgroundTask const& task)
 
 	ThreadPriority prio(
 		ThreadPriority::load(
-			"settings/batch_processing_priority", ThreadPriority::Normal
+            _key_batch_processing_priority, ThreadPriority::Normal
 		)
 	);
 	if (task.type() == task.INTERACTIVE) {
