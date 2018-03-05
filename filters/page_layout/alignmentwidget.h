@@ -5,12 +5,29 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QToolButton>
+#include <QMenu>
 
 namespace Ui {
 class AlignmentWidget;
 }
 
 using namespace page_layout;
+
+class AlignmentComboBox: public QComboBox
+{
+    // ComboBox that displays only icons till popup
+    // required bcs it looks too bad on Win
+  public:
+    AlignmentComboBox(QWidget *parent = Q_NULLPTR);
+    void showPopup();
+    void hidePopup();
+private:
+    void updContextMenu();
+private:
+    QStringList m_itemsText;
+    const QString m_empty;
+    QMenu m_menu;
+};
 
 class AlignmentWidget : public QWidget
 {

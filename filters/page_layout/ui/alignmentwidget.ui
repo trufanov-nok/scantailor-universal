@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>241</width>
-    <height>193</height>
+    <width>244</width>
+    <height>196</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -332,9 +332,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QComboBox" name="cbAutoMagnet">
+       <widget class="AlignmentComboBox" name="cbAutoMagnet">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -345,11 +345,17 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::TabFocus</enum>
+        </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select alignment automatically&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="statusTip">
          <string>Automatically select alignment based on how close content to page borders</string>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
         </property>
         <item>
          <property name="text">
@@ -390,9 +396,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="cbOriginalProp">
+       <widget class="AlignmentComboBox" name="cbOriginalProp">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -403,11 +409,17 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::TabFocus</enum>
+        </property>
         <property name="toolTip">
          <string>Place proportionally to position on original scan</string>
         </property>
         <property name="statusTip">
          <string>Place proportionally to position on original scan</string>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
         </property>
         <item>
          <property name="text">
@@ -491,6 +503,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AlignmentComboBox</class>
+   <extends>QComboBox</extends>
+   <header>filters/page_layout/alignmentwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../resources/resources.qrc"/>
   <include location="../../../resources/resources.qrc"/>

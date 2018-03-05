@@ -61,6 +61,10 @@ AlignmentWidget::AlignmentWidget(QWidget *parent, Alignment *alignment) :
     }
     setUseAutoMagnetAlignment(false);
     setUseOriginalProportionsAlignment(false);
+
+    // make sure we cached all item texts
+    ui->cbAutoMagnet->hidePopup();
+    ui->cbOriginalProp->hidePopup();
 }
 
 AlignmentWidget::~AlignmentWidget()
@@ -425,4 +429,40 @@ void AlignmentWidget::on_btnResetAdvAlignment_clicked()
 {
     ui->cbAutoMagnet->setCurrentIndex(0);
     ui->cbOriginalProp->setCurrentIndex(0);
+}
+
+
+AlignmentComboBox::AlignmentComboBox(QWidget *parent): QComboBox(parent)
+{
+    m_menu.setStyle(style());
+}
+
+void AlignmentComboBox::showPopup() {
+    hidePopup();
+    m_menu.popup(mapToGlobal(QPoint(0,0)));
+}
+
+void AlignmentComboBox::hidePopup() {
+    updContextMenu();
+    QComboBox::hidePopup();
+}
+
+void AlignmentComboBox::updContextMenu()
+{
+    for (int i = 0; i < count(); ++i) {
+        const QString item_text = itemText(i);
+        if (!item_text.isEmpty()) {
+            setItemText(i, m_empty);
+            if (i < m_itemsText.count()) {
+                QAction* action = m_menu.actions()[i];
+                action->setText(item_text);
+                action->setIcon(itemIcon(i));
+            } else {
+                QAction* action = m_menu.addAction(itemIcon(i), item_text);
+                connect(action, &QAction::triggered, [=]() {
+                    setCurrentIndex(i);
+                });
+            }
+        }
+    }
 }
