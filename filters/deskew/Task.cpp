@@ -118,20 +118,28 @@ Task::process(TaskStatus const& status, FilterData const& data)
 
 	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
 	if (params.get()) {
-		if (!deps.matches(params->dependencies())) {
-			//std::cout << "Deskew: " << "reset params" << std::endl;
-			//std::cout << (deps.matches(params->dependencies())) << std::endl;
-			params.reset();
-		} else {
-			ui_data.setEffectiveDeskewAngle(params->deskewAngle());
-			ui_data.setMode(params->mode());
+        bool not_match = !deps.matches(params->dependencies());
+        if (not_match) {
+            // most probably param was copied to new page via apply to...
+            if (params->mode() == AutoManualMode::MODE_AUTO) {
+                params.reset(); // find new angle for new deps
+            } else {
+                // Keep angle and mode with new deps
+                params.reset(new Params(params->deskewAngle(), deps, params->mode()));
+                m_ptrSettings->setPageParams(m_pageId, *params.get());
+                not_match = false;
+            }
+        }
+        if (!not_match) {
+            ui_data.setEffectiveDeskewAngle(params->deskewAngle());
+            ui_data.setMode(params->mode());
 
             Params new_params(
-				ui_data.effectiveDeskewAngle(), deps, ui_data.mode()
-            );
+                        ui_data.effectiveDeskewAngle(), deps, ui_data.mode()
+                        );
             new_params.computeDeviation(m_ptrSettings->avg());
-			m_ptrSettings->setPageParams(m_pageId, new_params);
-		}
+            m_ptrSettings->setPageParams(m_pageId, new_params);
+        }
 	}
 
     bool need_reprocess(!params.get());

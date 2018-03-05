@@ -128,7 +128,6 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 	
 	m_pageId = page_id;
 	setSpinBoxUnknownState();
-	autoBtn->setChecked(true);
 	autoBtn->setEnabled(false);
 	manualBtn->setEnabled(false);
 }
