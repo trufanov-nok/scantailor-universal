@@ -88,9 +88,10 @@ ENDMACRO()
 #
 MACRO(UPDATE_TRANSLATIONS_TARGET _target) #, _sets
 	SET(_commands "")
+        get_target_property(LUPDATE_LOC ${Qt5_LUPDATE_EXECUTABLE} IMPORTED_LOCATION)
 	FOREACH(_set ${ARGN})
 		LIST(
-                        APPEND _commands COMMAND "${QT_LUPDATE_EXECUTABLE}" -locations absolute
+                        APPEND _commands COMMAND "${LUPDATE_LOC}" -locations absolute
 			-pro "${CMAKE_BINARY_DIR}/update_translations_${_set}.pro"
 		)
 	ENDFOREACH()
