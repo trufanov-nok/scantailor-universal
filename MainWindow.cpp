@@ -2405,6 +2405,7 @@ MainWindow::showAboutDialog()
     Ui::AboutDialog ui;
     QDialog* dialog = new QDialog(this);
     ui.setupUi(dialog);
+    ui.tabWidget->setCurrentIndex(0); // in case I forget to switch it back in UI Designer
     ui.version->setText(QString::fromUtf8(VERSION) + "\n" + tr("build on ") +
                         QDate(BUILD_YEAR, BUILD_MONTH, BUILD_DAY).toString(Qt::SystemLocaleShortDate));
 
