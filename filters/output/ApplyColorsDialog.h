@@ -45,10 +45,6 @@ signals:
 private slots:
 	void onSubmit();
 private:
-	PageSequence m_pages;
-	std::set<PageId> m_selectedPages;
-	PageId m_curPage;
-	QButtonGroup* m_pScopeGroup;
 };
 
 } // namespace output

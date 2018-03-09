@@ -42,15 +42,9 @@ public:
 	virtual ~ApplyDialog();
 signals:
 	void appliedTo(std::set<PageId> const& pages);
-	void appliedToAllPages(std::set<PageId> const& pages);
+    void appliedToAllPages(std::set<PageId> const& pages);
 private slots:
 	void onSubmit();
-private:
-	PageSequence m_pages;
-	PageId m_curPage;
-	std::set<PageId> m_selectedPages;
-    std::vector<PageRange> m_selectedRanges;
-	QButtonGroup* m_pScopeGroup;
 };
 
 } // namespace deskew

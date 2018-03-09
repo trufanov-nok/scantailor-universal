@@ -210,6 +210,7 @@ ConsoleBatch::process()
 		endFilterIdx = ef;
 	}
     
+
 	// run filters
 	for (int j=startFilterIdx; j<=endFilterIdx; j++) {
 		if (cli.isVerbose())
@@ -217,7 +218,7 @@ ConsoleBatch::process()
 
 		// process pages
 		PageSequence page_sequence = m_ptrPages->toPageSequence(PAGE_VIEW);
- 		setupFilter(j, page_sequence.selectAll());
+        setupFilter(j, page_sequence.asPageIdSet());
         for (const PageInfo& page: page_sequence) {
 			if (cli.isVerbose())
 				std::cout << "\tProcessing: " << page.imageId().filePath().toLocal8Bit().constData() << "\n";
@@ -227,9 +228,9 @@ ConsoleBatch::process()
 	}
     
 	// setup rest filters with params from cli
+    const std::set<PageId> select_all = m_ptrPages->toPageSequence(PAGE_VIEW).asPageIdSet();
 	for (int j=endFilterIdx+1; j<= m_ptrStages->count(); j++) {
-		PageSequence page_sequence = m_ptrPages->toPageSequence(PAGE_VIEW);
-		setupFilter(j, page_sequence.selectAll());
+        setupFilter(j, select_all);
 	}
     
 	// update statistics for executed filters

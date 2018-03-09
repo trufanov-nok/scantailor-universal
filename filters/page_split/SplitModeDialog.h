@@ -60,11 +60,6 @@ private:
 	
 	static char const* iconFor(LayoutType layout_type);
 	
-	PageSequence m_pages;
-	std::set<PageId> m_selectedPages;
-    std::vector<PageRange> m_selectedRanges;
-	PageId m_curPage;
-	QButtonGroup* m_pScopeGroup;
 	LayoutType m_layoutType;
 	PageLayout::Type m_autoDetectedLayoutType;
 	bool m_autoDetectedLayoutTypeValid;

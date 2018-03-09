@@ -28,34 +28,10 @@ namespace select_content
 
 ApplyDialog::ApplyDialog(
 	QWidget* parent,
-	PageId const& cur_page, PageSelectionAccessor const& page_selection_accessor)
-:	QDialog(parent),
-	m_pages(page_selection_accessor.allPages()),
-	m_selectedPages(page_selection_accessor.selectedPages()),
-	m_selectedRanges(page_selection_accessor.selectedRanges()),
-	m_curPage(cur_page),
-	m_pBtnGroup(new QButtonGroup(this))
+	PageId const& cur_page, PageSelectionAccessor const& page_selection_accessor):	QDialog(parent)
 {
 	setupUi(this);
-	m_pBtnGroup->addButton(thisPageOnlyRB);
-	m_pBtnGroup->addButton(allPagesRB);
-	m_pBtnGroup->addButton(thisPageAndFollowersRB);
-	m_pBtnGroup->addButton(selectedPagesRB);
-	m_pBtnGroup->addButton(everyOtherRB);
-	m_pBtnGroup->addButton(thisEveryOtherRB);
-	m_pBtnGroup->addButton(everyOtherSelectedRB);
-	
-
-	if (m_selectedPages.size() <= 1) {
-		selectedPagesWidget->setEnabled(false);
-		everyOtherSelectedWidget->setEnabled(false);
-		everyOtherSelectedHint->setText(selectedPagesHint->text());
-    } else if (m_selectedRanges.size() > 1) {
-		everyOtherSelectedWidget->setEnabled(false);
-		everyOtherSelectedHint->setText(tr("Can't do: more than one group is selected."));
-	}
-
-	
+    widgetPageRangeSelector->setData(cur_page, page_selection_accessor);
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
 
@@ -66,43 +42,8 @@ ApplyDialog::~ApplyDialog()
 void
 ApplyDialog::onSubmit()
 {
-	std::set<PageId> pages;
-	
-	// thisPageOnlyRB is intentionally not handled.
-	if (allPagesRB->isChecked()) {
-		m_pages.selectAll().swap(pages);
-	} else if (thisPageAndFollowersRB->isChecked()) {
-		m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-	} else if (selectedPagesRB->isChecked()) {
-        m_selectedPages.swap(pages);
-	} else if (everyOtherRB->isChecked()) {
-		m_pages.selectEveryOther(m_curPage).swap(pages);
-	} else if (thisEveryOtherRB->isChecked()) {
-		std::set<PageId> tmp;
-		m_pages.selectPagePlusFollowers(m_curPage).swap(tmp);
-		std::set<PageId>::iterator it = tmp.begin();
-		for (int i=0; it != tmp.end(); ++it, ++i) {
-			if (i % 2 == 0) {
-				pages.insert(*it);
-			}
-		}
-	} else if (everyOtherSelectedRB->isChecked()) {
-        if (m_selectedRanges.size() == 1) {
-            m_selectedRanges.front().selectEveryOther(m_curPage).swap(pages);
-        } else {
-            std::set<PageId> tmp;
-            m_pages.selectEveryOther(m_curPage).swap(tmp);
-            for (PageRange const& range: m_selectedRanges) {
-                for (PageId const& page: range.pages) {
-                    if (tmp.find(page) != tmp.end()) {
-                        pages.insert(page);
-                    }
-                }
-            }
-        }
-
-	}
-	
+    std::vector<PageId> vec = widgetPageRangeSelector->result();
+    std::set<PageId> pages(vec.begin(), vec.end());
 	emit applySelection(pages, applyContentBoxOption->isChecked());
 	
 	// We assume the default connection from accept() to accepted() was removed.

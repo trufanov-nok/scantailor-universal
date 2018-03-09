@@ -26,22 +26,11 @@ namespace output
 
 ApplyColorsDialog::ApplyColorsDialog(
 	QWidget* parent, PageId const& cur_page,
-	PageSelectionAccessor const& page_selection_accessor)
-:	QDialog(parent),
-	m_pages(page_selection_accessor.allPages()),
-	m_selectedPages(page_selection_accessor.selectedPages()),
-	m_curPage(cur_page),
-	m_pScopeGroup(new QButtonGroup(this))
+	PageSelectionAccessor const& page_selection_accessor):	QDialog(parent)
 {
 	setupUi(this);
-	m_pScopeGroup->addButton(thisPageRB);
-	m_pScopeGroup->addButton(allPagesRB);
-	m_pScopeGroup->addButton(thisPageAndFollowersRB);
-	m_pScopeGroup->addButton(selectedPagesRB);
-	if (m_selectedPages.size() <= 1) {
-		selectedPagesWidget->setEnabled(false);
-	}
-	
+    widgetPageRangeSelector->setData(cur_page, page_selection_accessor);
+
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
 
@@ -52,19 +41,8 @@ ApplyColorsDialog::~ApplyColorsDialog()
 void
 ApplyColorsDialog::onSubmit()
 {	
-	std::set<PageId> pages;
-	
-	// thisPageRB is intentionally not handled.
-	if (allPagesRB->isChecked()) {
-		m_pages.selectAll().swap(pages);
-	} else if (thisPageAndFollowersRB->isChecked()) {
-		m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-	} else if (selectedPagesRB->isChecked()) {
-		emit accepted(m_selectedPages);
-		accept();
-		return;
-	}
-	
+    std::vector<PageId> vec = widgetPageRangeSelector->result();
+    std::set<PageId> pages(vec.begin(), vec.end());
 	emit accepted(pages);
 	
 	// We assume the default connection from accepted() to accept()

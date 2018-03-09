@@ -49,11 +49,7 @@ private slots:
 	void onSubmit();
 private:
 	Ui::OutputChangeDewarpingDialog ui;
-	PageSequence m_pages;
-	std::set<PageId> m_selectedPages;
-	PageId m_curPage;
 	DewarpingMode m_mode;
-	QButtonGroup* m_pScopeGroup;
 };
 
 } // namespace output

@@ -222,6 +222,9 @@ public:
     void setMaxLogicalThumbSize(QSizeF const& max_size);
 
     QSizeF maxLogicalThumbSize() const;
+public slots:
+    void on_pagesMaybeTargeted(const std::vector<PageId> pages);
+
 signals:
 	void newSelectionLeader(
 		PageInfo const& page_info, QRectF const& thumb_rect,

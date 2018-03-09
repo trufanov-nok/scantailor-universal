@@ -56,11 +56,6 @@ signals:
 private slots:
 	void onSubmit();
 private:
-	PageSequence m_pages;
-	std::set<PageId> m_selectedPages;
-	std::vector<PageRange> m_selectedRanges;
-	PageId m_curPage;
-	QButtonGroup* m_pScopeGroup;
     DialogType m_dlgType;
 };
 

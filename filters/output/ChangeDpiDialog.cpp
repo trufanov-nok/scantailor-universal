@@ -34,21 +34,10 @@ namespace output
 
 ChangeDpiDialog::ChangeDpiDialog(
 	QWidget* parent, Dpi const& dpi, PageId const& cur_page,
-	PageSelectionAccessor const& page_selection_accessor)
-:	QDialog(parent),
-	m_pages(page_selection_accessor.allPages()),
-	m_selectedPages(page_selection_accessor.selectedPages()),
-	m_curPage(cur_page),
-	m_pScopeGroup(new QButtonGroup(this))
+	PageSelectionAccessor const& page_selection_accessor):	QDialog(parent)
 {
 	setupUi(this);
-	m_pScopeGroup->addButton(thisPageRB);
-	m_pScopeGroup->addButton(allPagesRB);
-	m_pScopeGroup->addButton(thisPageAndFollowersRB);
-	m_pScopeGroup->addButton(selectedPagesRB);
-	if (m_selectedPages.size() <= 1) {
-		selectedPagesWidget->setEnabled(false);
-	}
+    widgetPageRangeSelector->setData(cur_page, page_selection_accessor);
 	
 	dpiSelector->setValidator(new QIntValidator(dpiSelector));
 	
@@ -148,19 +137,8 @@ ChangeDpiDialog::onSubmit()
 		return;
 	}
 	
-	std::set<PageId> pages;
-	
-	if (thisPageRB->isChecked()) {
-		pages.insert(m_curPage);
-	} else if (allPagesRB->isChecked()) {
-		m_pages.selectAll().swap(pages);
-	} else if (thisPageAndFollowersRB->isChecked()) {
-		m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-	} else if (selectedPagesRB->isChecked()) {
-		emit accepted(m_selectedPages, Dpi(dpi, dpi));
-		accept();
-		return;
-	}
+    std::vector<PageId> vec = widgetPageRangeSelector->result();
+    std::set<PageId> pages(vec.begin(), vec.end());
 	
 	emit accepted(pages, Dpi(dpi, dpi));
 	

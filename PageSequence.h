@@ -38,11 +38,11 @@ public:
 
     int pageNo(PageId const& page) const;
 
-	std::set<PageId> selectAll() const;
+    std::set<PageId> asPageIdSet() const;
 
-	std::set<PageId> selectPagePlusFollowers(PageId const& page) const;
+//	std::set<PageId> selectPagePlusFollowers(PageId const& page) const;
 
-	std::set<PageId> selectEveryOther(PageId const& base) const;
+//	std::set<PageId> selectEveryOther(PageId const& base) const;
 
     // reqquired for range-based for iteration
     std::vector<PageInfo>::iterator begin() {return m_pages.begin(); }

@@ -29,6 +29,7 @@
 #include "IntrusivePtr.h"
 #include "ScopedIncDec.h"
 #include "settings/globalstaticsettings.h"
+#include "PageRangeSelectorWidget.h"
 #ifndef Q_MOC_RUN
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -87,10 +88,14 @@ public:
 	bool isSelected() const { return m_isSelected; }
 	
 	bool isSelectionLeader() const { return m_isSelectionLeader; }
+
+    bool isTargeted() const { return m_isTargeted; }
 	
 	void setSelected(bool selected) const;
 	
 	void setSelectionLeader(bool selection_leader) const;
+
+    void setTargeted(bool targeted) const;
 	
 	PageInfo pageInfo;
 	mutable CompositeItem* composite;
@@ -98,6 +103,7 @@ public:
 private:
 	mutable bool m_isSelected;
 	mutable bool m_isSelectionLeader;
+    mutable bool m_isTargeted;
 };
 
 
@@ -190,6 +196,7 @@ public:
 
     QSizeF maxLogicalThumbSize() const { return m_maxLogicalThumbSize; }
 
+    void setPagesMaybeTargeted(const std::vector<PageId> pages);
 private:
 	class ItemsByIdTag;
 	class ItemsInOrderTag;
@@ -304,7 +311,7 @@ public:
 		std::auto_ptr<QGraphicsSimpleTextItem> bold_label,
 		std::auto_ptr<QGraphicsPixmapItem> pixmap = std::auto_ptr<QGraphicsPixmapItem>());
 	
-	void updateAppearence(bool selected, bool selection_leader);
+    void updateAppearence(bool selected, bool selection_leader);
 private:
 	QGraphicsSimpleTextItem* m_pNormalLabel;
 	QGraphicsSimpleTextItem* m_pBoldLabel;
@@ -366,6 +373,8 @@ private:
 ThumbnailSequence::ThumbnailSequence(QSizeF const& max_logical_thumb_size)
 :	m_ptrImpl(new Impl(*this, max_logical_thumb_size))
 {
+    connect(PageRangeSelectorSignalsPropagator::get(), &PageRangeSelectorSignalsPropagator::maybeTargeted,
+            this, &ThumbnailSequence::on_pagesMaybeTargeted);
 }
 
 ThumbnailSequence::~ThumbnailSequence()
@@ -943,6 +952,20 @@ ThumbnailSequence::Impl::AllThumbnailsComplete()
 	return true;
 }
 
+void
+ThumbnailSequence::Impl::setPagesMaybeTargeted(const std::vector<PageId> pages)
+{
+    ItemsInOrder::iterator id_it(m_itemsInOrder.begin());
+    std::vector<PageId>::const_iterator it(pages.end());
+    while (id_it != m_itemsInOrder.end()) {
+        // probably may be done without find, but didn't check if pages are in order
+        it = std::find(pages.begin(), pages.end(), id_it->pageId());
+        Item const* item = &*id_it;
+        item->setTargeted( it != pages.end() );
+        ++ id_it;
+    }
+}
+
 bool
 ThumbnailSequence::AllThumbnailsComplete()
 {
@@ -960,6 +983,13 @@ QSizeF
 ThumbnailSequence::maxLogicalThumbSize() const
 {
     return m_ptrImpl->maxLogicalThumbSize();
+}
+
+void
+ThumbnailSequence::on_pagesMaybeTargeted(const std::vector<PageId> pages)
+{
+    m_ptrImpl->setPagesMaybeTargeted(pages);
+    m_ptrImpl->invalidateAllThumbnails();
 }
 
 bool
@@ -1761,7 +1791,8 @@ ThumbnailSequence::Item::Item(PageInfo const& page_info, CompositeItem* comp_ite
 	composite(comp_item),
 	incompleteThumbnail(comp_item->incompleteThumbnail()),
 	m_isSelected(false),
-	m_isSelectionLeader(false)
+    m_isSelectionLeader(false),
+    m_isTargeted(false)
 {
 }
 
@@ -1795,6 +1826,15 @@ ThumbnailSequence::Item::setSelectionLeader(bool selection_leader) const
 	}
 }
 
+void
+ThumbnailSequence::Item::setTargeted(bool targeted) const
+{
+    if (targeted != m_isTargeted) {
+        m_isTargeted = targeted;
+        // don't propagate m_isTargeted further as not used there yet
+//        composite->updateAppearence(m_isSelected, m_isSelectionLeader, m_Targeted);
+    }
+}
 
 /*================== ThumbnailSequence::PlaceholderThumb ====================*/
 
@@ -1929,8 +1969,14 @@ void
 ThumbnailSequence::CompositeItem::paint(
     QPainter* painter, QStyleOptionGraphicsItem const* /*option*/, QWidget */*widget*/)
 {
-	if (m_pItem->isSelected()) {
-        QColor clr = QApplication::palette().color(QPalette::Highlight);
+    if (m_pItem->isSelected() || m_pItem->isTargeted()) {
+        QColor clr;
+        if (m_pItem->isTargeted()) {
+            clr = QColor(Qt::yellow).darker(150);
+        } else {
+            clr = QApplication::palette().color(QPalette::Highlight);
+        }
+
         if (!m_pItem->isSelectionLeader()) {
             clr = clr.lighter(GlobalStaticSettings::m_highlightColorAdjustment);
         }

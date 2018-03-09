@@ -32,22 +32,12 @@ ChangeDewarpingDialog::ChangeDewarpingDialog(
 	QWidget* parent, PageId const& cur_page, DewarpingMode const& mode,
 	PageSelectionAccessor const& page_selection_accessor)
 :	QDialog(parent),
-	m_pages(page_selection_accessor.allPages()),
-	m_selectedPages(page_selection_accessor.selectedPages()),
-	m_curPage(cur_page),
-	m_mode(mode),
-	m_pScopeGroup(new QButtonGroup(this))
+    m_mode(mode)
 {
 	using namespace boost::lambda;
 
 	ui.setupUi(this);
-	m_pScopeGroup->addButton(ui.thisPageRB);
-	m_pScopeGroup->addButton(ui.allPagesRB);
-	m_pScopeGroup->addButton(ui.thisPageAndFollowersRB);
-	m_pScopeGroup->addButton(ui.selectedPagesRB);
-	if (m_selectedPages.size() <= 1) {
-		ui.selectedPagesWidget->setEnabled(false);
-	}
+    ui.widgetPageRangeSelector->setData(cur_page, page_selection_accessor);
 
 	switch (mode) {
 		case DewarpingMode::OFF:
@@ -86,19 +76,8 @@ ChangeDewarpingDialog::~ChangeDewarpingDialog()
 void
 ChangeDewarpingDialog::onSubmit()
 {
-	std::set<PageId> pages;
-	
-	if (ui.thisPageRB->isChecked()) {
-		pages.insert(m_curPage);
-	} else if (ui.allPagesRB->isChecked()) {
-		m_pages.selectAll().swap(pages);
-	} else if (ui.thisPageAndFollowersRB->isChecked()) {
-		m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-	} else if (ui.selectedPagesRB->isChecked()) {
-		emit accepted(m_selectedPages, m_mode);
-		accept();
-		return;
-	}
+    std::vector<PageId> vec = ui.widgetPageRangeSelector->result();
+    std::set<PageId> pages(vec.begin(), vec.end());
 	
 	emit accepted(pages, m_mode);
 	

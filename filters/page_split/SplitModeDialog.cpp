@@ -35,27 +35,12 @@ SplitModeDialog::SplitModeDialog(
 	PageLayout::Type const auto_detected_layout_type,
 	bool const auto_detected_layout_type_valid)
 :	QDialog(parent),
-	m_pages(page_selection_accessor.allPages()),
-	m_selectedPages(page_selection_accessor.selectedPages()),
-    m_selectedRanges(page_selection_accessor.selectedRanges()),
-	m_curPage(cur_page),
-	m_pScopeGroup(new QButtonGroup(this)),
 	m_layoutType(layout_type),
 	m_autoDetectedLayoutType(auto_detected_layout_type),
 	m_autoDetectedLayoutTypeValid(auto_detected_layout_type_valid)
 {
 	setupUi(this);
-	m_pScopeGroup->addButton(thisPageRB);
-	m_pScopeGroup->addButton(allPagesRB);
-	m_pScopeGroup->addButton(thisPageAndFollowersRB);
-	m_pScopeGroup->addButton(thisEveryOtherRB);
-	m_pScopeGroup->addButton(everyOtherRB);
-	m_pScopeGroup->addButton(selectedPagesRB);
-	m_pScopeGroup->addButton(everyOtherSelectedRB);
-	if (m_selectedPages.size() <= 1) {
-		selectedPagesWidget->setEnabled(false);
-	}
-	
+    widgetPageRangeSelector->setData(cur_page, page_selection_accessor, PageView::IMAGE_VIEW);
 	layoutTypeLabel->setPixmap(QPixmap(iconFor(m_layoutType)));
     if (m_layoutType == AUTO_LAYOUT_TYPE && !m_autoDetectedLayoutTypeValid) {
 		modeAuto->setChecked(true);
@@ -108,49 +93,9 @@ SplitModeDialog::onSubmit()
 		layout_type = combinedLayoutType();
 	}
 	
-	std::set<PageId> pages;
-	
-	if (thisPageRB->isChecked()) {
-		pages.insert(m_curPage);
-	} else if (allPagesRB->isChecked()) {
-		m_pages.selectAll().swap(pages);
-		//emit accepted(m_selectedPages, true, layout_type, applyCutOption->isChecked());
-		//accept();
-	} else if (thisPageAndFollowersRB->isChecked()) {
-		m_pages.selectPagePlusFollowers(m_curPage).swap(pages);
-	} else if (selectedPagesRB->isChecked()) {
-		emit accepted(m_selectedPages, false, layout_type, applyCutOption->isChecked());
-		accept();
-		return;
-    } else if (everyOtherRB->isChecked()) {
-		m_pages.selectEveryOther(m_curPage).swap(pages);
-	} else if (thisEveryOtherRB->isChecked()) {
-		std::set<PageId> tmp;
-		m_pages.selectPagePlusFollowers(m_curPage).swap(tmp);
-		std::set<PageId>::iterator it = tmp.begin();
-		for (int i=0; it != tmp.end(); ++it, ++i) {
-			if (i % 2 == 0) {
-				pages.insert(*it);
-			}
-		}
-        
-	} else if (everyOtherSelectedRB->isChecked()) {
-        if (m_selectedRanges.size() == 1) {
-            m_selectedRanges.front().selectEveryOther(m_curPage).swap(pages);
-        } else {
-            std::set<PageId> tmp;
-            m_pages.selectEveryOther(m_curPage).swap(tmp);
-            for (PageRange const& range: m_selectedRanges) {
-                for (PageId const& page: range.pages) {
-                    if (tmp.find(page) != tmp.end()) {
-                        pages.insert(page);
-                    }
-                }
-            }
-        }
-	}
-    
-	emit accepted(pages, false, layout_type, applyCutOption->isChecked());
+    std::vector<PageId> vec = widgetPageRangeSelector->result();
+    std::set<PageId> pages(vec.begin(), vec.end());
+    emit accepted(pages, widgetPageRangeSelector->allPagesSelected(), layout_type, applyCutOption->isChecked());
 	
 	// We assume the default connection from accepted() to accept()
 	// was removed.
