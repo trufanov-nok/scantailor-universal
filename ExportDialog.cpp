@@ -113,7 +113,7 @@ ExportDialog::OnClickExport()
 		if (!m_autoOutDir) {
 			create = QMessageBox::question(
 				this, tr("Create Directory?"),
-				tr("The export output directory doesn't exist.  Create it?"),
+                tr("The export output directory doesn't exist. Create it?"),
 				QMessageBox::Yes|QMessageBox::No
 			) == QMessageBox::Yes;
 			if (!create) {
@@ -191,7 +191,8 @@ ExportDialog::setCount(int count)
 void
 ExportDialog::StepProgress()
 {
-	ui.labelFilesProcessed->setText(tr("Processed file") + " " + QString::number(ui.progressBar->value()+1) + " " + tr("of") + " " + QString::number(m_count));
+    const QString txt = tr("Processed pages %1 of %2");
+    ui.labelFilesProcessed->setText( txt.arg(ui.progressBar->value()+1).arg(m_count) );
 	ui.progressBar->setValue(ui.progressBar->value() + 1);	
 }
 

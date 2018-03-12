@@ -1271,26 +1271,26 @@ MainWindow::pageContextMenuRequested(
     QMenu menu;
 
     QAction* goto_page = menu.addAction(
-        tr("Go to page ...")
+        tr("Go to page...")
     );
 
     QAction* select_pages = menu.addAction(
-        tr("Select pages ...")
+        tr("Select pages...")
     );
 
     menu.addSeparator();
 
     QAction* ins_before = menu.addAction(
-        QIcon(":/icons/insert-before-16.png"), tr("Insert before ...")
+        QIcon(":/icons/insert-before-16.png"), tr("Insert before...")
     );
     QAction* ins_after = menu.addAction(
-        QIcon(":/icons/insert-after-16.png"), tr("Insert after ...")
+        QIcon(":/icons/insert-after-16.png"), tr("Insert after...")
     );
 
     menu.addSeparator();
 
     QAction* remove = menu.addAction(
-        QIcon(":/icons/user-trash.png"), tr("Remove from project ...")
+        QIcon(":/icons/user-trash.png"), tr("Remove from project...")
     );
 
     QAction* regenerate = nullptr;
@@ -1378,7 +1378,7 @@ MainWindow::pastLastPageContextMenuRequested(QPoint const& screen_pos)
     }
 
     QMenu menu;
-    menu.addAction(QIcon(":/icons/insert-here-16.png"), tr("Insert here ..."));
+    menu.addAction(QIcon(":/icons/insert-here-16.png"), tr("Insert here..."));
 
     if (menu.exec(screen_pos)) {
         showInsertFileDialog(BEFORE, ImageId());
@@ -2570,7 +2570,7 @@ MainWindow::loadPageInteractive(PageInfo const& page)
             tr("Output is not yet possible, as the final size"
             " of pages is not yet known.\nTo determine it,"
             " run batch processing at \"Select Content\" or"
-            " \"Margins\".")
+            " \"Page Layout\".")
         );
 
         removeFilterOptionsWidget();
@@ -3145,6 +3145,24 @@ MainWindow::setDockingPanels(bool enabled)
     }
 }
 
+bool
+MainWindow::loadLanguage(const QString& dir, const QString& lang)
+{
+    const QString translation("scantailor_" + lang);
+    bool loaded = m_translator.load(dir + translation);
+
+#if defined(unix) || defined(__unix__) || defined(__unix)
+    // will load it from /usr/share later
+#else
+    // we distribute all Qt Fraeworks files with ST installer for Win
+    const QString qt_translation("qtbase_" + lang);
+    if (loaded) {
+        m_qt_translator.load(dir + qt_translation);
+    }
+#endif
+    return loaded;
+}
+
 void
 MainWindow::changeLanguage(QString lang, bool dont_store)
 {
@@ -3152,21 +3170,15 @@ MainWindow::changeLanguage(QString lang, bool dont_store)
     if (lang == m_current_lang)
         return;
 
-    QString translation("scantailor_"+lang);
 
-    bool loaded = m_translator.load(translation);
+
+    bool loaded = loadLanguage("", lang);
     if (!loaded) {
-        loaded = m_translator.load(qApp->applicationDirPath() + "/" + translation);
+        loaded = loadLanguage(qApp->applicationDirPath() + "/", lang);
         if (!loaded) {
-            QString path(QString::fromUtf8(TRANSLATIONS_DIR_ABS));
-            path += QChar('/');
-            path += translation;
-            loaded = m_translator.load(path);
+            loaded = loadLanguage(QString::fromUtf8(TRANSLATIONS_DIR_ABS) + "/", lang);
             if (!loaded) {
-                path = QString::fromUtf8(TRANSLATIONS_DIR_REL);
-                path += QChar('/');
-                path += translation;
-                loaded = m_translator.load(path);
+                loaded = loadLanguage(QString::fromUtf8(TRANSLATIONS_DIR_REL) + "/", lang);
             }
         }
     }
@@ -3180,6 +3192,24 @@ MainWindow::changeLanguage(QString lang, bool dont_store)
             settings.setValue(_key_app_language, lang);
         }
         m_current_lang = lang;
+
+        // additionally load Qt's own localization to translate QDialogButtonBox buttons etc.
+        if (!m_qt_translator.isEmpty()) {
+            qApp->removeTranslator(&m_qt_translator);
+        }
+
+        if (lang != "en") { // Qt's "en" is built in
+
+#if defined(unix) || defined(__unix__) || defined(__unix)
+            if (m_qt_translator.isEmpty()) {
+                m_qt_translator.load(QString("qt_%1").arg(lang), "/usr/share/qt5/translations/");
+            }
+#endif
+            if (!m_qt_translator.isEmpty()) {
+                qApp->installTranslator(&m_qt_translator);
+            }
+        }
+
     } else {
         changeLanguage("en"); // fallback to EN
     }

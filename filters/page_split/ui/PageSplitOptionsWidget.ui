@@ -23,7 +23,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Page Layout</string>
+      <string>Page Layout on image</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -156,7 +156,7 @@
         <item>
          <widget class="QPushButton" name="changeBtn">
           <property name="text">
-           <string>Change ...</string>
+           <string>Change...</string>
           </property>
          </widget>
         </item>
@@ -271,6 +271,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../../../resources/resources.qrc"/>
   <include location="../../../resources/resources.qrc"/>
  </resources>
  <connections/>

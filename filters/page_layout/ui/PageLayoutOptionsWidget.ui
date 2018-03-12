@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -304,7 +304,7 @@
         <item>
          <widget class="QPushButton" name="applyMarginsBtn">
           <property name="text">
-           <string>Apply To ...</string>
+           <string>Apply To...</string>
           </property>
          </widget>
         </item>
@@ -353,7 +353,7 @@
         <item>
          <widget class="QPushButton" name="applyAlignmentBtn">
           <property name="text">
-           <string>Apply To ...</string>
+           <string>Apply To...</string>
           </property>
          </widget>
         </item>

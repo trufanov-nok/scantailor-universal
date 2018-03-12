@@ -558,7 +558,7 @@ ProjectFilesDialog::onOK()
 		if (!m_autoOutDir) {
 			create = QMessageBox::question(
 				this, tr("Create Directory?"),
-				tr("Output directory doesn't exist.  Create it?"),
+                tr("Output directory doesn't exist. Create it?"),
 				QMessageBox::Yes|QMessageBox::No
 			) == QMessageBox::Yes;
 			if (!create) {

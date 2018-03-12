@@ -246,6 +246,8 @@ private:
 
 	virtual IntrusivePtr<AbstractCommand0<void> > relinkingDialogRequester();
 	
+    bool loadLanguage(const QString &dir, const QString& lang);
+
 	void switchToNewProject(
 		IntrusivePtr<ProjectPages> const& pages,
 		QString const& out_dir,
@@ -395,6 +397,7 @@ private:
 //Language
     QString m_current_lang;
     QTranslator m_translator;
+    QTranslator m_qt_translator;
     void changeEvent(QEvent* event);
 //Disable docking
     bool m_docking_enabled;

@@ -34,10 +34,6 @@
         <translation>Неожиданный ответ (код %1) от принимающей стороны</translation>
     </message>
     <message>
-        <source>Sending failed</source>
-        <translation type="obsolete">Отправить не удалось</translation>
-    </message>
-    <message>
         <location filename="../crash_reporter/CrashReportDialog.cpp" line="227"/>
         <source>Successfully sent</source>
         <translation>Успешно отправлено</translation>
@@ -46,10 +42,6 @@
         <location filename="../crash_reporter/ui/CrashReportDialog.ui" line="14"/>
         <source>Crash Report</source>
         <translation>Сообщение о падении</translation>
-    </message>
-    <message>
-        <source>Scan Tailor crashed.  That&apos;s usually caused by errors in the software.  You can help us find and fix this problem by submitting this crash report.</source>
-        <translation type="obsolete">Scan Tailor упал.  Обычно это результат ошибок в программе.  Вы можете помочь нам найти и исправить эту проблему, отправив этот отчет о падении.</translation>
     </message>
     <message>
         <location filename="../crash_reporter/ui/CrashReportDialog.ui" line="20"/>
@@ -69,17 +61,9 @@ English or Russian please.</source>
 Писать можно по-русски или по-английски.</translation>
     </message>
     <message>
-        <source>If you have additional information, for example you know how to reproduce the crash, please provide it here.</source>
-        <translation type="obsolete">Если у вас есть дополнительная информация, например если вы знаете, как воспроизвести падение - пишите ее сюда.</translation>
-    </message>
-    <message>
         <location filename="../crash_reporter/ui/CrashReportDialog.ui" line="71"/>
         <source>If you are willing to provide further assistance to developers to help fix this problem, please provide your email address.</source>
         <translation>Если вы согласны оказать дополнительное содействие разработчикам в поиске этой проблемы, укажите свой адрес электронной почты.</translation>
-    </message>
-    <message>
-        <source>If you are willing to provide further assistance to developers to help fix this problem, plese provide your email address.</source>
-        <translation type="obsolete">Если вы согласны оказать дополнительное содействие разработчикам в поиске этой проблемы, укажите свой адрес электронной почты.</translation>
     </message>
     <message>
         <location filename="../crash_reporter/ui/CrashReportDialog.ui" line="81"/>

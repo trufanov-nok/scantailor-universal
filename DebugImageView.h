@@ -33,6 +33,7 @@ class DebugImageView :
 		boost::intrusive::link_mode<boost::intrusive::auto_unlink>
 	>
 {
+    Q_OBJECT
 public:
 	DebugImageView(AutoRemovingFile file,
 		boost::function<QWidget* (QImage const&)> const& image_view_factory =

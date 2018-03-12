@@ -34,7 +34,7 @@ class QDomDocument;
 class QDomElement;
 
 /**
- * Filters represent processing stages, like "Deskew", "Margins" and "Output".
+ * Filters represent processing stages, like "Deskew", "Page Layout" and "Output".
  */
 class AbstractFilter : public RefCountable
 {

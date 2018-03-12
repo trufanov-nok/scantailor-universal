@@ -26,7 +26,7 @@ SET(
         "${CMAKE_SOURCE_DIR}/cmake/default_cxxflags.cmake"
 )
 
-PROJECT("Scan Tailor")
+PROJECT("Scan Tailor Universal")
 
 IF(MSVC)
         # Disable checked iterators for extra performance.
@@ -671,6 +671,15 @@ FOREACH(ts_file ${ts_files})
 ENDFOREACH(ts_file)
 
 QT5_ADD_TRANSLATION(QM_FILES ${FILTERED_TRANSLATION_FILES})
+
+IF(WIN32)
+        # Just copy already compiled qtbase*.qm from translations folder
+        # if any of them are present there
+        # to support localization of Qt own controls on Win machines
+        FILE(GLOB QTBASE_QM_FILES translations/qtbase*.qm)
+        LIST(APPEND QM_FILES ${QTBASE_QM_FILES})
+ENDIF(WIN32)
+
 ADD_CUSTOM_TARGET(compile_translations ALL DEPENDS ${QM_FILES})
 
 INSTALL(FILES ${QM_FILES} DESTINATION "${TRANSLATIONS_DIR_REL}/")

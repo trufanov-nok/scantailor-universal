@@ -125,9 +125,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-279</y>
             <width>430</width>
-            <height>532</height>
+            <height>570</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -239,6 +239,14 @@
              </property>
              <property name="text">
               <string>Translators</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>English - Alexander Trufanov
+Russian - Alexander Trufanov</string>
              </property>
             </widget>
            </item>

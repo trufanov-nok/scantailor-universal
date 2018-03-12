@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>232</width>
-    <height>39</height>
+    <height>42</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
    <item>
     <widget class="QToolButton" name="minusBtn">
      <property name="text">
-      <string>...</string>
+      <string notr="true">...</string>
      </property>
      <property name="icon">
       <iconset resource="../resources/resources.qrc">
@@ -70,7 +70,7 @@
    <item>
     <widget class="QToolButton" name="plusBtn">
      <property name="text">
-      <string>...</string>
+      <string notr="true">...</string>
      </property>
      <property name="icon">
       <iconset resource="../resources/resources.qrc">
@@ -84,6 +84,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

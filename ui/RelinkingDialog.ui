@@ -97,7 +97,7 @@
         <string>Undo</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string notr="true">...</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/resources.qrc">
@@ -143,6 +143,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections>
