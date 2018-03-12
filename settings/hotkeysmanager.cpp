@@ -45,7 +45,7 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ControlModifier, Qt::Key_3)));
     data.append(HotKeyInfo(StageSelectContent, QObject::tr("Select Content"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_4)));
-    data.append(HotKeyInfo(StageMargins, QObject::tr("Margins"), KeysAndModifiers, HotKey,
+    data.append(HotKeyInfo(StageMargins, QObject::tr("Page Layout"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_5)));
     data.append(HotKeyInfo(StageOutput, QObject::tr("Output"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_6)));
@@ -114,7 +114,7 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ContentMoveAxes, QObject::tr("Move along axes"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ContentStretch, QObject::tr("Stretch or sqeeze"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ContentStretch, QObject::tr("Stretch or squeeze"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ContentInsert, QObject::tr("Create zone"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Insert)));
@@ -157,7 +157,7 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ZoneMoveVertically, QObject::tr("Move zone vertically"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier|Qt::MetaModifier, Qt::Key_unknown)));
-    data.append(HotKeyInfo(ZoneMoveHorizontally, QObject::tr("Move zone horyzontally"), ModifierAllowed, MouseHold,
+    data.append(HotKeyInfo(ZoneMoveHorizontally, QObject::tr("Move zone horizontally"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ZonePaste, QObject::tr("Paste from clipboard"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_V)));
@@ -256,9 +256,9 @@ bool QHotKeys::load(QSettings *_settings)
     if (settings.contains(_key_hot_keys_scheme_ver)) {
         uint scheme = settings.value(_key_hot_keys_scheme_ver, 0).toUInt();
         if (scheme < _KeySchemeLastCompatibleVer) {
-            // settings contains outdated hotkeys scheme and it shoud be resetted.
+            // settings contains outdated hotkeys scheme and it shoud be reseted.
             // this might be needed if new HotKayIds were added into existing group
-            QString warning = QObject::tr("The hotkeys scheme in your settigs file is incompatible with current application version. Hotkeys settings will be resetted.");
+            QString warning = QObject::tr("The hotkeys scheme in your settings file is incompatible with current application version. Hotkeys settings will be reseted.");
             if (CommandLine::get().isGui()) {
                 QMessageBox::warning(nullptr, QObject::tr("Scan Tailor Universal"), warning);
             } else {

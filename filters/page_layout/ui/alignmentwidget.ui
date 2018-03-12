@@ -84,7 +84,7 @@
         <item row="0" column="0">
          <widget class="QToolButton" name="alignTopLeftBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -107,7 +107,7 @@
         <item row="2" column="1">
          <widget class="QToolButton" name="alignBottomBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -130,7 +130,7 @@
         <item row="0" column="1">
          <widget class="QToolButton" name="alignTopBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -153,7 +153,7 @@
         <item row="1" column="2">
          <widget class="QToolButton" name="alignRightBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -176,7 +176,7 @@
         <item row="1" column="1">
          <widget class="QToolButton" name="alignCenterBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -202,7 +202,7 @@
         <item row="0" column="2">
          <widget class="QToolButton" name="alignTopRightBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -225,7 +225,7 @@
         <item row="1" column="0">
          <widget class="QToolButton" name="alignLeftBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -248,7 +248,7 @@
         <item row="2" column="0">
          <widget class="QToolButton" name="alignBottomLeftBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -271,7 +271,7 @@
         <item row="2" column="2">
          <widget class="QToolButton" name="alignBottomRightBtn">
           <property name="text">
-           <string>...</string>
+           <string notr="true"/>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">

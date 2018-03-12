@@ -44,24 +44,6 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     populateTreeWidget(ui.treeWidget);
     restoreSettingsTreeState(ui.treeWidget);
 
-
-#ifndef ENABLE_OPENGL
-    //    ui.use3DAcceleration->setVisible(false);
-    //    ui.use3DAcceleration->setChecked(false);
-    //    ui.use3DAcceleration->setEnabled(false);
-    //    ui.use3DAcceleration->setToolTip(tr("Compiled without OpenGL support."));
-#else
-    //    if (!OpenGLSupport::supported()) {
-    //        ui.use3DAcceleration->setChecked(false);
-    //        ui.use3DAcceleration->setEnabled(false);
-    //        ui.use3DAcceleration->setToolTip(tr("Your hardware / driver don't provide the necessary features."));
-    //    } else {
-    //        ui.use3DAcceleration->setChecked(
-    //                    settings.value(_key_use_3d_accel, _key_use_3d_accel_def).toBool()
-    //                    );
-    //    }
-#endif
-
     connect(ui.buttonBox, SIGNAL(accepted()), SLOT(commitChanges()));
     connect(ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
     connect(ui.buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::on_dialogButtonClicked);
@@ -75,7 +57,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     connect(ui.widgetAlignment, &AlignmentWidget::alignmentChanged, [this]() {
         QString txt = Alignment::getVerboseDescription(*ui.widgetAlignment->alignment());
         if (txt.isEmpty()) {
-            txt = tr("Not applicable. Page size is equalt to content zone with margins." \
+            txt = tr("Not applicable. Page size is equal to content zone with margins." \
                      " So content position is defined by margins.");
         }
         ui.lblSelectedAlignment->setText(txt);
@@ -507,9 +489,9 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         cb->blockSignals(true);
         cb->clear();
         cb->addItem(tr("None"),  output::DESPECKLE_OFF);
-        cb->addItem(tr("Cuatious"),  output::DESPECKLE_CAUTIOUS);
+        cb->addItem(tr("Cautious"),  output::DESPECKLE_CAUTIOUS);
         cb->addItem(tr("Normal"),  output::DESPECKLE_NORMAL);
-        cb->addItem(tr("Aggresive"),  output::DESPECKLE_AGGRESSIVE);
+        cb->addItem(tr("Aggressive"),  output::DESPECKLE_AGGRESSIVE);
         int def = m_settings.value(_key_output_despeckling_default_lvl, output::DESPECKLE_CAUTIOUS).toInt();
 
         int idx = cb->findData(def);
@@ -999,7 +981,7 @@ void SettingsDialog::on_sbFixedMaxLogicalThumbSizeWidth_valueChanged(int arg1)
 void SettingsDialog::on_btnThumbDefaults_clicked()
 {
     if (QMessageBox::question(this, tr("Restore defaults"),
-                              tr("Thumbnails view settings will be resetted to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
+                              tr("Thumbnails view settings will be reseted to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
                               QMessageBox::Cancel) != QMessageBox::Cancel) {
         for (const QString& key: m_settings.allKeys()) {
             if (key.startsWith(_key_thumbnails_category)) {

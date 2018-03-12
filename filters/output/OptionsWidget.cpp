@@ -636,7 +636,7 @@ OptionsWidget::updateDespeckleValueText()
     case DESPECKLE_OFF: despeckleValue->setText(tr("Off")); break;
     case DESPECKLE_CAUTIOUS: despeckleValue->setText(tr("Cautious")); break;
     case DESPECKLE_NORMAL: despeckleValue->setText(tr("Normal")); break;
-    case DESPECKLE_AGGRESSIVE: despeckleValue->setText(tr("Aggresive")); break;
+    case DESPECKLE_AGGRESSIVE: despeckleValue->setText(tr("Aggressive")); break;
     default: ;
     }
 }
@@ -997,7 +997,7 @@ void output::OptionsWidget::on_applyForegroundThresholdButton_linkActivated(cons
         this, m_pageId, m_pageSelectionAccessor
     );
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowTitle(tr("Apply Foregorund layer threshold"));
+    dialog->setWindowTitle(tr("Apply Foreground layer threshold"));
     connect(dialog, &ApplyColorsDialog::accepted, [this](std::set<PageId> const& set){
                     applyThresholdConfirmed(set, ColorParamsApplyFilter::CopyForegroundThreshold);
                 }   );

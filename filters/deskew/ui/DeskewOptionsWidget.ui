@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>220</width>
+    <width>222</width>
     <height>238</height>
    </rect>
   </property>
@@ -137,7 +137,7 @@
         <item>
          <widget class="QPushButton" name="applyDeskewBtn">
           <property name="text">
-           <string>Apply To ...</string>
+           <string>Apply To...</string>
           </property>
          </widget>
         </item>

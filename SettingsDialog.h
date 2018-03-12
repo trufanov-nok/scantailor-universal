@@ -163,6 +163,7 @@ private:
 
 class QHotKeyInputDialog: public QInputDialog
 {
+    Q_OBJECT
 public:
     QHotKeyInputDialog(const KeyType& editor_type, QWidget *parent = Q_NULLPTR, Qt::WindowFlags flags = Qt::WindowFlags());
     const Qt::KeyboardModifiers& modifiers() const { return m_modifiersPressed; }

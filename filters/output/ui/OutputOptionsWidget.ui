@@ -970,7 +970,7 @@
            <string>No despeckling</string>
           </property>
           <property name="text">
-           <string/>
+           <string notr="true"/>
           </property>
           <property name="iconSize">
            <size>
@@ -995,7 +995,7 @@
            <string>Cautious despeckling</string>
           </property>
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -1021,7 +1021,7 @@
            <string>Normal despeckling</string>
           </property>
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -1047,7 +1047,7 @@
            <string>Aggressive despeckling</string>
           </property>
           <property name="text">
-           <string>...</string>
+           <string notr="true">...</string>
           </property>
           <property name="icon">
            <iconset resource="../../../resources/resources.qrc">
@@ -1193,16 +1193,6 @@
     <string>&amp;Mixed</string>
    </property>
   </action>
-  <action name="actionPictureShapeFree">
-   <property name="text">
-    <string>&amp;Free</string>
-   </property>
-  </action>
-  <action name="actionPictureShapeRectangular">
-   <property name="text">
-    <string>&amp;Rectangular</string>
-   </property>
-  </action>
   <action name="actionReset_to_default_value">
    <property name="text">
     <string>&amp;Reset to default value</string>
@@ -1215,22 +1205,22 @@
   </action>
   <action name="actionactionDespeckleOff">
    <property name="text">
-    <string>actionDespeckleOff</string>
+    <string notr="true">actionDespeckleOff</string>
    </property>
   </action>
   <action name="actionactionDespeckleCautious">
    <property name="text">
-    <string>actionDespeckleCautious</string>
+    <string notr="true">actionDespeckleCautious</string>
    </property>
   </action>
   <action name="actionactionDespeckleNormal">
    <property name="text">
-    <string>actionDespeckleNormal</string>
+    <string notr="true">actionDespeckleNormal</string>
    </property>
   </action>
   <action name="actionactionDespeckleAggressive">
    <property name="text">
-    <string>actionDespeckleAggressive</string>
+    <string notr="true">actionDespeckleAggressive</string>
    </property>
   </action>
  </widget>

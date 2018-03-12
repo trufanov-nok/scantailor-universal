@@ -115,104 +115,79 @@ Alignment::getVerboseDescription(const Alignment& alignment)
     }
 
     const int val = alignment.compositeAlignment();
-    bool has_side = false;
-    bool has_corner = false;
-    bool has_center = false;
-    bool has_auto_magnet = false;
-    bool has_orig_props = false;
 
-
-    QString direction;
-
+    // We avoid combining txt from words and use phrases to easier localization
+    QString center;
+    if (val == (Alignment::HCENTER | Alignment::VCENTER)) {
+        return QObject::tr("centered");
+    } else
     if (val & Alignment::HCENTER) {
-        direction = QObject::tr(" horizontally");
-        has_center = true;
-    }
-
+        center = QObject::tr("centered horizontally");
+    } else
     if (val & Alignment::VCENTER) {
-        direction = direction.isEmpty() ? QObject::tr(" vertically") : "";
-        has_center = true;
+        center = QObject::tr("centered vertically");
     }
 
-    if (has_center) {
-        direction = QObject::tr("centered%1").arg(direction);
-    }
-
-    QString hside;
-    if (val & Alignment::LEFT) {
-        hside = QObject::tr("left");
-        has_side = true;
-    } else if (val & Alignment::RIGHT) {
-        hside = QObject::tr("right");
-        has_side = true;
-    }
-
-    QString vside;
+    QString side;
     if (val & Alignment::TOP) {
-        vside = QObject::tr("top");
-        has_side = true;
-    }
-    if (val & Alignment::BOTTOM) {
-        vside = QObject::tr("bottom");
-        has_side = true;
-    }
-
-    QString corner = !hside.isEmpty() && !vside.isEmpty() ? QObject::tr("%1-%2 corner").arg(vside).arg(hside) : "";
-    if (!corner.isEmpty()) {
-        has_corner = true;
-        has_side = false;
+        if (val & Alignment::LEFT) {
+            return QObject::tr("top-left corner");
+        } else if (val & Alignment::RIGHT) {
+            return QObject::tr("top-right corner");
+        } else {
+            side = QObject::tr("top side");
+        }
+    } else if (val & Alignment::BOTTOM) {
+        if (val & Alignment::LEFT) {
+            return QObject::tr("bottom-left corner");
+        } else if (val & Alignment::RIGHT) {
+            return QObject::tr("bottom-right corner");
+        } else {
+            side = QObject::tr("bottom side");
+        }
     } else {
-        hside = hside + vside + QObject::tr(" side");
+        if (val & Alignment::LEFT) {
+            side = QObject::tr("left side");
+        } else if (val & Alignment::RIGHT) {
+            side = QObject::tr("right side");
+        }
     }
 
     QString auto_magnet;
-    if (val & Alignment::HAUTO) {
-        auto_magnet = QObject::tr(" by width");
-        has_auto_magnet = true;
-    }
-    if (val & Alignment::VAUTO) {
-        auto_magnet = auto_magnet.isEmpty()? QObject::tr(" by height") : "";
-        has_auto_magnet = true;
-    }
-
-    if (has_auto_magnet) {
-        auto_magnet = QObject::tr("automatically%1").arg(auto_magnet);
+    if (val == (Alignment::HAUTO | Alignment::VAUTO)) {
+        return QObject::tr("automatically");
+    } else if (val & Alignment::HAUTO) {
+        auto_magnet = QObject::tr("automatically by width");
+    } else if (val & Alignment::VAUTO) {
+        auto_magnet = QObject::tr("automatically by height");
     }
 
     QString original_proportions;
-    if (val & Alignment::HORIGINAL) {
-        original_proportions = QObject::tr(" horizontal");
-        has_orig_props = true;
-    }
-    if (val & Alignment::VORIGINAL) {
-        original_proportions = original_proportions.isEmpty()? QObject::tr(" vertical") : "";
-        has_orig_props = true;
-    }
-
-    if (has_orig_props) {
-        original_proportions = QObject::tr("proportional to original%1 position").arg(original_proportions);
+    if (val == (Alignment::HORIGINAL | Alignment::VORIGINAL)) {
+        return QObject::tr("proportional to original position");
+    } else if (val & Alignment::HORIGINAL) {
+        original_proportions = QObject::tr("proportional to original horizontal position");
+    } else if (val & Alignment::VORIGINAL) {
+        original_proportions = QObject::tr("proportional to original vertical position");
     }
 
     const QString plus = QObject::tr("%1 + %2");
 
-    if (has_corner) {
-        txt = corner;
-    } else {
-        if (has_side) {
-            txt = txt.isEmpty()? hside : plus.arg(txt).arg(hside);
-        }
 
-        if (has_auto_magnet) {
-            txt = txt.isEmpty()? auto_magnet : plus.arg(txt).arg(auto_magnet);
-        }
+    if (!auto_magnet.isEmpty()) {
+        txt = txt.isEmpty()? auto_magnet : plus.arg(txt).arg(auto_magnet);
+    }
 
-        if (has_center) {
-            txt = txt.isEmpty()? direction : plus.arg(txt).arg(direction);
-        }
+    if (!original_proportions.isEmpty()) {
+        txt = txt.isEmpty()? original_proportions : plus.arg(txt).arg(original_proportions);
+    }
 
-        if (has_orig_props) {
-            txt = txt.isEmpty()? original_proportions : plus.arg(txt).arg(original_proportions);
-        }
+    if (!side.isEmpty()) {
+        txt = txt.isEmpty()? side : plus.arg(txt).arg(side);
+    }
+
+    if (!center.isEmpty()) {
+        txt = txt.isEmpty()? center : plus.arg(txt).arg(center);
     }
 
     return txt;
