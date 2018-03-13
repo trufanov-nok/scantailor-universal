@@ -449,6 +449,8 @@ void AlignmentComboBox::hidePopup() {
 
 void AlignmentComboBox::updContextMenu()
 {
+    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(this->model());
+
     for (int i = 0; i < count(); ++i) {
         const QString item_text = itemText(i);
         if (!item_text.isEmpty()) {
@@ -464,5 +466,7 @@ void AlignmentComboBox::updContextMenu()
                 });
             }
         }
+
+        m_menu.actions()[i]->setEnabled(model->item(i)->flags() & Qt::ItemIsEnabled);
     }
 }
