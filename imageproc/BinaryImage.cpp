@@ -579,7 +579,7 @@ inline const int countConsecutiveZeroBitsTrailing(uint32_t v)
        from Bit Twiddling Hacks By Sean Eron Anderson
        https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
      */
-    return MultiplyDeBruijnBitPosition[((uint32_t)((v & -v) * 0x077CB531U)) >> 27];
+    return MultiplyDeBruijnBitPosition[((uint32_t)((v & -signed(v)) * 0x077CB531U)) >> 27];
 }
 
 inline const int findPositionOfTheHighestBitSet(uint32_t v)
