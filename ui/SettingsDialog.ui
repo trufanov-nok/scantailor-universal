@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>704</width>
+    <width>703</width>
     <height>508</height>
    </rect>
   </property>
@@ -65,17 +65,20 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="tabKeyNavigation">
+          <bool>true</bool>
          </property>
          <property name="showDropIndicator" stdset="0">
           <bool>false</bool>
          </property>
          <property name="alternatingRowColors">
           <bool>true</bool>
-         </property>
-         <property name="textElideMode">
-          <enum>Qt::ElideNone</enum>
          </property>
          <property name="rootIsDecorated">
           <bool>true</bool>
@@ -93,7 +96,7 @@
           <bool>true</bool>
          </attribute>
          <attribute name="headerDefaultSectionSize">
-          <number>200</number>
+          <number>250</number>
          </attribute>
          <attribute name="headerShowSortIndicator" stdset="0">
           <bool>false</bool>
@@ -202,7 +205,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>14</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -258,25 +261,25 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>361</width>
-                <height>220</height>
+                <width>87</width>
+                <height>624</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblGeneralDescr">
@@ -387,7 +390,7 @@ Batch processing - a simple dialog that appears if you press the launch button a
       <widget class="QWidget" name="pageHotKeysManager">
        <layout class="QVBoxLayout" name="verticalLayout_28">
         <property name="spacing">
-         <number>0</number>
+         <number>5</number>
         </property>
         <property name="leftMargin">
          <number>0</number>
@@ -417,28 +420,28 @@ Batch processing - a simple dialog that appears if you press the launch button a
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>426</width>
-             <height>419</height>
+             <width>432</width>
+             <height>63</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_51">
             <property name="spacing">
-             <number>3</number>
+             <number>6</number>
             </property>
             <property name="sizeConstraint">
              <enum>QLayout::SetMinimumSize</enum>
             </property>
             <property name="leftMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
             <property name="topMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
             <property name="rightMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
             <property name="bottomMargin">
-             <number>3</number>
+             <number>6</number>
             </property>
             <item>
              <widget class="QLabel" name="lblHotKeyManager">
@@ -530,19 +533,19 @@ p, li { white-space: pre-wrap; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblDockingDescr">
@@ -617,25 +620,25 @@ This option allows to increase page view panel size to almost a whole applicatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>365</width>
-                <height>753</height>
+                <width>112</width>
+                <height>2646</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_83">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblThumbnailsDescr">
@@ -689,16 +692,16 @@ This option allows to increase page view panel size to almost a whole applicatio
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_12">
               <property name="leftMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="topMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="rightMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="bottomMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <item>
                <widget class="QLabel" name="lblFixedMaxLogicalThumbSizeHeight">
@@ -812,7 +815,7 @@ This option allows to increase page view panel size to almost a whole applicatio
                  <number>500</number>
                 </property>
                 <property name="value">
-                 <number>3</number>
+                 <number>6</number>
                 </property>
                </widget>
               </item>
@@ -826,16 +829,16 @@ This option allows to increase page view panel size to almost a whole applicatio
              </property>
              <layout class="QGridLayout" name="gridLayout">
               <property name="leftMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="topMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="rightMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="bottomMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <item row="0" column="0">
                <widget class="QLabel" name="lblThumbsBoundaryAdjTop">
@@ -913,7 +916,7 @@ This option allows to increase page view panel size to almost a whole applicatio
                  <number>500</number>
                 </property>
                 <property name="value">
-                 <number>3</number>
+                 <number>6</number>
                 </property>
                </widget>
               </item>
@@ -990,19 +993,19 @@ This option allows to increase page view panel size to almost a whole applicatio
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_16">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblAutoSaveProjectDescr">
@@ -1109,25 +1112,25 @@ If project was never saved before this will create UnnamedAutoSave.Scantailor fi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>365</width>
-                <height>278</height>
+                <width>104</width>
+                <height>1032</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_57">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblTiffDescr">
@@ -1265,19 +1268,19 @@ Horizontal differencing predictor - a preprocessing step applied to image data t
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblFixOrientationDescr">
@@ -1355,25 +1358,25 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>379</width>
-                <height>422</height>
+                <width>105</width>
+                <height>1372</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_60">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblSplitPagesDescr">
@@ -1433,19 +1436,19 @@ The dividing line can also be determined/moved automatically or specified manual
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblApplyCutDescr">
@@ -1557,19 +1560,19 @@ The dividing line can also be determined/moved automatically or specified manual
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblDeskewDescr">
@@ -1618,19 +1621,19 @@ Images can be rotated by dragging the round handles at the edges. You can also e
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_61">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblDeviantDeskewDescr">
@@ -1705,25 +1708,25 @@ The Deviant page on this stage is defined as a page which absolute deskew angle 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>379</width>
-                <height>422</height>
+                <width>94</width>
+                <height>1695</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_63">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblSelectContentDescr">
@@ -1776,19 +1779,19 @@ If areas are identified incorrectly, you can tweak individual pages manually by 
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_64">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblDeviantContentDescr">
@@ -1863,25 +1866,25 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>347</width>
-                <height>482</height>
+                <width>341</width>
+                <height>488</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblPageDetectontDescr">
@@ -1919,8 +1922,8 @@ Everything outside page area is highlighted with yellow in page view panel.</str
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_5">
-           <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_91">
+           <item>
             <widget class="QGroupBox" name="gbPageDetectionFineTuneCorners">
              <property name="title">
               <string>Fine tune page corners:</string>
@@ -1939,7 +1942,7 @@ Everything outside page area is highlighted with yellow in page view panel.</str
              </layout>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item>
             <widget class="QGroupBox" name="gbPageDetectionTargetSize">
              <property name="title">
               <string>Target page size in MM:</string>
@@ -1982,7 +1985,7 @@ Everything outside page area is highlighted with yellow in page view panel.</str
              </layout>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item>
             <widget class="QGroupBox" name="gbPageDetectionBorders">
              <property name="title">
               <string>Default borders in MM:</string>
@@ -1998,7 +2001,10 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                <layout class="QHBoxLayout" name="horizontalLayout_13">
                 <item>
                  <layout class="QGridLayout" name="gridLayout_2">
-                  <item row="1" column="0">
+                  <item row="1" column="4">
+                   <widget class="QDoubleSpinBox" name="pageDetectionRightBorder"/>
+                  </item>
+                  <item row="1" column="1">
                    <widget class="QLabel" name="label_13">
                     <property name="text">
                      <string>Left:</string>
@@ -2008,26 +2014,10 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QDoubleSpinBox" name="pageDetectionLeftBorder"/>
-                  </item>
-                  <item row="1" column="2">
-                   <widget class="QLabel" name="label_15">
-                    <property name="text">
-                     <string>Right:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="3">
-                   <widget class="QDoubleSpinBox" name="pageDetectionRightBorder"/>
+                  <item row="4" column="3">
+                   <widget class="QDoubleSpinBox" name="pageDetectionBottomBorder"/>
                   </item>
                   <item row="0" column="2">
-                   <widget class="QDoubleSpinBox" name="pageDetectionTopBorder"/>
-                  </item>
-                  <item row="0" column="1">
                    <widget class="QLabel" name="label_14">
                     <property name="text">
                      <string>Top:</string>
@@ -2037,10 +2027,33 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="2">
-                   <widget class="QDoubleSpinBox" name="pageDetectionBottomBorder"/>
+                  <item row="0" column="3">
+                   <widget class="QDoubleSpinBox" name="pageDetectionTopBorder"/>
                   </item>
-                  <item row="4" column="1">
+                  <item row="1" column="5">
+                   <spacer name="horizontalSpacer_17">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QLabel" name="label_15">
+                    <property name="text">
+                     <string>Right:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="2">
                    <widget class="QLabel" name="label_16">
                     <property name="text">
                      <string>Bottom:</string>
@@ -2049,6 +2062,22 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QDoubleSpinBox" name="pageDetectionLeftBorder"/>
+                  </item>
+                  <item row="1" column="0">
+                   <spacer name="horizontalSpacer_18">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -2113,25 +2142,25 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>361</width>
-                <height>422</height>
+                <width>101</width>
+                <height>1442</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblPageLayoutDescr">
@@ -2182,19 +2211,19 @@ Everything outside page area is highlighted with yellow in page view panel.</str
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_66">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblDeviantMarginsDescr">
@@ -2269,25 +2298,25 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>347</width>
-                <height>336</height>
+                <width>106</width>
+                <height>1328</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_90">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblMarginsDescr">
@@ -2556,25 +2585,25 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>347</width>
-                <height>1207</height>
+                <width>103</width>
+                <height>4800</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_89">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblAlignmentDescr">
@@ -2632,19 +2661,19 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <property name="spacing">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="leftMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="topMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="rightMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <property name="bottomMargin">
-               <number>3</number>
+               <number>6</number>
               </property>
               <item>
                <widget class="AlignmentWidget" name="widgetAlignment" native="true">
@@ -2749,25 +2778,25 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>347</width>
-                <height>261</height>
+                <width>111</width>
+                <height>913</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_69">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblOutputDescr">
@@ -3023,25 +3052,25 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>361</width>
-                <height>355</height>
+                <width>101</width>
+                <height>1134</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_74">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblBlackWhiteModeDescr">
@@ -3136,25 +3165,25 @@ Making black and white image from grayscale or color source requires binarizatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>361</width>
-                <height>378</height>
+                <width>90</width>
+                <height>624</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_76">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblColorGrayscaleModeDescr">
@@ -3242,25 +3271,25 @@ Equalize illumination option normalizes the background color, bringing it to whi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>361</width>
-                <height>378</height>
+                <width>109</width>
+                <height>930</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_77">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblMixedModeDescr">
@@ -3348,25 +3377,25 @@ Automatic picture zones detection works well enough, but if the picture merges s
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>361</width>
-                <height>422</height>
+                <width>101</width>
+                <height>726</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_79">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblAutoLayerDescr">
@@ -3446,25 +3475,25 @@ This mask can't be changed directly but only switched on/off. User could also cr
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>347</width>
-                <height>465</height>
+                <width>101</width>
+                <height>1967</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_81">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblPictureZonesLayerDescr">
@@ -3593,25 +3622,25 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>347</width>
-                <height>448</height>
+                <width>93</width>
+                <height>1916</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_73">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblForegroundLayerDescr">
@@ -3682,19 +3711,19 @@ As Foreground layer is using binarization to separate content from background it
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_30">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblFillZonesDescr">
@@ -3749,19 +3778,19 @@ As Foreground layer is using binarization to separate content from background it
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_31">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblDewarpingDescr">
@@ -3817,19 +3846,19 @@ Automatic and manual modes are supported.</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_32">
            <property name="spacing">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="leftMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="topMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="rightMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>3</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QLabel" name="lblDespecklingDescr">
@@ -3939,25 +3968,25 @@ Automatic and manual modes are supported.</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>347</width>
-                <height>431</height>
+                <width>116</width>
+                <height>1474</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">
                <property name="spacing">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="leftMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="topMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="rightMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>3</number>
+                <number>6</number>
                </property>
                <item>
                 <widget class="QLabel" name="lblDebugModeDescr">

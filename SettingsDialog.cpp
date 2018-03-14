@@ -259,6 +259,9 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 
     treeWidget->blockSignals(true);
     treeWidget->clear();
+    const int item_indentation = treeWidget->indentation();
+    const QFontMetrics fm(treeWidget->font());
+    int max_text_width = 0;
 
     for (QString name: settingsTreeTitles) {
 
@@ -266,9 +269,13 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
         Q_ASSERT(!metadata.isEmpty());
 
         int level = 0;
-        while(metadata[level++].isEmpty());
+        int item_text_width = item_indentation + fm.width(name);
 
-        parent_item = last_top_item; // level = 1
+        while(metadata[level++].isEmpty()) item_text_width += item_indentation;
+
+        max_text_width = std::max(max_text_width, item_text_width);
+
+        parent_item = last_top_item; // level == 1
         for (int i = 0; i< level-2; i++) {
             Q_ASSERT(parent_item != nullptr);
             parent_item = parent_item->child(parent_item->childCount()-1);
@@ -303,6 +310,9 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 
     }
 
+    max_text_width = std::max(max_text_width + 20, 200);
+    treeWidget->setColumnWidth(0, max_text_width);
+    treeWidget->setColumnWidth(1, fm.width(treeWidget->headerItem()->text(1)) + 20);
 
     treeWidget->blockSignals(false);
 
