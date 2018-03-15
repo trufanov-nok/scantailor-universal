@@ -1,13 +1,14 @@
 [DEBREATE-0.7.13]
 <<CTRL>>
 Package: scantailor-universal
-Version: 0.0.1
+Version: 0.2.1
 Maintainer: Alexander Trufanov <trufanovan@gmail.com>
 Section: graphics
 Homepage: https://github.com/trufanov-nok/scantailor
 Architecture: amd64
 Priority: optional
 Depends: libqt5widgets5 (>=5.4), libqt5xml5 (>=5.4), libqt5gui5 (>=5.4), libqt5core5a (>=5.4), libtiff5 (>=4.0.3), libjpeg8 (>=8c), libgcc1 (>=1.3.0), libc6 (>=2.14), libpng16-16 (>=1.6.2-1), libstdc++6 (>=5.2)
+Recommends: qttranslations5-l10n (>=5.4)
 Description: Alternative version of ScanTailor: iinteractive post-processing tool for scanned pages
  Scan Tailor is an interactive post-processing tool for scanned pages. It
  performs operations such as page splitting, deskewing, adding/removing
@@ -19,10 +20,10 @@ Description: Alternative version of ScanTailor: iinteractive post-processing too
 <</CTRL>>
 <<FILES>>
 1
-/home/truf/dev/pl/scantailor/build/scantailor-universal* -> scantailor-universal -> /usr/bin
-/home/truf/dev/pl/scantailor/build/scantailor-universal-cli* -> scantailor-universal-cli -> /usr/bin
-/home/truf/dev/pl/scantailor/build/scantailor_ru.qm -> scantailor_ru.qm -> /usr/share/scantailor-universal/translations
 /home/truf/dev/pl/scantailor/build/scantailor-universal.svg -> scantailor-universal.svg -> /usr/share/pixmaps
+/home/truf/dev/pl/scantailor/build/scantailor_ru.qm -> scantailor_ru.qm -> /usr/share/scantailor-universal/translations
+/home/truf/dev/pl/scantailor/build/scantailor-universal-cli* -> scantailor-universal-cli -> /usr/bin
+/home/truf/dev/pl/scantailor/build/scantailor-universal* -> scantailor-universal -> /usr/bin
 <</FILES>>
 <<SCRIPTS>>
 <<PREINST>>
