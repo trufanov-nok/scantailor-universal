@@ -31,6 +31,7 @@
 #include "CacheDrivenTask.h"
 #include "OrderByWidthProvider.h"
 #include "OrderByHeightProvider.h"
+#include "OrderByAlignment.h"
 #include "Utils.h"
 #ifndef Q_MOC_RUN
 #include <boost/lambda/lambda.hpp>
@@ -66,9 +67,11 @@ Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
 	typedef PageOrderOption::ProviderPtr ProviderPtr;
 
 	ProviderPtr const default_order;
+    ProviderPtr const order_by_alignment(new OrderByAlignment(m_ptrSettings));
 	ProviderPtr const order_by_width(new OrderByWidthProvider(m_ptrSettings));
 	ProviderPtr const order_by_height(new OrderByHeightProvider(m_ptrSettings));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by alignment type"), order_by_alignment));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing width"), order_by_width));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing height"), order_by_height));
 }

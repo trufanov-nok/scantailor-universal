@@ -15,9 +15,10 @@ SET(
 	Settings.cpp Settings.h
 	Thumbnail.cpp Thumbnail.h
 	ApplyDialog.cpp ApplyDialog.h
-	Alignment.cpp Alignment.h
+        Alignment.cpp Alignment.h
 	OrderByWidthProvider.cpp OrderByWidthProvider.h
 	OrderByHeightProvider.cpp OrderByHeightProvider.h
+        OrderByAlignment.cpp OrderByAlignment.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 FILE(GLOB ui_files "ui/*.ui")
