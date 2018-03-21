@@ -334,7 +334,7 @@ ProjectFilesDialog::inpDirBrowse()
 	
 	QString const dir(
 		QFileDialog::getExistingDirectory(
-			this, tr("Input Directory"), initial_dir
+            this, tr("Input Directory"), initial_dir
 		)
 	);
 	
