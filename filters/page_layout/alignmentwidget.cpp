@@ -204,18 +204,17 @@ void AlignmentWidget::displayAlignment()
     ui->panelAlignment->setEnabled(need_alignment);
     ui->panelAdvancedAlignment->setEnabled(need_alignment);
 
-    m_advancedAlignment = 0;
-
     const int composite_alignment = alignment.compositeAlignment();
-    resetAdvAlignmentComboBoxes(ui->cbAutoMagnet, composite_alignment);
-    resetAdvAlignmentComboBoxes(ui->cbOriginalProp, composite_alignment);
+    m_advancedAlignment = composite_alignment & Alignment::maskAdvanced;
 
-    // must be after combo boxes to get proper m_advancedAlignment
     for (KeyVal const& kv: m_alignmentByButton) {
         const bool val = need_alignment &&
                 (applyAdvancedAlignment(kv.second, m_advancedAlignment) == alignment);
         kv.first->setChecked(val);
     }
+
+    resetAdvAlignmentComboBoxes(ui->cbAutoMagnet, composite_alignment);
+    resetAdvAlignmentComboBoxes(ui->cbOriginalProp, composite_alignment);
 }
 
 void
