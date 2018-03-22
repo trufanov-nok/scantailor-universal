@@ -57,6 +57,8 @@ public:
         HAUTO = 1 << 11,
         HORIGINAL = 1 << 12
     };
+
+    static const int maskAdvanced = HAUTO | VAUTO | HORIGINAL | VORIGINAL;
 	
 	/**
 	 * \brief Constructs a null alignment.
