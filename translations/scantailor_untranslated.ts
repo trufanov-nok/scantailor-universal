@@ -1452,27 +1452,27 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/PageRangeSelectorWidget.ui" line="232"/>
+        <location filename="../ui/PageRangeSelectorWidget.ui" line="261"/>
         <source>Single pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/PageRangeSelectorWidget.ui" line="239"/>
+        <location filename="../ui/PageRangeSelectorWidget.ui" line="268"/>
         <source>Left pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/PageRangeSelectorWidget.ui" line="246"/>
+        <location filename="../ui/PageRangeSelectorWidget.ui" line="275"/>
         <source>Right pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PageRangeSelectorWidget.cpp" line="29"/>
+        <location filename="../PageRangeSelectorWidget.cpp" line="47"/>
         <source>Selected (single page)</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../PageRangeSelectorWidget.cpp" line="31"/>
+        <location filename="../PageRangeSelectorWidget.cpp" line="49"/>
         <source>Selected (%n pages)</source>
         <comment>plural forms supported</comment>
         <translation type="unfinished">
@@ -1480,7 +1480,17 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         </translation>
     </message>
     <message>
-        <location filename="../PageRangeSelectorWidget.cpp" line="68"/>
+        <location filename="../PageRangeSelectorWidget.cpp" line="84"/>
+        <source>(current page is odd)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../PageRangeSelectorWidget.cpp" line="85"/>
+        <source>(current page is even)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../PageRangeSelectorWidget.cpp" line="109"/>
         <source>Can&apos;t do: more than one group is selected.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1743,18 +1753,18 @@ You should remove them from the project.</source>
 <context>
     <name>QHotKeyInputDialog</name>
     <message>
-        <location filename="../SettingsDialog.cpp" line="721"/>
+        <location filename="../SettingsDialog.cpp" line="731"/>
         <source>Edit key sequence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="723"/>
+        <location filename="../SettingsDialog.cpp" line="733"/>
         <source>Hold the modification keys (Ctrl, Shift, Alt, Meta)
 and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="725"/>
+        <location filename="../SettingsDialog.cpp" line="735"/>
         <source>Hold the keys and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1762,118 +1772,118 @@ and press [Enter] to edit the shortcut:</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="21"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="39"/>
         <source>New project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="23"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="41"/>
         <source>Open project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="25"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="43"/>
         <source>Save project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="27"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="45"/>
         <source>Save project as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="29"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="47"/>
         <source>Close project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="31"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="49"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="34"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="52"/>
         <source>Main menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="40"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="58"/>
         <source>Fix Orientation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="42"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="60"/>
         <source>Split Pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="44"/>
-        <location filename="../settings/hotkeysmanager.cpp" line="106"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="62"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="124"/>
         <source>Deskew</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="46"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="64"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="48"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="66"/>
         <source>Page Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="50"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="68"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="53"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="71"/>
         <source>Stages navigation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="61"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="79"/>
         <source>First page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="63"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="81"/>
         <source>Last page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="67"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="85"/>
         <source>Previous page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="71"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="89"/>
         <source>Next page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="73"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="91"/>
         <source>First selected page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="75"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="93"/>
         <source>Last selected page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="77"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="95"/>
         <source>Previous selected page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="79"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="97"/>
         <source>Next selected page</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../settings/hotkeysmanager.cpp" line="85"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="103"/>
         <source>Jump %n pages forward</source>
         <comment>plurals for &quot;page&quot; may be used</comment>
         <translation type="unfinished">
@@ -1881,7 +1891,7 @@ and press [Enter] to edit the shortcut:</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../settings/hotkeysmanager.cpp" line="88"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="106"/>
         <source>Jump %n pages backward</source>
         <comment>plurals for &quot;page&quot; may be used</comment>
         <translation type="unfinished">
@@ -1889,223 +1899,223 @@ and press [Enter] to edit the shortcut:</source>
         </translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="91"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="109"/>
         <source>Change size of thumbnails</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="95"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="113"/>
         <source>Pages navigation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="102"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="120"/>
         <source>Change angle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="104"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="122"/>
         <source>Change angle precisely</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="113"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="131"/>
         <source>Move content zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="115"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="133"/>
         <source>Move along axes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="117"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="135"/>
         <source>Stretch or squeeze</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="160"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="178"/>
         <source>Move zone horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="261"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="279"/>
         <source>The hotkeys scheme in your settings file is incompatible with current application version. Hotkeys settings will be reseted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="119"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="137"/>
         <source>Create zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="121"/>
-        <location filename="../settings/hotkeysmanager.cpp" line="171"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="139"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="189"/>
         <source>Delete zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="123"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="141"/>
         <source>Move zone up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="125"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="143"/>
         <source>Move zone down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="127"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="145"/>
         <source>Move zone left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="129"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="147"/>
         <source>Move zone right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="132"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="150"/>
         <source>Content selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="139"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="157"/>
         <source>Zoom in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="141"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="159"/>
         <source>Zoom out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="143"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="161"/>
         <source>Display original image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="145"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="163"/>
         <source>Move without constraints</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="147"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="165"/>
         <source>General page view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="154"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="172"/>
         <source>Create rectangle zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="156"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="174"/>
         <source>Move zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="158"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="176"/>
         <source>Move zone vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="162"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="180"/>
         <source>Paste from clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="164"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="182"/>
         <source>Clone last modified zone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="172"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="190"/>
         <source>Cancel move or creation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="175"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="193"/>
         <source>Zones edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="182"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="200"/>
         <source>Move vertically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="184"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="202"/>
         <source>Move horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="189"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="207"/>
         <source>Delete control point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="191"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="209"/>
         <source>Distortion model (dewarping)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="198"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="216"/>
         <source>Switch off despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="200"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="218"/>
         <source>Switch to cautious mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="202"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="220"/>
         <source>Switch to normal mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="204"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="222"/>
         <source>Switch to aggressive mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="206"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="224"/>
         <source>Despeckling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="263"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="281"/>
         <source>Scan Tailor Universal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="388"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="406"/>
         <source> or </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="524"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="542"/>
         <source>click</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="525"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="543"/>
         <source>mouse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="526"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="544"/>
         <source>wheel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="527"/>
+        <location filename="../settings/hotkeysmanager.cpp" line="545"/>
         <source>double click</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../PageRangeSelectorWidget.cpp" line="274"/>
+        <location filename="../PageRangeSelectorWidget.cpp" line="315"/>
         <source>%n pages</source>
         <comment>plural forms supported</comment>
         <translation type="unfinished">
@@ -2113,12 +2123,12 @@ and press [Enter] to edit the shortcut:</source>
         </translation>
     </message>
     <message>
-        <location filename="../PageRangeSelectorWidget.cpp" line="276"/>
+        <location filename="../PageRangeSelectorWidget.cpp" line="317"/>
         <source>%1 page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../PageRangeSelectorWidget.cpp" line="281"/>
+        <location filename="../PageRangeSelectorWidget.cpp" line="322"/>
         <source>-%1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2365,143 +2375,143 @@ and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="103"/>
+        <location filename="../ui/SettingsDialog.ui" line="106"/>
         <source>Features</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="117"/>
+        <location filename="../ui/SettingsDialog.ui" line="120"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="185"/>
+        <location filename="../ui/SettingsDialog.ui" line="188"/>
         <source>Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="215"/>
-        <location filename="../ui/SettingsDialog.ui" line="499"/>
-        <location filename="../ui/SettingsDialog.ui" line="529"/>
-        <location filename="../ui/SettingsDialog.ui" line="914"/>
-        <location filename="../ui/SettingsDialog.ui" line="976"/>
-        <location filename="../ui/SettingsDialog.ui" line="1144"/>
-        <location filename="../ui/SettingsDialog.ui" line="1192"/>
-        <location filename="../ui/SettingsDialog.ui" line="1282"/>
-        <location filename="../ui/SettingsDialog.ui" line="1376"/>
-        <location filename="../ui/SettingsDialog.ui" line="1407"/>
-        <location filename="../ui/SettingsDialog.ui" line="1437"/>
-        <location filename="../ui/SettingsDialog.ui" line="1520"/>
-        <location filename="../ui/SettingsDialog.ui" line="1550"/>
-        <location filename="../ui/SettingsDialog.ui" line="1785"/>
-        <location filename="../ui/SettingsDialog.ui" line="1866"/>
-        <location filename="../ui/SettingsDialog.ui" line="1896"/>
-        <location filename="../ui/SettingsDialog.ui" line="2150"/>
-        <location filename="../ui/SettingsDialog.ui" line="2310"/>
-        <location filename="../ui/SettingsDialog.ui" line="2569"/>
-        <location filename="../ui/SettingsDialog.ui" line="2667"/>
-        <location filename="../ui/SettingsDialog.ui" line="2758"/>
-        <location filename="../ui/SettingsDialog.ui" line="2849"/>
-        <location filename="../ui/SettingsDialog.ui" line="2932"/>
-        <location filename="../ui/SettingsDialog.ui" line="3064"/>
-        <location filename="../ui/SettingsDialog.ui" line="3165"/>
-        <location filename="../ui/SettingsDialog.ui" line="3202"/>
-        <location filename="../ui/SettingsDialog.ui" line="3240"/>
-        <location filename="../ui/SettingsDialog.ui" line="3320"/>
+        <location filename="../ui/SettingsDialog.ui" line="233"/>
+        <location filename="../ui/SettingsDialog.ui" line="532"/>
+        <location filename="../ui/SettingsDialog.ui" line="592"/>
+        <location filename="../ui/SettingsDialog.ui" line="992"/>
+        <location filename="../ui/SettingsDialog.ui" line="1084"/>
+        <location filename="../ui/SettingsDialog.ui" line="1267"/>
+        <location filename="../ui/SettingsDialog.ui" line="1330"/>
+        <location filename="../ui/SettingsDialog.ui" line="1435"/>
+        <location filename="../ui/SettingsDialog.ui" line="1559"/>
+        <location filename="../ui/SettingsDialog.ui" line="1620"/>
+        <location filename="../ui/SettingsDialog.ui" line="1680"/>
+        <location filename="../ui/SettingsDialog.ui" line="1778"/>
+        <location filename="../ui/SettingsDialog.ui" line="1838"/>
+        <location filename="../ui/SettingsDialog.ui" line="2114"/>
+        <location filename="../ui/SettingsDialog.ui" line="2210"/>
+        <location filename="../ui/SettingsDialog.ui" line="2270"/>
+        <location filename="../ui/SettingsDialog.ui" line="2557"/>
+        <location filename="../ui/SettingsDialog.ui" line="2750"/>
+        <location filename="../ui/SettingsDialog.ui" line="3024"/>
+        <location filename="../ui/SettingsDialog.ui" line="3137"/>
+        <location filename="../ui/SettingsDialog.ui" line="3243"/>
+        <location filename="../ui/SettingsDialog.ui" line="3349"/>
+        <location filename="../ui/SettingsDialog.ui" line="3447"/>
+        <location filename="../ui/SettingsDialog.ui" line="3594"/>
+        <location filename="../ui/SettingsDialog.ui" line="3710"/>
+        <location filename="../ui/SettingsDialog.ui" line="3777"/>
+        <location filename="../ui/SettingsDialog.ui" line="3845"/>
+        <location filename="../ui/SettingsDialog.ui" line="3940"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="269"/>
+        <location filename="../ui/SettingsDialog.ui" line="287"/>
         <source>Application language - allows to switch the language of the interface. If there is no language you need and you can help us with translation please contact the project maintainer.
 
 Batch processing - a simple dialog that appears if you press the launch button and allows you to start page processing from the beginning instead of a current page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="294"/>
-        <location filename="../ui/SettingsDialog.ui" line="606"/>
-        <location filename="../ui/SettingsDialog.ui" line="940"/>
-        <location filename="../ui/SettingsDialog.ui" line="1057"/>
-        <location filename="../ui/SettingsDialog.ui" line="1307"/>
-        <location filename="../ui/SettingsDialog.ui" line="1635"/>
-        <location filename="../ui/SettingsDialog.ui" line="1955"/>
-        <location filename="../ui/SettingsDialog.ui" line="2215"/>
-        <location filename="../ui/SettingsDialog.ui" line="2389"/>
-        <location filename="../ui/SettingsDialog.ui" line="2647"/>
-        <location filename="../ui/SettingsDialog.ui" line="2746"/>
-        <location filename="../ui/SettingsDialog.ui" line="2837"/>
-        <location filename="../ui/SettingsDialog.ui" line="3011"/>
-        <location filename="../ui/SettingsDialog.ui" line="3145"/>
-        <location filename="../ui/SettingsDialog.ui" line="3190"/>
-        <location filename="../ui/SettingsDialog.ui" line="3228"/>
-        <location filename="../ui/SettingsDialog.ui" line="3265"/>
+        <location filename="../ui/SettingsDialog.ui" line="312"/>
+        <location filename="../ui/SettingsDialog.ui" line="669"/>
+        <location filename="../ui/SettingsDialog.ui" line="1033"/>
+        <location filename="../ui/SettingsDialog.ui" line="1165"/>
+        <location filename="../ui/SettingsDialog.ui" line="1475"/>
+        <location filename="../ui/SettingsDialog.ui" line="1923"/>
+        <location filename="../ui/SettingsDialog.ui" line="2347"/>
+        <location filename="../ui/SettingsDialog.ui" line="2640"/>
+        <location filename="../ui/SettingsDialog.ui" line="2829"/>
+        <location filename="../ui/SettingsDialog.ui" line="3102"/>
+        <location filename="../ui/SettingsDialog.ui" line="3216"/>
+        <location filename="../ui/SettingsDialog.ui" line="3322"/>
+        <location filename="../ui/SettingsDialog.ui" line="3526"/>
+        <location filename="../ui/SettingsDialog.ui" line="3675"/>
+        <location filename="../ui/SettingsDialog.ui" line="3750"/>
+        <location filename="../ui/SettingsDialog.ui" line="3818"/>
+        <location filename="../ui/SettingsDialog.ui" line="3885"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="310"/>
+        <location filename="../ui/SettingsDialog.ui" line="328"/>
         <source>Application language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="317"/>
+        <location filename="../ui/SettingsDialog.ui" line="335"/>
         <source>Batch processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="323"/>
+        <location filename="../ui/SettingsDialog.ui" line="341"/>
         <source>All pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="333"/>
+        <location filename="../ui/SettingsDialog.ui" line="351"/>
         <source>Start from selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="358"/>
+        <location filename="../ui/SettingsDialog.ui" line="376"/>
         <source>Ask every time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="486"/>
+        <location filename="../ui/SettingsDialog.ui" line="504"/>
         <source>&amp;Reset to defaults</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2186"/>
+        <location filename="../ui/SettingsDialog.ui" line="2611"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alignment setting has no sense if &amp;quot;Match with other pages&amp;quot; is switched off. In this case final size for all pages is calculated separately and equal to content one plus its hard margins.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Alignment&lt;/span&gt; defines how to align content zone with its hard margins by changing soft margins. It could be combination of values of following alignment types: manual, auto-magnet and original proportions (last two are optional features).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Manual alignment&lt;/span&gt; is always available to user and allows him to choose the page side (top, left etc.), page corner (top-left, bottom-right etc.) where soft margins will be set to 0. In case of hard margins are zero for such side this means content zone will touch page border. It also allows to center content zone on page horizontally, vertically or both.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Auto-Magnet alignment&lt;/span&gt; (just Auto in other version of ST) is very similar to Manual mode. In fact - it automatically chooses one of Manual mode options based on how close original content zone to page borders. I would say content zone is magnetized to the closest side or corner of page or to its center. This type of alignment is optional.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: in case Original Proportions alignment is enabled then Auto-Magnet considers it as one of options and may choose it automatically for vertical/horizontal alignment or both.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Original Proportions alignment&lt;/span&gt; (based on Original alignment in other versions of ST) distributes soft margins proportionally to space around content zone on original page. For example, if your content on left pages of document is closer to right border of page and content on right pages is closer to left border of page and you want to keep this alignment for left/right pages in a result you&apos;ll face some problems. Because due to different dpi, scan size, splits or deskew angle your page most probably will have a slightly different sizes. And thus even if you set auto-margins or manually set unequal hard margins for left/right pages you&apos;ll end up with non-zero soft margins (unless you switch off &amp;quot;Match with other pages&amp;quot; and all your pages final sizes will be different). Or this could happen if you have cover page in your project and want all page sizes be equal - cover pages may be bigger than other pages. Anyway you&apos;ll end up with necessity to distribute non-zero soft margins. Original proportions alignment may do it for you automatically proportionally to your content zone original position on page. This type of alignment is optional.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: Original proportions alignment is done for content zone with its hard margins around, while position proportions are calculated without considering hard margin values.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: Original proportions mode considers page size after its refinement by Page Detection feature (if enabled) on previous processing step.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: Final alignment is a sum of horizontal and vertical alignments (or one may say alignment by height and by width). There is a way to define them separately even for different types of alignment. For example: auto-magnet horizontally and original proportions vertically. Or original proportions horizontally and align to top border vertically.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2278"/>
+        <location filename="../ui/SettingsDialog.ui" line="2703"/>
         <source>Description of currently selected alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2721"/>
+        <location filename="../ui/SettingsDialog.ui" line="3191"/>
         <source>In this mode page content is not changed.
 Margins can be filled with white or left as is. If the margins are filled in white, then the option to equalize illumination also becomes available.
 Equalize illumination option normalizes the background color, bringing it to white, and normalizes contrast, increasing it in the shaded areas.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2812"/>
+        <location filename="../ui/SettingsDialog.ui" line="3297"/>
         <source>Mixed mode is used for projects in which there are scans from half-tone images (grayscale or color). Pictures will be automatically detected and displayed as it is, just as in the &quot;Color / Grayscale&quot; with the included equalized illumination. The rest of the page is displayed in black and white.
 
 Automatic picture zones detection works well enough, but if the picture merges smoothly into the background the result may be unsatisfactory. In this case, you must create and configure the picture zone images. It is important to note that the creation of zones of images is possible only in mixed mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2986"/>
+        <location filename="../ui/SettingsDialog.ui" line="3501"/>
         <source>Picture zones layer works on top of Auto layer results and could be useful if your pictures are known to be rectangles. Auto layer is build automatically and doesn&apos;t make any assumptions on areas geometry. Picture zones layer tries to improve its mask assuming all picture areas found should be rectangles.
 This layer doesn&apos;t modify auto layer mask but automatically creates rectangle zones on top of it. So usually it covers all auto layer with polygons. User can change these polygons as regular picture zones.
 In case sensitivity parameter is 100% the picture detection algorithm looks for the separate picture areas and adds a minimal bounding rect for each of them as a zone. In this case zone contains pixels from auto layer mask and may contain pixels that are not included in auto layer mask but still inside the rect. If sensitivity is less than 100% the algorithm additionally investigates each side of bounding rect and tries to move it towards the center of rect while the line of pixels behind it contains more than N% of pixels that are not from auto layer mask. Decreasing sensitivity may help to better fit picture zone over picture area by ignoring pixels-outliers incorrectly included in auto layer mask. Usually, the sensitivity is 75-100%.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3359"/>
+        <location filename="../ui/SettingsDialog.ui" line="3994"/>
         <source>Most of the processing stages require multiple steps of image transformation, cropping, scaling, changing colors, applying filters etc. to calculate resulting image with specified parameters. These transformations could be displayed to user for debugging purposes.
 If debugging enabled you may find a new tabs on top of page view panel. Each tab contain one debugging image representing processing one step described in its title.
 
@@ -2511,85 +2521,85 @@ Debug images are saved as png in temporary folder with unique filenames. These f
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="583"/>
+        <location filename="../ui/SettingsDialog.ui" line="646"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These settings should let you fine tune thumbnails display. By default thumbnails are added one after each other in rows, so if you change width of the thumbnails view you can get &amp;quot;multicolumn&amp;quot;-like style. Still you should remember that this is a list and not a grid alignment. Thus in case of different sizes of thumbnails equal spaces between &amp;quot;columns&amp;quot; are not guaranteed as well as equal number of thumbnails in each row. Disable first check-box to stay with single-column mode even if width of the view allows to display more.&lt;/p&gt;&lt;p&gt;By default you can use Alt+mouse wheel to change max size of thumbnails in the list. The key could be changed in hotkey manager. Mouse cursor should be other the thumbnails view. Thumbnails are automatically scaled to max size keeping their proportions. Switch off this mode and define fixed size (160x250 is recommended) if needed.&lt;/p&gt;&lt;p&gt;Even if you increase max size of thumbnails to some big values you want be able to find small details on them due to pure quality of the image. That&apos;s because they are cached after scaling to size 200x200 pixels. You can change this to 600x600 or 1200x1200 to increase thumbnail quality. Note: this affects only newly created thumbnails. If you already have them cached you&apos;ll need to delete cache subfolder in project folder manually to regenerate them.&lt;/p&gt;&lt;p&gt;All thumbnails have minimal margin between them and left/top borders of the view. It could be changed.&lt;/p&gt;&lt;p&gt;Thumbnail size is defined as a size of thumbnail image with boundary adjustments around it. These adjustments could be tuned here too.&lt;/p&gt;&lt;p&gt;Note: currently final boundary of the thumbnails could be affected by too long filenames displayed below them.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;In case of any problems use reset button which reset thumbnail settings only to their defaults.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="612"/>
+        <location filename="../ui/SettingsDialog.ui" line="675"/>
         <source>Place as many thumbnails in a row as possible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="622"/>
+        <location filename="../ui/SettingsDialog.ui" line="685"/>
         <source>Use fixed max thumbnail size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="653"/>
-        <location filename="../ui/SettingsDialog.ui" line="679"/>
-        <location filename="../ui/SettingsDialog.ui" line="726"/>
-        <location filename="../ui/SettingsDialog.ui" line="749"/>
-        <location filename="../ui/SettingsDialog.ui" line="790"/>
-        <location filename="../ui/SettingsDialog.ui" line="810"/>
-        <location filename="../ui/SettingsDialog.ui" line="830"/>
-        <location filename="../ui/SettingsDialog.ui" line="850"/>
+        <location filename="../ui/SettingsDialog.ui" line="716"/>
+        <location filename="../ui/SettingsDialog.ui" line="742"/>
+        <location filename="../ui/SettingsDialog.ui" line="789"/>
+        <location filename="../ui/SettingsDialog.ui" line="812"/>
+        <location filename="../ui/SettingsDialog.ui" line="853"/>
+        <location filename="../ui/SettingsDialog.ui" line="873"/>
+        <location filename="../ui/SettingsDialog.ui" line="893"/>
+        <location filename="../ui/SettingsDialog.ui" line="913"/>
         <source> px</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="719"/>
+        <location filename="../ui/SettingsDialog.ui" line="782"/>
         <source>Scale cached images to this size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="742"/>
+        <location filename="../ui/SettingsDialog.ui" line="805"/>
         <source>Minimal space between images:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="765"/>
+        <location filename="../ui/SettingsDialog.ui" line="828"/>
         <source>Thumbnail boundary adjustments:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="897"/>
+        <location filename="../ui/SettingsDialog.ui" line="960"/>
         <source>&amp;Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="920"/>
+        <location filename="../ui/SettingsDialog.ui" line="1013"/>
         <source>Allows to automatically save project file (*.scantailor) with a specified time interval.
 If project was never saved before this will create UnnamedAutoSave.Scantailor file in project&apos;s input directory. Otherwise project file will be backed up to *.bak file in the its folder and then overwritten with current project state.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="946"/>
+        <location filename="../ui/SettingsDialog.ui" line="1039"/>
         <source>Save project every:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="953"/>
+        <location filename="../ui/SettingsDialog.ui" line="1046"/>
         <source> min.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1063"/>
+        <location filename="../ui/SettingsDialog.ui" line="1171"/>
         <source>TIFF compression:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1110"/>
+        <location filename="../ui/SettingsDialog.ui" line="1218"/>
         <source>Hide rare or unsupported methods</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1117"/>
+        <location filename="../ui/SettingsDialog.ui" line="1225"/>
         <source>Use horizontal differencing predictor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1150"/>
+        <location filename="../ui/SettingsDialog.ui" line="1288"/>
         <source>At this stage it is possible to turn scans by multiples of 90 degrees. i.e., to correct sideways or upside-down scans.
 
 This is a manual stage because the program does not know how to determine the correct orientation of scans - the user must do this. This also means that using batch processing at this stage is useless. Obviously it behooves the user to make sure all initial scans are of the same orientation, if possible; mixing orientation will make this stage less automatic and more time-consuming.
@@ -2598,7 +2608,7 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1246"/>
+        <location filename="../ui/SettingsDialog.ui" line="1384"/>
         <source>This stage determines whether you want to divide the page(s).
 Type of division:
 
@@ -2612,115 +2622,115 @@ The dividing line can also be determined/moved automatically or specified manual
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1288"/>
+        <location filename="../ui/SettingsDialog.ui" line="1456"/>
         <source>If this feature is enabled the application shows &quot;Apply cut&quot; check box in &quot;Apply to...&quot; dialog at Split pages stage. In case it&apos;s checked the application tries to copy dividing lines position to the specified page range. In case target page size mismatch the original page the dividing line position will be scaled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1321"/>
+        <location filename="../ui/SettingsDialog.ui" line="1489"/>
         <source>Switched on by default:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1382"/>
+        <location filename="../ui/SettingsDialog.ui" line="1580"/>
         <source>At this stage one may determine the angle which the page needs to be turned for the text to be properly horizontal. Since compensation is a simple rotation such distortions as keystone or curling can not be corrected at this stage. The rotation angle is determined automatically, but you can also set it manually.
 
 Images can be rotated by dragging the round handles at the edges. You can also explicitly specify the rotation angle in degrees. Positive angles will rotate the image clockwise, negative counter-clockwise. For fine adjustment of the angle it may be convenient to click the mouse on the text portion of the input field corner, then move the mouse wheel to fix it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1413"/>
+        <location filename="../ui/SettingsDialog.ui" line="1641"/>
         <source>If enabled - marks deviant pages with red asterisks in Thumbnails panel.
 The Deviant page on this stage is defined as a page which absolute deskew angle value is bigger than specified in command line (5 degrees by default) or differs from average angle more than 1.5 standard deviations. Average angle and standard deviation are statistical measurements calculated based on all pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1641"/>
+        <location filename="../ui/SettingsDialog.ui" line="1929"/>
         <source>Fine tune page corners:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1650"/>
+        <location filename="../ui/SettingsDialog.ui" line="1938"/>
         <source>Default value for page: enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1660"/>
+        <location filename="../ui/SettingsDialog.ui" line="1948"/>
         <source>Target page size in MM:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1839"/>
+        <location filename="../ui/SettingsDialog.ui" line="2168"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;At this stage you may adjust the margins added to the content box. There are &lt;span style=&quot; font-weight:600;&quot;&gt;two types of margins&lt;/span&gt; - hard and soft.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Hard margin&lt;/span&gt; - is that between the solid lines. They are set by the user. You can either move over any solid line, be it an inner or outer edge, or set the margins through numerical values.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Soft margin&lt;/span&gt; - is that between the solid and the dotted line. These margins are &lt;span style=&quot; text-decoration: underline;&quot;&gt;automatically&lt;/span&gt; added to bring the page size to the same size of other pages. If you see a dotted line - this means that somewhere in the project there is a page with that width (usable area of Hard + margin), and (possibly others) with that height. This is one big page causing the soft margins in all the other pages, if only for not leveling them off.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Alignment&lt;/span&gt; defines how to align content zone with its hard margins by changing soft margins. It could be: manual, auto-magnet and original proportions (last two are optional features).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1932"/>
+        <location filename="../ui/SettingsDialog.ui" line="2324"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Here you can set default &lt;span style=&quot; font-weight:600;&quot;&gt;&amp;quot;hard margins&amp;quot;&lt;/span&gt; values for &lt;span style=&quot; font-weight:600;&quot;&gt;top, left, right&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;bottom&lt;/span&gt; sides.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Auto margins&lt;/span&gt; let you automatically calculate margin values for content area so their combined size will match page size. Page area is usually equal to image area (after page splitting and deskew) but could be affected with optional page detection feature on content selection stage.&lt;/p&gt;&lt;p&gt;Note: Even if you apply auto margins to all pages in project that doesn&apos;t guarantee that all content rects plus corresponding hard margins will result to the same size. Thus in case of &amp;quot;Match with other pages&amp;quot; enabled you&apos;ll get some &lt;span style=&quot; font-weight:600;&quot;&gt;soft margins&lt;/span&gt; that should be addressed with help of Alignment. There could be many reasons of page size mismatch: different size of original scans, different page splitting, page geometry change after deskew or distinction in page detection results.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1961"/>
-        <location filename="../ui/SettingsDialog.ui" line="2235"/>
+        <location filename="../ui/SettingsDialog.ui" line="2353"/>
+        <location filename="../ui/SettingsDialog.ui" line="2660"/>
         <source>Default values:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2903"/>
+        <location filename="../ui/SettingsDialog.ui" line="3403"/>
         <source>Auto layer is switched on by default and contains automatically detected areas which are most likely pictures and should be left grayscaled/colored while other converted to b/w.
 The result is binary mask and could be viewed in Layers tab. It&apos;s highlighted by blue and glowing.
 This mask can&apos;t be changed directly but only switched on/off. User could also create zones (polygons) with &quot;subtract from Auto layer&quot; or &quot;Add to Auto layer&quot; flags to modify it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="672"/>
-        <location filename="../ui/SettingsDialog.ui" line="1672"/>
+        <location filename="../ui/SettingsDialog.ui" line="735"/>
+        <location filename="../ui/SettingsDialog.ui" line="1960"/>
         <source>Width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="646"/>
-        <location filename="../ui/SettingsDialog.ui" line="1686"/>
+        <location filename="../ui/SettingsDialog.ui" line="709"/>
+        <location filename="../ui/SettingsDialog.ui" line="1974"/>
         <source>Height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1703"/>
+        <location filename="../ui/SettingsDialog.ui" line="1991"/>
         <source>Default borders in MM:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="803"/>
-        <location filename="../ui/SettingsDialog.ui" line="1719"/>
+        <location filename="../ui/SettingsDialog.ui" line="866"/>
+        <location filename="../ui/SettingsDialog.ui" line="2010"/>
         <source>Left:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="843"/>
-        <location filename="../ui/SettingsDialog.ui" line="1732"/>
+        <location filename="../ui/SettingsDialog.ui" line="906"/>
+        <location filename="../ui/SettingsDialog.ui" line="2049"/>
         <source>Right:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="783"/>
-        <location filename="../ui/SettingsDialog.ui" line="1748"/>
+        <location filename="../ui/SettingsDialog.ui" line="846"/>
+        <location filename="../ui/SettingsDialog.ui" line="2023"/>
         <source>Top:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="505"/>
+        <location filename="../ui/SettingsDialog.ui" line="553"/>
         <source>If docking is enabled the Filters and Thumbnails panels could be pop out from their positions (left and right sides of the ain application window) and float over page view one. Once pop out they could be placed back by double clicking panel&apos;s title or pressing an icon on it (icon might be not displayable of your system).
 This option allows to increase page view panel size to almost a whole application window size which may be useful in some cases.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="823"/>
-        <location filename="../ui/SettingsDialog.ui" line="1761"/>
+        <location filename="../ui/SettingsDialog.ui" line="886"/>
+        <location filename="../ui/SettingsDialog.ui" line="2059"/>
         <source>Bottom:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1030"/>
+        <location filename="../ui/SettingsDialog.ui" line="1138"/>
         <source>Once all processing stages are complete the resulting images are saved in &quot;./out&quot; sub-folder of your project input folder in TIFF format. TIFF format supports dozens of image compression methods from None to JPEG. Default is LZW. Stick to it till you are sure you need something different.
 
 Availability of compression methods depends on their support in libtiff and options used to build it. So not all methods are available. Also some could be used with black/white images only.
@@ -2729,20 +2739,20 @@ Horizontal differencing predictor - a preprocessing step applied to image data t
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1491"/>
+        <location filename="../ui/SettingsDialog.ui" line="1734"/>
         <source>This stage determines the rectangular region with &quot;useful&quot; or usable content (shaded in color). Why do we need to define this area? Firstly in order to determine the page size to the output. The content will be added to the total margin area, and the outer limit of these margins affects the size of the output file. Secondly so that the final images don&apos;t show the line of fold or other debris from the edges. Strictly speaking whether the debris falls in the margin in the output stage depends on the mode. In most modes the margin is filled in white.
 
 If areas are identified incorrectly, you can tweak individual pages manually by setting the mouse pointer over the edge, clicking &amp; dragging as needed. Check Hotkeys manager for a list of all possible operations. Occasionally Scan Tailor may find non-existent content or conversely not select content where it should. In this case, you can manually create / delete a region by right-clicking on the image, and select the appropriate menu item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1526"/>
+        <location filename="../ui/SettingsDialog.ui" line="1799"/>
         <source>If enabled - marks deviant pages with red asterisks in Thumbnails panel.
 The Deviant page on this stage is defined as a page which content zone square differs from average square more than 1.0 standard deviation. Factor 1.0 may be changed via command line. Average square and standard deviation are statistical measurements calculated based on all pages.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1604"/>
+        <location filename="../ui/SettingsDialog.ui" line="1892"/>
         <source>By default application tries to find a content area on whole page. But sometimes user have an scan bigger than page. This could happen if you scan whole possible scanner area even if your pages are smaller than it. In this case you might end up with a big image with huge black borders. If page detection is enabled the application tries to find a real page area in image before content area detection. In case of success the content area is searched inside area found only. Technically it preprocess image to excludes black borders from page area. The following enhancements could be applied (in order they&apos;re listed):
 
 Fine tune page corners - move corners of detected page area towards the center of page while the corner pixel won&apos;t be non black.
@@ -2755,126 +2765,126 @@ Everything outside page area is highlighted with yellow in page view panel.</sou
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1968"/>
+        <location filename="../ui/SettingsDialog.ui" line="2360"/>
         <source>Millimeters (mm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1973"/>
+        <location filename="../ui/SettingsDialog.ui" line="2365"/>
         <source>Inches (in)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1996"/>
+        <location filename="../ui/SettingsDialog.ui" line="2388"/>
         <source>Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2033"/>
+        <location filename="../ui/SettingsDialog.ui" line="2425"/>
         <source>Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2053"/>
+        <location filename="../ui/SettingsDialog.ui" line="2445"/>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2090"/>
+        <location filename="../ui/SettingsDialog.ui" line="2482"/>
         <source>Bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="491"/>
+        <location filename="../SettingsDialog.cpp" line="501"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1872"/>
+        <location filename="../ui/SettingsDialog.ui" line="2231"/>
         <source>If enabled - marks deviant pages with red asterisks in Thumbnails panel.
 The Deviant page on this stage is defined as a page which has no alignment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2124"/>
+        <location filename="../ui/SettingsDialog.ui" line="2516"/>
         <source>Switched on for page by default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2221"/>
+        <location filename="../ui/SettingsDialog.ui" line="2646"/>
         <source>Auto-Magnet alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2228"/>
+        <location filename="../ui/SettingsDialog.ui" line="2653"/>
         <source>Original proportions alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2287"/>
+        <location filename="../ui/SettingsDialog.ui" line="2712"/>
         <source>Selected alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2364"/>
+        <location filename="../ui/SettingsDialog.ui" line="2804"/>
         <source>At this stage the output files are created from the images and written to the disk. The resultant images also appear in the central window of the program.
 
 Unlike the other stages, the &quot;Output&quot; stage becomes available only after all page pass the stages of &quot;Select Content&quot; and &quot;Page Layout&quot;. This is because the size of pages in the output depend on each other. Say if it found a big page, then all the other fields are increasing (more is described in the documentation on the Page Layout stage). Therefore it is important to know the final size of pages, and it can only be done through the stages of &quot;Select Content&quot; and &quot;Page Layout&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2397"/>
+        <location filename="../ui/SettingsDialog.ui" line="2837"/>
         <source>Default DPI:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2464"/>
+        <location filename="../ui/SettingsDialog.ui" line="2904"/>
         <source>Threshold control diapason:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2473"/>
+        <location filename="../ui/SettingsDialog.ui" line="2913"/>
         <source>Min.:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2506"/>
+        <location filename="../ui/SettingsDialog.ui" line="2946"/>
         <source>Max.:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2530"/>
+        <location filename="../ui/SettingsDialog.ui" line="2970"/>
         <source>Default threshold value:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2555"/>
+        <location filename="../ui/SettingsDialog.ui" line="2995"/>
         <source>Hold spacebar to display original page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2623"/>
+        <location filename="../ui/SettingsDialog.ui" line="3078"/>
         <source>Black and White is not suitable for any images and some drawings. There is an option to &quot;despeckle&quot;, and to increase or decrease the line thickness (i.e. of the text). In general it is best to not despeckle if the image is reasonably clean as despeckling can result in the loss of some portions of text. This may be compensated for to a degree by increasing the line thickness but it&apos;s probably important to experiment on a few pages before applying to the entire project.
 Making black and white image from grayscale or color source requires binarization. Binarization contains several steps which could be seen in debug mode. One of these is image smoothing. In few cases better results could be achieved if smoothing is disabled, but it&apos;s enabled by default.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2653"/>
+        <location filename="../ui/SettingsDialog.ui" line="3108"/>
         <source>Disable smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3017"/>
+        <location filename="../ui/SettingsDialog.ui" line="3532"/>
         <source>Sensitivity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3039"/>
+        <location filename="../ui/SettingsDialog.ui" line="3554"/>
         <source>%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3118"/>
+        <location filename="../ui/SettingsDialog.ui" line="3648"/>
         <source>Foreground layer allows user to fill page with white while keeping its content grayscaled or colored. Technically, it binarizes image to a b/w mask and uses such mask to separate background from foreground. Then background is filled with white while foreground is kept as is.
 It could be useful if you have some colored text, arrows or other glyphs which could be hardly represented as a rectangle picture.
 Foreground layer could be adjusted with zones. Use zones with &quot;subtract from all layers&quot; property to left a part of image below it in b/w mode. Or &quot;subtract to auto layer&quot; to remove auto layer mask below it. By default auto layer masks (if enabled) and foreground layer masks are combined.
@@ -2883,38 +2893,38 @@ As Foreground layer is using binarization to separate content from background it
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3151"/>
+        <location filename="../ui/SettingsDialog.ui" line="3681"/>
         <source>Separate threshold control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3171"/>
+        <location filename="../ui/SettingsDialog.ui" line="3731"/>
         <source>Fill zones tab allows user to specify zones that will be filled with background cover. This is usually used to remove the library stamps, and spots that are too big to be automatically removed with Despeckle function.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3208"/>
+        <location filename="../ui/SettingsDialog.ui" line="3798"/>
         <source>Dewarping tries to detect and fix distortion of page surface by analyzing lines of text on it. It assumes that the lines should be horizontal.
 Automatic and manual modes are supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3246"/>
+        <location filename="../ui/SettingsDialog.ui" line="3866"/>
         <source>Despeckling mode tries to automatically clean page content from spots. It analyses only areas of page rendered in b/w. In a nutshell it looks for connected set of black pixels that could be bounded with a rect smaller then Despeckling mode sensitivity rect - in this case these pixels are filled with background color. Currently 3 levels of sensitivity are supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3271"/>
+        <location filename="../ui/SettingsDialog.ui" line="3891"/>
         <source>Default:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3409"/>
+        <location filename="../ui/SettingsDialog.ui" line="4044"/>
         <source>Expand all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3414"/>
+        <location filename="../ui/SettingsDialog.ui" line="4049"/>
         <source>Collapse all</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2930,7 +2940,7 @@ Automatic and manual modes are supported.</source>
     </message>
     <message>
         <location filename="../SettingsDialog.cpp" line="142"/>
-        <location filename="../SettingsDialog.cpp" line="983"/>
+        <location filename="../SettingsDialog.cpp" line="993"/>
         <source>Restore defaults</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3027,22 +3037,22 @@ Automatic and manual modes are supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="492"/>
+        <location filename="../SettingsDialog.cpp" line="502"/>
         <source>Cautious</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="494"/>
+        <location filename="../SettingsDialog.cpp" line="504"/>
         <source>Aggressive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="984"/>
+        <location filename="../SettingsDialog.cpp" line="994"/>
         <source>Thumbnails view settings will be reseted to their defaults. Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2115"/>
+        <location filename="../ui/SettingsDialog.ui" line="2507"/>
         <source>Auto margins</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3097,7 +3107,7 @@ Automatic and manual modes are supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="493"/>
+        <location filename="../SettingsDialog.cpp" line="503"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3490,22 +3500,27 @@ Automatic and manual modes are supported.</source>
 <context>
     <name>page_layout::Filter</name>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="71"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="73"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="72"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="74"/>
+        <source>Order by alignment type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_layout/Filter.cpp" line="75"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="73"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="76"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="83"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="86"/>
         <source>Page Layout</source>
         <translation type="unfinished"></translation>
     </message>

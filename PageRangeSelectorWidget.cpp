@@ -50,10 +50,20 @@ void PageRangeSelectorWidget::setData(PageId const& cur_page, PageSelectionAcces
     }
 
     ui->rbSelected->setEnabled(sel_cnt > 1);
-    ui->rbSelected->blockSignals(true);
-    ui->rbSelected->setChecked(true);
-    ui->rbSelected->blockSignals(false);
-    setRange(PageRangeSelectorWidget::Selected, true);
+
+    if (ui->rbSelected->isEnabled()) {
+        ui->rbSelected->blockSignals(true);
+        ui->rbSelected->setChecked(true);
+        ui->rbSelected->blockSignals(false);
+        setRange(PageRangeSelectorWidget::Selected, true);
+    } else {
+        ui->rbAll->blockSignals(true);
+        ui->rbAll->setChecked(true);
+        ui->rbAll->blockSignals(false);
+        setRange(PageRangeSelectorWidget::All, true);
+    }
+
+
 
     if (mode == PageView::IMAGE_VIEW) {
         // pages aren't split to left/right yet
@@ -61,6 +71,19 @@ void PageRangeSelectorWidget::setData(PageId const& cur_page, PageSelectionAcces
         ui->cbLeft->setVisible(false);
         ui->cbRight->setVisible(false);
     }
+
+    std::vector<PageInfo>::const_iterator it_all = m_pages.begin();
+    std::vector<PageInfo>::const_iterator it_all_end = m_pages.end();
+    bool odd = true;
+    while (it_all->id() != m_curPage && it_all != it_all_end) {
+        ++it_all;
+        odd = !odd;
+    }
+
+    ui->lblCurrentIsEvenOrOdd->setText(
+                odd? tr("(current page is odd)") :
+                     tr("(current page is even)")
+                     );
 
     displayLabelCounters();
 }
@@ -256,7 +279,7 @@ void PageRangeSelectorWidget::setFilter(int filter, bool force_upd)
         }
     }
 
-    for (; it != it_end; ++it) {        
+    for (; it != it_end; ++it) {
 
         bool filter_it = (*it == m_curPage); // exclude current page
         if (!count_odds || it_all != it_all_end) {
