@@ -248,19 +248,15 @@ void PageRangeSelectorWidget::setFilter(int filter, bool force_upd)
     bool odd = true;
     const bool count_odds = m_curFilter & (PageRangeSelectorWidget::OddPages | PageRangeSelectorWidget::EvenPages);
 
-    for (; it != it_end; ++it) {
-
-        if (count_odds) {
-            if (m_range == PageRangeSelectorWidget::All) {
-                odd = !odd;
-            } else {
-                while (it_all->id() != *it &&
-                       it_all != it_all_end) {
-                    ++it_all;
-                    odd = !odd;
-                }
-            }
+    if (count_odds && m_range != PageRangeSelectorWidget::All) {
+        while (it_all->id() != *it &&
+               it_all != it_all_end) {
+            ++it_all;
+            odd = !odd;
         }
+    }
+
+    for (; it != it_end; ++it) {        
 
         bool filter_it = (*it == m_curPage); // exclude current page
         if (!count_odds || it_all != it_all_end) {
@@ -276,6 +272,10 @@ void PageRangeSelectorWidget::setFilter(int filter, bool force_upd)
 
         if (!filter_it) {
             m_filteredPages.push_back(*it);
+        }
+
+        if (count_odds) {
+            odd = !odd;
         }
     }
 
