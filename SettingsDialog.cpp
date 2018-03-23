@@ -1013,3 +1013,8 @@ void SettingsDialog::on_cbAlignmentOriginal_toggled(bool checked)
     m_settings.setValue(_key_alignment_original_enabled, checked);
     ui.widgetAlignment->setUseOriginalProportionsAlignment(checked);
 }
+
+void SettingsDialog::on_gbMarginsAuto_toggled(bool arg1)
+{
+    m_settings.setValue(_key_margins_auto_margins_enabled, arg1);
+}

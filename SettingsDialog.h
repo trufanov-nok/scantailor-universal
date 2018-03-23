@@ -140,6 +140,8 @@ private slots:
 
     void on_cbAlignmentOriginal_toggled(bool checked);
 
+    void on_gbMarginsAuto_toggled(bool arg1);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
