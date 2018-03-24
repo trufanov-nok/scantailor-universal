@@ -16,39 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OUTPUT_CHANGE_DEWARPING_DIALOG_H_
-#define OUTPUT_CHANGE_DEWARPING_DIALOG_H_
+#ifndef OUTPUT_CHANGE_DEWARPING_WIDGET_H_
+#define OUTPUT_CHANGE_DEWARPING_WIDGET_H_
 
-#include "ui_OutputChangeDewarpingDialog.h"
+#include "ui_OutputChangeDewarpingWidget.h"
 #include "DewarpingMode.h"
 #include "PageId.h"
 #include "PageSequence.h"
 #include "IntrusivePtr.h"
-#include <QDialog>
+#include <QWidget>
 #include <QString>
 #include <set>
-
-class PageSelectionAccessor;
-class QButtonGroup;
 
 namespace output
 {
 
-class ChangeDewarpingDialog : public QDialog
+class ChangeDewarpingWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	ChangeDewarpingDialog(
-		QWidget* parent, PageId const& cur_page, DewarpingMode const& mode,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~ChangeDewarpingDialog();
-signals:
-	void accepted(std::set<PageId> const& pages, DewarpingMode const& mode);
-private slots:
-	void onSubmit();
+    ChangeDewarpingWidget(QWidget* parent, DewarpingMode const& mode);
+    DewarpingMode dewarpingMode() const;
+    virtual ~ChangeDewarpingWidget();
 private:
-	Ui::OutputChangeDewarpingDialog ui;
+    Ui::OutputChangeDewarpingWidget ui;
 	DewarpingMode m_mode;
 };
 

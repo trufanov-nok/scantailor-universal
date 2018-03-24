@@ -18,9 +18,9 @@
 
 #include "OptionsWidget.h"
 #include "OptionsWidget.moc"
-#include "ChangeDpiDialog.h"
-#include "ChangeDewarpingDialog.h"
-#include "ApplyColorsDialog.h"
+#include "ChangeDpiWidget.h"
+#include "ChangeDewarpingWidget.h"
+#include "ApplyToDialog.h"
 #include "Settings.h"
 #include "Params.h"
 #include "dewarping/DistortionModel.h"
@@ -666,55 +666,68 @@ void output::OptionsWidget::on_depthPerceptionSlider_valueChanged(int value)
 
 void output::OptionsWidget::on_applyDepthPerception_linkActivated(const QString &/*link*/)
 {
-    ApplyColorsDialog* dialog = new ApplyColorsDialog(
-        this, m_pageId, m_pageSelectionAccessor
-    );
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Depth Perception"));
     connect(
-        dialog, SIGNAL(accepted(std::set<PageId> const&)),
-        this, SLOT(applyDepthPerceptionConfirmed(std::set<PageId> const&))
+                dialog, &ApplyToDialog::accepted,
+                this, [=](){
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        applyDepthPerceptionConfirmed(pages);
+    }
     );
     dialog->show();
 }
 
 void output::OptionsWidget::on_dewarpingStatusLabel_linkActivated(const QString &/*link*/)
 {
-    ChangeDewarpingDialog* dialog = new ChangeDewarpingDialog(
-        this, m_pageId, m_dewarpingMode, m_pageSelectionAccessor
-    );
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ApplyToDialog* dialog = new ApplyToDialog(
+        this, m_pageId, m_pageSelectionAccessor);
+    dialog->setWindowTitle(tr("Apply Dewarping Mode"));
+
+    ChangeDewarpingWidget* options = new ChangeDewarpingWidget(dialog, m_dewarpingMode);
+    dialog->initNewTopSettingsPanel().addWidget(options);
     connect(
-        dialog, SIGNAL(accepted(std::set<PageId> const&, DewarpingMode const&)),
-        this, SLOT(dewarpingChanged(std::set<PageId> const&, DewarpingMode const&))
+        dialog, &ApplyToDialog::accepted,
+                [=]() {
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        dewarpingChanged(pages, options->dewarpingMode());
+    }
     );
+
     dialog->show();
 }
 
 void output::OptionsWidget::on_applyDespeckleButton_linkActivated(const QString &/*link*/)
 {
-    ApplyColorsDialog* dialog = new ApplyColorsDialog(
-        this, m_pageId, m_pageSelectionAccessor
-    );
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Despeckling Level"));
     connect(
-        dialog, SIGNAL(accepted(std::set<PageId> const&)),
-        this, SLOT(applyDespeckleConfirmed(std::set<PageId> const&))
+                dialog, &ApplyToDialog::accepted,
+                this, [=](){
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        applyDespeckleConfirmed(pages);
+    }
     );
+
     dialog->show();
 }
 
 void output::OptionsWidget::on_applyColorsButton_linkActivated(const QString &/*link*/)
 {
-    ApplyColorsDialog* dialog = new ApplyColorsDialog(
-        this, m_pageId, m_pageSelectionAccessor
-    );
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
+    dialog->setWindowTitle(tr("Apply Mode"));
     connect(
-        dialog, SIGNAL(accepted(std::set<PageId> const&)),
-        this, SLOT(applyColorsConfirmed(std::set<PageId> const&))
+                dialog, &ApplyToDialog::accepted,
+                this, [=](){
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        applyColorsConfirmed(pages);
+    }
     );
+
     dialog->show();
 }
 
@@ -894,14 +907,22 @@ void output::OptionsWidget::on_thresholdForegroundSlider_valueChanged()
 
 void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
 {
-    ChangeDpiDialog* dialog = new ChangeDpiDialog(
-        this, m_outputDpi, m_pageId, m_pageSelectionAccessor
+    ApplyToDialog* dialog = new ApplyToDialog(
+        this, m_pageId, m_pageSelectionAccessor
     );
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    connect(
-        dialog, SIGNAL(accepted(std::set<PageId> const&, Dpi const&)),
-        this, SLOT(dpiChanged(std::set<PageId> const&, Dpi const&))
-    );
+
+    ChangeDpiWidget* options = new ChangeDpiWidget(this, m_outputDpi);
+    dialog->registerValidator(options);
+    dialog->setWindowTitle(tr("Apply Output Resolution"));
+    dialog->initNewTopSettingsPanel().addWidget(options);
+
+    connect(dialog, &ApplyToDialog::accepted, this, [=]() {
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        const int dpi = options->dpi();
+        dpiChanged(pages, Dpi( dpi, dpi ));
+    });
+
     dialog->show();
 }
 
@@ -926,14 +947,17 @@ void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& page
 
 void output::OptionsWidget::on_applyThresholdButton_linkActivated(const QString &/*link*/)
 {
-    ApplyColorsDialog* dialog = new ApplyColorsDialog(
-        this, m_pageId, m_pageSelectionAccessor
-    );
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Threshold"));
-    connect(dialog, &ApplyColorsDialog::accepted, [this](std::set<PageId> const& set){
-                    applyThresholdConfirmed(set, ColorParamsApplyFilter::CopyThreshold);
-                }   );
+    connect(
+                dialog, &ApplyToDialog::accepted,
+                this, [=](){
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        applyThresholdConfirmed(pages, ColorParamsApplyFilter::CopyThreshold);
+    }
+    );
+
     dialog->show();
 }
 
@@ -993,14 +1017,17 @@ void output::OptionsWidget::on_autoLayerCB_toggled(bool checked)
 
 void output::OptionsWidget::on_applyForegroundThresholdButton_linkActivated(const QString &/*link*/)
 {
-    ApplyColorsDialog* dialog = new ApplyColorsDialog(
-        this, m_pageId, m_pageSelectionAccessor
-    );
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Foreground layer threshold"));
-    connect(dialog, &ApplyColorsDialog::accepted, [this](std::set<PageId> const& set){
-                    applyThresholdConfirmed(set, ColorParamsApplyFilter::CopyForegroundThreshold);
-                }   );
+    connect(
+                dialog, &ApplyToDialog::accepted,
+                this, [=](){
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        applyThresholdConfirmed(pages, ColorParamsApplyFilter::CopyForegroundThreshold);
+    }
+    );
+
     dialog->show();
 }
 

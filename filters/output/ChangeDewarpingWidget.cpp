@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ChangeDewarpingDialog.h"
-#include "ChangeDewarpingDialog.moc"
+#include "ChangeDewarpingWidget.h"
+#include "ChangeDewarpingWidget.moc"
 #include "PageSelectionAccessor.h"
 #include "QtSignalForwarder.h"
 #ifndef Q_MOC_RUN
@@ -28,17 +28,12 @@
 namespace output
 {
 
-ChangeDewarpingDialog::ChangeDewarpingDialog(
-	QWidget* parent, PageId const& cur_page, DewarpingMode const& mode,
-	PageSelectionAccessor const& page_selection_accessor)
-:	QDialog(parent),
+ChangeDewarpingWidget::ChangeDewarpingWidget(QWidget* parent, DewarpingMode const& mode)
+:	QWidget(parent),
     m_mode(mode)
 {
-	using namespace boost::lambda;
 
 	ui.setupUi(this);
-    ui.widgetPageRangeSelector->setData(cur_page, page_selection_accessor);
-
 	switch (mode) {
 		case DewarpingMode::OFF:
 			ui.offRB->setChecked(true);
@@ -46,44 +41,41 @@ ChangeDewarpingDialog::ChangeDewarpingDialog(
 		case DewarpingMode::AUTO:
 			ui.autoRB->setChecked(true);
 			break;
-//begin of modified by monday2000
-//Marginal_Dewarping
 		case DewarpingMode::MARGINAL:
 			ui.marginalRB->setChecked(true);
 			break;
-//end of modified by monday2000
 		case DewarpingMode::MANUAL:
 			ui.manualRB->setChecked(true);
 			break;
 	}
 
 	// No, we don't leak memory here.
+    using namespace boost::lambda;
 	new QtSignalForwarder(ui.offRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::OFF);
 	new QtSignalForwarder(ui.autoRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::AUTO);
 	new QtSignalForwarder(ui.manualRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MANUAL);
-//begin of modified by monday2000
-//Marginal_Dewarping
 	new QtSignalForwarder(ui.marginalRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MARGINAL);
-//end of modified by monday2000
 
-	connect(ui.buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
 
-ChangeDewarpingDialog::~ChangeDewarpingDialog()
+ChangeDewarpingWidget::~ChangeDewarpingWidget()
 {
 }
 
-void
-ChangeDewarpingDialog::onSubmit()
+DewarpingMode
+ChangeDewarpingWidget::dewarpingMode() const
 {
-    std::vector<PageId> vec = ui.widgetPageRangeSelector->result();
-    std::set<PageId> pages(vec.begin(), vec.end());
-	
-	emit accepted(pages, m_mode);
-	
-	// We assume the default connection from accepted() to accept()
-	// was removed.
-	accept();
+    if (ui.offRB->isChecked()) {
+        return DewarpingMode::OFF;
+    } else if (ui.autoRB->isChecked()) {
+        return DewarpingMode::AUTO;
+    } else if (ui.marginalRB->isChecked()) {
+        return DewarpingMode::MARGINAL;
+    } else if (ui.manualRB->isChecked()) {
+        return DewarpingMode::MANUAL;
+    } else assert(false);
+
+    return DewarpingMode::OFF;
 }
 
 } // namespace output

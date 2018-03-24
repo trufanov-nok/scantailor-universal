@@ -23,7 +23,7 @@
 #include <QString>
 #include <Qt>
 #include <math.h>
-#include "ApplyDialog.h"
+#include "ApplyToDialog.h"
 
 namespace deskew
 {
@@ -61,19 +61,22 @@ OptionsWidget::~OptionsWidget()
 void
 OptionsWidget::showDeskewDialog()
 {
-	ApplyDialog* dialog = new ApplyDialog(
-		this, m_pageId, m_pageSelectionAccessor
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(tr("Apply Deskew"));
-	connect(
-		dialog, SIGNAL(appliedTo(std::set<PageId> const&)),
-		this, SLOT(appliedTo(std::set<PageId> const&))
-	);
-	connect(
-		dialog, SIGNAL(appliedToAllPages(std::set<PageId> const&)),
-		this, SLOT(appliedToAllPages(std::set<PageId> const&))
-	);
+    ApplyToDialog* dialog = new ApplyToDialog(
+        this, m_pageId, m_pageSelectionAccessor
+    );
+
+    dialog->setWindowTitle(tr("Apply Deskew"));
+
+    connect(dialog, &ApplyToDialog::accepted, this, [=]() {
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        if (!dialog->getPageRangeSelectorWidget().allPagesSelected()) {
+            appliedTo(pages);
+        } else {
+            appliedToAllPages(pages);
+        }
+    });
+
 	dialog->show();
 }
 

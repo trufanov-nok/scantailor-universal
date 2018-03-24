@@ -290,37 +290,57 @@ OptionsWidget::alignmentChangedExt()
 }
 
 void
+OptionsWidget::showApplyDialog(const ApplySettingsWidget::DialogType dlgType)
+{
+    ApplyToDialog* dialog = new ApplyToDialog(
+        this, m_pageId, m_pageSelectionAccessor
+    );
+
+    dialog->setWindowTitle((dlgType == ApplySettingsWidget::Margins) ?
+                               tr("Apply Margins") :
+                               tr("Apply Alignment"));
+
+    ApplySettingsWidget* options = new ApplySettingsWidget(dialog, dlgType,
+                                                           m_marginsMM.isAutoMarginsEnabled());
+    if (!options->isEmpty()) {
+        QLayout& l = dialog->initNewLeftSettingsPanel();
+        l.addWidget(options);
+    } else {
+        delete options;
+    }
+
+    connect(
+        dialog, &ApplyToDialog::accepted,
+                this, [=]() {
+
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        if (dlgType == ApplySettingsWidget::Margins) {
+            applyMargins(options->getMarginsTypeVal(), pages);
+        } else {
+            applyAlignment(pages);
+        }
+
+    }
+    );
+
+    dialog->show();
+}
+
+void
 OptionsWidget::showApplyMarginsDialog()
 {
-	ApplyDialog* dialog = new ApplyDialog(
-        this, m_pageId, m_pageSelectionAccessor, ApplyDialog::Margins, m_marginsMM.isAutoMarginsEnabled()
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(tr("Apply Margins"));
-    connect(
-        dialog, &ApplyDialog::accepted_margins,
-        this, &OptionsWidget::applyMargins
-	);
-	dialog->show();
+    showApplyDialog(ApplySettingsWidget::Margins);
 }
 
 void
 OptionsWidget::showApplyAlignmentDialog()
 {
-	ApplyDialog* dialog = new ApplyDialog(
-        this, m_pageId, m_pageSelectionAccessor, ApplyDialog::Alignment
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(tr("Apply Alignment"));
-	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&)),
-		this, SLOT(applyAlignment(std::set<PageId> const&))
-	);
-	dialog->show();
+    showApplyDialog(ApplySettingsWidget::Alignment);
 }
 
 void
-OptionsWidget::applyMargins(ApplyDialog::MarginsApplyType const type, std::set<PageId> const& pages)
+OptionsWidget::applyMargins(ApplySettingsWidget::MarginsApplyType const type, std::set<PageId> const& pages)
 {
 	if (pages.empty()) {
 		return;
@@ -330,7 +350,7 @@ OptionsWidget::applyMargins(ApplyDialog::MarginsApplyType const type, std::set<P
         for (PageId const& page_id: pages) {
             m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
         }
-    } else if (type == ApplyDialog::MarginsValues) {
+    } else if (type == ApplySettingsWidget::MarginsValues) {
         const Margins& val = static_cast<Margins&>(m_marginsMM);
         for (PageId const& page_id: pages) {
             MarginsWithAuto mh =  m_ptrSettings->getHardMarginsMM(page_id);

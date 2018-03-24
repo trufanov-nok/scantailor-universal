@@ -90,7 +90,7 @@
           <number>2</number>
          </property>
          <attribute name="headerVisible">
-          <bool>true</bool>
+          <bool>false</bool>
          </attribute>
          <attribute name="headerCascadingSectionResizes">
           <bool>true</bool>
@@ -205,7 +205,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>14</number>
+       <number>17</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -1358,8 +1358,8 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>105</width>
-                <height>1372</height>
+                <width>441</width>
+                <height>422</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_60">
@@ -1866,8 +1866,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>341</width>
-                <height>488</height>
+                <width>427</width>
+                <height>454</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -2142,8 +2142,8 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1442</height>
+                <width>441</width>
+                <height>422</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -2298,8 +2298,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>106</width>
-                <height>1328</height>
+                <width>427</width>
+                <height>308</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_90">
@@ -4052,15 +4052,15 @@ Debug images are saved as png in temporary folder with unique filenames. These f
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FancyLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>settings/fancylineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>AlignmentWidget</class>
    <extends>QWidget</extends>
    <header>filters/page_layout/alignmentwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>settings/fancylineedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

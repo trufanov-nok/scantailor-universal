@@ -16,38 +16,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ApplyColorsDialog.h"
-#include "ApplyColorsDialog.moc"
+#include "ApplySettingsWidget.h"
+#include "ApplySettingsWidget.moc"
 #include "PageSelectionAccessor.h"
 #include <QButtonGroup>
+#include "settings/ini_keys.h"
+#include <assert.h>
 
-namespace output
+namespace page_layout
 {
 
-ApplyColorsDialog::ApplyColorsDialog(
-	QWidget* parent, PageId const& cur_page,
-	PageSelectionAccessor const& page_selection_accessor):	QDialog(parent)
+ApplySettingsWidget::ApplySettingsWidget(QWidget* parent,
+    const DialogType dlg_type, bool const is_auto_margin_enabled)
+:	QWidget(parent),
+    m_dlgType(dlg_type),
+    m_empty(true)
 {
 	setupUi(this);
-    widgetPageRangeSelector->setData(cur_page, page_selection_accessor);
 
-	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
+    if (m_dlgType == Margins) {
+        const bool auto_margins_enabled = QSettings().value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool();
+        groupBoxWhatToAppy->setVisible(auto_margins_enabled);
+        autoMarginRB->setChecked(auto_margins_enabled && is_auto_margin_enabled);
+        m_empty = !auto_margins_enabled;
+    } else {
+        groupBoxWhatToAppy->setVisible(false);
+    }
+
 }
 
-ApplyColorsDialog::~ApplyColorsDialog()
+ApplySettingsWidget::~ApplySettingsWidget()
 {
 }
 
-void
-ApplyColorsDialog::onSubmit()
-{	
-    std::vector<PageId> vec = widgetPageRangeSelector->result();
-    std::set<PageId> pages(vec.begin(), vec.end());
-	emit accepted(pages);
-	
-	// We assume the default connection from accepted() to accept()
-	// was removed.
-	accept();
-}
-
-} // namespace output
+} // namespace page_layout

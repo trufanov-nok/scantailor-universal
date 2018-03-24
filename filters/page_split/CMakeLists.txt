@@ -14,7 +14,7 @@ SET(
 	VertLineFinder.cpp VertLineFinder.h
 	Filter.cpp Filter.h
 	OptionsWidget.cpp OptionsWidget.h
-	SplitModeDialog.cpp SplitModeDialog.h
+	SplitModeWidget.cpp SplitModeWidget.h
 	Settings.cpp Settings.h
 	Task.cpp Task.h
 	CacheDrivenTask.cpp CacheDrivenTask.h

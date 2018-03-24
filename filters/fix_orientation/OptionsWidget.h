@@ -54,14 +54,15 @@ private slots:
 	void resetRotation();
 	
 	void showApplyToDialog();
-	
-	void appliedTo(std::set<PageId> const& pages);
 
-	void appliedToAllPages(std::set<PageId> const& pages);
 private:
 	void setRotation(OrthogonalRotation rotation);
 	
 	void setRotationPixmap();
+
+    void appliedTo(std::set<PageId> const& pages);
+
+    void appliedToAllPages(std::set<PageId> const& pages);
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageSelectionAccessor m_pageSelectionAccessor;

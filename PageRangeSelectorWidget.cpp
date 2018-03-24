@@ -328,6 +328,7 @@ void PageRangeSelectorWidget::displayLabelCounters()
 {
     ui->lblAffectedPagesCnt->setText(getText(m_lblCounterTotal-m_lblCounterFiltered));
     ui->lblExcludedPagesCnt->setText(getText(-1*m_lblCounterFiltered/* + 1*/));
+
 //    const QString tt = m_lblCounterFiltered == 1 ? tr("Current page is always excluded") : "";
 //    ui->lblExcludedPagesCnt->setToolTip(tt);
 }

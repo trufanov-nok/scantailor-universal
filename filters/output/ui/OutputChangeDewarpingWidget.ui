@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>OutputChangeDewarpingDialog</class>
- <widget class="QDialog" name="OutputChangeDewarpingDialog">
-  <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
-  </property>
+ <class>OutputChangeDewarpingWidget</class>
+ <widget class="QWidget" name="OutputChangeDewarpingWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,16 +10,40 @@
     <height>223</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Apply Dewarping Mode</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QGroupBox" name="dpiGroup">
      <property name="title">
       <string>Mode</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>3</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <property name="spacing">
+       <number>3</number>
+      </property>
       <item row="0" column="0">
        <widget class="QRadioButton" name="offRB">
         <property name="text">
@@ -67,9 +88,6 @@
     </widget>
    </item>
    <item>
-    <widget class="PageRangeSelectorWidget" name="widgetPageRangeSelector" native="true"/>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -82,43 +100,8 @@
      </property>
     </spacer>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>PageRangeSelectorWidget</class>
-   <extends>QWidget</extends>
-   <header>PageRangeSelectorWidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>OutputChangeDewarpingDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

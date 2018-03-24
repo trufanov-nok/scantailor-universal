@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ChangeDpiDialog.h"
-#include "ChangeDpiDialog.moc"
+#include "ChangeDpiWidget.h"
+#include "ChangeDpiWidget.moc"
 #include "PageSelectionAccessor.h"
 #include "Dpi.h"
 #include <QButtonGroup>
@@ -32,18 +32,15 @@
 namespace output
 {
 
-ChangeDpiDialog::ChangeDpiDialog(
-	QWidget* parent, Dpi const& dpi, PageId const& cur_page,
-	PageSelectionAccessor const& page_selection_accessor):	QDialog(parent)
+ChangeDpiWidget::ChangeDpiWidget(QWidget* parent, Dpi const& dpi):	QWidget(parent)
 {
 	setupUi(this);
-    widgetPageRangeSelector->setData(cur_page, page_selection_accessor);
 	
 	dpiSelector->setValidator(new QIntValidator(dpiSelector));
 	
     QStringList common_dpis = QSettings().value(_key_dpi_change_list, _key_dpi_change_list_def).toString().split(',');
 	
-	int const requested_dpi = std::max(dpi.horizontal(), dpi.vertical());
+    int const requested_dpi = std::max(dpi.horizontal(), dpi.vertical());
 	m_customDpiString = QString::number(requested_dpi);
 	
 	int selected_index = -1;
@@ -78,15 +75,14 @@ ChangeDpiDialog::ChangeDpiDialog(
 		dpiSelector, SIGNAL(editTextChanged(QString const&)),
 		this, SLOT(dpiEditTextChanged(QString const&))
 	);
-	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
 }
 
-ChangeDpiDialog::~ChangeDpiDialog()
+ChangeDpiWidget::~ChangeDpiWidget()
 {
 }
 
 void
-ChangeDpiDialog::dpiSelectionChanged(int const index)
+ChangeDpiWidget::dpiSelectionChanged(int const index)
 {
 	dpiSelector->setEditable(index == m_customItemIdx);
 	if (index == m_customItemIdx) {
@@ -101,15 +97,15 @@ ChangeDpiDialog::dpiSelectionChanged(int const index)
 }
 
 void
-ChangeDpiDialog::dpiEditTextChanged(QString const& text)
+ChangeDpiWidget::dpiEditTextChanged(QString const& text)
 {
 	if (dpiSelector->currentIndex() == m_customItemIdx) {
 		m_customDpiString = text;
 	}
 }
 
-void
-ChangeDpiDialog::onSubmit()
+bool
+ChangeDpiWidget::validate()
 {
 	QString const dpi_str(dpiSelector->currentText());
 	if (dpi_str.isEmpty()) {
@@ -117,7 +113,7 @@ ChangeDpiDialog::onSubmit()
 			this, tr("Error"),
 			tr("DPI is not set.")
 		);
-		return;
+        return false;
 	}
 	
 	int const dpi = dpi_str.toInt();
@@ -126,7 +122,7 @@ ChangeDpiDialog::onSubmit()
 			this, tr("Error"),
 			tr("DPI is too low!")
 		);
-		return;
+        return false;
 	}
 	
 	if (dpi > 1200) {
@@ -134,17 +130,12 @@ ChangeDpiDialog::onSubmit()
 			this, tr("Error"),
 			tr("DPI is too high!")
 		);
-		return;
+        return false;
 	}
-	
-    std::vector<PageId> vec = widgetPageRangeSelector->result();
-    std::set<PageId> pages(vec.begin(), vec.end());
-	
-	emit accepted(pages, Dpi(dpi, dpi));
 	
 	// We assume the default connection from accepted() to accept()
 	// was removed.
-	accept();
+    return true;
 }
 
 } // namespace output

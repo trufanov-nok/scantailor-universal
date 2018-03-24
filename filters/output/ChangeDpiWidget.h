@@ -1,6 +1,7 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2008  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C)  Joseph Artsimovich <joseph_a@mail.ru>
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -15,38 +16,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DESKEW_APPLYDIALOG_H_
-#define DESKEW_APPLYDIALOG_H_
+#ifndef OUTPUT_CHANGEDPIWIDGET_H_
+#define OUTPUT_CHANGEDPIWIDGET_H_
 
-#include "ui_DeskewApplyDialog.h"
+#include "ui_OutputChangeDpiWidget.h"
 #include "PageId.h"
 #include "PageSequence.h"
-#include "PageRange.h"
 #include "IntrusivePtr.h"
-#include <QDialog>
+#include <QWidget>
+#include <QString>
 #include <set>
+#include "ApplyToDialog.h"
 
-class QButtonGroup;
-class PageSelectionAccessor;
-
-namespace deskew
+namespace output
 {
 
-class ApplyDialog : public QDialog, private Ui::DeskewApplyDialog
+class ChangeDpiWidget : public QWidget,
+        public ApplyToDialog::Validator,
+        private Ui::widgetOutputChangeDpi
 {
 	Q_OBJECT
 public:
-	ApplyDialog(QWidget* parent, PageId const& cur_page,
-		PageSelectionAccessor const& page_selection_accessor);
+    ChangeDpiWidget(QWidget* parent, Dpi const& dpi);
 	
-	virtual ~ApplyDialog();
-signals:
-	void appliedTo(std::set<PageId> const& pages);
-    void appliedToAllPages(std::set<PageId> const& pages);
+	virtual ~ChangeDpiWidget();
+
+    int dpi() const { return dpiSelector->currentText().toInt(); }
+
+    virtual bool validate() override;
 private slots:
-	void onSubmit();
+	void dpiSelectionChanged(int index);
+	
+	void dpiEditTextChanged(QString const& text);
+private:
+	int m_customItemIdx;
+	QString m_customDpiString;
 };
 
-} // namespace deskew
+} // namespace output
 
 #endif

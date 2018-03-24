@@ -4,8 +4,7 @@ INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
 
 SET(
 	sources
-	ApplyColorsDialog.cpp ApplyColorsDialog.h
-	ChangeDpiDialog.cpp ChangeDpiDialog.h
+        ChangeDpiWidget.cpp ChangeDpiWidget.h
 	ImageView.cpp ImageView.h
 	ImageViewTab.h
 	TabbedImageView.cpp TabbedImageView.h
@@ -43,7 +42,7 @@ SET(
 	DespeckleLevel.cpp DespeckleLevel.h
 	DewarpingView.cpp DewarpingView.h
 	DewarpingMode.cpp DewarpingMode.h
-	ChangeDewarpingDialog.cpp ChangeDewarpingDialog.h
+        ChangeDewarpingWidget.cpp ChangeDewarpingWidget.h
 	DepthPerception.cpp DepthPerception.h
         OrderByModeProvider.cpp OrderByModeProvider.h
         OrderBySourceColor.cpp OrderBySourceColor.h

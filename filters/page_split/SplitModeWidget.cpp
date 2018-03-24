@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SplitModeDialog.h"
-#include "SplitModeDialog.moc"
+#include "SplitModeWidget.h"
+#include "SplitModeWidget.moc"
 #include "PageSelectionAccessor.h"
 #include <QPixmap>
 #include <QButtonGroup>
@@ -28,29 +28,26 @@
 namespace page_split
 {
 
-SplitModeDialog::SplitModeDialog(
-	QWidget* const parent, PageId const& cur_page,
-	PageSelectionAccessor const& page_selection_accessor,
+SplitModeWidget::SplitModeWidget(
+    QWidget* const parent,
 	LayoutType const layout_type,
 	PageLayout::Type const auto_detected_layout_type,
 	bool const auto_detected_layout_type_valid)
-:	QDialog(parent),
+:	QWidget(parent),
 	m_layoutType(layout_type),
 	m_autoDetectedLayoutType(auto_detected_layout_type),
 	m_autoDetectedLayoutTypeValid(auto_detected_layout_type_valid)
 {
 	setupUi(this);
-    widgetPageRangeSelector->setData(cur_page, page_selection_accessor, PageView::IMAGE_VIEW);
 	layoutTypeLabel->setPixmap(QPixmap(iconFor(m_layoutType)));
     if (m_layoutType == AUTO_LAYOUT_TYPE && !m_autoDetectedLayoutTypeValid) {
-		modeAuto->setChecked(true);
+        modeAuto->setChecked(true);
 	} else {
 		modeManual->setChecked(true);
 	}
 	
 	connect(modeAuto, SIGNAL(pressed()), this, SLOT(autoDetectionSelected()));
 	connect(modeManual, SIGNAL(pressed()), this, SLOT(manualModeSelected()));
-	connect(buttonBox, SIGNAL(accepted()), this, SLOT(onSubmit()));
     QSettings settings;
     if (!settings.value(_key_page_split_apply_cut_enabled, _key_page_split_apply_cut_enabled_def).toBool())
     {
@@ -65,12 +62,18 @@ SplitModeDialog::SplitModeDialog(
 
 }
 
-SplitModeDialog::~SplitModeDialog()
+SplitModeWidget::~SplitModeWidget()
 {
 }
 
+bool
+SplitModeWidget::isApplyCutChecked() const
+{
+    return applyCutOption->isChecked();
+}
+
 void
-SplitModeDialog::autoDetectionSelected()
+SplitModeWidget::autoDetectionSelected()
 {
 	layoutTypeLabel->setPixmap(QPixmap(":/icons/layout_type_auto.png"));
     applyCutOption->setChecked(false);
@@ -78,32 +81,15 @@ SplitModeDialog::autoDetectionSelected()
 }
 
 void
-SplitModeDialog::manualModeSelected()
+SplitModeWidget::manualModeSelected()
 {
 	char const* resource = iconFor(combinedLayoutType());
 	layoutTypeLabel->setPixmap(QPixmap(resource));
     applyCutOption->setDisabled(false);
 }
 
-void
-SplitModeDialog::onSubmit()
-{
-	LayoutType layout_type = AUTO_LAYOUT_TYPE;
-	if (modeManual->isChecked()) {
-		layout_type = combinedLayoutType();
-	}
-	
-    std::vector<PageId> vec = widgetPageRangeSelector->result();
-    std::set<PageId> pages(vec.begin(), vec.end());
-    emit accepted(pages, widgetPageRangeSelector->allPagesSelected(), layout_type, applyCutOption->isChecked());
-	
-	// We assume the default connection from accepted() to accept()
-	// was removed.
-	accept();
-}
-
 LayoutType
-SplitModeDialog::combinedLayoutType() const
+SplitModeWidget::combinedLayoutType() const
 {
 	if (m_layoutType != AUTO_LAYOUT_TYPE) {
 		return m_layoutType;
@@ -124,7 +110,7 @@ SplitModeDialog::combinedLayoutType() const
 }
 
 char const*
-SplitModeDialog::iconFor(LayoutType const layout_type)
+SplitModeWidget::iconFor(LayoutType const layout_type)
 {
 	char const* resource = "";
 	

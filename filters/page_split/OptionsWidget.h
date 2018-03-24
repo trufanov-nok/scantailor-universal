@@ -92,13 +92,13 @@ private slots:
 	
 	void showChangeDialog();
 	
-	void layoutTypeSet(
-		std::set<PageId> const& pages,
-		bool all_pages, LayoutType layout_type, bool apply_cut);
-	
 	void splitLineModeChanged(bool auto_mode);
 private:
 	void commitCurrentParams();
+
+    void layoutTypeSet(
+        std::set<PageId> const& pages,
+        bool all_pages, LayoutType layout_type, bool apply_cut);
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<ProjectPages> m_ptrPages;

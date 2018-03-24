@@ -26,7 +26,8 @@
 #include "Margins.h"
 #include "Alignment.h"
 #include "PageId.h"
-#include "ApplyDialog.h"
+#include "ApplySettingsWidget.h"
+#include "ApplyToDialog.h"
 #include <QIcon>
 #include <memory>
 #include <map>
@@ -94,10 +95,6 @@ private slots:
 	void showApplyMarginsDialog();
 	
 	void showApplyAlignmentDialog();
-	
-    void applyMargins(const ApplyDialog::MarginsApplyType type, std::set<PageId> const& pages);
-	
-	void applyAlignment(std::set<PageId> const& pages);
 
     void toBeRemoved(const std::set<PageId> pages);
 
@@ -108,6 +105,12 @@ private:
 	void updateLinkDisplay(QToolButton* button, bool linked);
 
     void displayAlignmentText();
+
+    void showApplyDialog(const ApplySettingsWidget::DialogType dlgType);
+
+    void applyMargins(const ApplySettingsWidget::MarginsApplyType type, std::set<PageId> const& pages);
+
+    void applyAlignment(std::set<PageId> const& pages);
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageSelectionAccessor m_pageSelectionAccessor;

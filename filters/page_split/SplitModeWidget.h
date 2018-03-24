@@ -16,17 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PAGE_SPLIT_SPLITMODEDIALOG_H_
-#define PAGE_SPLIT_SPLITMODEDIALOG_H_
+#ifndef PAGE_SPLIT_SPLITMODEWIDGET_H_
+#define PAGE_SPLIT_SPLITMODEWIDGET_H_
 
-#include "ui_PageSplitModeDialog.h"
+#include "ui_PageSplitModeWidget.h"
 #include "LayoutType.h"
 #include "PageLayout.h"
 #include "PageId.h"
 #include "PageSequence.h"
 #include "PageRange.h"
 #include "IntrusivePtr.h"
-#include <QDialog>
 #include <set>
 
 class ProjectPages;
@@ -36,16 +35,24 @@ class QButtonGroup;
 namespace page_split
 {
 
-class SplitModeDialog : public QDialog, private Ui::PageSplitModeDialog
+class SplitModeWidget : public QWidget, private Ui::PageSplitModeApplyWidget
 {
 	Q_OBJECT
 public:
-	SplitModeDialog(QWidget* parent, PageId const& cur_page,
-		PageSelectionAccessor const& page_selection_accessor,
-		LayoutType layout_type, PageLayout::Type auto_detected_layout_type,
+    SplitModeWidget(QWidget* parent, LayoutType layout_type, PageLayout::Type auto_detected_layout_type,
 		bool auto_detected_layout_type_valid);
+
+    LayoutType layoutType() const {
+        LayoutType layout_type = AUTO_LAYOUT_TYPE;
+        if (modeManual->isChecked()) {
+            layout_type = combinedLayoutType();
+        }
+        return layout_type;
+    }
+
+    bool isApplyCutChecked() const;
 	
-	virtual ~SplitModeDialog();
+    virtual ~SplitModeWidget();
 signals:
 	void accepted(std::set<PageId> const& pages,
 		bool all_pages, LayoutType layout_type, bool apply_cut);
@@ -53,8 +60,6 @@ private slots:
 	void autoDetectionSelected();
 	
 	void manualModeSelected();
-	
-	void onSubmit();
 private:
 	LayoutType combinedLayoutType() const;
 	

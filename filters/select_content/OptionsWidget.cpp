@@ -18,7 +18,7 @@
 
 #include "OptionsWidget.h"
 #include "OptionsWidget.moc"
-#include "ApplyDialog.h"
+#include "ApplyToDialog.h"
 #include "Settings.h"
 #include "Params.h"
 #include "ScopedIncDec.h"
@@ -272,14 +272,27 @@ OptionsWidget::commitCurrentParams()
 void
 OptionsWidget::showApplyToDialog()
 {
-	ApplyDialog* dialog = new ApplyDialog(
+    ApplyToDialog* dialog = new ApplyToDialog(
 		this, m_pageId, m_pageSelectionAccessor
 	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(
-		dialog, SIGNAL(applySelection(std::set<PageId> const&, bool)),
-		this, SLOT(applySelection(std::set<PageId> const&, bool))
-	);
+
+    dialog->setWindowTitle(tr("Select Content"));
+
+    QLayout& l = dialog->initNewTopSettingsPanel();
+    QGroupBox* optionsBox = new QGroupBox(tr("Options"), dialog);
+    optionsBox->setLayout(new QVBoxLayout);
+    QCheckBox* applyContentBoxOption = new QCheckBox(tr("Apply content box"), optionsBox);
+    optionsBox->layout()->addWidget(applyContentBoxOption);
+    l.addWidget(optionsBox);
+
+    connect(
+                dialog, &ApplyToDialog::accepted, this,
+                [=]() {
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        applySelection(pages, applyContentBoxOption->isChecked());
+    }
+    );
 	dialog->show();
 }
 

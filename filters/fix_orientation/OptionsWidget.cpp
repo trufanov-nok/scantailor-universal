@@ -19,7 +19,7 @@
 #include "OptionsWidget.h"
 #include "OptionsWidget.moc"
 #include "Filter.h"
-#include "ApplyDialog.h"
+#include "ApplyToDialog.h"
 #include "Settings.h"
 #include "ProjectPages.h"
 #include "ImageId.h"
@@ -88,18 +88,22 @@ OptionsWidget::resetRotation()
 void
 OptionsWidget::showApplyToDialog()
 {
-	ApplyDialog* dialog = new ApplyDialog(
-		this, m_pageId, m_pageSelectionAccessor
+    ApplyToDialog* dialog = new ApplyToDialog(
+        this, m_pageId, m_pageSelectionAccessor, PageView::IMAGE_VIEW
 	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	connect(
-		dialog, SIGNAL(appliedTo(std::set<PageId> const&)),
-		this, SLOT(appliedTo(std::set<PageId> const&))
-	);
-	connect(
-		dialog, SIGNAL(appliedToAllPages(std::set<PageId> const&)),
-		this, SLOT(appliedToAllPages(std::set<PageId> const&))
-	);
+
+    dialog->setWindowTitle(tr("Fix Orientation"));
+
+    connect(dialog, &ApplyToDialog::accepted, this, [=]() {
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        if (!dialog->getPageRangeSelectorWidget().allPagesSelected()) {
+            appliedTo(pages);
+        } else {
+            appliedToAllPages(pages);
+        }
+    });
+
 	dialog->show();
 }
 

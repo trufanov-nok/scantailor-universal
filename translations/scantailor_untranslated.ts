@@ -1015,14 +1015,6 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     </message>
 </context>
 <context>
-    <name>OrientationApplyDialog</name>
-    <message>
-        <location filename="../filters/fix_orientation/ui/OrientationApplyDialog.ui" line="17"/>
-        <source>Fix Orientation</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>OrientationOptionsWidget</name>
     <message>
         <location filename="../filters/fix_orientation/ui/OrientationOptionsWidget.ui" line="14"/>
@@ -1160,56 +1152,30 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     </message>
 </context>
 <context>
-    <name>OutputApplyColorsDialog</name>
+    <name>OutputChangeDewarpingWidget</name>
     <message>
-        <location filename="../filters/output/ui/OutputApplyColorsDialog.ui" line="17"/>
-        <source>Apply Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OutputChangeDewarpingDialog</name>
-    <message>
-        <location filename="../filters/output/ui/OutputChangeDewarpingDialog.ui" line="17"/>
-        <source>Apply Dewarping Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/output/ui/OutputChangeDewarpingDialog.ui" line="23"/>
+        <location filename="../filters/output/ui/OutputChangeDewarpingWidget.ui" line="29"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDewarpingDialog.ui" line="29"/>
+        <location filename="../filters/output/ui/OutputChangeDewarpingWidget.ui" line="50"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDewarpingDialog.ui" line="42"/>
+        <location filename="../filters/output/ui/OutputChangeDewarpingWidget.ui" line="63"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDewarpingDialog.ui" line="52"/>
+        <location filename="../filters/output/ui/OutputChangeDewarpingWidget.ui" line="73"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ui/OutputChangeDewarpingDialog.ui" line="62"/>
+        <location filename="../filters/output/ui/OutputChangeDewarpingWidget.ui" line="83"/>
         <source>Marginal (experimental)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OutputChangeDpiDialog</name>
-    <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="17"/>
-        <source>Apply Output Resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/output/ui/OutputChangeDpiDialog.ui" line="23"/>
-        <source>DPI</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1332,19 +1298,19 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     </message>
 </context>
 <context>
-    <name>PageLayoutApplyDialog</name>
+    <name>PageLayoutApplyWidget</name>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutApplyDialog.ui" line="26"/>
+        <location filename="../filters/page_layout/ui/PageLayoutApplyWidget.ui" line="38"/>
         <source>Apply what</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutApplyDialog.ui" line="47"/>
+        <location filename="../filters/page_layout/ui/PageLayoutApplyWidget.ui" line="65"/>
         <source>Margin values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/ui/PageLayoutApplyDialog.ui" line="57"/>
+        <location filename="../filters/page_layout/ui/PageLayoutApplyWidget.ui" line="81"/>
         <source>Auto Margin setting state</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1496,35 +1462,30 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     </message>
 </context>
 <context>
-    <name>PageSplitModeDialog</name>
+    <name>PageSplitModeApplyWidget</name>
     <message>
-        <location filename="../filters/page_split/ui/PageSplitModeDialog.ui" line="17"/>
-        <source>Split Pages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/page_split/ui/PageSplitModeDialog.ui" line="65"/>
-        <source>Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/page_split/ui/PageSplitModeDialog.ui" line="71"/>
-        <source>Auto</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/page_split/ui/PageSplitModeDialog.ui" line="81"/>
-        <source>Manual</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/page_split/ui/PageSplitModeDialog.ui" line="91"/>
+        <location filename="../filters/page_split/ui/PageSplitModeWidget.ui" line="83"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_split/ui/PageSplitModeDialog.ui" line="97"/>
+        <location filename="../filters/page_split/ui/PageSplitModeWidget.ui" line="89"/>
         <source>Apply cut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_split/ui/PageSplitModeWidget.ui" line="99"/>
+        <source>Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_split/ui/PageSplitModeWidget.ui" line="105"/>
+        <source>Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_split/ui/PageSplitModeWidget.ui" line="115"/>
+        <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2266,24 +2227,6 @@ and press [Enter] to edit the shortcut:</source>
     <message>
         <location filename="../ui/RemovePagesDialog.ui" line="72"/>
         <source>Corresponding output files will be deleted, while input files will remain.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SelectContentApplyDialog</name>
-    <message>
-        <location filename="../filters/select_content/ui/SelectContentApplyDialog.ui" line="17"/>
-        <source>Select Content</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/select_content/ui/SelectContentApplyDialog.ui" line="23"/>
-        <source>Options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/select_content/ui/SelectContentApplyDialog.ui" line="29"/>
-        <source>Apply content box</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3337,31 +3280,39 @@ Automatic and manual modes are supported.</source>
     </message>
 </context>
 <context>
-    <name>output::ChangeDpiDialog</name>
+    <name>fix_orientation::OptionsWidget</name>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="58"/>
+        <location filename="../filters/fix_orientation/OptionsWidget.cpp" line="95"/>
+        <source>Fix Orientation</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>output::ChangeDpiWidget</name>
+    <message>
+        <location filename="../filters/output/ChangeDpiWidget.cpp" line="55"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="117"/>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="126"/>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="134"/>
+        <location filename="../filters/output/ChangeDpiWidget.cpp" line="113"/>
+        <location filename="../filters/output/ChangeDpiWidget.cpp" line="122"/>
+        <location filename="../filters/output/ChangeDpiWidget.cpp" line="130"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="118"/>
+        <location filename="../filters/output/ChangeDpiWidget.cpp" line="114"/>
         <source>DPI is not set.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="127"/>
+        <location filename="../filters/output/ChangeDpiWidget.cpp" line="123"/>
         <source>DPI is too low!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/ChangeDpiDialog.cpp" line="135"/>
+        <location filename="../filters/output/ChangeDpiWidget.cpp" line="131"/>
         <source>DPI is too high!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3393,12 +3344,12 @@ Automatic and manual modes are supported.</source>
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="700"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="705"/>
         <source>Apply Despeckling Level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="673"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="670"/>
         <source>Apply Depth Perception</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3449,12 +3400,27 @@ Automatic and manual modes are supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="1000"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="686"/>
+        <source>Apply Dewarping Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/OptionsWidget.cpp" line="721"/>
+        <source>Apply Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/OptionsWidget.cpp" line="916"/>
+        <source>Apply Output Resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/OptionsWidget.cpp" line="1021"/>
         <source>Apply Foreground layer threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="933"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="951"/>
         <source>Apply Threshold</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3536,22 +3502,22 @@ Automatic and manual modes are supported.</source>
 <context>
     <name>page_layout::OptionsWidget</name>
     <message>
-        <location filename="../filters/page_layout/OptionsWidget.cpp" line="299"/>
+        <location filename="../filters/page_layout/OptionsWidget.cpp" line="300"/>
         <source>Apply Margins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/OptionsWidget.cpp" line="314"/>
+        <location filename="../filters/page_layout/OptionsWidget.cpp" line="301"/>
         <source>Apply Alignment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/OptionsWidget.cpp" line="396"/>
+        <location filename="../filters/page_layout/OptionsWidget.cpp" line="416"/>
         <source>No alignment needed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/OptionsWidget.cpp" line="400"/>
+        <location filename="../filters/page_layout/OptionsWidget.cpp" line="420"/>
         <source>Alignment: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3585,16 +3551,21 @@ Automatic and manual modes are supported.</source>
 <context>
     <name>page_split::OptionsWidget</name>
     <message>
-        <location filename="../filters/page_split/OptionsWidget.cpp" line="115"/>
-        <location filename="../filters/page_split/OptionsWidget.cpp" line="207"/>
-        <location filename="../filters/page_split/OptionsWidget.cpp" line="300"/>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="116"/>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="208"/>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="309"/>
         <source>Set manually</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_split/OptionsWidget.cpp" line="164"/>
-        <location filename="../filters/page_split/OptionsWidget.cpp" line="297"/>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="165"/>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="306"/>
         <source>Auto detected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_split/OptionsWidget.cpp" line="258"/>
+        <source>Split Pages</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3649,6 +3620,32 @@ Automatic and manual modes are supported.</source>
     <message>
         <location filename="../filters/select_content/ImageView.cpp" line="117"/>
         <source>Remove Content Box</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>select_content::OptionsWidget</name>
+    <message>
+        <location filename="../filters/select_content/OptionsWidget.cpp" line="279"/>
+        <source>Select Content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/OptionsWidget.cpp" line="282"/>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/OptionsWidget.cpp" line="284"/>
+        <source>Apply content box</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>widgetOutputChangeDpi</name>
+    <message>
+        <location filename="../filters/output/ui/OutputChangeDpiWidget.ui" line="35"/>
+        <source>DPI</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

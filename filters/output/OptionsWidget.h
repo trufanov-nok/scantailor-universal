@@ -75,15 +75,7 @@ public slots:
 
     void disablePictureLayer();
 private slots:
-	
-	void dpiChanged(std::set<PageId> const& pages, Dpi const& dpi);
-
-	void applyColorsConfirmed(std::set<PageId> const& pages);
-
-    void applyThresholdConfirmed(std::set<PageId> const& pages, ColorParamsApplyFilter const& paramFilter);
-
-    void changeColorMode(ColorParams::ColorMode const mode);
-	
+		
 	void whiteMarginsToggled(bool checked);
 	
 	void equalizeIlluminationToggled(bool checked);	
@@ -95,12 +87,6 @@ private slots:
     void despeckleNormalSelected();
 
     void despeckleAggressiveSelected();
-
-	void applyDespeckleConfirmed(std::set<PageId> const& pages);
-
-	void dewarpingChanged(std::set<PageId> const& pages, DewarpingMode const& mode);
-
-	void applyDepthPerceptionConfirmed(std::set<PageId> const& pages);
 
     void on_depthPerceptionSlider_valueChanged(int value);
 
@@ -150,6 +136,22 @@ private slots:
     void on_actionactionDespeckleAggressive_triggered();
 
 private:
+
+    void dpiChanged(std::set<PageId> const& pages, Dpi const& dpi);
+
+    void applyColorsConfirmed(std::set<PageId> const& pages);
+
+    void applyThresholdConfirmed(std::set<PageId> const& pages, ColorParamsApplyFilter const& paramFilter);
+
+    void applyDespeckleConfirmed(std::set<PageId> const& pages);
+
+    void dewarpingChanged(std::set<PageId> const& pages, DewarpingMode const& mode);
+
+    void applyDepthPerceptionConfirmed(std::set<PageId> const& pages);
+
+
+    void changeColorMode(ColorParams::ColorMode const mode);
+
     bool eventFilter(QObject *obj, QEvent *event);
 
 	void handleDespeckleLevelChange(DespeckleLevel level);

@@ -14,7 +14,7 @@ SET(
 	Params.cpp Params.h
 	Settings.cpp Settings.h
 	Thumbnail.cpp Thumbnail.h
-	ApplyDialog.cpp ApplyDialog.h
+        ApplySettingsWidget.cpp ApplySettingsWidget.h
         Alignment.cpp Alignment.h
 	OrderByWidthProvider.cpp OrderByWidthProvider.h
 	OrderByHeightProvider.cpp OrderByHeightProvider.h

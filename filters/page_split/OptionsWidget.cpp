@@ -19,13 +19,14 @@
 #include "OptionsWidget.h"
 #include "OptionsWidget.moc"
 #include "Filter.h"
-#include "SplitModeDialog.h"
+#include "ApplyToDialog.h"
 #include "Settings.h"
 #include "Params.h"
 #include "LayoutType.h"
 #include "PageId.h"
 #include "ProjectPages.h"
 #include "ScopedIncDec.h"
+#include "SplitModeWidget.h"
 #include <QPixmap>
 #include <assert.h>
 
@@ -248,14 +249,22 @@ OptionsWidget::showChangeDialog()
 		return;
 	}
 	
-	SplitModeDialog* dialog = new SplitModeDialog(
-		this, m_pageId, m_pageSelectionAccessor, record.combinedLayoutType(),
-		params->pageLayout().type(), params->splitLineMode() == MODE_AUTO
-	);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
+    ApplyToDialog* dialog = new ApplyToDialog(
+        this, m_pageId, m_pageSelectionAccessor, PageView::IMAGE_VIEW);
+    QLayout& l = dialog->initNewLeftSettingsPanel();
+    SplitModeWidget* options = new SplitModeWidget(dialog, record.combinedLayoutType(),
+                                                   params->pageLayout().type(), params->splitLineMode() == MODE_AUTO);
+    l.addWidget(options);
+    dialog->setWindowTitle(tr("Split Pages"));
+
 	connect(
-		dialog, SIGNAL(accepted(std::set<PageId> const&, bool, LayoutType, bool)),
-		this, SLOT(layoutTypeSet(std::set<PageId> const&, bool, LayoutType, bool))
+        dialog, &ApplyToDialog::accepted,
+                this, [=]() {
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        layoutTypeSet(pages, dialog->getPageRangeSelectorWidget().allPagesSelected(),
+                      options->layoutType(), options->isApplyCutChecked());
+    }
 	);
 	dialog->show();
 }

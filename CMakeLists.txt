@@ -469,6 +469,7 @@ SET(
         ProcessingTaskQueue.cpp ProcessingTaskQueue.h
         PageSequence.cpp PageSequence.h
         PageRangeSelectorWidget.cpp PageRangeSelectorWidget.h
+        ApplyToDialog.cpp ApplyToDialog.h
         StageSequence.cpp StageSequence.h
         ProjectPages.cpp ProjectPages.h
         FilterData.cpp FilterData.h

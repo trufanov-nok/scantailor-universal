@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,37 +16,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OUTPUT_APPLYCOLORSDIALOG_H_
-#define OUTPUT_APPLYCOLORSDIALOG_H_
+#ifndef PAGE_LAYOUT_APPLYSETTINGSWIDGET_H_
+#define PAGE_LAYOUT_APPLYSETTINGSWIDGET_H_
 
-#include "ui_OutputApplyColorsDialog.h"
+#include "ui_PageLayoutApplyWidget.h"
 #include "PageId.h"
+#include "PageRange.h"
 #include "PageSequence.h"
 #include "IntrusivePtr.h"
-#include <QDialog>
+#include <QWidget>
 #include <set>
 
 class PageSelectionAccessor;
 class QButtonGroup;
 
-namespace output
+namespace page_layout
 {
 
-class ApplyColorsDialog : public QDialog, private Ui::OutputApplyColorsDialog
+class ApplySettingsWidget : public QWidget, private Ui::PageLayoutApplyWidget
 {
 	Q_OBJECT
 public:
-	ApplyColorsDialog(QWidget* parent, PageId const& page_id,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~ApplyColorsDialog();
-signals:
-	void accepted(std::set<PageId> const& pages);
-private slots:
-	void onSubmit();
+    enum DialogType {
+        Margins,
+        Alignment
+    };
+    enum MarginsApplyType {
+        MarginsValues,
+        AutoMarginState
+    };
+public:
+    ApplySettingsWidget(QWidget* parent, const DialogType dlg_type, const bool is_auto_margin_enabled = false);
+    ApplySettingsWidget::MarginsApplyType getMarginsTypeVal() const {
+        return (autoMarginRB->isChecked()) ? AutoMarginState : MarginsValues;
+    }
+    bool isEmpty() const { return m_empty; }
+    virtual ~ApplySettingsWidget();
 private:
+    DialogType m_dlgType;
+    bool m_empty;
 };
 
-} // namespace output
+} // namespace page_layout
 
 #endif

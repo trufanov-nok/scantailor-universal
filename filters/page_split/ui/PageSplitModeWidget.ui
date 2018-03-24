@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PageSplitModeDialog</class>
- <widget class="QDialog" name="PageSplitModeDialog">
+ <class>PageSplitModeApplyWidget</class>
+ <widget class="QWidget" name="PageSplitModeApplyWidget">
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
@@ -9,14 +9,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>363</width>
-    <height>209</height>
+    <width>201</width>
+    <height>253</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Split Pages</string>
+   <string notr="true">Split Pages</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -36,6 +51,9 @@
       <widget class="QLabel" name="layoutTypeLabel">
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="text">
+        <string notr="true"/>
        </property>
        <property name="pixmap">
         <pixmap resource="../../../resources/resources.qrc">:/icons/layout_type_auto.png</pixmap>
@@ -58,7 +76,23 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QGroupBox" name="optionsBox">
+       <property name="title">
+        <string>Options</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QCheckBox" name="applyCutOption">
+          <property name="text">
+           <string>Apply cut</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
@@ -85,93 +119,26 @@
        </layout>
       </widget>
      </item>
-     <item>
-      <widget class="QGroupBox" name="optionsBox">
-       <property name="title">
-        <string>Options</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QCheckBox" name="applyCutOption">
-          <property name="text">
-           <string>Apply cut</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
-    <widget class="PageRangeSelectorWidget" name="widgetPageRangeSelector" native="true"/>
-   </item>
-   <item>
-    <spacer>
+    <spacer name="spacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>0</height>
+       <height>43</height>
       </size>
      </property>
     </spacer>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>PageRangeSelectorWidget</class>
-   <extends>QWidget</extends>
-   <header>PageRangeSelectorWidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../../../resources/resources.qrc"/>
   <include location="../../../resources/resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>PageSplitModeDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

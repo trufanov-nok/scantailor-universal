@@ -104,8 +104,6 @@ public slots:
 private slots:
 	void showApplyToDialog();
 
-	void applySelection(std::set<PageId> const& pages, bool apply_content_box);
-
 	void modeChanged(bool auto_mode);
 	void autoMode();
 	void manualMode();
@@ -118,8 +116,8 @@ private slots:
 
 private:
 	void updateModeIndication(AutoManualMode const mode);
-	
 	void commitCurrentParams();
+    void applySelection(std::set<PageId> const& pages, bool apply_content_box);
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	UiData m_uiData;
