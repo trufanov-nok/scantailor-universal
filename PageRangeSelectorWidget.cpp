@@ -49,19 +49,19 @@ void PageRangeSelectorWidget::setData(PageId const& cur_page, PageSelectionAcces
         ui->rbSelected->setText(tr("Selected (%n pages)", "plural forms supported", sel_cnt));
     }
 
-    ui->rbSelected->setEnabled(sel_cnt > 1);
+//    ui->rbSelected->setEnabled(sel_cnt > 1);
 
-    if (ui->rbSelected->isEnabled()) {
+//    if (ui->rbSelected->isEnabled()) {
         ui->rbSelected->blockSignals(true);
         ui->rbSelected->setChecked(true);
         ui->rbSelected->blockSignals(false);
         setRange(PageRangeSelectorWidget::Selected, true);
-    } else {
-        ui->rbAll->blockSignals(true);
-        ui->rbAll->setChecked(true);
-        ui->rbAll->blockSignals(false);
-        setRange(PageRangeSelectorWidget::All, true);
-    }
+//    } else {
+//        ui->rbAll->blockSignals(true);
+//        ui->rbAll->setChecked(true);
+//        ui->rbAll->blockSignals(false);
+//        setRange(PageRangeSelectorWidget::All, true);
+//    }
 
 
 
@@ -246,15 +246,15 @@ void PageRangeSelectorWidget::setFilter(int filter, bool force_upd)
 
     if (m_curFilter == PageRangeSelectorWidget::None) {
         m_filteredPages = std::vector<PageId>(m_rangePages);
-        m_lblCounterFiltered = 1;
+        m_lblCounterFiltered = 0;
 
 
-        {   // can't remove m_curPage beforehand as it affects odd/even
-            std::vector<PageId>::iterator it;
-            if ((it = std::find(m_filteredPages.begin(), m_filteredPages.end(), m_curPage)) != m_filteredPages.end()) {
-                m_filteredPages.erase(it);
-            }
-        }
+//        {   // can't remove m_curPage beforehand as it affects odd/even
+//            std::vector<PageId>::iterator it;
+//            if ((it = std::find(m_filteredPages.begin(), m_filteredPages.end(), m_curPage)) != m_filteredPages.end()) {
+//                m_filteredPages.erase(it);
+//            }
+//        }
 
         displayLabelCounters();
         emit maybeTargeted(m_filteredPages);
@@ -281,7 +281,7 @@ void PageRangeSelectorWidget::setFilter(int filter, bool force_upd)
 
     for (; it != it_end; ++it) {
 
-        bool filter_it = (*it == m_curPage); // exclude current page
+        bool filter_it = false;//(*it == m_curPage); // exclude current page
         if (!count_odds || it_all != it_all_end) {
             // filter PageID
             if (count_odds) {
@@ -327,7 +327,7 @@ QString getText(int val)
 void PageRangeSelectorWidget::displayLabelCounters()
 {
     ui->lblAffectedPagesCnt->setText(getText(m_lblCounterTotal-m_lblCounterFiltered));
-    ui->lblExcludedPagesCnt->setText(getText(-1*m_lblCounterFiltered + 1));
+    ui->lblExcludedPagesCnt->setText(getText(-1*m_lblCounterFiltered/* + 1*/));
 //    const QString tt = m_lblCounterFiltered == 1 ? tr("Current page is always excluded") : "";
 //    ui->lblExcludedPagesCnt->setToolTip(tt);
 }

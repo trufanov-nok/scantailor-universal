@@ -2145,7 +2145,7 @@ and press [Enter] to edit the shortcut:</source>
     <message>
         <location filename="../PageRangeSelectorWidget.cpp" line="317"/>
         <source>%1 page</source>
-        <translation>%n страница</translation>
+        <translation type="unfinished">%1 страница</translation>
     </message>
     <message>
         <location filename="../PageRangeSelectorWidget.cpp" line="322"/>
