@@ -1482,7 +1482,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     <message>
         <location filename="../filters/page_split/ui/PageSplitModeWidget.ui" line="89"/>
         <source>Apply cut</source>
-        <translation type="unfinished">Скопировать координат разреза</translation>
+        <translation type="unfinished">Скопировать координаты разреза</translation>
     </message>
     <message>
         <location filename="../filters/page_split/ui/PageSplitModeWidget.ui" line="99"/>
