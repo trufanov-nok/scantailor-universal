@@ -1526,7 +1526,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     <message>
         <location filename="../filters/page_split/ui/PageSplitModeDialog.ui" line="97"/>
         <source>Apply cut</source>
-        <translation type="unfinished">Скопировать координат разреза</translation>
+        <translation type="unfinished">Скопировать координаты разреза</translation>
     </message>
 </context>
 <context>
