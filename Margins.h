@@ -35,7 +35,7 @@ public:
     }
 	
 	Margins(double left, double top, double right, double bottom)
-	: m_top(top), m_bottom(bottom), m_left(left), m_right(right) {}
+    : m_left(left), m_top(top), m_right(right), m_bottom(bottom) {}
 	
 	double top() const { return m_top; }
 	
@@ -58,26 +58,31 @@ public:
                 (m_left == rhs.m_left) && (m_right == rhs.m_right));
     }
 private:
-	double m_top;
+    double m_left;
+    double m_top;
+    double m_right;
 	double m_bottom;
-	double m_left;
-	double m_right;
 };
 
 class MarginsWithAuto: public Margins
 {
 public:
-    MarginsWithAuto(double left, double top, double right, double bottom)
-    : Margins(top, bottom, left, right) {
-        setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
+    MarginsWithAuto(double left, double top, double right, double bottom,
+                    bool ignore_default_automargins = false)
+    : Margins(left, top, right, bottom) {
+        if (!ignore_default_automargins) {
+            setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
+        }
     }
 
     MarginsWithAuto(const Margins& m): Margins(m) {
         setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
     }
 
-    MarginsWithAuto(): Margins() {
-        setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
+    MarginsWithAuto(bool ignore_default_automargins = false): Margins() {
+        if (!ignore_default_automargins) {
+            setAutoMargins(QSettings().value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
+        }
     }
 
     MarginsWithAuto & operator= ( Margins rhs )
