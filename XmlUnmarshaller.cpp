@@ -88,7 +88,7 @@ XmlUnmarshaller::margins(QDomElement const& el)
 MarginsWithAuto
 XmlUnmarshaller::marginsHandler(QDomElement const& el)
 {
-    MarginsWithAuto margins;
+    MarginsWithAuto margins(true);
     if (el.attribute("autoMargins") == "true") {
         margins.setLeft(el.attribute("backup_left").toDouble());
         margins.setRight(el.attribute("backup_right").toDouble());
