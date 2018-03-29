@@ -2259,6 +2259,13 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
         return;
     }
 
+    if (!m_ptrThumbSequence->AllThumbnailsComplete())
+    {
+        m_p_export_dialog->reset();
+
+        return;
+    }
+
     m_ptrInteractiveQueue->cancelAndClear();
     if (m_ptrBatchQueue.get()) // Should not happen, but just in case.
         m_ptrBatchQueue->cancelAndClear();
@@ -2286,13 +2293,6 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
         m_ptrPages->toPageSequence(m_ptrStages->filterAt(5)->getView()),
         ThumbnailSequence::RESET_SELECTION, defaultPageOrderProvider()
     );
-
-    if (!m_ptrThumbSequence_export->AllThumbnailsComplete())
-    {
-        m_p_export_dialog->reset();
-
-        return;
-    }
 
 // Getting the output filenames
 

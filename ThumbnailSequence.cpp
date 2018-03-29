@@ -873,7 +873,10 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
           view_width -= gv->frameWidth() * 2;
       }
     }
-    assert(view_width > 0);
+
+    if (view_width == 0) {
+        return; // could be 0 if invoked from export to... func
+    }
 
     double yoffset = GlobalStaticSettings::m_thumbsMinSpacing;
     ord_it = m_itemsInOrder.begin();
