@@ -6,6 +6,9 @@ STSRC=`cd $OURDIR/../..; pwd`
 STHOME=`cd $OURDIR/../../..; pwd`
 echo -e "Building ScanTailor - Base Direcotry: $STHOME\n\n"
 
+# I’ve hardcoded path to SDK [truf]
+PATH_TO_SDK=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+
 export BUILDDIR=$STHOME/scantailor-deps-build
 export STBUILDDIR=$STHOME/scantailor-build
 export CMAKE_PREFIX_PATH=$BUILDDIR
@@ -14,16 +17,15 @@ export CMAKE_LIBRARY_PATH=$BUILDDIR
 export CMAKE_INSTALL_PREFIX=$BUILDDIR
 mkdir -p $BUILDDIR
 
-# For Tiger (10.4), we must use gcc-4.0
-export CC=gcc-4.0
-export CPP=cpp-4.0
-export CXX=g++-4.0
-export LD=g++-4.0
+export CC=gcc-7
+export CPP=cpp-7
+export CXX=g++-7
+export LD=g++-7
 
 export MAC_OS_X_VERSION_MIN_REQUIRED=10.4
-export MACOSX_DEPLOYMENT_TARGET=10.4
-export MYCFLAGS="-m32 -arch i386 -arch x86_64 -arch ppc -mmacosx-version-min=10.4"
-export MYLDFLAGS="-m32 -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
+export MACOSX_DEPLOYMENT_TARGET=10.9
+export MYCFLAGS="-m64 -arch x86_64 -mmacosx-version-min=10.4" # I’ve hardcoded -m64 and arch to 64bit only [truf]
+export MYLDFLAGS="-m64 -isysroot $PATH_TO_SDK" # and here too
 
 
 function build_lib {
@@ -65,7 +67,7 @@ export BOOST_DIR=`find $STHOME -type d -iname boost_[0-9]*_[0-9]*_[0-9]*`
 if [ "x$BOOST_DIR" == "x" ]
 then
    echo "Cannot find BOOST libraries.  Check in $STHOME for boost_x_x_x directory."
-   exit 0
+   exit 0lip
 fi
 BOOST_LIB1=`find $BUILDDIR/lib -iname libboost_signals.a`
 BOOST_LIB2=`find $BUILDDIR/lib -iname libboost_system.a`
@@ -80,8 +82,8 @@ if [ "x$BOOST_LIB1" == "x" ] || \
 then
   cd $BOOST_DIR
   [ ! -x ./bjam ] && ./bootstrap.sh --prefix=$BUILDDIR --with-libraries=test,system,signals
-  echo ./bjam --toolset=darwin-4.0 --prefix=$BUILDDIR --user-config=$OURDIR/user-config.jam --build-dir=$BUILDDIR --with-test --with-system --with-signals link=static runtime-link=static architecture=combined address-model=32 macosx-version=10.4 macosx-version-min=10.4 --debug-configuration install
-  ./bjam --toolset=darwin-4.0 --prefix=$BUILDDIR --user-config=$OURDIR/user-config.jam --build-dir=$BUILDDIR --with-test --with-system --with-signals link=static runtime-link=static architecture=combined address-model=32 macosx-version=10.4 macosx-version-min=10.4 --debug-configuration install
+  echo ./bjam --toolset=darwin-4.0 --prefix=$BUILDDIR --user-config=$OURDIR/user-config.jam --build-dir=$BUILDDIR --with-test --with-system --with-signals link=static runtime-link=static architecture=combined address-model=64 macosx-version=$MACOSX_DEPLOYMENT_TARGET macosx-version-min=$MAC_OS_X_VERSION_MIN_REQUIRED --debug-configuration install
+  ./bjam --toolset=darwin-4.0 --prefix=$BUILDDIR --user-config=$OURDIR/user-config.jam --build-dir=$BUILDDIR --with-test --with-system --with-signals link=static runtime-link=static architecture=combined address-model=64 macosx-version=$MACOSX_DEPLOYMENT_TARGET macosx-version-min=$MAC_OS_X_VERSION_MIN_REQUIRED --debug-configuration install
 fi
 export BOOST_ROOT=$BUILDDIR
 cd $STHOME
@@ -93,7 +95,8 @@ cd $STSRC
 # needed in case scantailor source is not updated to compile with new boost (>=1_34) test infrastructure
 [ ! -f $STSRC/imageproc/tests/main.cpp.old ] && sed -i '.old' -e '1,$ s%^#include <boost/test/auto_unit_test\.hpp>%#include <boost/test/included/unit_test.hpp>%g' $STSRC/imageproc/tests/main.cpp
 [ ! -f $STSRC/tests/main.cpp.old ] && sed -i '.old' -e '1,$ s%^#include <boost/test/auto_unit_test\.hpp>%#include <boost/test/included/unit_test.hpp>%g' $STSRC/tests/main.cpp
-[ ! -f CMakeCache.txt ] && cmake -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_OSX_ARCHITECTURES="ppc;i386" -DCMAKE_OSX_DEPLOYMENT_TARGET="10.4" -DCMAKE_OSX_SYSROOT="/Developer/SDKs/MacOSX10.4u.sdk" -DPNG_INCLUDE_DIR=$BUILDDIR .
+[ ! -f CMakeCache.txt ] && cmake -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET -DCMAKE_OSX_SYSROOT="$PATH_TO_SDK" -DPNG_INCLUDE_DIR=$BUILDDIR -DCMAKE_PREFIX_PATH=$HOME/Qt/5.5/clang_64/ .
+# I’ve hardcoded path to Qt above [Truf]
 make
 $OURDIR/makeapp.sh $STBUILDDIR $STSRC $BUILDDIR
 cd $STHOME

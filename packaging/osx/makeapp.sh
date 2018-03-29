@@ -27,26 +27,28 @@ mkdir -p $APPM
 mkdir -p $APPR
 mkdir -p $APPF
 
-cp $SRCDIR/packaging/osx/ScanTailor.icns $APPR
+cp $SRCDIR/packaging/osx/ScanTailor.icns $APPR/ScanTailorUniversal.icns
 cp $SRCDIR/scantailor_*.qm $APPR
-cp $SRCDIR/scantailor $APPM/ScanTailor
+cp $SRCDIR/translations/qtbase_*.qm $APPR
+cp $SRCDIR/scantailor $APPM/ScanTailorUniversal
 
 stver=`cat version.h | grep 'VERSION "' | cut -d ' ' -f 3 | tr -d '"'`
 cat $SRCDIR/packaging/osx/Info.plist.in | sed "s/@VERSION@/$stver/" >  $APPC/Info.plist
 
-otool -L $APPM/ScanTailor | tail -n +2 | tr -d '\t' | cut -f 1 -d ' ' | while read line; do
+otool -L $APPM/ScanTailorUniversal | tail -n +2 | tr -d '\t' | cut -f 1 -d ' ' | while read line; do
   case $line in
     $BUILDDIR/*)
       ourlib=`basename $line`
       cp $line $APPF >/dev/null 2>&1
-      install_name_tool -change $line @executable_path/../Frameworks/$ourlib $APPM/ScanTailor
+      install_name_tool -change $line @executable_path/../Frameworks/$ourlib $APPM/ScanTailorUniversal
       install_name_tool -id @executable_path/../Frameworks/$ourlib $APPF/$ourlib
       ;;
     esac
 done
 
-rm -rf ScanTailor.dmg $DESTDIR/ScanTailor-$stver.dmg
+rm -rf ScanTailor.dmg $DESTDIR/ScanTailorUniversal-$stver.dmg
 cd $DESTDIR
-macdeployqt $DESTDIR/ScanTailor.app -dmg >/dev/null 2>&1
-mv ScanTailor.dmg $DESTDIR/ScanTailor-$stver.dmg
+# I’ve hardcoded macdeployqt [truf]
+$DESTDIR/../Qt/5.5/clang_64/bin/macdeployqt $DESTDIR/ScanTailor.app -dmg >/dev/null 2>&1
+mv ScanTailor.dmg $DESTDIR/ScanTailorUniversal-$stver.dmg
 
