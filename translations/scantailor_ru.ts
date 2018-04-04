@@ -3559,7 +3559,7 @@ Automatic and manual modes are supported.</source>
     <message>
         <location filename="../filters/page_layout/Filter.cpp" line="74"/>
         <source>Order by alignment type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Сортировка по типу выравнивания</translation>
     </message>
     <message>
         <location filename="../filters/page_layout/Filter.cpp" line="75"/>

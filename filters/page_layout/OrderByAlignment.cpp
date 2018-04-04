@@ -77,7 +77,11 @@ OrderByAlignment::precedes(
         return lhs_page < rhs_page;
     }
 	
-    return (! (lhs_alignment < rhs_alignment) );
+    if (lhs_alignment != rhs_alignment) {
+        return (! (lhs_alignment < rhs_alignment) );
+    } else {
+        return lhs_page < rhs_page;
+    }
 }
 
 } // namespace page_layout
