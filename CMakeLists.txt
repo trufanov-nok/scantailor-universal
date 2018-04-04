@@ -588,9 +588,21 @@ ADD_LIBRARY(stcore STATIC ${common_sources} ${common_ui_sources})
 QT5_USE_MODULES(stcore Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
 ADD_DEPENDENCIES(stcore toplevel_ui_sources)
 
-ADD_EXECUTABLE(
-        scantailor WIN32 ${gui_only_sources} ${resource_sources} ${win32_resource_file}
-)
+IF (WIN32)
+        ADD_EXECUTABLE(
+                scantailor WIN32 ${gui_only_sources} ${resource_sources} ${win32_resource_file}
+        )
+ELSEIF(APPLE)
+        ADD_EXECUTABLE(
+                scantailor MACOSX_BUNDLE ${gui_only_sources} ${resource_sources} ${win32_resource_file}
+        )
+        set_target_properties(scantailor PROPERTIES MACOSX_BUNDLE_INFO_PLIST
+                                  ${CMAKE_CURRENT_SOURCE_DIR}/packaging/osx/Info.plist.in)
+ELSE()
+        ADD_EXECUTABLE(
+                scantailor ${gui_only_sources} ${resource_sources} ${win32_resource_file}
+        )
+ENDIF()
 
 ADD_EXECUTABLE(scantailor-cli ${cli_only_sources} ${common_ui_sources})
 
@@ -615,7 +627,11 @@ IF(EXTRA_LIBS)
         TARGET_LINK_LIBRARIES(scantailor-cli ${EXTRA_LIBS})
 ENDIF()
 
-INSTALL(TARGETS scantailor scantailor-cli RUNTIME DESTINATION bin)
+IF(APPLE)
+        INSTALL(TARGETS scantailor scantailor-cli BUNDLE DESTINATION . RUNTIME DESTINATION bin)
+ELSE(APPLE)
+        INSTALL(TARGETS scantailor scantailor-cli RUNTIME DESTINATION bin)
+ENDIF(APPLE)
 
 IF(ENABLE_CRASH_REPORTER)
         FIND_PATH(
@@ -673,13 +689,13 @@ ENDFOREACH(ts_file)
 
 QT5_ADD_TRANSLATION(QM_FILES ${FILTERED_TRANSLATION_FILES})
 
-IF(WIN32)
+IF(WIN32 OR APPLE)
         # Just copy already compiled qtbase*.qm from translations folder
         # if any of them are present there
         # to support localization of Qt own controls on Win machines
         FILE(GLOB QTBASE_QM_FILES translations/qtbase*.qm)
         LIST(APPEND QM_FILES ${QTBASE_QM_FILES})
-ENDIF(WIN32)
+ENDIF(WIN32 OR APPLE)
 
 ADD_CUSTOM_TARGET(compile_translations ALL DEPENDS ${QM_FILES})
 
