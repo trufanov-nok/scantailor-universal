@@ -302,7 +302,8 @@ OptionsWidget::showApplyDialog(const ApplySettingsWidget::DialogType dlgType)
 
     ApplySettingsWidget* options = new ApplySettingsWidget(dialog, dlgType,
                                                            m_marginsMM.isAutoMarginsEnabled());
-    if (!options->isEmpty()) {
+    const bool empty_options = options->isEmpty();
+    if (!empty_options) {
         QLayout& l = dialog->initNewLeftSettingsPanel();
         l.addWidget(options);
     } else {
@@ -316,7 +317,11 @@ OptionsWidget::showApplyDialog(const ApplySettingsWidget::DialogType dlgType)
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         if (dlgType == ApplySettingsWidget::Margins) {
-            applyMargins(options->getMarginsTypeVal(), pages);
+            if (!empty_options) {
+                applyMargins(options->getMarginsTypeVal(), pages);
+            } else {
+                applyMargins(ApplySettingsWidget::MarginsValues, pages);
+            }
         } else {
             applyAlignment(pages);
         }
