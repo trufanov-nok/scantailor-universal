@@ -429,7 +429,7 @@ TextLineRefiner::visualizeSnakes(std::vector<Snake> const& snakes, Grid<float> c
 	bottom_pen.setWidthF(1.5);
 	
 	QPen middle_pen(QColor(255, 0, 255));
-	middle_pen.setWidth(1.5);
+    middle_pen.setWidthF(1.5);
 
 	QBrush knot_brush(QColor(255, 255, 0, 180));
 	painter.setBrush(knot_brush);
