@@ -593,11 +593,18 @@ IF (WIN32)
                 scantailor WIN32 ${gui_only_sources} ${resource_sources} ${win32_resource_file}
         )
 ELSEIF(APPLE)
+
+        set( ICON_NAME "ScanTailorUniversal.icns" )
+        set( ICON_PATH "${PROJECT_SOURCE_DIR}/packaging/osx/${ICON_NAME}" )
+        set_source_files_properties( ${ICON_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
+
         ADD_EXECUTABLE(
-                scantailor MACOSX_BUNDLE ${gui_only_sources} ${resource_sources} ${win32_resource_file}
+                scantailor MACOSX_BUNDLE ${gui_only_sources} ${resource_sources} ${ICON_PATH}
         )
         set_target_properties(scantailor PROPERTIES MACOSX_BUNDLE_INFO_PLIST
                                   ${CMAKE_CURRENT_SOURCE_DIR}/packaging/osx/Info.plist.in)
+
+
 ELSE()
         ADD_EXECUTABLE(
                 scantailor ${gui_only_sources} ${resource_sources} ${win32_resource_file}

@@ -19,7 +19,7 @@
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>CFBundleIconFile</key>
-	<string>ScanTailorUniversal.icns</string>
+        <string>ScanTailorUniversal.icns</string>
 	<key>CFBundleShortVersionString</key>
 	<string>ScanTailorUniversal-@VERSION@</string>
 	<key>LSMinimumSystemVersion</key>

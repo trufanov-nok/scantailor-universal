@@ -27,7 +27,7 @@ mkdir -p $APPM
 mkdir -p $APPR
 mkdir -p $APPF
 
-cp $SRCDIR/packaging/osx/ScanTailor.icns $APPR/ScanTailorUniversal.icns
+cp $SRCDIR/packaging/osx/ScanTailorUniversal.icns $APPR/ScanTailorUniversal.icns
 cp $SRCDIR/scantailor_*.qm $APPR
 cp $SRCDIR/translations/qtbase_*.qm $APPR
 cp $SRCDIR/scantailor $APPM/ScanTailorUniversal
