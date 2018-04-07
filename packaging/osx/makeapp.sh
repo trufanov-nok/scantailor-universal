@@ -32,7 +32,7 @@ cp $SRCDIR/scantailor_*.qm $APPR
 cp $SRCDIR/translations/qtbase_*.qm $APPR
 cp $SRCDIR/scantailor $APPM/ScanTailorUniversal
 
-stver=`cat version.h | grep 'VERSION "' | cut -d ' ' -f 3 | tr -d '"'`
+stver=`cat $SRCDIR/version.h | grep 'VERSION "' | cut -d ' ' -f 3 | tr -d '"'`
 cat $SRCDIR/packaging/osx/Info.plist.in | sed "s/@VERSION@/$stver/" >  $APPC/Info.plist
 
 otool -L $APPM/ScanTailorUniversal | tail -n +2 | tr -d '\t' | cut -f 1 -d ' ' | while read line; do
