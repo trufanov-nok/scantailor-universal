@@ -30,7 +30,7 @@ mkdir -p $APPF
 cp $SRCDIR/packaging/osx/ScanTailorUniversal.icns $APPR/ScanTailorUniversal.icns
 cp $SRCDIR/scantailor_*.qm $APPR
 cp $SRCDIR/translations/qtbase_*.qm $APPR
-cp $SRCDIR/scantailor $APPM/ScanTailorUniversal
+cp $SRCDIR/scantailor.app/Contents/MacOS/scantailor $APPM/ScanTailorUniversal
 
 stver=`cat $SRCDIR/version.h | grep 'VERSION "' | cut -d ' ' -f 3 | tr -d '"'`
 cat $SRCDIR/packaging/osx/Info.plist.in | sed "s/@VERSION@/$stver/" >  $APPC/Info.plist
