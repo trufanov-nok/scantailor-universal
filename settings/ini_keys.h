@@ -34,7 +34,7 @@ static const char* _key_app_docking_enabled = "docking_panels/enabled";
 static const bool _key_app_docking_enabled_def = false;
 static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp";
 static const char* _key_app_alert_cmd = "main_window/external_alarm_cmd";
-#if defined(Q_OS_UNIX)
+#if (defined(Q_OS_UNIX) & (! defined(Q_OS_OSX)))
 static const char* _key_app_alert_cmd_def = "play /usr/share/sounds/freedesktop/stereo/bell.oga";
 #else
 static const char* _key_app_alert_cmd_def = "";
