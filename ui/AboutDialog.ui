@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -125,9 +125,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-279</y>
+            <y>-238</y>
             <width>430</width>
-            <height>570</height>
+            <height>593</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -260,6 +260,13 @@ Russian - Alexander Trufanov</string>
              </property>
              <property name="text">
               <string>Documentation</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>&lt;a href=https://github.com/ashipunov&gt;Alexey Shipunov&lt;/a&gt;</string>
              </property>
             </widget>
            </item>
