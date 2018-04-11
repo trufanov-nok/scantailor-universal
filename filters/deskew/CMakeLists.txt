@@ -13,6 +13,7 @@ SET(
 	CacheDrivenTask.cpp CacheDrivenTask.h
 	Dependencies.cpp Dependencies.h
 	Params.cpp Params.h
+        OrderByAngleProvider.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 FILE(GLOB ui_files "ui/*.ui")

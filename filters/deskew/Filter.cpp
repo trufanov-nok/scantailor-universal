@@ -37,6 +37,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include "CommandLine.h"
+#include "OrderByAngleProvider.h"
 
 namespace deskew
 {
@@ -47,6 +48,14 @@ Filter::Filter(PageSelectionAccessor const& page_selection_accessor)
 	if (CommandLine::get().isGui()) {
 		m_ptrOptionsWidget.reset(new OptionsWidget(m_ptrSettings, page_selection_accessor));
 	}
+
+    typedef PageOrderOption::ProviderPtr ProviderPtr;
+
+    ProviderPtr const order_by_angle(new OrderByAngleProvider(m_ptrSettings));
+    ProviderPtr const order_by_abs_angle(new OrderByAbsAngleProvider(m_ptrSettings));
+    m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Natural order"), ProviderPtr()));
+    m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Order by angle"), order_by_angle));
+    m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Order by absolute angle"), order_by_abs_angle));
 }
 
 Filter::~Filter()
@@ -69,6 +78,25 @@ void
 Filter::performRelinking(AbstractRelinker const& relinker)
 {
 	m_ptrSettings->performRelinking(relinker);
+}
+
+int
+Filter::selectedPageOrder() const
+{
+    return m_selectedPageOrder;
+}
+
+void
+Filter::selectPageOrder(int option)
+{
+    assert((unsigned)option < m_pageOrderOptions.size());
+    m_selectedPageOrder = option;
+}
+
+std::vector<PageOrderOption>
+Filter::pageOrderOptions() const
+{
+    return m_pageOrderOptions;
 }
 
 void

@@ -62,6 +62,12 @@ public:
 	virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id);
 
 	virtual void updateStatistics() { m_ptrSettings->updateDeviation(); }
+
+    virtual int selectedPageOrder() const;
+
+    virtual void selectPageOrder(int option);
+
+    virtual std::vector<PageOrderOption> pageOrderOptions() const;
 	
 	virtual QDomElement saveSettings(
 		ProjectWriter const& writer, QDomDocument& doc) const;
@@ -87,6 +93,8 @@ private:
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
+    std::vector<PageOrderOption> m_pageOrderOptions;
+    int m_selectedPageOrder;
 };
 
 } // namespace deskew
