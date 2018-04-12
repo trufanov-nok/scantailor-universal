@@ -886,9 +886,10 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
 
         std::unique_ptr<BinaryImage> foreground_mask = nullptr;
         if (render_params.foregroundLayer() &&
-                GlobalStaticSettings::m_ForegroundLayerAdjustment) {
-            foreground_mask.reset( new BinaryImage (binarize(maybe_smoothed, normalize_illumination_crop_area, &bw_mask,
-                                                        GlobalStaticSettings::m_ForegroundLayerAdjustment.get()) ) );
+                (m_colorParams.blackWhiteOptions().thresholdAdjustment()
+                 != m_colorParams.blackWhiteOptions().thresholdForegroundAdjustment())) {
+            const int adj = m_colorParams.blackWhiteOptions().thresholdForegroundAdjustment();
+            foreground_mask.reset( new BinaryImage (binarize(maybe_smoothed, normalize_illumination_crop_area, &bw_mask, &adj) ) );
         }
 
 		maybe_smoothed = QImage(); // Save memory.

@@ -29,7 +29,6 @@ bool GlobalStaticSettings::m_disable_bw_smoothing = false;
 qreal GlobalStaticSettings::m_zone_editor_min_angle = 3.0;
 float GlobalStaticSettings::m_picture_detection_sensitivity = 100.;
 QHotKeys GlobalStaticSettings::m_hotKeyManager = QHotKeys();
-std::unique_ptr<int> GlobalStaticSettings::m_ForegroundLayerAdjustment = nullptr;
 int  GlobalStaticSettings::m_highlightColorAdjustment = 140;
 
 bool GlobalStaticSettings::m_thumbsListOrderAllowed = true;

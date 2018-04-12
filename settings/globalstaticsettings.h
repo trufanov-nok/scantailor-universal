@@ -75,9 +75,6 @@ public:
         m_disable_bw_smoothing = settings.value(_key_mode_bw_disable_smoothing, _key_mode_bw_disable_smoothing_def).toBool();
         m_zone_editor_min_angle = settings.value(_key_zone_editor_min_angle, _key_zone_editor_min_angle_def).toReal();
         m_picture_detection_sensitivity = settings.value(_key_picture_zones_layer_sensitivity, _key_picture_zones_layer_sensitivity_def).toInt();
-        if (settings.contains(_key_foreground_layer_adj_override)) {
-           m_ForegroundLayerAdjustment.reset(new int (settings.value(_key_foreground_layer_adj_override, _key_foreground_layer_adj_override_def).toInt()));
-        }
 
         m_highlightColorAdjustment = 100 + settings.value(_key_thumbnails_non_focused_selection_highlight_color_adj, _key_thumbnails_non_focused_selection_highlight_color_adj_def).toInt();
 
@@ -170,7 +167,6 @@ public:
     static qreal m_zone_editor_min_angle;
     static float m_picture_detection_sensitivity;
     static QHotKeys m_hotKeyManager;
-    static std::unique_ptr<int> m_ForegroundLayerAdjustment;
     static int m_highlightColorAdjustment;
 
     static bool m_thumbsListOrderAllowed;
