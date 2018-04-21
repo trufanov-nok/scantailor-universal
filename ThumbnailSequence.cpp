@@ -1307,14 +1307,21 @@ ThumbnailSequence::Impl::removePages(std::set<PageId> const& to_remove)
 		}
     }
 
-    ItemsById::iterator const start_it =
-                    m_itemsById.find(first_after_removed->pageInfo.id());
-    if (start_it != m_itemsById.end()) {
-        // recalculate pos for items since first before removed till end
-        invalidateThumbnailImpl(start_it);
-    } else {
+	bool partial_invalidation = false;
+	
+	if (first_after_removed != ord_end) {
+		ItemsById::iterator const start_it = m_itemsById.find(first_after_removed->pageInfo.id());
+		if (start_it != m_itemsById.end()) {
+			// recalculate pos for items since first after removed till end
+			invalidateThumbnailImpl(start_it);
+			partial_invalidation = true;
+		}
+	}
+
+	if (!partial_invalidation) {
         invalidateAllThumbnails();
     }
+
 	commitSceneRect();
 }
 
