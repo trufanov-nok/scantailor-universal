@@ -197,7 +197,8 @@ private:
 	void movePointToTopMargin(BinaryImage& bw_image, XSpline& spline, int idx) const;
 	void movePointToBottomMargin(BinaryImage& bw_image, XSpline& spline, int idx) const;
 	void drawPoint(QImage& image, QPointF const& pt) const;	
-	void maybe_deskew(QImage* p_dewarped, DewarpingMode dewarping_mode) const;
+    double maybe_deskew(QImage* p_dewarped, DewarpingMode dewarping_mode) const;
+    void do_deskew(QImage* p_image, double angle_deg) const;
 
 //Auto_Dewarping_Vert_Half_Correction
 	void movePointToTopMargin(BinaryImage& bw_image, std::vector<QPointF>& polyline, int idx) const;

@@ -1620,7 +1620,7 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
 		small_margins_to_output.translate(
 			small_margins_rect.left(), small_margins_rect.top()
 		);
-		BinaryImage const dewarped_bw_mask(
+        BinaryImage dewarped_bw_mask(
 			dewarp(
 				orig_to_small_margins, warped_bw_mask.toQImage(),
 				small_margins_to_output, distortion_model,
@@ -1666,6 +1666,18 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
 		);
 		
 		status.throwIfCancelled();
+
+        double const angle = maybe_deskew(&dewarped, dewarping_mode);
+        if (angle != 0.) {
+            // we deskew img and mask before merging together
+            // to prevent appearence of gray pixels around b/w text if it's roteted
+            QImage tmp_img = dewarped_bw_content.toQImage();
+            do_deskew(&tmp_img, angle);
+            dewarped_bw_content = BinaryImage(tmp_img);
+            tmp_img = dewarped_bw_mask.toQImage();
+            do_deskew(&tmp_img, angle);
+            dewarped_bw_mask = BinaryImage(tmp_img);
+        }
 		
 		if (dewarped.format() == QImage::Format_Indexed8) {
 			combineMixed<uint8_t>(
@@ -1682,11 +1694,7 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
 	}
 
 	applyFillZonesInPlace(dewarped, fill_zones, orig_to_output);
-//begin of modified by monday2000
-//Marginal_Dewarping	
-	maybe_deskew(&dewarped, dewarping_mode);
 	return dewarped;
-//end of modified by monday2000
 }
 
 /**
@@ -2513,49 +2521,41 @@ OutputGenerator::vert_border_skew_angle(QPointF const& top, QPointF const& botto
 	 return qFabs(qAtan((bottom.x() - top.x()) / (bottom.y() - top.y())) * 180/M_PI);
 }
 
-void
+double
 OutputGenerator::maybe_deskew(QImage* p_dewarped, DewarpingMode dewarping_mode) const
 {
-	if (dewarping_mode == DewarpingMode::MARGINAL 
-		|| dewarping_mode == DewarpingMode::MANUAL
-		)
-	{
-		//TiffWriter::writeImage("C:\\st\\dewarped.tif", dewarped);
+    if ( dewarping_mode == DewarpingMode::MARGINAL ||
+         dewarping_mode == DewarpingMode::MANUAL ) {
+        BinaryThreshold bw_threshold(128);
+        BinaryImage bw_image(*p_dewarped, bw_threshold);
 
-		BinaryThreshold bw_threshold(128);	
-		BinaryImage bw_image(*p_dewarped, bw_threshold);
+        SkewFinder skew_finder;
+        Skew const skew(skew_finder.findSkew(bw_image));
+        double const angle = skew.angle();
+        if (angle != 0.0 && skew.confidence() >= Skew::GOOD_CONFIDENCE) {
+            do_deskew(p_dewarped, angle);
+        }
+        return angle;
+    }
 
-		SkewFinder skew_finder;
-		Skew const skew(skew_finder.findSkew(bw_image));
-		if (skew.angle() != 0.0 && skew.confidence() >= Skew::GOOD_CONFIDENCE)
-		{
-			double const angle_deg = skew.angle();
-
-			//QFile file("C:\\st\\scan_tailor.txt");
-			//file.open(QIODevice::WriteOnly | QIODevice::Text);
-			//QTextStream out(&file);
-			//QString stDeskewAngle;	
-			//stDeskewAngle.setNum(angle_deg);
-			//out << "deskew angle: " << stDeskewAngle << endl;
-			//QMessageBox::information(0,"i",stDeskewAngle);
-
-			QPointF center(p_dewarped->width()/2, p_dewarped->height()/2);
-
-			QTransform rot;		
-			rot.translate(center.x(),center.y());
-			rot.rotate(-angle_deg);		
-			rot.translate(-center.x(),-center.y());
-
-			*p_dewarped = imageproc::transform(*p_dewarped, rot, p_dewarped->rect(), OutsidePixels::assumeWeakColor(Qt::white));
-
-			//TiffWriter::writeImage("C:\\st\\dewarped2.tif", dewarped);
-			
-			//file.close();
-		}
-	}
-
-	//return dewarped;
+    return 0.;
 }
-//end of modified by monday2000
+
+void
+OutputGenerator::do_deskew(QImage* p_image, double angle_deg) const
+{
+    if (angle_deg == 0.) {
+        return;
+    }
+
+    QPointF center(p_image->width()/2, p_image->height()/2);
+
+    QTransform rot;
+    rot.translate(center.x(),center.y());
+    rot.rotate(-angle_deg);
+    rot.translate(-center.x(),-center.y());
+
+    *p_image = imageproc::transform(*p_image, rot, p_image->rect(), OutsidePixels::assumeWeakColor(Qt::white));
+}
 
 } // namespace output
