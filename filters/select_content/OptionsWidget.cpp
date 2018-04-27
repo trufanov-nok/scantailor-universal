@@ -129,13 +129,12 @@ OptionsWidget::manualContentRectSet(QRectF const& content_rect)
 	m_uiData.setContentRect(content_rect);
 	m_uiData.setMode(MODE_MANUAL);
 	m_uiData.setContentDetection(true);
-    bool need_reload = m_uiData.pageDetection() || m_force_reload;
-    m_uiData.setPageDetection(false);
+
 	updateModeIndication(MODE_MANUAL);
 	commitCurrentParams();
 	
 	emit invalidateThumbnail(m_pageId);
-    if (need_reload) {
+    if (m_force_reload) {
         emit reloadRequested();
     }
 }
@@ -143,25 +142,27 @@ OptionsWidget::manualContentRectSet(QRectF const& content_rect)
 void
 OptionsWidget::modeChanged(bool const auto_mode)
 {
-	//if (m_ignoreAutoManualToggle) {
-	//	return;
-	//}
+    if (m_ignoreAutoManualToggle) {
+        return;
+    }
 
-    bool need_reload = m_uiData.pageDetection() || m_force_reload;
+    bool need_reload = m_force_reload;
 
 	if (auto_mode) {
-        need_reload = !need_reload;
+        need_reload = true;
 		//m_ptrSettings->clearPageParams(m_pageId);
 		m_uiData.setMode(MODE_AUTO);
-		m_uiData.setContentDetection(true);				
 	} else {        
         m_uiData.setMode(MODE_MANUAL);
-        m_uiData.setPageDetection(false);
-
 	}
 
-    m_uiData.setContentDetection(true);
+    if (!m_uiData.contentDetection()) {
+        m_uiData.setContentDetection(true);
+        need_reload = true;
+    }
+
     commitCurrentParams();
+
     if (need_reload) {
         emit reloadRequested();
     }
@@ -249,8 +250,6 @@ OptionsWidget::updateModeIndication(AutoManualMode const mode)
 		} else {
 			autoBtn->setChecked(false);
 			manualBtn->setChecked(true);
-            pageDetectDisableBtn->setChecked(true);
-            pageDetectAutoBtn->setChecked(false);
 		}
 	}
 }
