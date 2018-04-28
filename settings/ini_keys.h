@@ -177,6 +177,12 @@ static const bool _key_output_foreground_layer_enabled_def = true;
 static const char* _key_output_picture_layer_enabled = "picture_zones_layer/enabled";
 static const bool _key_output_picture_layer_enabled_def = true;
 
+/* Dewarping */
+
+static const char* _key_dewarp_auto_vert_half_correction = "dewarp/auto_vert_half_correction";
+static const bool _key_dewarp_auto_vert_half_correction_def = false;
+static const char* _key_dewarp_auto_deskew_after_dewarp = "dewarp/auto_deskew_after_dewarp";
+static const bool _key_dewarp_auto_deskew_after_dewarp_def = false;
 /* Misc */
 
 static const char* _key_autosave_inputdir = "auto-save_project/_inputDir";

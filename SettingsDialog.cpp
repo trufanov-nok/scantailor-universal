@@ -571,6 +571,9 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         }
     } else if (currentPage == ui.pageForegroundLayer) {
         ui.cbForegroundLayerSeparateControl->setChecked(m_settings.value(_key_output_foreground_layer_control_threshold, _key_output_foreground_layer_control_threshold_def).toBool());
+    } else if (currentPage == ui.pageDewarping) {
+        ui.cbTryVertHalfCorrection->setChecked(m_settings.value(_key_dewarp_auto_vert_half_correction, _key_dewarp_auto_vert_half_correction_def).toBool());
+        ui.cbTryDeskewAfterDewarp->setChecked(m_settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool());
     }
 
 }
@@ -1017,4 +1020,14 @@ void SettingsDialog::on_cbAlignmentOriginal_toggled(bool checked)
 void SettingsDialog::on_gbMarginsAuto_toggled(bool arg1)
 {
     m_settings.setValue(_key_margins_auto_margins_enabled, arg1);
+}
+
+void SettingsDialog::on_cbTryVertHalfCorrection_toggled(bool checked)
+{
+    m_settings.setValue(_key_dewarp_auto_vert_half_correction, checked);
+}
+
+void SettingsDialog::on_cbTryDeskewAfterDewarp_toggled(bool checked)
+{
+    m_settings.setValue(_key_dewarp_auto_deskew_after_dewarp, checked);
 }

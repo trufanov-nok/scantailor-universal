@@ -84,7 +84,7 @@
           <bool>true</bool>
          </property>
          <property name="headerHidden">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="columnCount">
           <number>2</number>
@@ -205,7 +205,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>17</number>
+       <number>27</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -1358,8 +1358,8 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>441</width>
-                <height>422</height>
+                <width>105</width>
+                <height>1372</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_60">
@@ -1866,8 +1866,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>427</width>
-                <height>454</height>
+                <width>109</width>
+                <height>1644</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -2142,8 +2142,8 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>441</width>
-                <height>422</height>
+                <width>101</width>
+                <height>1442</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -3778,35 +3778,68 @@ As Foreground layer is using binarization to separate content from background it
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_31">
            <property name="spacing">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="leftMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="topMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="rightMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="lblDewarpingDescr">
-             <property name="text">
-              <string>Dewarping tries to detect and fix distortion of page surface by analyzing lines of text on it. It assumes that the lines should be horizontal.
-Automatic and manual modes are supported.</string>
+            <widget class="QScrollArea" name="scrollArea_19">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <property name="wordWrap">
+             <property name="widgetResizable">
               <bool>true</bool>
              </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_19">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>427</width>
+                <height>371</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_92">
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblDewarpingDescr">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dewarping tries to detect and fix distortion of page surface by analyzing lines of text on it. It assumes that the lines should be horizontal.&lt;/p&gt;&lt;p&gt;Automatic, marginal and manual modes are supported.&lt;/p&gt;&lt;p&gt;Try to correct auto distortion model if too skewed - if enabled then some vertical edges of automatically generated distortion model that deviate to more than 2.75 degrees to Y-axis may be treated as invalid and slope is set to sero. That may help in some cases when auto generation of distortion model gives incorrect results.&lt;/p&gt;&lt;p&gt;Try to apply additional deskew after dewarp - we already deskewed our image on one of previous processing stage but sometimes image may get skewed after dewarping. Thus additional attempt to deskew resulting image may be applied. The skew of the image after dewarping is measured and if the angle is more than 2.0 degrees - it's deskewed. There is no controls to tune this automatic deskew, it takes some CPU time and it's not working with automatic dewarping. So use it with &lt;a name=&quot;result_box&quot;/&gt;with caution.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -3817,7 +3850,22 @@ Automatic and manual modes are supported.</string>
           <property name="title">
            <string>Options</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_17"/>
+          <layout class="QFormLayout" name="formLayout_17">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="cbTryVertHalfCorrection">
+             <property name="text">
+              <string>Try to correct auto distortion model if too skewed</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="cbTryDeskewAfterDewarp">
+             <property name="text">
+              <string>Try to apply additional deskew after dewarp</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -3968,8 +4016,8 @@ Automatic and manual modes are supported.</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>116</width>
-                <height>1474</height>
+                <width>441</width>
+                <height>422</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">
