@@ -75,6 +75,8 @@ static const char* _key_thumbnails_boundary_adj_right = "thumbnails/boundary_adj
 static const int _key_thumbnails_boundary_adj_right_def = 3;
 static const char* _key_thumbnails_fixed_thumb_size = "thumbnails/fixed_thumb_size";
 static const bool _key_thumbnails_fixed_thumb_size_def = false;
+static const char* _key_thumbnails_display_order_hints = "thumbnails/display_order_hints";
+static const bool _key_thumbnails_display_order_hints_def = true;
 
 /* Export images dialog */
 

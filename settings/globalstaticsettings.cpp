@@ -38,6 +38,7 @@ int GlobalStaticSettings::m_thumbsBoundaryAdjBottom = 5;
 int GlobalStaticSettings::m_thumbsBoundaryAdjLeft = 5;
 int GlobalStaticSettings::m_thumbsBoundaryAdjRight = 3;
 bool GlobalStaticSettings::m_fixedMaxLogicalThumbSize = false;
+bool GlobalStaticSettings::m_displayOrderHints = true;
 
 bool GlobalStaticSettings::m_dewarpAutoVertHalfCorrection = false;
 bool GlobalStaticSettings::m_dewarpAutoDeskewAfterDewarp = false;

@@ -530,6 +530,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         const QSizeF max_logical_thumb_size = m_settings.value(_key_thumbnails_max_thumb_size, _key_thumbnails_max_thumb_size_def).toSizeF();
         ui.sbFixedMaxLogicalThumbSizeHeight->setValue(max_logical_thumb_size.height());
         ui.sbFixedMaxLogicalThumbSizeWidth->setValue(max_logical_thumb_size.width());
+        ui.cbOrderHints->setChecked(m_settings.value(_key_thumbnails_display_order_hints, _key_thumbnails_display_order_hints_def).toBool());
+
     } else if (currentPage == ui.pageBlackWhiteMode) {
         ui.disableSmoothingBW->setChecked(m_settings.value(_key_mode_bw_disable_smoothing, _key_mode_bw_disable_smoothing_def).toBool());
     } else if (currentPage == ui.pageHotKeysManager) {
@@ -1030,4 +1032,9 @@ void SettingsDialog::on_cbTryVertHalfCorrection_toggled(bool checked)
 void SettingsDialog::on_cbTryDeskewAfterDewarp_toggled(bool checked)
 {
     m_settings.setValue(_key_dewarp_auto_deskew_after_dewarp, checked);
+}
+
+void SettingsDialog::on_cbOrderHints_toggled(bool checked)
+{
+    m_settings.setValue(_key_thumbnails_display_order_hints, checked);
 }

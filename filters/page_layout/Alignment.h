@@ -105,6 +105,7 @@ public:
     static Alignment load(QSettings* settings = nullptr);
 
     static QString getVerboseDescription(const Alignment& alignment);
+    static QString getShortDescription(const Alignment& alignment);
     static const QString verticalToStr(Vertical val);
     static const QString horizontalToStr(Horizontal val);
     static Vertical strToVertical(const QString &val);

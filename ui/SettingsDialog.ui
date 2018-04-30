@@ -205,7 +205,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>27</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -261,8 +261,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>87</width>
-                <height>624</height>
+                <width>441</width>
+                <height>220</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
@@ -420,8 +420,8 @@ Batch processing - a simple dialog that appears if you press the launch button a
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>432</width>
-             <height>63</height>
+             <width>445</width>
+             <height>414</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_51">
@@ -620,8 +620,8 @@ This option allows to increase page view panel size to almost a whole applicatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>112</width>
-                <height>2646</height>
+                <width>427</width>
+                <height>674</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_83">
@@ -962,6 +962,13 @@ This option allows to increase page view panel size to almost a whole applicatio
                </widget>
               </item>
              </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbOrderHints">
+             <property name="text">
+              <string>Display hints under pages if order isn't natural</string>
+             </property>
             </widget>
            </item>
           </layout>
@@ -2298,8 +2305,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>427</width>
-                <height>308</height>
+                <width>106</width>
+                <height>1328</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_90">
@@ -3622,8 +3629,8 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>93</width>
-                <height>1916</height>
+                <width>427</width>
+                <height>386</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_73">
@@ -4016,8 +4023,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>441</width>
-                <height>422</height>
+                <width>116</width>
+                <height>1474</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">

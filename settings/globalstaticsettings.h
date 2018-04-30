@@ -85,6 +85,7 @@ public:
         m_thumbsBoundaryAdjLeft = settings.value(_key_thumbnails_boundary_adj_left, _key_thumbnails_boundary_adj_left_def).toInt();
         m_thumbsBoundaryAdjRight = settings.value(_key_thumbnails_boundary_adj_right, _key_thumbnails_boundary_adj_right_def).toInt();
         m_fixedMaxLogicalThumbSize = settings.value(_key_thumbnails_fixed_thumb_size, _key_thumbnails_fixed_thumb_size_def).toBool();
+        m_displayOrderHints = settings.value(_key_thumbnails_display_order_hints, _key_thumbnails_display_order_hints_def).toBool();
 
         m_dewarpAutoVertHalfCorrection = settings.value(_key_dewarp_auto_vert_half_correction, _key_dewarp_auto_vert_half_correction_def).toBool();
         m_dewarpAutoDeskewAfterDewarp = settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool();
@@ -177,6 +178,7 @@ public:
     static int m_thumbsBoundaryAdjLeft;
     static int m_thumbsBoundaryAdjRight;
     static bool m_fixedMaxLogicalThumbSize;
+    static bool m_displayOrderHints;
 
     static bool m_dewarpAutoVertHalfCorrection;
     static bool m_dewarpAutoDeskewAfterDewarp;

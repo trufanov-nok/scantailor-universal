@@ -92,4 +92,20 @@ OrderByHeightProvider::precedes(
     }
 }
 
+QString
+OrderByHeightProvider::hint(PageId const& page) const
+{
+    std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+    QSizeF size;
+    if (params.get()) {
+        Margins const margins(params->hardMarginsMM());
+        size = params->contentSizeMM();
+        size += QSizeF(
+            margins.left() + margins.right(), margins.top() + margins.bottom()
+        );
+    }
+    QString res(QObject::tr("height: %1"));
+    return size.isValid() ? res.arg(size.height()) : res.arg(QObject::tr("?"));
+}
+
 } // namespace page_layout

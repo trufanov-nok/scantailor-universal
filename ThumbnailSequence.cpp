@@ -259,10 +259,10 @@ private:
 	
 	std::auto_ptr<QGraphicsItem> getThumbnail(PageInfo const& page_info);
 	
-	std::auto_ptr<LabelGroup> getLabelGroup(PageInfo const& page_info);
+    std::auto_ptr<LabelGroup> getLabelGroup(PageInfo const& page_info);
+    std::auto_ptr<LabelGroup> getHintGroup(PageInfo const& page_info, PageOrderProvider const* order_provider);
 	
-	std::auto_ptr<CompositeItem> getCompositeItem(
-		Item const* item, PageInfo const& info);
+    std::auto_ptr<CompositeItem> getCompositeItem(Item const* item, PageInfo const& info, const PageOrderProvider *order_provider);
 	
 	void commitSceneRect();
 	
@@ -324,7 +324,8 @@ public:
 	CompositeItem(
 		ThumbnailSequence::Impl& owner,
 		std::auto_ptr<QGraphicsItem> thumbnail,
-		std::auto_ptr<LabelGroup> label_group);
+        std::auto_ptr<LabelGroup> label_group,
+        std::auto_ptr<LabelGroup> hint_group);
 	
 	void setItem(Item const* item) { m_pItem = item; }
 	
@@ -363,6 +364,7 @@ private:
 	ThumbnailSequence::Item const* m_pItem;
 	QGraphicsItem* m_pThumb;
 	LabelGroup* m_pLabelGroup;
+    LabelGroup* m_pHintGroup;
     int m_row;
     int m_col;
 };
@@ -591,7 +593,7 @@ ThumbnailSequence::Impl::reset(
 	Item const* some_selected_item = 0;
 
     for (const PageInfo& page_info: pages) {
-		std::auto_ptr<CompositeItem> composite(getCompositeItem(0, page_info));
+        std::auto_ptr<CompositeItem> composite(getCompositeItem(0, page_info, m_ptrOrderProvider.get()));
 		m_itemsInOrder.push_back(Item(page_info, composite.release()));
 		Item const* item = &m_itemsInOrder.back();
 		item->composite->setItem(item);
@@ -675,7 +677,7 @@ void
 ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it)
 {
     std::auto_ptr<CompositeItem> composite(
-                getCompositeItem(&*id_it, id_it->pageInfo)
+                getCompositeItem(&*id_it, id_it->pageInfo, m_ptrOrderProvider.get())
                 );
     CompositeItem* const new_composite = composite.get();
     CompositeItem* const old_composite = id_it->composite;
@@ -846,7 +848,7 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
 	ItemsInOrder::iterator const ord_end(m_itemsInOrder.end());
 	for (; ord_it != ord_end; ++ord_it) {
 		CompositeItem* const old_composite = ord_it->composite;
-		ord_it->composite = getCompositeItem(&*ord_it, ord_it->pageInfo).release();
+        ord_it->composite = getCompositeItem(&*ord_it, ord_it->pageInfo, m_ptrOrderProvider.get()).release();
 		ord_it->incompleteThumbnail = ord_it->composite->incompleteThumbnail();
 		delete old_composite;
 	}
@@ -1249,7 +1251,7 @@ ThumbnailSequence::Impl::insert(
 
 
     std::auto_ptr<CompositeItem> composite(
-        getCompositeItem(0, page_info)
+        getCompositeItem(0, page_info, m_ptrOrderProvider.get())
     );
 
     Item const item(page_info, composite.get());
@@ -1728,7 +1730,7 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 	}
 	
 	std::auto_ptr<QGraphicsSimpleTextItem> normal_text_item(new QGraphicsSimpleTextItem);
-	normal_text_item->setText(text);
+    normal_text_item->setText(text);
 	
 	std::auto_ptr<QGraphicsSimpleTextItem> bold_text_item(new QGraphicsSimpleTextItem);
 	bold_text_item->setText(text);
@@ -1770,14 +1772,48 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 	return std::auto_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item, pixmap_item));
 }
 
+std::auto_ptr<ThumbnailSequence::LabelGroup>
+ThumbnailSequence::Impl::getHintGroup(PageInfo const& page_info, PageOrderProvider const* order_provider)
+{
+    if (!order_provider || !GlobalStaticSettings::m_displayOrderHints) {
+        return std::auto_ptr<ThumbnailSequence::LabelGroup>();
+    }
+
+    QString text(order_provider->hint(page_info.id()));
+
+    std::auto_ptr<QGraphicsSimpleTextItem> italic_text_item(new QGraphicsSimpleTextItem);
+    italic_text_item->setText(text);
+    QFont italic_font(italic_text_item->font());
+    italic_font.setItalic(true);
+    italic_text_item->setFont(italic_font);
+
+    std::auto_ptr<QGraphicsSimpleTextItem> bold_text_item(new QGraphicsSimpleTextItem);
+    bold_text_item->setText(text);
+    QFont bold_font(bold_text_item->font());
+    bold_font.setItalic(true);
+    bold_text_item->setFont(bold_font);
+    bold_text_item->setBrush(QApplication::palette().highlightedText());
+
+    QRectF normal_text_box(italic_text_item->boundingRect());
+    QRectF bold_text_box(bold_text_item->boundingRect());
+    normal_text_box.moveCenter(bold_text_box.center());
+    normal_text_box.moveRight(bold_text_box.right());
+    italic_text_item->setPos(normal_text_box.topLeft());
+    bold_text_item->setPos(bold_text_box.topLeft());
+
+    return std::auto_ptr<LabelGroup>(new LabelGroup(italic_text_item, bold_text_item));
+}
+
 std::auto_ptr<ThumbnailSequence::CompositeItem>
 ThumbnailSequence::Impl::getCompositeItem(
-	Item const* item, PageInfo const& page_info)
+    Item const* item, PageInfo const& page_info, PageOrderProvider const* order_provider)
 {
 	std::auto_ptr<QGraphicsItem> thumb(getThumbnail(page_info));
-	std::auto_ptr<LabelGroup> label_group(getLabelGroup(page_info));
+    std::auto_ptr<LabelGroup> label_group(getLabelGroup(page_info));
+    std::auto_ptr<LabelGroup> hint_group(getHintGroup(page_info, order_provider));
+
 	std::auto_ptr<CompositeItem> composite(
-		new CompositeItem(*this, thumb, label_group)
+        new CompositeItem(*this, thumb, label_group, hint_group)
 	);
 	composite->setItem(item);
 	return composite;
@@ -1909,11 +1945,13 @@ ThumbnailSequence::LabelGroup::updateAppearence(bool selected, bool selection_le
 ThumbnailSequence::CompositeItem::CompositeItem(
 	ThumbnailSequence::Impl& owner,
 	std::auto_ptr<QGraphicsItem> thumbnail,
-	std::auto_ptr<LabelGroup> label_group)
+    std::auto_ptr<LabelGroup> label_group,
+    std::auto_ptr<LabelGroup> hint_group)
 :	m_rOwner(owner),
 	m_pItem(0),
 	m_pThumb(thumbnail.get()),
-    m_pLabelGroup(label_group.get()), m_row(0), m_col(0)
+    m_pLabelGroup(label_group.get()),
+    m_pHintGroup(hint_group.get()), m_row(0), m_col(0)
 {
 	QSizeF const thumb_size(thumbnail->boundingRect().size());
 	QSizeF const label_size(label_group->boundingRect().size());
@@ -1927,9 +1965,22 @@ ThumbnailSequence::CompositeItem::CompositeItem(
         std::max(thumbnail->pos().x() + thumb_size.width() - label_size.width(), 0.),
 		thumb_size.height() + thumb_label_spacing
 	);
-	
-	addToGroup(thumbnail.release());
-	addToGroup(label_group.release());
+
+    if (hint_group.get()) {
+        QSizeF const hint_size = hint_group->boundingRect().size();
+        hint_group->setPos(
+            thumbnail->pos().x() + /*0.5**/thumb_size.width() - /*0.5**/hint_size.width(),
+            thumb_size.height() + thumb_label_spacing + label_size.height()
+        );
+
+        addToGroup(hint_group.release());
+    }
+
+    addToGroup(thumbnail.release());
+    addToGroup(label_group.release());
+    if (hint_group.get()) {
+        addToGroup(hint_group.release());
+    }
 	
 	setCursor(Qt::PointingHandCursor);
 	setZValue(-1);
@@ -1961,6 +2012,9 @@ void
 ThumbnailSequence::CompositeItem::updateAppearence(bool selected, bool selection_leader)
 {
 	m_pLabelGroup->updateAppearence(selected, selection_leader);
+    if (m_pHintGroup) {
+        m_pHintGroup->updateAppearence(selected, selection_leader);
+    }
 }
 
 QRectF

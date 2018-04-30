@@ -193,6 +193,94 @@ Alignment::getVerboseDescription(const Alignment& alignment)
     return txt;
 }
 
+QString
+Alignment::getShortDescription(const Alignment& alignment)
+{
+    QString txt;
+    if (alignment.isNull()) {
+        return txt;
+    }
+
+    const int val = alignment.compositeAlignment();
+
+    // We avoid combining txt from words and use phrases to easier localization
+    QString center;
+    if (val == (Alignment::HCENTER | Alignment::VCENTER)) {
+        return QObject::tr("centered");
+    } else
+    if (val & Alignment::HCENTER) {
+        center = QObject::tr("x: center");
+    } else
+    if (val & Alignment::VCENTER) {
+        center = QObject::tr("y: center");
+    }
+
+    QString side;
+    if (val & Alignment::TOP) {
+        if (val & Alignment::LEFT) {
+            return QObject::tr("top-left");
+        } else if (val & Alignment::RIGHT) {
+            return QObject::tr("top-right");
+        } else {
+            side = QObject::tr("y: top");
+        }
+    } else if (val & Alignment::BOTTOM) {
+        if (val & Alignment::LEFT) {
+            return QObject::tr("bottom-left");
+        } else if (val & Alignment::RIGHT) {
+            return QObject::tr("bottom-right");
+        } else {
+            side = QObject::tr("y: bottom");
+        }
+    } else {
+        if (val & Alignment::LEFT) {
+            side = QObject::tr("x: left");
+        } else if (val & Alignment::RIGHT) {
+            side = QObject::tr("x: right");
+        }
+    }
+
+    QString auto_magnet;
+    if (val == (Alignment::HAUTO | Alignment::VAUTO)) {
+        return QObject::tr("auto");
+    } else if (val & Alignment::HAUTO) {
+        auto_magnet = QObject::tr("x: auto");
+    } else if (val & Alignment::VAUTO) {
+        auto_magnet = QObject::tr("y: auto");
+    }
+
+    QString original_proportions;
+    if (val == (Alignment::HORIGINAL | Alignment::VORIGINAL)) {
+        return QObject::tr("proportional");
+    } else if (val & Alignment::HORIGINAL) {
+        original_proportions = QObject::tr("x: prop.");
+    } else if (val & Alignment::VORIGINAL) {
+        original_proportions = QObject::tr("y: prop.");
+    }
+
+    const QString plus = QObject::tr("%1 + %2");
+
+
+    if (!auto_magnet.isEmpty()) {
+        txt = txt.isEmpty()? auto_magnet : plus.arg(txt).arg(auto_magnet);
+    }
+
+    if (!original_proportions.isEmpty()) {
+        txt = txt.isEmpty()? original_proportions : plus.arg(txt).arg(original_proportions);
+    }
+
+    if (!side.isEmpty()) {
+        txt = txt.isEmpty()? side : plus.arg(txt).arg(side);
+    }
+
+    if (!center.isEmpty()) {
+        txt = txt.isEmpty()? center : plus.arg(txt).arg(center);
+    }
+
+    return txt;
+}
+
+
 const QString
 Alignment::verticalToStr(Vertical val)
 {

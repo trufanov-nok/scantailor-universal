@@ -84,4 +84,15 @@ OrderByAlignment::precedes(
     }
 }
 
+QString
+OrderByAlignment::hint(PageId const& page) const
+{
+    std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+    if (params.get() && !params->alignment().isNull()) {
+        return Alignment::getShortDescription(params->alignment());
+    } else {
+        return QObject::tr("not defined");
+    }
+}
+
 } // namespace page_layout

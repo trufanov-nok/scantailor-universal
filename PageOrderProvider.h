@@ -37,6 +37,8 @@ public:
 	virtual bool precedes(
 		PageId const& lhs_page, bool lhs_incomplete,
 		PageId const& rhs_page, bool rhs_incomplete) const = 0;
+
+    virtual QString hint(PageId const& page) const = 0;
 };
 
 #endif

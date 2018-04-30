@@ -64,6 +64,13 @@ public:
         }
     }
 
+    virtual QString hint(PageId const& page) const
+    {
+         std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+         double const angle = params.get() ? func(params->deskewAngle()) : 0.;
+         return QObject::tr("angle: %1").arg(angle);
+    }
+
 private:
 	IntrusivePtr<Settings> m_ptrSettings;
 };

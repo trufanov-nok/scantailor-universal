@@ -83,4 +83,14 @@ OrderByWidthProvider::precedes(
     }
 }
 
+QString
+OrderByWidthProvider::hint(PageId const& page) const
+{
+    std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+    QSizeF const size = params->contentRect().size();
+
+    QString res(QObject::tr("width: %1"));
+    return size.isValid() ? res.arg(size.width()) : res.arg(QObject::tr("?"));
+}
+
 } // namespace select_content

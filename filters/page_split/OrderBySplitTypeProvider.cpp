@@ -21,6 +21,7 @@
 #include "Params.h"
 #include "PageLayout.h"
 #include <QSizeF>
+#include <QObject>
 #include <memory>
 #include <assert.h>
 
@@ -76,6 +77,32 @@ OrderBySplitTypeProvider::precedes(
 	} else {
 		return lhs_layout_type < rhs_layout_type;
 	}
+}
+
+QString
+layoutType2String(page_split::LayoutType const val)
+{
+    switch (val) {
+    case SINGLE_PAGE_UNCUT: return QObject::tr("uncut");
+    case PAGE_PLUS_OFFCUT: return QObject::tr("offcut");
+    case TWO_PAGES: return QObject::tr("two pages");
+    case AUTO_LAYOUT_TYPE: return QObject::tr("auto");
+    default: return QObject::tr("unknown");
+    }
+}
+
+QString
+OrderBySplitTypeProvider::hint(PageId const& page) const
+{
+    QString res(QObject::tr("split: %1"));
+    Settings::Record const record(m_ptrSettings->getPageRecord(page.imageId()));
+    Params const* params = record.params();
+
+    if (params) {
+        return res.arg(layoutType2String(params->pageLayout().toLayoutType()));
+    } else {
+        return res.arg(layoutType2String(record.combinedLayoutType()));
+    }
 }
 
 } // namespace page_split

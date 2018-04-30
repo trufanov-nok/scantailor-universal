@@ -64,4 +64,24 @@ OrderByModeProvider::precedes(
 
 }
 
+
+QString colorMode2String(ColorParams::ColorMode const mode)
+{
+    switch (mode) {
+    case ColorParams::ColorMode::BLACK_AND_WHITE: return QObject::tr("b/w");
+    case ColorParams::ColorMode::COLOR_GRAYSCALE: return QObject::tr("color/grayscale");
+    case ColorParams::ColorMode::MIXED: return QObject::tr("mixed");
+    default: return QString();
+    }
+}
+
+QString
+OrderByModeProvider::hint(PageId const& page) const
+{
+    ColorParams const param(m_ptrSettings->getParams(page).colorParams());
+
+//    QString res(QObject::tr("mode: %1"));
+    return /*res.arg(*/colorMode2String(param.colorMode())/*)*/;
+}
+
 } // namespace page_split

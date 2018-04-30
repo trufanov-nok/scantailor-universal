@@ -28,8 +28,8 @@
 namespace output
 {
 
-PageSequence all_pages;
-bool metadata_invalidated = true;
+PageSequence cached_pages_views;
+bool sequence_cached = false;
 
 OrderBySourceColor::OrderBySourceColor(IntrusivePtr<Settings> const& settings, const IntrusivePtr<ProjectPages> &pages)
 :	m_ptrSettings(settings), m_pages(pages)
@@ -43,14 +43,14 @@ OrderBySourceColor::precedes(
     PageId const& lhs_page, bool const /*lhs_incomplete*/,
     PageId const& rhs_page, bool const /*rhs_incomplete*/) const
 {
-    if (metadata_invalidated)
+    if (!sequence_cached)
     {
-        all_pages = m_pages->toPageSequence(PAGE_VIEW);
-        metadata_invalidated = false;
+        cached_pages_views = m_pages->toPageSequence(PAGE_VIEW);
+        sequence_cached = true;
     }
 
-    const bool gs1 = all_pages.pageAt(lhs_page).metadata().isGrayScale();
-    const bool gs2 = all_pages.pageAt(rhs_page).metadata().isGrayScale();
+    const bool gs1 = cached_pages_views.pageAt(lhs_page).metadata().isGrayScale();
+    const bool gs2 = cached_pages_views.pageAt(rhs_page).metadata().isGrayScale();
 
     if (gs1 != gs2)
         return gs1 > gs2;
@@ -62,7 +62,20 @@ OrderBySourceColor::precedes(
 void
 OrderBySourceColor::invalidate_metadata()
 {
-    metadata_invalidated = true;
+    sequence_cached = true;
+}
+
+QString
+OrderBySourceColor::hint(PageId const& page) const
+{
+    if (!sequence_cached)
+    {
+        cached_pages_views = m_pages->toPageSequence(PAGE_VIEW);
+        sequence_cached = true;
+    }
+
+    bool const gs = cached_pages_views.pageAt(page).metadata().isGrayScale();
+    return gs ? QObject::tr("grayscale source") : QObject::tr("color source");
 }
 
 } // namespace page_split

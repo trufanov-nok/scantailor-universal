@@ -39,6 +39,8 @@ public:
 	virtual bool precedes(
 		PageId const& lhs_page, bool lhs_incomplete,
         PageId const& rhs_page, bool rhs_incomplete) const;
+
+    virtual QString hint(PageId const& page) const;
 private:
 	IntrusivePtr<Settings> m_ptrSettings;
     IntrusivePtr<ProjectPages> m_pages;
