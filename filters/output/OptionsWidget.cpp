@@ -499,8 +499,10 @@ OptionsWidget::updateLayersDisplay()
 {
     QSettings settings;
 
-    autoLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
-    bool isChecked = m_colorParams.colorGrayscaleOptions().autoLayerEnabled() || m_dewarpingMode != DewarpingMode::OFF;
+    const bool dewarping_is_off = m_dewarpingMode == DewarpingMode::OFF;
+    autoLayerCB->setEnabled(dewarping_is_off);
+    autoLayerCB->setToolTip(dewarping_is_off ? QString() : tr("Enforced if dewarping is on"));
+    bool isChecked = m_colorParams.colorGrayscaleOptions().autoLayerEnabled() || !dewarping_is_off;
     if (isChecked == autoLayerCB->isChecked()) {
         on_autoLayerCB_toggled(autoLayerCB->isChecked());
     } else {
@@ -517,9 +519,10 @@ OptionsWidget::updateLayersDisplay()
     }
 
     isVisible = settings.value(_key_output_foreground_layer_enabled, _key_output_foreground_layer_enabled_def).toBool();
-    isChecked = m_colorParams.colorGrayscaleOptions().foregroundLayerEnabled() && m_dewarpingMode == DewarpingMode::OFF;
+    isChecked = m_colorParams.colorGrayscaleOptions().foregroundLayerEnabled() && dewarping_is_off;
     foregroundLayerCB->setVisible(isVisible);
-    foregroundLayerCB->setEnabled(m_dewarpingMode == DewarpingMode::OFF);
+    foregroundLayerCB->setEnabled(dewarping_is_off);
+    foregroundLayerCB->setToolTip(dewarping_is_off ? QString() : tr("Disabled if dewarping is on"));
 
     if ((isVisible && isChecked) == foregroundLayerCB->isChecked()) {
         on_foregroundLayerCB_toggled(foregroundLayerCB->isChecked());
