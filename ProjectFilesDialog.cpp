@@ -325,12 +325,7 @@ ProjectFilesDialog::inpDirBrowse()
 	}
 	if (initial_dir.isEmpty() || !QDir(initial_dir).exists()) {
 		initial_dir = QDir::home().absolutePath();
-	} else {
-		QDir dir(initial_dir);
-		if (dir.cdUp()) {
-			initial_dir = dir.absolutePath();
-		}
-	}
+    }
 	
 	QString const dir(
 		QFileDialog::getExistingDirectory(
