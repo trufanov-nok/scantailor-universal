@@ -2704,6 +2704,10 @@ MainWindow::saveProjectWithFeedback(QString const& project_file)
 {
     ProjectWriter writer(m_ptrPages, m_selectedPage, m_outFileNameGen);
 
+    if (QStatusBar * sb = statusBar()) {
+        sb->showMessage(tr("Saving project..."), 1000);
+    }
+
     if (!writer.write(project_file, m_ptrStages->filters())) {
         QMessageBox::warning(
             this, tr("Error"),
