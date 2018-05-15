@@ -1775,7 +1775,9 @@ MainWindow::saveProjectAsTriggered()
         project_dir = QFileInfo(m_projectFile).absolutePath();
     } else {
         QSettings settings;
-        project_dir = settings.value(_key_project_last_dir).toString();
+        project_dir = settings.value(_key_project_last_input_dir).toString();
+        // suggest folder name as default project name
+        project_dir += '/' + QDir(project_dir).dirName();
     }
 
     QString project_file(
