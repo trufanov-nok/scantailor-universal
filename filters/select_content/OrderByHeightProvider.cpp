@@ -87,7 +87,10 @@ QString
 OrderByHeightProvider::hint(PageId const& page) const
 {
     std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
-    QSizeF const size = params->contentRect().size();
+    QSizeF size;
+    if (params.get()) {
+        size = params->contentRect().size();
+    }
 
     QString res(QObject::tr("height: %1"));
     return size.isValid() ? res.arg(size.height()) : res.arg(QObject::tr("?"));
