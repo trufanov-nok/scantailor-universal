@@ -63,6 +63,7 @@ Filter::Filter(
     ProviderPtr const order_by_mode(new OrderByModeProvider(m_ptrSettings));
     ProviderPtr const order_by_source_color(new OrderBySourceColor(m_ptrSettings, pages));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Processed then unprocessed"), ProviderPtr(new OrderByReadiness())));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Order by mode"), order_by_mode));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Grayscale sources on top"), order_by_source_color,
                                                  tr("Groups the pages by presence\nof a non grey color in the source files")));

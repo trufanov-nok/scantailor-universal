@@ -60,6 +60,7 @@ Filter::Filter(
     ProviderPtr const order_by_logical_width(new OrderBySizeProvider(m_ptrSettings, false, true));
     ProviderPtr const order_by_logical_height(new OrderBySizeProvider(m_ptrSettings, true, true));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Processed then unprocessed"), ProviderPtr(new OrderByReadiness())));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing width"), order_by_width,
                                                  tr("Orders the pages by the width of detected content zone")));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing height"), order_by_height,

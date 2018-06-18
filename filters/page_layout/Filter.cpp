@@ -71,6 +71,7 @@ Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
 	ProviderPtr const order_by_width(new OrderByWidthProvider(m_ptrSettings));
 	ProviderPtr const order_by_height(new OrderByHeightProvider(m_ptrSettings));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Processed then unprocessed"), ProviderPtr(new OrderByReadiness())));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Order by alignment type"), order_by_alignment));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing width"), order_by_width,
                                                  tr("Groups the pages by the width of detected content zone\n"

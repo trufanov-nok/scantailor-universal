@@ -65,6 +65,7 @@ Filter::Filter(IntrusivePtr<ProjectPages> const& page_sequence,
 	ProviderPtr const default_order;
 	ProviderPtr const order_by_splitline(new OrderBySplitTypeProvider(m_ptrSettings));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Processed then unprocessed"), ProviderPtr(new OrderByReadiness())));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by split type"), order_by_splitline));
 }
 

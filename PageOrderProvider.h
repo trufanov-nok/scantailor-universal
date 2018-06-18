@@ -20,6 +20,7 @@
 #define PAGE_ORDER_PROVIDER_H_
 
 #include "RefCountable.h"
+#include "PageId.h"
 
 class PageId;
 
@@ -40,5 +41,24 @@ public:
 
     virtual QString hint(PageId const& page) const = 0;
 };
+
+class OrderByReadiness : public PageOrderProvider
+{
+public:
+    OrderByReadiness() {}
+    virtual bool precedes(
+        PageId const& lhs_page, bool lhs_incomplete,
+        PageId const& rhs_page, bool rhs_incomplete) const
+    {
+        if (lhs_incomplete != rhs_incomplete) {
+            return !lhs_incomplete;
+        } else {
+            return lhs_page < rhs_page;
+        }
+    }
+
+    virtual QString hint(PageId const& /*page*/) const { return QString(); }
+};
+
 
 #endif
