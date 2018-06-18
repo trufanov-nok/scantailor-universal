@@ -667,6 +667,16 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
     if (obj == statusLabelPhysSize && ev->type() == QEvent::MouseButtonRelease) {
         if (statusLabelPhysSize->selectedText().isEmpty()) {
             StatusBarProvider::toggleStatusLabelPhysSizeDisplayMode();
+            // check if we need update units in page hints
+            // this is required only on Content Selection stage + logical sortings chosen
+            if (m_curFilter == m_ptrStages->selectContentFilterIdx() &&
+                    // px and inches are displayed in inches and inches follow px so no need to invalidate if it was switched from px to inches
+                    StatusBarProvider::statusLabelPhysSizeDisplayMode != StatusLabelPhysSizeDisplayMode::Inch) {
+                FilterPtr const& filter =  m_ptrStages->filterAt(m_curFilter);
+                if (filter->selectedPageOrder() >= filter->pageOrderOptions().size()-2) {
+                    invalidateAllThumbnails();
+                }
+            }
         }
         displayStatusBarPageSize();
     }
@@ -1520,7 +1530,9 @@ MainWindow::pageOrderingChanged(int idx)
 
     focusButton->setChecked(true); // Keep the current page in view.
 
-    m_ptrStages->filterAt(m_curFilter)->selectPageOrder(idx);
+    FilterPtr const& cur_filter = m_ptrStages->filterAt(m_curFilter);
+    cur_filter->selectPageOrder(idx);
+    sortOptions->setToolTip(cur_filter->pageOrderOptions()[idx].toolTip());
 
     std::set<PageId> _selection = m_ptrThumbSequence->selectedItems();
     const PageId _selectionLeader = m_ptrThumbSequence->selectionLeader().id();
@@ -3328,7 +3340,7 @@ MainWindow::setupStatusBar()
 }
 
 void
-MainWindow::applyUnitsSettingToCoordinates(qreal& x, qreal& y, QString& units)
+MainWindow::applyUnitsSettingToCoordinates(qreal& x, qreal& y)
 {
     StatusLabelPhysSizeDisplayMode mode = StatusBarProvider::statusLabelPhysSizeDisplayMode;
     Dpi dpi = StatusBarProvider::getOriginalDpi();
@@ -3344,23 +3356,17 @@ MainWindow::applyUnitsSettingToCoordinates(qreal& x, qreal& y, QString& units)
 
     Dpm dpm = Dpm(dpi);
     switch (mode) {
-    case Pixels:
-        units = tr("px");
-        break;
     case Inch:
         y /= dpi.vertical();
         x /= dpi.horizontal();
-        units = tr("in");
         break;
     case MM:
         y = y / dpm.vertical()*1000.;
         x = x / dpm.horizontal()*1000.;
-        units = tr("mm");
         break;
     case SM:
         y = y / dpm.vertical()*100.;
         x = x / dpm.horizontal()*100.;
-        units = tr("cm");
         break;
     default:
         break;
@@ -3380,9 +3386,8 @@ MainWindow::displayStatusBarPageSize()
 
     qreal x = page_size.width();
     qreal y = page_size.height();
-    QString units;
-    applyUnitsSettingToCoordinates(x, y, units);
-    statusLabelPhysSize->setText(tr("%1 x %2 %3").arg(x).arg(y).arg(units));
+    applyUnitsSettingToCoordinates(x, y);
+    statusLabelPhysSize->setText(QObject::tr("%1 x %2 %3").arg(x).arg(y).arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix()));
 }
 
 void
@@ -3397,8 +3402,7 @@ MainWindow::displayStatusBarMousePos()
 
     qreal x = pos.x();
     qreal y = pos.y();
-    QString dummy;
-    applyUnitsSettingToCoordinates(x, y, dummy);
+    applyUnitsSettingToCoordinates(x, y);
     statusLabelMousePos->setText(tr("%1, %2").arg(x,0,'f',1).arg(y,0,'f',1));
 }
 

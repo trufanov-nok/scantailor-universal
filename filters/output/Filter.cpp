@@ -27,8 +27,10 @@
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "CacheDrivenTask.h"
+#ifndef Q_MOC_RUN
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
+#endif
 #include <QString>
 #include <QObject>
 #include <QCoreApplication>
@@ -60,9 +62,10 @@ Filter::Filter(
     ProviderPtr const default_order;
     ProviderPtr const order_by_mode(new OrderByModeProvider(m_ptrSettings));
     ProviderPtr const order_by_source_color(new OrderBySourceColor(m_ptrSettings, pages));
-    m_pageOrderOptions.push_back(PageOrderOption(QCoreApplication::tr("Natural order"), default_order));
-    m_pageOrderOptions.push_back(PageOrderOption(QCoreApplication::tr("Order by mode"), order_by_mode));
-    m_pageOrderOptions.push_back(PageOrderOption(QCoreApplication::tr("Grayscale sources on top"), order_by_source_color));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by mode"), order_by_mode));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Grayscale sources on top"), order_by_source_color,
+                                                 tr("Groups the pages by presence\nof a non grey color in the source files")));
 }
 
 Filter::~Filter()

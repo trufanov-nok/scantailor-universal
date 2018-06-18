@@ -23,6 +23,7 @@
 #include "AutoManualMode.h"
 #include "Margins.h"
 #include "RegenParams.h"
+#include "Dpi.h"
 #include <QRectF>
 #include <QSizeF>
 #include <cmath>
@@ -34,18 +35,20 @@ class QString;
 namespace select_content
 {
 
+const Dpi Dpi_def = Dpi(300,300);
+
 class Params: public RegenParams
 {
 public:
 	// Member-wise copying is OK.
 	
 	Params(QRectF const& rect, QSizeF const& size_mm,
-		Dependencies const& deps, AutoManualMode mode);
+        Dependencies const& deps, AutoManualMode mode, Dpi const& dpi = Dpi_def);
 	
 	Params(QRectF const& rect, QSizeF const& size_mm,
-		Dependencies const& deps, AutoManualMode mode, bool contentDetect, bool pageDetect, bool fineTuning);
+        Dependencies const& deps, AutoManualMode mode, bool contentDetect, bool pageDetect, bool fineTuning, Dpi const& dpi = Dpi_def);
 	
-	Params(Dependencies const& deps);
+    Params(Dependencies const& deps, Dpi const& dpi = Dpi_def);
 	
 	Params(QDomElement const& filter_el);
 	
@@ -61,6 +64,9 @@ public:
 	AutoManualMode mode() const { return m_mode; }
 
 	double deviation() const { return m_deviation; }
+
+    Dpi origDpi() const { return m_Dpi; }
+
 	void setDeviation(double d) { m_deviation = d; }
 	void computeDeviation(double avg) { m_deviation = avg - sqrt(m_contentSizeMM.width() * m_contentSizeMM.height() / 4); }
 	bool isDeviant(double std, double max_dev) { return (max_dev*std) < fabs(m_deviation); }
@@ -80,6 +86,7 @@ public:
     void setContentDetect(bool detect) { m_contentDetect = detect; }
     void setPageDetect(bool detect) { m_pageDetect = detect; }
     void setFineTuneCorners(bool fine_tune) { m_fineTuneCorners = fine_tune; }
+    void setOrigDpi(Dpi const& dpi) { m_Dpi = dpi; }
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
@@ -93,6 +100,7 @@ private:
 	bool m_pageDetect;
 	bool m_fineTuneCorners;
 	double m_deviation;
+    Dpi m_Dpi;
 };
 
 } // namespace select_content

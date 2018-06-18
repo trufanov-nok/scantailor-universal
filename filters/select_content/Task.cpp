@@ -115,7 +115,8 @@ Task::process(TaskStatus const& status, FilterData const& data)
         }
     }
 
-	Params new_params(deps);
+
+    Params new_params(deps, data.xform().origDpi());
 
     if (!need_reprocess || regeneration_enforced)
 	{
@@ -170,6 +171,7 @@ create_new_content:
 	ui_data.setPageDetection(new_params.isPageDetectionEnabled());
 	ui_data.setFineTuneCorners(new_params.isFineTuningEnabled());
 	ui_data.setPageBorders(new_params.pageBorders());
+    ui_data.setOrigDpi(new_params.origDpi());
 
 	new_params.setContentSizeMM(ui_data.contentSizeMM());
 

@@ -95,6 +95,27 @@ public:
                     (StatusLabelPhysSizeDisplayMode) ((int)statusLabelPhysSizeDisplayMode+1) : Pixels;
     }
 
+    static QString getStatusLabelPhysSizeDisplayModeSuffix(StatusLabelPhysSizeDisplayMode const mode)
+    {
+        switch (mode) {
+        case Pixels:
+            return QObject::tr("px");
+        case Inch:
+            return QObject::tr("in");
+        case MM:
+            return QObject::tr("mm");
+        case SM:
+            return QObject::tr("cm");
+        default:
+            return QString();
+        }
+    }
+
+    static QString getStatusLabelPhysSizeDisplayModeSuffix()
+    {
+        return getStatusLabelPhysSizeDisplayModeSuffix(statusLabelPhysSizeDisplayMode);
+    }
+
 public:
     static QEvent::Type StatusBarEventType;
     static StatusLabelPhysSizeDisplayMode statusLabelPhysSizeDisplayMode;

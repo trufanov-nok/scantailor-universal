@@ -22,14 +22,14 @@
 #include "Settings.h"
 #include "IntrusivePtr.h"
 #include "PageOrderProvider.h"
+#include "StatusBarProvider.h"
 
 namespace select_content
 {
-
-class OrderByHeightProvider : public PageOrderProvider
+class OrderBySizeProvider : public PageOrderProvider
 {
 public:
-	OrderByHeightProvider(IntrusivePtr<Settings> const& settings);
+    OrderBySizeProvider(IntrusivePtr<Settings> const& settings, bool byHeight = true, bool isLogical = false);
 
 	virtual bool precedes(
 		PageId const& lhs_page, bool lhs_incomplete,
@@ -37,7 +37,13 @@ public:
 
     virtual QString hint(PageId const& page) const;
 private:
+    qreal adjustByDpi(qreal val, std::auto_ptr<Params> const& params,
+                      StatusLabelPhysSizeDisplayMode mode = StatusLabelPhysSizeDisplayMode::Inch,
+                      int *dpi_used = nullptr) const;
+private:
 	IntrusivePtr<Settings> m_ptrSettings;
+    bool m_byHeight;
+    bool m_isLogical;
 };
 
 } // namespace select_content

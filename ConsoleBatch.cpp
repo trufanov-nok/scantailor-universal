@@ -350,7 +350,7 @@ ConsoleBatch::setupSelectContent(std::set<PageId> allPages)
 		PageId page = *i;
 		select_content::Dependencies deps;
 
-		select_content::Params params(deps);
+        select_content::Params params(deps);
 		std::auto_ptr<select_content::Params> old_params = select_content->getSettings()->getPageParams(page);
 
 		if (old_params.get()) {

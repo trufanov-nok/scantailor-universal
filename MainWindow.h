@@ -226,7 +226,7 @@ private slots:
 
     void displayStatusBarMousePos();
 
-    void applyUnitsSettingToCoordinates(qreal& x, qreal& y, QString& units);
+    void applyUnitsSettingToCoordinates(qreal& x, qreal& y);
 
     void on_actionJumpPageF_triggered();
 

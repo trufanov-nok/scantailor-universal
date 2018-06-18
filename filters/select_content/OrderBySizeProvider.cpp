@@ -16,9 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "OrderByWidthProvider.h"
+#include "OrderBySizeProvider.h"
 #include "Params.h"
 #include "PageId.h"
+#include "imageproc/Constants.h" // DPI2DPM
 #include <QSizeF>
 #include <memory>
 #include <assert.h>
@@ -26,13 +27,35 @@
 namespace select_content
 {
 
-OrderByWidthProvider::OrderByWidthProvider(IntrusivePtr<Settings> const& settings)
-:	m_ptrSettings(settings)
+OrderBySizeProvider::OrderBySizeProvider(IntrusivePtr<Settings> const& settings, bool byHeight, bool isLogical)
+:	m_ptrSettings(settings), m_byHeight(byHeight), m_isLogical(isLogical)
 {
 }
 
+qreal
+OrderBySizeProvider::adjustByDpi(qreal val, std::auto_ptr<Params> const& params,
+                                 StatusLabelPhysSizeDisplayMode mode, int* dpi_used) const
+{
+    if (!m_isLogical) {
+        return val;
+    }
+
+    Dpi const dpi = params.get()?params->origDpi():select_content::Dpi_def;
+    qreal const d = m_byHeight? dpi.vertical() : dpi.horizontal();
+
+    if (dpi_used) {
+        *dpi_used = d;
+    }
+
+    switch (mode) {
+    case StatusLabelPhysSizeDisplayMode::MM: return val / qRound(d * imageproc::constants::DPI2DPM) * 1000.;
+    case StatusLabelPhysSizeDisplayMode::SM: return val / qRound(d * imageproc::constants::DPI2DPM) * 100.;
+    default: return val / d; // for inches and pixels show in inches
+    }
+}
+
 bool
-OrderByWidthProvider::precedes(
+OrderBySizeProvider::precedes(
 	PageId const& lhs_page, bool const lhs_incomplete,
 	PageId const& rhs_page, bool const rhs_incomplete) const
 {
@@ -76,21 +99,48 @@ OrderByWidthProvider::precedes(
     assert(lhs_invalid == false);
     assert(rhs_incomplete == false);
 
-    if (lhs_size.width() != rhs_size.width()) {
-        return lhs_size.width() < rhs_size.width();
+    qreal rv = m_byHeight? rhs_size.height() : rhs_size.width();
+    qreal lv = m_byHeight? lhs_size.height() : lhs_size.width();
+    rv = adjustByDpi(rv, rhs_params);
+    lv = adjustByDpi(lv, lhs_params);
+
+    if (lv != rv) {
+        return lv < rv;
     } else {
         return lhs_page < rhs_page;
     }
 }
 
+QString _unknown = QObject::tr("?");
+
 QString
-OrderByWidthProvider::hint(PageId const& page) const
+OrderBySizeProvider::hint(PageId const& page) const
 {
     std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
-    QSizeF const size = params->contentRect().size();
+    QSizeF size;
+    if (params.get()) {
+        size = params->contentRect().size();
+    }
 
-    QString res(QObject::tr("width: %1"));
-    return size.isValid() ? res.arg(size.width()) : res.arg(QObject::tr("?"));
+    QString res = m_byHeight ? QObject::tr("height: %1") : QObject::tr("width: %1");
+    qreal val = m_byHeight? size.height() : size.width();
+
+    if (!m_isLogical) {
+        return size.isValid() ? res.arg(val) : res.arg(_unknown);
+    } else {
+        StatusLabelPhysSizeDisplayMode units_mode = StatusBarProvider::statusLabelPhysSizeDisplayMode;
+        if (units_mode == StatusLabelPhysSizeDisplayMode::Pixels) {
+            units_mode = StatusLabelPhysSizeDisplayMode::Inch;
+        }
+
+        int dpi_used = 0;
+        val = round(adjustByDpi(val, params, units_mode, &dpi_used)*100)/100;
+
+        return size.isValid() ? QObject::tr("%1 %2 (%3 dpi)").arg(val)
+                                .arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix(units_mode))
+                                .arg(dpi_used)
+                              : res.arg(_unknown);
+    }
 }
 
 } // namespace select_content

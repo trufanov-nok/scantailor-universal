@@ -260,7 +260,8 @@ OptionsWidget::commitCurrentParams()
 	Params params(
 		m_uiData.contentRect(), m_uiData.contentSizeMM(),
 		//m_uiData.dependencies(), m_uiData.mode(), m_uiData.contentDetection(), m_uiData.pageDetection(), m_uiData.fineTuning()
-		Dependencies(), m_uiData.mode(), m_uiData.contentDetection(), m_uiData.pageDetection(), m_uiData.fineTuning()
+        Dependencies(), m_uiData.mode(), m_uiData.contentDetection(), m_uiData.pageDetection(), m_uiData.fineTuning(),
+        m_uiData.origDpi()
 	);
 	params.setPageRect(m_uiData.pageRect());
     params.setPageBorders(m_uiData.pageBorders());
@@ -305,7 +306,7 @@ OptionsWidget::applySelection(std::set<PageId> const& pages, bool apply_content_
 	Dependencies deps;
 	Params params(
 		m_uiData.contentRect(), m_uiData.contentSizeMM(),
-		deps, m_uiData.mode(), m_uiData.contentDetection(), m_uiData.pageDetection(), m_uiData.fineTuning()
+        deps, m_uiData.mode(), m_uiData.contentDetection(), m_uiData.pageDetection(), m_uiData.fineTuning()
 	);
 
 	for (PageId const& page_id: pages) {

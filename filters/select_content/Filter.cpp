@@ -26,8 +26,7 @@
 #include "ProjectReader.h"
 #include "ProjectWriter.h"
 #include "CacheDrivenTask.h"
-#include "OrderByWidthProvider.h"
-#include "OrderByHeightProvider.h"
+#include "OrderBySizeProvider.h"
 #ifndef Q_MOC_RUN
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
@@ -56,11 +55,19 @@ Filter::Filter(
 	typedef PageOrderOption::ProviderPtr ProviderPtr;
 
 	ProviderPtr const default_order;
-	ProviderPtr const order_by_width(new OrderByWidthProvider(m_ptrSettings));
-	ProviderPtr const order_by_height(new OrderByHeightProvider(m_ptrSettings));
+    ProviderPtr const order_by_width(new OrderBySizeProvider(m_ptrSettings, false, false));
+    ProviderPtr const order_by_height(new OrderBySizeProvider(m_ptrSettings, true, false));
+    ProviderPtr const order_by_logical_width(new OrderBySizeProvider(m_ptrSettings, false, true));
+    ProviderPtr const order_by_logical_height(new OrderBySizeProvider(m_ptrSettings, true, true));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
-	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing width"), order_by_width));
-	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing height"), order_by_height));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing width"), order_by_width,
+                                                 tr("Orders the pages by the width of detected content zone")));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing height"), order_by_height,
+                                                 tr("Orders the pages by the height of detected content zone")));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing logical width"), order_by_logical_width,
+                                                 tr("Orders the pages by the logical width of detected content zone")));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing logical height"), order_by_logical_height,
+                                                 tr("Orders the pages by the logical height of detected content zone")));
 }
 
 Filter::~Filter()

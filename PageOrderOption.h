@@ -29,10 +29,12 @@ class PageOrderOption
 public:
 	typedef IntrusivePtr<PageOrderProvider const> ProviderPtr;
 
-	PageOrderOption(QString const& name, ProviderPtr const& provider)
-		: m_name(name), m_ptrProvider(provider) {}
+    PageOrderOption(QString const& name, ProviderPtr const& provider, QString const& toolTip = QString())
+        : m_name(name), m_ptrProvider(provider), m_toolTip(toolTip) {}
 
 	QString const& name() const { return m_name; }
+
+    QString const& toolTip() const { return m_toolTip; }
 
 	/**
 	 * Returns the ordering information provider.
@@ -42,6 +44,7 @@ public:
 private:
 	QString m_name;
 	ProviderPtr m_ptrProvider;
+    QString m_toolTip;
 };
 
 #endif

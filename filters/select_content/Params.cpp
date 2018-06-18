@@ -29,7 +29,8 @@ namespace select_content
 
 Params::Params(
 	QRectF const& content_rect, QSizeF const& content_size_mm,
-	Dependencies const& deps, AutoManualMode const mode)
+    Dependencies const& deps, AutoManualMode const mode,
+    const Dpi &dpi)
 :	RegenParams(),
     m_contentRect(content_rect),
     m_pageRect(content_rect),
@@ -37,7 +38,8 @@ Params::Params(
     m_contentSizeMM(content_size_mm),
 	m_deps(deps),
 	m_mode(mode),
-	m_deviation(0.0)
+    m_deviation(0.0),
+    m_Dpi(dpi)
 {
 	m_contentDetect = CommandLine::get().isContentDetectionEnabled();
 	m_pageDetect = CommandLine::get().isPageDetectionEnabled();
@@ -46,7 +48,8 @@ Params::Params(
 
 Params::Params(
 	QRectF const& content_rect, QSizeF const& content_size_mm,
-	Dependencies const& deps, AutoManualMode const mode, bool contentDetect, bool pageDetect, bool fineTuning)
+    Dependencies const& deps, AutoManualMode const mode, bool contentDetect,
+    bool pageDetect, bool fineTuning, const Dpi &dpi)
 :	RegenParams(),
     m_contentRect(content_rect),
 	m_pageRect(content_rect),
@@ -57,16 +60,18 @@ Params::Params(
 	m_contentDetect(contentDetect),
 	m_pageDetect(pageDetect),
 	m_fineTuneCorners(fineTuning),
-	m_deviation(0.0)
+    m_deviation(0.0),
+    m_Dpi(dpi)
 {
 }
 
-Params::Params(Dependencies const& deps)
+Params::Params(Dependencies const& deps, const Dpi &dpi)
 :   RegenParams(),
     m_pageBorders(0,0,0,0),
     m_deps(deps),
     m_mode(MODE_AUTO),
-	m_deviation(0.0)
+    m_deviation(0.0),
+    m_Dpi(dpi)
 {
 	m_contentDetect = CommandLine::get().isContentDetectionEnabled();
 	m_pageDetect = CommandLine::get().isPageDetectionEnabled();
@@ -100,7 +105,12 @@ Params::Params(QDomElement const& filter_el)
 	m_contentDetect(filter_el.attribute("content-detect") == "false" ? false : true),
 	m_pageDetect(filter_el.attribute("page-detect") == "true" ? true : false),
 	m_fineTuneCorners(filter_el.attribute("fine-tune-corners") == "true" ? true : false),
-	m_deviation(filter_el.attribute("deviation").toDouble())
+    m_deviation(filter_el.attribute("deviation").toDouble()),
+    m_Dpi(
+        XmlUnmarshaller::dpi(
+            filter_el.namedItem("original_dpi").toElement()
+        )
+    )
 {
 	// ! m_contentDetect means content detection is disabled and should be the same as pageRect
 	// turn off pagedetection if page detection was enabled and set content detection to manual
@@ -132,6 +142,7 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 	el.appendChild(marshaller.sizeF(m_contentSizeMM, "content-size-mm"));
 	el.appendChild(marshaller.margins(m_pageBorders, "page-borders"));
 	el.appendChild(m_deps.toXml(doc, "dependencies"));
+    el.appendChild(marshaller.dpi(m_Dpi, "original_dpi"));
 	return el;
 }
 

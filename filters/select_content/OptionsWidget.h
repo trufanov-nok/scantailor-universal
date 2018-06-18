@@ -69,6 +69,7 @@ public:
 		bool contentDetection() const { return m_contentDetection; }
 		bool pageDetection() const { return m_pageDetection; }
 		bool fineTuning() const { return m_fineTuneCorners; }
+        Dpi const& origDpi() const { return m_origDpi; }
 
 		void setContentDetection(bool detect);
 		void setPageDetection(bool detect);
@@ -76,6 +77,7 @@ public:
 		
         void setPageBorders(double left, double top, double right, double bottom);
         void setPageBorders(Margins const& borders) { m_borders = borders; }
+        void setOrigDpi(Dpi const& dpi) { m_origDpi = dpi; }
         Margins pageBorders() const { return m_borders; }
         
 		AutoManualMode mode() const;
@@ -89,6 +91,7 @@ public:
 		bool m_pageDetection;
 		bool m_fineTuneCorners;
         Margins m_borders;
+        Dpi m_origDpi;
 	};
 	
 	OptionsWidget(IntrusivePtr<Settings> const& settings,

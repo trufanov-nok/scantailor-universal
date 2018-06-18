@@ -72,8 +72,12 @@ Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
 	ProviderPtr const order_by_height(new OrderByHeightProvider(m_ptrSettings));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Order by alignment type"), order_by_alignment));
-	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing width"), order_by_width));
-	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing height"), order_by_height));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing width"), order_by_width,
+                                                 tr("Groups the pages by the width of detected content zone\n"
+                                                    "and it's left and right hard margins")));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by increasing height"), order_by_height,
+                                                 tr("Groups the pages by the height of detected content zone\n"
+                                                    "and it's top and bottom hard margins")));
 }
 
 Filter::~Filter()

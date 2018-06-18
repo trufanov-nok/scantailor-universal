@@ -16,8 +16,7 @@ SET(
 	Settings.cpp Settings.h
 	Thumbnail.cpp Thumbnail.h
 	PhysSizeCalc.cpp PhysSizeCalc.h
-	OrderByWidthProvider.cpp OrderByWidthProvider.h
-	OrderByHeightProvider.cpp OrderByHeightProvider.h
+        OrderBySizeProvider.cpp OrderBySizeProvider.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 FILE(GLOB ui_files "ui/*.ui")

@@ -28,6 +28,7 @@
 #include "PictureZonePropFactory.h"
 #include "FillZonePropFactory.h"
 #include "ProjectPages.h"
+#include <QCoreApplication>
 #include <QImage>
 
 class PageId;
@@ -47,6 +48,7 @@ class Settings;
 class Filter : public AbstractFilter
 {
 	DECLARE_NON_COPYABLE(Filter)
+    Q_DECLARE_TR_FUNCTIONS(output::Filter)
 public:
     Filter(IntrusivePtr<ProjectPages> const& pages, PageSelectionAccessor const& page_selection_accessor);
 	
