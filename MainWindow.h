@@ -232,6 +232,8 @@ private slots:
 
     void on_actionJumpPageB_triggered();
 
+    void on_multiselectButton_toggled(bool checked);
+
 private:
 	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
 	

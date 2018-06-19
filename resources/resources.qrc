@@ -67,5 +67,6 @@
         <file>icons/stock-gravity-center-24-hor.png</file>
         <file>icons/stock-gravity-center-24-ver.png</file>
         <file>icons/stock-gravity-center-24.png</file>
+        <file>icons/multi_choice.png</file>
     </qresource>
 </RCC>

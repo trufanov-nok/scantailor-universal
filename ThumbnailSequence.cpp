@@ -73,6 +73,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include <QMessageBox>
+#include <QCheckBox>
 
 using namespace ::boost::multi_index;
 using namespace ::boost::lambda;
@@ -237,6 +238,8 @@ private:
 	void clear();
 	
 	void clearSelection();
+
+    int countSelection();
 
 	/**
 	 * Calculates the insertion position for an item with the given PageId
@@ -1451,13 +1454,13 @@ ThumbnailSequence::Impl::itemSelectedByUser(
 {
 	ItemsById::iterator const id_it(m_itemsById.iterator_to(*composite->item()));
 	
-	if (modifiers & Qt::ControlModifier) {
-		selectItemWithControl(id_it);
-	} else if (modifiers & Qt::ShiftModifier) {
-		selectItemWithShift(id_it);
-	} else {
-		selectItemNoModifiers(id_it);
-	}
+    if (modifiers & Qt::ShiftModifier) {
+        selectItemWithShift(id_it);
+    } else if (modifiers & Qt::ControlModifier || GlobalStaticSettings::m_simulateSelectionModifier) {
+        selectItemWithControl(id_it);
+    } else {
+        selectItemNoModifiers(id_it);
+    }
 }
 
 void
@@ -1594,9 +1597,47 @@ ThumbnailSequence::Impl::selectItemWithShift(ItemsById::iterator const& id_it)
 	m_rOwner.emitNewSelectionLeader(id_it->pageInfo, id_it->composite, flags);
 }
 
+#ifdef Q_OS_MAC
+const QString _selection_modifier = QObject::tr("Meta");
+#else
+const QString _selection_modifier = QObject::tr("Ctrl");
+#endif
+
 void
 ThumbnailSequence::Impl::selectItemNoModifiers(ItemsById::iterator const& id_it)
 {
+    if (GlobalStaticSettings::m_simulateSelectionModifierHintEnabled &&
+            !GlobalStaticSettings::m_simulateSelectionModifier) {
+        int cnt = countSelection();
+        if (cnt > 1) {
+            QMessageBox msgbox;
+            msgbox.setText(tr("You are going to cancel %1 pages selection.\n"
+                              "Sometimes this could happen accidentally due to misclicks.\n"
+                              "Please note that there is a button on top of pages list panel that toggles simulation of the %2 key pressing."
+                              "You can use it to safely select several pages across the project.\n"
+                              "Continue?").arg(cnt).arg(_selection_modifier));
+
+            msgbox.setIcon(QMessageBox::Icon::Information);
+            msgbox.addButton(QMessageBox::Ok);
+            msgbox.addButton(QMessageBox::Cancel);
+
+            QCheckBox cb(tr("Don't show this again."));
+            msgbox.setCheckBox(&cb);
+            connect(&cb, &QAbstractButton::toggled, [this](bool checked){
+                GlobalStaticSettings::m_simulateSelectionModifierHintEnabled = !checked;
+            });
+
+            const bool old_val = GlobalStaticSettings::m_simulateSelectionModifierHintEnabled;
+            if (msgbox.exec() == QMessageBox::Cancel) {
+                GlobalStaticSettings::m_simulateSelectionModifierHintEnabled  = old_val;
+                return;
+            } else {
+                QSettings().setValue(_key_thumbnails_simulate_key_press_hint,
+                                     GlobalStaticSettings::m_simulateSelectionModifierHintEnabled);
+            }
+        }
+    }
+
 	SelectionFlags flags = SELECTED_BY_USER;
 	if (m_pSelectionLeader == &*id_it) {
 		flags |= REDUNDANT_SELECTION;
@@ -1640,6 +1681,20 @@ ThumbnailSequence::Impl::clearSelection()
 		}
 		item.setSelected(false);
 	}
+}
+
+int
+ThumbnailSequence::Impl::countSelection()
+{
+    int res = 0;
+
+    for (Item const& item: m_selectedThenUnselected) {
+        if (!item.isSelected()) {
+            break;
+        }
+        res++;
+    }
+    return res;
 }
 
 ThumbnailSequence::Impl::ItemsInOrder::iterator

@@ -42,3 +42,5 @@ bool GlobalStaticSettings::m_displayOrderHints = true;
 
 bool GlobalStaticSettings::m_dewarpAutoVertHalfCorrection = false;
 bool GlobalStaticSettings::m_dewarpAutoDeskewAfterDewarp = false;
+bool GlobalStaticSettings::m_simulateSelectionModifier = false;
+bool GlobalStaticSettings::m_simulateSelectionModifierHintEnabled = true;

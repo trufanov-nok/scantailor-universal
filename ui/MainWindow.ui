@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>783</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
@@ -117,30 +117,57 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QToolButton" name="focusButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="statusTip">
-          <string>Keep current page in view.</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/keep-in-view.png</normaloff>:/icons/keep-in-view.png</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QToolButton" name="multiselectButton">
+           <property name="toolTip">
+            <string>Keep selection key pressed</string>
+           </property>
+           <property name="statusTip">
+            <string>Simulate press of the modifier key for fast page selection (Ctrl+CapsLock)</string>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/icons/multi_choice.png</normaloff>:/icons/multi_choice.png</iconset>
+           </property>
+           <property name="shortcut">
+            <string>Ctrl+CapsLock</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="focusButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="statusTip">
+            <string>Keep current page in view.</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/icons/keep-in-view.png</normaloff>:/icons/keep-in-view.png</iconset>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QGraphicsView" name="thumbView">
@@ -272,7 +299,7 @@
           <x>0</x>
           <y>0</y>
           <width>256</width>
-          <height>185</height>
+          <height>187</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -794,7 +821,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

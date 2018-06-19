@@ -77,6 +77,8 @@ static const char* _key_thumbnails_fixed_thumb_size = "thumbnails/fixed_thumb_si
 static const bool _key_thumbnails_fixed_thumb_size_def = false;
 static const char* _key_thumbnails_display_order_hints = "thumbnails/display_order_hints";
 static const bool _key_thumbnails_display_order_hints_def = true;
+static const char* _key_thumbnails_simulate_key_press_hint = "thumbnails/selection_key_press_simulation_hint";
+static const bool _key_thumbnails_simulate_key_press_hint_def = true;
 
 /* Export images dialog */
 

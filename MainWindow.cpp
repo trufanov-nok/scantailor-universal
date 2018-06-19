@@ -3472,3 +3472,8 @@ void MainWindow::on_actionJumpPageB_triggered()
     int pg_jmp = settings.value(_key_hot_keys_jump_backward_pg_num, _key_hot_keys_jump_backward_pg_num_def).toUInt();
     jumpToPage(-1*pg_jmp);
 }
+
+void MainWindow::on_multiselectButton_toggled(bool checked)
+{
+    GlobalStaticSettings::m_simulateSelectionModifier = checked;
+}

@@ -89,6 +89,8 @@ public:
 
         m_dewarpAutoVertHalfCorrection = settings.value(_key_dewarp_auto_vert_half_correction, _key_dewarp_auto_vert_half_correction_def).toBool();
         m_dewarpAutoDeskewAfterDewarp = settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool();
+
+        m_simulateSelectionModifierHintEnabled = settings.value(_key_thumbnails_simulate_key_press_hint, _key_thumbnails_simulate_key_press_hint_def).toBool();
     }    
 
     static void updateHotkeys()
@@ -182,6 +184,8 @@ public:
 
     static bool m_dewarpAutoVertHalfCorrection;
     static bool m_dewarpAutoDeskewAfterDewarp;
+    static bool m_simulateSelectionModifier;
+    static bool m_simulateSelectionModifierHintEnabled;
 };
 
 #endif // GLOBALSTATICSETTINGS_H
