@@ -1204,6 +1204,7 @@ MainWindow::goPrevPage(int cnt, bool in_selection)
 void
 MainWindow::goToPage(PageId const& page_id, ThumbnailSequence::SelectionAction const action)
 {
+    bool was_checked = focusButton->isChecked();
     focusButton->setChecked(true);
 
     m_ptrThumbSequence->setSelection(page_id, action);
@@ -1211,6 +1212,10 @@ MainWindow::goToPage(PageId const& page_id, ThumbnailSequence::SelectionAction c
     // If the page was already selected, it will be reloaded.
     // That's by design.
     updateMainArea();
+    if (!was_checked) {
+        focusButton->setChecked(false);
+    }
+
 }
 
 void
