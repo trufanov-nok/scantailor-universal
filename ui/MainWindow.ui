@@ -119,25 +119,21 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QToolButton" name="multiselectButton">
-           <property name="toolTip">
-            <string>Keep selection key pressed</string>
-           </property>
+          <widget class="QToolButton" name="inverseOrderButton">
            <property name="statusTip">
-            <string>Simulate press of the modifier key for fast page selection (Ctrl+CapsLock)</string>
+            <string>Inverse page order</string>
            </property>
            <property name="text">
             <string notr="true"/>
            </property>
-           <property name="icon">
-            <iconset resource="../resources/resources.qrc">
-             <normaloff>:/icons/multi_choice.png</normaloff>:/icons/multi_choice.png</iconset>
-           </property>
-           <property name="shortcut">
-            <string>Ctrl+CapsLock</string>
-           </property>
            <property name="checkable">
             <bool>true</bool>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonIconOnly</enum>
+           </property>
+           <property name="arrowType">
+            <enum>Qt::DownArrow</enum>
            </property>
           </widget>
          </item>
@@ -163,6 +159,29 @@
             <bool>true</bool>
            </property>
            <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="multiselectButton">
+           <property name="toolTip">
+            <string>Keep selection key pressed</string>
+           </property>
+           <property name="statusTip">
+            <string>Simulate press of the modifier key for fast page selection (Ctrl+CapsLock)</string>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/resources.qrc">
+             <normaloff>:/icons/multi_choice.png</normaloff>:/icons/multi_choice.png</iconset>
+           </property>
+           <property name="shortcut">
+            <string>Ctrl+CapsLock</string>
+           </property>
+           <property name="checkable">
             <bool>true</bool>
            </property>
           </widget>

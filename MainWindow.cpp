@@ -3482,3 +3482,27 @@ void MainWindow::on_multiselectButton_toggled(bool checked)
 {
     GlobalStaticSettings::m_simulateSelectionModifier = checked;
 }
+
+void MainWindow::on_inverseOrderButton_toggled(bool checked)
+{
+    GlobalStaticSettings::m_inversePageOrder = checked;
+    inverseOrderButton->setArrowType(checked? Qt::ArrowType::UpArrow : Qt::ArrowType::DownArrow);
+    if (!currentPageOrderProvider().get() && !checked) {
+        // reset is required here as we don't have a fair order provider for natural order
+        // that's why currentPageOrderProvider is empty
+        // and once it's reversed invalidateAllThumbnails() can't restore natural order back
+        // so call full reset
+        m_ptrThumbSequence->reset(
+            m_ptrPages->toPageSequence(getCurrentView()),
+            ThumbnailSequence::KEEP_SELECTION,
+            currentPageOrderProvider()
+        );
+    } else {
+        invalidateAllThumbnails();
+    }
+    if (!m_selectedPage.isNull()) {
+        std::set<PageId> selection;
+        selection.insert(m_selectedPage.get(getCurrentView()));
+        ensurePageVisible(selection, m_ptrThumbSequence->selectionLeader().id());
+    }
+}

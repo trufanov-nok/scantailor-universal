@@ -286,6 +286,16 @@ private:
 	IntrusivePtr<PageOrderProvider const> m_ptrOrderProvider;
 	GraphicsScene m_graphicsScene;
 	QRectF m_sceneRect;
+
+    ReverseOrderWrapper m_reverseOrder;
+    const PageOrderProvider* orderProvider() {
+        if (GlobalStaticSettings::m_inversePageOrder) {
+            m_reverseOrder.setOrderProvider(m_ptrOrderProvider.get());
+            return &m_reverseOrder;
+        } else {
+            return m_ptrOrderProvider.get();
+        }
+    }
 };
 
 
@@ -680,7 +690,7 @@ void
 ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it)
 {
     std::auto_ptr<CompositeItem> composite(
-                getCompositeItem(&*id_it, id_it->pageInfo, m_ptrOrderProvider.get())
+                getCompositeItem(&*id_it, id_it->pageInfo, orderProvider())
                 );
     CompositeItem* const new_composite = composite.get();
     CompositeItem* const old_composite = id_it->composite;
@@ -851,20 +861,20 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
 	ItemsInOrder::iterator const ord_end(m_itemsInOrder.end());
 	for (; ord_it != ord_end; ++ord_it) {
 		CompositeItem* const old_composite = ord_it->composite;
-        ord_it->composite = getCompositeItem(&*ord_it, ord_it->pageInfo, m_ptrOrderProvider.get()).release();
+        ord_it->composite = getCompositeItem(&*ord_it, ord_it->pageInfo, orderProvider()).release();
 		ord_it->incompleteThumbnail = ord_it->composite->incompleteThumbnail();
 		delete old_composite;
 	}
 
 	// Sort pages in m_itemsInOrder using m_ptrOrderProvider.
-	if (m_ptrOrderProvider.get()) {
-		m_itemsInOrder.sort(
-			boost::lambda::bind(
-				&PageOrderProvider::precedes, m_ptrOrderProvider.get(),
-				boost::lambda::bind(&Item::pageId, boost::lambda::_1), bind(&Item::incompleteThumbnail, boost::lambda::_1),
-				boost::lambda::bind(&Item::pageId, boost::lambda::_2), bind(&Item::incompleteThumbnail, boost::lambda::_2)
-			)
-		);
+    if (const PageOrderProvider* order = orderProvider()) {
+        m_itemsInOrder.sort(
+            boost::lambda::bind(
+                &PageOrderProvider::precedes, order,
+                boost::lambda::bind(&Item::pageId, boost::lambda::_1), bind(&Item::incompleteThumbnail, boost::lambda::_1),
+                boost::lambda::bind(&Item::pageId, boost::lambda::_2), bind(&Item::incompleteThumbnail, boost::lambda::_2)
+            )
+        );
 	}
 	
 	m_sceneRect = QRectF(0.0, 0.0, 0.0, 0.0);
@@ -1237,7 +1247,7 @@ ThumbnailSequence::Impl::insert(
 		
 		if (before_or_after == AFTER) {
 			++ord_it;
-			if (!m_ptrOrderProvider.get()) { 
+            if (!orderProvider()) {
 				// Advance past not only the target page, but also its other half, if it follows.
 				while (ord_it != m_itemsInOrder.end() && ord_it->pageInfo.imageId() == image) {
 					++ord_it;
@@ -1246,7 +1256,7 @@ ThumbnailSequence::Impl::insert(
 		}
 	}
 
-	// If m_ptrOrderProvider is not set, ord_it won't change.
+    // If orderProvider is not set, ord_it won't change.
 	ord_it = itemInsertPosition(
 		m_itemsInOrder.begin(), m_itemsInOrder.end(), page_info.id(),
 		/*page_incomplete=*/true, ord_it
@@ -1254,7 +1264,7 @@ ThumbnailSequence::Impl::insert(
 
 
     std::auto_ptr<CompositeItem> composite(
-        getCompositeItem(0, page_info, m_ptrOrderProvider.get())
+        getCompositeItem(0, page_info, orderProvider())
     );
 
     Item const item(page_info, composite.get());
@@ -1706,7 +1716,7 @@ ThumbnailSequence::Impl::itemInsertPosition(
 	// Note that to preserve stable ordering, this function *must* return hint,
 	// as long as it's an acceptable position.
 
-	if (!m_ptrOrderProvider.get()) {
+    if (!orderProvider()) {
 		if (dist_from_hint) {
 			*dist_from_hint = 0;
 		}
@@ -1721,7 +1731,7 @@ ThumbnailSequence::Impl::itemInsertPosition(
 	while (ins_pos != begin) {
 		ItemsInOrder::iterator prev(ins_pos);
 		--prev;
-		bool const precedes = m_ptrOrderProvider->precedes(
+        bool const precedes = orderProvider()->precedes(
 			page_id, page_incomplete, prev->pageId(), prev->incompleteThumbnail
 		);
 		if (precedes) {
@@ -1735,7 +1745,7 @@ ThumbnailSequence::Impl::itemInsertPosition(
 	// While the element pointed to by ins_pos is supposed to precede
 	// the page we are inserting, advance ins_pos.
 	while (ins_pos != end) {
-		bool const precedes = m_ptrOrderProvider->precedes(
+        bool const precedes = orderProvider()->precedes(
 			ins_pos->pageId(), ins_pos->incompleteThumbnail,
 			page_id, page_incomplete
 		);

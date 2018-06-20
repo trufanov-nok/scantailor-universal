@@ -60,5 +60,27 @@ public:
     virtual QString hint(PageId const& /*page*/) const { return QString(); }
 };
 
+class ReverseOrderWrapper : public PageOrderProvider
+{
+public:
+    ReverseOrderWrapper(const PageOrderProvider* provider = nullptr): m_orderProvider(provider){}
+    virtual bool precedes(
+        PageId const& lhs_page, bool lhs_incomplete,
+        PageId const& rhs_page, bool rhs_incomplete) const
+    {
+        if (m_orderProvider) {
+            return !m_orderProvider->precedes(lhs_page, lhs_incomplete, rhs_page, rhs_incomplete);
+        } else {
+            return !(lhs_page < rhs_page);
+        }
+    }
+
+    virtual QString hint(PageId const& page) const { return m_orderProvider? m_orderProvider->hint(page) : QString(); }
+
+    void setOrderProvider(const PageOrderProvider* provider) { m_orderProvider = provider; }
+private:
+    const PageOrderProvider* m_orderProvider;
+};
+
 
 #endif

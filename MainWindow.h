@@ -234,6 +234,8 @@ private slots:
 
     void on_multiselectButton_toggled(bool checked);
 
+    void on_inverseOrderButton_toggled(bool checked);
+
 private:
 	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
 	
