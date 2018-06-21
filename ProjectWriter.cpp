@@ -79,6 +79,12 @@ ProjectWriter::~ProjectWriter()
 bool
 ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& filters) const
 {
+
+#if QT_VERSION > 0x050600
+    // this ensures attributes are saved in the same order
+    qSetGlobalQHashSeed(21062018);
+#endif
+
 	QDomDocument doc;
 	QDomElement root_el(doc.createElement("project"));
 	doc.appendChild(root_el);
@@ -106,6 +112,10 @@ ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& fil
 	for (; it != end; ++it) {
 		filters_el.appendChild((*it)->saveSettings(*this, doc));
 	}
+
+#if QT_VERSION > 0x050600
+    qSetGlobalQHashSeed(-1);
+#endif
 	
 	QFile file(file_path);
 	if (file.open(QIODevice::WriteOnly)) {
