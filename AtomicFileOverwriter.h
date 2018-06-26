@@ -69,7 +69,7 @@ public:
 	 */
 	void abort();
 private:
-	std::auto_ptr<QTemporaryFile> m_ptrTempFile;
+	std::unique_ptr<QTemporaryFile> m_ptrTempFile;
 };
 
 #endif

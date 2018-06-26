@@ -50,8 +50,8 @@ OrderByAlignment::precedes(
     assert(lhs_incomplete == false);
     assert(rhs_incomplete == false);
 
-	std::auto_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
-	std::auto_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
+	std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
+	std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
 
 
     bool lhs_is_null = true;
@@ -87,7 +87,7 @@ OrderByAlignment::precedes(
 QString
 OrderByAlignment::hint(PageId const& page) const
 {
-    std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+    std::unique_ptr<Params> const params(m_ptrSettings->getPageParams(page));
     if (params.get() && !params->alignment().isNull()) {
         return Alignment::getShortDescription(params->alignment());
     } else {

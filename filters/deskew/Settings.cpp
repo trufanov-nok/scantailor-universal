@@ -100,16 +100,16 @@ Settings::clearPageParams(PageId const& page_id)
 	m_perPageParams.erase(page_id);
 }
 
-std::auto_ptr<Params>
+std::unique_ptr<Params>
 Settings::getPageParams(PageId const& page_id) const
 {
 	QMutexLocker locker(&m_mutex);
 	
 	PerPageParams::const_iterator it(m_perPageParams.find(page_id));
 	if (it != m_perPageParams.end()) {
-		return std::auto_ptr<Params>(new Params(it->second));
+		return std::unique_ptr<Params>(new Params(it->second));
 	} else {
-		return std::auto_ptr<Params>();
+		return std::unique_ptr<Params>();
 	}
 }
 

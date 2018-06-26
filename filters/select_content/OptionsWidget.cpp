@@ -310,7 +310,7 @@ OptionsWidget::applySelection(std::set<PageId> const& pages, bool apply_content_
 	);
 
 	for (PageId const& page_id: pages) {
-		std::auto_ptr<Params> old_params = m_ptrSettings->getPageParams(page_id);
+		std::unique_ptr<Params> old_params = m_ptrSettings->getPageParams(page_id);
 
 		if (old_params.get()) {
 			if (!apply_content_box) {

@@ -75,7 +75,7 @@ private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<select_content::Task> m_ptrNextTask;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::unique_ptr<DebugImages> m_ptrDbg;
 	PageId m_pageId;
 	bool m_batchProcessing;
 };

@@ -360,24 +360,24 @@ private:
 	QString m_projectFile;
 	OutputFileNameGenerator m_outFileNameGen;
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	std::auto_ptr<ThumbnailSequence> m_ptrThumbSequence;
-	std::auto_ptr<WorkerThread> m_ptrWorkerThread;
-	std::auto_ptr<ProcessingTaskQueue> m_ptrBatchQueue;
-	std::auto_ptr<ProcessingTaskQueue> m_ptrInteractiveQueue;
+	std::unique_ptr<ThumbnailSequence> m_ptrThumbSequence;
+	std::unique_ptr<WorkerThread> m_ptrWorkerThread;
+	std::unique_ptr<ProcessingTaskQueue> m_ptrBatchQueue;
+	std::unique_ptr<ProcessingTaskQueue> m_ptrInteractiveQueue;
 	QStackedLayout* m_pImageFrameLayout;
 	QStackedLayout* m_pOptionsFrameLayout;
 	QPointer<FilterOptionsWidget> m_ptrOptionsWidget;
 	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
-	std::auto_ptr<TabbedDebugImages> m_ptrTabbedDebugImages;
-	std::auto_ptr<ContentBoxPropagator> m_ptrContentBoxPropagator;
-	std::auto_ptr<PageOrientationPropagator> m_ptrPageOrientationPropagator;
-	std::auto_ptr<QWidget> m_ptrBatchProcessingWidget;
-	std::auto_ptr<ProcessingIndicationWidget> m_ptrProcessingIndicationWidget;
+	std::unique_ptr<TabbedDebugImages> m_ptrTabbedDebugImages;
+	std::unique_ptr<ContentBoxPropagator> m_ptrContentBoxPropagator;
+	std::unique_ptr<PageOrientationPropagator> m_ptrPageOrientationPropagator;
+	std::unique_ptr<QWidget> m_ptrBatchProcessingWidget;
+	std::unique_ptr<ProcessingIndicationWidget> m_ptrProcessingIndicationWidget;
 	boost::function<bool()> m_checkBeepWhenFinished;
 	SelectedPage m_selectedPage;
 	QObjectCleanupHandler m_optionsWidgetCleanup;
 	QObjectCleanupHandler m_imageWidgetCleanup;
-	std::auto_ptr<OutOfMemoryDialog> m_ptrOutOfMemoryDialog;
+	std::unique_ptr<OutOfMemoryDialog> m_ptrOutOfMemoryDialog;
 	int m_curFilter;
 	int m_ignoreSelectionChanges;
 	int m_ignorePageOrderingChanges;
@@ -397,7 +397,7 @@ private:
 	int m_pos_export;
 //Original_Foreground_Mixed
 	bool m_keep_orig_fore_subscan;
-	std::auto_ptr<ThumbnailSequence> m_ptrThumbSequence_export;	
+	std::unique_ptr<ThumbnailSequence> m_ptrThumbSequence_export;	
 //Language
     QString m_current_lang;
     QTranslator m_translator;

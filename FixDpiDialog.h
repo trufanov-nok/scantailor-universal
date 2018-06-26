@@ -72,8 +72,8 @@ private:
 	
 	void decorateDpiInputField(QLineEdit* field, ImageMetadata::DpiStatus dpi_status) const;
 	
-	std::auto_ptr<TreeModel> m_ptrPages;
-	std::auto_ptr<FilterModel> m_ptrUndefinedDpiPages;
+	std::unique_ptr<TreeModel> m_ptrPages;
+	std::unique_ptr<FilterModel> m_ptrUndefinedDpiPages;
 	QString m_xDpiInitialValue;
 	QString m_yDpiInitialValue;
 	QSize m_selectedItemPixelSize;

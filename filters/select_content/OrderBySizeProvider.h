@@ -37,7 +37,7 @@ public:
 
     virtual QString hint(PageId const& page) const;
 private:
-    qreal adjustByDpi(qreal val, std::auto_ptr<Params> const& params,
+    qreal adjustByDpi(qreal val, std::unique_ptr<Params> const& params,
                       StatusLabelPhysSizeDisplayMode mode = StatusLabelPhysSizeDisplayMode::Inch,
                       int *dpi_used = nullptr) const;
 private:

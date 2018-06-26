@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	std::auto_ptr<ConsoleBatch> cbatch;
+	std::unique_ptr<ConsoleBatch> cbatch;
 
 	try {
 		if (!cli.projectFile().isEmpty()) {

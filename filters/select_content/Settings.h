@@ -50,7 +50,7 @@ public:
 	
 	void clearPageParams(PageId const& page_id);
 	
-    std::auto_ptr<Params> getPageParams(PageId const& page_id) const;
+    std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
 
 	double maxDeviation() const { return m_maxDeviation; }
 	void setMaxDeviation(double md) { m_maxDeviation = md; }

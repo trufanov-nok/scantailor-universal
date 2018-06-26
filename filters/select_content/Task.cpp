@@ -48,7 +48,7 @@ class Task::UiUpdater : public FilterResult
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
 		PageId const& page_id,
-		std::auto_ptr<DebugImages> dbg,
+        std::unique_ptr<DebugImages> const& dbg,
 		QImage const& image,
 		ImageTransformation const& xform,
 		OptionsWidget::UiData const& ui_data, bool batch);
@@ -59,7 +59,7 @@ public:
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	PageId m_pageId;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+    std::unique_ptr<DebugImages> const& m_ptrDbg;
 	QImage m_image;
 	QImage m_downscaledImage;
 	ImageTransformation m_xform;
@@ -97,7 +97,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 	OptionsWidget::UiData ui_data;
 	ui_data.setSizeCalc(PhysSizeCalc(data.xform()));
 
-	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
+	std::unique_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
 
     bool need_reprocess(!params.get());
     bool regeneration_enforced = false;
@@ -282,7 +282,7 @@ create_new_content:
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter, PageId const& page_id,
-	std::auto_ptr<DebugImages> dbg, QImage const& image,
+    std::unique_ptr<DebugImages> const& dbg, QImage const& image,
 	ImageTransformation const& xform, OptionsWidget::UiData const& ui_data,
 	bool const batch)
 :	m_ptrFilter(filter),

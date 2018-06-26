@@ -77,10 +77,10 @@ private:
 	void finishLoadingMetadata();
 	
 	QSet<QString> m_supportedExtensions;
-	std::auto_ptr<FileList> m_ptrOffProjectFiles;
-	std::auto_ptr<SortedFileList> m_ptrOffProjectFilesSorted;
-	std::auto_ptr<FileList> m_ptrInProjectFiles;
-	std::auto_ptr<SortedFileList> m_ptrInProjectFilesSorted;
+	std::unique_ptr<FileList> m_ptrOffProjectFiles;
+	std::unique_ptr<SortedFileList> m_ptrOffProjectFilesSorted;
+	std::unique_ptr<FileList> m_ptrInProjectFiles;
+	std::unique_ptr<SortedFileList> m_ptrInProjectFilesSorted;
 	int m_loadTimerId;
 	bool m_metadataLoadFailed;
 	bool m_autoOutDir;

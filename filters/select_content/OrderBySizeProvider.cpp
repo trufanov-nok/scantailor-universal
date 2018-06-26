@@ -33,7 +33,7 @@ OrderBySizeProvider::OrderBySizeProvider(IntrusivePtr<Settings> const& settings,
 }
 
 qreal
-OrderBySizeProvider::adjustByDpi(qreal val, std::auto_ptr<Params> const& params,
+OrderBySizeProvider::adjustByDpi(qreal val, std::unique_ptr<Params> const& params,
                                  StatusLabelPhysSizeDisplayMode mode, int* dpi_used) const
 {
     if (!m_isLogical) {
@@ -72,8 +72,8 @@ OrderBySizeProvider::precedes(
     assert(lhs_incomplete == false);
     assert(rhs_incomplete == false);
 
-	std::auto_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
-	std::auto_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
+	std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
+	std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
 	
 	QSizeF lhs_size;
 	if (lhs_params.get()) {
@@ -116,7 +116,7 @@ QString _unknown = QObject::tr("?");
 QString
 OrderBySizeProvider::hint(PageId const& page) const
 {
-    std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+    std::unique_ptr<Params> const params(m_ptrSettings->getPageParams(page));
     QSizeF size;
     if (params.get()) {
         size = params->contentRect().size();

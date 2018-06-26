@@ -133,7 +133,7 @@ Filter::writePageSettings(
 	page_el.appendChild(m_ptrSettings->fillZonesForPage(page_id).toXml(doc, "fill-zones"));
 	page_el.appendChild(params.toXml(doc, "params"));
 	
-	std::auto_ptr<OutputParams> output_params(m_ptrSettings->getOutputParams(page_id));
+	std::unique_ptr<OutputParams> output_params(m_ptrSettings->getOutputParams(page_id));
 	if (output_params.get()) {
 		page_el.appendChild(output_params->toXml(doc, "output-params"));
 	}

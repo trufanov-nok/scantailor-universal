@@ -262,12 +262,12 @@ private:
 		PageId const& page_id, bool page_incomplete,
 		ItemsInOrder::iterator hint, int* dist_from_hint = 0);
 	
-	std::auto_ptr<QGraphicsItem> getThumbnail(PageInfo const& page_info);
+    std::unique_ptr<QGraphicsItem> getThumbnail(PageInfo const& page_info);
 	
-    std::auto_ptr<LabelGroup> getLabelGroup(PageInfo const& page_info);
-    std::auto_ptr<LabelGroup> getHintGroup(PageInfo const& page_info, PageOrderProvider const* order_provider);
+    std::unique_ptr<LabelGroup> getLabelGroup(PageInfo const& page_info);
+    std::unique_ptr<LabelGroup> getHintGroup(PageInfo const& page_info, PageOrderProvider const* order_provider);
 	
-    std::auto_ptr<CompositeItem> getCompositeItem(Item const* item, PageInfo const& info, const PageOrderProvider *order_provider);
+    std::unique_ptr<CompositeItem> getCompositeItem(Item const* item, PageInfo const& info, const PageOrderProvider *order_provider);
 	
 	void commitSceneRect();
 	
@@ -319,12 +319,12 @@ private:
 class ThumbnailSequence::LabelGroup : public QGraphicsItemGroup
 {
 public:
-	LabelGroup(std::auto_ptr<QGraphicsSimpleTextItem> label);
+    LabelGroup(QGraphicsSimpleTextItem* label);
 	
 	LabelGroup(
-		std::auto_ptr<QGraphicsSimpleTextItem> normal_label,
-		std::auto_ptr<QGraphicsSimpleTextItem> bold_label,
-		std::auto_ptr<QGraphicsPixmapItem> pixmap = std::auto_ptr<QGraphicsPixmapItem>());
+        QGraphicsSimpleTextItem* normal_label,
+        QGraphicsSimpleTextItem* bold_label,
+        QGraphicsPixmapItem* pixmap = nullptr);
 	
     void updateAppearence(bool selected, bool selection_leader);
 private:
@@ -336,11 +336,10 @@ private:
 class ThumbnailSequence::CompositeItem : public QGraphicsItemGroup
 {
 public:
-	CompositeItem(
-		ThumbnailSequence::Impl& owner,
-		std::auto_ptr<QGraphicsItem> thumbnail,
-        std::auto_ptr<LabelGroup> label_group,
-        std::auto_ptr<LabelGroup> hint_group);
+    CompositeItem(ThumbnailSequence::Impl& owner,
+        QGraphicsItem *thumbnail,
+        LabelGroup *label_group,
+        LabelGroup *hint_group);
 	
 	void setItem(Item const* item) { m_pItem = item; }
 	
@@ -615,7 +614,7 @@ ThumbnailSequence::Impl::reset(
 	Item const* some_selected_item = 0;
 
     for (const PageInfo& page_info: pages) {
-        std::auto_ptr<CompositeItem> composite(getCompositeItem(0, page_info, m_ptrOrderProvider.get()));
+        std::unique_ptr<CompositeItem> composite(getCompositeItem(0, page_info, m_ptrOrderProvider.get()));
 		m_itemsInOrder.push_back(Item(page_info, composite.release()));
 		Item const* item = &m_itemsInOrder.back();
 		item->composite->setItem(item);
@@ -698,7 +697,7 @@ ThumbnailSequence::Impl::invalidateThumbnail(PageInfo const& page_info)
 void
 ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it)
 {
-    std::auto_ptr<CompositeItem> composite(
+    std::unique_ptr<CompositeItem> composite(
                 getCompositeItem(&*id_it, id_it->pageInfo, orderProvider())
                 );
     CompositeItem* const new_composite = composite.get();
@@ -1272,7 +1271,7 @@ ThumbnailSequence::Impl::insert(
 	);
 
 
-    std::auto_ptr<CompositeItem> composite(
+    std::unique_ptr<CompositeItem> composite(
         getCompositeItem(0, page_info, orderProvider())
     );
 
@@ -1784,23 +1783,23 @@ ThumbnailSequence::Impl::itemInsertPosition(
 	return ins_pos;
 }
 
-std::auto_ptr<QGraphicsItem>
+std::unique_ptr<QGraphicsItem>
 ThumbnailSequence::Impl::getThumbnail(PageInfo const& page_info)
 {
-	std::auto_ptr<QGraphicsItem> thumb;
+    std::unique_ptr<QGraphicsItem> thumb;
 	
 	if (m_ptrFactory.get()) {
-		thumb = m_ptrFactory->get(page_info);
+        thumb = std::move(m_ptrFactory->get(page_info));
 	}
 	
 	if (!thumb.get()) {
 		thumb.reset(new PlaceholderThumb(m_maxLogicalThumbSize));
 	}
 	
-	return thumb;
+    return std::move(thumb);
 }
 
-std::auto_ptr<ThumbnailSequence::LabelGroup>
+std::unique_ptr<ThumbnailSequence::LabelGroup>
 ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 {
 	PageId const& page_id = page_info.id();
@@ -1814,10 +1813,10 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 		).arg(file_name).arg(page_id.imageId().page());
 	}
 	
-	std::auto_ptr<QGraphicsSimpleTextItem> normal_text_item(new QGraphicsSimpleTextItem);
+    QGraphicsSimpleTextItem* normal_text_item(new QGraphicsSimpleTextItem);
     normal_text_item->setText(text);
 	
-	std::auto_ptr<QGraphicsSimpleTextItem> bold_text_item(new QGraphicsSimpleTextItem);
+    QGraphicsSimpleTextItem* bold_text_item(new QGraphicsSimpleTextItem);
 	bold_text_item->setText(text);
 	QFont bold_font(bold_text_item->font());
 //	bold_font.setWeight(QFont::Bold);
@@ -1840,11 +1839,11 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 			pixmap_resource = ":/icons/right_page_thumb.png";
 			break;
 		default:
-            return std::auto_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item));
+            return std::move(std::unique_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item)));
 	}
 	
 	QPixmap const pixmap(pixmap_resource);
-	std::auto_ptr<QGraphicsPixmapItem> pixmap_item(new QGraphicsPixmapItem);
+    QGraphicsPixmapItem* pixmap_item(new QGraphicsPixmapItem);
 	pixmap_item->setPixmap(pixmap);
 	
 	int const label_pixmap_spacing = 5;
@@ -1854,25 +1853,25 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 	pixmap_box.moveLeft(bold_text_box.right() + label_pixmap_spacing);
 	pixmap_item->setPos(pixmap_box.topLeft());
 	
-	return std::auto_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item, pixmap_item));
+    return std::move(std::unique_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item, pixmap_item)));
 }
 
-std::auto_ptr<ThumbnailSequence::LabelGroup>
+std::unique_ptr<ThumbnailSequence::LabelGroup>
 ThumbnailSequence::Impl::getHintGroup(PageInfo const& page_info, PageOrderProvider const* order_provider)
 {
     if (!order_provider || !GlobalStaticSettings::m_displayOrderHints) {
-        return std::auto_ptr<ThumbnailSequence::LabelGroup>();
+        return std::unique_ptr<ThumbnailSequence::LabelGroup>();
     }
 
     QString text(order_provider->hint(page_info.id()));
 
-    std::auto_ptr<QGraphicsSimpleTextItem> italic_text_item(new QGraphicsSimpleTextItem);
+    QGraphicsSimpleTextItem* italic_text_item(new QGraphicsSimpleTextItem);
     italic_text_item->setText(text);
     QFont italic_font(italic_text_item->font());
     italic_font.setItalic(true);
     italic_text_item->setFont(italic_font);
 
-    std::auto_ptr<QGraphicsSimpleTextItem> bold_text_item(new QGraphicsSimpleTextItem);
+    QGraphicsSimpleTextItem* bold_text_item(new QGraphicsSimpleTextItem);
     bold_text_item->setText(text);
     QFont bold_font(bold_text_item->font());
     bold_font.setItalic(true);
@@ -1886,18 +1885,18 @@ ThumbnailSequence::Impl::getHintGroup(PageInfo const& page_info, PageOrderProvid
     italic_text_item->setPos(normal_text_box.topLeft());
     bold_text_item->setPos(bold_text_box.topLeft());
 
-    return std::auto_ptr<LabelGroup>(new LabelGroup(italic_text_item, bold_text_item));
+    return std::move(std::unique_ptr<LabelGroup>(new LabelGroup(italic_text_item, bold_text_item)));
 }
 
-std::auto_ptr<ThumbnailSequence::CompositeItem>
+std::unique_ptr<ThumbnailSequence::CompositeItem>
 ThumbnailSequence::Impl::getCompositeItem(
     Item const* item, PageInfo const& page_info, PageOrderProvider const* order_provider)
 {
-	std::auto_ptr<QGraphicsItem> thumb(getThumbnail(page_info));
-    std::auto_ptr<LabelGroup> label_group(getLabelGroup(page_info));
-    std::auto_ptr<LabelGroup> hint_group(getHintGroup(page_info, order_provider));
+    QGraphicsItem* thumb(getThumbnail(page_info).release());
+    LabelGroup* label_group(getLabelGroup(page_info).release());
+    LabelGroup* hint_group(getHintGroup(page_info, order_provider).release());
 
-	std::auto_ptr<CompositeItem> composite(
+    std::unique_ptr<CompositeItem> composite(
         new CompositeItem(*this, thumb, label_group, hint_group)
 	);
 	composite->setItem(item);
@@ -1993,19 +1992,19 @@ ThumbnailSequence::PlaceholderThumb::paint(
 /*====================== ThumbnailSequence::LabelGroup ======================*/
 
 ThumbnailSequence::LabelGroup::LabelGroup(
-	std::auto_ptr<QGraphicsSimpleTextItem> normal_label,
-	std::auto_ptr<QGraphicsSimpleTextItem> bold_label,
-	std::auto_ptr<QGraphicsPixmapItem> pixmap)
-:	m_pNormalLabel(normal_label.get()),
-	m_pBoldLabel(bold_label.get())
+    QGraphicsSimpleTextItem* normal_label,
+    QGraphicsSimpleTextItem* bold_label,
+    QGraphicsPixmapItem* pixmap)
+:	m_pNormalLabel(normal_label),
+    m_pBoldLabel(bold_label)
 {
 	m_pNormalLabel->setVisible(true);
 	m_pBoldLabel->setVisible(false);
 	
-	addToGroup(normal_label.release());
-	addToGroup(bold_label.release());
-	if (pixmap.get()) {
-		addToGroup(pixmap.release());
+    addToGroup(normal_label);
+    addToGroup(bold_label);
+    if (pixmap) {
+        addToGroup(pixmap);
 	}
 }
 
@@ -2029,14 +2028,14 @@ ThumbnailSequence::LabelGroup::updateAppearence(bool selected, bool selection_le
 
 ThumbnailSequence::CompositeItem::CompositeItem(
 	ThumbnailSequence::Impl& owner,
-	std::auto_ptr<QGraphicsItem> thumbnail,
-    std::auto_ptr<LabelGroup> label_group,
-    std::auto_ptr<LabelGroup> hint_group)
+    QGraphicsItem* thumbnail,
+    LabelGroup* label_group,
+    LabelGroup* hint_group)
 :	m_rOwner(owner),
 	m_pItem(0),
-	m_pThumb(thumbnail.get()),
-    m_pLabelGroup(label_group.get()),
-    m_pHintGroup(hint_group.get()), m_row(0), m_col(0)
+    m_pThumb(thumbnail),
+    m_pLabelGroup(label_group),
+    m_pHintGroup(hint_group), m_row(0), m_col(0)
 {
 	QSizeF const thumb_size(thumbnail->boundingRect().size());
 	QSizeF const label_size(label_group->boundingRect().size());
@@ -2051,20 +2050,20 @@ ThumbnailSequence::CompositeItem::CompositeItem(
 		thumb_size.height() + thumb_label_spacing
 	);
 
-    if (hint_group.get()) {
+    if (hint_group) {
         QSizeF const hint_size = hint_group->boundingRect().size();
         hint_group->setPos(
             thumbnail->pos().x() + /*0.5**/thumb_size.width() - /*0.5**/hint_size.width(),
             thumb_size.height() + thumb_label_spacing + label_size.height()
         );
 
-        addToGroup(hint_group.release());
+        addToGroup(hint_group);
     }
 
-    addToGroup(thumbnail.release());
-    addToGroup(label_group.release());
-    if (hint_group.get()) {
-        addToGroup(hint_group.release());
+    addToGroup(thumbnail);
+    addToGroup(label_group);
+    if (hint_group) {
+        addToGroup(hint_group);
     }
 	
 	setCursor(Qt::PointingHandCursor);

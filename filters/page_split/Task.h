@@ -66,7 +66,7 @@ private:
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<deskew::Task> m_ptrNextTask;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+	std::unique_ptr<DebugImages> m_ptrDbg;
 	PageInfo m_pageInfo;
 	bool m_batchProcessing;
 };

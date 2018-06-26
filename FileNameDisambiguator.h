@@ -85,7 +85,7 @@ public:
 private:
 	class Impl;
 
-	std::auto_ptr<Impl> m_ptrImpl;
+	std::unique_ptr<Impl> m_ptrImpl;
 };
 
 #endif

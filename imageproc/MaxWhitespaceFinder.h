@@ -175,7 +175,7 @@ private:
 	QRect extendBlackPixelToBlackBox(QPoint pixel, QRect bounds) const;
 	
 	IntegralImage<unsigned> m_integralImg;
-	std::auto_ptr<max_whitespace_finder::PriorityStorage> m_ptrQueuedRegions;
+	std::unique_ptr<max_whitespace_finder::PriorityStorage> m_ptrQueuedRegions;
 	std::vector<QRect> m_newObstacles;
 	QSize m_minSize;
 };

@@ -82,9 +82,9 @@ public:
 	/**
 	 * \brief Get all page parameters at once.
 	 *
-	 * May return a null auto_ptr if the specified page is unknown to us.
+	 * May return a null unique_ptr if the specified page is unknown to us.
 	 */
-	std::auto_ptr<Params> getPageParams(PageId const& page_id) const;
+	std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
 	
 	/**
 	 * \brief Set all page parameters at once.
@@ -171,7 +171,7 @@ private:
 	class ModifyAlignment;
 	class ModifyContentSize;
 	
-	std::auto_ptr<Impl> m_ptrImpl;
+	std::unique_ptr<Impl> m_ptrImpl;
 };
 
 } // namespace page_layout

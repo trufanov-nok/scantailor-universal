@@ -89,7 +89,7 @@ class Task::UiUpdater : public FilterResult
 public:
     UiUpdater(IntrusivePtr<Filter> const& filter,
         IntrusivePtr<Settings> const& settings,
-        std::auto_ptr<DebugImages> dbg_img,
+        std::unique_ptr<DebugImages> const& dbg_img,
         Params const& params,
         ImageTransformation const& xform,
         QRect const& virt_content_rect,
@@ -108,7 +108,7 @@ public:
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+    std::unique_ptr<DebugImages> const& m_ptrDbg;
 	Params m_params;
 	ImageTransformation m_xform;
 	QRect m_virtContentRect;
@@ -279,7 +279,7 @@ Task::process(
 
 	do { // Just to be able to break from it.
 		
-		std::auto_ptr<OutputParams> stored_output_params(
+		std::unique_ptr<OutputParams> stored_output_params(
 			m_ptrSettings->getOutputParams(m_pageId)
 		);
 		
@@ -541,7 +541,7 @@ Task::getSettingsListener()
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<Settings> const& settings,
-	std::auto_ptr<DebugImages> dbg_img,
+    std::unique_ptr<DebugImages> const& dbg_img,
 	Params const& params,
 	ImageTransformation const& xform,
 	QRect const& virt_content_rect,
@@ -586,7 +586,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 
-	std::auto_ptr<ImageViewBase> image_view(
+	std::unique_ptr<ImageViewBase> image_view(
 		new ImageView(m_outputImage, m_downscaledOutputImage)
 	);
 
@@ -603,7 +603,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 
 	QPixmap const downscaled_output_pixmap(image_view->downscaledPixmap());
 
-	std::auto_ptr<ImageViewBase> dewarping_view(
+	std::unique_ptr<ImageViewBase> dewarping_view(
 		new DewarpingView(
 			m_origImage, m_downscaledOrigImage, m_xform.transform(),
 			PolygonUtils::convexHull(
@@ -625,7 +625,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		opt_widget, SLOT(distortionModelChanged(dewarping::DistortionModel const&))
 	);
 
-	std::auto_ptr<QWidget> picture_zone_editor;
+	std::unique_ptr<QWidget> picture_zone_editor;
 	if (m_pictureMask.isNull()) {
 		picture_zone_editor.reset(
 			new ErrorWidget(tr("Picture zones are only available in Mixed mode."))
@@ -673,7 +673,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		output_to_orig = boost::bind((MapPointFunc)&QTransform::map, m_xform.transformBack(), _1);
 	}
 
-	std::auto_ptr<QWidget> fill_zone_editor(
+	std::unique_ptr<QWidget> fill_zone_editor(
 		new FillZoneEditor(
 			m_outputImage, downscaled_output_pixmap,
 			orig_to_output, output_to_orig, m_pageId, m_ptrSettings
@@ -689,7 +689,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		opt_widget, SIGNAL(invalidateThumbnail(PageId const&))
 	);
 
-	std::auto_ptr<QWidget> despeckle_view;
+	std::unique_ptr<QWidget> despeckle_view;
 	if (m_params.colorParams().colorMode() == ColorParams::COLOR_GRAYSCALE) {
 		despeckle_view.reset(
 			new ErrorWidget(tr("Despeckling can't be done in Color / Grayscale mode."))
@@ -715,7 +715,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		);
 	}
 
-	std::auto_ptr<TabbedImageView> tab_widget(new TabbedImageView);
+	std::unique_ptr<TabbedImageView> tab_widget(new TabbedImageView);
 	tab_widget->setDocumentMode(true);
 	tab_widget->setTabPosition(QTabWidget::East);
 	tab_widget->addTab(image_view.release(), tr("Output"), TAB_OUTPUT);

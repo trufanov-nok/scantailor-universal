@@ -124,7 +124,7 @@ private:
 	std::vector<Item> m_items;
 	std::set<QString> m_origPathSet;
 	IntrusivePtr<Relinker> const m_ptrRelinker;
-	std::auto_ptr<StatusUpdateThread> m_ptrStatusUpdateThread;
+	std::unique_ptr<StatusUpdateThread> m_ptrStatusUpdateThread;
 	bool m_haveUncommittedChanges;
 };
 

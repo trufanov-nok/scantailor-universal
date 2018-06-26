@@ -64,7 +64,7 @@ class Task::UiUpdater : public FilterResult
 {
 public:
 	UiUpdater(IntrusivePtr<Filter> const& filter,
-		std::auto_ptr<DebugImages> dbg_img,
+        std::unique_ptr<DebugImages> const& dbg_img,
 		QImage const& image, PageId const& page_id,
 		ImageTransformation const& xform,
 		OptionsWidget::UiData const& ui_data,
@@ -75,7 +75,7 @@ public:
 	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
 	IntrusivePtr<Filter> m_ptrFilter;
-	std::auto_ptr<DebugImages> m_ptrDbg;
+    std::unique_ptr<DebugImages> const& m_ptrDbg;
 	QImage m_image;
 	QImage m_downscaledImage;
 	PageId m_pageId;
@@ -116,7 +116,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 
 	CommandLine const& cli = CommandLine::get();
 
-	std::auto_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
+	std::unique_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
 	if (params.get()) {
         bool not_match = !deps.matches(params->dependencies());
         if (not_match) {
@@ -293,7 +293,7 @@ Task::from150dpi(QSize const& size, Dpi const& target_dpi)
 
 Task::UiUpdater::UiUpdater(
 	IntrusivePtr<Filter> const& filter,
-	std::auto_ptr<DebugImages> dbg_img,
+    std::unique_ptr<DebugImages> const& dbg_img,
 	QImage const& image, PageId const& page_id,
 	ImageTransformation const& xform,
 	OptionsWidget::UiData const& ui_data,

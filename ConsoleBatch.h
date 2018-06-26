@@ -60,7 +60,7 @@ private:
 	IntrusivePtr<StageSequence> m_ptrStages;
 	OutputFileNameGenerator m_outFileNameGen;
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	std::auto_ptr<ProjectReader> m_ptrReader;
+	std::unique_ptr<ProjectReader> m_ptrReader;
 
 	void setupFilter(int idx, std::set<PageId> allPages);
 	void setupFixOrientation(std::set<PageId> allPages);

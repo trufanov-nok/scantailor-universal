@@ -256,7 +256,7 @@ private:
 		PageInfo const& page_info, CompositeItem const* composite,
 		SelectionFlags flags);
 	
-	std::auto_ptr<Impl> m_ptrImpl;
+    std::unique_ptr<Impl> m_ptrImpl;
 };
 
 DEFINE_FLAG_OPS(ThumbnailSequence::SelectionFlags)

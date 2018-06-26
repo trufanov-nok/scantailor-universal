@@ -134,7 +134,7 @@ public:
 	bool checkEverythingDefined(
 		PageSequence const& pages, PageId const* ignore) const;
 	
-	std::auto_ptr<Params> getPageParams(PageId const& page_id) const;
+	std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
 	
 	void setPageParams(PageId const& page_id, Params const& params);
 	
@@ -270,7 +270,7 @@ Settings::checkEverythingDefined(
 	return m_ptrImpl->checkEverythingDefined(pages, ignore);
 }
 
-std::auto_ptr<Params>
+std::unique_ptr<Params>
 Settings::getPageParams(PageId const& page_id) const
 {
 	return m_ptrImpl->getPageParams(page_id);
@@ -489,17 +489,17 @@ Settings::Impl::checkEverythingDefined(
 	return true;
 }
 
-std::auto_ptr<Params>
+std::unique_ptr<Params>
 Settings::Impl::getPageParams(PageId const& page_id) const
 {
 	QMutexLocker const locker(&m_mutex);
 	
 	Container::iterator const it(m_items.find(page_id));
 	if (it == m_items.end()) {
-		return std::auto_ptr<Params>();
+		return std::unique_ptr<Params>();
 	}
 	
-	return std::auto_ptr<Params>(
+	return std::unique_ptr<Params>(
 		new Params(it->hardMarginsMM, it->pageRect, it->contentRect, it->contentSizeMM, it->alignment)
 	);
 }

@@ -50,8 +50,8 @@ OrderByWidthProvider::precedes(
     assert(lhs_incomplete == false);
     assert(rhs_incomplete == false);
 
-	std::auto_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
-	std::auto_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
+	std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
+	std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
 	
 	QSizeF lhs_size;
 	if (lhs_params.get()) {
@@ -95,7 +95,7 @@ OrderByWidthProvider::precedes(
 QString
 OrderByWidthProvider::hint(PageId const& page) const
 {
-    std::auto_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+    std::unique_ptr<Params> const params(m_ptrSettings->getPageParams(page));
     QSizeF size;
     if (params.get()) {
         Margins const margins(params->hardMarginsMM());

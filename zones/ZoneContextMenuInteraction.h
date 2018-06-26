@@ -137,7 +137,7 @@ private:
 	std::vector<Zone> m_selectableZones;
 	InteractionState::Captor m_interaction;
 	Visualizer m_visualizer;
-	std::auto_ptr<QMenu> m_ptrMenu;
+	std::unique_ptr<QMenu> m_ptrMenu;
 	int m_highlightedZoneIdx;
 	bool m_menuItemTriggered;
 #ifdef Q_OS_MAC
