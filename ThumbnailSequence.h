@@ -145,6 +145,8 @@ public:
 
     void setSelection(QSet<PageId> const& page_ids, ThumbnailSequence::SelectionAction const action);
 
+    bool setSelectionWithShift(PageId const& page_id);
+
 	/**
 	 * \brief Returns the current selection leader.
 	 *

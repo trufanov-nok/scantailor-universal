@@ -187,6 +187,8 @@ public:
 		PageInfo const& page_info, QPoint const& screen_pos, bool selected);
 		
 	void itemSelectedByUser(CompositeItem* item, Qt::KeyboardModifiers modifiers);
+
+    bool selectItemWithShift(PageId const& page_id);
 //begin of modified by monday2000
 //Export_Subscans
 //added:
@@ -225,7 +227,7 @@ private:
 
 	void selectItemNoModifiers(ItemsById::iterator const& it);
 	
-	void selectItemWithControl(ItemsById::iterator const& it);
+	void selectItemWithControl(ItemsById::iterator const& it);    
 	
 	void selectItemWithShift(ItemsById::iterator const& it);
 	
@@ -463,6 +465,13 @@ void
 ThumbnailSequence::setSelection(QSet<PageId> const& page_ids, ThumbnailSequence::SelectionAction const action)
 {
     m_ptrImpl->setSelection(page_ids, action);
+}
+
+
+bool
+ThumbnailSequence::setSelectionWithShift(PageId const& page_id)
+{
+    return m_ptrImpl->selectItemWithShift(page_id);
 }
 
 PageInfo
@@ -1543,6 +1552,17 @@ ThumbnailSequence::Impl::selectItemWithControl(ItemsById::iterator const& id_it)
 	m_rOwner.emitNewSelectionLeader(
 		m_pSelectionLeader->pageInfo, m_pSelectionLeader->composite, flags
 	);
+}
+
+bool
+ThumbnailSequence::Impl::selectItemWithShift(PageId const& page_id)
+{
+    ItemsById::iterator const id_it(m_itemsById.find(page_id));
+    if (id_it != m_itemsById.end()) {
+        selectItemWithShift(id_it);
+        return true;
+    }
+    return false;
 }
 
 void

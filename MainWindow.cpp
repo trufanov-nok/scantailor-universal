@@ -1207,7 +1207,11 @@ MainWindow::goToPage(PageId const& page_id, ThumbnailSequence::SelectionAction c
     bool was_checked = focusButton->isChecked();
     focusButton->setChecked(true);
 
-    m_ptrThumbSequence->setSelection(page_id, action);
+    if (qApp && qApp->keyboardModifiers() & Qt::ShiftModifier) {
+        m_ptrThumbSequence->setSelectionWithShift(page_id);
+    } else {
+        m_ptrThumbSequence->setSelection(page_id, action);
+    }
 
     // If the page was already selected, it will be reloaded.
     // That's by design.
@@ -3411,7 +3415,15 @@ MainWindow::displayStatusBarMousePos()
     statusLabelMousePos->setText(tr("%1, %2").arg(x,0,'f',1).arg(y,0,'f',1));
 }
 
-
+const QList<QKeySequence> getPageActionShortcuts(const HotKeysId& id, int idx = 0)
+{
+    // Allows to catch Shift+ any shortcut combination
+    // Reqired for Shift key processing in QAction based page navigation functions
+    QKeySequence sc = GlobalStaticSettings::createShortcut(id, idx);
+    QString s = sc.toString();
+    QKeySequence sc2 = QKeySequence::fromString("Shift+" + s);
+    return QList<QKeySequence>({sc, sc2});
+}
 
 void
 MainWindow::applyShortcutsSettings()
@@ -3420,18 +3432,20 @@ MainWindow::applyShortcutsSettings()
     actionOpenProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectOpen));
     actionSaveProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectSave));
     actionSaveProjectAs->setShortcut(GlobalStaticSettings::createShortcut(ProjectSaveAs));
-    actionPrevPage->setShortcut(GlobalStaticSettings::createShortcut(PagePrev));
-    actionPrevPageQ->setShortcut(GlobalStaticSettings::createShortcut(PagePrev, 1));
-    actionFirstPage->setShortcut(GlobalStaticSettings::createShortcut(PageFirst));
-    actionLastPage->setShortcut(GlobalStaticSettings::createShortcut(PageLast));
-    actionNextPage->setShortcut(GlobalStaticSettings::createShortcut(PageNext));
-    actionNextPageW->setShortcut(GlobalStaticSettings::createShortcut(PageNext, 1));
-    actionFirstSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PageFirstSelected));
-    actionLastSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PageLastSelected));
-    actionPrevSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PagePrevSelected));
-    actionNextSelectedPage->setShortcut(GlobalStaticSettings::createShortcut(PageNextSelected));
-    actionJumpPageF->setShortcut(GlobalStaticSettings::createShortcut(PageJumpForward));
-    actionJumpPageB->setShortcut(GlobalStaticSettings::createShortcut(PageJumpBackward));
+
+    actionPrevPage->setShortcuts(getPageActionShortcuts(PagePrev));
+    actionPrevPageQ->setShortcuts(getPageActionShortcuts(PagePrev, 1));
+    actionFirstPage->setShortcuts(getPageActionShortcuts(PageFirst));
+    actionLastPage->setShortcuts(getPageActionShortcuts(PageLast));
+    actionNextPage->setShortcuts(getPageActionShortcuts(PageNext));
+    actionNextPageW->setShortcuts(getPageActionShortcuts(PageNext, 1));
+    actionFirstSelectedPage->setShortcuts(getPageActionShortcuts(PageFirstSelected));
+    actionLastSelectedPage->setShortcuts(getPageActionShortcuts(PageLastSelected));
+    actionPrevSelectedPage->setShortcuts(getPageActionShortcuts(PagePrevSelected));
+    actionNextSelectedPage->setShortcuts(getPageActionShortcuts(PageNextSelected));
+    actionJumpPageF->setShortcuts(getPageActionShortcuts(PageJumpForward));
+    actionJumpPageB->setShortcuts(getPageActionShortcuts(PageJumpBackward));
+
     actionCloseProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectClose));
     actionQuit->setShortcut(GlobalStaticSettings::createShortcut(AppQuit));
 
