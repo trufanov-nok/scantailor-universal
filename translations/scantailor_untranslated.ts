@@ -603,48 +603,48 @@ Do you want to replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="723"/>
-        <location filename="../MainWindow.cpp" line="2378"/>
+        <location filename="../MainWindow.cpp" line="733"/>
+        <location filename="../MainWindow.cpp" line="2401"/>
         <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="723"/>
+        <location filename="../MainWindow.cpp" line="733"/>
         <source>The files export is finished.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="750"/>
+        <location filename="../MainWindow.cpp" line="760"/>
         <source>Save Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="750"/>
+        <location filename="../MainWindow.cpp" line="760"/>
         <source>Save this project?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1303"/>
+        <location filename="../MainWindow.cpp" line="1322"/>
         <source>Regenerate result</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1310"/>
+        <location filename="../MainWindow.cpp" line="1329"/>
         <source>Go to page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1310"/>
+        <location filename="../MainWindow.cpp" line="1329"/>
         <source>Page number:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1320"/>
+        <location filename="../MainWindow.cpp" line="1339"/>
         <source>Select pages by number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1321"/>
+        <location filename="../MainWindow.cpp" line="1340"/>
         <source>Numbers should start from 1
  Line ends are ignored
 Any non digit symbols are interpreted as number separators
@@ -653,190 +653,170 @@ Number followed by &apos;-&apos; or &apos;:&apos; treated as a start of page seq
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1324"/>
+        <location filename="../MainWindow.cpp" line="1343"/>
         <source>Input page numbers:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1330"/>
+        <location filename="../MainWindow.cpp" line="1349"/>
         <source>Pages to be selected: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1284"/>
+        <location filename="../MainWindow.cpp" line="1303"/>
         <source>Insert before...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1274"/>
+        <location filename="../MainWindow.cpp" line="1293"/>
         <source>Go to page...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1278"/>
+        <location filename="../MainWindow.cpp" line="1297"/>
         <source>Select pages...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1287"/>
+        <location filename="../MainWindow.cpp" line="1306"/>
         <source>Insert after...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1293"/>
+        <location filename="../MainWindow.cpp" line="1312"/>
         <source>Remove from project...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1381"/>
+        <location filename="../MainWindow.cpp" line="1400"/>
         <source>Insert here...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1784"/>
-        <location filename="../MainWindow.cpp" line="1859"/>
+        <location filename="../MainWindow.cpp" line="1807"/>
+        <location filename="../MainWindow.cpp" line="1882"/>
         <source>Scan Tailor Projects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1858"/>
+        <location filename="../MainWindow.cpp" line="1881"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1877"/>
-        <location filename="../MainWindow.cpp" line="1887"/>
-        <location filename="../MainWindow.cpp" line="2172"/>
-        <location filename="../MainWindow.cpp" line="2250"/>
-        <location filename="../MainWindow.cpp" line="2257"/>
-        <location filename="../MainWindow.cpp" line="2386"/>
-        <location filename="../MainWindow.cpp" line="2393"/>
-        <location filename="../MainWindow.cpp" line="2678"/>
-        <location filename="../MainWindow.cpp" line="2709"/>
+        <location filename="../MainWindow.cpp" line="1900"/>
+        <location filename="../MainWindow.cpp" line="1910"/>
+        <location filename="../MainWindow.cpp" line="2195"/>
+        <location filename="../MainWindow.cpp" line="2273"/>
+        <location filename="../MainWindow.cpp" line="2280"/>
+        <location filename="../MainWindow.cpp" line="2409"/>
+        <location filename="../MainWindow.cpp" line="2416"/>
+        <location filename="../MainWindow.cpp" line="2701"/>
+        <location filename="../MainWindow.cpp" line="2736"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1878"/>
+        <location filename="../MainWindow.cpp" line="1901"/>
         <source>Unable to open the project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1888"/>
+        <location filename="../MainWindow.cpp" line="1911"/>
         <source>The project file is broken.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2172"/>
+        <location filename="../MainWindow.cpp" line="2195"/>
         <source>The file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2172"/>
+        <location filename="../MainWindow.cpp" line="2195"/>
         <source>is not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2250"/>
-        <location filename="../MainWindow.cpp" line="2386"/>
+        <location filename="../MainWindow.cpp" line="2273"/>
+        <location filename="../MainWindow.cpp" line="2409"/>
         <source>Batch processing is in the progress.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2257"/>
-        <location filename="../MainWindow.cpp" line="2393"/>
+        <location filename="../MainWindow.cpp" line="2280"/>
+        <location filename="../MainWindow.cpp" line="2416"/>
         <source>No project is loaded.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2378"/>
+        <location filename="../MainWindow.cpp" line="2401"/>
         <source>The files export is stopped by the user.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2409"/>
+        <location filename="../MainWindow.cpp" line="2432"/>
         <source>build on </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2570"/>
+        <location filename="../MainWindow.cpp" line="2593"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Page Layout&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2605"/>
+        <location filename="../MainWindow.cpp" line="2628"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2612"/>
+        <location filename="../MainWindow.cpp" line="2635"/>
         <source>%2 - Scan Tailor &quot;Universal&quot; %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2679"/>
-        <location filename="../MainWindow.cpp" line="2710"/>
+        <location filename="../MainWindow.cpp" line="2702"/>
+        <location filename="../MainWindow.cpp" line="2737"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2761"/>
+        <location filename="../MainWindow.cpp" line="2731"/>
+        <source>Saving project...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="2788"/>
         <source>Files to insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2768"/>
+        <location filename="../MainWindow.cpp" line="2795"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2819"/>
+        <location filename="../MainWindow.cpp" line="2846"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2866"/>
+        <location filename="../MainWindow.cpp" line="2893"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3313"/>
+        <location filename="../MainWindow.cpp" line="3340"/>
         <source>p. %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3342"/>
-        <source>px</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="3347"/>
-        <source>in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="3352"/>
-        <source>mm</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="3357"/>
-        <source>cm</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="3379"/>
-        <source>%1 x %2 %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.cpp" line="3396"/>
+        <location filename="../MainWindow.cpp" line="3415"/>
         <source>%1, %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3430"/>
+        <location filename="../MainWindow.cpp" line="3459"/>
         <source>Use %1, %2, %3 (or %4), %5 (or %6) to navigate between pages.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -861,97 +841,117 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="128"/>
+        <location filename="../ui/MainWindow.ui" line="124"/>
+        <source>Inverse page order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.ui" line="149"/>
         <source>Keep current page in view.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="342"/>
+        <location filename="../ui/MainWindow.ui" line="169"/>
+        <source>Keep selection key pressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.ui" line="172"/>
+        <source>Simulate press of the modifier key for fast page selection (Ctrl+CapsLock)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.ui" line="182"/>
+        <source>Ctrl+CapsLock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.ui" line="388"/>
         <source>Mouse position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="345"/>
+        <location filename="../ui/MainWindow.ui" line="391"/>
         <source>Mouse position relative to page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="368"/>
+        <location filename="../ui/MainWindow.ui" line="414"/>
         <source>Physical size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="371"/>
+        <location filename="../ui/MainWindow.ui" line="417"/>
         <source>Physical size of image. (Click to change units of measurement)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="397"/>
+        <location filename="../ui/MainWindow.ui" line="443"/>
         <source>Page number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="400"/>
+        <location filename="../ui/MainWindow.ui" line="446"/>
         <source>Position of the selected page in current order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="439"/>
+        <location filename="../ui/MainWindow.ui" line="485"/>
         <source>&amp;Save Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="447"/>
+        <location filename="../ui/MainWindow.ui" line="493"/>
         <source>Save Project &amp;As...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="450"/>
+        <location filename="../ui/MainWindow.ui" line="496"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="489"/>
+        <location filename="../ui/MainWindow.ui" line="535"/>
         <source>&amp;New Project...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="497"/>
+        <location filename="../ui/MainWindow.ui" line="543"/>
         <source>&amp;Open Project...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="539"/>
+        <location filename="../ui/MainWindow.ui" line="585"/>
         <source>&amp;Close Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="547"/>
+        <location filename="../ui/MainWindow.ui" line="593"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="591"/>
+        <location filename="../ui/MainWindow.ui" line="637"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="596"/>
+        <location filename="../ui/MainWindow.ui" line="642"/>
         <source>Fix &amp;DPI...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="601"/>
+        <location filename="../ui/MainWindow.ui" line="647"/>
         <source>&amp;Relinking...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="690"/>
+        <location filename="../ui/MainWindow.ui" line="736"/>
         <source>&amp;Export...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="695"/>
+        <location filename="../ui/MainWindow.ui" line="741"/>
         <source>About &amp;Qt</source>
         <translation type="unfinished"></translation>
     </message>
@@ -961,37 +961,37 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="196"/>
+        <location filename="../ui/MainWindow.ui" line="242"/>
         <source>Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="442"/>
+        <location filename="../ui/MainWindow.ui" line="488"/>
         <source>Ctrl+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="492"/>
+        <location filename="../ui/MainWindow.ui" line="538"/>
         <source>Ctrl+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="500"/>
+        <location filename="../ui/MainWindow.ui" line="546"/>
         <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="542"/>
+        <location filename="../ui/MainWindow.ui" line="588"/>
         <source>Ctrl+W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="550"/>
+        <location filename="../ui/MainWindow.ui" line="596"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="555"/>
+        <location filename="../ui/MainWindow.ui" line="601"/>
         <source>&amp;Settings...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1559,13 +1559,13 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     <name>ProjectFilesDialog</name>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="20"/>
-        <location filename="../ProjectFilesDialog.cpp" line="337"/>
+        <location filename="../ProjectFilesDialog.cpp" line="332"/>
         <source>Input Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/ProjectFilesDialog.ui" line="43"/>
-        <location filename="../ProjectFilesDialog.cpp" line="357"/>
+        <location filename="../ProjectFilesDialog.cpp" line="352"/>
         <source>Output Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1633,52 +1633,52 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="532"/>
-        <location filename="../ProjectFilesDialog.cpp" line="540"/>
-        <location filename="../ProjectFilesDialog.cpp" line="549"/>
-        <location filename="../ProjectFilesDialog.cpp" line="571"/>
-        <location filename="../ProjectFilesDialog.cpp" line="580"/>
-        <location filename="../ProjectFilesDialog.cpp" line="653"/>
+        <location filename="../ProjectFilesDialog.cpp" line="527"/>
+        <location filename="../ProjectFilesDialog.cpp" line="535"/>
+        <location filename="../ProjectFilesDialog.cpp" line="544"/>
+        <location filename="../ProjectFilesDialog.cpp" line="566"/>
+        <location filename="../ProjectFilesDialog.cpp" line="575"/>
+        <location filename="../ProjectFilesDialog.cpp" line="648"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="532"/>
+        <location filename="../ProjectFilesDialog.cpp" line="527"/>
         <source>No files in project!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="541"/>
+        <location filename="../ProjectFilesDialog.cpp" line="536"/>
         <source>Input directory is not set or doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="550"/>
+        <location filename="../ProjectFilesDialog.cpp" line="545"/>
         <source>Input and output directories can&apos;t be the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="560"/>
+        <location filename="../ProjectFilesDialog.cpp" line="555"/>
         <source>Create Directory?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="561"/>
+        <location filename="../ProjectFilesDialog.cpp" line="556"/>
         <source>Output directory doesn&apos;t exist. Create it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="572"/>
+        <location filename="../ProjectFilesDialog.cpp" line="567"/>
         <source>Unable to create output directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="581"/>
+        <location filename="../ProjectFilesDialog.cpp" line="576"/>
         <source>Output directory is not set or doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ProjectFilesDialog.cpp" line="653"/>
+        <location filename="../ProjectFilesDialog.cpp" line="648"/>
         <source>Some of the files failed to load.
 Either we don&apos;t support their format, or they are broken.
 You should remove them from the project.</source>
@@ -1695,24 +1695,6 @@ You should remove them from the project.</source>
     <message>
         <location filename="../ProjectOpeningContext.cpp" line="52"/>
         <source>Unable to interpret the project file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QCoreApplication</name>
-    <message>
-        <location filename="../filters/output/Filter.cpp" line="63"/>
-        <source>Natural order</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/output/Filter.cpp" line="64"/>
-        <source>Order by mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/output/Filter.cpp" line="65"/>
-        <source>Grayscale sources on top</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2272,17 +2254,26 @@ and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/deskew/Filter.cpp" line="56"/>
+        <location filename="../filters/deskew/Filter.cpp" line="57"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/deskew/Filter.cpp" line="57"/>
+        <location filename="../filters/deskew/Filter.cpp" line="58"/>
+        <location filename="../filters/output/Filter.cpp" line="66"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="74"/>
+        <location filename="../filters/page_split/Filter.cpp" line="68"/>
+        <location filename="../filters/select_content/Filter.cpp" line="63"/>
+        <source>Processed then unprocessed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/deskew/Filter.cpp" line="59"/>
         <source>Order by angle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/deskew/Filter.cpp" line="58"/>
+        <location filename="../filters/deskew/Filter.cpp" line="60"/>
         <source>Order by absolute angle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2323,21 +2314,20 @@ and press [Enter] to edit the shortcut:</source>
     </message>
     <message>
         <location filename="../filters/page_layout/OrderByHeightProvider.cpp" line="107"/>
-        <location filename="../filters/select_content/OrderByHeightProvider.cpp" line="92"/>
+        <location filename="../filters/select_content/OrderBySizeProvider.cpp" line="125"/>
         <source>height: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../filters/page_layout/OrderByHeightProvider.cpp" line="108"/>
         <location filename="../filters/page_layout/OrderByWidthProvider.cpp" line="108"/>
-        <location filename="../filters/select_content/OrderByHeightProvider.cpp" line="93"/>
-        <location filename="../filters/select_content/OrderByWidthProvider.cpp" line="93"/>
+        <location filename="../filters/select_content/OrderBySizeProvider.cpp" line="114"/>
         <source>?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../filters/page_layout/OrderByWidthProvider.cpp" line="107"/>
-        <location filename="../filters/select_content/OrderByWidthProvider.cpp" line="92"/>
+        <location filename="../filters/select_content/OrderBySizeProvider.cpp" line="125"/>
         <source>width: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2364,6 +2354,46 @@ and press [Enter] to edit the shortcut:</source>
     <message>
         <location filename="../filters/page_split/OrderBySplitTypeProvider.cpp" line="97"/>
         <source>split: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="3399"/>
+        <source>%1 x %2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../StatusBarProvider.h" line="102"/>
+        <source>px</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../StatusBarProvider.h" line="104"/>
+        <source>in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../StatusBarProvider.h" line="106"/>
+        <source>mm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../StatusBarProvider.h" line="108"/>
+        <source>cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ThumbnailSequence.cpp" line="1631"/>
+        <source>Meta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ThumbnailSequence.cpp" line="1633"/>
+        <source>Ctrl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/OrderBySizeProvider.cpp" line="139"/>
+        <source>%1 %2 (%3 dpi)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3314,22 +3344,35 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="951"/>
+        <location filename="../ThumbnailSequence.cpp" line="973"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="951"/>
+        <location filename="../ThumbnailSequence.cpp" line="973"/>
         <source>The file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="951"/>
+        <location filename="../ThumbnailSequence.cpp" line="973"/>
         <source>is not ready for output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="1727"/>
+        <location filename="../ThumbnailSequence.cpp" line="1644"/>
+        <source>You are going to cancel %1 pages selection.
+Sometimes this could happen accidentally due to misclicks.
+Please note that there is a button on top of pages list panel that toggles simulation of the %2 key pressing.You can use it to safely select several pages across the project.
+Continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ThumbnailSequence.cpp" line="1654"/>
+        <source>Don&apos;t show this again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ThumbnailSequence.cpp" line="1812"/>
         <source>%1 (page %2)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3442,7 +3485,7 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>deskew::Filter</name>
     <message>
-        <location filename="../filters/deskew/Filter.cpp" line="68"/>
+        <location filename="../filters/deskew/Filter.cpp" line="70"/>
         <source>Deskew</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3533,7 +3576,28 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>output::Filter</name>
     <message>
-        <location filename="../filters/output/Filter.cpp" line="75"/>
+        <location filename="../filters/output/Filter.cpp" line="65"/>
+        <source>Natural order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/Filter.cpp" line="67"/>
+        <source>Order by mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/Filter.cpp" line="68"/>
+        <source>Grayscale sources on top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/Filter.cpp" line="69"/>
+        <source>Groups the pages by presence
+of a non grey color in the source files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/Filter.cpp" line="79"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3541,12 +3605,12 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="705"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="708"/>
         <source>Apply Despeckling Level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="670"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="673"/>
         <source>Apply Depth Perception</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3561,63 +3625,73 @@ As Foreground layer is using binarization to separate content from background it
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="610"/>
-        <location filename="../filters/output/OptionsWidget.cpp" line="636"/>
-        <source>Off</source>
+        <location filename="../filters/output/OptionsWidget.cpp" line="504"/>
+        <source>Enforced if dewarping is on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/OptionsWidget.cpp" line="525"/>
+        <source>Disabled if dewarping is on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../filters/output/OptionsWidget.cpp" line="613"/>
-        <source>Auto</source>
+        <location filename="../filters/output/OptionsWidget.cpp" line="639"/>
+        <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../filters/output/OptionsWidget.cpp" line="616"/>
+        <source>Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/OptionsWidget.cpp" line="619"/>
         <source>Manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="621"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="624"/>
         <source>Marginal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="637"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="640"/>
         <source>Cautious</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="638"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="641"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="639"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="642"/>
         <source>Aggressive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="686"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="689"/>
         <source>Apply Dewarping Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="721"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="724"/>
         <source>Apply Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="916"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="919"/>
         <source>Apply Output Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="1021"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="1024"/>
         <source>Apply Foreground layer threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="951"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="954"/>
         <source>Apply Threshold</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3668,22 +3742,34 @@ As Foreground layer is using binarization to separate content from background it
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="74"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="75"/>
         <source>Order by alignment type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="75"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="76"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="76"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="77"/>
+        <source>Groups the pages by the width of detected content zone
+and it&apos;s left and right hard margins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_layout/Filter.cpp" line="79"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_layout/Filter.cpp" line="86"/>
+        <location filename="../filters/page_layout/Filter.cpp" line="80"/>
+        <source>Groups the pages by the height of detected content zone
+and it&apos;s top and bottom hard margins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/page_layout/Filter.cpp" line="91"/>
         <source>Page Layout</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3727,12 +3813,12 @@ As Foreground layer is using binarization to separate content from background it
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_split/Filter.cpp" line="68"/>
+        <location filename="../filters/page_split/Filter.cpp" line="69"/>
         <source>Order by split type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/page_split/Filter.cpp" line="78"/>
+        <location filename="../filters/page_split/Filter.cpp" line="79"/>
         <source>Split Pages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3777,22 +3863,52 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>select_content::Filter</name>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="61"/>
+        <location filename="../filters/select_content/Filter.cpp" line="62"/>
         <source>Natural order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="62"/>
+        <location filename="../filters/select_content/Filter.cpp" line="64"/>
         <source>Order by increasing width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="63"/>
+        <location filename="../filters/select_content/Filter.cpp" line="65"/>
+        <source>Orders the pages by the width of detected content zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/Filter.cpp" line="66"/>
         <source>Order by increasing height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/select_content/Filter.cpp" line="73"/>
+        <location filename="../filters/select_content/Filter.cpp" line="67"/>
+        <source>Orders the pages by the height of detected content zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/Filter.cpp" line="68"/>
+        <source>Order by increasing logical width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/Filter.cpp" line="69"/>
+        <source>Orders the pages by the logical width of detected content zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/Filter.cpp" line="70"/>
+        <source>Order by increasing logical height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/Filter.cpp" line="71"/>
+        <source>Orders the pages by the logical height of detected content zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/select_content/Filter.cpp" line="81"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3823,17 +3939,17 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>select_content::OptionsWidget</name>
     <message>
-        <location filename="../filters/select_content/OptionsWidget.cpp" line="278"/>
+        <location filename="../filters/select_content/OptionsWidget.cpp" line="279"/>
         <source>Select Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/select_content/OptionsWidget.cpp" line="281"/>
+        <location filename="../filters/select_content/OptionsWidget.cpp" line="282"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filters/select_content/OptionsWidget.cpp" line="283"/>
+        <location filename="../filters/select_content/OptionsWidget.cpp" line="284"/>
         <source>Apply content box</source>
         <translation type="unfinished"></translation>
     </message>
