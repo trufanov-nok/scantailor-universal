@@ -3422,7 +3422,10 @@ const QList<QKeySequence> getPageActionShortcuts(const HotKeysId& id, int idx = 
     QKeySequence sc = GlobalStaticSettings::createShortcut(id, idx);
     QString s = sc.toString();
     QKeySequence sc2 = QKeySequence::fromString("Shift+" + s);
-    return QList<QKeySequence>({sc, sc2});
+    QList<QKeySequence> ks;
+    ks.append(sc);
+    ks.append(sc2);
+    return ks;
 }
 
 void
