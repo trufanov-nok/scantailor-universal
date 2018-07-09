@@ -45,6 +45,11 @@ namespace imageproc
 	class BinaryImage;
 }
 
+namespace publishing
+{
+    class Task;
+}
+
 namespace output
 {
 
@@ -56,6 +61,7 @@ class Task : public RefCountable
 	DECLARE_NON_COPYABLE(Task)
 public:
 	Task(IntrusivePtr<Filter> const& filter,
+        IntrusivePtr<publishing::Task> const& next_task,
 		IntrusivePtr<Settings> const& settings,
 		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
 		PageId const& page_id, OutputFileNameGenerator const& out_file_name_gen,
@@ -77,6 +83,7 @@ private:
 	void deleteMutuallyExclusiveOutputFiles();
 
 	IntrusivePtr<Filter> m_ptrFilter;
+    IntrusivePtr<publishing::Task> m_ptrNextTask;
 	IntrusivePtr<Settings> m_ptrSettings;
 	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
 	std::unique_ptr<DebugImages> m_ptrDbg;

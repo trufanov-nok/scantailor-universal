@@ -69,6 +69,7 @@ private:
 	void setupSelectContent(std::set<PageId> allPages);
 	void setupPageLayout(std::set<PageId> allPages);
 	void setupOutput(std::set<PageId> allPages);
+    void setupPublishing(std::set<PageId> allPages);
 
 	BackgroundTaskPtr createCompositeTask(
 		PageInfo const& page,

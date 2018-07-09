@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PublishingOptionsWidget</class>
+ <widget class="QWidget" name="PublishingOptionsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>279</width>
+    <height>871</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_8"/>
+  <action name="actionModeBW">
+   <property name="text">
+    <string>&amp;Black and White</string>
+   </property>
+  </action>
+  <action name="actionModeColorOrGrayscale">
+   <property name="text">
+    <string>&amp;Color / Grayscale</string>
+   </property>
+  </action>
+  <action name="actionModeMixed">
+   <property name="text">
+    <string>&amp;Mixed</string>
+   </property>
+  </action>
+  <action name="actionReset_to_default_value">
+   <property name="text">
+    <string>&amp;Reset to default value</string>
+   </property>
+  </action>
+  <action name="actionReset_to_default_value_foeground">
+   <property name="text">
+    <string>&amp;Reset to default value</string>
+   </property>
+  </action>
+  <action name="actionactionDespeckleOff">
+   <property name="text">
+    <string notr="true">actionDespeckleOff</string>
+   </property>
+  </action>
+  <action name="actionactionDespeckleCautious">
+   <property name="text">
+    <string notr="true">actionDespeckleCautious</string>
+   </property>
+  </action>
+  <action name="actionactionDespeckleNormal">
+   <property name="text">
+    <string notr="true">actionDespeckleNormal</string>
+   </property>
+  </action>
+  <action name="actionactionDespeckleAggressive">
+   <property name="text">
+    <string notr="true">actionDespeckleAggressive</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

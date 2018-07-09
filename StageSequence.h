@@ -29,6 +29,7 @@
 #include "filters/select_content/Filter.h"
 #include "filters/page_layout/Filter.h"
 #include "filters/output/Filter.h"
+#include "filters/publishing/Filter.h"
 #include <vector>
 
 class PageId;
@@ -78,7 +79,11 @@ public:
 	IntrusivePtr<output::Filter> const& outputFilter() const {
 		return m_ptrOutputFilter;
 	}
-	
+
+    IntrusivePtr<publishing::Filter> const& publishingFilter() const {
+        return m_ptrPublishingFilter;
+    }
+
 	int fixOrientationFilterIdx() const { return m_fixOrientationFilterIdx; }
 	
 	int pageSplitFilterIdx() const { return m_pageSplitFilterIdx; }
@@ -90,6 +95,8 @@ public:
 	int pageLayoutFilterIdx() const { return m_pageLayoutFilterIdx; }
 	
 	int outputFilterIdx() const { return m_outputFilterIdx; }
+
+    int publishingFilterIdx() const { return m_publishingFilterIdx; }
 private:
 	IntrusivePtr<fix_orientation::Filter> m_ptrFixOrientationFilter;
 	IntrusivePtr<page_split::Filter> m_ptrPageSplitFilter;
@@ -97,6 +104,7 @@ private:
 	IntrusivePtr<select_content::Filter> m_ptrSelectContentFilter;
 	IntrusivePtr<page_layout::Filter> m_ptrPageLayoutFilter;
 	IntrusivePtr<output::Filter> m_ptrOutputFilter;
+    IntrusivePtr<publishing::Filter> m_ptrPublishingFilter;
 	std::vector<FilterPtr> m_filters;
 	int m_fixOrientationFilterIdx;
 	int m_pageSplitFilterIdx;
@@ -104,6 +112,7 @@ private:
 	int m_selectContentFilterIdx;
 	int m_pageLayoutFilterIdx;
 	int m_outputFilterIdx;
+    int m_publishingFilterIdx;
 };
 
 #endif

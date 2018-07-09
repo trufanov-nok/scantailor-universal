@@ -408,6 +408,7 @@ ADD_SUBDIRECTORY(filters/deskew)
 ADD_SUBDIRECTORY(filters/select_content)
 ADD_SUBDIRECTORY(filters/page_layout)
 ADD_SUBDIRECTORY(filters/output)
+ADD_SUBDIRECTORY(filters/publishing)
 
 SET(resource_files resources/resources.qrc resources/icons/COPYING)
 IF(WIN32)
@@ -615,12 +616,12 @@ ADD_EXECUTABLE(scantailor-cli ${cli_only_sources} ${common_ui_sources})
 
 TARGET_LINK_LIBRARIES(
         scantailor
-        fix_orientation page_split deskew select_content page_layout output stcore
+        fix_orientation page_split deskew select_content page_layout output publishing stcore
         dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(
         scantailor-cli
-        fix_orientation page_split deskew select_content page_layout output stcore
+        fix_orientation page_split deskew select_content page_layout output publishing stcore
         dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 

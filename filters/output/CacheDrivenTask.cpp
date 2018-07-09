@@ -30,6 +30,7 @@
 #include "ImageId.h"
 #include "Dpi.h"
 #include "Utils.h"
+#include "filters/publishing/CacheDrivenTask.h"
 #include "filter_dc/AbstractFilterDataCollector.h"
 #include "filter_dc/ThumbnailCollector.h"
 #include <QString>
@@ -42,10 +43,11 @@
 namespace output
 {
 
-CacheDrivenTask::CacheDrivenTask(
-	IntrusivePtr<Settings> const& settings,
-	OutputFileNameGenerator const& out_file_name_gen)
-:	m_ptrSettings(settings),
+CacheDrivenTask::CacheDrivenTask(const IntrusivePtr<publishing::CacheDrivenTask> &next_task,
+    IntrusivePtr<Settings> const& settings,
+    OutputFileNameGenerator const& out_file_name_gen)
+:	m_ptrNextTask(next_task),
+    m_ptrSettings(settings),
 	m_outFileNameGen(out_file_name_gen)
 {
 }
@@ -135,6 +137,11 @@ CacheDrivenTask::process(
 			}
 		} while (false);
 
+        if (m_ptrNextTask) {
+            m_ptrNextTask->process(page_info, collector);
+            return;
+        }
+
 		if (need_reprocess) {
 			thumb_col->processThumbnail(
 				std::unique_ptr<QGraphicsItem>(
@@ -160,7 +167,12 @@ CacheDrivenTask::process(
 				)
 			);
 		}
-	}
+    } else {
+        if (m_ptrNextTask) {
+            m_ptrNextTask->process(page_info, collector);
+            return;
+        }
+    }
 }
 
 } // namespace output

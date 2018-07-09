@@ -66,6 +66,10 @@
 #include "filters/output/Filter.h"
 #include "filters/output/Task.h"
 #include "filters/output/CacheDrivenTask.h"
+#include "filters/publishing/Settings.h"
+#include "filters/publishing/Filter.h"
+#include "filters/publishing/Task.h"
+#include "filters/publishing/CacheDrivenTask.h"
 
 #include <QMap>
 #include <QImage>
@@ -134,14 +138,21 @@ ConsoleBatch::createCompositeTask(
 	IntrusivePtr<select_content::Task> select_content_task;
 	IntrusivePtr<page_layout::Task> page_layout_task;
 	IntrusivePtr<output::Task> output_task;
+    IntrusivePtr<publishing::Task> publishing_task;
 	
 	if (batch) {
 		debug = false;
 	}
 
+    if (last_filter_idx >= m_ptrStages->publishingFilterIdx()) {
+        publishing_task = m_ptrStages->publishingFilter()->createTask(
+            page.id(), batch
+        );
+        debug = false;
+    }
 	if (last_filter_idx >= m_ptrStages->outputFilterIdx()) {
 		output_task = m_ptrStages->outputFilter()->createTask(
-			page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug
+            page.id(), m_ptrThumbnailCache, m_outFileNameGen, publishing_task, batch, debug
 		);
 		debug = false;
 	}
@@ -265,6 +276,8 @@ ConsoleBatch::setupFilter(int idx, std::set<PageId> allPages)
 		setupPageLayout(allPages);
 	else if (idx == m_ptrStages->outputFilterIdx())
 		setupOutput(allPages);
+    else if (idx == m_ptrStages->publishingFilterIdx())
+        setupPublishing(allPages);
 }
 
 
@@ -493,4 +506,11 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
 	
 	if (cli.hasTiffCompression())
 		output->getSettings()->setTiffCompression(cli.getTiffCompression());
+}
+
+void
+ConsoleBatch::setupPublishing(std::set<PageId> allPages)
+{
+    IntrusivePtr<publishing::Filter> output = m_ptrStages->publishingFilter();
+    CommandLine const& cli = CommandLine::get();
 }

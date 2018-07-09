@@ -83,6 +83,9 @@
 #include "filters/output/Filter.h"
 #include "filters/output/Task.h"
 #include "filters/output/CacheDrivenTask.h"
+#include "filters/publishing/Filter.h"
+#include "filters/publishing/Task.h"
+#include "filters/publishing/CacheDrivenTask.h"
 #include "LoadFileTask.h"
 #include "CompositeCacheDrivenTask.h"
 #include "ScopedIncDec.h"
@@ -3026,8 +3029,16 @@ MainWindow::createCompositeTask(
     IntrusivePtr<select_content::Task> select_content_task;
     IntrusivePtr<page_layout::Task> page_layout_task;
     IntrusivePtr<output::Task> output_task;
+    IntrusivePtr<publishing::Task> publishing_task;
 
     if (batch) {
+        debug = false;
+    }
+
+    if (last_filter_idx >= m_ptrStages->publishingFilterIdx()) {
+        publishing_task = m_ptrStages->publishingFilter()->createTask(
+            page.id(), batch
+        );
         debug = false;
     }
 
@@ -3036,7 +3047,7 @@ MainWindow::createCompositeTask(
 //begin of modified by monday2000
 //Original_Foreground_Mixed
             //page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug
-            page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug,
+            page.id(), m_ptrThumbnailCache, m_outFileNameGen, publishing_task, batch, debug,
             m_keep_orig_fore_subscan, &m_orig_fore_subscan
 //end of modified by monday2000
         );
@@ -3093,10 +3104,15 @@ MainWindow::createCompositeCacheDrivenTask(int const last_filter_idx)
     IntrusivePtr<select_content::CacheDrivenTask> select_content_task;
     IntrusivePtr<page_layout::CacheDrivenTask> page_layout_task;
     IntrusivePtr<output::CacheDrivenTask> output_task;
+    IntrusivePtr<publishing::CacheDrivenTask> publishing_task;
 
+    if (last_filter_idx >= m_ptrStages->publishingFilterIdx()) {
+        publishing_task = m_ptrStages->publishingFilter()
+                ->createCacheDrivenTask();
+    }
     if (last_filter_idx >= m_ptrStages->outputFilterIdx()) {
         output_task = m_ptrStages->outputFilter()
-                ->createCacheDrivenTask(m_outFileNameGen);
+                ->createCacheDrivenTask(m_outFileNameGen, publishing_task);
     }
     if (last_filter_idx >= m_ptrStages->pageLayoutFilterIdx()) {
         page_layout_task = m_ptrStages->pageLayoutFilter()
