@@ -27,6 +27,8 @@
 #include "FilterUiInterface.h"
 #include <QImage>
 #include <iostream>
+#include <QFileInfo>
+#include "djview4/qdjvuwidget.h"
 
 namespace publishing
 {
@@ -48,13 +50,13 @@ private:
 
 
 Task::Task(
-    QString const& filename,
 	IntrusivePtr<Filter> const& filter,
 	IntrusivePtr<Settings> const& settings,
-	bool const batch_processing)
+    PageId const& page_id,
+    bool const batch_processing)
 :	m_ptrFilter(filter),
 	m_ptrSettings(settings),
-    m_filename(filename),
+    m_pageId(page_id),
 	m_batchProcessing(batch_processing)
 {
 }
@@ -64,15 +66,25 @@ Task::~Task()
 }
 
 FilterResultPtr
-Task::process(TaskStatus const& status, FilterData const& data)
+Task::process(TaskStatus const& status, QString const& image_file, quint64 image_hash)
 {
 	// This function is executed from the worker thread.
 	
 	status.throwIfCancelled();
+
+//    QFileInfo fi(image_file);
+//    QString djv_name;
+//    if (fi.exists()) {
+//        djv_name = fi.completeBaseName() + ".djvu";
+//    }
+//    fi.setFile(djv_name);
+//    if (!fi.exists()) {
+
+//    }
 	
     return FilterResultPtr(
                 new UiUpdater(
-                    m_ptrFilter, m_filename, m_batchProcessing
+                    m_ptrFilter, image_file, m_batchProcessing
                     )
                 );
 }
@@ -104,10 +116,9 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 		return;
 	}
 	
-    QImage image;
-    QImage downscaled_image;
-    QRect r; Dpi d;
-    ImageTransformation xform(r, d);
+    QDjVuWidget* widget = new QDjVuWidget();
+    widget->setDocument(m_ptrFilter->getDjVuDocument());
+    ui->setImageWidget(widget, ui->TRANSFER_OWNERSHIP);
 
     //ImageView* view = new ImageView(image, downscaled_image, xform);
     //ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);

@@ -24,6 +24,7 @@
 #include "PageId.h"
 #include "IntrusivePtr.h"
 #include "PageSelectionAccessor.h"
+#include "djvuencoder.h"
 
 namespace publishing
 {
@@ -45,10 +46,21 @@ public:
     void postUpdateUI();
 
 private:
+    void setupQuickWidget(QQuickWidget* w);
+    bool initEncodersSelector();
+    void displayEncoders();
+
+private slots:
+    void on_statusChanged(const QQuickWidget::Status &arg1);
+
+    void on_cbEncodersSelector_currentIndexChanged(int index);
+
+private:
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	PageSelectionAccessor m_pageSelectionAccessor;
     QString m_filename;
+    QVector<DjVuEncoder*> m_encoders;
 };
 
 } // namespace publishing

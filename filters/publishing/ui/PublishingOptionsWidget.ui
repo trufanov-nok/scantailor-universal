@@ -13,53 +13,70 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_8"/>
-  <action name="actionModeBW">
-   <property name="text">
-    <string>&amp;Black and White</string>
-   </property>
-  </action>
-  <action name="actionModeColorOrGrayscale">
-   <property name="text">
-    <string>&amp;Color / Grayscale</string>
-   </property>
-  </action>
-  <action name="actionModeMixed">
-   <property name="text">
-    <string>&amp;Mixed</string>
-   </property>
-  </action>
-  <action name="actionReset_to_default_value">
-   <property name="text">
-    <string>&amp;Reset to default value</string>
-   </property>
-  </action>
-  <action name="actionReset_to_default_value_foeground">
-   <property name="text">
-    <string>&amp;Reset to default value</string>
-   </property>
-  </action>
-  <action name="actionactionDespeckleOff">
-   <property name="text">
-    <string notr="true">actionDespeckleOff</string>
-   </property>
-  </action>
-  <action name="actionactionDespeckleCautious">
-   <property name="text">
-    <string notr="true">actionDespeckleCautious</string>
-   </property>
-  </action>
-  <action name="actionactionDespeckleNormal">
-   <property name="text">
-    <string notr="true">actionDespeckleNormal</string>
-   </property>
-  </action>
-  <action name="actionactionDespeckleAggressive">
-   <property name="text">
-    <string notr="true">actionDespeckleAggressive</string>
-   </property>
-  </action>
+  <layout class="QVBoxLayout" name="verticalLayout_8">
+   <item>
+    <widget class="QGroupBox" name="gbEncodersSelector">
+     <property name="title">
+      <string>Select DjVu Encoder:</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>3</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <item>
+       <widget class="QComboBox" name="cbEncodersSelector"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QQuickWidget" name="encoderWidget">
+     <property name="resizeMode">
+      <enum>QQuickWidget::SizeRootObjectToView</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QQuickWidget" name="conversionWidget">
+     <property name="resizeMode">
+      <enum>QQuickWidget::SizeRootObjectToView</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header>QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -641,7 +641,7 @@ TARGET_LINK_LIBRARIES(
         dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 
-QT5_USE_MODULES(scantailor Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
+QT5_USE_MODULES(scantailor Widgets Xml Qml ${MAYBE_QT_OPENGL_MODULE})
 
 # Widgets module is used statically but not at runtime.
 QT5_USE_MODULES(scantailor-cli Widgets Xml)

@@ -36,6 +36,12 @@
 
 #include "CommandLine.h"
 
+#ifdef QT_DEBUG
+//required for QML debugging
+#include <QQmlDebuggingEnabler>
+QQmlDebuggingEnabler enabler;
+#endif
+
 #ifdef ENABLE_CRASH_REPORTER
 
 #include "google-breakpad/client/windows/handler/exception_handler.h"

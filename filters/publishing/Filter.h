@@ -28,6 +28,7 @@
 #include "ProjectPages.h"
 #include <QCoreApplication>
 #include <QImage>
+#include "djview4/qdjvu.h"
 
 class PageId;
 class PageSelectionAccessor;
@@ -82,6 +83,8 @@ public:
     OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); }
 
     Settings* getSettings() { return m_ptrSettings.get(); }
+
+    QDjVuDocument* getDjVuDocument() const { return m_ptrDjVuDocument; }
 private:
 	void writeImageSettings(
 		QDomDocument& doc, QDomElement& filter_el,
@@ -90,6 +93,8 @@ private:
     IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<Settings> m_ptrSettings;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
+    QDjVuContext* m_ptrDjVuContext;
+    QDjVuDocument* m_ptrDjVuDocument;
 };
 
 } // publishing

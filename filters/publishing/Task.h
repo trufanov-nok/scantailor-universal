@@ -24,6 +24,8 @@
 #include "FilterResult.h"
 #include "IntrusivePtr.h"
 #include "ImageId.h"
+#include "PageId.h"
+#include "djview4/qdjvu.h"
 
 class TaskStatus;
 class FilterData;
@@ -39,21 +41,19 @@ class Task : public RefCountable
 {
 	DECLARE_NON_COPYABLE(Task)
 public:
-	Task(
-        QString const& filename,
-		IntrusivePtr<Filter> const& filter,
-		IntrusivePtr<Settings> const& settings,
-		bool batch_processing);
+    Task(IntrusivePtr<Filter> const& filter,
+        IntrusivePtr<Settings> const& settings,
+        PageId const& page_id, bool batch_processing);
 	
 	virtual ~Task();
 	
-	FilterResultPtr process(TaskStatus const& status, FilterData const& data);
+    FilterResultPtr process(TaskStatus const& status, const QString &image_file, quint64 image_hash);
 private:
 	class UiUpdater;
 	
 	IntrusivePtr<Filter> m_ptrFilter;
 	IntrusivePtr<Settings> m_ptrSettings;
-    QString m_filename;
+    PageId m_pageId;
 	bool m_batchProcessing;
 };
 

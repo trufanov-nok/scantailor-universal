@@ -267,11 +267,7 @@ Task::process(
 //Original_Foreground_Mixed
 		*m_p_orig_fore_subscan = out_img;
 		
-        if (m_ptrNextTask) {
-            return m_ptrNextTask->process(status, FilterData(data, new_xform));
-        } else {
-            return FilterResultPtr(0);
-        }
+        return FilterResultPtr(0);
 	}
 //end of modified by monday2000
 	
@@ -493,7 +489,7 @@ Task::process(
 	}
 
     if (m_ptrNextTask) {
-        return m_ptrNextTask->process(status, FilterData(data, new_xform));
+        return m_ptrNextTask->process(status, out_file_path, out_img.cacheKey());
     } else {
         if (CommandLine::get().isGui()) {
             return FilterResultPtr(

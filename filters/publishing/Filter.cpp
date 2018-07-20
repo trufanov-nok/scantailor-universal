@@ -39,6 +39,8 @@
 #include <QDomElement>
 #include <QDomNode>
 #include <iostream>
+#include <QMessageBox>
+#include <QtQuickControls2/QQuickStyle>
 #include "CommandLine.h"
 
 namespace publishing
@@ -46,17 +48,46 @@ namespace publishing
 
 Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
                PageSelectionAccessor const& page_selection_accessor)
-:	m_ptrPages(pages), m_ptrSettings(new Settings)
+:	m_ptrPages(pages), m_ptrSettings(new Settings),
+    m_ptrDjVuContext(nullptr), m_ptrDjVuDocument(nullptr)
 {
+
+    QQuickStyle::setStyle("Material");
+
 	if (CommandLine::get().isGui()) {
 		m_ptrOptionsWidget.reset(
 			new OptionsWidget(m_ptrSettings, page_selection_accessor)
 		);
-	}
+    }
+
+    m_ptrDjVuContext = new QDjVuContext("scan_tailor_universal");
+    m_ptrDjVuDocument = new QDjVuDocument();
+
+    QObject::connect(m_ptrDjVuDocument, &QDjVuDocument::error,
+                     [](QString msg,QString,int) {
+        QMessageBox::critical(nullptr, "Error", msg);
+    });
+
+    m_ptrDjVuDocument->setFileName(m_ptrDjVuContext, "/home/truf/1.djvu");
+    assert(m_ptrDjVuDocument->isValid());
+//    if (!m_ptrDjVuDocument->isValid())
+//      {
+//        delete doc;
+//        addToErrorDialog(tr("Cannot open file '%1'.").arg(filename));
+//        raiseErrorDialog(QMessageBox::Critical, tr("Opening DjVu file"));
+//        return false;
+//      }
+
 }
 
 Filter::~Filter()
 {
+    if (m_ptrDjVuDocument) {
+        delete m_ptrDjVuDocument;
+    }
+    if (m_ptrDjVuContext) {
+        delete m_ptrDjVuContext;
+    }
 }
 
 QString
@@ -126,11 +157,11 @@ Filter::createTask(
 	PageId const& page_id,
 	bool const batch_processing)
 {
-    QString filename;
 	return IntrusivePtr<Task>(
 		new Task(
-            filename, IntrusivePtr<Filter>(this),
-            m_ptrSettings, batch_processing
+            IntrusivePtr<Filter>(this),
+            m_ptrSettings, page_id,
+            batch_processing
 		)
 	);
 }
