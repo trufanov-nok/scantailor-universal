@@ -5,6 +5,7 @@ GroupBox {
     id: root
     title: qsTr("c44 encoder:")
 
+    property alias root: root
     property alias cbGamma: cbGamma
     property alias sbGamma: sbGamma
     property alias cbChrominance: cbChrominance
@@ -17,6 +18,9 @@ GroupBox {
     property alias tfDecibel: tfDecibel
     property alias cbDecibelFrac: cbDecibelFrac
     property alias sbDecibelFrac: sbDecibelFrac
+    property alias taDecibel: taDecibel
+    property alias taSlice: taSlice
+    property alias taBpp: taBpp
 
     Column {
         id: column
@@ -106,7 +110,7 @@ GroupBox {
             placeholderText: "n+...+n"
             width: parent.width
             validator: RegExpValidator {
-                regExp: /\d{1,3}(?:+\d{1,3})+$/
+                regExp: /\d{1,3}(?:\+\d{1,3})+$/
             }
             TooltipArea {
                 id: taSlice

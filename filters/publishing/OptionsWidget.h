@@ -25,6 +25,8 @@
 #include "IntrusivePtr.h"
 #include "PageSelectionAccessor.h"
 #include "djvuencoder.h"
+#include "DjVuPageGenerator.h"
+#include <memory>
 
 namespace publishing
 {
@@ -41,26 +43,45 @@ public:
 	
 	virtual ~OptionsWidget();
 	
-    void preUpdateUI(QString const& filename);
+    void preUpdateUI(QString const& filename, const PageId &page_id);
 	
     void postUpdateUI();
 
 private:
-    void setupQuickWidget(QQuickWidget* w);
-    bool initEncodersSelector();
-    void displayEncoders();
+    void setupQuickWidget(QQuickWidget* wgt);
+    void setLinkToMainApp(QQuickWidget* wgt);
+    void initEncodersSelector();
+    bool initTiffConvertor();
+    void checkDependencies(const AppDependency& dep);
+    void checkDependencies(const AppDependencies& deps);
+    bool allDependenciesFound(const QStringList& req_apps, QStringList *missing_apps = nullptr);
+    void showMissingAppSelectors(QStringList req_apps, bool isEncoderDep);
+    void setOutputDpi(uint dpi);
+    void displayWidgets();
+
 
 private slots:
     void on_statusChanged(const QQuickWidget::Status &arg1);
-
     void on_cbEncodersSelector_currentIndexChanged(int index);
+
+    void on_dpiValue_linkActivated(const QString &link);
+
+public slots:
+    void resizeQuickWidget(QVariant arg);
+    void requestParamUpdate(const QVariant requestor);
 
 private:
 	
 	IntrusivePtr<Settings> m_ptrSettings;
+    PageId m_pageId;
 	PageSelectionAccessor m_pageSelectionAccessor;
     QString m_filename;
-    QVector<DjVuEncoder*> m_encoders;
+    AppDependencies m_dependencies;
+    QVector<DjVuEncoder*> m_encoders;    
+    QStringList m_convertorRequiredApps;
+    QString m_encoderCmd;
+    QString m_convertorCmd;
+    std::unique_ptr<DjVuPageGenerator> m_pageGenerator;
 };
 
 } // namespace publishing

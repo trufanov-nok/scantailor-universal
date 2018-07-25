@@ -9,12 +9,25 @@ CpalDjVuSettingsForm {
     property string supportedOutputMode: "grayscale;color"
     property string description: qsTr("Encoder for images containing few colors. It performs best on images containing large solid color areas. This program works by first reducing the number of distinct colors to a small specified value using a simple color quantization algorithm. The dominant color is encoded into the background layer. The other colors are encoded into the foreground layer.")
     property int priority: 20
+    property int _dpi_: 600
 
 
 
     property string current_platform: "linux"
     property string colors_val: "-colors"
     property string bgwhite_used: "-bgwhite"
+
+    signal notify()
+
+    onNotify: {
+        mainApp.requestParamUpdate(type);
+    }
+
+    Component.onCompleted: {
+        cbBgwhite.checkedChanged.connect(notify);
+        sbColors.valueChanged.connect(notify);
+        cbColors.checkedChanged.connect(notify);
+    }
 
     function init(platform) {
         current_platform = platform;
@@ -24,39 +37,50 @@ CpalDjVuSettingsForm {
     }
 
     function getDependencies() {
-        return {"app":"cpaldjvu", "check_cmd":"%1 --help", "search_params":"-dpi;"+colors_val+";"+bgwhite_used}
+        return {"app":"cpaldjvu", "check_cmd":"%1 --help", "search_params":"-dpi;"+colors_val+";"+bgwhite_used, "missing_app_hint": getMissingAppHint() }
     }
 
     function getMissingAppHint() {
         if (current_platform == "linux") {
-          return qsTr("cpaldjvu is a part of djvulibre-bin package. Please install djvulibre-bin in case this appplication is missing in your system.");
+            return qsTr("cpaldjvu is a part of djvulibre-bin package. Please install djvulibre-bin in case this appplication is missing in your system.");
         } else return "";
     }
 
     function getState() {
+        var state = {"_dpi_": _dpi_};
         if (cbColors.checked) {
-            map[colors_val] = sbColors.value;
+            state[colors_val] = sbColors.value;
         }
-        map[bgwhite_used] = cbBgwhite.checked;
+        state[bgwhite_used] = cbBgwhite.checked;
 
-        return map;
+        return state;
     }
 
-    function setState(map) {
-        cbColors.checked = map.contains(colors_val);
-        sbColors.value = (cbColors.checked ? map[colors_val] : 256);
-        cbBgwhite.checked = map.contains(bgwhite_used);
+    function setState(state) {
+        _dpi_ = state["_dpi_"];
+        cbColors.checked = state.contains(colors_val);
+        sbColors.value = (cbColors.checked ? state[colors_val] : 256);
+        cbBgwhite.checked = state.contains(bgwhite_used);
     }
 
-    function getCommand(map) {
-        s = "cpaldjvu -dpi " + map["_dpi_"]
-        if (map.contains(colors_val)) {
-           s += " " + colors_val + " " + map[colors_val]
+    function getCommandFromState(state) {
+        var s = "cpaldjvu -dpi " + state["_dpi_"]
+        if (state.contains(colors_val)) {
+            s += " " + colors_val + " " + state[colors_val]
         }
-        if (map.contains(bgwhite_used)) {
+        if (state.contains(bgwhite_used)) {
             s += " " + bgwhite_used
         }
+        s += " %1 %2";
         return s
+    }
+
+    function getCommand() {
+        return getCommandFromState(getState());
+    }
+
+    root.onHeightChanged: {
+        mainApp.resizeQuickWidget(type);
     }
 
 }

@@ -9,8 +9,13 @@ SET(
         Task.cpp Task.h
         CacheDrivenTask.cpp CacheDrivenTask.h
         OptionsWidget.cpp OptionsWidget.h
+        MissingApplicationsWidget.cpp MissingApplicationsWidget.h
+        ChangeDpiDialog.cpp ChangeDpiDialog.h
+        Params.cpp Params.h
         Settings.cpp Settings.h
+        AppDependency.cpp AppDependency.h
         djvuencoder.cpp djvuencoder.h
+        DjVuPageGenerator.cpp DjVuPageGenerator.h
         djview4/qdjvuwidget.cpp djview4/qdjvuwidget.h
         djview4/qdjvu.cpp djview4/qdjvu.h
 )
@@ -20,7 +25,7 @@ FILE(GLOB ui_files "ui/*.ui")
 SOURCE_GROUP("UI Files" FILES ${ui_files})
 
 QT5_WRAP_UI(ui_sources ${ui_files})
-QT5_ADD_RESOURCES(resource_files djview4/qdjvuwidget.qrc)
+QT5_ADD_RESOURCES(resource_files djview4/qdjvuwidget.qrc djvu_resources.qrc)
 
 ADD_LIBRARY(publishing STATIC ${sources} ${ui_sources} ${resource_files})
 QT5_USE_MODULES(publishing Widgets Xml Qml QuickWidgets QuickControls2 )

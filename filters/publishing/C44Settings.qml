@@ -10,6 +10,7 @@ C44SettingsForm {
     property string supportedOutputMode: "color"
     property string description: qsTr("Produces a DjVuPhoto encoded image.")
     property int priority: 30
+    property int _dpi_: 600
 
     property string current_platform: "linux"
 
@@ -20,7 +21,7 @@ C44SettingsForm {
     property string param_decibel: "-decibel"
     property string param_dbfrac: "-dbfrac"
     property string param_mask: "-mask"
-//    property string param_dpi: "-dpi"
+    //    property string param_dpi: "-dpi"
     property string param_gamma: "-gamma"
     property string param_crcbfull: "-crcbfull"
     property string param_crcbnormal: "-crcbnormal"
@@ -30,104 +31,142 @@ C44SettingsForm {
     property variant chrominances: [param_crcbnormal, param_crcbhalf, param_crcbfull, param_crcbnone]
     property string chrominances_setting: "chrominance"
 
+
+    signal notify()
+
+    onNotify: {
+        mainApp.requestParamUpdate(type);
+    }
+
+    Component.onCompleted: {
+        var cbs = [cbDecibelFrac, cbChrominanceDelay, cbGamma];
+        for (var i in cbs) {
+            cbs[i].checkedChanged.connect(notify);
+        }
+        var sbs = [sbDecibelFrac, sbChrominanceDelay, sbGamma];
+        for (i in sbs) {
+            sbs[i].valueChanged.connect(notify);
+        }
+        var tes = [tfDecibel, tfPercent, tfSize, tfBpp, tfSlice];
+        for (i in tes) {
+            tes[i].textChanged.connect(notify);
+        }
+        cbChrominance.currentIndexChanged.connect(notify);
+    }
+
     function init(platform) {
         current_platform = platform;
+
         if ("linux" === platform) {
             return true;
         } else return false;
+
+
     }
 
     function getDependencies() {
         return {"app":"c44", "check_cmd":"%1", "search_params":"-dpi;"+ param_slice + ";" + param_bpp + ";" + param_size + ";" +
-            param_percent + ";" + param_decibel + ";" + param_dbfrac + ";" + param_mask + ";" + param_gamma + ";" + param_crcbfull + ";" + param_crcbnormal + ";" +
-            param_crcbhalf + ";" + param_crcbnone + ";" + param_crcbdelay}
+                                                               param_percent + ";" + param_decibel + ";" + param_dbfrac + ";" + param_mask + ";" + param_gamma + ";" + param_crcbfull + ";" + param_crcbnormal + ";" +
+                                                               param_crcbhalf + ";" + param_crcbnone + ";" + param_crcbdelay,
+            "missing_app_hint": getMissingAppHint() }
     }
 
     function getMissingAppHint() {
         if (current_platform == "linux") {
-          return qsTr("c44 is a part of djvulibre-bin package. Please install djvulibre-bin in case this appplication is missing in your system.");
+            return qsTr("c44 is a part of djvulibre-bin package. Please install djvulibre-bin in case this appplication is missing in your system.");
         } else return "";
     }
 
     function getState() {
+        var state = {"_dpi_":_dpi_};
         if (cbGamma.checked) {
-            map[param_gamma] = sbGamma.value;
+            state[param_gamma] = sbGamma.value;
         }
 
-        map[chrominances_setting] = chrominances[cbChrominance.currentIndex];
+        state[chrominances_setting] = chrominances[cbChrominance.currentIndex];
 
         if (cbChrominanceDelay.enabled && cbChrominanceDelay.checked) {
-            map[param_crcbdelay] = sbChrominanceDelay.value;
+            state[param_crcbdelay] = sbChrominanceDelay.value;
         }
 
-        map[bgwhite_used] = cbBgwhite.checked;
-
         if (tfSlice.text !== "") {
-            map[param_slice] = tfSlice.text;
+            state[param_slice] = tfSlice.text;
         }
 
         if (tfBpp.text !== "") {
-            map[param_bpp] = tfBpp.text;
+            state[param_bpp] = tfBpp.text;
         }
 
         if (tfSize.text !== "") {
-            map[param_size] = tfSize.text;
+            state[param_size] = tfSize.text;
         }
 
         if (tfPercent.text !== "") {
-            map[param_percent] = tfPercent.text;
+            state[param_percent] = tfPercent.text;
         }
 
         if (tfDecibel.text !== "") {
-            map[param_decibel] = tfDecibel.text;
+            state[param_decibel] = tfDecibel.text;
         }
 
         if (cbDecibelFrac.checked) {
-            map[param_dbfrac] = sbDecibelFrac.value;
+            state[param_dbfrac] = sbDecibelFrac.value;
         }
 
-        return map;
+        return state;
     }
 
-    function setState(map) {
-        cbGamma.checked = map.contains(param_gamma);
-        sbGamma.value = (cbGamma.checked ? map[param_gamma] : 0);
 
-        cbChrominance.currentIndex = chrominances.indexOf(map[chrominances_setting]);
+    function setState(state) {
+        _dpi_ = state["_dpi_"];
+        cbGamma.checked = state.contains(param_gamma);
+        sbGamma.value = (cbGamma.checked ? state[param_gamma] : 0);
 
-        cbChrominanceDelay.checked = map.contains(param_crcbdelay);
-        sbChrominanceDelay.value = (cbChrominanceDelay.checked ? map[param_crcbdelay] : 10);
+        cbChrominance.currentIndex = chrominances.indexOf(state[chrominances_setting]);
 
-        tfSlice.text = map.contains(param_slice) ? map[param_slice] : "";
-        tfBpp.text = map.contains(param_bpp) ? map[param_bpp] : "";
-        tfSize.text = map.contains(param_size) ? map[param_size] : "";
-        tfPercent.text = map.contains(param_percent) ? map[param_percent] : "";
-        tfDecibel.text = map.contains(param_decibel) ? map[param_decibel] : "";
-        cbDecibelFrac.checked = map.contains(param_dbfrac);
-        sbDecibelFrac.value = (cbDecibelFrac.checked ? map[param_dbfrac] : 0);
+        cbChrominanceDelay.checked = state.contains(param_crcbdelay);
+        sbChrominanceDelay.value = (cbChrominanceDelay.checked ? state[param_crcbdelay] : 10);
+
+        tfSlice.text = state.contains(param_slice) ? state[param_slice] : "";
+        tfBpp.text = state.contains(param_bpp) ? state[param_bpp] : "";
+        tfSize.text = state.contains(param_size) ? state[param_size] : "";
+        tfPercent.text = state.contains(param_percent) ? state[param_percent] : "";
+        tfDecibel.text = state.contains(param_decibel) ? state[param_decibel] : "";
+        cbDecibelFrac.checked = state.contains(param_dbfrac);
+        sbDecibelFrac.value = (cbDecibelFrac.checked ? state[param_dbfrac] : 0);
     }
 
-    function insert_param(str, map, param) {
-        if (map.contains(param)) {
-            str += " " + param + " " + map[param];
+    function insert_param(str, state, param) {
+        if (state.contains(param)) {
+            str += " " + param + " " + state[param];
         }
         return str;
     }
 
-    function getCommand(map) {
-        s = "c44 -dpi " + map["_dpi_"];
+    function getCommandFromState(state) {
+        var s = "c44 -dpi " + state["_dpi_"];
 
-        s = insert_param(s, map, param_gamma);
+        s = insert_param(s, state, param_gamma);
 
-        s += " " + map[chrominances_setting];
+        s += " " + state[chrominances_setting];
 
-        s = insert_param(s, map, param_crcbdelay);
-        s = insert_param(s, map, param_slice);
-        s = insert_param(s, map, param_bpp);
-        s = insert_param(s, map, param_size);
-        s = insert_param(s, map, param_percent);
-        s = insert_param(s, map, param_decibel);
-        s = insert_param(s, map, param_dbfrac);
+        s = insert_param(s, state, param_crcbdelay);
+        s = insert_param(s, state, param_slice);
+        s = insert_param(s, state, param_bpp);
+        s = insert_param(s, state, param_size);
+        s = insert_param(s, state, param_percent);
+        s = insert_param(s, state, param_decibel);
+        s = insert_param(s, state, param_dbfrac);
+
+        s += " %1 %2";
         return s;
+    }
+
+    function getCommand() {
+        return getCommandFromState(getState());
+    }
+
+    root.onHeightChanged: {
+        mainApp.resizeQuickWidget(type);
     }
 }

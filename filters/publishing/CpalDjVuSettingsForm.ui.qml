@@ -5,6 +5,7 @@ GroupBox {
     id: root
     title: qsTr("cpaldjvu encoder:")
 
+    property alias root: root
     property alias cbColors: cbColors
     property alias sbColors: sbColors
     property alias cbBgwhite: cbBgwhite

@@ -1,73 +1,56 @@
 #ifndef DJVUENCODER_H
 #define DJVUENCODER_H
 
+#include "AppDependency.h"
+
 #include <QObject>
 #include <QVector>
-#include <QThread>
-#include <QProcess>
-#include <memory>
 
-struct EncoderDependency {
-    QString app_name;
-    QString check_cmd;
-    QStringList required_params;
-};
+#ifdef Q_OS_UNIX
+#ifdef Q_OS_OSX
+QString _qml_path;
+#else
+static QString _qml_path = "./filters/publishing/";
+#endif
+#else
+QString _qml_path = qApp->applicationDirPath()+"djvu/";
+#endif
 
-class DjVuEncoder;
-class DependencyChecker: public QThread
+
+#ifdef Q_OS_UNIX
+#ifdef Q_OS_OSX
+QString _platform = "macos";
+#else
+static QString _platform = "linux";
+#endif
+#else
+QString _platform = "windows";
+#endif
+
+class DjVuEncoder
 {
-    Q_OBJECT
 public:
-    DependencyChecker(DjVuEncoder* enc);
+    DjVuEncoder(QObject * obj, AppDependencies &dependencies);
 
-    void run() override {
-        bool res = checkDependencies();
-        emit dependenciesChecked(res);
-    }
-
-private:
-    bool checkDependencies();
-signals:
-    void dependenciesChecked(bool);
-private:
     QString m_name;
-    QVector<EncoderDependency> m_dependencies;
-    QProcess m_proc;
-};
-
-class DjVuEncoder: public QObject
-{
-    Q_OBJECT
-public:
-    DjVuEncoder(QObject* obj);
-    ~DjVuEncoder();
-
-    QString name;
     int priority;
     QStringList supportedInput;
     QString prefferedInput;
     QString supportedOutputMode;
     QString description;
     QString missingAppHint;
-    QVector<EncoderDependency> dependencies;
+    QStringList requiredApps;
     QString filename;
-    bool isMissing;
     bool isValid;
 
     bool operator<(const DjVuEncoder &rhs) const {
         return(this->priority < rhs.priority);
     }
-    bool checkDependencies();
 
     static bool lessThan(const DjVuEncoder* enc1, const DjVuEncoder* enc2)
     {
         return *enc1 < *enc2;
     }
-
-signals:
-    void dependenciesChecked(bool);
-private:
-    std::unique_ptr<DependencyChecker> m_deps_checker;
 };
 
 #endif // DJVUENCODER_H

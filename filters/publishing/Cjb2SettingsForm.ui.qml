@@ -5,9 +5,11 @@ GroupBox {
     id: root
 
     title: qsTr("cjb4 encoder:")
+    property alias root: root
     property alias cbClean: cbClean
     property alias cbLossy: cbLossy
     property alias sbLossy: sbLossy
+    property alias tooltipArea: tooltipArea
 
     Column {
         id: column
@@ -45,6 +47,7 @@ GroupBox {
             maximumValue: 100
             value: 100
             TooltipArea {
+                id: tooltipArea
                 text: qsTr("Loss factor (implies -lossy, default 100)")
             }
         }

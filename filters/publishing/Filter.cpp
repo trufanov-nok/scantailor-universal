@@ -115,7 +115,7 @@ Filter::preUpdateUI(FilterUiInterface* ui, PageId const& page_id)
 {
     QString filename;
 	if (m_ptrOptionsWidget.get()) {		
-        m_ptrOptionsWidget->preUpdateUI(filename);
+        m_ptrOptionsWidget->preUpdateUI(filename, page_id);
 		ui->setOptionsWidget(m_ptrOptionsWidget.get(), ui->KEEP_OWNERSHIP);
 	}
 }

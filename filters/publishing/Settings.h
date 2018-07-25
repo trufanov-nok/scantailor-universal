@@ -21,7 +21,10 @@
 
 #include "RefCountable.h"
 #include "NonCopyable.h"
+#include "PageId.h"
+#include "Params.h"
 #include <QMutex>
+#include <map>
 
 class AbstractRelinker;
 
@@ -40,9 +43,38 @@ public:
 
     void performRelinking(AbstractRelinker const& relinker);
 
+    Params getParams(PageId const& page_id) const;
+
+    void setParams(PageId const& page_id, Params const& params);
+
+    void setDpi(PageId const& page_id, Dpi const& dpi);
+
+    const Dpi dpi(PageId const& page_id) const;
+
+    void setEncoderState(PageId const& page_id, QJSValue const& val);
+
+    QJSValue const encoderState(PageId const& page_id) const;
+
+    void setConverterState(PageId const& page_id, QJSValue const& val);
+
+    QJSValue const converterState(PageId const& page_id) const;
+
+    QJSValue const state(PageId const& page_id, bool const isEncoder) const {
+        return (isEncoder)? encoderState(page_id) : converterState(page_id);
+    }
+
+    void setState(PageId const& page_id, QJSValue const& val, bool const isEncoder) {
+        if (isEncoder) {
+            setEncoderState(page_id, val);
+        } else {
+            setConverterState(page_id, val);
+        }
+    }
+
 private:
-	
-	mutable QMutex m_mutex;
+    typedef std::map<PageId, Params> PerPageParams;
+	mutable QMutex m_mutex;    
+    PerPageParams m_perPageParams;
 };
 
 } // namespace publishing
