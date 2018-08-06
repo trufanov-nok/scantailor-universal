@@ -152,8 +152,9 @@ TiffPostprocessorsForm {
     function setState(state) {
         sbJpegQuality.value = state[param_quality];
         cbJpegGrayscale.checked = state[param_grayscale];
-        cbJpegSmooth.checked = state.contains(param_smooth)
+        cbJpegSmooth.checked = param_smooth in state;
         sbJpegSmooth.value = (cbJpegSmooth.checked ? state[param_smooth] : 0);
+        notify();
     }
 
     function getCommandFromState(state) {
@@ -168,12 +169,12 @@ TiffPostprocessorsForm {
             return "tifftopnm %1 > ppmtopgm > pgmtopbm > %1";
         } else if (el.format === "jpeg") {
             var s = "tifftopnm %1 > pnmtojpeg ";
-            s += param_quality + " " + state[param_quality];
-            if (state.contains(param_grayscale)) {
+            s += param_quality + " " + state[param_quality]+ " ";
+            if (param_grayscale in state) {
                 s += param_grayscale + " ";
             }
-            if (state.contains(param_smooth)) {
-                s += param_smooth + " " + state[param_smooth];
+            if (param_smooth in state) {
+                s += param_smooth + " " + state[param_smooth]+ " ";
             }
             s += " > %1";
             return s;

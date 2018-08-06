@@ -3,38 +3,43 @@
 
 #include <QObject>
 #include <QThread>
+#include <QDebug>
 
 class CommandExecuter: public QThread
 {
     Q_OBJECT
 public:
-    CommandExecuter(const QStringList &commands): m_commands(commands) {}
+    CommandExecuter(const QStringList &commands): m_inputCommands(commands) {}
+
     void run() override {
-        for (const QString& cmd: m_commands) {
+        for (const QString& cmd: m_inputCommands) {
             system(cmd.toStdString().c_str());
+            qDebug() << cmd.toStdString().c_str() << "\n";
         }
-        emit executionComplete();
     }
-signals:
-    void executionComplete();
+
 private:
-    QStringList m_commands;
+    QStringList m_inputCommands;
 };
+
+
 
 class DjVuPageGenerator : public QObject
 {
     Q_OBJECT
 public:
-    explicit DjVuPageGenerator(const QString& file, const QStringList &commands, QObject *parent = nullptr);
-    void setComands(const QStringList &commands) {
-        m_commands = commands;
-        updatedCommands();
-    }
+    explicit DjVuPageGenerator(QObject *parent = nullptr);
+
+    void setFilename(const QString &file);
+    void setComands(const QStringList &commands) { m_commands = commands; }
+
+    QString outputFileName() const { return m_outputFile; }
+    QString executedCommands() const { return m_executedCommands; }
 
     void execute();
 
 private:
-    QStringList updatedCommands() const;
+    QString updatedCommands() const;
 signals:
     void executionComplete();
 private:
@@ -42,6 +47,7 @@ private:
     QStringList m_commands;
     QString m_tempFile;
     QString m_outputFile;
+    QString m_executedCommands;
 };
 
 #endif // DJVUPAGEGENERATOR_H

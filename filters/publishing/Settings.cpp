@@ -80,7 +80,7 @@ Settings::setDpi(PageId const& page_id, Dpi const& dpi)
 }
 
 void
-Settings::setEncoderState(PageId const& page_id, QJSValue const& val)
+Settings::setEncoderState(PageId const& page_id, QVariantMap const& val)
 {
     QMutexLocker const locker(&m_mutex);
 
@@ -95,7 +95,7 @@ Settings::setEncoderState(PageId const& page_id, QJSValue const& val)
 }
 
 void
-Settings::setConverterState(PageId const& page_id, QJSValue const& val)
+Settings::setConverterState(PageId const& page_id, QVariantMap const& val)
 {
     QMutexLocker const locker(&m_mutex);
 
@@ -109,7 +109,7 @@ Settings::setConverterState(PageId const& page_id, QJSValue const& val)
     }
 }
 
-Dpi const
+Dpi
 Settings::dpi(PageId const& page_id) const
 {
     QMutexLocker const locker(&m_mutex);
@@ -122,7 +122,34 @@ Settings::dpi(PageId const& page_id) const
     }
 }
 
-QJSValue const
+QString Settings::inputFilename(PageId const& page_id) const
+{
+    QMutexLocker const locker(&m_mutex);
+
+    PerPageParams::const_iterator const it(m_perPageParams.find(page_id));
+    if (it != m_perPageParams.end()) {
+        return it->second.inputFilename();
+    } else {
+        return QString();
+    }
+}
+
+void
+Settings::setInputFilename(PageId const& page_id, QString const& fileName)
+{
+    QMutexLocker const locker(&m_mutex);
+
+    PerPageParams::iterator const it(m_perPageParams.lower_bound(page_id));
+    if (it == m_perPageParams.end() || m_perPageParams.key_comp()(page_id, it->first)) {
+        Params params;
+        params.setInputFilename(fileName);
+        m_perPageParams.insert(it, PerPageParams::value_type(page_id, params));
+    } else {
+        it->second.setInputFilename(fileName);
+    }
+}
+
+QVariantMap
 Settings::encoderState(PageId const& page_id) const
 {
     QMutexLocker const locker(&m_mutex);
@@ -131,12 +158,12 @@ Settings::encoderState(PageId const& page_id) const
     if (it != m_perPageParams.end()) {
         return it->second.encoderState();
     } else {
-        return QJSValue();
+        return QVariantMap();
     }
 }
 
 
-QJSValue const
+QVariantMap
 Settings::converterState(PageId const& page_id) const
 {
     QMutexLocker const locker(&m_mutex);
@@ -145,7 +172,7 @@ Settings::converterState(PageId const& page_id) const
     if (it != m_perPageParams.end()) {
         return it->second.converterState();
     } else {
-        return QJSValue();
+        return QVariantMap();
     }
 }
 

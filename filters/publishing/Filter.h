@@ -26,9 +26,13 @@
 #include "FilterResult.h"
 #include "SafeDeletingQObjectPtr.h"
 #include "ProjectPages.h"
+#include "DjVuPageGenerator.h"
+#include "djview4/qdjvu.h"
+#include "djview4/qdjvuwidget.h"
+
 #include <QCoreApplication>
 #include <QImage>
-#include "djview4/qdjvu.h"
+#include <memory>
 
 class PageId;
 class PageSelectionAccessor;
@@ -84,17 +88,23 @@ public:
 
     Settings* getSettings() { return m_ptrSettings.get(); }
 
-    QDjVuDocument* getDjVuDocument() const { return m_ptrDjVuDocument; }
+    QDjVuDocument* getDjVuDocument() const { return m_ptrDjVuDocument.get(); }
+
+    QDjVuWidget* getDjVuWidget() const { return m_ptrDjVuWidget.get(); }
+
+    DjVuPageGenerator& getPageGenerator() const { return *m_ptrPageGenerator; }
 private:
-	void writeImageSettings(
+    void writePageSettings(
 		QDomDocument& doc, QDomElement& filter_el,
-		ImageId const& image_id, int numeric_id) const;
+        PageId const& page_id, int numeric_id) const;
 	
     IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<Settings> m_ptrSettings;
+    std::unique_ptr<DjVuPageGenerator> m_ptrPageGenerator;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
-    QDjVuContext* m_ptrDjVuContext;
-    QDjVuDocument* m_ptrDjVuDocument;
+    SafeDeletingQObjectPtr<QDjVuContext> m_ptrDjVuContext;
+    SafeDeletingQObjectPtr<QDjVuDocument> m_ptrDjVuDocument;
+    SafeDeletingQObjectPtr<QDjVuWidget> m_ptrDjVuWidget;
 };
 
 } // publishing

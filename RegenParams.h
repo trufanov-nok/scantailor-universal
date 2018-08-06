@@ -36,6 +36,8 @@ public:
 
     virtual Regenerate getForceReprocess() const { return m_forceReprocess; }
 
+    virtual ~RegenParams(){}
+
 private:	
     Regenerate m_forceReprocess;
 };

@@ -5,6 +5,8 @@ GroupBox {
     id: root
 
     title: qsTr("cjb4 encoder:")
+    width: mainApp.width
+
     property alias root: root
     property alias cbClean: cbClean
     property alias cbLossy: cbLossy

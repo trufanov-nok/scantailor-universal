@@ -4,6 +4,7 @@ import QtQuick.Controls 1.2
 GroupBox {
     id: root
     title: qsTr("Required conversion:")
+    width: mainApp.width
 
     property alias root: root
     property alias cbPostprocessors: cbPostprocessors
@@ -81,8 +82,3 @@ GroupBox {
         }
     }
 }
-
-/*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
- ##^##*/

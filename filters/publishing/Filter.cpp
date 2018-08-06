@@ -43,149 +43,173 @@
 #include <QtQuickControls2/QQuickStyle>
 #include "CommandLine.h"
 
+
 namespace publishing
 {
 
 Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
                PageSelectionAccessor const& page_selection_accessor)
-:	m_ptrPages(pages), m_ptrSettings(new Settings),
-    m_ptrDjVuContext(nullptr), m_ptrDjVuDocument(nullptr)
+    :	m_ptrPages(pages), m_ptrSettings(new Settings), m_ptrPageGenerator(new DjVuPageGenerator()),
+      m_ptrDjVuContext(nullptr), m_ptrDjVuDocument(nullptr)
 {
 
     QQuickStyle::setStyle("Material");
 
-	if (CommandLine::get().isGui()) {
-		m_ptrOptionsWidget.reset(
-			new OptionsWidget(m_ptrSettings, page_selection_accessor)
-		);
+    if (CommandLine::get().isGui()) {
+        m_ptrOptionsWidget.reset(
+                    new OptionsWidget(m_ptrSettings, page_selection_accessor, *m_ptrPageGenerator)
+                    );
+
+        m_ptrDjVuContext.reset( new QDjVuContext("scan_tailor_universal") );
+        m_ptrDjVuWidget.reset( new QDjVuWidget() ) ;
+
+
+        QObject::connect(m_ptrDjVuDocument.get(), &QDjVuDocument::error,
+                         [](QString msg,QString,int) {
+            QMessageBox::critical(nullptr, "Error", msg);
+        });
+
+        QObject::connect(m_ptrOptionsWidget.get(), &OptionsWidget::displayDjVu, [this](const QString& filename) {
+            m_ptrDjVuDocument.reset( new QDjVuDocument() );
+            m_ptrDjVuWidget->setDocument(m_ptrDjVuDocument.get());
+            m_ptrDjVuDocument->setFileName(m_ptrDjVuContext.get(), filename);
+        });
+
     }
-
-    m_ptrDjVuContext = new QDjVuContext("scan_tailor_universal");
-    m_ptrDjVuDocument = new QDjVuDocument();
-
-    QObject::connect(m_ptrDjVuDocument, &QDjVuDocument::error,
-                     [](QString msg,QString,int) {
-        QMessageBox::critical(nullptr, "Error", msg);
-    });
-
-    m_ptrDjVuDocument->setFileName(m_ptrDjVuContext, "/home/truf/1.djvu");
-    assert(m_ptrDjVuDocument->isValid());
-//    if (!m_ptrDjVuDocument->isValid())
-//      {
-//        delete doc;
-//        addToErrorDialog(tr("Cannot open file '%1'.").arg(filename));
-//        raiseErrorDialog(QMessageBox::Critical, tr("Opening DjVu file"));
-//        return false;
-//      }
-
 }
 
 Filter::~Filter()
 {
-    if (m_ptrDjVuDocument) {
-        delete m_ptrDjVuDocument;
-    }
-    if (m_ptrDjVuContext) {
-        delete m_ptrDjVuContext;
-    }
 }
 
 QString
 Filter::getName() const
 {
-	return QCoreApplication::translate(
-        "publishing::Filter", "Make a book"
-	);
+    return QCoreApplication::translate(
+                "publishing::Filter", "Make a book"
+                );
 }
 
 PageView
 Filter::getView() const
 {
-	return IMAGE_VIEW;
+    return IMAGE_VIEW;
 }
 
 void
 Filter::performRelinking(AbstractRelinker const& relinker)
 {
-	m_ptrSettings->performRelinking(relinker);
+    m_ptrSettings->performRelinking(relinker);
 }
 
 void
 Filter::preUpdateUI(FilterUiInterface* ui, PageId const& page_id)
 {
-    QString filename;
-	if (m_ptrOptionsWidget.get()) {		
-        m_ptrOptionsWidget->preUpdateUI(filename, page_id);
-		ui->setOptionsWidget(m_ptrOptionsWidget.get(), ui->KEEP_OWNERSHIP);
-	}
+    if (m_ptrOptionsWidget.get()) {
+        m_ptrOptionsWidget->preUpdateUI(page_id);
+        ui->setOptionsWidget(m_ptrOptionsWidget.get(), ui->KEEP_OWNERSHIP);
+    }
 }
 
 QDomElement
 Filter::saveSettings(
-	ProjectWriter const& writer, QDomDocument& doc) const
+        ProjectWriter const& writer, QDomDocument& doc) const
 {
     QDomElement filter_el(doc.createElement("publishing"));
-	writer.enumImages(
-		boost::lambda::bind(
-			&Filter::writeImageSettings,
-            this, boost::ref(doc), boost::lambda::var(filter_el), boost::lambda::_1, boost::lambda::_2
-		)
-	);
-	
-	return filter_el;
+    writer.enumPages(
+                boost::lambda::bind(
+                    &Filter::writePageSettings,
+                    this, boost::ref(doc), boost::lambda::var(filter_el), boost::lambda::_1, boost::lambda::_2
+                    )
+                );
+
+    return filter_el;
 }
 
 void
 Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
 {
-	m_ptrSettings->clear();
-	
-    QDomElement filter_el(filters_el.namedItem("publishing").toElement());
+    m_ptrSettings->clear();
+
+    QDomElement filter_el(
+                filters_el.namedItem("publishing").toElement()
+                );
+    QString const page_tag_name("page");
+
+    QDomNode node(filter_el.firstChild());
+    for (; !node.isNull(); node = node.nextSibling()) {
+        if (!node.isElement()) {
+            continue;
+        }
+        if (node.nodeName() != page_tag_name) {
+            continue;
+        }
+        QDomElement const el(node.toElement());
+
+        bool ok = true;
+        int const id = el.attribute("id").toInt(&ok);
+        if (!ok) {
+            continue;
+        }
+
+        PageId const page_id(reader.pageId(id));
+        if (page_id.isNull()) {
+            continue;
+        }
+
+        QDomElement const params_el(el.namedItem("params").toElement());
+        if (!params_el.isNull()) {
+            Params const params(params_el);
+            m_ptrSettings->setParams(page_id, params);
+        }
+    }
+
 }
 
 void
 Filter::invalidateSetting(PageId const& page)
 {
-//  Params p = m_ptrSettings->getParams(page);
-//  p.setForceReprocess(Params::RegenerateAll);
-//  m_ptrSettings->setParams(page, p);
+    Params p = m_ptrSettings->getParams(page);
+    p.setForceReprocess(Params::RegenerateAll);
+    m_ptrSettings->setParams(page, p);
 }
 
 
 IntrusivePtr<Task>
 Filter::createTask(
-	PageId const& page_id,
-	bool const batch_processing)
+        PageId const& page_id,
+        bool const batch_processing)
 {
-	return IntrusivePtr<Task>(
-		new Task(
-            IntrusivePtr<Filter>(this),
-            m_ptrSettings, page_id,
-            batch_processing
-		)
-	);
+    return IntrusivePtr<Task>(
+                new Task(
+                    IntrusivePtr<Filter>(this),
+                    m_ptrSettings, page_id,
+                    batch_processing
+                    )
+                );
 }
 
 IntrusivePtr<CacheDrivenTask>
 Filter::createCacheDrivenTask()
 {
-	return IntrusivePtr<CacheDrivenTask>(
-        new CacheDrivenTask(m_ptrSettings)
-	);
+    return IntrusivePtr<CacheDrivenTask>(
+                new CacheDrivenTask(m_ptrSettings)
+                );
 }
 
 void
-Filter::writeImageSettings(
-	QDomDocument& doc, QDomElement& filter_el,
-	ImageId const& image_id, int const numeric_id) const
-{	
-	
-//	XmlMarshaller marshaller(doc);
-	
-//	QDomElement image_el(doc.createElement("image"));
-//	image_el.setAttribute("id", numeric_id);
-//	image_el.appendChild(marshaller.rotation(rotation, "rotation"));
-//	filter_el.appendChild(image_el);
+Filter::writePageSettings(
+        QDomDocument& doc, QDomElement& filter_el,
+        PageId const& page_id, int numeric_id) const
+{
+
+    Params const params(m_ptrSettings->getParams(page_id));
+
+    QDomElement page_el(doc.createElement("publishing"));
+    page_el.setAttribute("id", numeric_id);
+    page_el.appendChild(params.toXml(doc, "params"));
+
+    filter_el.appendChild(page_el);
 }
 
 } // namespace publishing

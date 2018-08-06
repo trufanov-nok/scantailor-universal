@@ -70,37 +70,3 @@ DependencyChecker::checkDependencies(bool force_recheck)
     }
 }
 
-
-void
-readDep(const QJSValue& jsVal, AppDependencies& deps, QStringList* apps_readed)
-{
-    AppDependency app_dep;
-    app_dep.app_name = jsVal.property("app").toString();
-    app_dep.check_cmd = jsVal.property("check_cmd").toString();
-    app_dep.required_params = jsVal.property("search_params").toString().split(';', QString::SkipEmptyParts);
-    app_dep.missing_app_hint = jsVal.property("missing_app_hint").toString();
-    deps[app_dep.app_name] = app_dep;
-    if (apps_readed) {
-        apps_readed->append(app_dep.app_name);
-    }
-}
-
-bool
-AppDependenciesReader::fromJSObject(QObject* const obj, AppDependencies& deps, QStringList* apps_readed)
-{
-    QVariant retVal;
-    bool res = QMetaObject::invokeMethod(obj, "getDependencies", Qt::DirectConnection,
-                                         Q_RETURN_ARG(QVariant, retVal));
-    if (res) {
-        const QJSValue jsVal = retVal.value<QJSValue>();
-        if (jsVal.isArray()) {
-            const uint len = jsVal.property("length").toUInt();
-            for (uint i = 0; i < len; ++i) {
-                readDep(jsVal.property(i), deps, apps_readed);
-            }
-        } else {
-            readDep(jsVal, deps, apps_readed);
-        }
-    }
-    return res;
-}

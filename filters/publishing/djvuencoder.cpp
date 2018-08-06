@@ -1,4 +1,5 @@
 #include "djvuencoder.h"
+#include "QuickWidgetAccessHelper.h"
 #include <QVariant>
 #include <QString>
 #include <iostream>
@@ -36,45 +37,32 @@ bool getIntProperty(QObject const* obj, const char* prop, int& res) {
     return false;
 }
 
-DjVuEncoder::DjVuEncoder(QObject * obj, AppDependencies& dependencies):
+DjVuEncoder::DjVuEncoder(QObject * componentInstance, AppDependencies& dependencies):
     isValid(false)
 {
-    if (obj->property("type").toString() == "encoder") {
-        if (!getStrProperty(obj, "name", this->m_name)) return;
+    if (componentInstance->property("type").toString() == "encoder") {
+        if (!getStrProperty(componentInstance, "name", this->m_name)) return;
         QString tmp;
-        if (!getStrProperty(obj, "supportedInput", tmp)) return;
+        if (!getStrProperty(componentInstance, "supportedInput", tmp)) return;
         this->supportedInput = tmp.split(';');
-        if (!getStrProperty(obj, "prefferedInput", this->prefferedInput)) return;
-        if (!getStrProperty(obj, "supportedOutputMode", this->supportedOutputMode)) return;
-        if (!getStrProperty(obj, "description", this->description)) return;
-        if (!getIntProperty(obj, "priority", this->priority)) return;
+        if (!getStrProperty(componentInstance, "prefferedInput", this->prefferedInput)) return;
+        if (!getStrProperty(componentInstance, "supportedOutputMode", this->supportedOutputMode)) return;
+        if (!getStrProperty(componentInstance, "description", this->description)) return;
+        if (!getIntProperty(componentInstance, "priority", this->priority)) return;
 
-        QVariant retVal;
-        bool res = QMetaObject::invokeMethod(obj, "init", Qt::DirectConnection,
-                                             Q_RETURN_ARG(QVariant, retVal),
-                                             Q_ARG(QVariant, _platform));
-        if (!res || !retVal.isValid() || !retVal.toBool()) {
-            std::cerr << QString("init(\"%1\") failed for %2").arg(_platform).arg(m_name).toStdString();
+        QuickWidgetAccessHelper reader(componentInstance, m_name);
+        if (!reader.init()) {
             return;
         }
 
-        res = QMetaObject::invokeMethod(obj, "getMissingAppHint", Qt::DirectConnection,
-                                        Q_RETURN_ARG(QVariant, retVal));
-        if (!res || !retVal.isValid() || !retVal.canConvert(QMetaType::QString)) {
-            std::cerr << QString("getMissingAppHint() failed for %1.").arg(m_name).toStdString();
-            return;
-        }
-        missingAppHint = retVal.toString();
-
-        res = QMetaObject::invokeMethod(obj, "getDependencies", Qt::DirectConnection,
-                                        Q_RETURN_ARG(QVariant, retVal));
-        if (!res || !retVal.isValid()) {
-            std::cerr << QString("getDependencies() failed for %1.").arg(m_name).toStdString();
+        if (!reader.getMissingAppHint(missingAppHint)) {
             return;
         }
 
-        isValid = true;
+        isValid = reader.getCommand(defaultCmd); // using default state of newly created instance
 
-        AppDependenciesReader::fromJSObject(obj, dependencies, &requiredApps);
+        ptrComponentInstance.reset(componentInstance);
+
+        reader.readAppDependencies(dependencies, &requiredApps);
     }
 }

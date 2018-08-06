@@ -26,6 +26,7 @@
 #include "ImageId.h"
 #include "PageId.h"
 #include "djview4/qdjvu.h"
+#include <memory>
 
 class TaskStatus;
 class FilterData;
@@ -47,7 +48,7 @@ public:
 	
 	virtual ~Task();
 	
-    FilterResultPtr process(TaskStatus const& status, const QString &image_file, quint64 image_hash);
+    FilterResultPtr process(TaskStatus const& status, const QString &image_file, qint64 image_hash);
 private:
 	class UiUpdater;
 	

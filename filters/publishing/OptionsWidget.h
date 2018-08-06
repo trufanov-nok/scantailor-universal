@@ -26,6 +26,7 @@
 #include "PageSelectionAccessor.h"
 #include "djvuencoder.h"
 #include "DjVuPageGenerator.h"
+#include "QMLLoader.h"
 #include <memory>
 
 namespace publishing
@@ -34,18 +35,22 @@ namespace publishing
 class Settings;
 
 class OptionsWidget :
-    public FilterOptionsWidget, private Ui::PublishingOptionsWidget
+        public FilterOptionsWidget, private Ui::PublishingOptionsWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	OptionsWidget(IntrusivePtr<Settings> const& settings,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~OptionsWidget();
-	
-    void preUpdateUI(QString const& filename, const PageId &page_id);
-	
+    OptionsWidget(IntrusivePtr<Settings> const& settings,
+                  PageSelectionAccessor const& page_selection_accessor,
+                  DjVuPageGenerator& m_pageGenerator);
+
+    virtual ~OptionsWidget();
+
+    void preUpdateUI(const PageId &page_id);
+
     void postUpdateUI();
+
+
+    Q_PROPERTY(int width READ width NOTIFY widthChanged)
 
 private:
     void setupQuickWidget(QQuickWidget* wgt);
@@ -54,9 +59,9 @@ private:
     bool initTiffConvertor();
     void checkDependencies(const AppDependency& dep);
     void checkDependencies(const AppDependencies& deps);
-    bool allDependenciesFound(const QStringList& req_apps, QStringList *missing_apps = nullptr);
+    bool isAllDependenciesFound(const QStringList& req_apps, QStringList *missing_apps = nullptr);
     void showMissingAppSelectors(QStringList req_apps, bool isEncoderDep);
-    void setOutputDpi(uint dpi);
+    void launchDjVuGenerator();
     void displayWidgets();
 
 
@@ -69,19 +74,18 @@ private slots:
 public slots:
     void resizeQuickWidget(QVariant arg);
     void requestParamUpdate(const QVariant requestor);
+signals:
+    void displayDjVu(const QString& fileName);
+    void widthChanged();
 
 private:
-	
-	IntrusivePtr<Settings> m_ptrSettings;
+
+    IntrusivePtr<Settings> m_ptrSettings;
     PageId m_pageId;
-	PageSelectionAccessor m_pageSelectionAccessor;
-    QString m_filename;
-    AppDependencies m_dependencies;
-    QVector<DjVuEncoder*> m_encoders;    
-    QStringList m_convertorRequiredApps;
-    QString m_encoderCmd;
-    QString m_convertorCmd;
-    std::unique_ptr<DjVuPageGenerator> m_pageGenerator;
+    PageSelectionAccessor m_pageSelectionAccessor;
+    QString m_imageFilename;
+    DjVuPageGenerator& m_pageGenerator;
+    QMLLoader m_QMLLoader;
 };
 
 } // namespace publishing

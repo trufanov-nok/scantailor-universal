@@ -25,6 +25,7 @@
 #include "MissingApplicationsWidget.h"
 #include "../../Utils.h"
 #include "ChangeDpiDialog.h"
+#include "QuickWidgetAccessHelper.h"
 #include <QFileInfo>
 #include <QQuickItem>
 #include <QQmlEngine>
@@ -37,23 +38,37 @@ namespace publishing
 
 OptionsWidget::OptionsWidget(
         IntrusivePtr<Settings> const& settings,
-        PageSelectionAccessor const& page_selection_accessor)
+        PageSelectionAccessor const& page_selection_accessor,
+        DjVuPageGenerator& pageGenerator)
     :	m_ptrSettings(settings),
-      m_pageSelectionAccessor(page_selection_accessor)
+      m_pageSelectionAccessor(page_selection_accessor),
+      m_pageGenerator(pageGenerator)
 {
     setupUi(this);
-    1==3;
 
-    initTiffConvertor();
-    initEncodersSelector();
-    checkDependencies(m_dependencies);
+    connect(&m_pageGenerator, &DjVuPageGenerator::executionComplete, [this](){
+        emit displayDjVu(m_pageGenerator.outputFileName());
+    });
+
+    setupQuickWidget(conversionWidget);
+    setupQuickWidget(encoderWidget);
+
+    cbEncodersSelector->clear();
+
+    QObject::connect(&m_QMLLoader, &QMLLoader::dependencyStateChanged, this, [this]() {
+        displayWidgets();
+    });
+
+
+
+    for (const DjVuEncoder* enc: m_QMLLoader.availableEncoders()) {
+        cbEncodersSelector->addItem(enc->m_name, enc->filename);
+    }
+
 }
 
 OptionsWidget::~OptionsWidget()
 {
-    for (int i = 0; i < m_encoders.size(); i++) {
-        delete m_encoders[i];
-    }
 }
 
 void
@@ -69,42 +84,39 @@ updateQuickWidgetHeight(QQuickWidget* w)
 }
 
 void
-OptionsWidget::preUpdateUI(QString const& filename, PageId const& page_id)
+OptionsWidget::preUpdateUI(PageId const& page_id)
 {
-    m_filename = filename;
-    Params const params(m_ptrSettings->getParams(page_id));
     m_pageId = page_id;
+    Params const params(m_ptrSettings->getParams(m_pageId));
+
     QString dpi_label = tr("%1 dpi").arg(QString::number(params.outputDpi().horizontal()));
     dpiValue->setText(Utils::richTextForLink(dpi_label));
+}
 
-    displayWidgets();
-
-    if (QQuickItem* root = conversionWidget->rootObject()) {
-        const QJSValue& val = params.converterState();
-        if (!val.isUndefined()) {
-            bool res = QMetaObject::invokeMethod(root, "setState", Qt::DirectConnection,
-                                                 Q_ARG(QJSValue, val));
-        }
+void
+OptionsWidget::launchDjVuGenerator()
+{
+    if (!m_imageFilename.isNull()) {
+        m_pageGenerator.setComands(m_QMLLoader.getCommands());
+        m_pageGenerator.execute();
     }
-
-    if (QQuickItem* root = encoderWidget->rootObject()) {
-        const QJSValue& val = params.encoderState();
-        if (!val.isUndefined()) {
-            bool res = QMetaObject::invokeMethod(root, "setState", Qt::DirectConnection,
-                                                 Q_ARG(QJSValue, val));
-        }
-    }
-
-    m_pageGenerator.reset(new DjVuPageGenerator(m_filename, QStringList() << m_encoderCmd << m_convertorCmd, this));
-    connect(m_pageGenerator.get(), &DjVuPageGenerator::executionComplete, [this](){
-
-    });
-    m_pageGenerator->execute();
 }
 
 void
 OptionsWidget::postUpdateUI()
 {
+    Params const params(m_ptrSettings->getParams(m_pageId));
+    m_imageFilename = params.inputFilename();
+    m_pageGenerator.setFilename(m_imageFilename);
+
+    displayWidgets();
+
+    m_QMLLoader.converter()->setState(params.converterState());
+    m_QMLLoader.encoder()->setState(params.encoderState());
+//    QuickWidgetAccessHelper c_help(conversionWidget);
+//    QuickWidgetAccessHelper e_help(encoderWidget);
+
+    launchDjVuGenerator();
 }
 
 void
@@ -118,109 +130,6 @@ OptionsWidget::setupQuickWidget(QQuickWidget* wgt)
 }
 
 
-bool
-OptionsWidget::initTiffConvertor()
-{
-    setupQuickWidget(conversionWidget);
-
-    QStringList sl = _qml_path.split(';');
-    foreach (QString d, sl) {
-        const QDir dir(QFileInfo(d).absoluteFilePath());
-        QString qml_file = dir.absoluteFilePath("TiffPostprocessors.qml");
-        if (QFileInfo(qml_file).exists()) {
-            conversionWidget->setSource(qml_file);
-            if (QObject *item = conversionWidget->rootObject()) {
-                QVariant retVal;
-                bool res = QMetaObject::invokeMethod(item, "init", Qt::DirectConnection,
-                                                     Q_RETURN_ARG(QVariant, retVal),
-                                                     Q_ARG(QVariant, _platform));
-                if (!res || !retVal.isValid() || !retVal.toBool()) {
-                    std::cerr << QString("TiffPostprocessors.qml::init(\"%1\") failed").arg(_platform).toStdString();
-                } else {
-                    AppDependenciesReader::fromJSObject(item, m_dependencies, &m_convertorRequiredApps);
-                    return true;
-                }
-            }
-
-        }
-    }
-    return false;
-}
-
-
-void
-OptionsWidget::initEncodersSelector()
-{
-    setupQuickWidget(encoderWidget);
-
-    QStringList sl = _qml_path.split(';');
-    foreach (QString d, sl) {
-        const QDir dir(QFileInfo(d).absoluteFilePath());
-        const QStringList files = dir.entryList(QStringList("*.qml"), QDir::Filter::Files);
-        if (!files.isEmpty()) {
-            QQmlEngine* engine = new QQmlEngine(this);
-
-            if (QQmlContext* cntx = engine->rootContext()) {
-                // This is a temporary qml load but set callback link to supress warnings
-                cntx->setContextProperty("mainApp", this);
-            }
-
-            foreach (QString qml_file, files) {
-                if (qml_file.contains("ui.qml")) {
-                    continue;
-                }
-                QString ff = dir.absoluteFilePath(qml_file);
-                QQmlComponent component(engine, ff);
-
-                //engine.load(ff);
-                QObject *item = component.create();  //dynamic_cast<QObject *>(engine.rootObjects().at(0));
-                if (item) {
-                    DjVuEncoder* encoder = new DjVuEncoder(item, m_dependencies);
-                    if (encoder->isValid) {
-                        encoder->filename = ff;
-                        m_encoders.append(encoder);
-                    } else {
-                        delete encoder;
-                    }
-
-                    delete item;
-                }
-            }
-            qSort(m_encoders.begin(), m_encoders.end(), &DjVuEncoder::lessThan);
-            delete engine;
-        }
-    }
-
-
-    cbEncodersSelector->clear();
-
-    for (const DjVuEncoder* enc: m_encoders) {
-        cbEncodersSelector->addItem(enc->m_name, enc->filename);
-    }
-}
-
-
-void OptionsWidget::checkDependencies(const AppDependency& dep)
-{
-    AppDependencies tmp;
-    tmp[dep.app_name] = dep;
-    checkDependencies(tmp);
-}
-
-void OptionsWidget::checkDependencies(const AppDependencies& deps)
-{
-    DependencyChecker* checker =  new DependencyChecker(deps);
-    // we'll delete self at completion
-    connect(checker, &DependencyChecker::dependenciesChecked, [checker](){checker->deleteLater();});
-
-    connect(checker, &DependencyChecker::dependencyStateChanged, this, [this](const QString app_name, const AppDependencyState state) {
-        m_dependencies[app_name].state = state;
-        displayWidgets();
-    }, Qt::QueuedConnection); // QueuedConnection is required to create MissingAppDeps widgets in Ui thread.
-
-    checker->start();
-}
-
 void
 OptionsWidget::on_statusChanged(const QQuickWidget::Status &arg1)
 {
@@ -233,6 +142,7 @@ OptionsWidget::on_statusChanged(const QQuickWidget::Status &arg1)
 void
 OptionsWidget::resizeQuickWidget(QVariant arg)
 {
+    // QTBUG-69566
     QQuickWidget* wgt = (arg.toString() == "encoder")? encoderWidget
                                                      : conversionWidget;
     if (QQuickItem* qi = wgt->rootObject()) {
@@ -251,11 +161,11 @@ OptionsWidget::setLinkToMainApp(QQuickWidget* wgt) {
     }
 }
 
-bool OptionsWidget::allDependenciesFound(const QStringList& req_apps, QStringList* missing_apps)
+bool OptionsWidget::isAllDependenciesFound(const QStringList& req_apps, QStringList* missing_apps)
 {
     bool all_is_ok = true;
     for (const QString& app_name : req_apps) {
-        if (m_dependencies[app_name].state != AppDependencyState::Found) {
+        if (m_QMLLoader.dependencies()[app_name].state != AppDependencyState::Found) {
             all_is_ok = false;
             if (missing_apps) {
                 missing_apps->append(app_name);
@@ -289,11 +199,12 @@ OptionsWidget::showMissingAppSelectors(QStringList req_apps, bool isEncoderDep)
 
     // Show missing apps selection dialogs
     for (const QString& app: req_apps) {
-        MissingApplicationsWidget * mw = new MissingApplicationsWidget(app, m_dependencies[app].missing_app_hint, wgt);
+        MissingApplicationsWidget * mw = new MissingApplicationsWidget(app, m_QMLLoader.dependencies()[app].missing_app_hint, wgt);
         wgt->layout()->addWidget(mw);
         connect(mw, &MissingApplicationsWidget::newPathToExecutable, [this](QString app, QString filename) {
-            m_dependencies[app].working_cmd = filename;
-            checkDependencies(m_dependencies[app]);
+            AppDependency& dep = m_QMLLoader.dependencies()[app];
+            dep.working_cmd = filename;
+            checkDependencies(dep);
         });
         child_cnt++;
     }
@@ -305,53 +216,32 @@ OptionsWidget::showMissingAppSelectors(QStringList req_apps, bool isEncoderDep)
 void OptionsWidget::displayWidgets()
 {
     QStringList missing_deps;
-    encoderWidget->setVisible(allDependenciesFound(m_encoders[cbEncodersSelector->currentIndex()]->requiredApps,&missing_deps));
-    showMissingAppSelectors(missing_deps, true);
+    if (m_QMLLoader.encoder()) {
+        encoderWidget->setVisible(isAllDependenciesFound(m_QMLLoader.encoder()->requiredApps(), &missing_deps));
+        showMissingAppSelectors(missing_deps, true);
+    }
 
-    conversionWidget->setVisible(allDependenciesFound(m_convertorRequiredApps,&missing_deps));
-    showMissingAppSelectors(missing_deps, false);
+    if (m_QMLLoader.converter()) {
+        conversionWidget->setVisible(isAllDependenciesFound(m_QMLLoader.converter()->requiredApps(), &missing_deps));
+        showMissingAppSelectors(missing_deps, false);
+    }
 }
 
 void OptionsWidget::requestParamUpdate(const QVariant requestor)
 {
     bool is_encoder = requestor.toString() == "encoder";
     QQuickWidget* wgt = (is_encoder)? encoderWidget : conversionWidget;
-    if (QObject* root = wgt->rootObject()) {
-        QVariant retVal;
-        bool res = QMetaObject::invokeMethod(root, "getCommand", Qt::DirectConnection,
-                                             Q_RETURN_ARG(QVariant, retVal));
-        if (res && retVal.isValid()) {
-            if (is_encoder) {
-                m_encoderCmd = retVal.toString();
-            } else {
-                m_convertorCmd = retVal.toString();
-            }
-            if (m_pageGenerator) {
-                m_pageGenerator->setComands(QStringList() << m_encoderCmd << m_convertorCmd);
-                m_pageGenerator->execute();
-            }
-        }
-
-        res = QMetaObject::invokeMethod(root, "getState", Qt::DirectConnection,
-                                             Q_RETURN_ARG(QVariant, retVal));
-        if (res && retVal.isValid()) {
-            const QJSValue jsVal = retVal.value<QJSValue>();
-            m_ptrSettings->setState(m_pageId, jsVal, is_encoder);
-        }
+    QuickWidgetAccessHelper helper(wgt);
+    QString& cmd = (is_encoder)? m_encoderCmd : m_convertorCmd;
+    if (helper.getCommand(cmd)) {
+        launchDjVuGenerator();
     }
-}
 
-void setDpi(QQuickWidget* wgt, uint val) {
-    if (QObject* root = wgt->rootObject()) {
-        root->setProperty("_dpi_", val);
+    QVariantMap val;
+    if (helper.getState(val)) {
+        m_ptrSettings->setState(m_pageId, val, is_encoder);
     }
-}
 
-void
-OptionsWidget::setOutputDpi(uint dpi)
-{
-    setDpi(encoderWidget, dpi);
-//    setDpi(conversionWidget, dpi);
 }
 
 } // namespace publishing
@@ -367,17 +257,14 @@ void publishing::OptionsWidget::on_cbEncodersSelector_currentIndexChanged(int in
     // trick to achieve qml contents actual height but resizable panel's width
     encoderWidget->setResizeMode(QQuickWidget::ResizeMode::SizeRootObjectToView);
 
-    if (QObject* enc_root = encoderWidget->rootObject()) {
-        QString supported_input = enc_root->property("supportedInput").toString();
-        QString preferred_input = enc_root->property("prefferedInput").toString();
-        if (QObject* conv_root = conversionWidget->rootObject()) {
-            bool res = QMetaObject::invokeMethod(conv_root, "filterByRequiredInput", Qt::DirectConnection,
-                                                 Q_ARG(QVariant, supported_input),
-                                                 Q_ARG(QVariant, preferred_input));
-            Q_ASSERT(res);
-        }
+    QuickWidgetAccessHelper eh(encoderWidget, qml_file);
+    QString supported_input; QString preferred_input;
+    eh.getSupportedInput(supported_input);
+    eh.getPrefferedInput(preferred_input);
 
-    }
+    QuickWidgetAccessHelper ch(conversionWidget, _convertor_qml_);
+    bool res = ch.filterByRequiredInput(supported_input, preferred_input);
+    Q_ASSERT(res);
 }
 
 void publishing::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
@@ -387,6 +274,6 @@ void publishing::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*
     ChangeDpiDialog dlg(this, dpi);
     if (dlg.exec() == QDialog::Accepted) {
         m_ptrSettings->setDpi(m_pageId, dpi);
-        setOutputDpi((uint)dpi.horizontal());
+        QuickWidgetAccessHelper(encoderWidget).setOutputDpi(dpi.horizontal());
     };
 }

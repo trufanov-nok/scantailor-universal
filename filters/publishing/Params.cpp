@@ -22,7 +22,6 @@
 #include "CommandLine.h"
 #include <QDomDocument>
 #include <QDomElement>
-#include <QMetaProperty>
 #include <QString>
 
 //#include "settings/ini_keys.h"
@@ -31,16 +30,35 @@ namespace publishing
 {
 
 Params::Params()
-:  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi())
-{
+:  RegenParams(),
+  m_dpi(CommandLine::get().getDefaultOutputDpi())
+{    
 }
 
 Params::Params(QDomElement const& el)
 :	RegenParams(),
-    m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement()))
+    m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
+    m_executedCommand(XmlUnmarshaller::string(el.namedItem("executed_command").toElement()))
 
 {
-    QDomElement const cp(el.namedItem("encoder-params").toElement());
+    m_inputImageInfo.fileName = XmlUnmarshaller::string(el.namedItem("input_filename").toElement());
+    m_inputImageInfo.fileSize = el.attribute("input_filesize").toUInt();
+    m_inputImageInfo.imageHash = el.attribute("input_image_hash").toULongLong();
+    m_inputImageInfo.imageColorMode = (ImageInfo::ColorMode) el.attribute("input_image_color_mode").toUInt();
+
+    QDomElement const ep(el.namedItem("encoder-params").toElement());
+    QDomNamedNodeMap map = ep.attributes();
+    for (int i = 0; i < map.count(); i++) {
+        const QDomNode item = map.item(i);
+        m_encoderState[item.nodeName()] = item.nodeValue();
+    }
+
+    QDomElement const cp(el.namedItem("convertor-params").toElement());
+    map = cp.attributes();
+    for (int i = 0; i < map.count(); i++) {
+        const QDomNode item = map.item(i);
+        m_converterState[item.nodeName()] = item.nodeValue();
+    }
 
 }
 
@@ -52,18 +70,49 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 	QDomElement el(doc.createElement(name));
 	el.appendChild(marshaller.dpi(m_dpi, "dpi"));
 	
-    QDomElement cp(doc.createElement("encoder-params"));
-	el.appendChild(cp);
-    QObject* obj = m_encoderState.toQObject();
-    for (int i = 0; i < obj->metaObject()->propertyCount(); i++) {
-        QMetaProperty prop = obj->metaObject()->property(i);
-        const QString name = prop.name();
-        const QString val = obj->property(prop.name()).toString();
-        el.setAttribute(name, val);
+    QDomElement ep(doc.createElement("encoder-params"));
+    for (QVariantMap::const_iterator it = m_encoderState.constBegin();
+           it != m_encoderState.constEnd(); ++it) {
+        const QString name = it.key();
+        const QString val = it->toString();
+        ep.setAttribute(name, val);
     }
+    el.appendChild(ep);
 
+    QDomElement cp(doc.createElement("convertor-params"));
+    for (QVariantMap::const_iterator it = m_converterState.constBegin();
+           it != m_converterState.constEnd(); ++it) {
+        const QString name = it.key();
+        const QString val = it->toString();
+        cp.setAttribute(name, val);
+    }
+    el.appendChild(cp);
+
+    el.appendChild(marshaller.string("input_filename", m_inputImageInfo.fileName));
+    el.setAttribute("input_filesize", QString::number(m_inputImageInfo.fileSize));
+    el.setAttribute("input_image_hash", QString::number(m_inputImageInfo.imageHash));
+    el.setAttribute("input_image_color_mode", QString::number((int)m_inputImageInfo.imageColorMode));
+    el.appendChild(marshaller.string("executed_command", m_executedCommand));
 	
 	return el;
+}
+
+ImageInfo::ImageInfo(const QString& filename, const QImage& image)
+{
+
+    fileName = filename;
+    fileSize = QFileInfo(filename).size();
+
+    imageHash = image.cacheKey();
+
+    if (image.colorCount() <= 2) {
+        imageColorMode = ImageInfo::ColorMode::BlackAndWhite;
+    } else if (image.isGrayscale()) {
+         imageColorMode = ImageInfo::ColorMode::Grayscale;
+    } else {
+         imageColorMode = ImageInfo::ColorMode::Color;
+    }
+
 }
 
 } // namespace publishing

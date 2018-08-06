@@ -4,6 +4,7 @@ import QtQuick.Controls 1.2
 GroupBox {
     id: root
     title: qsTr("c44 encoder:")
+    width: mainApp.width
 
     property alias root: root
     property alias cbGamma: cbGamma

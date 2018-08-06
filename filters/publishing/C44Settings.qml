@@ -119,25 +119,27 @@ C44SettingsForm {
 
     function setState(state) {
         _dpi_ = state["_dpi_"];
-        cbGamma.checked = state.contains(param_gamma);
+        cbGamma.checked = param_gamma in state;
         sbGamma.value = (cbGamma.checked ? state[param_gamma] : 0);
 
         cbChrominance.currentIndex = chrominances.indexOf(state[chrominances_setting]);
 
-        cbChrominanceDelay.checked = state.contains(param_crcbdelay);
+        cbChrominanceDelay.checked = param_crcbdelay in state;
         sbChrominanceDelay.value = (cbChrominanceDelay.checked ? state[param_crcbdelay] : 10);
 
-        tfSlice.text = state.contains(param_slice) ? state[param_slice] : "";
-        tfBpp.text = state.contains(param_bpp) ? state[param_bpp] : "";
-        tfSize.text = state.contains(param_size) ? state[param_size] : "";
-        tfPercent.text = state.contains(param_percent) ? state[param_percent] : "";
-        tfDecibel.text = state.contains(param_decibel) ? state[param_decibel] : "";
-        cbDecibelFrac.checked = state.contains(param_dbfrac);
+        tfSlice.text = param_slice in state ? state[param_slice] : "";
+        tfBpp.text = param_bpp in state ? state[param_bpp] : "";
+        tfSize.text = param_size in state ? state[param_size] : "";
+        tfPercent.text = param_percent in state ? state[param_percent] : "";
+        tfDecibel.text = param_decibel in state ? state[param_decibel] : "";
+        cbDecibelFrac.checked = param_dbfrac in state;
         sbDecibelFrac.value = (cbDecibelFrac.checked ? state[param_dbfrac] : 0);
+
+        notify();
     }
 
     function insert_param(str, state, param) {
-        if (state.contains(param)) {
+        if (param in state) {
             str += " " + param + " " + state[param];
         }
         return str;

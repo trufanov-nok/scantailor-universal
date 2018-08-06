@@ -25,6 +25,7 @@
 #include "Params.h"
 #include <QMutex>
 #include <map>
+#include <QJSValue>
 
 class AbstractRelinker;
 
@@ -49,21 +50,26 @@ public:
 
     void setDpi(PageId const& page_id, Dpi const& dpi);
 
-    const Dpi dpi(PageId const& page_id) const;
+    Dpi dpi(PageId const& page_id) const;
 
-    void setEncoderState(PageId const& page_id, QJSValue const& val);
+    void setEncoderState(PageId const& page_id, QVariantMap const& val);
 
-    QJSValue const encoderState(PageId const& page_id) const;
+    QVariantMap encoderState(PageId const& page_id) const;
 
-    void setConverterState(PageId const& page_id, QJSValue const& val);
+    void setConverterState(PageId const& page_id, QVariantMap const& val);
 
-    QJSValue const converterState(PageId const& page_id) const;
+    QString inputFilename(PageId const& page_id) const;
 
-    QJSValue const state(PageId const& page_id, bool const isEncoder) const {
+    void setInputFilename(PageId const& page_id, QString const& fileName);
+
+    QVariantMap converterState(PageId const& page_id) const;
+
+    QVariantMap state(PageId const& page_id, bool const isEncoder) const {
         return (isEncoder)? encoderState(page_id) : converterState(page_id);
-    }
+    }        
 
-    void setState(PageId const& page_id, QJSValue const& val, bool const isEncoder) {
+
+    void setState(PageId const& page_id, QVariantMap const& val, bool const isEncoder) {
         if (isEncoder) {
             setEncoderState(page_id, val);
         } else {

@@ -25,6 +25,7 @@
 #include "TaskStatus.h"
 #include "ImageView.h"
 #include "FilterUiInterface.h"
+#include "DjVuPageGenerator.h"
 #include <QImage>
 #include <iostream>
 #include <QFileInfo>
@@ -36,28 +37,27 @@ namespace publishing
 class Task::UiUpdater : public FilterResult
 {
 public:
-    UiUpdater(IntrusivePtr<Filter> const& filter, QString const& filename,
-        bool batch_processing);
-	
-	virtual void updateUI(FilterUiInterface* wnd);
-	
-	virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
+    UiUpdater(IntrusivePtr<Filter> const& filter, /*QString const& filename,*/
+              bool batch_processing);
+
+    virtual void updateUI(FilterUiInterface* wnd);
+
+    virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
-    QString const& m_filename;
-	IntrusivePtr<Filter> m_ptrFilter;
-	bool m_batchProcessing;
+    IntrusivePtr<Filter> m_ptrFilter;
+    bool m_batchProcessing;
 };
 
 
 Task::Task(
-	IntrusivePtr<Filter> const& filter,
-	IntrusivePtr<Settings> const& settings,
-    PageId const& page_id,
-    bool const batch_processing)
-:	m_ptrFilter(filter),
-	m_ptrSettings(settings),
-    m_pageId(page_id),
-	m_batchProcessing(batch_processing)
+        IntrusivePtr<Filter> const& filter,
+        IntrusivePtr<Settings> const& settings,
+        PageId const& page_id,
+        bool const batch_processing)
+    :	m_ptrFilter(filter),
+      m_ptrSettings(settings),
+      m_pageId(page_id),
+      m_batchProcessing(batch_processing)
 {
 }
 
@@ -66,25 +66,42 @@ Task::~Task()
 }
 
 FilterResultPtr
-Task::process(TaskStatus const& status, QString const& image_file, quint64 image_hash)
+Task::process(TaskStatus const& status, QString const& image_file, qint64 image_hash)
 {
-	// This function is executed from the worker thread.
-	
-	status.throwIfCancelled();
+    // This function is executed from the worker thread.
 
-//    QFileInfo fi(image_file);
-//    QString djv_name;
-//    if (fi.exists()) {
-//        djv_name = fi.completeBaseName() + ".djvu";
-//    }
-//    fi.setFile(djv_name);
-//    if (!fi.exists()) {
+    status.throwIfCancelled();
+    Params param = m_ptrSettings->getParams(m_pageId);
+    if (param.inNull()) {
+        QImage img;
+        if (img.load(image_file)) {
+            publishing::ImageInfo info(image_file, img);
+            param.setImageInfo(info);
+        } else {
+            std::cerr << "Can't load image file " << image_file.toStdString().c_str() << "\n";
+        }
+    }
 
-//    }
-	
+    if (param.executedCommand().isEmpty()) {
+        // need default commands
+
+    }
+
+    m_ptrSettings->setParams(m_pageId, param);
+
+    if (image_file != param.inputFilename() ||
+            image_hash != param.inputImageHash() ||
+            param.getForceReprocess() & RegenParams::RegenParams::RegeneratePage) {
+        // djvu file recreation is needed
+        DjVuPageGenerator& generator = m_ptrFilter->getPageGenerator();
+        generator.setFilename(param.inputFilename());
+        generator.setComands(param.executedCommand().split('\n', QString::SkipEmptyParts));
+        generator.execute();
+    }
+
     return FilterResultPtr(
                 new UiUpdater(
-                    m_ptrFilter, image_file, m_batchProcessing
+                    m_ptrFilter, m_batchProcessing
                     )
                 );
 }
@@ -93,32 +110,29 @@ Task::process(TaskStatus const& status, QString const& image_file, quint64 image
 /*============================ Task::UiUpdater ========================*/
 
 Task::UiUpdater::UiUpdater(
-	IntrusivePtr<Filter> const& filter,
-    QString const& filename,
-	bool const batch_processing)
-:	m_ptrFilter(filter),
-    m_filename(filename),
-	m_batchProcessing(batch_processing)
+        IntrusivePtr<Filter> const& filter,
+        bool const batch_processing)
+    :	m_ptrFilter(filter),
+      m_batchProcessing(batch_processing)
 {
 }
 
 void
 Task::UiUpdater::updateUI(FilterUiInterface* ui)
 {
-	// This function is executed from the GUI thread.
-	OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
+    // This function is executed from the GUI thread.
+    OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
     opt_widget->postUpdateUI();
-	ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
-	
-//    ui->invalidateThumbnail(m_filename);
-	
-	if (m_batchProcessing) {
-		return;
-	}
-	
-    QDjVuWidget* widget = new QDjVuWidget();
-    widget->setDocument(m_ptrFilter->getDjVuDocument());
-    ui->setImageWidget(widget, ui->TRANSFER_OWNERSHIP);
+    ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
+
+    //    ui->invalidateThumbnail(m_filename);
+
+    if (m_batchProcessing) {
+        return;
+    }
+
+    QDjVuWidget* const widget = m_ptrFilter->getDjVuWidget();
+    ui->setImageWidget(widget, ui->KEEP_OWNERSHIP);
 
     //ImageView* view = new ImageView(image, downscaled_image, xform);
     //ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);

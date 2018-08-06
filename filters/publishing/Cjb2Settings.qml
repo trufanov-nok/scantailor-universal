@@ -61,7 +61,9 @@ Cjb2SettingsForm {
         _dpi_ = state["_dpi_"]
         cbClean.checked = state[param_clean];
         cbLossy.checked = state[param_lossy];
-        sbLossy.value = (state.contains(param_losslevel) ? state[param_losslevel] : 100);
+        sbLossy.value = (param_losslevel in state ? state[param_losslevel] : 100);
+
+        notify();
     }
 
     function getCommandFromState(state) {
@@ -72,7 +74,7 @@ Cjb2SettingsForm {
         if (state[param_lossy]) {
             s += " " + param_lossy;
         }
-        if (state.contains(param_losslevel)) {
+        if (param_losslevel in state) {
             s += " " + param_losslevel + " " + state[param_losslevel];
         }
 

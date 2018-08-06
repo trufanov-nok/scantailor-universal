@@ -5,32 +5,12 @@
 
 #include <QObject>
 #include <QVector>
-
-#ifdef Q_OS_UNIX
-#ifdef Q_OS_OSX
-QString _qml_path;
-#else
-static QString _qml_path = "./filters/publishing/";
-#endif
-#else
-QString _qml_path = qApp->applicationDirPath()+"djvu/";
-#endif
-
-
-#ifdef Q_OS_UNIX
-#ifdef Q_OS_OSX
-QString _platform = "macos";
-#else
-static QString _platform = "linux";
-#endif
-#else
-QString _platform = "windows";
-#endif
+#include <memory>
 
 class DjVuEncoder
 {
 public:
-    DjVuEncoder(QObject * obj, AppDependencies &dependencies);
+    DjVuEncoder(QObject * componentInstance,  AppDependencies &dependencies);
 
     QString m_name;
     int priority;
@@ -41,7 +21,9 @@ public:
     QString missingAppHint;
     QStringList requiredApps;
     QString filename;
+    QString defaultCmd;
     bool isValid;
+    std::unique_ptr<QObject> ptrComponentInstance;
 
     bool operator<(const DjVuEncoder &rhs) const {
         return(this->priority < rhs.priority);

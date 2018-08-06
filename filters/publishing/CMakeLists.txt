@@ -15,6 +15,8 @@ SET(
         Settings.cpp Settings.h
         AppDependency.cpp AppDependency.h
         djvuencoder.cpp djvuencoder.h
+        QuickWidgetAccessHelper.cpp QuickWidgetAccessHelper.h
+        QMLLoader.cpp QMLLoader.h
         DjVuPageGenerator.cpp DjVuPageGenerator.h
         djview4/qdjvuwidget.cpp djview4/qdjvuwidget.h
         djview4/qdjvu.cpp djview4/qdjvu.h

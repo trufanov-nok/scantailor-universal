@@ -58,17 +58,19 @@ CpalDjVuSettingsForm {
 
     function setState(state) {
         _dpi_ = state["_dpi_"];
-        cbColors.checked = state.contains(colors_val);
+        cbColors.checked = colors_val in state;
         sbColors.value = (cbColors.checked ? state[colors_val] : 256);
-        cbBgwhite.checked = state.contains(bgwhite_used);
+        cbBgwhite.checked = bgwhite_used in state;
+
+        notify();
     }
 
     function getCommandFromState(state) {
         var s = "cpaldjvu -dpi " + state["_dpi_"]
-        if (state.contains(colors_val)) {
+        if (colors_val in state) {
             s += " " + colors_val + " " + state[colors_val]
         }
-        if (state.contains(bgwhite_used)) {
+        if (bgwhite_used in state) {
             s += " " + bgwhite_used
         }
         s += " %1 %2";

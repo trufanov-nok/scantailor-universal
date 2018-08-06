@@ -4,9 +4,13 @@
 #include <QTemporaryFile>
 #include <iostream>
 
-DjVuPageGenerator::DjVuPageGenerator(const QString& file, const QStringList &commands, QObject *parent):
-    QObject(parent), m_inputFile(file), m_commands(commands)
+DjVuPageGenerator::DjVuPageGenerator(QObject *parent): QObject(parent)
 {
+}
+
+void
+DjVuPageGenerator::setFilename(const QString &file) {
+    m_inputFile = file;
     QFileInfo fi(m_inputFile);
 
     m_tempFile = QDir::tempPath();
@@ -19,9 +23,8 @@ DjVuPageGenerator::DjVuPageGenerator(const QString& file, const QStringList &com
         std::cerr << "Can't create temporary file in " << QDir::tempPath().toStdString() << "\n";
     }
 
-    m_outputFile = fi.completeBaseName()+".djv";
+    m_outputFile = fi.path() + "/" + fi.completeBaseName()+".djv";
 }
-
 
 /*
  * Replace first occurance of %1 in m_commands
@@ -31,7 +34,7 @@ DjVuPageGenerator::DjVuPageGenerator(const QString& file, const QStringList &com
  * Empty commands ignored
  */
 
-QStringList
+QString
 DjVuPageGenerator::updatedCommands() const
 {
     QString cmds = m_commands.join('\n');
@@ -40,19 +43,34 @@ DjVuPageGenerator::updatedCommands() const
         cmds.replace(pos, 2, m_inputFile);
     }
 
-    cmds = cmds.arg(m_tempFile).arg(m_outputFile);
-    return cmds.split('\n', QString::SkipEmptyParts);
+    do {
+        pos = cmds.indexOf("%1");
+        if (pos != -1) {
+            cmds.replace(pos, 2, m_tempFile);
+        }
+    } while (pos != -1);
+
+    return cmds.arg(m_outputFile);
 }
 
 void
 DjVuPageGenerator::execute()
 {
-    CommandExecuter* ce = new CommandExecuter(updatedCommands());
-    connect(ce, &CommandExecuter::executionComplete, this, &DjVuPageGenerator::executionComplete);
-    connect(ce, &CommandExecuter::executionComplete, [this, ce]() {
-       ce->deleteLater();
-       if (!QFile(m_tempFile).remove(m_tempFile)) {
-           std::cerr << "Can't emove temporary file: " << m_tempFile.toStdString() << "\n";
-       }
-    });
+    if (!m_inputFile.isEmpty() && !m_commands.isEmpty()) {
+        m_executedCommands = updatedCommands();
+        CommandExecuter* ce = new CommandExecuter(m_executedCommands.split('\n', QString::SkipEmptyParts));
+
+        connect(ce, &CommandExecuter::finished, this, &DjVuPageGenerator::executionComplete);
+        connect(ce, &CommandExecuter::finished, [this, ce]() {
+            QFile f(m_tempFile);
+            if (f.exists() && !f.remove()) {
+                std::cerr << "Can't remove temporary file: " << m_tempFile.toStdString() << "\n";
+            }
+            ce->deleteLater();
+        });
+
+        ce->start();
+    } else {
+        emit executionComplete();
+    }
 }
