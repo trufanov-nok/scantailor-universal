@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,13 +34,23 @@ namespace publishing
 struct ImageInfo {
 
     enum ColorMode {
+        Unknown,
         BlackAndWhite,
         Grayscale,
         Color
     };
 
-    ImageInfo():fileSize(0), imageHash(0), imageColorMode(BlackAndWhite) {}
+    ImageInfo():fileSize(0), imageHash(0), imageColorMode(Unknown) {}
     ImageInfo(const QString& filename, const QImage& image);
+
+    static QString ColorModeToStr(const ColorMode clr) {
+        switch (clr) {
+        case BlackAndWhite: return "bw";
+        case Grayscale: return "grayscale";
+        case Color: return "color";
+        default: return "";
+        }
+    }
 
     QString fileName;
     qint64 fileSize;
@@ -51,14 +61,15 @@ struct ImageInfo {
 class Params: public RegenParams
 {
 public:
-	Params();
-	Params(QDomElement const& el);
-    bool inNull() { return m_inputImageInfo.fileName.isEmpty(); }
-	
-	Dpi const& outputDpi() const { return m_dpi; }
+    Params();
+    Params(QDomElement const& el);
+    bool inNull() { return m_inputImageInfo.fileName.isEmpty() ||
+                m_inputImageInfo.imageColorMode == ImageInfo::ColorMode::Unknown; }
+
+    Dpi const& outputDpi() const { return m_dpi; }
     void setOutputDpi(Dpi const& dpi) { m_dpi = dpi; }
-    QString const& encoderName() const { return m_encoderName; }
-    void encoderName(QString const& val) { m_encoderName = val; }
+    QString const& encoderId() const { return m_encoderId; }
+    void setEncoderId(QString const& val) { m_encoderId = val; }
     QVariantMap const& encoderState() const { return m_encoderState; }
     void setEncoderState(QVariantMap const& val) { m_encoderState = val; }
     QVariantMap const& converterState() const { return m_converterState; }
@@ -77,8 +88,8 @@ public:
 
     void setImageInfo(const ImageInfo& info) { m_inputImageInfo = info; }
     ImageInfo getImageInfo() const { return m_inputImageInfo; }
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
+
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
     ~Params(){}
 private:
@@ -87,7 +98,7 @@ private:
     QVariantMap m_converterState;
     ImageInfo m_inputImageInfo;
     QString m_executedCommand;
-    QString m_encoderName;
+    QString m_encoderId;
 };
 
 } // namespace publishing

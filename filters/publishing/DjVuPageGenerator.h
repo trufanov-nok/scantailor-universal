@@ -13,8 +13,13 @@ public:
 
     void run() override {
         for (const QString& cmd: m_inputCommands) {
-            system(cmd.toStdString().c_str());
+
+            if (isInterruptionRequested()) {
+                break;
+            }
+
             qDebug() << cmd.toStdString().c_str() << "\n";
+            system(cmd.toStdString().c_str());
         }
     }
 
@@ -29,6 +34,7 @@ class DjVuPageGenerator : public QObject
     Q_OBJECT
 public:
     explicit DjVuPageGenerator(QObject *parent = nullptr);
+    ~DjVuPageGenerator();
 
     void setFilename(const QString &file);
     void setComands(const QStringList &commands) { m_commands = commands; }
@@ -37,6 +43,7 @@ public:
     QString executedCommands() const { return m_executedCommands; }
 
     void execute();
+    void stop();
 
 private:
     QString updatedCommands() const;
@@ -48,6 +55,7 @@ private:
     QString m_tempFile;
     QString m_outputFile;
     QString m_executedCommands;
+    CommandExecuter* m_commandExecuter;
 };
 
 #endif // DJVUPAGEGENERATOR_H

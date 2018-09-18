@@ -40,8 +40,8 @@
 #include <QDomNode>
 #include <iostream>
 #include <QMessageBox>
-#include <QtQuickControls2/QQuickStyle>
 #include "CommandLine.h"
+#include "QMLLoader.h"
 
 
 namespace publishing
@@ -49,37 +49,47 @@ namespace publishing
 
 Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
                PageSelectionAccessor const& page_selection_accessor)
-    :	m_ptrPages(pages), m_ptrSettings(new Settings), m_ptrPageGenerator(new DjVuPageGenerator()),
-      m_ptrDjVuContext(nullptr), m_ptrDjVuDocument(nullptr)
+    :	m_ptrPages(pages), m_ptrSettings(new Settings), m_QMLLoader(nullptr)
 {
 
-    QQuickStyle::setStyle("Material");
+    m_isGUI = CommandLine::get().isGui();
 
-    if (CommandLine::get().isGui()) {
-        m_ptrOptionsWidget.reset(
-                    new OptionsWidget(m_ptrSettings, page_selection_accessor, *m_ptrPageGenerator)
-                    );
+    if (m_isGUI) {
 
         m_ptrDjVuContext.reset( new QDjVuContext("scan_tailor_universal") );
         m_ptrDjVuWidget.reset( new QDjVuWidget() ) ;
 
+        QObject::connect(&m_PageGenerator, &DjVuPageGenerator::executionComplete, [this]() {
+            QDjVuDocument* doc = new QDjVuDocument(true, m_ptrDjVuWidget.get());
 
-        QObject::connect(m_ptrDjVuDocument.get(), &QDjVuDocument::error,
-                         [](QString msg,QString,int) {
-            QMessageBox::critical(nullptr, "Error", msg);
+            QObject::connect(doc, &QDjVuDocument::error,
+                             [](QString msg,QString,int) {
+                QMessageBox::critical(nullptr, "QDjVuDocument::error", msg);
+            });
+
+            // technically takes doc ownership as it was created with autoDel==true
+            m_ptrDjVuWidget->setDocument(doc);
+
+            doc->setFileName(m_ptrDjVuContext.get(), m_PageGenerator.outputFileName());
         });
 
-        QObject::connect(m_ptrOptionsWidget.get(), &OptionsWidget::displayDjVu, [this](const QString& filename) {
-            m_ptrDjVuDocument.reset( new QDjVuDocument() );
-            m_ptrDjVuWidget->setDocument(m_ptrDjVuDocument.get());
-            m_ptrDjVuDocument->setFileName(m_ptrDjVuContext.get(), filename);
-        });
+        m_ptrOptionsWidget.reset(
+                    new OptionsWidget(m_ptrSettings, page_selection_accessor, m_PageGenerator)
+                    );
 
+        // GUI widget owns loader
+        m_QMLLoader = m_ptrOptionsWidget->getQMLLoader();
+    } else {
+        m_QMLLoader = new QMLLoader();
     }
 }
 
 Filter::~Filter()
 {
+    if (!m_isGUI) {
+        // we own loader pointer
+        delete m_QMLLoader;
+    }
 }
 
 QString

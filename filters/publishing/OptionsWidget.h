@@ -49,18 +49,15 @@ public:
 
     void postUpdateUI();
 
+    QMLLoader* getQMLLoader() { return &m_QMLLoader; }
 
     Q_PROPERTY(int width READ width NOTIFY widthChanged)
 
 private:
-    void setupQuickWidget(QQuickWidget* wgt);
-    void setLinkToMainApp(QQuickWidget* wgt);
+    void setupQuickWidget(QQuickWidget* &wgt, QQmlComponent* component, QObject* instance);
     void initEncodersSelector();
     bool initTiffConvertor();
-    void checkDependencies(const AppDependency& dep);
-    void checkDependencies(const AppDependencies& deps);
-    bool isAllDependenciesFound(const QStringList& req_apps, QStringList *missing_apps = nullptr);
-    void showMissingAppSelectors(QStringList req_apps, bool isEncoderDep);
+    bool showMissingAppSelectors(QStringList req_apps, bool isEncoderDep);
     void launchDjVuGenerator();
     void displayWidgets();
 
@@ -75,7 +72,6 @@ public slots:
     void resizeQuickWidget(QVariant arg);
     void requestParamUpdate(const QVariant requestor);
 signals:
-    void displayDjVu(const QString& fileName);
     void widthChanged();
 
 private:
@@ -84,8 +80,8 @@ private:
     PageId m_pageId;
     PageSelectionAccessor m_pageSelectionAccessor;
     QString m_imageFilename;
-    DjVuPageGenerator& m_pageGenerator;
     QMLLoader m_QMLLoader;
+    DjVuPageGenerator& m_pageGenerator;    
 };
 
 } // namespace publishing

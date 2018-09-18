@@ -43,17 +43,19 @@ Params::Params(QDomElement const& el)
 {
     m_inputImageInfo.fileName = XmlUnmarshaller::string(el.namedItem("input_filename").toElement());
     m_inputImageInfo.fileSize = el.attribute("input_filesize").toUInt();
-    m_inputImageInfo.imageHash = el.attribute("input_image_hash").toULongLong();
+    m_inputImageInfo.imageHash = el.attribute("input_image_hash").toLongLong();
     m_inputImageInfo.imageColorMode = (ImageInfo::ColorMode) el.attribute("input_image_color_mode").toUInt();
 
-    QDomElement const ep(el.namedItem("encoder-params").toElement());
+    m_encoderId = XmlUnmarshaller::string(el.namedItem("encoder_id").toElement());
+
+    QDomElement const ep(el.namedItem("encoder_params").toElement());
     QDomNamedNodeMap map = ep.attributes();
     for (int i = 0; i < map.count(); i++) {
         const QDomNode item = map.item(i);
         m_encoderState[item.nodeName()] = item.nodeValue();
     }
 
-    QDomElement const cp(el.namedItem("convertor-params").toElement());
+    QDomElement const cp(el.namedItem("convertor_params").toElement());
     map = cp.attributes();
     for (int i = 0; i < map.count(); i++) {
         const QDomNode item = map.item(i);
@@ -69,8 +71,10 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 	
 	QDomElement el(doc.createElement(name));
 	el.appendChild(marshaller.dpi(m_dpi, "dpi"));
+
+    el.appendChild(marshaller.string("encoder_id", m_encoderId));
 	
-    QDomElement ep(doc.createElement("encoder-params"));
+    QDomElement ep(doc.createElement("encoder_params"));
     for (QVariantMap::const_iterator it = m_encoderState.constBegin();
            it != m_encoderState.constEnd(); ++it) {
         const QString name = it.key();
@@ -79,7 +83,7 @@ Params::toXml(QDomDocument& doc, QString const& name) const
     }
     el.appendChild(ep);
 
-    QDomElement cp(doc.createElement("convertor-params"));
+    QDomElement cp(doc.createElement("convertor_params"));
     for (QVariantMap::const_iterator it = m_converterState.constBegin();
            it != m_converterState.constEnd(); ++it) {
         const QString name = it.key();

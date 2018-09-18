@@ -1,42 +1,28 @@
+/*
+    Scan Tailor - Interactive post-processing tool for scanned pages.
+    Copyright (C) 2018 Alexander Trufanov <trufanovan@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "QMLLoader.h"
 #include <QDir>
 #include <QQmlComponent>
 #include <QQmlContext>
 
-
-void
-QMLPluginBase::checkDependencies(const AppDependency& dep)
+namespace publishing
 {
-    AppDependencies tmp;
-    tmp[dep.app_name] = dep;
-    checkDependencies(tmp);
-}
-
-void
-QMLPluginBase::checkDependencies(const QStringList& apps)
-{
-    AppDependencies tmp;
-    for (const QString& s: apps) {
-        tmp[s] = m_dependencies[s];
-    }
-    checkDependencies(tmp);
-}
-
-void
-QMLPluginBase::checkDependencies(const AppDependencies& deps)
-{
-    DependencyChecker* checker =  new DependencyChecker(deps);
-    // we'll delete self at completion
-    QObject::connect(checker, &DependencyChecker::dependenciesChecked, [checker](){checker->deleteLater();});
-
-    QObject::connect(checker, &DependencyChecker::dependencyStateChanged, this, [this](const QString app_name, const AppDependencyState state) {
-        m_dependencies[app_name].state = state;
-        emit dependencyStateChanged();
-    }, Qt::QueuedConnection); // QueuedConnection is required to create MissingAppDeps widgets in Ui thread.
-
-    checker->start();
-}
-
 
 #ifdef Q_OS_UNIX
 #ifdef Q_OS_OSX
@@ -48,8 +34,12 @@ static QString _qml_path = "./filters/publishing/";
 QString _qml_path = qApp->applicationDirPath()+"djvu/";
 #endif
 
-TiffConverters::TiffConverters(QQmlEngine* engine, QObject *parent):
-    QMLPluginBase(engine, parent), m_isValid(false)
+QMLPluginBase::~QMLPluginBase()
+{
+}
+
+TiffConverters::TiffConverters(QQmlEngine* engine, DependencyManager& dep_manager, QObject *parent):
+    QMLPluginBase(engine), m_dep_manager(dep_manager)
 {
     const QString _convertor_qml_("TiffPostprocessors.qml");
 
@@ -62,15 +52,15 @@ TiffConverters::TiffConverters(QQmlEngine* engine, QObject *parent):
             m_component.reset(new QQmlComponent(m_engine, qml_file));
             if (QObject* instance = m_component->create()) {
                 QuickWidgetAccessHelper ch(instance, _convertor_qml_);
-                bool res = ch.init();
-                if (res) {
-                    res = ch.readAppDependencies(m_dependencies, &m_convertorRequiredApps);
-                    if (res) {
-                        res = ch.getCommand(m_defaultCmd);
-                        if (res) {
-                            m_instance.reset(instance);
-                            m_access_helper.reset(new QuickWidgetAccessHelper(instance, _convertor_qml_));
-                            checkDependencies(m_dependencies);
+                if (ch.init()) {
+                    AppDependencies deps;
+                    if (ch.readAppDependencies(deps, &m_convertorRequiredApps)) {
+                        m_dep_manager.addDependencies(deps);
+                        if (ch.getState(m_defaultState)) {
+                            if (ch.getCommand(m_defaultCmd)) {
+                                m_instance.reset(instance);
+                                m_access_helper.reset(new QuickWidgetAccessHelper(instance, _convertor_qml_));
+                            }
                         }
                         m_isValid = true;
                     }
@@ -81,8 +71,7 @@ TiffConverters::TiffConverters(QQmlEngine* engine, QObject *parent):
 }
 
 
-void
-DJVUEncoders::clearEncoders()
+DJVUEncoders::~DJVUEncoders()
 {
     for (int i = 0; i < m_encoders.size(); i++) {
         delete m_encoders[i];
@@ -90,17 +79,9 @@ DJVUEncoders::clearEncoders()
     m_encoders.clear();
 }
 
-DJVUEncoders::~DJVUEncoders()
+DJVUEncoders::DJVUEncoders(QQmlEngine* engine, DependencyManager& dep_manager, QObject *parent):
+    QMLPluginBase(engine), m_dep_manager(dep_manager), m_currentEncoder(0)
 {
-    clearEncoders();
-}
-
-DJVUEncoders::DJVUEncoders(QQmlEngine* engine, QObject *parent):
-    QMLPluginBase(engine, parent),
-    m_currentEncoder(0)
-{
-    clearEncoders();
-
     const QStringList sl = _qml_path.split(';');
     for (const QString& d : sl) {
         const QDir dir(QFileInfo(d).absoluteFilePath());
@@ -112,36 +93,81 @@ DJVUEncoders::DJVUEncoders(QQmlEngine* engine, QObject *parent):
                     continue;
                 }
                 QString ff = dir.absoluteFilePath(qml_file);
-                QQmlComponent component(m_engine, ff);
 
-                if (QObject* instance = component.create()) {
-                    DjVuEncoder* encoder = new DjVuEncoder(instance, m_dependencies);
-                    if (encoder->isValid) {
-                        encoder->filename = ff;
-                        m_encoders.append(encoder);
-                    } else {
-                        delete encoder;
-                    }
+                AppDependencies deps;
+                DjVuEncoder* encoder = new DjVuEncoder(m_engine, ff, deps);
+                if (encoder->isValid) {
+                    m_encoders.append(encoder);
+                    m_dep_manager.addDependencies(deps);
+                } else {
+                    delete encoder;
                 }
+
             }
             qSort(m_encoders.begin(), m_encoders.end(), &DjVuEncoder::lessThan);
         }
     }
 }
 
-QMLLoader::QMLLoader(QObject *parent): QObject (parent)
+bool
+DJVUEncoders::switchActiveEncoder(int idx)
 {
+    if (m_currentEncoder != idx) {
+        if (DjVuEncoder* enc = encoder(idx)) {
+//            component()->setParent(nullptr);
+//            instance()->setParent(nullptr);
+            m_currentEncoder = idx;
+            m_dep_manager.checkDependencies(enc->requiredApps);
 
-    m_engine.reset(new QQmlEngine());
-    if (QQmlContext* cntx = m_engine->rootContext()) {
-        cntx->setContextProperty("mainApp", parent);
+            return true;
+        }
     }
+    return false;
+}
 
-    m_converters.reset(new TiffConverters(m_engine.get(), this));
-    connect(m_converters.get(), &TiffConverters::dependencyStateChanged, this, &QMLLoader::dependencyStateChanged);
-    m_encoders.reset(new DJVUEncoders(m_engine.get(), this));
-    connect(m_encoders.get(), &TiffConverters::dependencyStateChanged, this, &QMLLoader::dependencyStateChanged);
+bool
+DJVUEncoders::switchActiveEncoder(const QString& name)
+{
+    for (int idx = 0; idx < m_encoders.size(); idx++) {
+        if (m_encoders[idx]->name == name) {
+            return switchActiveEncoder(idx);
+        }
+    }
+    return false;
+}
+
+int
+DJVUEncoders::findBestEncoder(ImageInfo::ColorMode clr)
+{
+    const QString clr_type = ImageInfo::ColorModeToStr(clr);
+    for (int idx = 0; idx < m_encoders.size(); idx++) {
+        if (m_encoders[idx]->supportedOutputMode.contains(clr_type)) {
+            return idx;
+        }
+    }
+    return -1;
 }
 
 
 
+
+QMLLoader::QMLLoader(QObject *parent): QObject (parent)
+{
+
+    m_engine.reset(new QQmlEngine());
+    if (parent) {
+        if (QQmlContext* cntx = m_engine->rootContext()) {
+            cntx->setContextProperty("mainApp", parent);
+        }
+    }
+
+    connect(&m_dep_manager, &DependencyManager::dependencyStateChanged, this, &QMLLoader::dependencyStateChanged);
+
+    m_converters.reset(new TiffConverters(m_engine.get(), m_dep_manager, this));
+    m_encoders.reset(new DJVUEncoders(m_engine.get(), m_dep_manager, this));
+
+    m_dep_manager.checkDependencies();
+}
+
+
+}

@@ -28,6 +28,7 @@
 #include "QuickWidgetAccessHelper.h"
 #include <QFileInfo>
 #include <QQuickItem>
+#include <QtQuickControls2/QQuickStyle>
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QDir>
@@ -42,33 +43,45 @@ OptionsWidget::OptionsWidget(
         DjVuPageGenerator& pageGenerator)
     :	m_ptrSettings(settings),
       m_pageSelectionAccessor(page_selection_accessor),
+      m_QMLLoader(this),
       m_pageGenerator(pageGenerator)
 {
+    QQuickStyle::setStyle("Material");
+
     setupUi(this);
 
-    connect(&m_pageGenerator, &DjVuPageGenerator::executionComplete, [this](){
-        emit displayDjVu(m_pageGenerator.outputFileName());
-    });
-
-    setupQuickWidget(conversionWidget);
-    setupQuickWidget(encoderWidget);
-
-    cbEncodersSelector->clear();
-
-    QObject::connect(&m_QMLLoader, &QMLLoader::dependencyStateChanged, this, [this]() {
+    connect(&m_QMLLoader, &QMLLoader::dependencyStateChanged, this, [this]() {
         displayWidgets();
     });
 
-
-
-    for (const DjVuEncoder* enc: m_QMLLoader.availableEncoders()) {
-        cbEncodersSelector->addItem(enc->m_name, enc->filename);
+    for (const DjVuEncoder* enc: m_QMLLoader.encoders()->allEncoders()) {
+        cbEncodersSelector->addItem(enc->name, enc->filename);
     }
 
+    setupQuickWidget(conversionWidget, m_QMLLoader.converter()->component(), m_QMLLoader.converter()->instance());
+
+}
+
+void deleteQQuickWidget(QQmlEngine* engine, QQuickWidget* wgt)
+{
+    // setContent(nullptr) is required before destruction
+    // as widget owns these objects and tries to destroy assigned component
+    // but this triggers warnings in std::cerr so we replace data with dummy objects' pointers instead of nullptr
+
+    wgt->setVisible(false);
+    QQmlComponent* cmpt = new QQmlComponent(engine);
+    cmpt->setData(QByteArray("import QtQuick 2.0; Item { }"), QUrl());
+    wgt->setContent(cmpt->url(), cmpt, cmpt->create());
+    //wgt->setContent(QUrl(), nullptr, nullptr);
+    wgt->deleteLater();
 }
 
 OptionsWidget::~OptionsWidget()
 {
+    // destroy QQuickWidgets manually without its content
+    // as content will be destroyed in QMLLOader
+    deleteQQuickWidget(m_QMLLoader.engine(), conversionWidget);
+    deleteQQuickWidget(m_QMLLoader.engine(), encoderWidget);
 }
 
 void
@@ -77,7 +90,8 @@ updateQuickWidgetHeight(QQuickWidget* w)
     if (w) {
         QQuickItem* obj = w->rootObject();
         if (obj && obj->height() > 0.) {
-            w->setFixedHeight((int)obj->height());
+            int h = (int)obj->height()+200;
+            w->setFixedHeight(h);
             w->updateGeometry();
         }
     }
@@ -112,21 +126,44 @@ OptionsWidget::postUpdateUI()
     displayWidgets();
 
     m_QMLLoader.converter()->setState(params.converterState());
-    m_QMLLoader.encoder()->setState(params.encoderState());
-//    QuickWidgetAccessHelper c_help(conversionWidget);
-//    QuickWidgetAccessHelper e_help(encoderWidget);
+    m_QMLLoader.encoders()->setState(params.encoderState());
+    //    QuickWidgetAccessHelper c_help(conversionWidget);
+    //    QuickWidgetAccessHelper e_help(encoderWidget);
 
     launchDjVuGenerator();
 }
 
 void
-OptionsWidget::setupQuickWidget(QQuickWidget* wgt)
+OptionsWidget::setupQuickWidget(QQuickWidget* &wgt, QQmlComponent* component, QObject* instance)
 {
-    wgt->setAttribute(Qt::WA_AlwaysStackOnTop);
-    wgt->setAttribute(Qt::WA_TranslucentBackground);
-    wgt->setClearColor(Qt::transparent);
-    QObject::connect(wgt, &QQuickWidget::statusChanged, this, &OptionsWidget::on_statusChanged);
-    setLinkToMainApp(wgt);
+    if (component && component->isReady()) {
+        if (instance && (!wgt || instance != wgt->rootObject())) {
+
+            int prev_idx = 0;
+            if (wgt) {
+                prev_idx = verticalLayout_4->indexOf(wgt);
+                deleteQQuickWidget(m_QMLLoader.engine(), wgt);
+            }
+            wgt = new QQuickWidget(m_QMLLoader.engine(), this);
+            wgt->setAttribute(Qt::WA_AlwaysStackOnTop);
+            wgt->setAttribute(Qt::WA_TranslucentBackground);
+            wgt->setClearColor(Qt::transparent);
+
+            // trick to set qml contents actual height but resizable panel's width
+            wgt->setResizeMode(QQuickWidget::ResizeMode::SizeViewToRootObject);
+            wgt->setContent(component->url(), component, instance);
+            wgt->setFixedHeight(wgt->rootObject()->height());
+            wgt->setResizeMode(QQuickWidget::ResizeMode::SizeRootObjectToView);
+
+            verticalLayout_4->insertWidget(prev_idx, wgt);
+
+            qDebug() << "set: " << component->url();
+            //            updateGeometry();
+
+            QObject::connect(wgt, &QQuickWidget::statusChanged, this, &OptionsWidget::on_statusChanged);
+        }
+    }
+
 }
 
 
@@ -143,42 +180,29 @@ void
 OptionsWidget::resizeQuickWidget(QVariant arg)
 {
     // QTBUG-69566
-    QQuickWidget* wgt = (arg.toString() == "encoder")? encoderWidget
-                                                     : conversionWidget;
-    if (QQuickItem* qi = wgt->rootObject()) {
-        wgt->setFixedHeight((int) qi->height());
-    }
+    if (!m_pageId.isNull()) {
+        QQuickWidget* wgt = (arg.toString() == "encoder")? encoderWidget
+                                                         : conversionWidget;
+        if (wgt /*&& wgt->engine()*/) {
+            if (QQuickItem* qi = wgt->rootObject()) {
+                const int hght = (int) qi->height();
+                //                wgt->setMinimumSize(10, hght);
+                //                wgt->setMaximumSize(5000, hght);
+                wgt->setFixedHeight(hght);
+                //                if (wgt->resizeMode() != QQuickWidget::ResizeMode::SizeRootObjectToView) {
+                ////                    wgt->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+                ////                     wgt->setResizeMode(QQuickWidget::ResizeMode::SizeRootObjectToView);
+                ////                }
+                //                wgt->updateGeometry();
+                //            }
 
-    updateGeometry();
-}
-
-void
-OptionsWidget::setLinkToMainApp(QQuickWidget* wgt) {
-    if (QQmlEngine* eng = wgt->engine()) {
-        if (QQmlContext* cntx = eng->rootContext()) {
-            cntx->setContextProperty("mainApp", this);
-        }
-    }
-}
-
-bool OptionsWidget::isAllDependenciesFound(const QStringList& req_apps, QStringList* missing_apps)
-{
-    bool all_is_ok = true;
-    for (const QString& app_name : req_apps) {
-        if (m_QMLLoader.dependencies()[app_name].state != AppDependencyState::Found) {
-            all_is_ok = false;
-            if (missing_apps) {
-                missing_apps->append(app_name);
-            } else {
-                break;
+                updateGeometry();
             }
         }
     }
-    return all_is_ok;
 }
 
-
-void
+bool
 OptionsWidget::showMissingAppSelectors(QStringList req_apps, bool isEncoderDep)
 {
     QWidget* wgt = (isEncoderDep)? wgtMissingDeps4Encoder : wgtMissingDeps4Converter;
@@ -199,30 +223,36 @@ OptionsWidget::showMissingAppSelectors(QStringList req_apps, bool isEncoderDep)
 
     // Show missing apps selection dialogs
     for (const QString& app: req_apps) {
-        MissingApplicationsWidget * mw = new MissingApplicationsWidget(app, m_QMLLoader.dependencies()[app].missing_app_hint, wgt);
+        MissingApplicationsWidget * mw = new MissingApplicationsWidget(app, m_QMLLoader.dependencyManager().dependency(app).missing_app_hint, wgt);
         wgt->layout()->addWidget(mw);
         connect(mw, &MissingApplicationsWidget::newPathToExecutable, [this](QString app, QString filename) {
-            AppDependency& dep = m_QMLLoader.dependencies()[app];
+            DependencyManager& dm = m_QMLLoader.dependencyManager();
+            AppDependency dep = dm.dependency(app);
             dep.working_cmd = filename;
-            checkDependencies(dep);
+            dm.addDependency(dep);
+            dm.checkDependencies(dep);
         });
         child_cnt++;
     }
 
     wgt->setVisible(child_cnt > 0);
-    //    wgt->updateGeometry();
+    return wgt->isVisible();
 }
 
 void OptionsWidget::displayWidgets()
 {
     QStringList missing_deps;
-    if (m_QMLLoader.encoder()) {
-        encoderWidget->setVisible(isAllDependenciesFound(m_QMLLoader.encoder()->requiredApps(), &missing_deps));
+    if (m_QMLLoader.encoders()) {
+        bool shown = m_QMLLoader.dependencyManager().isDependenciesFound(m_QMLLoader.encoders()->requiredApps(), &missing_deps);
+        if (shown) {
+            setupQuickWidget(encoderWidget, m_QMLLoader.encoders()->component(), m_QMLLoader.encoders()->instance());
+        }
+        encoderWidget->setVisible(shown);
         showMissingAppSelectors(missing_deps, true);
     }
 
     if (m_QMLLoader.converter()) {
-        conversionWidget->setVisible(isAllDependenciesFound(m_QMLLoader.converter()->requiredApps(), &missing_deps));
+        conversionWidget->setVisible(m_QMLLoader.dependencyManager().isDependenciesFound(m_QMLLoader.converter()->requiredApps(), &missing_deps));
         showMissingAppSelectors(missing_deps, false);
     }
 }
@@ -230,15 +260,13 @@ void OptionsWidget::displayWidgets()
 void OptionsWidget::requestParamUpdate(const QVariant requestor)
 {
     bool is_encoder = requestor.toString() == "encoder";
-    QQuickWidget* wgt = (is_encoder)? encoderWidget : conversionWidget;
-    QuickWidgetAccessHelper helper(wgt);
-    QString& cmd = (is_encoder)? m_encoderCmd : m_convertorCmd;
-    if (helper.getCommand(cmd)) {
+    QMLPluginBase* plg = m_QMLLoader.getPlugin(is_encoder);
+    if (plg && plg->update()) {
         launchDjVuGenerator();
     }
 
     QVariantMap val;
-    if (helper.getState(val)) {
+    if (plg && plg->state(val)) {
         m_ptrSettings->setState(m_pageId, val, is_encoder);
     }
 
@@ -249,22 +277,12 @@ void OptionsWidget::requestParamUpdate(const QVariant requestor)
 
 void publishing::OptionsWidget::on_cbEncodersSelector_currentIndexChanged(int index)
 {
-    const QString qml_file = cbEncodersSelector->itemData(index).toString();
-    encoderWidget->setResizeMode(QQuickWidget::ResizeMode::SizeViewToRootObject);
-    //    setLinkToMainApp(encoderWidget);
-    encoderWidget->setSource(qml_file);
-
-    // trick to achieve qml contents actual height but resizable panel's width
-    encoderWidget->setResizeMode(QQuickWidget::ResizeMode::SizeRootObjectToView);
-
-    QuickWidgetAccessHelper eh(encoderWidget, qml_file);
-    QString supported_input; QString preferred_input;
-    eh.getSupportedInput(supported_input);
-    eh.getPrefferedInput(preferred_input);
-
-    QuickWidgetAccessHelper ch(conversionWidget, _convertor_qml_);
-    bool res = ch.filterByRequiredInput(supported_input, preferred_input);
-    Q_ASSERT(res);
+    DJVUEncoders* encoders = m_QMLLoader.encoders();
+    encoders->switchActiveEncoder(index);
+    if (const DjVuEncoder* enc = encoders->encoder()) {
+        m_QMLLoader.converter()->filterByRequiredInput(enc->supportedInput, enc->prefferedInput);
+    }
+    displayWidgets();
 }
 
 void publishing::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)

@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "CommandLine.h"
 #include "Task.h"
 #include "Filter.h"
 #include "OptionsWidget.h"
@@ -84,6 +85,19 @@ Task::process(TaskStatus const& status, QString const& image_file, qint64 image_
 
     if (param.executedCommand().isEmpty()) {
         // need default commands
+        DJVUEncoders* encoders = m_ptrFilter->getQMLLoader()->encoders();
+        int idx = encoders->findBestEncoder(param.inputImageColorMode());
+        if (idx != -1) {
+            encoders->switchActiveEncoder(idx);
+            if (const DjVuEncoder* enc = encoders->encoder()) {
+                TiffConverters* converters = m_ptrFilter->getQMLLoader()->converter();
+                converters->resetToDefaultState();
+                if (converters->filterByRequiredInput(enc->supportedInput, enc->prefferedInput) > 0) {
+                    param.setExecutedCommand(m_ptrFilter->getQMLLoader()->getCommands().join('\n'));
+                }
+            }
+        }
+
 
     }
 
@@ -97,6 +111,10 @@ Task::process(TaskStatus const& status, QString const& image_file, qint64 image_
         generator.setFilename(param.inputFilename());
         generator.setComands(param.executedCommand().split('\n', QString::SkipEmptyParts));
         generator.execute();
+    }
+
+    if (!CommandLine::get().isGui()) {
+        return FilterResultPtr(0);
     }
 
     return FilterResultPtr(

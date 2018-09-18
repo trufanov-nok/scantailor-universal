@@ -23,6 +23,7 @@
 #include "settings/ini_keys.h"
 #include <memory>
 
+
 class GlobalStaticSettings
 {
 public:

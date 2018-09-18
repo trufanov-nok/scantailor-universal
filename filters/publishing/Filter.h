@@ -48,6 +48,7 @@ class OptionsWidget;
 class Task;
 class CacheDrivenTask;
 class Settings;
+class QMLLoader;
 
 /**
  * \note All methods of this class except the destructor
@@ -88,11 +89,11 @@ public:
 
     Settings* getSettings() { return m_ptrSettings.get(); }
 
-    QDjVuDocument* getDjVuDocument() const { return m_ptrDjVuDocument.get(); }
-
     QDjVuWidget* getDjVuWidget() const { return m_ptrDjVuWidget.get(); }
 
-    DjVuPageGenerator& getPageGenerator() const { return *m_ptrPageGenerator; }
+    DjVuPageGenerator& getPageGenerator() { return m_PageGenerator; }
+
+    QMLLoader* getQMLLoader() const { return m_QMLLoader; }
 private:
     void writePageSettings(
 		QDomDocument& doc, QDomElement& filter_el,
@@ -100,11 +101,12 @@ private:
 	
     IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<Settings> m_ptrSettings;
-    std::unique_ptr<DjVuPageGenerator> m_ptrPageGenerator;
+    DjVuPageGenerator m_PageGenerator;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
     SafeDeletingQObjectPtr<QDjVuContext> m_ptrDjVuContext;
-    SafeDeletingQObjectPtr<QDjVuDocument> m_ptrDjVuDocument;
     SafeDeletingQObjectPtr<QDjVuWidget> m_ptrDjVuWidget;
+    QMLLoader* m_QMLLoader;
+    bool m_isGUI;
 };
 
 } // publishing

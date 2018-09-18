@@ -1,55 +1,94 @@
+/*
+    Scan Tailor - Interactive post-processing tool for scanned pages.
+    Copyright (C) 2018 Alexander Trufanov <trufanovan@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef QMLLOADER_H
 #define QMLLOADER_H
 
 #include "AppDependency.h"
 #include "djvuencoder.h"
 #include "QuickWidgetAccessHelper.h"
+#include "Params.h"
+
 #include <QVector>
-#include <QQmlEngine>
+#include <qqmlengine.h>
 #include <QtQuickWidgets>
 #include <memory>
 
-class QMLPluginBase: public QObject
+namespace publishing
 {
-    Q_OBJECT
-public:
 
-    QMLPluginBase(QQmlEngine* engine, QObject *parent = Q_NULLPTR):
-        QObject(parent), m_engine(engine) {}
-    void checkDependencies(const AppDependency& dep);
-    void checkDependencies(const QStringList& apps);
-    void checkDependencies(const AppDependencies& deps);
-signals:
-    void dependencyStateChanged();
+class QMLPluginBase
+{
+public:
+    QString cmd() const { return m_cmd; }
+
+    bool setState(QVariantMap const& val) {
+        bool res = access_helper().setState(val);
+        if (res) {
+            return update();
+        }
+        return res;
+    }
+
+    bool state(QVariantMap& res) {
+        return access_helper().getState(res);
+    }
+
+    bool update() {
+        return access_helper().getCommand(m_cmd);
+    }
+
+    bool isValid() const { return m_isValid; }
+
+    virtual ~QMLPluginBase();
 protected:
-    QQmlEngine* m_engine;
-    AppDependencies m_dependencies;
+    virtual QuickWidgetAccessHelper& access_helper() = 0;
+    QMLPluginBase(QQmlEngine* engine): m_engine(engine) {}
     bool m_isValid;
+    QQmlEngine* m_engine;
+
+private:
+    QString m_cmd;
+
 };
 
 class TiffConverters: public QMLPluginBase
 {
 public:
-    TiffConverters(QQmlEngine* engine, QObject *parent = Q_NULLPTR);
+    TiffConverters(QQmlEngine* engine, DependencyManager& dep_manager, QObject *parent = Q_NULLPTR);
+    bool resetToDefaultState() { return setState(m_defaultState); }
     QString defaultCmd() const { return m_defaultCmd; }
     QStringList requiredApps() const { return m_convertorRequiredApps; }
-
-    bool isValid() const { return m_isValid; }
-
-    bool setState(QVariantMap const& val) {
-        bool res = m_access_helper->setState(val);
-        if (res) {
-            res = m_access_helper->getCommand(m_cmd);
+    bool filterByRequiredInput(const QString& supported, const QString& preffered) {
+        if (access_helper().filterByRequiredInput(supported, preffered)) {
+            return update();
+        } else {
+            return false;
         }
-        return res;
     }
-
-    bool state(QVariantMap& res) const {
-        return m_access_helper->getState(res);
-    }
-
+    QQmlComponent* component() const { return m_component.get(); }
+    QObject* instance() const { return m_instance.get(); }
 private:
+    virtual QuickWidgetAccessHelper& access_helper() override { return *m_access_helper; }
+private:
+    DependencyManager& m_dep_manager;
     QStringList m_convertorRequiredApps;
+    QVariantMap m_defaultState;
     QString m_defaultCmd;
     QString m_cmd;
 
@@ -62,8 +101,8 @@ private:
 class DJVUEncoders: public QMLPluginBase
 {
 public:
-    DJVUEncoders(QQmlEngine* engine, QObject *parent = Q_NULLPTR);
-    ~DJVUEncoders();
+    DJVUEncoders(QQmlEngine* engine, DependencyManager& dep_manager, QObject *parent = Q_NULLPTR);
+    virtual ~DJVUEncoders() override;
 
     QString name() const {
         DjVuEncoder* enc = encoder(m_currentEncoder);
@@ -82,66 +121,56 @@ public:
 
     QQmlComponent* component() {
         DjVuEncoder* enc = encoder(m_currentEncoder);
-        return  enc ? static_cast<QQmlComponent*>(enc->ptrComponentInstance.get()) : nullptr;
+        return  enc ? enc->ptrComponent.get() : nullptr;
     }
 
-    bool setState(QVariantMap const& val) {
-        std::unique_ptr<QuickWidgetAccessHelper> access_helper(createAccessHelperFor(m_currentEncoder));
-        bool res = access_helper != nullptr;
-        if (res) {
-            res = access_helper->setState(val);
-            if (res) {
-                res = access_helper->getCommand(m_cmd);
-            }
-        }
-        return res;
+    QObject* instance() {
+        DjVuEncoder* enc = encoder(m_currentEncoder);
+        return  enc ? enc->ptrInstance.get() : nullptr;
     }
 
-    bool state(QVariantMap& res) const {
-        std::unique_ptr<QuickWidgetAccessHelper> access_helper(createAccessHelperFor(m_currentEncoder));
-        if (access_helper) {
-            return access_helper->getState(res);
-        } else {
-            return false;
-        }
-    }
+    bool switchActiveEncoder(int idx);
+    bool switchActiveEncoder(const QString& name);
+    int findBestEncoder(ImageInfo::ColorMode clr);
 
-    bool switchActiveEncoder(int idx) {
-        DjVuEncoder* enc = encoder(idx);
-        if (enc != nullptr) {
-            m_currentEncoder = idx;
-            checkDependencies(enc->requiredApps);
-            return true;
+    bool resetToDefaultState() {
+        if (DjVuEncoder* enc = encoder(m_currentEncoder)) {
+            return setState(enc->defaultState);
         }
         return false;
     }
 
-    bool switchActiveEncoder(const QString& name) {
-        for (int idx = 0; idx < m_encoders.size(); idx++) {
-            if (m_encoders[idx]->name == name) {
-                return switchActiveEncoder(idx);
-            }
-        }
-        return false;
-    }
+    DjVuEncoder* encoder() const { return encoder(m_currentEncoder); }
+
+//    bool getSupportedInput(QString& val) { return access_helper().getSupportedInput(val); }
+//    bool getPrefferedInput(QString& val) { return access_helper().getPrefferedInput(val); }
 
     const QVector<DjVuEncoder*>& allEncoders() const { return  m_encoders; }
 
 private:
-    void clearEncoders();
+
     DjVuEncoder* encoder(int idx) const { return (idx >= 0 && idx < m_encoders.size()) ? m_encoders[idx] : nullptr; }
 
     QuickWidgetAccessHelper* createAccessHelperFor(int idx) const {
         DjVuEncoder* enc = encoder(idx);
-        if (enc) {
-            return new QuickWidgetAccessHelper(enc->ptrComponentInstance.get(), enc->filename);
-        } else return nullptr;
+        return (enc) ? new QuickWidgetAccessHelper(enc->ptrInstance.get(), enc->filename): nullptr;
+    }
+
+    virtual QuickWidgetAccessHelper& access_helper() override {
+        DjVuEncoder* enc = encoder(m_currentEncoder);
+        if (!enc || !m_access_helper || m_access_helper->name() != enc->filename) {
+            m_access_helper.reset(createAccessHelperFor(m_currentEncoder));
+        } else {
+            return *m_access_helper;
+        }
+        return *m_access_helper;
     }
 
 private:
+    DependencyManager& m_dep_manager;
     QVector<DjVuEncoder*> m_encoders;
     int m_currentEncoder;
-    QString m_cmd;
+    std::unique_ptr<QuickWidgetAccessHelper> m_access_helper;
 };
 
 
@@ -150,30 +179,26 @@ class QMLLoader: public QObject
     Q_OBJECT
 public:
     QMLLoader(QObject *parent = Q_NULLPTR);
-    ~QMLLoader();
 
+    ~QMLLoader() {}
+
+    QQmlEngine* engine() const { return m_engine.get(); }
+    DependencyManager& dependencyManager() { return m_dep_manager; }
     TiffConverters* converter() const { return m_converters.get(); }
-    DJVUEncoders* encoder() const { return m_encoders.get(); }
-    const QVector<DjVuEncoder*>& availableEncoders() const { return  m_encoders->allEncoders(); }
+    DJVUEncoders* encoders() const { return m_encoders.get(); }
+    QMLPluginBase* getPlugin(bool is_encoder) { return is_encoder ? (QMLPluginBase*) m_encoders.get() : (QMLPluginBase*) m_converters.get(); }
 
     QStringList getCommands() const { return QStringList() << m_converters->defaultCmd() << m_encoders->defaultCmd(); }
 signals:
     void dependencyStateChanged();
 
 private:
-    std::unique_ptr<QQmlEngine> m_engine;
+    DependencyManager m_dep_manager;
+    std::shared_ptr<QQmlEngine> m_engine;
     std::unique_ptr<TiffConverters> m_converters;
     std::unique_ptr<DJVUEncoders> m_encoders;
-
-    std::unique_ptr<QObject> m_converterInstance;
-
-    QString m_encoderCmd;
-    std::unique_ptr<QQmlComponent> m_encoderComponent;
-
-    QStringList m_convertorRequiredApps;
-    QString m_convertorCmd;
-    QString m_converterQMLfile;
-    std::unique_ptr<QQmlComponent> m_converterComponent;
 };
+
+}
 
 #endif // QMLLOADER_H

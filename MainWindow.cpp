@@ -446,8 +446,10 @@ MainWindow::switchToNewProject(
     // These two need to go in this order.
     updateDisambiguationRecords(pages->toPageSequence(IMAGE_VIEW));
 
-    // Recreate the stages and load their state.
+    // Recreate the stages and load their state.    
+
     m_ptrStages.reset(new StageSequence(pages, newPageSelectionAccessor()));
+
     if (project_reader) {
         project_reader->readFilterSettings(m_ptrStages->filters());
     }
