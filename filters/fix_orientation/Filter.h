@@ -84,6 +84,10 @@ public:
     OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); }
 
     Settings* getSettings() { return m_ptrSettings.get(); }
+
+    virtual std::vector<PageOrderOption> pageOrderOptions() const;
+    virtual int selectedPageOrder() const;
+    virtual void selectPageOrder(int option);
 private:
 	void writeImageSettings(
 		QDomDocument& doc, QDomElement& filter_el,
@@ -91,6 +95,8 @@ private:
 	
 	IntrusivePtr<Settings> m_ptrSettings;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
+    std::vector<PageOrderOption> m_pageOrderOptions;
+    int m_selectedPageOrder;
 };
 
 } // fix_orientation

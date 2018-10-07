@@ -10,6 +10,7 @@ SET(
 	Settings.cpp Settings.h
 	Task.cpp Task.h
 	CacheDrivenTask.cpp CacheDrivenTask.h
+        OrderByRotation.cpp OrderByRotation.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 FILE(GLOB ui_files "ui/*.ui")
