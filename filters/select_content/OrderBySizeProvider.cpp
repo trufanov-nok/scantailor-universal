@@ -19,7 +19,7 @@
 #include "OrderBySizeProvider.h"
 #include "Params.h"
 #include "PageId.h"
-#include "imageproc/Constants.h" // DPI2DPM
+#include "Utils.h"
 #include <QSizeF>
 #include <memory>
 #include <assert.h>
@@ -40,18 +40,14 @@ OrderBySizeProvider::adjustByDpi(qreal val, std::unique_ptr<Params> const& param
         return val;
     }
 
-    Dpi const dpi = params.get()?params->origDpi():select_content::Dpi_def;
+    Dpi const dpi = params.get()?params->origDpi():select_content::dafaultDpi;
     qreal const d = m_byHeight? dpi.vertical() : dpi.horizontal();
 
     if (dpi_used) {
         *dpi_used = d;
     }
 
-    switch (mode) {
-    case StatusLabelPhysSizeDisplayMode::MM: return val / qRound(d * imageproc::constants::DPI2DPM) * 1000.;
-    case StatusLabelPhysSizeDisplayMode::SM: return val / qRound(d * imageproc::constants::DPI2DPM) * 100.;
-    default: return val / d; // for inches and pixels show in inches
-    }
+    return Utils::adjustByDpiAndUnits(val, d, mode);
 }
 
 bool
@@ -101,8 +97,8 @@ OrderBySizeProvider::precedes(
 
     qreal rv = m_byHeight? rhs_size.height() : rhs_size.width();
     qreal lv = m_byHeight? lhs_size.height() : lhs_size.width();
-    rv = adjustByDpi(rv, rhs_params);
-    lv = adjustByDpi(lv, lhs_params);
+    rv = adjustByDpi(rv, rhs_params, StatusBarProvider::statusLabelPhysSizeDisplayMode);
+    lv = adjustByDpi(lv, lhs_params, StatusBarProvider::statusLabelPhysSizeDisplayMode);
 
     if (lv != rv) {
         return lv < rv;

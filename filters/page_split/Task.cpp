@@ -171,7 +171,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
             break;
         }
 			
-		Params const new_params(new_layout, deps, MODE_AUTO);
+        Params const new_params(new_layout, deps, MODE_AUTO, data.xform().origDpi());
 		Settings::UpdateAction update;
 		update.setParams(new_params);
 

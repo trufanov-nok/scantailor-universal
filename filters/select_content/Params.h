@@ -35,7 +35,7 @@ class QString;
 namespace select_content
 {
 
-const Dpi Dpi_def = Dpi(300,300);
+const Dpi dafaultDpi = Dpi(300,300);
 
 class Params: public RegenParams
 {
@@ -43,12 +43,12 @@ public:
 	// Member-wise copying is OK.
 	
 	Params(QRectF const& rect, QSizeF const& size_mm,
-        Dependencies const& deps, AutoManualMode mode, Dpi const& dpi = Dpi_def);
+        Dependencies const& deps, AutoManualMode mode, Dpi const& dpi = dafaultDpi);
 	
 	Params(QRectF const& rect, QSizeF const& size_mm,
-        Dependencies const& deps, AutoManualMode mode, bool contentDetect, bool pageDetect, bool fineTuning, Dpi const& dpi = Dpi_def);
+        Dependencies const& deps, AutoManualMode mode, bool contentDetect, bool pageDetect, bool fineTuning, Dpi const& dpi = dafaultDpi);
 	
-    Params(Dependencies const& deps, Dpi const& dpi = Dpi_def);
+    Params(Dependencies const& deps, Dpi const& dpi = dafaultDpi);
 	
 	Params(QDomElement const& filter_el);
 	

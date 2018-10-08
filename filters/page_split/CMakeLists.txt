@@ -21,6 +21,7 @@ SET(
 	LayoutType.cpp LayoutType.h
 	UnremoveButton.cpp UnremoveButton.h
 	OrderBySplitTypeProvider.cpp OrderBySplitTypeProvider.h
+        OrderByPageSizeProvider.cpp OrderByPageSizeProvider.h
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 FILE(GLOB ui_files "ui/*.ui")

@@ -21,6 +21,7 @@
 
 #include <QString>
 #include "ThumbnailPixmapCache.h"
+#include "StatusBarProvider.h"
 
 class Utils
 {
@@ -69,6 +70,10 @@ public:
 	static QString richTextForLink(
 		QString const& label,
 		QString const& target = QString(QChar('#')));
+
+    static qreal adjustByDpiAndUnits(qreal val, qreal const dpi = 300,
+                               StatusLabelPhysSizeDisplayMode mode = StatusLabelPhysSizeDisplayMode::Pixels);
+
 };
 
 template<typename M, typename K, typename V>

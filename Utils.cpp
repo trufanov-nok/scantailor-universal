@@ -23,12 +23,14 @@
 #include <QDir>
 #include <QtGlobal>
 #include "settings/ini_keys.h"
+#include "imageproc/Constants.h" // DPI2DPM
 
 #ifdef Q_OS_WIN
 #include <windows.h>
 #else
 #include <stdio.h>
 #endif
+
 
 bool
 Utils::overwritingRename(QString const& from, QString const& to)
@@ -81,3 +83,15 @@ Utils::createThumbnailCache(QString const& output_dir)
 	);
 }
 
+
+qreal
+Utils::adjustByDpiAndUnits(qreal val, qreal const dpi,
+                           StatusLabelPhysSizeDisplayMode mode)
+{
+    switch (mode) {
+    case StatusLabelPhysSizeDisplayMode::Inch: return val / dpi;
+    case StatusLabelPhysSizeDisplayMode::MM: return val / qRound(dpi * imageproc::constants::DPI2DPM) * 1000.;
+    case StatusLabelPhysSizeDisplayMode::SM: return val / qRound(dpi * imageproc::constants::DPI2DPM) * 100.;
+    }
+    return val;
+}

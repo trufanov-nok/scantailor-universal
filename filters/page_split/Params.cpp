@@ -17,6 +17,8 @@
 */
 
 #include "Params.h"
+#include "XmlMarshaller.h"
+#include "XmlUnmarshaller.h"
 #include <QDomDocument>
 #include <QDomElement>
 
@@ -24,23 +26,30 @@ namespace page_split
 {
 
 Params::Params(PageLayout const& layout,
-	Dependencies const& deps,
-	AutoManualMode const split_line_mode)
-:	RegenParams(),
-    m_layout(layout),
-	m_deps(deps),
-	m_splitLineMode(split_line_mode)
+               Dependencies const& deps,
+               AutoManualMode const split_line_mode,
+               Dpi const& dpi)
+    :	RegenParams(),
+      m_layout(layout),
+      m_deps(deps),
+      m_splitLineMode(split_line_mode),
+      m_Dpi(dpi)
 {
 }
 
 Params::Params(QDomElement const& el)
-:	RegenParams(),
-    m_layout(el.namedItem("pages").toElement()),
-	m_deps(el.namedItem("dependencies").toElement()),
-	m_splitLineMode(
-		el.attribute("mode") == "manual"
-		? MODE_MANUAL : MODE_AUTO
-	)
+    :	RegenParams(),
+      m_layout(el.namedItem("pages").toElement()),
+      m_deps(el.namedItem("dependencies").toElement()),
+      m_splitLineMode(
+          el.attribute("mode") == "manual"
+          ? MODE_MANUAL : MODE_AUTO
+            ),
+      m_Dpi(
+          XmlUnmarshaller::dpi(
+              el.namedItem("original_dpi").toElement()
+          )
+      )
 {
 }
 
@@ -51,13 +60,15 @@ Params::~Params()
 QDomElement
 Params::toXml(QDomDocument& doc, QString const& name) const
 {
-	QDomElement el(doc.createElement(name));
-	el.setAttribute(
-		"mode", m_splitLineMode == MODE_AUTO ? "auto" : "manual"
-	);
-	el.appendChild(m_layout.toXml(doc, "pages"));
-	el.appendChild(m_deps.toXml(doc, "dependencies"));
-	return el;
+    QDomElement el(doc.createElement(name));
+    el.setAttribute(
+                "mode", m_splitLineMode == MODE_AUTO ? "auto" : "manual"
+                                                       );
+    el.appendChild(m_layout.toXml(doc, "pages"));
+    el.appendChild(m_deps.toXml(doc, "dependencies"));
+    XmlMarshaller marshaller(doc);
+    el.appendChild(marshaller.dpi(m_Dpi, "original_dpi"));
+    return el;
 }
 
 } // namespace page_split

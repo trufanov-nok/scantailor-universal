@@ -676,6 +676,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
                 if (filter->selectedPageOrder() >= filter->pageOrderOptions().size()-2) {
                     invalidateAllThumbnails();
                 }
+            } else if (m_curFilter == m_ptrStages->pageSplitFilterIdx()) {
+                FilterPtr const& filter =  m_ptrStages->filterAt(m_curFilter);
+                if (filter->selectedPageOrder() == filter->pageOrderOptions().size()-1) {
+                    invalidateAllThumbnails();
+                }
             }
         }
         displayStatusBarPageSize();

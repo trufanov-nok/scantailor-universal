@@ -42,6 +42,7 @@
 #include <stddef.h>
 #include "CommandLine.h"
 #include "OrderBySplitTypeProvider.h"
+#include "OrderByPageSizeProvider.h"
 
 namespace page_split
 {
@@ -64,9 +65,12 @@ Filter::Filter(IntrusivePtr<ProjectPages> const& page_sequence,
 
 	ProviderPtr const default_order;
 	ProviderPtr const order_by_splitline(new OrderBySplitTypeProvider(m_ptrSettings));
+    ProviderPtr const order_by_page_size(new OrderByPageSizeProvider(m_ptrSettings));
+
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
     m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Processed then unprocessed"), ProviderPtr(new OrderByReadiness())));
 	m_pageOrderOptions.push_back(PageOrderOption(tr("Order by split type"), order_by_splitline));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by page size"), order_by_page_size));
 }
 
 Filter::~Filter()
