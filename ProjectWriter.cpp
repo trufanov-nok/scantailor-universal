@@ -25,6 +25,7 @@
 #include "ImageMetadata.h"
 #include "AbstractFilter.h"
 #include "FileNameDisambiguator.h"
+#include "version.h"
 #include <QtXml>
 #include <QFile>
 #include <QTextStream>
@@ -93,6 +94,11 @@ ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& fil
 		"layoutDirection",
 		m_layoutDirection == Qt::LeftToRight ? "LTR" : "RTL"
 	);
+
+    QDomElement st_el(doc.createElement("scantailor"));
+    st_el.setAttribute("app", "Universal");
+    st_el.setAttribute("ver", VERSION);
+    root_el.appendChild(st_el);
 	
 	root_el.appendChild(processDirectories(doc));
 	root_el.appendChild(processFiles(doc));
