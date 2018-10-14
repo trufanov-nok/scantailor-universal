@@ -73,8 +73,7 @@ public:
     std::vector<PageId> result() const { return m_filteredPages; }
     bool allPagesSelected() const {
         // we could check m_range and m_curFilter setting, but filter might remove nothing
-        // and note that m_curPage is always removed from result
-        return m_filteredPages.size() == m_pages.numPages()-1;
+        return m_filteredPages.size() == m_pages.numPages();
     }
 
 private slots:
