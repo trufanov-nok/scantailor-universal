@@ -54,8 +54,8 @@ public:
         std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
         std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
 
-        double const lhs_angle = lhs_params.get() ? func(lhs_params->deskewAngle()) : 0.;
-        double const rhs_angle = rhs_params.get() ? func(rhs_params->deskewAngle()) : 0.;
+        double const lhs_angle = lhs_params.get() ? func(-1.0 * lhs_params->deskewAngle()) : 0.;
+        double const rhs_angle = rhs_params.get() ? func(-1.0 * rhs_params->deskewAngle()) : 0.;
 
         if (lhs_angle != rhs_angle) {
             return lhs_angle < rhs_angle;
@@ -67,8 +67,8 @@ public:
     virtual QString hint(PageId const& page) const
     {
          std::unique_ptr<Params> const params(m_ptrSettings->getPageParams(page));
-         double const angle = params.get() ? func(params->deskewAngle()) : 0.;
-         return QObject::tr("angle: %1").arg(angle);
+         double const angle = params.get() ? func(-1.0 * params->deskewAngle()) : 0.;
+         return QObject::tr("angle: %1°").arg(round(angle*1000)/1000);
     }
 
 private:
