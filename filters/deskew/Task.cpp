@@ -109,7 +109,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 {
 	status.throwIfCancelled();
 
-	Dependencies const deps(data.xform().preCropArea(), data.xform().preRotation());
+    Dependencies const deps(data.xform().preCropArea(), data.xform().preRotation());
 	
 	OptionsWidget::UiData ui_data;
 	ui_data.setDependencies(deps);
@@ -119,23 +119,27 @@ Task::process(TaskStatus const& status, FilterData const& data)
 	std::unique_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
 	if (params.get()) {
         bool not_match = !deps.matches(params->dependencies());
+
         if (not_match) {
             // most probably param was copied to new page via apply to...
             if (params->mode() == AutoManualMode::MODE_AUTO) {
-                params.reset(); // find new angle for new deps
+                params->setRequireRecalc(Params::RecalcAutoDeskew); // find new angle for new deps
             } else {
                 // Keep angle and mode with new deps
-                params.reset(new Params(params->deskewAngle(), deps, params->mode()));
+                params.reset(new Params(params->deskewAngle(), deps, params->mode(), params->orientationFix(), params->requireRecalc()));
                 m_ptrSettings->setPageParams(m_pageId, *params.get());
                 not_match = false;
             }
         }
+
         if (!not_match) {
             ui_data.setEffectiveDeskewAngle(params->deskewAngle());
             ui_data.setMode(params->mode());
+            ui_data.setOrientationFix(params->orientationFix());
+            ui_data.setRequireRecalc(params->requireRecalc());
 
             Params new_params(
-                        ui_data.effectiveDeskewAngle(), deps, ui_data.mode()
+                        ui_data.effectiveDeskewAngle(), deps, ui_data.mode(), ui_data.orientationFix()
                         );
             new_params.computeDeviation(m_ptrSettings->avg());
             m_ptrSettings->setPageParams(m_pageId, new_params);
@@ -153,8 +157,15 @@ Task::process(TaskStatus const& status, FilterData const& data)
             m_ptrSettings->setPageParams(m_pageId, p);
         }
     }
+
+    if (!need_reprocess) {
+        need_reprocess = ui_data.requireRecalc();
+    }
 	
     if (need_reprocess) {
+
+        ui_data.setRequireRecalc(false);
+
 		QRectF const image_area(
 			data.xform().transformBack().mapRect(data.xform().resultingRect())
 		);
@@ -171,7 +182,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 						data.grayImage(), bounded_image_area,
 						data.bwThreshold()
 					),
-					data.xform().preRotation().toDegrees()
+                    ui_data.pageRotation().toDegrees()
 				)
 			);
 			if (m_ptrDbg.get()) {
@@ -180,7 +191,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 			
 			QSize const unrotated_dpm(Dpm(data.origImage()).toSize());
 			Dpm const rotated_dpm(
-				data.xform().preRotation().rotate(unrotated_dpm)
+                ui_data.pageRotation().rotate(unrotated_dpm)
 			);
 			cleanup(status, rotated_image, Dpi(rotated_dpm));
 			if (m_ptrDbg.get()) {
@@ -204,16 +215,18 @@ Task::process(TaskStatus const& status, FilterData const& data)
 			ui_data.setMode(MODE_AUTO);
 			
 			Params new_params(
-				ui_data.effectiveDeskewAngle(), deps, ui_data.mode()
+                ui_data.effectiveDeskewAngle(), deps, ui_data.mode(), ui_data.orientationFix()
 			);
 			new_params.computeDeviation(m_ptrSettings->avg());
 			m_ptrSettings->setPageParams(m_pageId, new_params);
 			
 			status.throwIfCancelled();
 		}
+
 	}
 	
 	ImageTransformation new_xform(data.xform());
+    new_xform.setPreRotation(ui_data.pageRotation());
 	new_xform.setPostRotation(ui_data.effectiveDeskewAngle());
 	
 	if (m_ptrNextTask) {

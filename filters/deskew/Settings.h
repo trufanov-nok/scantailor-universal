@@ -37,6 +37,14 @@ class Settings : public RefCountable
 {
 	DECLARE_NON_COPYABLE(Settings)
 public:
+        enum UpdateOpt
+    {
+                 UpdateModeAndAngle,
+                 UpdateOrientationFix,
+                 UpdateAll
+};
+
+
 	Settings();
 	
 	virtual ~Settings();
@@ -53,7 +61,7 @@ public:
 	
 	std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
 	
-    void setDegress(std::set<PageId> const& pages, Params const& params);
+    void applyParams(std::set<PageId> const& pages, const Params &cur_params, UpdateOpt opt = UpdateModeAndAngle);
 
 	double maxDeviation() const { return m_maxDeviation; }
 	void setMaxDeviation(double md) { m_maxDeviation = md; }

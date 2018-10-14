@@ -41,11 +41,13 @@ public:
 	
 	Dependencies();
 	
-	Dependencies(QPolygonF const& page_outline, OrthogonalRotation rotation);
+    Dependencies(QPolygonF const& page_outline, OrthogonalRotation imageRotation);
 	
 	Dependencies(QDomElement const& deps_el);
 	
 	~Dependencies();
+
+    OrthogonalRotation imageRotation() const { return m_rotation; }
 	
 	bool matches(Dependencies const& other) const;
 	

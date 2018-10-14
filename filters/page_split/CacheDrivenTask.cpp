@@ -65,7 +65,7 @@ CacheDrivenTask::process(
 		m_ptrSettings->getPageRecord(page_info.imageId())
 	);
 	
-	OrthogonalRotation const pre_rotation(xform.preRotation());
+    OrthogonalRotation const pre_rotation(xform.preRotation());
 	Dependencies const deps(
 		page_info.metadata().size(), pre_rotation,
 		record.combinedLayoutType()
@@ -133,8 +133,9 @@ CacheDrivenTask::process(
     m_projectPages->setLayoutTypeFor(page_info.id().imageId(), toPageLayoutType(layout));
 
 	if (m_ptrNextTask) {
-		ImageTransformation new_xform(xform);
-		new_xform.setPreCropArea(layout.pageOutline(page_info.id().subPage()));
+        ImageTransformation new_xform(xform);
+        new_xform.setPreCropArea(layout.pageOutline(page_info.id().subPage()));
+        new_xform.changeLevel(ImageTransformation::PageLevel);
 		m_ptrNextTask->process(page_info, collector, new_xform);
 		return;
 	}
@@ -143,9 +144,9 @@ CacheDrivenTask::process(
 		thumb_col->processThumbnail(
             std::unique_ptr<QGraphicsItem>(
 				new Thumbnail(
-					thumb_col->thumbnailCache(),
+                    thumb_col->thumbnailCache(),
 					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), xform, layout,
+                    page_info.imageId(), xform, layout,
 					page_info.leftHalfRemoved(),
 					page_info.rightHalfRemoved()
 				)

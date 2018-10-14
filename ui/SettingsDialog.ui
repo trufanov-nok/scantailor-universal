@@ -205,7 +205,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>11</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -261,8 +261,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>441</width>
-                <height>220</height>
+                <width>82</width>
+                <height>552</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
@@ -420,8 +420,8 @@ Batch processing - a simple dialog that appears if you press the launch button a
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>445</width>
-             <height>414</height>
+             <width>432</width>
+             <height>57</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_51">
@@ -620,8 +620,8 @@ This option allows to increase page view panel size to almost a whole applicatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>427</width>
-                <height>674</height>
+                <width>426</width>
+                <height>591</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_83">
@@ -1119,8 +1119,8 @@ If project was never saved before this will create UnnamedAutoSave.Scantailor fi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>104</width>
-                <height>1032</height>
+                <width>97</width>
+                <height>912</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_57">
@@ -1365,8 +1365,8 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>105</width>
-                <height>1372</height>
+                <width>98</width>
+                <height>1212</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_60">
@@ -1604,6 +1604,96 @@ Images can be rotated by dragging the round handles at the edges. You can also e
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page">
+       <layout class="QVBoxLayout" name="verticalLayout_95">
+        <item>
+         <widget class="QGroupBox" name="groupBox_20">
+          <property name="title">
+           <string>Description</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_93">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QScrollArea" name="scrollArea_20">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_20">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>422</width>
+                <height>407</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_94">
+               <property name="spacing">
+                <number>6</number>
+               </property>
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lblDebugModeDescr_2">
+                 <property name="text">
+                  <string>This feature enables additional control that allows change page orientation at Deskew processing stage.
+Usually user changes whole image orientation on Fix Orientation processing stage and that's enough. However if you scan a landscape oriented book and your scan image contains two pages you'll realize that ScanTailor can't split pages horizontally. So you can't get image properly oriented and split at the same time.
+
+In this case additional control over orientation may be obtained for page after Split Pages processing stage to make sure pages are oriented properly.
+This control is displayed only for images that were split on two pages and has no effect for other split types.
+
+Orientation is changed just before skew angle detection, so Auto mode works properly.
+Use &quot;Apply To&quot; button to change orientation for many pages at once.
+
+</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="pageDeviantDeskew">
        <layout class="QVBoxLayout" name="verticalLayout_62">
         <property name="spacing">
@@ -1715,8 +1805,8 @@ The Deviant page on this stage is defined as a page which absolute deskew angle 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>94</width>
-                <height>1695</height>
+                <width>88</width>
+                <height>1497</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_63">
@@ -1873,8 +1963,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>109</width>
-                <height>1644</height>
+                <width>102</width>
+                <height>1437</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -2149,8 +2239,8 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1442</height>
+                <width>94</width>
+                <height>1278</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -2305,8 +2395,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>106</width>
-                <height>1328</height>
+                <width>99</width>
+                <height>1176</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_90">
@@ -2592,8 +2682,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>103</width>
-                <height>4800</height>
+                <width>96</width>
+                <height>4233</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_89">
@@ -2785,8 +2875,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>111</width>
-                <height>913</height>
+                <width>103</width>
+                <height>822</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_69">
@@ -3059,8 +3149,8 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1134</height>
+                <width>94</width>
+                <height>1017</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_74">
@@ -3172,8 +3262,8 @@ Making black and white image from grayscale or color source requires binarizatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>90</width>
-                <height>624</height>
+                <width>84</width>
+                <height>552</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_76">
@@ -3278,8 +3368,8 @@ Equalize illumination option normalizes the background color, bringing it to whi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>109</width>
-                <height>930</height>
+                <width>102</width>
+                <height>807</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_77">
@@ -3384,8 +3474,8 @@ Automatic picture zones detection works well enough, but if the picture merges s
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>726</height>
+                <width>94</width>
+                <height>642</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_79">
@@ -3482,8 +3572,8 @@ This mask can't be changed directly but only switched on/off. User could also cr
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1967</height>
+                <width>94</width>
+                <height>1737</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_81">
@@ -3629,8 +3719,8 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>427</width>
-                <height>386</height>
+                <width>87</width>
+                <height>1692</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_73">
@@ -3812,8 +3902,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>427</width>
-                <height>371</height>
+                <width>426</width>
+                <height>303</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_92">
@@ -4023,8 +4113,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>116</width>
-                <height>1474</height>
+                <width>440</width>
+                <height>425</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">

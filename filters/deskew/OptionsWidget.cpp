@@ -20,10 +20,13 @@
 #include "OptionsWidget.moc"
 #include "Settings.h"
 #include "ScopedIncDec.h"
+#include "ApplyToDialog.h"
+#include "DeskewApplyWidget.h"
+#include "settings/globalstaticsettings.h"
+
 #include <QString>
 #include <Qt>
 #include <math.h>
-#include "ApplyToDialog.h"
 
 namespace deskew
 {
@@ -38,6 +41,7 @@ OptionsWidget::OptionsWidget(IntrusivePtr<Settings> const& settings,
 	m_pageSelectionAccessor(page_selection_accessor)
 {
 	setupUi(this);
+    wgtPageOrientationFix->setVisible(false);
 	angleSpinBox->setSuffix(QChar(0x00B0)); // the degree symbol
 	angleSpinBox->setRange(-MAX_ANGLE, MAX_ANGLE);
 	angleSpinBox->adjustSize();
@@ -62,26 +66,46 @@ void
 OptionsWidget::showDeskewDialog()
 {
     ApplyToDialog* dialog = new ApplyToDialog(
-        this, m_pageId, m_pageSelectionAccessor
-    );
+                this, m_pageId, m_pageSelectionAccessor
+                );
 
-    dialog->setWindowTitle(tr("Apply Deskew"));
+    dialog->setWindowTitle(tr("Apply Deskew parameters"));
+
+    DeskewApplyWidget* options = nullptr;
+    if (m_uiData.orientationFix() != Params::OrientationFixNone) {
+        options = new DeskewApplyWidget(m_uiData.mode(), m_uiData.effectiveDeskewAngle(),
+                                        m_uiData.pageRotation().toDegrees(), dialog);
+        QLayout& l = dialog->initNewTopSettingsPanel();
+        l.addWidget(options);
+    }
 
     connect(dialog, &ApplyToDialog::accepted, this, [=]() {
+
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
-        if (!dialog->getPageRangeSelectorWidget().allPagesSelected()) {
-            appliedTo(pages);
-        } else {
-            appliedToAllPages(pages);
+        Settings::UpdateOpt opt = Settings::UpdateModeAndAngle;
+        if (options) {
+            if (options->isOrientationOptionSelected()) {
+                opt = Settings::UpdateOrientationFix;
+            } else if (options->isAllOptionSelected()) {
+                opt = Settings::UpdateAll;
+            }
         }
-    });
 
-	dialog->show();
+        if (!dialog->getPageRangeSelectorWidget().allPagesSelected()) {
+            appliedTo(pages, opt);
+        } else {
+            appliedToAllPages(pages, opt);
+        }
+    }
+
+    );
+
+    dialog->show();
 }
 
 void
-OptionsWidget::appliedTo(std::set<PageId> const& pages)
+OptionsWidget::appliedTo(std::set<PageId> const& pages, Settings::UpdateOpt opt)
 {
 	if (pages.empty()) {
 		return;
@@ -89,16 +113,16 @@ OptionsWidget::appliedTo(std::set<PageId> const& pages)
 	
 	Params const params(
 		m_uiData.effectiveDeskewAngle(),
-		m_uiData.dependencies(), m_uiData.mode()
+        m_uiData.dependencies(), m_uiData.mode(), m_uiData.orientationFix(), m_uiData.requireRecalc()
 	);
-	m_ptrSettings->setDegress(pages, params);
+    m_ptrSettings->applyParams(pages, params, opt);
 	for (PageId const& page_id: pages) {
 		emit invalidateThumbnail(page_id);
 	}
 }
 
 void
-OptionsWidget::appliedToAllPages(std::set<PageId> const& pages)
+OptionsWidget::appliedToAllPages(std::set<PageId> const& pages, Settings::UpdateOpt opt)
 {
 	if (pages.empty()) {
 		return;
@@ -106,9 +130,10 @@ OptionsWidget::appliedToAllPages(std::set<PageId> const& pages)
 	
 	Params const params(
 		m_uiData.effectiveDeskewAngle(),
-		m_uiData.dependencies(), m_uiData.mode()
+        m_uiData.dependencies(), m_uiData.mode(), m_uiData.orientationFix(), m_uiData.requireRecalc()
 	);
-	m_ptrSettings->setDegress(pages, params);
+
+    m_ptrSettings->applyParams(pages, params, opt);
 	emit invalidateAllThumbnails();
 }
 
@@ -129,10 +154,16 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 {
 	ScopedIncDec<int> guard(m_ignoreAutoManualToggle);
 	
-	m_pageId = page_id;
+	m_pageId = page_id;    
 	setSpinBoxUnknownState();
 	autoBtn->setEnabled(false);
 	manualBtn->setEnabled(false);
+
+    if (!GlobalStaticSettings::m_drawDeskewOrientFix) {
+        gbPageOrientationFix->setVisible(false);
+    } else {
+        gbPageOrientationFix->setVisible(m_pageId.subPage() != PageId::SubPage::SINGLE_PAGE);
+    }
 }
 
 void
@@ -143,6 +174,10 @@ OptionsWidget::postUpdateUI(UiData const& ui_data)
 	manualBtn->setEnabled(true);
 	updateModeIndication(ui_data.mode());
 	setSpinBoxKnownState(degreesToSpinBox(ui_data.effectiveDeskewAngle()));
+    displayOrientationFix();
+    if (!btnRotatonNone->isChecked()) {
+        gbPageOrientationFix->setChecked(true);
+    }
 }
 
 void
@@ -168,14 +203,12 @@ OptionsWidget::modeChanged(bool const auto_mode)
 	if (m_ignoreAutoManualToggle) {
 		return;
 	}
+
+    m_uiData.setMode(auto_mode? MODE_AUTO : MODE_MANUAL);
+    commitCurrentParams();
 	
 	if (auto_mode) {
-		m_uiData.setMode(MODE_AUTO);
-		m_ptrSettings->clearPageParams(m_pageId);
 		emit reloadRequested();
-	} else {
-		m_uiData.setMode(MODE_MANUAL);
-		commitCurrentParams();
 	}
 }
 
@@ -220,10 +253,19 @@ OptionsWidget::commitCurrentParams()
 {
 	Params params(
 		m_uiData.effectiveDeskewAngle(),
-		m_uiData.dependencies(), m_uiData.mode()
+        m_uiData.dependencies(), m_uiData.mode(), m_uiData.orientationFix(), m_uiData.requireRecalc()
 	);
 	params.computeDeviation(m_ptrSettings->avg());
 	m_ptrSettings->setPageParams(m_pageId, params);
+}
+
+void
+OptionsWidget::displayOrientationFix()
+{
+    const Params::OrientationFix f = m_uiData.orientationFix();
+    btnRotatonNone->setChecked(f == Params::OrientationFixNone);
+    btnRotatonLeft->setChecked(f == Params::OrientationFixLeft);
+    btnRotatonRight->setChecked(f == Params::OrientationFixRight);
 }
 
 double
@@ -248,7 +290,9 @@ OptionsWidget::degreesToSpinBox(double const degrees)
 
 OptionsWidget::UiData::UiData()
 :	m_effDeskewAngle(0.0),
-	m_mode(MODE_AUTO)
+    m_mode(MODE_AUTO),
+    m_orientationFix(Params::OrientationFixNone),
+    m_requireRecalc(false)
 {
 }
 
@@ -283,7 +327,10 @@ OptionsWidget::UiData::dependencies() const
 void
 OptionsWidget::UiData::setMode(AutoManualMode const mode)
 {
-	m_mode = mode;
+    if (m_mode != mode) {
+        m_requireRecalc = mode == MODE_AUTO;
+        m_mode = mode;
+    }
 }
 
 AutoManualMode
@@ -292,4 +339,60 @@ OptionsWidget::UiData::mode() const
 	return m_mode;
 }
 
+void
+OptionsWidget::UiData::setOrientationFix (Params::OrientationFix rotation)
+{
+    if (m_orientationFix != rotation) {
+        if (m_mode == MODE_AUTO) {
+            m_requireRecalc = true;
+        }
+        m_orientationFix = rotation;
+    }
+}
+
+Params::OrientationFix
+OptionsWidget::UiData::orientationFix() const
+{
+    if (!GlobalStaticSettings::m_drawDeskewOrientFix) {
+        return Params::OrientationFixNone;
+    }
+
+    return m_orientationFix;
+}
+
 } // namespace deskew
+
+void deskew::OptionsWidget::on_gbPageOrientationFix_toggled(bool arg1)
+{
+    wgtPageOrientationFix->setVisible(arg1);
+    if (!arg1) {
+        btnRotatonNone->setChecked(true);
+    }
+}
+
+void deskew::OptionsWidget::on_btnRotatonLeft_toggled(bool checked)
+{
+    if (checked) {
+        m_uiData.setOrientationFix(Params::OrientationFixLeft);
+        commitCurrentParams();
+        emit reloadRequested();
+    }
+}
+
+void deskew::OptionsWidget::on_btnRotatonNone_toggled(bool checked)
+{
+    if (checked) {
+        m_uiData.setOrientationFix(Params::OrientationFixNone);
+        commitCurrentParams();
+        emit reloadRequested();
+    }
+}
+
+void deskew::OptionsWidget::on_btnRotatonRight_toggled(bool checked)
+{
+    if (checked) {
+        m_uiData.setOrientationFix(Params::OrientationFixRight);
+        commitCurrentParams();
+        emit reloadRequested();
+    }
+}

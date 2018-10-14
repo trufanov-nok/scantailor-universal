@@ -215,6 +215,8 @@ static const char* _key_use_3d_accel = "settings/use_3d_acceleration";
 static const bool _key_use_3d_accel_def = false;
 
 
+static const char* _key_deskew_orient_fix_enabled = "deskew_orient_fix/enabled";
+static const bool _key_deskew_orient_fix_enabled_def = false;
 static const char* _key_deskew_deviant_enabled = "deskew_deviant/enabled";
 static const bool _key_deskew_deviant_enabled_def = false;
 static const char* _key_select_content_deviant_enabled = "select_content_deviant/enabled";

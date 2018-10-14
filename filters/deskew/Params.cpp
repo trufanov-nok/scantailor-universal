@@ -25,12 +25,15 @@ namespace deskew
 {
 
 Params::Params(double const deskew_angle_deg,
-	Dependencies const& deps, AutoManualMode const mode)
+    Dependencies const& deps, AutoManualMode const mode,
+    OrientationFix rotation, bool requireRecalc)
 :	RegenParams(),
     m_deskewAngleDeg(deskew_angle_deg),
 	m_deps(deps),
     m_mode(mode),
-    m_deviation(0.0)
+    m_deviation(0.0),
+    m_orientationFix(rotation),
+    m_requireRecalc(requireRecalc)
 {
 }
 
@@ -39,7 +42,9 @@ Params::Params(QDomElement const& deskew_el)
     m_deskewAngleDeg(deskew_el.attribute("angle").toDouble()),
 	m_deps(deskew_el.namedItem("dependencies").toElement()),
     m_mode(deskew_el.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO),
-    m_deviation(deskew_el.attribute("deviation").toDouble())
+    m_deviation(deskew_el.attribute("deviation").toDouble()),
+    m_orientationFix( (OrientationFix)  deskew_el.attribute("page_orient_fix", "0").toInt()),
+    m_requireRecalc(deskew_el.attribute("recalc", "0").toInt())
 {
 	CommandLine const& cli = CommandLine::get();
 
@@ -59,6 +64,8 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 	el.setAttribute("mode", m_mode == MODE_AUTO ? "auto" : "manual");
 	el.setAttribute("angle", Utils::doubleToString(m_deskewAngleDeg));
     el.setAttribute("deviation", m_deviation);
+    el.setAttribute("page_orient_fix", m_orientationFix);
+    el.setAttribute("recalc", m_requireRecalc);
     el.appendChild(m_deps.toXml(doc, "dependencies"));
 	return el;
 }

@@ -8,6 +8,7 @@ SET(
 	Thumbnail.cpp Thumbnail.h
 	Filter.cpp Filter.h
 	OptionsWidget.cpp OptionsWidget.h
+        DeskewApplyWidget.cpp DeskewApplyWidget.h
 	Settings.cpp Settings.h
 	Task.cpp Task.h
 	CacheDrivenTask.cpp CacheDrivenTask.h

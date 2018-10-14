@@ -114,12 +114,51 @@ Settings::getPageParams(PageId const& page_id) const
 }
 
 void
-Settings::setDegress(std::set<PageId> const& pages, Params const& params)
+Settings::applyParams(std::set<PageId> const& pages, Params const& cur_params, UpdateOpt opt)
 {
-	QMutexLocker const locker(&m_mutex);
-	for (PageId const& page: pages) {
-		Utils::mapSetValue(m_perPageParams, page, params);
-	}
+
+    // we need to recalc angle in following cases:
+    // * if target params gets Auto mode
+    // * if target params gets OrientationFix and already have Auto mode
+
+    bool enforce_recalc = cur_params.requireRecalc();
+
+    if (!enforce_recalc) {
+        if (cur_params.mode() == AutoManualMode::MODE_AUTO &&
+                opt != UpdateOrientationFix) {
+            enforce_recalc = true; // 1st case
+        }
+    }
+
+    for (PageId const& page_id: pages) {
+
+        std::unique_ptr<Params> target_params = getPageParams(page_id);
+        if (!target_params) {
+            target_params.reset(new Params(0, cur_params.dependencies(), AutoManualMode::MODE_AUTO, Params::OrientationFixNone, true));
+        }
+
+        if (enforce_recalc) {
+            target_params->setRequireRecalc(true);
+        }
+
+        if (opt == UpdateModeAndAngle || opt == UpdateAll) {
+            target_params->setDeskewAngle(cur_params.deskewAngle());
+            target_params->setMode(cur_params.mode());
+        }
+
+        if (opt == UpdateOrientationFix || opt == UpdateAll) {
+            if (target_params->orientationFix() != cur_params.orientationFix()) {
+                target_params->setOrientationFix(cur_params.orientationFix());
+                if (!enforce_recalc &&
+                        target_params->mode() == AutoManualMode::MODE_AUTO) {
+                    target_params->setRequireRecalc(true); // 2nd case
+                }
+            }
+        }
+
+        setPageParams(page_id, *target_params);
+    }
+
 }
 
 } // namespace deskew

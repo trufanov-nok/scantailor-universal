@@ -120,7 +120,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 	
 	Settings::Record record(m_ptrSettings->getPageRecord(m_pageInfo.imageId()));
 	
-	OrthogonalRotation const pre_rotation(data.xform().preRotation());
+    OrthogonalRotation const pre_rotation(data.xform().preRotation());
     Dependencies const deps(
 		data.origImage().size(), pre_rotation,
 		record.combinedLayoutType()
@@ -216,8 +216,9 @@ Task::process(TaskStatus const& status, FilterData const& data)
 	m_ptrPages->setLayoutTypeFor(m_pageInfo.imageId(), toPageLayoutType(layout));
 	
 	if (m_ptrNextTask) {
-		ImageTransformation new_xform(data.xform());
+        ImageTransformation new_xform(data.xform());
 		new_xform.setPreCropArea(layout.pageOutline(m_pageInfo.id().subPage()));
+        new_xform.changeLevel(ImageTransformation::PageLevel);
 		return m_ptrNextTask->process(status, FilterData(data, new_xform));
 	} else {
 		return FilterResultPtr(

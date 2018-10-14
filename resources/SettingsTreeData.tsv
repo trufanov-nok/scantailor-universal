@@ -9,6 +9,7 @@ pageFixOrientation
 pageSplitPages
 	pageApplyCut	apply_cut/enabled
 pageDeskew
+	pageDeskewOrient	deskew_orient_fix/enabled	0
 	pageDeviantDeskew	deskew_deviant/enabled	0
 pageSelectContent
 	pagePageDetecton	page_detection/enabled	0

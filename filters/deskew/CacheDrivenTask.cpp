@@ -46,7 +46,7 @@ CacheDrivenTask::process(
 	PageInfo const& page_info, AbstractFilterDataCollector* collector,
 	ImageTransformation const& xform)
 {
-	Dependencies const deps(xform.preCropArea(), xform.preRotation());
+    Dependencies const deps(xform.preCropArea(), xform.preRotation());
 	std::unique_ptr<Params> params(m_ptrSettings->getPageParams(page_info.id()));
 
     bool need_reprocess(!params.get());
@@ -61,6 +61,7 @@ CacheDrivenTask::process(
         }
     }
 
+
     if (need_reprocess || !deps.matches(params->dependencies())) {
 		
 		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
@@ -69,7 +70,7 @@ CacheDrivenTask::process(
 					new IncompleteThumbnail(
 						thumb_col->thumbnailCache(),
 						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), xform
+                        page_info.imageId(), xform
 					)
 				)
 			);
@@ -78,9 +79,10 @@ CacheDrivenTask::process(
 		return;
 	}
 	
-	ImageTransformation new_xform(xform);
+    ImageTransformation new_xform(xform);
+    new_xform.setPreRotation(params->pageRotation());
 	new_xform.setPostRotation(params->deskewAngle());
-	
+
 	if (m_ptrNextTask) {
 		m_ptrNextTask->process(page_info, collector, new_xform);
 		return;

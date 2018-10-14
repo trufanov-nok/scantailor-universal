@@ -48,11 +48,11 @@ CacheDrivenTask::process(
 	PageInfo const& page_info, AbstractFilterDataCollector* collector)
 {
 	QRectF const initial_rect(QPointF(0.0, 0.0), page_info.metadata().size());
-	ImageTransformation xform(initial_rect, page_info.metadata().dpi());
-	xform.setPreRotation(m_ptrSettings->getRotationFor(page_info.imageId()));
+    ImageTransformation xform(initial_rect, page_info.metadata().dpi(), ImageTransformation::ImageLevel);
+    xform.setPreRotation(m_ptrSettings->getRotationFor(page_info.imageId()));
 	
 	if (PageOrientationCollector* col = dynamic_cast<PageOrientationCollector*>(collector)) {
-		col->process(xform.preRotation());
+        col->process(xform.preRotation());
 	}
 
 	if (m_ptrNextTask) {

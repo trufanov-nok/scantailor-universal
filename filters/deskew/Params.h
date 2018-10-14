@@ -39,24 +39,59 @@ class Params: public RegenParams
 {
 public:
 	// Member-wise copying is OK.
+
+    enum OrientationFix {
+        OrientationFixNone,
+        OrientationFixLeft,
+        OrientationFixRight
+    };
+
+    enum RequireRecalcs {
+        RecalcNone,
+        RecalcAutoDeskew,
+        RecalcOrientation
+    };
 	
 	Params(double deskew_angle_deg,
-		Dependencies const& deps, AutoManualMode mode);
+        Dependencies const& deps, AutoManualMode const mode, OrientationFix pageRotation = OrientationFixNone, bool requireRecalc = false);
 	
 	Params(QDomElement const& deskew_el); 
 	
 	~Params();
 	
+    OrthogonalRotation pageRotation() {
+        OrthogonalRotation r = m_deps.imageRotation();
+        if (m_orientationFix == OrientationFixLeft) {
+            r.prevClockwiseDirection();
+        } else if (m_orientationFix == OrientationFixRight) {
+            r.nextClockwiseDirection();
+        }
+        return r;
+    }
+
+    OrientationFix orientationFix() const { return m_orientationFix; }
+
+    void setOrientationFix(OrientationFix orient) { m_orientationFix = orient; }
+
 	double deskewAngle() const { return m_deskewAngleDeg; }
+
+    void setDeskewAngle(double angle) { m_deskewAngleDeg = angle; }
+
 
 	double deviation() const { return m_deviation; }
 	void computeDeviation(double avg) { m_deviation = avg - m_deskewAngleDeg; }
 	// check if skew is too large
 	bool isDeviant(double std, double max_dev=CommandLine::get().getSkewDeviation()) const { return std::max(1.5*std, max_dev) < fabs(m_deviation); }
-	
+
 	Dependencies const& dependencies() const { return m_deps; }
 	
 	AutoManualMode mode() const { return m_mode; }
+
+    void setMode(AutoManualMode const mode) { m_mode = mode; }
+
+    bool requireRecalc() const { return m_requireRecalc; }
+
+    void setRequireRecalc(bool flags) { m_requireRecalc = flags; }
 	
 	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
@@ -64,6 +99,8 @@ private:
 	Dependencies m_deps;
 	AutoManualMode m_mode;
 	double m_deviation;
+    OrientationFix m_orientationFix;
+    bool m_requireRecalc;
 };
 
 } // namespace deskew

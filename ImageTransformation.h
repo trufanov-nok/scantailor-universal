@@ -64,7 +64,12 @@ class ImageTransformation
 public:
 	// Member-wise copying is OK.
 
-	ImageTransformation(QRectF const& orig_image_rect, Dpi const& orig_dpi);
+    enum Level {
+        ImageLevel,
+        PageLevel
+    };
+
+    ImageTransformation(QRectF const& orig_image_rect, Dpi const& orig_dpi, Level pageLevel = PageLevel);
 
 	~ImageTransformation();
 
@@ -105,12 +110,12 @@ public:
 	 *
 	 * \see \ref transformations Transformations.
 	 */
-	void setPreRotation(OrthogonalRotation rotation);
+    void setPreRotation(OrthogonalRotation rotation);
 
 	/**
 	 * \brief Returns the 2nd step rotation.
 	 */
-	OrthogonalRotation preRotation() const { return m_preRotation; }
+    OrthogonalRotation preRotation() const { return m_pageLevel == PageLevel? m_preRotationPage : m_preRotationImage; }
 
 	/**
 	 * \brief Set the 3rd step transformation, resetting the following ones.
@@ -130,7 +135,7 @@ public:
 	 * this function returns it as is.  Otherwise, the whole available
 	 * area is returned.
 	 */
-	QPolygonF const& preCropArea() const { return m_preCropArea; }
+    QPolygonF const& preCropArea() const { return m_pageLevel == PageLevel? m_preCropAreaPage : m_preCropAreaImage; }
 
 	/**
 	 * \brief Returns the pre-crop area after all transformations.
@@ -203,11 +208,27 @@ public:
 	 * \brief Returns the resulting image rectangle.
 	 *
 	 * The top-left corner of the resulting rectangle is expected
-	 * to be very close to (0, 0), assuming the original rectangle
+     * to be very close to (0, 0), assuming the original rectangle
 	 * had it at (0, 0), but it's not guaranteed to be exactly there.
 	 */
 	QRectF const& resultingRect() const { return m_resultingRect; }
+
+    void changeLevel(Level pageLevel = PageLevel);
+
 private:
+
+    QTransform const& preCropXform() const { return m_pageLevel == PageLevel ? m_preCropXformPage : m_preCropXformImage; }
+
+    void setPreCropXform(QTransform const& val) {
+        if (m_pageLevel == PageLevel) {
+            m_preCropXformPage = val;
+        } else {
+            m_preCropXformImage = val;
+        }
+    }
+
+    QTransform const& preRotateXform() const { return m_pageLevel == PageLevel ? m_preRotateXformPage : m_preRotateXformImage; }
+
 	QTransform calcCropXform(QPolygonF const& crop_area);
 
 	QTransform calcPostRotateXform(double degrees);
@@ -224,9 +245,7 @@ private:
 
 	void update();
 
-	QTransform m_preScaleXform;
-	QTransform m_preRotateXform;
-	QTransform m_preCropXform;
+	QTransform m_preScaleXform;    	
 	QTransform m_postRotateXform;
 	QTransform m_postCropXform;
 	QTransform m_postScaleXform;
@@ -235,14 +254,23 @@ private:
 	double m_postRotation;
 	QRectF m_origRect;
 	QRectF m_resultingRect; // Managed by update().
-	QPolygonF m_preCropArea;
 	QPolygonF m_resultingPreCropArea; // Managed by update().
 	QPolygonF m_postCropArea;
 	QPolygonF m_resultingPostCropArea; // Managed by update().
 	Dpi m_origDpi;
 	Dpi m_preScaledDpi; // Always set, as preScaleToEqualizeDpi() is called from the constructor.
 	Dpi m_postScaledDpi; // Default constructed object if no post-scaling.
-	OrthogonalRotation m_preRotation;
+
+    Level m_pageLevel;
+    OrthogonalRotation m_preRotationImage;
+    OrthogonalRotation m_preRotationPage;
+    QPolygonF m_preCropAreaImage;
+    QPolygonF m_preCropAreaPage;
+    QTransform m_preRotateXformImage;
+    QTransform m_preRotateXformPage;
+    QTransform m_preCropXformImage;
+    QTransform m_preCropXformPage;
+
 };
 
 #endif

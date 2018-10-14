@@ -26,7 +26,7 @@ using namespace imageproc;
 FilterData::FilterData(QImage const& image)
 :	m_origImage(image),
 	m_grayImage(toGrayscale(m_origImage)),
-	m_xform(image.rect(), Dpm(image)),
+    m_xform(image.rect(), Dpm(image), ImageTransformation::ImageLevel),
 	m_bwThreshold(BinaryThreshold::otsuThreshold(m_grayImage))
 {
 }

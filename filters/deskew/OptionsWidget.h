@@ -26,12 +26,11 @@
 #include "Dependencies.h"
 #include "AutoManualMode.h"
 #include "PageSelectionAccessor.h"
+#include "Settings.h"
 #include <set>
 
 namespace deskew
 {
-
-class Settings;
 
 class OptionsWidget :
 	public FilterOptionsWidget, private Ui::DeskewOptionsWidget
@@ -54,13 +53,33 @@ public:
 		
 		Dependencies const& dependencies() const;
 		
-		void setMode(AutoManualMode mode);
+		void setMode(AutoManualMode mode);        
 		
 		AutoManualMode mode() const;
+
+        void setOrientationFix (Params::OrientationFix rotation);
+
+        Params::OrientationFix orientationFix() const;
+
+        bool requireRecalc() const { return m_requireRecalc; }
+
+        void setRequireRecalc(bool req) { m_requireRecalc = req; }
+
+        OrthogonalRotation pageRotation() const {
+            OrthogonalRotation r = m_deps.imageRotation();
+            if (m_orientationFix == Params::OrientationFixLeft) {
+                r.prevClockwiseDirection();
+            } else if (m_orientationFix == Params::OrientationFixRight) {
+                r.nextClockwiseDirection();
+            }
+            return r;
+        }
 	private:
 		double m_effDeskewAngle;
 		Dependencies m_deps;
 		AutoManualMode m_mode;
+        Params::OrientationFix m_orientationFix;
+        bool m_requireRecalc;
 	};
 	
 	OptionsWidget(IntrusivePtr<Settings> const& settings,
@@ -80,8 +99,17 @@ private slots:
 	
 	void modeChanged(bool auto_mode);
 	void showDeskewDialog();
-	void appliedTo(std::set<PageId> const& pages);
-	void appliedToAllPages(std::set<PageId> const& pages);
+    void appliedTo(std::set<PageId> const& pages, Settings::UpdateOpt opt);
+    void appliedToAllPages(std::set<PageId> const& pages, Settings::UpdateOpt opt);
+
+    void on_gbPageOrientationFix_toggled(bool arg1);
+
+    void on_btnRotatonLeft_toggled(bool checked);
+
+    void on_btnRotatonNone_toggled(bool checked);
+
+    void on_btnRotatonRight_toggled(bool checked);
+
 private:
 	void updateModeIndication(AutoManualMode mode);
 	
@@ -90,6 +118,8 @@ private:
 	void setSpinBoxKnownState(double angle);
 	
 	void commitCurrentParams();
+
+    void displayOrientationFix();
 	
 	static double spinBoxToDegrees(double sb_value);
 	
