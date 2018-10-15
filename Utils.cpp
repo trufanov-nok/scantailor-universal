@@ -89,6 +89,7 @@ Utils::adjustByDpiAndUnits(qreal val, qreal const dpi,
                            StatusLabelPhysSizeDisplayMode mode)
 {
     switch (mode) {
+    case StatusLabelPhysSizeDisplayMode::Pixels:
     case StatusLabelPhysSizeDisplayMode::Inch: return val / dpi;
     case StatusLabelPhysSizeDisplayMode::MM: return val / qRound(dpi * imageproc::constants::DPI2DPM) * 1000.;
     case StatusLabelPhysSizeDisplayMode::SM: return val / qRound(dpi * imageproc::constants::DPI2DPM) * 100.;
