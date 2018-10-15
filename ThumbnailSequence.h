@@ -218,7 +218,7 @@ public:
 //begin of modified by monday2000
 //Export_Subscans
 //added:
-	bool AllThumbnailsComplete();
+    bool AllThumbnailsComplete(bool check_only_selected_pages = false);
 //end of modified by monday2000
 
     void setMaxLogicalThumbSize(QSizeF const& max_size);

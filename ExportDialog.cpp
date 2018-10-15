@@ -139,10 +139,6 @@ ExportDialog::OnClickExport()
 		return;
 	}
 
-	QString export_dir_path = ui.outExportDirLine->text();
-	bool split_subscans = ui.SplitMixed->isChecked();
-	bool default_out_dir = ui.DefaultOutputFolder->isChecked();
-
 	if (ui.ExportButton->text() != tr("Stop"))	
 		emit SetStartExportSignal();	
 	
@@ -205,9 +201,11 @@ ExportDialog::startExport(void)
 	bool generate_blank_back_subscans = ui.GenerateBlankBackSubscans->isChecked();
     bool use_sep_suffix_for_pics = ui.UseSepSuffixForPics->isChecked();
 	bool keep_original_color_illum_fore_subscans = ui.KeepOriginalColorIllumForeSubscans->isChecked();
+    bool export_selected_pages_only = ui.cbExportSelected->isChecked();
 
-	emit ExportOutputSignal(export_dir_path, default_out_dir, split_subscans, 
-        generate_blank_back_subscans, use_sep_suffix_for_pics, keep_original_color_illum_fore_subscans);
+    emit ExportOutputSignal(export_dir_path, default_out_dir, split_subscans,
+                            generate_blank_back_subscans, use_sep_suffix_for_pics,
+                            keep_original_color_illum_fore_subscans, export_selected_pages_only);
 }
 
 void

@@ -151,7 +151,6 @@ MainWindow::MainWindow()
     m_debug(false),
     m_closing(false),
 //Export_Subscans
-    m_outpaths_vector(0),
     m_exportTimerId(0),
     m_keep_orig_fore_subscan(0),
     m_docking_enabled(true),
@@ -735,7 +734,7 @@ MainWindow::timerEvent(QTimerEvent* const event)
             {
                 m_p_export_dialog->setExportLabel();
 
-                QMessageBox::information(0, tr("Information"), tr("The files export is finished."));
+                QMessageBox::information(nullptr, tr("Information"), tr("The files export is finished."));
             }
         }
     }
@@ -2168,7 +2167,7 @@ MainWindow::ExportNextFile()
 
         m_ptrInteractiveQueue->cancelAndClear();
 
-        BackgroundTaskPtr task = createCompositeTask(page, 5, false, m_debug);
+        BackgroundTaskPtr task = createCompositeTask(page, m_ptrStages->outputFilterIdx(), false, m_debug);
         FilterResultPtr result = (*task)();
     }
 
@@ -2178,9 +2177,9 @@ MainWindow::ExportNextFile()
     QString text_dir = m_export_dir + QDir::separator() + "txt"; //folder for foreground subscans
     QString pic_dir = m_export_dir + QDir::separator() + "pic"; //folder for background subscans
 
-    QString out_file_path = m_outpaths_vector[m_pos_export];
+    QString out_file_path = m_outpaths_vector[m_pos_export].second;
 
-    QString st_num = QString::number(m_pos_export+1);
+    QString st_num = QString::number(m_outpaths_vector[m_pos_export].first);
 
     QString name;
 
@@ -2271,26 +2270,24 @@ MainWindow::ExportNextFile()
 void
 MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool split_subscans,
                          bool generate_blank_back_subscans, bool use_sep_suffix_for_pics,
-                         bool keep_orig_fore_subscan)
+                         bool keep_orig_fore_subscan, bool export_selected_pages_only)
 {
     if (isBatchProcessingInProgress())
     {
-        QMessageBox::critical(0, tr("Error"), tr("Batch processing is in the progress."));
+        QMessageBox::critical(nullptr, tr("Error"), tr("Batch processing is in the progress."));
 
         return;
     }
 
     if (!isProjectLoaded())
     {
-        QMessageBox::critical(0, tr("Error"), tr("No project is loaded."));
+        QMessageBox::critical(nullptr, tr("Error"), tr("No project is loaded."));
 
         return;
     }
 
-    if (!m_ptrThumbSequence->AllThumbnailsComplete())
-    {
+    if (!m_ptrThumbSequence->AllThumbnailsComplete(export_selected_pages_only)) {
         m_p_export_dialog->reset();
-
         return;
     }
 
@@ -2304,7 +2301,7 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
 
     if (m_ptrThumbnailCache.get()) {
         IntrusivePtr<CompositeCacheDrivenTask> const task(
-            createCompositeCacheDrivenTask(5)
+            createCompositeCacheDrivenTask(m_ptrStages->outputFilterIdx())
         );
 
         m_ptrThumbSequence_export->setThumbnailFactory(
@@ -2317,10 +2314,37 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
         );
     }
 
-    m_ptrThumbSequence_export->reset(
-        m_ptrPages->toPageSequence(m_ptrStages->filterAt(5)->getView()),
-        ThumbnailSequence::RESET_SELECTION, defaultPageOrderProvider()
-    );
+
+
+
+    const PageSequence all_pages = m_ptrPages->toPageSequence(m_ptrStages->filterAt(m_ptrStages->outputFilterIdx())->getView());
+    m_ptrThumbSequence_export->reset(all_pages, ThumbnailSequence::RESET_SELECTION, defaultPageOrderProvider());
+
+    QVector<PageId> selected_pages;
+
+    if (export_selected_pages_only) {
+        QVector<PageId> to_be_selected;
+        for (PageId const& page : m_ptrThumbSequence->selectedItems()) {
+            to_be_selected.append(page);
+        }
+        qSort(to_be_selected);
+
+        for (PageId const& page : to_be_selected) {
+            for (std::vector<PageInfo>::const_iterator it = all_pages.begin(); it != all_pages.end(); ++it) {
+                if (it->id().imageId() == page.imageId()) {
+                    if (page.subPage() == it->id().subPage()) {
+                        selected_pages += page;
+                    } else if ( ( it->id().subPage() == PageId::SINGLE_PAGE ) !=
+                               ( page.subPage() == PageId::SINGLE_PAGE ) ) { // different levels (image/page/subpage)
+                        selected_pages += it->id();
+                    }
+                }
+                if (page.imageId() < it->id().imageId()) {
+                    break;
+                }
+            }
+        }
+    }
 
 // Getting the output filenames
 
@@ -2340,48 +2364,35 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
     m_use_sep_suffix_for_pics = use_sep_suffix_for_pics;
     m_keep_orig_fore_subscan = keep_orig_fore_subscan;
 
-    if (split_subscans)
-    {
-        QDir().mkdir(text_dir);
-        QDir().mkdir(pic_dir);
+    if (split_subscans) {
+        QDir d;
+        d.mkdir(text_dir);
+        d.mkdir(pic_dir);
     }
 
-    std::vector<PageId::SubPage> erase_variations;
-    erase_variations.reserve(3);
-
-    PageSequence const& pages = m_ptrThumbSequence_export->toPageSequence(); // get all the pages (input pages)
-
-    PageId page_id;
+    std::set<PageId> const output_pages = m_ptrThumbSequence_export->toPageSequence().asPageIdSet(); // get all the pages (input pages)
 
     m_outpaths_vector.clear();
 
-    for (const PageInfo& page: pages) {
-        page_id = page.id();
+    int page_no = 0;
+    for (const PageId& page_id: output_pages) {
+        ++page_no;
+        QString out_file_path = m_outFileNameGen.filePathFor(page_id/*export_id*/);
 
-        erase_variations.clear();
-
-        switch (page_id.subPage())
-        {
-        case PageId::SINGLE_PAGE:
-            erase_variations.push_back(PageId::SINGLE_PAGE);
-            erase_variations.push_back(PageId::LEFT_PAGE); //added
-            erase_variations.push_back(PageId::RIGHT_PAGE); //added
-            break;
-        case PageId::LEFT_PAGE:
-            erase_variations.push_back(PageId::SINGLE_PAGE); //added
-            erase_variations.push_back(PageId::LEFT_PAGE);
-            break;
-        case PageId::RIGHT_PAGE:
-            erase_variations.push_back(PageId::SINGLE_PAGE); //added
-            erase_variations.push_back(PageId::RIGHT_PAGE);
-            break;
+        if (export_selected_pages_only) {
+            int idx = selected_pages.indexOf(page_id);
+            if (idx == -1) {
+                continue;
+            }
+            selected_pages.remove(idx);
         }
 
-        for (PageId::SubPage subpage: erase_variations)
-        {
-            QString out_file_path = m_outFileNameGen.filePathFor(PageId(page_id.imageId(), subpage));
-            if (QFile().exists(out_file_path))
-                m_outpaths_vector.append(out_file_path);
+        if (QFile().exists(out_file_path)) {
+            m_outpaths_vector.append(QPair<int, QString>(/*++*/page_no, out_file_path));
+        }
+
+        if (export_selected_pages_only && selected_pages.isEmpty()) {
+            break;
         }
     }
 
