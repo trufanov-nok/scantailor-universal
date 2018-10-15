@@ -41,6 +41,7 @@
 #include "imageproc/SeedFill.h"
 #include "imageproc/Connectivity.h"
 #include "imageproc/Morphology.h"
+#include "settings/globalstaticsettings.h"
 #include <QImage>
 #include <QSize>
 #include <QPoint>
@@ -226,7 +227,9 @@ Task::process(TaskStatus const& status, FilterData const& data)
 	}
 	
 	ImageTransformation new_xform(data.xform());
-    new_xform.setPreRotation(ui_data.pageRotation());
+    if (GlobalStaticSettings::m_drawDeskewOrientFix) {
+         new_xform.setPreRotation(ui_data.pageRotation());
+    }
 	new_xform.setPostRotation(ui_data.effectiveDeskewAngle());
 	
 	if (m_ptrNextTask) {

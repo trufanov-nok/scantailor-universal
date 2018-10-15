@@ -25,6 +25,7 @@
 #include "filter_dc/AbstractFilterDataCollector.h"
 #include "filter_dc/ThumbnailCollector.h"
 #include "filters/select_content/CacheDrivenTask.h"
+#include "settings/globalstaticsettings.h"
 
 namespace deskew
 {
@@ -80,7 +81,9 @@ CacheDrivenTask::process(
 	}
 	
     ImageTransformation new_xform(xform);
-    new_xform.setPreRotation(params->pageRotation());
+    if (GlobalStaticSettings::m_drawDeskewOrientFix) {
+         new_xform.setPreRotation(params->pageRotation());
+    }
 	new_xform.setPostRotation(params->deskewAngle());
 
 	if (m_ptrNextTask) {

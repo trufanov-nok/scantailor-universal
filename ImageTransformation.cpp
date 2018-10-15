@@ -106,12 +106,6 @@ ImageTransformation::setPreRotation(OrthogonalRotation const rotation)
     } else {
         m_preRotationPage = rotation;
         m_preRotateXformPage = m_preRotationPage.transform(m_origRect.size());
-//        QPolygonF new_preCropAreaImage(m_preCropAreaImage.size());
-//        for(QPointF p: m_preCropAreaImage) {
-//            p = m_preRotationImage.unrotate(p, m_origRect.width(), m_origRect.height());
-//            p = m_preRotationPage.rotate(p, m_origRect.width(), m_origRect.height());
-//            new_preCropAreaImage.append(p);
-//        }
 
         QPolygonF new_preCropAreaPage;
         if (m_preRotateXformPage != m_preRotateXformImage) {
@@ -276,6 +270,8 @@ ImageTransformation::changeLevel(Level pageLevel)
         if (m_pageLevel == PageLevel) {
             m_preRotationPage = m_preRotationImage;
             m_preRotateXformPage = m_preRotateXformImage;
+            m_preCropAreaPage = m_preCropAreaImage;
+            m_preCropXformPage = m_preCropXformImage;
         }
     }
     update();
