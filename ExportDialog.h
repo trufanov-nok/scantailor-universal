@@ -40,8 +40,9 @@ public:
 	void setStartExport(void);	
 
 signals:
-	void ExportOutputSignal(QString export_dir_path, bool default_out_dir, bool split_subscans,
-        bool generate_blank_back_subscans, bool use_sep_suffix_for_pics, bool keep_original_color_illum_fore_subscans);
+    void ExportOutputSignal(QString export_dir_path, bool default_out_dir, bool split_subscans,
+                            bool generate_blank_back_subscans, bool use_sep_suffix_for_pics,
+                            bool keep_original_color_illum_fore_subscans, bool export_selected_pages_only);
 	void ExportStopSignal();
 	void SetStartExportSignal();	
 

@@ -192,7 +192,7 @@ public:
 //begin of modified by monday2000
 //Export_Subscans
 //added:
-	bool AllThumbnailsComplete();
+    bool AllThumbnailsComplete(bool check_only_selected_pages);
 //end of modified by monday2000
 
     void setMaxLogicalThumbSize(QSizeF const& max_size) { m_maxLogicalThumbSize = max_size; }
@@ -952,30 +952,44 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
 //begin of modified by monday2000
 //Export_Subscans
 //added:
-bool
-ThumbnailSequence::Impl::AllThumbnailsComplete()
+
+void
+showNotReadyError(PageInfo const& page)
 {
-	ItemsInOrder::iterator ord_it(m_itemsInOrder.begin());
-	ItemsInOrder::iterator const ord_end(m_itemsInOrder.end());
-	for (; ord_it != ord_end; ++ord_it) 
-	{
-		if (ord_it->composite->incompleteThumbnail())
-		{
-			PageInfo page = ord_it->pageInfo;
+    QString show_name = QFileInfo(page.imageId().filePath()).completeBaseName() + ".tif - " + page.id().subPageAsString();
+    QMessageBox::warning(nullptr, QObject::tr("Warning"),
+                         QObject::tr("The file \"%1\" is not ready for output.").arg(show_name));
+}
 
-			QString name(QFileInfo(page.imageId().filePath()).completeBaseName());
+bool
+ThumbnailSequence::Impl::AllThumbnailsComplete(bool check_only_selected_pages)
+{
+    if (check_only_selected_pages) {
+        SelectedThenUnselected::const_iterator ord_it(m_selectedThenUnselected.cbegin());
+        SelectedThenUnselected::const_iterator const ord_end(m_selectedThenUnselected.cend());
+        for (; ord_it != ord_end; ++ord_it) {
+            if (!ord_it->isSelected()) {
+                break;
+            }
 
-			QString sub_page = page.id().subPageAsString();
+            if (ord_it->composite->incompleteThumbnail()) {
+                showNotReadyError(ord_it->pageInfo);
+                return false;
+            }
+        }
 
-			QString show_name = name + ".tif - " + sub_page;
+    } else {
+        ItemsInOrder::const_iterator ord_it(m_itemsInOrder.cbegin());
+        ItemsInOrder::const_iterator const ord_end(m_itemsInOrder.cend());
+        for (; ord_it != ord_end; ++ord_it) {
+            if (ord_it->composite->incompleteThumbnail()) {
+                showNotReadyError(ord_it->pageInfo);
+                return false;
+            }
+        }
+    }
 
-			QMessageBox::warning(0, tr("Warning"), tr("The file") + " \"" + show_name + "\" " + tr("is not ready for output."));
-
-			return false;
-		}
-	}
-
-	return true;
+    return true;
 }
 
 void
@@ -993,9 +1007,9 @@ ThumbnailSequence::Impl::setPagesMaybeTargeted(const std::vector<PageId> pages)
 }
 
 bool
-ThumbnailSequence::AllThumbnailsComplete()
+ThumbnailSequence::AllThumbnailsComplete(bool check_only_selected_pages)
 {
-	return m_ptrImpl->AllThumbnailsComplete();
+    return m_ptrImpl->AllThumbnailsComplete(check_only_selected_pages);
 }
 // end of modified by monday2000
 

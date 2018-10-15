@@ -117,8 +117,8 @@ public:
 public slots:
 	void openProject(QString const& project_file);
 //Export_Subscans
-	void ExportOutput(QString export_dir_path, bool default_out_dir, bool split_subscans,
-        bool generate_blank_back_subscans, bool use_sep_suffix_for_pics, bool orig_fore_subscan);
+    void ExportOutput(QString export_dir_path, bool default_out_dir, bool split_subscans,
+        bool generate_blank_back_subscans, bool use_sep_suffix_for_pics, bool orig_fore_subscan, bool export_selected_pages_only);
 	void ExportStop();
 	void SetStartExport();
     void settingsChanged();
@@ -387,7 +387,7 @@ private:
 //begin of modified by monday2000
 //Export_Subscans
 	ExportDialog* m_p_export_dialog;
-	QVector<QString> m_outpaths_vector;
+    QVector<QPair<int,QString> > m_outpaths_vector;
 	int ExportNextFile();
 	int m_exportTimerId;
 	QString m_export_dir;
