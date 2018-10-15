@@ -126,7 +126,7 @@ OrderBySizeProvider::hint(PageId const& page) const
     } else {
         StatusLabelPhysSizeDisplayMode units_mode = StatusBarProvider::statusLabelPhysSizeDisplayMode;
         if (units_mode == StatusLabelPhysSizeDisplayMode::Pixels) {
-            units_mode = StatusLabelPhysSizeDisplayMode::Inch;
+            units_mode = StatusLabelPhysSizeDisplayMode::SM;
         }
 
         int dpi_used = 0;
