@@ -2776,14 +2776,12 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
             setDynamicSortFilter(true);
 
             PageSequence const sequence(pages.toPageSequence(IMAGE_VIEW));
-            unsigned const count = sequence.numPages();
-            for (unsigned i = 0; i < count; ++i) {
-                PageInfo const& page = sequence.pageAt(i);
+            for (PageInfo const& page : sequence) {
                 m_inProjectFiles.push_back(QFileInfo(page.imageId().filePath()));
             }
         }
     protected:
-        virtual bool filterAcceptsRow(int source_row, QModelIndex const& source_parent) const {
+        virtual bool filterAcceptsRow(int source_row, QModelIndex const& source_parent) const override {
             QModelIndex const idx(source_parent.child(source_row, 0));
             QVariant const data(idx.data(QFileSystemModel::FilePathRole));
             if (data.isNull()) {
@@ -2792,7 +2790,7 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
             return !m_inProjectFiles.contains(QFileInfo(data.toString()));
         }
 
-        virtual bool lessThan(QModelIndex const& left, QModelIndex const& right) const {
+        virtual bool lessThan(QModelIndex const& left, QModelIndex const& right) const override {
             return left.row() < right.row();
         }
     private:
@@ -2806,6 +2804,7 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
         )
     );
     dialog->setFileMode(QFileDialog::ExistingFiles);
+    dialog->setOption(QFileDialog::DontUseNativeDialog, GlobalStaticSettings::m_DontUseNativeDialog); // must be called before setProxyModel
     dialog->setProxyModel(new ProxyModel(*m_ptrPages));
     QString filter = QSettings().value(_key_app_open_filetype_filter, _key_app_open_filetype_filter_def).toString();
     dialog->setNameFilter(tr("Images not in project (%1)").arg(filter));

@@ -88,6 +88,12 @@ static const char* _key_export_generate_blank_subscans = "settings/generate_blan
 static const char* _key_export_use_sep_suffix = "settings/use_sep_suffix_for_background_subscans";
 static const char* _key_export_keep_original_color = "settings/keep_original_color_illum_fore_subscans";
 
+/* insert image disalog */
+
+static const char* _key_dont_use_native_dialog = "add_file_dlg/dont_use_native_dialog";
+static const bool _key_dont_use_native_dialog_def = true;
+
+
 /* Page split */
 
 static const char* _key_page_split_apply_cut_enabled = "apply_cut/enabled";

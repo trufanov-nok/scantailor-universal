@@ -20,7 +20,6 @@
 #define GLOBALSTATICSETTINGS_H
 #include "settings/hotkeysmanager.h"
 #include "settings/ini_keys.h"
-#include "settings/ini_keys.h"
 #include <memory>
 
 class GlobalStaticSettings
@@ -93,6 +92,8 @@ public:
         m_dewarpAutoDeskewAfterDewarp = settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool();
 
         m_simulateSelectionModifierHintEnabled = settings.value(_key_thumbnails_simulate_key_press_hint, _key_thumbnails_simulate_key_press_hint_def).toBool();
+
+        m_DontUseNativeDialog = settings.value(_key_dont_use_native_dialog, _key_dont_use_native_dialog_def).toBool();
     }    
 
     static void updateHotkeys()
@@ -191,6 +192,8 @@ public:
     static bool m_simulateSelectionModifier;
     static bool m_simulateSelectionModifierHintEnabled;
     static bool m_inversePageOrder;
+
+    static bool m_DontUseNativeDialog;
 };
 
 #endif // GLOBALSTATICSETTINGS_H

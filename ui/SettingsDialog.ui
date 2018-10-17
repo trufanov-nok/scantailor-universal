@@ -205,7 +205,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>11</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -261,8 +261,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>82</width>
-                <height>552</height>
+                <width>426</width>
+                <height>252</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
@@ -286,7 +286,9 @@
                  <property name="text">
                   <string>Application language - allows to switch the language of the interface. If there is no language you need and you can help us with translation please contact the project maintainer.
 
-Batch processing - a simple dialog that appears if you press the launch button and allows you to start page processing from the beginning instead of a current page.</string>
+Batch processing - a simple dialog that appears if you press the launch button and allows you to start page processing from the beginning instead of a current page.
+
+You can add new images (for ex. missing pages) after project is created with Insert new image command in thumbnails context menu. Images that already in the project may be filtered out in file selection dialog automatically. But this require non-native dialog implementation which may look unusual and lack some platform features. You can turn option &quot;Filter existing files in insert new image dialog&quot; off and stick to usage of native dialog. But filtering existing images is not guaranteed in this case.</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -380,6 +382,16 @@ Batch processing - a simple dialog that appears if you press the launch button a
                </layout>
               </item>
              </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="cbDontUseNativeDlg">
+             <property name="text">
+              <string>Filter existing files in insert new image dialog</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>
@@ -620,8 +632,8 @@ This option allows to increase page view panel size to almost a whole applicatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>426</width>
-                <height>591</height>
+                <width>104</width>
+                <height>2361</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_83">
@@ -3902,8 +3914,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>426</width>
-                <height>303</height>
+                <width>94</width>
+                <height>1428</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_92">
@@ -4113,8 +4125,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>440</width>
-                <height>425</height>
+                <width>108</width>
+                <height>1302</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">
