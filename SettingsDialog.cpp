@@ -518,6 +518,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
                     val);
         ui.showStartBatchProcessingDlg->setChecked(
                     !m_settings.value(_key_batch_dialog_remember_choice, _key_batch_dialog_remember_choice_def).toBool());
+        ui.cbDontUseNativeDlg->setChecked(
+                    m_settings.value(_key_dont_use_native_dialog, _key_dont_use_native_dialog_def).toBool());
     } else if (currentPage == ui.pageThumbnails) {
         ui.cbThumbsListOrder->setChecked(m_settings.value(_key_thumbnails_multiple_items_in_row, _key_thumbnails_multiple_items_in_row_def).toBool());
         ui.sbThumbsCacheImgSize->setValue(m_settings.value(_key_thumbnails_max_cache_pixmap_size, _key_thumbnails_max_cache_pixmap_size_def).toSize().height());
@@ -1037,4 +1039,9 @@ void SettingsDialog::on_cbTryDeskewAfterDewarp_toggled(bool checked)
 void SettingsDialog::on_cbOrderHints_toggled(bool checked)
 {
     m_settings.setValue(_key_thumbnails_display_order_hints, checked);
+}
+
+void SettingsDialog::on_cbDontUseNativeDlg_clicked(bool checked)
+{
+     m_settings.setValue(_key_dont_use_native_dialog, checked);
 }

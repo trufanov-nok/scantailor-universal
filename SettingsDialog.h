@@ -148,6 +148,8 @@ private slots:
 
     void on_cbOrderHints_toggled(bool checked);
 
+    void on_cbDontUseNativeDlg_clicked(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
