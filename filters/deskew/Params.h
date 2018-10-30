@@ -45,12 +45,6 @@ public:
         OrientationFixLeft,
         OrientationFixRight
     };
-
-    enum RequireRecalcs {
-        RecalcNone,
-        RecalcAutoDeskew,
-        RecalcOrientation
-    };
 	
 	Params(double deskew_angle_deg,
         Dependencies const& deps, AutoManualMode const mode, OrientationFix pageRotation = OrientationFixNone, bool requireRecalc = false);

@@ -147,11 +147,13 @@ Settings::applyParams(std::set<PageId> const& pages, Params const& cur_params, U
         }
 
         if (opt == UpdateOrientationFix || opt == UpdateAll) {
-            if (target_params->orientationFix() != cur_params.orientationFix()) {
-                target_params->setOrientationFix(cur_params.orientationFix());
-                if (!enforce_recalc &&
-                        target_params->mode() == AutoManualMode::MODE_AUTO) {
-                    target_params->setRequireRecalc(true); // 2nd case
+            if (page_id.subPage() != PageId::SINGLE_PAGE) { // we aren't allow user to apply orientation fix for single pages - they should change their rotrtion on 1st processing step
+                if (target_params->orientationFix() != cur_params.orientationFix()) {
+                    target_params->setOrientationFix(cur_params.orientationFix());
+                    if (!enforce_recalc &&
+                            target_params->mode() == AutoManualMode::MODE_AUTO) {
+                        target_params->setRequireRecalc(true); // 2nd case
+                    }
                 }
             }
         }

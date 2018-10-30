@@ -74,7 +74,7 @@ OptionsWidget::showDeskewDialog()
     DeskewApplyWidget* options = nullptr;
     if (m_uiData.orientationFix() != Params::OrientationFixNone) {
         options = new DeskewApplyWidget(m_uiData.mode(), m_uiData.effectiveDeskewAngle(),
-                                        m_uiData.pageRotation().toDegrees(), dialog);
+                                        m_uiData.pageRotationRelDegree(), dialog);
         QLayout& l = dialog->initNewTopSettingsPanel();
         l.addWidget(options);
     }

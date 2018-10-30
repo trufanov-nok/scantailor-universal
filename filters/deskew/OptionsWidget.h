@@ -74,6 +74,15 @@ public:
             }
             return r;
         }
+        int pageRotationRelDegree() const {
+            // this is relative to the 1st processing stage angle
+            if (m_orientationFix == Params::OrientationFixLeft) {
+                return -90;
+            } else if (m_orientationFix == Params::OrientationFixRight) {
+                return 90;
+            }
+            return 0;
+        }
 	private:
 		double m_effDeskewAngle;
 		Dependencies m_deps;
