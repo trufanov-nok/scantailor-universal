@@ -62,7 +62,7 @@ OrderBySourceColor::precedes(
 void
 OrderBySourceColor::invalidate_metadata()
 {
-    sequence_cached = true;
+    sequence_cached = false;
 }
 
 QString
