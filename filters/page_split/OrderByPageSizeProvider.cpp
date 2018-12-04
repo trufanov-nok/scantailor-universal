@@ -33,9 +33,9 @@ OrderByPageSizeProvider::OrderByPageSizeProvider(IntrusivePtr<Settings> const& s
 }
 
 qreal
-getMaxPageWidth(page_split::PageLayout const val, qreal dpi)
+getMaxPageWidth(page_split::PageLayout const val, qreal dpi, StatusLabelPhysSizeDisplayMode mode)
 {
-    qreal res = 0;
+    qreal res = 0.;
     switch (val.type()) {
     case page_split::PageLayout::SINGLE_PAGE_UNCUT:
     case page_split::PageLayout::SINGLE_PAGE_CUT: res = val.singlePageOutline().boundingRect().width();
@@ -44,11 +44,24 @@ getMaxPageWidth(page_split::PageLayout const val, qreal dpi)
                                                                val.rightPageOutline().boundingRect().width());
     }
 
-    if (res != 0) {
-        res = Utils::adjustByDpiAndUnits( res, dpi, StatusBarProvider::statusLabelPhysSizeDisplayMode);
+    if (dpi != 0. && res != 0.) {
+        res = Utils::adjustByDpiAndUnits( res, dpi, mode);
     }
 
     return res;
+}
+
+qreal
+getMaxPageWidth(Settings::Record const record)
+{
+    Params const* params = record.params();
+    if (params) {
+        const bool keep_in_pixels = StatusBarProvider::statusLabelPhysSizeDisplayMode ==
+                                    StatusLabelPhysSizeDisplayMode::Pixels;
+        const qreal dpi = (!keep_in_pixels) ? params->origDpi().horizontal() : 0;
+        return getMaxPageWidth(params->pageLayout(), dpi,  StatusBarProvider::statusLabelPhysSizeDisplayMode);
+    }
+    return 0;
 }
 
 bool
@@ -68,12 +81,8 @@ OrderByPageSizeProvider::precedes(
     assert(lhs_incomplete == false);
     assert(rhs_incomplete == false);
 
-    Settings::Record const lhs_record(m_ptrSettings->getPageRecord(lhs_page.imageId()));
-    Settings::Record const rhs_record(m_ptrSettings->getPageRecord(rhs_page.imageId()));
-    Params const* lhs_params = lhs_record.params();
-    Params const* rhs_params = rhs_record.params();
-    qreal lhs_max_page_size = (lhs_params)? getMaxPageWidth(lhs_params->pageLayout(), lhs_params->origDpi().horizontal()) : 0;
-    qreal rhs_max_page_size = (lhs_params)? getMaxPageWidth(rhs_params->pageLayout(), rhs_params->origDpi().horizontal()) : 0;
+    qreal const lhs_max_page_size = getMaxPageWidth(m_ptrSettings->getPageRecord(lhs_page.imageId()));
+    qreal const rhs_max_page_size = getMaxPageWidth(m_ptrSettings->getPageRecord(rhs_page.imageId()));
 
     if (lhs_max_page_size != rhs_max_page_size) {
         return lhs_max_page_size < rhs_max_page_size;
@@ -88,20 +97,17 @@ QString
 OrderByPageSizeProvider::hint(PageId const& page) const
 {
     Settings::Record const record(m_ptrSettings->getPageRecord(page.imageId()));
-    Params const* params = record.params();
-    qreal const max_page_size = ((params)? getMaxPageWidth(params->pageLayout(), params->origDpi().horizontal()) : 0);
+    qreal const max_page_size = getMaxPageWidth(record);
 
-    QString res;
-    if (StatusBarProvider::statusLabelPhysSizeDisplayMode != StatusLabelPhysSizeDisplayMode::Pixels) {
-        res = QObject::tr("max width: %1 %2 (%3 dpi)");
-        res = res.arg(round(max_page_size*100)/100)
-                .arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix())
-                .arg((params)?params->origDpi().horizontal() : defaultDpi.horizontal());
-    } else {
-        res = QObject::tr("max width: %1 px").arg((int) max_page_size);
+    if (StatusBarProvider::statusLabelPhysSizeDisplayMode ==
+            StatusLabelPhysSizeDisplayMode::Pixels) {
+        return QObject::tr("max width: %1 px").arg((int) max_page_size);
     }
 
-    return res;
+    Params const* params = record.params();
+    return QObject::tr("max width: %1 %2 (%3 dpi)").arg(round(max_page_size*100)/100)
+            .arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix())
+            .arg((params)?params->origDpi().horizontal() : defaultDpi.horizontal());
 }
 
 } // namespace page_split

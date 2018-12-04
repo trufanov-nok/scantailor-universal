@@ -114,7 +114,7 @@ Dependencies::fixCompatibility(Params& params) const
 
     PageLayout new_page_layout = params.pageLayout().transformed(QTransform::fromScale(scale_x, scale_y));
 
-    params = Params(new_page_layout, *this, params.splitLineMode());
+    params = Params(new_page_layout, *this, params.splitLineMode(), params.origDpi());
     return compatibleWith(params);
 }
 
