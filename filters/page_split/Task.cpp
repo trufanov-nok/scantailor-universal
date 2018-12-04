@@ -140,11 +140,17 @@ Task::process(TaskStatus const& status, FilterData const& data)
             Params p(*params);
             Params::Regenerate val = p.getForceReprocess();
             need_reprocess = val & Params::RegeneratePage;
+            /* this is a quite specific case.
+             * dpi isn't in deps compatibility as it not matters for page split autodetection.
+             * But order provider may display it as a part of hint text. It works with copy of dpi value in params that might be outdated
+             * if someone changes image dpi with Image DPI tool. So we do this update just to change dpi value in params. */
+            need_reprocess = need_reprocess || (params->origDpi() != data.xform().origDpi());
             if (need_reprocess) {
                 regeneration_enforced = true;
                 if (!m_ptrNextTask) {
                     val = (Params::Regenerate) (val & ~Params::RegeneratePage);
                     p.setForceReprocess(val);
+                    p.setOrigDpi(data.xform().origDpi()); // needed for special case above
                     Settings::UpdateAction update_params;
                     update_params.setParams(p);
                     m_ptrSettings->updatePage(m_pageInfo.imageId(), update_params);
