@@ -34,6 +34,12 @@ enum StatusLabelPhysSizeDisplayMode {
     SM
 };
 
+enum StatusLabelFileSizeDisplayMode {
+    Bytes = 0,
+    KiB,
+    MiB
+};
+
 class QStatusBarProviderEvent: public QEvent
 {
 public:
@@ -41,7 +47,8 @@ public:
     enum NitificationTypeEnum
     {
         PhysSizeChanged = 1,
-        MousePosChanged = 2
+        MousePosChanged = 2,
+        FileSizeChanged = 4
     };
 
     Q_DECLARE_FLAGS(NitificationType, NitificationTypeEnum)
@@ -69,13 +76,13 @@ public:
     {
         m_outputFilterIdx = idx;
         m_pageSize = QSizeF();
-        notify();
+        notify(QStatusBarProviderEvent::PhysSizeChanged);
     }
     static void setPagePhysSize(const QSizeF& _pageSize, const Dpi& _originalDpi);
     static void setSettingsDPi(const Dpi& _settingsDpi)
     {
         m_settingsDpi = _settingsDpi;
-        notify();
+        notify(QStatusBarProviderEvent::PhysSizeChanged);
     }
 
     static void setMousePos(const QPointF& pos)
@@ -87,12 +94,24 @@ public:
     static QPointF getMousePos() { return m_mousePos; }
     static QSizeF getPageSize() { return m_pageSize; }
     static Dpi getOriginalDpi() { return m_originalDpi; }
-    static Dpi getSettingsDpi() { return m_settingsDpi; notify(); }
+    static Dpi getSettingsDpi() { return m_settingsDpi; }
+
+    static void setFileSize( int fileSize ) {
+        m_fileSize = fileSize;
+        notify(QStatusBarProviderEvent::FileSizeChanged);
+    }
+    static int getFileSize() { return m_fileSize; }
 
     static void toggleStatusLabelPhysSizeDisplayMode()
     {
         statusLabelPhysSizeDisplayMode = (statusLabelPhysSizeDisplayMode != SM) ?
                     (StatusLabelPhysSizeDisplayMode) ((int)statusLabelPhysSizeDisplayMode+1) : Pixels;
+    }
+
+    static void toggleStatusLabelFileSizeDisplayMode()
+    {
+        statusLabelFileSizeDisplayMode = (statusLabelFileSizeDisplayMode != MiB) ?
+                    (StatusLabelFileSizeDisplayMode) ((int)statusLabelFileSizeDisplayMode+1) : Bytes;
     }
 
     static QString getStatusLabelPhysSizeDisplayModeSuffix(StatusLabelPhysSizeDisplayMode const mode)
@@ -106,9 +125,8 @@ public:
             return QObject::tr("mm");
         case SM:
             return QObject::tr("cm");
-        default:
-            return QString();
         }
+        return QString();
     }
 
     static QString getStatusLabelPhysSizeDisplayModeSuffix()
@@ -116,11 +134,41 @@ public:
         return getStatusLabelPhysSizeDisplayModeSuffix(statusLabelPhysSizeDisplayMode);
     }
 
+    static QString getStatusLabelFileSizeText(int fsize, StatusLabelFileSizeDisplayMode const mode)
+    {
+        QString suffix;
+        QString sz;
+
+        switch (mode) {
+        case Bytes: {
+            suffix = QObject::tr("B");
+            sz = QString::number(fsize);
+        } break;
+        case KiB: {
+            suffix = QObject::tr("KiB");
+            sz = QString::number(fsize/1024., 'f', 2);
+        } break;
+        case MiB: {
+            suffix = QObject::tr("MiB");
+
+            sz = QString::number(fsize/1024./1024., 'f', 2);
+        } break;
+        }
+
+        return QObject::tr("%1 %2").arg(sz).arg(suffix);
+    }
+
+    static QString getStatusLabelFileSizeText(int * fsize = nullptr)
+    {
+        return getStatusLabelFileSizeText(fsize? *fsize : m_fileSize, statusLabelFileSizeDisplayMode);
+    }
+
 public:
     static QEvent::Type StatusBarEventType;
     static StatusLabelPhysSizeDisplayMode statusLabelPhysSizeDisplayMode;
+    static StatusLabelFileSizeDisplayMode statusLabelFileSizeDisplayMode;
 private:
-    static void notify( const QStatusBarProviderEvent::NitificationTypeEnum _type = QStatusBarProviderEvent::PhysSizeChanged)
+    static void notify( const QStatusBarProviderEvent::NitificationTypeEnum _type)
     {
         if (m_statusBar) {
             QApplication::postEvent(m_statusBar, new QStatusBarProviderEvent(StatusBarEventType, _type));
@@ -132,10 +180,10 @@ private:
     static QSizeF m_pageSize;
     static Dpi m_originalDpi;
     static Dpi m_settingsDpi;
+    static int m_fileSize;
     static int m_filterIdx;
     static int m_outputFilterIdx;
     static QPointF m_mousePos;
-
 };
 
 #endif

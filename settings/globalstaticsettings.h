@@ -92,6 +92,8 @@ public:
         m_dewarpAutoDeskewAfterDewarp = settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool();
 
         m_simulateSelectionModifierHintEnabled = settings.value(_key_thumbnails_simulate_key_press_hint, _key_thumbnails_simulate_key_press_hint_def).toBool();
+
+        m_djvu_pages_subfolder = settings.value(_key_djvu_pages_subfolder, _key_djvu_pages_subfolder_def).toString();
     }    
 
     static void updateHotkeys()
@@ -188,6 +190,8 @@ public:
     static bool m_simulateSelectionModifier;
     static bool m_simulateSelectionModifierHintEnabled;
     static bool m_inversePageOrder;
+
+    static QString m_djvu_pages_subfolder;
 };
 
 #endif // GLOBALSTATICSETTINGS_H

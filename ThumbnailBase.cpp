@@ -262,7 +262,7 @@ void
 ThumbnailBase::handleLoadResult(ThumbnailLoadResult const& result)
 {
 	m_ptrCompletionHandler.reset();
-	
+
 	if (result.status() != ThumbnailLoadResult::LOAD_FAILED) {
 		// Note that we don't store result.pixmap() in
 		// this object, because we may have already went

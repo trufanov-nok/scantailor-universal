@@ -23,13 +23,15 @@
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
 #include "../../Utils.h"
+#include "settings/ini_keys.h"
+
 #include <Qt>
 #include <QColor>
 #include <QMutexLocker>
 #include <tiff.h>
 #include <QResource>
-#include "settings/ini_keys.h"
 #include <QRegularExpression>
+#include <QFileInfo>
 
 namespace output
 {
@@ -384,6 +386,33 @@ Settings::setTiffCompression(QString const& compression)
     }
     // QSettings might be out of sync
     QSettings().setValue(_key_tiff_compr_method, m_compressionName);
+}
+
+bool
+Settings::checkOutputComplete(
+        OutputFileNameGenerator const& filename_gen,
+        PageSequence const& pages, PageId const* ignore) const
+{
+    QMutexLocker const locker(&m_mutex);
+
+    for (const PageInfo& page_info: pages) {
+        if (ignore && *ignore == page_info.id()) {
+            continue;
+        }
+
+        QFileInfo info(filename_gen.filePathFor(page_info.id()));
+        if (!info.exists()) {
+            return false;
+        }
+
+        PerPageOutputParams::const_iterator it(m_perPageOutputParams.find(page_info.id()));
+        if (it == m_perPageOutputParams.cend() ||
+                !it->second.outputFileParams().matches(OutputFileParams(info))){
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace output

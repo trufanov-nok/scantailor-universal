@@ -58,9 +58,9 @@ public:
 
     void setConverterState(PageId const& page_id, QVariantMap const& val);
 
-    QString inputFilename(PageId const& page_id) const;
+    QString imageFilename(PageId const& page_id) const;
 
-    void setInputFilename(PageId const& page_id, QString const& fileName);
+    void setImageFilename(PageId const& page_id, QString const& fileName);
 
     QVariantMap converterState(PageId const& page_id) const;
 
@@ -76,6 +76,8 @@ public:
             setConverterState(page_id, val);
         }
     }
+
+    bool allDjVusGenerated(QStringList& completed_djvus, QStringList& missing_pages) const;
 
 private:
     typedef std::map<PageId, Params> PerPageParams;

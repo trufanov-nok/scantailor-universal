@@ -4564,7 +4564,12 @@ QDjVuPrivate::paintAll(QPainter &paint, const QRegion &paintRegion)
   if (pageLayout.isEmpty())
     {
       bool waiting = (docReady || !docFailed) && !docStopped;
-      QRect rect(QPoint(borderSize,borderSize), unknownSize);
+      // patched by truf to get a more fancy look for stub page
+      QSize viewport =  widget->viewport()? widget->viewport()->size() : widget->size();
+      viewport -= unknownSize;
+      viewport /= 2;
+      // other option is /*QPoint(borderSize,borderSize)*/, /*vewport - 2*QSize(borderSize,borderSize)*/
+      QRect rect(QPoint(viewport.width(), viewport.height()), unknownSize);
       widget->paintEmpty(paint, rect, waiting, docStopped, docFailed);
       widget->paintDesk(paint, paintRegion-rect);
       widget->paintFrame(paint, rect, shadowSize);
@@ -5489,7 +5494,7 @@ QDjVuWidget::paintEmpty(QPainter &p, const QRect &rect,
 {
   QString name;
   QPixmap pixmap;
-  if (waiting)
+  if (waiting || !priv->doc) // truf: i'm using setDocument(0) to reset page and don't like how djvu_fail.png looks for this case
     name = ":/images/djvu_logo.png";
   else if (stopped)
     name = ":/images/djvu_stop.png";

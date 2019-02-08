@@ -138,6 +138,7 @@ signals:
     void settingsUpdateRequest();
     void NewOpenProjectPanelShown();
     void UpdateStatusBarPageSize();
+    void UpdateStatusBarFileSize();
     void UpdateStatusBarMousePos();
     void toBeRemoved(const std::set<PageId> pages);
 private slots:
@@ -179,6 +180,8 @@ private slots:
 	void startBatchProcessing();
 	
 	void stopBatchProcessing(MainAreaAction main_area = UPDATE_MAIN_AREA);
+
+    void composeDjVuDocument();
 	
 	void invalidateThumbnail(PageId const& page_id);
 
@@ -223,6 +226,8 @@ private slots:
     void on_actionAbout_Qt_triggered();
 
     void displayStatusBarPageSize();
+
+    void displayStatusBarFileSize();
 
     void displayStatusBarMousePos();
 
@@ -301,12 +306,18 @@ private:
 	bool isOutputFilter() const;
 	
 	bool isOutputFilter(int filter_idx) const;
+
+    bool isPublishingFilter() const;
+
+    bool isPublishingFilter(int filter_idx) const;
 	
 	PageView getCurrentView() const;
 	
 	void updateMainArea();
 	
 	bool checkReadyForOutput(PageId const* ignore = 0) const;
+
+    bool checkReadyForPublishing(PageId const* ignore = 0) const;
 	
 	void loadPageInteractive(PageInfo const& page);
 	

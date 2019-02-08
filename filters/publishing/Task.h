@@ -38,8 +38,9 @@ namespace publishing
 class Filter;
 class Settings;
 
-class Task : public RefCountable
+class Task : public QObject, public RefCountable
 {
+    Q_OBJECT
 	DECLARE_NON_COPYABLE(Task)
 public:
     Task(IntrusivePtr<Filter> const& filter,
@@ -48,7 +49,11 @@ public:
 	
 	virtual ~Task();
 	
-    FilterResultPtr process(TaskStatus const& status, const QString &image_file, qint64 image_hash);
+    FilterResultPtr process(TaskStatus const& status, const QString &image_file, const QImage &out_image);
+
+signals:
+    void displayDjVu();
+
 private:
 	class UiUpdater;
 	

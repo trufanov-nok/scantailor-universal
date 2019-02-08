@@ -226,8 +226,8 @@ TiffReader::canRead(QIODevice& device)
 		return false;
 	}
 	
-	TiffHeader header(readHeader(device));
-	return checkHeader(header);
+    TiffHeader header(readHeader(device));
+    return checkHeader(header);
 }
 
 ImageMetadataLoader::Status

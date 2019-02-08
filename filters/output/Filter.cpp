@@ -261,4 +261,14 @@ Filter::invalidateSetting(PageId const& page)
   m_ptrSettings->setParams(page, p);
 }
 
+bool
+Filter::checkReadyForPublishing(OutputFileNameGenerator const& filename_gen,
+                                ProjectPages const& pages, PageId const* ignore) const
+{
+    if (CommandLine::get().hasDisableCheckOutput())
+        return true;
+    PageSequence const snapshot(pages.toPageSequence(PAGE_VIEW));
+    return m_ptrSettings->checkOutputComplete(filename_gen, snapshot, ignore);
+}
+
 } // namespace output

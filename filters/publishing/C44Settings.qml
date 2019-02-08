@@ -4,12 +4,13 @@ C44SettingsForm {
 
     property string type: "encoder"
     property string name: qsTr("C44 [DjVuLibre] for color")
+    property string id: "c44"
 
     property string supportedInput: "jpeg;ppm;pgm;pbm"
     property string prefferedInput: "ppm"
-    property string supportedOutputMode: "color"
+    property string supportedOutputMode: "grayscale;color"
     property string description: qsTr("Produces a DjVuPhoto encoded image.")
-    property int priority: 30
+    property int priority: 20
     property int _dpi_: 600
 
     property string current_platform: "linux"
@@ -34,8 +35,15 @@ C44SettingsForm {
 
     signal notify()
 
+    property bool block_notify: false;
+
+    function blockNotify() { block_notify = true; }
+    function unblockNotify() { block_notify = false; }
+
     onNotify: {
-        mainApp.requestParamUpdate(type);
+        if (!block_notify) {
+            mainApp.requestParamUpdate(type);
+        }
     }
 
     Component.onCompleted: {
@@ -118,11 +126,15 @@ C44SettingsForm {
 
 
     function setState(state) {
-        _dpi_ = state["_dpi_"];
+        blockNotify();
+
+        _dpi_ = "_dpi_" in state ? state["_dpi_"] : 600;
         cbGamma.checked = param_gamma in state;
         sbGamma.value = (cbGamma.checked ? state[param_gamma] : 0);
 
-        cbChrominance.currentIndex = chrominances.indexOf(state[chrominances_setting]);
+        if (chrominances_setting in state) {
+            cbChrominance.currentIndex = chrominances.indexOf(state[chrominances_setting]);
+        }
 
         cbChrominanceDelay.checked = param_crcbdelay in state;
         sbChrominanceDelay.value = (cbChrominanceDelay.checked ? state[param_crcbdelay] : 10);
@@ -135,7 +147,7 @@ C44SettingsForm {
         cbDecibelFrac.checked = param_dbfrac in state;
         sbDecibelFrac.value = (cbDecibelFrac.checked ? state[param_dbfrac] : 0);
 
-        notify();
+        unblockNotify();
     }
 
     function insert_param(str, state, param) {

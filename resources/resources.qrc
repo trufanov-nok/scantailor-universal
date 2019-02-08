@@ -68,5 +68,8 @@
         <file>icons/stock-gravity-center-24-ver.png</file>
         <file>icons/stock-gravity-center-24.png</file>
         <file>icons/multi_choice.png</file>
+        <file>icons/djvulibre-mime-prebuilt-hi24-djvu.png</file>
+        <file>icons/djvulibre-mime-prebuilt-hi24-djvu-hovered.png</file>
+        <file>icons/djvulibre-mime-prebuilt-hi24-djvu-pressed.png</file>
     </qresource>
 </RCC>

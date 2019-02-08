@@ -21,6 +21,7 @@
 
 #include "NonCopyable.h"
 #include "CompositeCacheDrivenTask.h"
+#include "ImageTransformation.h"
 #include "IntrusivePtr.h"
 
 class PageInfo;
@@ -31,7 +32,7 @@ namespace publishing
 
 class Settings;
 
-class CacheDrivenTask : public CompositeCacheDrivenTask
+class CacheDrivenTask : public RefCountable
 {
 	DECLARE_NON_COPYABLE(CacheDrivenTask)
 public:
@@ -40,8 +41,7 @@ public:
 	
 	virtual ~CacheDrivenTask();
 	
-	virtual void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector);
+    void process(PageInfo const& page_info, AbstractFilterDataCollector* collector, const QString &outputFile, ImageTransformation const& xform);
 private:
 	IntrusivePtr<Settings> m_ptrSettings;
 };

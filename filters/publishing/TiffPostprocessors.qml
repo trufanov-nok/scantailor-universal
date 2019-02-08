@@ -2,7 +2,7 @@ import QtQuick 2.0
 
 TiffPostprocessorsForm {
 
-    property string type: "convertor"
+    property string type: "converter"
 
     property string current_platform: "linux"
 
@@ -17,11 +17,19 @@ TiffPostprocessorsForm {
 
     signal notify()
 
+    property bool block_notify: false;
+
+    function blockNotify() { block_notify = true; }
+    function unblockNotify() { block_notify = false; }
+
     onNotify: {
-        mainApp.requestParamUpdate(type);
+        if (!block_notify) {
+            mainApp.requestParamUpdate(type);
+        }
     }
 
     Component.onCompleted: {
+        sbJpegQuality.valueChanged.connect(notify);
         cbJpegSmooth.checkedChanged.connect(notify);
         sbJpegSmooth.valueChanged.connect(notify);
         cbJpegGrayscale.checkedChanged.connect(notify);
@@ -37,26 +45,31 @@ TiffPostprocessorsForm {
             text: qsTr("No conversion (use Tiff)")
             dependency: ""
             format: "tiff"
+            el_id: "no_conv"
         }
         ListElement {
             text: qsTr("PPM")
             dependency: "tifftopnm"
             format: "ppm"
+            el_id: "tifftopnm"
         }
         ListElement {
             text: qsTr("PGM (grayscale)")
             dependency: "tifftopnm,ppmtopgm"
             format: "pgm"
+            el_id: "ppmtopgm"
         }
         ListElement {
             text: qsTr("PBM (black and white)")
             dependency: "tifftopnm,ppmtopgm,pgmtopbm"
             format: "pbm"
+            el_id: "pgmtopbm"
         }
         ListElement {
             text: qsTr("JPEG")
             dependency: "tifftopnm,pnmtojpeg"
             format: "jpeg"
+            el_id: "pnmtojpeg"
         }
     }
 
@@ -72,11 +85,11 @@ TiffPostprocessorsForm {
     }
 
     function getDependencies() {
-        var apps = ["tifftopnm","ppmtopgm","pgmtopbm","pnmtojpeg"]
+        var apps = ["tifftopnm", "ppmtopgm", "pgmtopbm", "pnmtojpeg"]
 
         var res = [];
         for (var i in apps) {
-            res.push({"app":apps[i], "check_cmd":"%1 --help", "search_params":"","missing_app_hint": getMissingAppHint(apps[i])});
+            res.push({"app":apps[i], "check_cmd":"%1 --help", "search_params":"", "missing_app_hint":getMissingAppHint(apps[i])});
         }
 
         return res
@@ -100,10 +113,18 @@ TiffPostprocessorsForm {
             }
         }
 
+        cbPostprocessors.menu = null;
         cbPostprocessors.model = filtered_model;
         cbPostprocessors.textRole = "text";
-        if (filtered_model.count > 0) {
-            cbPostprocessors.currentIndex = pref_idx;
+
+        if (filtered_model.count > 0) {            
+            if (cbPostprocessors.currentIndex != pref_idx) {
+                cbPostprocessors.currentIndex = pref_idx;
+            } else {
+                cbPostprocessors.currentIndex = -1;
+                cbPostprocessors.currentIndex = pref_idx;
+                //cbPostprocessors.currentIndexChanged();
+            }
         }
     }
 
@@ -139,10 +160,18 @@ TiffPostprocessorsForm {
 
     function getState() {
         var state = {};
+        var el = cbPostprocessors.model.get(cbPostprocessors.currentIndex);
+        state["el_id"] = el.el_id;
 
-        state[param_quality] = sbJpegQuality.value;
-        state[param_grayscale] = cbJpegGrayscale.checked;
-        if (cbJpegSmooth.checked) {
+        if (sbJpegQuality.visible) {
+            state[param_quality] = sbJpegQuality.value;
+        }
+
+        if (cbJpegGrayscale.visible && cbJpegGrayscale.checked) {
+            state[param_grayscale] = cbJpegGrayscale.checked;
+        }
+
+        if (cbJpegSmooth.visible && cbJpegSmooth.checked) {
             state[param_smooth] = sbJpegSmooth.value;
         }
 
@@ -150,11 +179,27 @@ TiffPostprocessorsForm {
     }
 
     function setState(state) {
-        sbJpegQuality.value = state[param_quality];
-        cbJpegGrayscale.checked = state[param_grayscale];
+
+        blockNotify();
+
+        if ("el_id" in state) {
+            for (var i = 0; i < cbPostprocessors.model.count; ++i) {
+                var el = cbPostprocessors.model.get(i);
+                if (el.el_id === state["el_id"]) {
+                    if (cbPostprocessors.currentIndex != i) {
+                        cbPostprocessors.currentIndex = i;
+                    }
+                    break;
+                }
+            }
+        }
+
+        sbJpegQuality.value = (param_quality in state ? state[param_quality] : 100);
+        cbJpegGrayscale.checked = (param_grayscale in state ? state[param_grayscale] : false);
         cbJpegSmooth.checked = param_smooth in state;
         sbJpegSmooth.value = (cbJpegSmooth.checked ? state[param_smooth] : 0);
-        notify();
+
+        unblockNotify();
     }
 
     function getCommandFromState(state) {
@@ -164,11 +209,11 @@ TiffPostprocessorsForm {
         } else if (el.format === "ppm") {
             return "tifftopnm %1 > %1";
         } else if (el.format === "pgm") {
-            return "tifftopnm %1 > ppmtopgm > %1";
+            return "tifftopnm %1 | ppmtopgm > %1";
         } else if (el.format === "pbm") {
-            return "tifftopnm %1 > ppmtopgm > pgmtopbm > %1";
+            return "tifftopnm %1 | ppmtopgm | pgmtopbm > %1";
         } else if (el.format === "jpeg") {
-            var s = "tifftopnm %1 > pnmtojpeg ";
+            var s = "tifftopnm %1 | pnmtojpeg ";
             s += param_quality + " " + state[param_quality]+ " ";
             if (param_grayscale in state) {
                 s += param_grayscale + " ";

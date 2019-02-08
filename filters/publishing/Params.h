@@ -21,9 +21,12 @@
 
 #include "Dpi.h"
 #include "RegenParams.h"
+#include "ImageInfo.h"
 #include <QVariantMap>
 #include <QFileInfo>
+#include <QDir>
 #include <QImage>
+#include <settings/globalstaticsettings.h>
 
 class QDomDocument;
 class QDomElement;
@@ -31,39 +34,12 @@ class QDomElement;
 namespace publishing
 {
 
-struct ImageInfo {
-
-    enum ColorMode {
-        Unknown,
-        BlackAndWhite,
-        Grayscale,
-        Color
-    };
-
-    ImageInfo():fileSize(0), imageHash(0), imageColorMode(Unknown) {}
-    ImageInfo(const QString& filename, const QImage& image);
-
-    static QString ColorModeToStr(const ColorMode clr) {
-        switch (clr) {
-        case BlackAndWhite: return "bw";
-        case Grayscale: return "grayscale";
-        case Color: return "color";
-        default: return "";
-        }
-    }
-
-    QString fileName;
-    qint64 fileSize;
-    qint64 imageHash;
-    ColorMode imageColorMode;
-};
-
 class Params: public RegenParams
 {
 public:
     Params();
     Params(QDomElement const& el);
-    bool inNull() { return m_inputImageInfo.fileName.isEmpty() ||
+    bool isNull() { return m_inputImageInfo.fileName.isEmpty() ||
                 m_inputImageInfo.imageColorMode == ImageInfo::ColorMode::Unknown; }
 
     Dpi const& outputDpi() const { return m_dpi; }
@@ -74,20 +50,26 @@ public:
     void setEncoderState(QVariantMap const& val) { m_encoderState = val; }
     QVariantMap const& converterState() const { return m_converterState; }
     void setConverterState(QVariantMap const& val) { m_converterState = val; }
-    QString const inputFilename() const { return m_inputImageInfo.fileName; }
-    void setInputFilename(QString const& val) { m_inputImageInfo.fileName = val; }
-    QString const outputFilename() const { return  QFileInfo(m_inputImageInfo.fileName).completeBaseName() + ".djv"; }
-    void setInputFileSize(uint val) { m_inputImageInfo.fileSize = val; }
-    qint64 inputFileSize() const { return m_inputImageInfo.fileSize; }
-    void setInputImageHash(qint64 val) { m_inputImageInfo.imageHash = val; }
-    qint64 inputImageHash() const { return m_inputImageInfo.imageHash; }
+    QString const imageFilename() const { return m_inputImageInfo.fileName; }
+    void setImageFilename(QString const& val) { m_inputImageInfo.fileName = val; }
+    QString const djvuFilename() const {
+        QFileInfo info(m_inputImageInfo.fileName);
+        return info.path() + QDir::separator() + GlobalStaticSettings::m_djvu_pages_subfolder + QDir::separator() + info.completeBaseName() + ".djv";
+    }
+    void setInputImageHash(const QByteArray & val) { m_inputImageInfo.imageHash = val; }
+    const QByteArray & inputImageHash() const { return m_inputImageInfo.imageHash; }
     void setInputImageColorMode(ImageInfo::ColorMode val) { m_inputImageInfo.imageColorMode = val; }
     ImageInfo::ColorMode inputImageColorMode() const { return m_inputImageInfo.imageColorMode; }
+    void setCommandToExecute(QString const& val) { m_commandToExecute = val; }
+    QString const& commandToExecute() const { return m_commandToExecute; }
     void setExecutedCommand(QString const& val) { m_executedCommand = val; }
     QString const& executedCommand() const { return m_executedCommand; }
 
     void setImageInfo(const ImageInfo& info) { m_inputImageInfo = info; }
-    ImageInfo getImageInfo() const { return m_inputImageInfo; }
+    ImageInfo imageInfo() const { return m_inputImageInfo; }
+
+    void setDjVuSize(int size) { m_djvuSize = size; }
+    int djvuSize() const { return m_djvuSize; }
 
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
@@ -97,8 +79,10 @@ private:
     QVariantMap m_encoderState;
     QVariantMap m_converterState;
     ImageInfo m_inputImageInfo;
+    QString m_commandToExecute;
     QString m_executedCommand;
     QString m_encoderId;
+    int m_djvuSize;
 };
 
 } // namespace publishing

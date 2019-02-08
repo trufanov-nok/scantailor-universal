@@ -68,6 +68,7 @@ DjVuEncoder::DjVuEncoder(QQmlEngine *engine, const QString &fname, AppDependenci
 
     if (instance->property("type").toString() == "encoder") {
         if (!getStrProperty(instance, "name", name)) return;
+        if (!getStrProperty(instance, "id", id)) return;
         if (!getStrProperty(instance, "supportedInput", supportedInput)) return;
         if (!getStrProperty(instance, "prefferedInput", prefferedInput)) return;
         if (!getStrProperty(instance, "supportedOutputMode", supportedOutputMode)) return;
@@ -84,7 +85,7 @@ DjVuEncoder::DjVuEncoder(QQmlEngine *engine, const QString &fname, AppDependenci
         }
 
         if (reader.getState(defaultState)) {
-            isValid = reader.getCommand(defaultCmd); // using default state of newly created instance
+            isValid = reader.getCommand(m_cmd); // using default state of newly created instance
         }
 
         reader.readAppDependencies(dependencies, &requiredApps);

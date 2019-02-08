@@ -35,7 +35,7 @@ namespace publishing
 class QMLPluginBase
 {
 public:
-    QString cmd() const { return m_cmd; }
+    virtual QString command() const { return m_cmd; }
 
     bool setState(QVariantMap const& val) {
         bool res = access_helper().setState(val);
@@ -45,11 +45,11 @@ public:
         return res;
     }
 
-    bool state(QVariantMap& res) {
+    bool getState(QVariantMap& res) {
         return access_helper().getState(res);
     }
 
-    bool update() {
+    virtual bool update() {
         return access_helper().getCommand(m_cmd);
     }
 
@@ -61,10 +61,7 @@ protected:
     QMLPluginBase(QQmlEngine* engine): m_engine(engine) {}
     bool m_isValid;
     QQmlEngine* m_engine;
-
-private:
     QString m_cmd;
-
 };
 
 class TiffConverters: public QMLPluginBase
@@ -72,8 +69,7 @@ class TiffConverters: public QMLPluginBase
 public:
     TiffConverters(QQmlEngine* engine, DependencyManager& dep_manager, QObject *parent = Q_NULLPTR);
     bool resetToDefaultState() { return setState(m_defaultState); }
-    QString defaultCmd() const { return m_defaultCmd; }
-    QStringList requiredApps() const { return m_convertorRequiredApps; }
+    QStringList requiredApps() const { return m_converterRequiredApps; }
     bool filterByRequiredInput(const QString& supported, const QString& preffered) {
         if (access_helper().filterByRequiredInput(supported, preffered)) {
             return update();
@@ -87,10 +83,8 @@ private:
     virtual QuickWidgetAccessHelper& access_helper() override { return *m_access_helper; }
 private:
     DependencyManager& m_dep_manager;
-    QStringList m_convertorRequiredApps;
+    QStringList m_converterRequiredApps;
     QVariantMap m_defaultState;
-    QString m_defaultCmd;
-    QString m_cmd;
 
     std::unique_ptr<QObject> m_instance;
     std::unique_ptr<QQmlComponent> m_component;
@@ -109,9 +103,18 @@ public:
         return  enc ? enc->name : "";
     }
 
-    QString defaultCmd() const {
+    QString command() const override {
         DjVuEncoder* enc = encoder(m_currentEncoder);
-        return  enc ? enc->defaultCmd : "";
+        return  enc ? enc->m_cmd : "";
+    }    
+
+    virtual bool update() override {
+        if (QMLPluginBase::update()) {
+            DjVuEncoder* enc = encoder(m_currentEncoder);
+            enc->m_cmd = m_cmd;
+            return true;
+        }
+        return false;
     }
 
     QStringList requiredApps() {
@@ -176,8 +179,15 @@ private:
 
 class QMLLoader: public QObject
 {
-    Q_OBJECT
+    Q_OBJECT    
 public:
+    struct CachedState {
+        QString encoder_id;
+        QVariantMap encoder_state;
+        QVariantMap converter_state;
+        QStringList commands;
+    };
+
     QMLLoader(QObject *parent = Q_NULLPTR);
 
     ~QMLLoader() {}
@@ -186,17 +196,22 @@ public:
     DependencyManager& dependencyManager() { return m_dep_manager; }
     TiffConverters* converter() const { return m_converters.get(); }
     DJVUEncoders* encoders() const { return m_encoders.get(); }
-    QMLPluginBase* getPlugin(bool is_encoder) { return is_encoder ? (QMLPluginBase*) m_encoders.get() : (QMLPluginBase*) m_converters.get(); }
+    QMLPluginBase* encoderPlugin() const { return (QMLPluginBase*) m_encoders.get(); }
+    QMLPluginBase* converterPlugin() const { return (QMLPluginBase*) m_converters.get(); }
 
-    QStringList getCommands() const { return QStringList() << m_converters->defaultCmd() << m_encoders->defaultCmd(); }
+    QStringList getCommands() const { return QStringList() << m_converters->command() << m_encoders->command(); }
+    CachedState getDefaultCommand(ImageInfo::ColorMode) const;
 signals:
     void dependencyStateChanged();
+private:
+    void cacheDefaultCommands();
 
 private:
     DependencyManager m_dep_manager;
     std::shared_ptr<QQmlEngine> m_engine;
     std::unique_ptr<TiffConverters> m_converters;
     std::unique_ptr<DJVUEncoders> m_encoders;
+    QMap<ImageInfo::ColorMode, CachedState> m_cachedCommands;
 };
 
 }

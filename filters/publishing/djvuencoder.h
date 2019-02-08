@@ -37,6 +37,7 @@ public:
     DjVuEncoder(QQmlEngine* engine, const QString& fileName, AppDependencies &dependencies);
 
     QString name;
+    QString id;
     int priority;
     QString supportedInput;
     QString prefferedInput;
@@ -46,7 +47,7 @@ public:
     QStringList requiredApps;
     QString filename;
     QVariantMap defaultState;
-    QString defaultCmd;
+    QString m_cmd;
     bool isValid;
     std::unique_ptr<QQmlComponent> ptrComponent;
     std::unique_ptr<QObject> ptrInstance;
@@ -59,6 +60,7 @@ public:
     {
         return *enc1 < *enc2;
     }
+
 };
 
 }

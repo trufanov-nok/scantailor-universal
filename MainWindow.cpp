@@ -238,6 +238,10 @@ MainWindow::MainWindow()
         filterList, SIGNAL(launchBatchProcessing()),
         this, SLOT(startBatchProcessing())
     );
+    connect(
+        filterList, SIGNAL(composeDjVuDocument()),
+        this, SLOT(composeDjVuDocument())
+    );
 
     connect(
         m_ptrWorkerThread.get(),
@@ -686,6 +690,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
         displayStatusBarPageSize();
     }
 
+    if (obj == statusLabelFileSize && ev->type() == QEvent::MouseButtonRelease) {
+        if (statusLabelFileSize->selectedText().isEmpty()) {
+            StatusBarProvider::toggleStatusLabelFileSizeDisplayMode();
+        }
+        displayStatusBarFileSize();
+    }
+
     if (obj == statusBar() && ev->type() == StatusBarProvider::StatusBarEventType) {
         QStatusBarProviderEvent* sb_ev = static_cast<QStatusBarProviderEvent*>(ev);
         if (sb_ev->testFlag(QStatusBarProviderEvent::MousePosChanged)) {
@@ -694,6 +705,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
 
         if (sb_ev->testFlag(QStatusBarProviderEvent::PhysSizeChanged)) {
             emit UpdateStatusBarPageSize();
+        }
+
+        if (sb_ev->testFlag(QStatusBarProviderEvent::FileSizeChanged)) {
+            emit UpdateStatusBarFileSize();
         }
 
         sb_ev->accept();
@@ -1503,6 +1518,9 @@ MainWindow::filterSelectionChanged(QItemSelection const& selected)
     updateMainArea();
 
     StatusBarProvider::changeFilterIdx(m_curFilter);
+    const bool v = (m_curFilter == m_ptrStages->publishingFilterIdx());
+    statusLabelFileSize->setVisible(v);
+    statusLabelPhysSize->setVisible(!v);
 }
 
 void MainWindow::switchFilter1()
@@ -1661,6 +1679,16 @@ MainWindow::stopBatchProcessing(MainAreaAction main_area)
 
     m_ptrStages->filterAt(m_curFilter)->updateStatistics();
     resetThumbSequence(currentPageOrderProvider());
+}
+
+void
+MainWindow::composeDjVuDocument()
+{
+
+    if (m_ptrStages->publishingFilter()) {
+        QFileInfo info(projectFile());
+        m_ptrStages->publishingFilter()->composeDjVuDocument(info.canonicalPath() + QDir::separator() + info.baseName() + ".djvu");
+    }
 }
 
 void
@@ -1910,10 +1938,11 @@ MainWindow::openProject(QString const& project_file)
     }
 
     QDomDocument doc;
-    if (!doc.setContent(&file)) {
+    QString errorMsg; int errorLine; int errorColumn;
+    if (!doc.setContent(&file, false, &errorMsg, &errorLine, &errorColumn)) {
         QMessageBox::warning(
             this, tr("Error"),
-            tr("The project file is broken.")
+            QString(tr("The project file is broken.\nError message: %1\nLine: %2, Column: %3")).arg(errorMsg).arg(errorLine).arg(errorColumn)
         );
         resumeAutoSaveTimer();
         return;
@@ -2543,6 +2572,18 @@ MainWindow::isOutputFilter(int const filter_idx) const
     return (filter_idx == m_ptrStages->outputFilterIdx());
 }
 
+bool
+MainWindow::isPublishingFilter() const
+{
+    return isPublishingFilter(m_curFilter);
+}
+
+bool
+MainWindow::isPublishingFilter(int const filter_idx) const
+{
+    return (filter_idx == m_ptrStages->publishingFilterIdx());
+}
+
 PageView
 MainWindow::getCurrentView() const
 {
@@ -2580,6 +2621,14 @@ MainWindow::checkReadyForOutput(PageId const* ignore) const
     );
 }
 
+bool
+MainWindow::checkReadyForPublishing(PageId const* ignore) const
+{
+    return m_ptrStages->outputFilter()->checkReadyForPublishing(
+                m_outFileNameGen, *m_ptrPages, ignore
+    );
+}
+
 void
 MainWindow::loadPageInteractive(PageInfo const& page)
 {
@@ -2587,19 +2636,25 @@ MainWindow::loadPageInteractive(PageInfo const& page)
 
     m_ptrInteractiveQueue->cancelAndClear();
 
-    if (isOutputFilter() && !checkReadyForOutput(&page.id())) {
+    if ( (isOutputFilter() && !checkReadyForOutput(&page.id()) ) ||
+         (isPublishingFilter() && !checkReadyForPublishing(&page.id()))) {
         filterList->setBatchProcessingPossible(false);
 
         // Switch to the first page - the user will need
         // to process all pages in batch mode.
         m_ptrThumbSequence->setSelection(m_ptrThumbSequence->firstPage().id());
 
-        QString const err_text(
-            tr("Output is not yet possible, as the final size"
-            " of pages is not yet known.\nTo determine it,"
-            " run batch processing at \"Select Content\" or"
-            " \"Page Layout\".")
-        );
+        QString err_text;
+        if (isOutputFilter()) {
+            err_text = tr("Output is not yet possible, as the final size"
+                          " of pages is not yet known.\nTo determine it,"
+                          " run batch processing at \"Select Content\" or"
+                          " \"Page Layout\".");
+        } else {
+            err_text = tr("Publishing is not yet possible, as all pages aren't"
+                          " processed and outputted yet.\nTo process them,"
+                          " run batch processing at \"Output\" step.");
+        }
 
         removeFilterOptionsWidget();
         setImageWidget(new ErrorWidget(err_text), TRANSFER_OWNERSHIP);
@@ -3361,9 +3416,11 @@ MainWindow::setupStatusBar()
     connect(this, &MainWindow::NewOpenProjectPanelShown, statusLabelPageNo, &QLabel::clear);
 
     connect(this, &MainWindow::UpdateStatusBarPageSize, this, &MainWindow::displayStatusBarPageSize);
+    connect(this, &MainWindow::UpdateStatusBarFileSize, this, &MainWindow::displayStatusBarFileSize);
     connect(this, &MainWindow::UpdateStatusBarMousePos, this, &MainWindow::displayStatusBarMousePos);
 
     statusLabelPhysSize->installEventFilter(this);
+    statusLabelFileSize->installEventFilter(this);
 }
 
 void
@@ -3415,6 +3472,19 @@ MainWindow::displayStatusBarPageSize()
     qreal y = page_size.height();
     applyUnitsSettingToCoordinates(x, y);
     statusLabelPhysSize->setText(QObject::tr("%1 x %2 %3").arg(x).arg(y).arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix()));
+}
+
+void
+MainWindow::displayStatusBarFileSize()
+{
+    int sz = StatusBarProvider::getFileSize();
+
+    if (isBatchProcessingInProgress() || !isProjectLoaded() || sz == 0) {
+        statusLabelFileSize->clear();
+        return;
+    }
+
+    statusLabelFileSize->setText(StatusBarProvider::getStatusLabelFileSizeText());
 }
 
 void

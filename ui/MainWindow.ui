@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>783</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
@@ -318,7 +318,7 @@
           <x>0</x>
           <y>0</y>
           <width>256</width>
-          <height>187</height>
+          <height>185</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -399,6 +399,13 @@
               <widget class="Line" name="line_2">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="statusLabelFileSize">
+               <property name="text">
+                <string/>
                </property>
               </widget>
              </item>

@@ -24,7 +24,6 @@
 #include "FilterData.h"
 #include "ImageTransformation.h"
 #include "TaskStatus.h"
-#include "ImageView.h"
 #include "FilterUiInterface.h"
 #include "DjVuPageGenerator.h"
 #include <QImage>
@@ -38,7 +37,7 @@ namespace publishing
 class Task::UiUpdater : public FilterResult
 {
 public:
-    UiUpdater(IntrusivePtr<Filter> const& filter, /*QString const& filename,*/
+    UiUpdater(IntrusivePtr<Filter> const& filter, PageId const& page_id,
               bool batch_processing);
 
     virtual void updateUI(FilterUiInterface* wnd);
@@ -46,7 +45,8 @@ public:
     virtual IntrusivePtr<AbstractFilter> filter() { return m_ptrFilter; }
 private:
     IntrusivePtr<Filter> m_ptrFilter;
-    bool m_batchProcessing;
+    PageId m_pageId;
+    bool m_batchProcessing;    
 };
 
 
@@ -60,6 +60,7 @@ Task::Task(
       m_pageId(page_id),
       m_batchProcessing(batch_processing)
 {
+    connect(this, &Task::displayDjVu, m_ptrFilter.get(), &Filter::updateDjVuDocument); //must be done via slots as both objects are in diff threads
 }
 
 Task::~Task()
@@ -67,59 +68,77 @@ Task::~Task()
 }
 
 FilterResultPtr
-Task::process(TaskStatus const& status, QString const& image_file, qint64 image_hash)
+Task::process(TaskStatus const& status, QString const& image_file, const QImage& out_image)
 {
-    // This function is executed from the worker thread.
-
+    // This function is executed from the worker thread.    
     status.throwIfCancelled();
+
+    m_ptrFilter->imageViewer()->hide();
+    m_ptrFilter->getDjVuWidget()->setDocument(nullptr);
+
     Params param = m_ptrSettings->getParams(m_pageId);
-    if (param.inNull()) {
-        QImage img;
-        if (img.load(image_file)) {
-            publishing::ImageInfo info(image_file, img);
-            param.setImageInfo(info);
-        } else {
-            std::cerr << "Can't load image file " << image_file.toStdString().c_str() << "\n";
-        }
+
+    Params::Regenerate val = param.getForceReprocess();
+    bool need_reprocess = val & Params::RegeneratePage;
+    if (need_reprocess) {
+        val = (Params::Regenerate) (val & ~Params::RegeneratePage);
+        param.setForceReprocess(val);
+        m_ptrSettings->setParams(m_pageId, param);
     }
 
-    if (param.executedCommand().isEmpty()) {
+    publishing::ImageInfo info;
+    if (param.isNull()) {
+        info = publishing::ImageInfo(image_file, out_image);
+        param.setImageInfo(info);
+    } else {
+        info = param.imageInfo();
+    }
+
+    if (param.commandToExecute().isEmpty()) {
         // need default commands
-        DJVUEncoders* encoders = m_ptrFilter->getQMLLoader()->encoders();
-        int idx = encoders->findBestEncoder(param.inputImageColorMode());
-        if (idx != -1) {
-            encoders->switchActiveEncoder(idx);
-            if (const DjVuEncoder* enc = encoders->encoder()) {
-                TiffConverters* converters = m_ptrFilter->getQMLLoader()->converter();
-                converters->resetToDefaultState();
-                if (converters->filterByRequiredInput(enc->supportedInput, enc->prefferedInput) > 0) {
-                    param.setExecutedCommand(m_ptrFilter->getQMLLoader()->getCommands().join('\n'));
-                }
-            }
-        }
-
-
+        QMLLoader::CachedState cached_state =  m_ptrFilter->getQMLLoader()->getDefaultCommand(param.inputImageColorMode());
+        param.setEncoderId(cached_state.encoder_id);
+        param.setEncoderState(cached_state.encoder_state);
+        param.setConverterState(cached_state.converter_state);
+        param.setCommandToExecute(cached_state.commands.join('\n'));
+        need_reprocess = true;
     }
 
-    m_ptrSettings->setParams(m_pageId, param);
+    if (!need_reprocess) {
+        need_reprocess = param.commandToExecute() != param.executedCommand();
+    }
+    if (!need_reprocess) {
+        need_reprocess = image_file != param.imageFilename() || info.imageHash != param.inputImageHash();
+    }
+    if (!need_reprocess) {
+        need_reprocess = !QFile::exists(param.djvuFilename());
+    }
 
-    if (image_file != param.inputFilename() ||
-            image_hash != param.inputImageHash() ||
-            param.getForceReprocess() & RegenParams::RegenParams::RegeneratePage) {
-        // djvu file recreation is needed
+
+
+    if (need_reprocess) {
+
+        m_ptrSettings->setParams(m_pageId, param);
+
         DjVuPageGenerator& generator = m_ptrFilter->getPageGenerator();
-        generator.setFilename(param.inputFilename());
-        generator.setComands(param.executedCommand().split('\n', QString::SkipEmptyParts));
-        generator.execute();
+        generator.setInputImageFile(image_file, info.imageHash);
+        generator.setOutputFile(param.djvuFilename());
+
+        generator.setComands(param.commandToExecute().split('\n', QString::SkipEmptyParts));
+        if (!generator.execute()) {
+            QMessageBox::warning(nullptr, QObject::tr("DjVu creation"), QObject::tr("Can't create output folder for %1").arg(param.djvuFilename()));
+        }
+    } else {        
+        emit displayDjVu();  // need to be done via slots as djvuwidget belongs to another thread
     }
 
     if (!CommandLine::get().isGui()) {
-        return FilterResultPtr(0);
+        return FilterResultPtr(nullptr);
     }
 
     return FilterResultPtr(
                 new UiUpdater(
-                    m_ptrFilter, m_batchProcessing
+                    m_ptrFilter, m_pageId, m_batchProcessing
                     )
                 );
 }
@@ -129,8 +148,9 @@ Task::process(TaskStatus const& status, QString const& image_file, qint64 image_
 
 Task::UiUpdater::UiUpdater(
         IntrusivePtr<Filter> const& filter,
+        PageId const& page_id,
         bool const batch_processing)
-    :	m_ptrFilter(filter),
+    :	m_ptrFilter(filter), m_pageId(page_id),
       m_batchProcessing(batch_processing)
 {
 }
@@ -143,17 +163,15 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
     opt_widget->postUpdateUI();
     ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 
-    //    ui->invalidateThumbnail(m_filename);
+    m_ptrFilter->setSuppressDjVuDisplay(m_batchProcessing);
+
+    ui->invalidateThumbnail(m_pageId);
 
     if (m_batchProcessing) {
         return;
     }
 
-    QDjVuWidget* const widget = m_ptrFilter->getDjVuWidget();
-    ui->setImageWidget(widget, ui->KEEP_OWNERSHIP);
-
-    //ImageView* view = new ImageView(image, downscaled_image, xform);
-    //ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP);
+    ui->setImageWidget(m_ptrFilter->imageViewer(), ui->KEEP_OWNERSHIP);
 }
 
 } // namespace publishing

@@ -21,6 +21,7 @@
 #include "PageInfo.h"
 #include "PageId.h"
 #include "ImageId.h"
+#include "IncompleteThumbnail.h"
 #include "ImageTransformation.h"
 #include "ThumbnailBase.h"
 #include "filter_dc/AbstractFilterDataCollector.h"
@@ -40,22 +41,56 @@ CacheDrivenTask::~CacheDrivenTask()
 
 void
 CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector)
+    PageInfo const& page_info, AbstractFilterDataCollector* collector, QString const& outputFile, ImageTransformation const& xform)
 {
-    QRectF const initial_rect(QPointF(0.0, 0.0), page_info.metadata().size());
-    ImageTransformation xform(initial_rect, page_info.metadata().dpi());
+    Params p = m_ptrSettings->getParams(page_info.id());
+    Params::Regenerate val = p.getForceReprocess();
+    bool need_reprocess = val & Params::RegenerateThumbnail;
+    if (need_reprocess) {
+        val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+        p.setForceReprocess(val);
+        m_ptrSettings->setParams(page_info.id(), p);
+    }
 
-	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-		thumb_col->processThumbnail(
-			std::unique_ptr<QGraphicsItem>(
-				new ThumbnailBase(
-					thumb_col->thumbnailCache(),
-					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), xform
-				)
-			)
-		);
-	}
+    if (!need_reprocess) {
+        need_reprocess = !QFile::exists(outputFile);
+        if (!need_reprocess) {
+            need_reprocess = !QFile::exists( p.djvuFilename() );
+        }
+    }
+
+
+    QString thumbnail_source;
+
+	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {    
+        if (need_reprocess) {
+
+            thumbnail_source = outputFile;
+            if (outputFile.isEmpty() || !QFileInfo(outputFile).exists()) {
+                thumbnail_source = page_info.id().imageId().filePath();
+            }
+
+            thumb_col->processThumbnail(
+                std::unique_ptr<QGraphicsItem>(
+                    new IncompleteThumbnail(
+                        thumb_col->thumbnailCache(),
+                        thumb_col->maxLogicalThumbSize(),
+                                ImageId(thumbnail_source), xform
+                    )
+                )
+            );
+        } else {
+            thumb_col->processThumbnail(
+                        std::unique_ptr<QGraphicsItem>(
+                            new ThumbnailBase(
+                                thumb_col->thumbnailCache(),
+                                thumb_col->maxLogicalThumbSize(),
+                                ImageId(p.djvuFilename()), xform
+                                )
+                            )
+                        );
+        }
+    }
 }
 
 } // namespace publishing

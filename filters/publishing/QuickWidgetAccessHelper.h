@@ -51,8 +51,6 @@ private:
     bool callFunc(const QString& func_name, const QString& arg1, const QString& arg2);
     bool setProperty(const QString& prop, int val);
     bool getProperty(const QString& prop, QString& val);
-    QJSValue convertQVariantMap2QJSValue(const QVariantMap& map);
-    QVariantMap convertQJSValue2QVariantMap(const QJSValue& val);
 private:
     QObject* m_root;
     QString m_name;

@@ -121,8 +121,15 @@ QuickWidgetAccessHelper::getState(QVariantMap& map)
         QVariant retVal;
         bool res = QMetaObject::invokeMethod(m_root, "getState", Qt::DirectConnection,
                                              Q_RETURN_ARG(QVariant, retVal));
-        if (res) {
-            map = convertQJSValue2QVariantMap(retVal.value<QJSValue>());
+        if (res) {            
+            QJSValue val = retVal.value<QJSValue>();
+            if (val.isObject()) {
+                QJSValueIterator it(val);
+                while (it.hasNext()) {
+                    it.next();
+                    map[it.name()] = it.value().toString();
+                }
+            }
         }
         return res;
     }
@@ -133,43 +140,11 @@ bool
 QuickWidgetAccessHelper::setState(const QVariantMap& map)
 {
     if (m_root) {
-        const QJSValue& val = convertQVariantMap2QJSValue( map );
-        if (!val.isUndefined()) {
-            bool res = QMetaObject::invokeMethod(m_root, "setState", Qt::DirectConnection,
-                                                 Q_ARG(QJSValue, val));
-            return res;
-        }
+        bool res = QMetaObject::invokeMethod(m_root, "setState", Qt::DirectConnection,
+                                             Q_ARG(QVariant, QVariant::fromValue(map)));
+        return res;
     }
     return false;
-}
-
-
-
-QJSValue
-QuickWidgetAccessHelper::convertQVariantMap2QJSValue(const QVariantMap& map)
-{
-    QJSEngine js_engine;
-    QJSValue val = js_engine.newObject();
-
-    for (QVariantMap::const_iterator it = map.constBegin();
-         it != map.constEnd(); ++it) {
-        val.setProperty(it.key(), it->toString());
-    }
-    return val;
-}
-
-QVariantMap
-QuickWidgetAccessHelper::convertQJSValue2QVariantMap(const QJSValue& val)
-{
-    QVariantMap map;
-    if (val.isObject()) {
-        QJSValueIterator it(val);
-        while (it.hasNext()) {
-            it.next();
-            map[it.name()] = it.value().toString();
-        }
-    }
-    return map;
 }
 
 void

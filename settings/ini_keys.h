@@ -240,4 +240,7 @@ static const int _key_foreground_layer_adj_override_def = 0;
 static const char* _key_mouse_ignore_system_wheel_settings = "mouse/ignore_system_wheel_settings";
 static const bool _key_mouse_ignore_system_wheel_settings_def = true;
 
+static const char* _key_djvu_pages_subfolder = "djvu_pages_subfolder";
+static const char* _key_djvu_pages_subfolder_def = "djvu";
+
 #endif // INI_KEYS_H

@@ -3,6 +3,7 @@ import QtQuick 2.4
 Cjb2SettingsForm {
     property string type: "encoder"
     property string name: qsTr("cjb2 [DjVuLibre] for b/w")
+    property string id: "cjb2"
     property string supportedInput: "tiff;ppm;pgm;pbm"
     property string prefferedInput: "pbm"
     property string supportedOutputMode: "bw"
@@ -19,8 +20,15 @@ Cjb2SettingsForm {
 
     signal notify()
 
+    property bool block_notify: false;
+
+    function blockNotify() { block_notify = true; }
+    function unblockNotify() { block_notify = false; }
+
     onNotify: {
-        mainApp.requestParamUpdate(type);
+        if (!block_notify) {
+            mainApp.requestParamUpdate(type);
+        }
     }
 
     Component.onCompleted: {
@@ -58,12 +66,12 @@ Cjb2SettingsForm {
     }
 
     function setState(state) {
-        _dpi_ = state["_dpi_"]
-        cbClean.checked = state[param_clean];
-        cbLossy.checked = state[param_lossy];
+        blockNotify();
+        _dpi_ = ("_dpi_" in state ? state["_dpi_"] : 600);
+        cbClean.checked = (param_clean in state ? state[param_clean] : false);
+        cbLossy.checked = (param_lossy in state ? state[param_lossy] : false);
         sbLossy.value = (param_losslevel in state ? state[param_losslevel] : 100);
-
-        notify();
+        unblockNotify();
     }
 
     function getCommandFromState(state) {

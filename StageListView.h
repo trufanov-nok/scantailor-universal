@@ -39,6 +39,7 @@ public:
 	virtual QSize sizeHint() const { return m_sizeHint; }
 signals:
 	void launchBatchProcessing();
+    void composeDjVuDocument();
 public slots:
 	void setBatchProcessingPossible(bool possible);
 	
@@ -56,9 +57,9 @@ private:
 	class LeftColDelegate;
 	class RightColDelegate;
 	
-	void removeLaunchButton(int row);
+    void removeStageListButton(QWidget* btn, int row);
 	
-	void placeLaunchButton(int row);
+    void placeStageListButton(QWidget* btn, int row, int steps_from_left = 1);
 	
 	void initiateBatchAnimationFrameRendering();
 	
@@ -73,6 +74,8 @@ private:
 	LeftColDelegate* m_pFirstColDelegate;
 	RightColDelegate* m_pSecondColDelegate;
 	QWidget* m_pLaunchBtn;
+    QWidget* m_pPublishBtn;
+    int m_publishStageIdx;
 	std::vector<QPixmap> m_batchAnimationPixmaps;
 	int m_curBatchAnimationFrame;
 	int m_timerId;

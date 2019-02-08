@@ -122,30 +122,30 @@ Settings::dpi(PageId const& page_id) const
     }
 }
 
-QString Settings::inputFilename(PageId const& page_id) const
+QString Settings::imageFilename(PageId const& page_id) const
 {
     QMutexLocker const locker(&m_mutex);
 
     PerPageParams::const_iterator const it(m_perPageParams.find(page_id));
     if (it != m_perPageParams.end()) {
-        return it->second.inputFilename();
+        return it->second.imageFilename();
     } else {
         return QString();
     }
 }
 
 void
-Settings::setInputFilename(PageId const& page_id, QString const& fileName)
+Settings::setImageFilename(PageId const& page_id, QString const& fileName)
 {
     QMutexLocker const locker(&m_mutex);
 
     PerPageParams::iterator const it(m_perPageParams.lower_bound(page_id));
     if (it == m_perPageParams.end() || m_perPageParams.key_comp()(page_id, it->first)) {
         Params params;
-        params.setInputFilename(fileName);
+        params.setImageFilename(fileName);
         m_perPageParams.insert(it, PerPageParams::value_type(page_id, params));
     } else {
-        it->second.setInputFilename(fileName);
+        it->second.setImageFilename(fileName);
     }
 }
 
@@ -174,6 +174,26 @@ Settings::converterState(PageId const& page_id) const
     } else {
         return QVariantMap();
     }
+}
+
+bool
+Settings::allDjVusGenerated(QStringList& completed_djvus, QStringList& missing_pages) const
+{
+    QMutexLocker const locker(&m_mutex);
+    completed_djvus.clear();
+    missing_pages.clear();
+
+    for (PerPageParams::const_iterator it = m_perPageParams.cbegin(); it != m_perPageParams.cend(); ++it) {
+        const QString fname = it->second.djvuFilename();
+        if (QFile::exists(fname)) {
+            completed_djvus.append(fname);
+        } else {
+            QFileInfo info(it->second.imageFilename());
+            missing_pages.append(info.fileName());
+        }
+    }
+
+    return missing_pages.isEmpty();
 }
 
 } // namespace publishing

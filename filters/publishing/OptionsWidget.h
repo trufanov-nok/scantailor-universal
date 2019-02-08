@@ -56,9 +56,8 @@ public:
 private:
     void setupQuickWidget(QQuickWidget* &wgt, QQmlComponent* component, QObject* instance);
     void initEncodersSelector();
-    bool initTiffConvertor();
+    bool initTiffConverter();
     bool showMissingAppSelectors(QStringList req_apps, bool isEncoderDep);
-    void launchDjVuGenerator();
     void displayWidgets();
 
 
@@ -70,7 +69,7 @@ private slots:
 
 public slots:
     void resizeQuickWidget(QVariant arg);
-    void requestParamUpdate(const QVariant requestor);
+    void requestParamUpdate(const QVariant requestor = QVariant());
 signals:
     void widthChanged();
 
@@ -79,9 +78,9 @@ private:
     IntrusivePtr<Settings> m_ptrSettings;
     PageId m_pageId;
     PageSelectionAccessor m_pageSelectionAccessor;
-    QString m_imageFilename;
     QMLLoader m_QMLLoader;
-    DjVuPageGenerator& m_pageGenerator;    
+    DjVuPageGenerator& m_pageGenerator;
+    bool m_QMLinitialized;
 };
 
 } // namespace publishing

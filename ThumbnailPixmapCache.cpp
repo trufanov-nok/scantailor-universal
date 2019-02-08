@@ -19,6 +19,7 @@
 #include "ThumbnailPixmapCache.h"
 #include "ImageId.h"
 #include "ImageLoader.h"
+#include "DjVuReader.h"
 #include "AtomicFileOverwriter.h"
 #include "RelinkablePath.h"
 #include "OutOfMemoryHandler.h"
@@ -252,11 +253,11 @@ public:
 	
 	void releaseImage() { m_image = QImage(); }
 	
-	ThumbnailLoadResult::Status status() const { return m_status; }
+    ThumbnailLoadResult::Status status() const { return m_status; }
 private:
 	Impl::LoadQueue::iterator m_lqIter;
 	QImage m_image;
-	ThumbnailLoadResult::Status m_status;
+    ThumbnailLoadResult::Status m_status;
 };
 
 
@@ -472,14 +473,14 @@ ThumbnailPixmapCache::Impl::request(
 		m_endOfLoadedItems = m_items.project<RemoveQueueTag>(lq_it);
 	}
 	lq_it->completionHandlers.push_back(*completion_handler);
-	
-	if (m_numQueuedItems++ == 0) {
+
+    if (m_numQueuedItems++ == 0) {
 		if (m_threadStarted) {
 			// Wake the background thread up.
-			QCoreApplication::postEvent(
+            QCoreApplication::postEvent(
 				&m_backgroundLoader, new QEvent(QEvent::User)
-			);
-		} else {
+            );
+        } else {
 			// Start the background thread.
 			start();
 			m_threadStarted = true;
@@ -595,7 +596,7 @@ ThumbnailPixmapCache::Impl::customEvent(QEvent* e)
 void
 ThumbnailPixmapCache::Impl::backgroundProcessing()
 {
-	// This method is called from a background thread.
+    // This method is called from a background thread.
 	assert(QCoreApplication::instance()->thread() != QThread::currentThread());
 	
 	for (;;) {
@@ -673,15 +674,22 @@ ThumbnailPixmapCache::Impl::loadSaveThumbnail(
 {
 	QString const thumb_file_path(getThumbFilePath(image_id, thumb_dir));
 	
-	QImage image(ImageLoader::load(thumb_file_path, 0));
-	if (!image.isNull()) {
-		return image;
-	}
-	
-	image = ImageLoader::load(image_id);
-	if (image.isNull()) {
-		return QImage();
-	}
+    QImage image = ImageLoader::load(thumb_file_path, 0);
+    if (!image.isNull()) {
+        return image;
+    }
+
+    QFileInfo info(image_id.filePath());
+    if (info.suffix().toLower().startsWith("djv")) {
+        image = DjVuReader::load(image_id);
+    } else {
+        image = ImageLoader::load(image_id);
+    }
+
+    if (image.isNull()) {
+        return QImage();
+    }
+
 	
 	QImage const thumbnail(makeThumbnail(image, max_thumb_size));
 	thumbnail.save(thumb_file_path, "PNG");
@@ -819,11 +827,21 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
 			// We keep items that failed to load, as they are cheap
 			// to keep and helps us avoid trying to load them
 			// again and again.
+            // upd: except for djvu thumbnails
 			
 			item.status = Item::LOAD_FAILED;
 			
-			// Move to the end of load queue.
-			m_loadQueue.relocate(m_loadQueue.end(), lq_it);
+            QFileInfo fi(item.imageId.filePath());
+            bool is_djvu = fi.suffix().toLower().startsWith("djv");
+
+            if (!is_djvu) {
+                // Move to the end of load queue.
+                m_loadQueue.relocate(m_loadQueue.end(), lq_it);
+            } else {
+                // we wish to try one more time if it was a thumb for djvu doc
+                // as currently it djvu loader may return fails at some load attemps and work fine at others.
+                removeItemLocked(rq_it);
+            }
 		} else {
 			assert(result->status() == ThumbnailLoadResult::REQUEST_EXPIRED);
 			
@@ -996,7 +1014,7 @@ ThumbnailPixmapCache::Impl::LoadResultEvent::LoadResultEvent(
 :	QEvent(QEvent::User),
 	m_lqIter(lq_it),
 	m_image(image),
-	m_status(status)
+    m_status(status)
 {
 }
 

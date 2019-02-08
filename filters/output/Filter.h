@@ -96,6 +96,9 @@ public:
     virtual std::vector<PageOrderOption> pageOrderOptions() const;
     virtual int selectedPageOrder() const;
     virtual void selectPageOrder(int option);
+
+    bool checkReadyForPublishing(OutputFileNameGenerator const& filename_gen,
+                                    ProjectPages const& pages, PageId const* ignore) const;
 private:
 	void writePageSettings(
 		QDomDocument& doc, QDomElement& filter_el,

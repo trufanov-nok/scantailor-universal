@@ -54,10 +54,10 @@ class QMLLoader;
  * \note All methods of this class except the destructor
  *       must be called from the GUI thread only.
  */
-class Filter : public AbstractFilter
+class Filter : public QObject, public AbstractFilter
 {
+    Q_OBJECT
 	DECLARE_NON_COPYABLE(Filter)
-    Q_DECLARE_TR_FUNCTIONS(publishing::Filter)
 public:
     Filter(IntrusivePtr<ProjectPages> const& pages, PageSelectionAccessor const& page_selection_accessor);
 	
@@ -66,6 +66,12 @@ public:
 	virtual QString getName() const;
 	
 	virtual PageView getView() const;
+
+    virtual int selectedPageOrder() const;
+
+    virtual void selectPageOrder(int option);
+
+    virtual std::vector<PageOrderOption> pageOrderOptions() const;
 	
 	virtual void performRelinking(AbstractRelinker const& relinker);
 
@@ -89,24 +95,41 @@ public:
 
     Settings* getSettings() { return m_ptrSettings.get(); }
 
+    QWidget* imageViewer() const { return m_ptrImageViewer.get(); }
+
     QDjVuWidget* getDjVuWidget() const { return m_ptrDjVuWidget.get(); }
 
     DjVuPageGenerator& getPageGenerator() { return m_PageGenerator; }
 
     QMLLoader* getQMLLoader() const { return m_QMLLoader; }
+
+    void setSuppressDjVuDisplay(bool val) { m_suppressDjVuDisplay = val; }
+
+public slots:
+    void updateDjVuDocument();
+    void commandsExecuted(bool success);
+    void composeDjVuDocument(const QString& target_fname);
+
 private:
     void writePageSettings(
 		QDomDocument& doc, QDomElement& filter_el,
         PageId const& page_id, int numeric_id) const;
+
+    void setupImageViewer();
 	
     IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<Settings> m_ptrSettings;
     DjVuPageGenerator m_PageGenerator;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
-    SafeDeletingQObjectPtr<QDjVuContext> m_ptrDjVuContext;
+    SafeDeletingQObjectPtr<QWidget> m_ptrImageViewer;
+    QDjVuContext m_DjVuContext;
     SafeDeletingQObjectPtr<QDjVuWidget> m_ptrDjVuWidget;
     QMLLoader* m_QMLLoader;
     bool m_isGUI;
+    PageId m_pageId;
+    std::vector<PageOrderOption> m_pageOrderOptions;
+    int m_selectedPageOrder;
+    bool m_suppressDjVuDisplay;
 };
 
 } // publishing

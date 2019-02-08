@@ -5,14 +5,14 @@
 #include <QThread>
 #include <QDebug>
 
-class CommandExecuter: public QThread
+class QSingleShotExec: public QThread
 {
     Q_OBJECT
 public:
-    CommandExecuter(const QStringList &commands): m_inputCommands(commands) {}
+    QSingleShotExec(const QStringList &commands): m_execCommands(commands) {}
 
     void run() override {
-        for (const QString& cmd: m_inputCommands) {
+        for (const QString& cmd: m_execCommands) {
 
             if (isInterruptionRequested()) {
                 break;
@@ -20,11 +20,12 @@ public:
 
             qDebug() << cmd.toStdString().c_str() << "\n";
             system(cmd.toStdString().c_str());
+            qDebug() << QThread::currentThreadId();
         }
     }
 
 private:
-    QStringList m_inputCommands;
+    QStringList m_execCommands;
 };
 
 
@@ -36,26 +37,34 @@ public:
     explicit DjVuPageGenerator(QObject *parent = nullptr);
     ~DjVuPageGenerator();
 
-    void setFilename(const QString &file);
+    void setInputImageFile(const QString &file, const QByteArray& hash);
+    void setOutputFile(const QString& file) { m_outputFile = file; }
     void setComands(const QStringList &commands) { m_commands = commands; }
 
+    QString inputFileName() const { return m_inputFile; }
+    const QByteArray& inputFileHash() const { return m_inputFileHash; }
     QString outputFileName() const { return m_outputFile; }
     QString executedCommands() const { return m_executedCommands; }
 
-    void execute();
+    bool execute();
     void stop();
+
+public slots:
+    void executed();
 
 private:
     QString updatedCommands() const;
 signals:
-    void executionComplete();
+    void executionComplete(bool success);
 private:
     QString m_inputFile;
+    QByteArray m_inputFileHash;
     QStringList m_commands;
     QString m_tempFile;
     QString m_outputFile;
     QString m_executedCommands;
-    CommandExecuter* m_commandExecuter;
+    typedef QPair<QSingleShotExec*, QString> ExecuterHndl;
+    QSet< ExecuterHndl > m_executers;
 };
 
 #endif // DJVUPAGEGENERATOR_H

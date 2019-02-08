@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2018 Alexander Trufanov <trufanovan@gmail.com>
+    Copyright (C)  Alexander Trufanov <trufanovan@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,25 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PUBLISHING_IMAGEVIEW_H_
-#define PUBLISHING_IMAGEVIEW_H_
+#ifndef PUBLISHING_ORDER_BY_FILESIZE_PROVIDER_H_
+#define PUBLISHING_ORDER_BY_FILESIZE_PROVIDER_H_
 
-#include "ImageViewBase.h"
-#include "ImageTransformation.h"
+#include "Settings.h"
+#include "IntrusivePtr.h"
+#include "PageOrderProvider.h"
 
 namespace publishing
 {
 
-class ImageView : public ImageViewBase
+class OrderByFileSize : public PageOrderProvider
 {
-	Q_OBJECT
 public:
-    ImageView (QImage const& image, QImage const& downscaled_image,
-               ImageTransformation const& xform);
-	
-	virtual ~ImageView();
+    OrderByFileSize(IntrusivePtr<Settings> const& settings);
+
+	virtual bool precedes(
+		PageId const& lhs_page, bool lhs_incomplete,
+		PageId const& rhs_page, bool rhs_incomplete) const;
+
+    virtual QString hint(PageId const& page) const;
+private:
+	IntrusivePtr<Settings> m_ptrSettings;
 };
 
 } // namespace publishing
 
-#endif
+#endif //PUBLISHING_ORDER_BY_FILESIZE_PROVIDER_H_

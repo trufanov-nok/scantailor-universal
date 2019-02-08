@@ -41,25 +41,26 @@ QMLPluginBase::~QMLPluginBase()
 TiffConverters::TiffConverters(QQmlEngine* engine, DependencyManager& dep_manager, QObject *parent):
     QMLPluginBase(engine), m_dep_manager(dep_manager)
 {
-    const QString _convertor_qml_("TiffPostprocessors.qml");
+    const QString _converter_qml_("TiffPostprocessors.qml");
 
     QStringList sl = _qml_path.split(';');
     for (const QString& d : sl) {
         const QDir dir(QFileInfo(d).absoluteFilePath());
-        QString qml_file = dir.absoluteFilePath(_convertor_qml_);
+        QString qml_file = dir.absoluteFilePath(_converter_qml_);
         if (QFileInfo(qml_file).exists()) {
 
             m_component.reset(new QQmlComponent(m_engine, qml_file));
             if (QObject* instance = m_component->create()) {
-                QuickWidgetAccessHelper ch(instance, _convertor_qml_);
+                QuickWidgetAccessHelper ch(instance, _converter_qml_);
                 if (ch.init()) {
                     AppDependencies deps;
-                    if (ch.readAppDependencies(deps, &m_convertorRequiredApps)) {
+                    if (ch.readAppDependencies(deps, &m_converterRequiredApps)) {
                         m_dep_manager.addDependencies(deps);
                         if (ch.getState(m_defaultState)) {
-                            if (ch.getCommand(m_defaultCmd)) {
+                            QString cmd;
+                            if (ch.getCommand(m_cmd)) {
                                 m_instance.reset(instance);
-                                m_access_helper.reset(new QuickWidgetAccessHelper(instance, _convertor_qml_));
+                                m_access_helper.reset(new QuickWidgetAccessHelper(instance, _converter_qml_));
                             }
                         }
                         m_isValid = true;
@@ -148,9 +149,6 @@ DJVUEncoders::findBestEncoder(ImageInfo::ColorMode clr)
     return -1;
 }
 
-
-
-
 QMLLoader::QMLLoader(QObject *parent): QObject (parent)
 {
 
@@ -167,7 +165,59 @@ QMLLoader::QMLLoader(QObject *parent): QObject (parent)
     m_encoders.reset(new DJVUEncoders(m_engine.get(), m_dep_manager, this));
 
     m_dep_manager.checkDependencies();
+
+    cacheDefaultCommands();
 }
 
+void
+QMLLoader::cacheDefaultCommands()
+{
+
+    const int sz = 3;
+    ImageInfo::ColorMode modes[sz] = {ImageInfo::ColorMode::BlackAndWhite,
+                                     ImageInfo::ColorMode::Grayscale,
+                                     ImageInfo::ColorMode::Color};
+    for (int i = 0; i < sz; i++) {
+        ImageInfo::ColorMode mode = modes[i];
+        int idx = m_encoders->findBestEncoder(mode);
+        if (idx != -1) {
+
+            m_encoders->switchActiveEncoder(idx);
+
+            if (const DjVuEncoder* enc = m_encoders->encoder()) {
+
+                TiffConverters* converters = converter();
+                converters->resetToDefaultState();
+
+                if (converters->filterByRequiredInput(enc->supportedInput, enc->prefferedInput) > 0) {
+                    CachedState cached_state;
+                    cached_state.encoder_id = enc->id;
+
+                    QVariantMap val;
+                    if (m_encoders->getState(val)) {
+                        cached_state.encoder_state = val;
+                    }
+                    if (m_converters->getState(val)) {
+                        cached_state.converter_state = val;
+                    }
+
+                    cached_state.commands = getCommands();
+                    m_cachedCommands[mode] = cached_state;
+                }
+            }
+        }
+    }
+
+
+}
+
+QMLLoader::CachedState
+QMLLoader::getDefaultCommand(ImageInfo::ColorMode mode) const
+{
+    if (m_cachedCommands.contains(mode)) {
+        return m_cachedCommands[mode];
+    }
+    return CachedState();
+}
 
 }

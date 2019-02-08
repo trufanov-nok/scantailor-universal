@@ -53,11 +53,11 @@ public:
 	
 	SubPage subPage() const { return m_subPage; }
 	
-    QString subPageAsString() const { return subPageToString(m_subPage); }
+        QString subPageAsString() const { return subPageToString(m_subPage); }
 	
 	static QString subPageToString(SubPage sub_page);
 	
-    static SubPage subPageFromString(QString const& string, bool* ok = 0);
+        static SubPage subPageFromString(QString const& string, bool* ok = 0);
 private:
 	ImageId m_imageId;
 	SubPage m_subPage;

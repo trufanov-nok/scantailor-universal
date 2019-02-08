@@ -489,7 +489,7 @@ Task::process(
 	}
 
     if (m_ptrNextTask) {
-        return m_ptrNextTask->process(status, out_file_path, out_img.cacheKey());
+        return m_ptrNextTask->process(status, out_file_path, out_img);
     } else {
         if (CommandLine::get().isGui()) {
             return FilterResultPtr(

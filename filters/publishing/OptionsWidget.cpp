@@ -44,7 +44,8 @@ OptionsWidget::OptionsWidget(
     :	m_ptrSettings(settings),
       m_pageSelectionAccessor(page_selection_accessor),
       m_QMLLoader(this),
-      m_pageGenerator(pageGenerator)
+      m_pageGenerator(pageGenerator),
+      m_QMLinitialized(false)
 {
     QQuickStyle::setStyle("Material");
 
@@ -55,7 +56,7 @@ OptionsWidget::OptionsWidget(
     });
 
     for (const DjVuEncoder* enc: m_QMLLoader.encoders()->allEncoders()) {
-        cbEncodersSelector->addItem(enc->name, enc->filename);
+        cbEncodersSelector->addItem(enc->name, enc->id);
     }
 
     setupQuickWidget(conversionWidget, m_QMLLoader.converter()->component(), m_QMLLoader.converter()->instance());
@@ -108,29 +109,24 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 }
 
 void
-OptionsWidget::launchDjVuGenerator()
-{
-    if (!m_imageFilename.isNull()) {
-        m_pageGenerator.setComands(m_QMLLoader.getCommands());
-        m_pageGenerator.execute();
-    }
-}
-
-void
 OptionsWidget::postUpdateUI()
 {
+    m_QMLinitialized = false;
     Params const params(m_ptrSettings->getParams(m_pageId));
-    m_imageFilename = params.inputFilename();
-    m_pageGenerator.setFilename(m_imageFilename);
 
-    displayWidgets();
+    const int old_idx = cbEncodersSelector->currentIndex();
+    const int new_idx = cbEncodersSelector->findData(params.encoderId());
+
+    if (new_idx != -1) {
+        cbEncodersSelector->setCurrentIndex(new_idx); // should be before setState to trigger converters filtering
+    }
+    if (new_idx == old_idx || new_idx == -1) {
+        emit cbEncodersSelector->currentIndexChanged(new_idx);
+    }
 
     m_QMLLoader.converter()->setState(params.converterState());
     m_QMLLoader.encoders()->setState(params.encoderState());
-    //    QuickWidgetAccessHelper c_help(conversionWidget);
-    //    QuickWidgetAccessHelper e_help(encoderWidget);
-
-    launchDjVuGenerator();
+    m_QMLinitialized = true;
 }
 
 void
@@ -259,17 +255,52 @@ void OptionsWidget::displayWidgets()
 
 void OptionsWidget::requestParamUpdate(const QVariant requestor)
 {
-    bool is_encoder = requestor.toString() == "encoder";
-    QMLPluginBase* plg = m_QMLLoader.getPlugin(is_encoder);
-    if (plg && plg->update()) {
-        launchDjVuGenerator();
+    if (!m_QMLinitialized) {
+        return;
     }
 
-    QVariantMap val;
-    if (plg && plg->state(val)) {
-        m_ptrSettings->setState(m_pageId, val, is_encoder);
+    qDebug() << "requestParamUpdate";
+    Params param = m_ptrSettings->getParams(m_pageId);
+    QMLPluginBase* plg = nullptr;
+
+    if (requestor.isNull() || requestor.toString() == "encoder") {    
+        if ((plg = m_QMLLoader.encoderPlugin())) {
+            if (plg->update()) {
+                QVariantMap val;
+                if (plg->getState(val)) {
+                    param.setEncoderState(val);
+
+                }
+            }
+        }
     }
 
+    if (requestor.isNull() || requestor.toString() == "converter") {
+        if ((plg = m_QMLLoader.converterPlugin())) {
+            if (plg->update()) {
+                QVariantMap val;
+                if (plg->getState(val)) {
+                    param.setConverterState(val);
+                }
+            }
+        }
+    }
+
+    DjVuEncoder* e;
+    if ((e = m_QMLLoader.encoders()->encoder())) {
+        param.setEncoderId(e->id);
+    }
+
+
+    QString cmd = m_QMLLoader.getCommands().join('\n');
+    bool need_reload = cmd != param.executedCommand();
+    param.setCommandToExecute(cmd);
+    m_ptrSettings->setParams(m_pageId, param);
+
+
+    if (need_reload) {
+        emit reloadRequested();
+    }
 }
 
 } // namespace publishing
@@ -282,7 +313,9 @@ void publishing::OptionsWidget::on_cbEncodersSelector_currentIndexChanged(int in
     if (const DjVuEncoder* enc = encoders->encoder()) {
         m_QMLLoader.converter()->filterByRequiredInput(enc->supportedInput, enc->prefferedInput);
     }
+
     displayWidgets();
+    requestParamUpdate();
 }
 
 void publishing::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)

@@ -3,12 +3,13 @@ import QtQuick 2.4
 CpalDjVuSettingsForm {
     property string type: "encoder"
     property string name: qsTr("cpaldjvu [DjVuLibre] for few colors")
+    property string id: "cpaldjvu"
 
     property string supportedInput: "jpeg;ppm;pgm;pbm"
     property string prefferedInput: "ppm"
     property string supportedOutputMode: "grayscale;color"
     property string description: qsTr("Encoder for images containing few colors. It performs best on images containing large solid color areas. This program works by first reducing the number of distinct colors to a small specified value using a simple color quantization algorithm. The dominant color is encoded into the background layer. The other colors are encoded into the foreground layer.")
-    property int priority: 20
+    property int priority: 30
     property int _dpi_: 600
 
 
@@ -19,8 +20,15 @@ CpalDjVuSettingsForm {
 
     signal notify()
 
+    property bool block_notify: false;
+
+    function blockNotify() { block_notify = true; }
+    function unblockNotify() { block_notify = false; }
+
     onNotify: {
-        mainApp.requestParamUpdate(type);
+        if (!block_notify) {
+            mainApp.requestParamUpdate(type);
+        }
     }
 
     Component.onCompleted: {
@@ -57,12 +65,12 @@ CpalDjVuSettingsForm {
     }
 
     function setState(state) {
-        _dpi_ = state["_dpi_"];
+        blockNotify();
+        _dpi_ = ("_dpi_" in state ? state["_dpi_"] : 600);
         cbColors.checked = colors_val in state;
         sbColors.value = (cbColors.checked ? state[colors_val] : 256);
         cbBgwhite.checked = bgwhite_used in state;
-
-        notify();
+        unblockNotify();
     }
 
     function getCommandFromState(state) {

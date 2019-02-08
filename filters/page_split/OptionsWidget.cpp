@@ -28,6 +28,7 @@
 #include "ScopedIncDec.h"
 #include "SplitModeWidget.h"
 #include <QPixmap>
+#include <QButtonGroup>
 #include <assert.h>
 
 namespace page_split

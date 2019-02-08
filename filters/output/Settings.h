@@ -31,6 +31,8 @@
 #include "DespeckleLevel.h"
 #include "ZoneSet.h"
 #include "PropertySet.h"
+#include "OutputFileNameGenerator.h"
+#include "PageSequence.h"
 #include <QMutex>
 #include <map>
 #include <memory>
@@ -103,6 +105,9 @@ public:
 	void setDefaultPictureZoneProperties(PropertySet const& props);
 
 	void setDefaultFillZoneProperties(PropertySet const& props);
+
+    bool checkOutputComplete(OutputFileNameGenerator const& filename_gen,
+                             PageSequence const& pages, PageId const* ignore) const;
 private:
 	typedef std::map<PageId, Params> PerPageParams;
 	typedef std::map<PageId, OutputParams> PerPageOutputParams;

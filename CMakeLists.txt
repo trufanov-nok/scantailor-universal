@@ -196,7 +196,7 @@ INCLUDE_DIRECTORIES("${JPEG_INCLUDE_DIR}")
 
 FIND_LIBRARY(
 	JPEG_LIBRARY NAMES jpeg libjpeg.lib
-	PATHS /usr/local/lib /usr/lib
+        PATHS /usr/local/lib /usr/lib
 	HINTS ${STAGING_LIBS_DIR}
 	DOC "Path to jpeg library."
 )
@@ -493,6 +493,7 @@ SET(
         ImageMetadataLoader.cpp ImageMetadataLoader.h
         TiffReader.cpp TiffReader.h
         TiffWriter.cpp TiffWriter.h
+        DjVuReader.cpp DjVuReader.h
         PngMetadataLoader.cpp PngMetadataLoader.h
         TiffMetadataLoader.cpp TiffMetadataLoader.h
         JpegMetadataLoader.cpp JpegMetadataLoader.h

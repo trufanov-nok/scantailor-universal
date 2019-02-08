@@ -40,48 +40,153 @@
 #include <QDomNode>
 #include <iostream>
 #include <QMessageBox>
+#include <QFileDialog>
+#include "DjVuPageGenerator.h"
+#include <libdjvu/ddjvuapi.h>
 #include "CommandLine.h"
 #include "QMLLoader.h"
+#include "StatusBarProvider.h"
+#include "OrderByFileSize.h"
 
+// required by resource system for static libs
+// must be declared in default namespace
+inline void initStaticLibResources() { Q_INIT_RESOURCE(qdjvuwidget); }
 
 namespace publishing
 {
 
+enum DisplayMode {
+  DISPLAY_COLOR,              //!< Default dislplay mode
+  DISPLAY_STENCIL,            //!< Only display the b&w mask layer
+  DISPLAY_BG,                 //!< Only display the background layer
+  DISPLAY_FG,                 //!< Only display the foregroud layer
+  DISPLAY_TEXT,               //!< Overprint the text layer
+};
+
+inline QDjVuWidget::DisplayMode idx2displayMode(int idx) {
+    switch (idx) {
+    case 0: return QDjVuWidget::DISPLAY_COLOR;
+    case 1: return QDjVuWidget::DISPLAY_BG;
+    case 2: return QDjVuWidget::DISPLAY_FG;
+    case 3: return QDjVuWidget::DISPLAY_STENCIL;
+    }
+    return QDjVuWidget::DISPLAY_COLOR;
+}
+
+void Filter::setupImageViewer()
+{
+    QWidget* wgt = new QWidget();
+    m_ptrImageViewer.reset(wgt);
+    QVBoxLayout* lt = new QVBoxLayout(wgt);
+    lt->setSpacing(0);
+
+    QTabBar* tab = new QTabBar();
+    tab->addTab(tr("Main"));
+    tab->addTab(tr("Background"));
+    tab->addTab(tr("Foregroud"));
+    tab->addTab(tr("B&W Mask"));
+
+    lt->addWidget(tab, 0, Qt::AlignTop);
+    m_ptrDjVuWidget.reset( new QDjVuWidget() );
+    lt->addWidget(m_ptrDjVuWidget.get(), 100);
+
+    connect(tab, &QTabBar::currentChanged, [=](int idx) {
+        m_ptrDjVuWidget->setDisplayMode(idx2displayMode(idx));
+    });
+
+}
+
 Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
                PageSelectionAccessor const& page_selection_accessor)
-    :	m_ptrPages(pages), m_ptrSettings(new Settings), m_QMLLoader(nullptr)
+    :	m_ptrPages(pages), m_ptrSettings(new Settings), m_DjVuContext("scan_tailor_universal"), m_QMLLoader(nullptr),
+      m_selectedPageOrder(0), m_suppressDjVuDisplay(false)
 {
+    initStaticLibResources();
 
     m_isGUI = CommandLine::get().isGui();
 
     if (m_isGUI) {
 
-        m_ptrDjVuContext.reset( new QDjVuContext("scan_tailor_universal") );
-        m_ptrDjVuWidget.reset( new QDjVuWidget() ) ;
-
-        QObject::connect(&m_PageGenerator, &DjVuPageGenerator::executionComplete, [this]() {
-            QDjVuDocument* doc = new QDjVuDocument(true, m_ptrDjVuWidget.get());
-
-            QObject::connect(doc, &QDjVuDocument::error,
-                             [](QString msg,QString,int) {
-                QMessageBox::critical(nullptr, "QDjVuDocument::error", msg);
-            });
-
-            // technically takes doc ownership as it was created with autoDel==true
-            m_ptrDjVuWidget->setDocument(doc);
-
-            doc->setFileName(m_ptrDjVuContext.get(), m_PageGenerator.outputFileName());
-        });
+        setupImageViewer();
 
         m_ptrOptionsWidget.reset(
                     new OptionsWidget(m_ptrSettings, page_selection_accessor, m_PageGenerator)
                     );
 
-        // GUI widget owns loader
+        QObject::connect(&m_PageGenerator, &DjVuPageGenerator::executionComplete, this, &Filter::commandsExecuted);
+
+        // GUI thread owns loader
         m_QMLLoader = m_ptrOptionsWidget->getQMLLoader();
     } else {
         m_QMLLoader = new QMLLoader();
     }
+
+    typedef PageOrderOption::ProviderPtr ProviderPtr;
+    ProviderPtr const default_order;
+    ProviderPtr const order_by_filesize(new OrderByFileSize(m_ptrSettings));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by file size"), order_by_filesize,
+                                                 tr("Orders the pages by the DjVu page file size")));
+
+}
+
+void
+Filter::commandsExecuted(bool success)
+{
+    if (!success) {
+        return;
+    }
+
+    Params param = m_ptrSettings->getParams(m_pageId);
+    param.setImageFilename(m_PageGenerator.inputFileName());
+    param.setInputImageHash(m_PageGenerator.inputFileHash());
+    param.setExecutedCommand(param.commandToExecute());
+    m_ptrSettings->setParams(m_pageId, param);
+
+    updateDjVuDocument();
+}
+
+void
+Filter::updateDjVuDocument()
+{
+    int file_size = 0;
+    Params param = m_ptrSettings->getParams(m_pageId);
+    QFileInfo info(param.djvuFilename());
+
+    if (info.exists()) {
+        file_size = (int)info.size();
+        if (param.djvuSize() != file_size) {
+            param.setDjVuSize(file_size);
+            m_ptrSettings->setParams(m_pageId, param);
+        }
+    }
+
+    StatusBarProvider::setFileSize(file_size);
+
+    if (!m_suppressDjVuDisplay) {
+        if (info.exists()) {
+
+            ddjvu_cache_clear(m_DjVuContext);
+            QDjVuDocument* doc = new QDjVuDocument(true);
+            doc->setFileName(&m_DjVuContext, param.djvuFilename(), false);
+
+            if (!doc->isValid()) {
+                delete doc;
+                QMessageBox::critical(qApp->activeWindow(), tr("Cannot open file '%1'.").arg(param.djvuFilename()), tr("Opening DjVu file"));
+            } else {
+                // technically takes doc ownership as it was created with autoDel==true
+                connect(doc, &QDjVuDocument::error, [](QString err, QString fname, int line_no) {
+                    qDebug() << err << fname << line_no;
+                });
+                m_ptrDjVuWidget->setDocument(doc);
+                m_ptrImageViewer->show();
+            }
+        } else {
+            m_ptrImageViewer->hide();
+        }
+    }
+
+    emit m_ptrOptionsWidget->invalidateThumbnail(m_pageId);
 }
 
 Filter::~Filter()
@@ -103,7 +208,26 @@ Filter::getName() const
 PageView
 Filter::getView() const
 {
-    return IMAGE_VIEW;
+    return PAGE_VIEW;
+}
+
+int
+Filter::selectedPageOrder() const
+{
+    return m_selectedPageOrder;
+}
+
+void
+Filter::selectPageOrder(int option)
+{
+    assert((unsigned)option < m_pageOrderOptions.size());
+    m_selectedPageOrder = option;
+}
+
+std::vector<PageOrderOption>
+Filter::pageOrderOptions() const
+{
+    return m_pageOrderOptions;
 }
 
 void
@@ -190,6 +314,7 @@ Filter::createTask(
         PageId const& page_id,
         bool const batch_processing)
 {
+    m_pageId = page_id;
     return IntrusivePtr<Task>(
                 new Task(
                     IntrusivePtr<Filter>(this),
@@ -215,11 +340,36 @@ Filter::writePageSettings(
 
     Params const params(m_ptrSettings->getParams(page_id));
 
-    QDomElement page_el(doc.createElement("publishing"));
+    QDomElement page_el(doc.createElement("page"));
     page_el.setAttribute("id", numeric_id);
     page_el.appendChild(params.toXml(doc, "params"));
 
     filter_el.appendChild(page_el);
+}
+
+void
+Filter::composeDjVuDocument(const QString& target_fname)
+{
+    QStringList done;
+    QStringList missing;
+    if (m_ptrSettings->allDjVusGenerated(done, missing)) {
+        QFileDialog dlg(qApp->activeWindow(), tr("Create multipage DjVu document"),
+                        target_fname, tr("DjVu documents (*.djvu;*.djv);All files (*.*)"));
+        dlg.setDefaultSuffix(".djvu");
+        if (dlg.exec() == QDialog::Accepted) {
+            QString cmd("djvum %1 %2");
+            cmd = cmd.arg(dlg.selectedFiles()[0]).arg(done.join(" "));
+            QSingleShotExec* executer = new QSingleShotExec(QStringList(cmd));
+            executer->start();
+        }
+
+    } else {
+        while (missing.count() > 10) {
+            missing.removeLast();
+        }
+        QMessageBox::critical(qApp->activeWindow(), tr("Compose DjVu document"),
+                              tr("Folowing pages aren't yet encoded to DjVu format:/n%1").arg(missing.join("/n")));
+    }
 }
 
 } // namespace publishing

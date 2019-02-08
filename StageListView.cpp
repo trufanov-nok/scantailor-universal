@@ -122,9 +122,9 @@ StageListView::StageListView(QWidget* parent)
     v_header->setSectionsMovable(false);
 	
 	m_pLaunchBtn = new SkinnedButton(
-		":/icons/play-small.png",
-		":/icons/play-small-hovered.png",
-		":/icons/play-small-pressed.png",
+        ":/icons/play-small.png",
+        ":/icons/play-small-hovered.png",
+        ":/icons/play-small-pressed.png",
 		viewport()
 	);
 	m_pLaunchBtn->setStatusTip(tr("Launch batch processing"));
@@ -139,6 +139,17 @@ StageListView::StageListView(QWidget* parent)
 		verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
 		this, SLOT(ensureSelectedRowVisible()), Qt::QueuedConnection
 	);
+
+    m_pPublishBtn = new SkinnedButton(
+        ":/icons/djvulibre-mime-prebuilt-hi24-djvu.png",
+        ":/icons/djvulibre-mime-prebuilt-hi24-djvu-hovered.png",
+        ":/icons/djvulibre-mime-prebuilt-hi24-djvu-pressed.png",
+        viewport()
+    );
+    m_pPublishBtn->setStatusTip(tr("Compose pages into DjVu document"));
+    m_pPublishBtn->hide();
+
+    connect(m_pPublishBtn, SIGNAL(clicked()), this, SIGNAL(composeDjVuDocument()));
 }
 
 StageListView::~StageListView()
@@ -183,6 +194,8 @@ StageListView::setStages(IntrusivePtr<StageSequence> const& stages)
 	sp.setVerticalStretch(1);
 	setSizePolicy(sp);
 	updateGeometry();
+
+    m_publishStageIdx = stages->publishingFilterIdx();
 }
 
 void
@@ -194,9 +207,10 @@ StageListView::setBatchProcessingPossible(bool const possible)
 	m_batchProcessingPossible = possible;
 	
 	if (possible) {
-		placeLaunchButton(selectedRow());
+        placeStageListButton(m_pLaunchBtn, selectedRow(), m_pPublishBtn->isHidden()? 1 : 2);
 	} else {
-		removeLaunchButton(selectedRow());
+        removeStageListButton(m_pLaunchBtn, selectedRow());
+        removeStageListButton(m_pPublishBtn, selectedRow());
 	}
 }
 
@@ -209,7 +223,8 @@ StageListView::setBatchProcessingInProgress(bool const in_progress)
 	m_batchProcessingInProgress = in_progress;
 	
 	if (in_progress) {
-		removeLaunchButton(selectedRow());
+        removeStageListButton(m_pLaunchBtn, selectedRow());
+        removeStageListButton(m_pPublishBtn, selectedRow());
 		updateRowSpans(); // Join columns.
 		
 		// Some styles (Oxygen) visually separate items in a selected row.
@@ -222,7 +237,7 @@ StageListView::setBatchProcessingInProgress(bool const in_progress)
 		m_timerId = startTimer(180);
 	} else {
 		updateRowSpans(); // Separate columns.
-		placeLaunchButton(selectedRow());
+        placeStageListButton(m_pLaunchBtn, selectedRow(), m_pPublishBtn->isHidden()? 1 : 2);
 		
 		m_pFirstColDelegate->removeChanges(QStyle::State_Selected|QStyle::State_MouseOver);
 		m_pSecondColDelegate->removeChanges(QStyle::State_Selected|QStyle::State_MouseOver);
@@ -275,13 +290,19 @@ StageListView::selectionChanged(
 	QTableView::selectionChanged(selected, deselected);
 	
 	if (!deselected.isEmpty()) {
-		removeLaunchButton(deselected.front().topLeft().row());
+        int const row = deselected.front().topLeft().row();
+        removeStageListButton(m_pLaunchBtn, row);
+        removeStageListButton(m_pPublishBtn, row);
 	}
 	
 	if (!selected.isEmpty()) {
-		placeLaunchButton(selected.front().topLeft().row());
-        GlobalStaticSettings::stageChanged(selected.front().topLeft().row());
-	}    
+        int const row = selected.front().topLeft().row();
+        if (row == m_publishStageIdx) {
+            placeStageListButton(m_pPublishBtn, row);
+        }
+        placeStageListButton(m_pLaunchBtn, row, m_pPublishBtn->isHidden()? 1 : 2);
+        GlobalStaticSettings::stageChanged(row);
+    }
 }
 
 void
@@ -294,17 +315,24 @@ StageListView::ensureSelectedRowVisible()
 }
 
 void
-StageListView::removeLaunchButton(int const row)
+StageListView::removeStageListButton(QWidget* btn, int const row)
 {
 	if (row == -1) {
 		return;
 	}
 	
-	m_pLaunchBtn->hide();
+    btn->hide();
+}
+
+inline QRect adjust_button_geometry(QRect button_geometry, int steps_from_left) {
+    // Place it to the right (assuming height is less than width).
+    button_geometry.setLeft(button_geometry.right() + 1 - button_geometry.height() * steps_from_left - steps_from_left);
+    button_geometry.setRight(button_geometry.left() + button_geometry.height());
+    return button_geometry;
 }
 
 void
-StageListView::placeLaunchButton(int row)
+StageListView::placeStageListButton(QWidget* btn, int row, int steps_from_left)
 {
 	if (row == -1) {
 		return;
@@ -312,12 +340,8 @@ StageListView::placeLaunchButton(int row)
 	
 	QModelIndex const idx(m_pModel->index(row, 0));
 	QRect button_geometry(visualRect(idx));
-	
-	// Place it to the right (assuming height is less than width).
-	button_geometry.setLeft(button_geometry.right() + 1 - button_geometry.height());
-	
-	m_pLaunchBtn->setGeometry(button_geometry);
-	m_pLaunchBtn->show();
+    btn->setGeometry(adjust_button_geometry(button_geometry, steps_from_left));
+    btn->show();
 }
 
 void
@@ -439,10 +463,12 @@ StageListView::LeftColDelegate::paint(
 	SuperClass::paint(painter, option, index);
 	
 	if (index.row() == m_pView->selectedRow() && m_pView->m_pLaunchBtn->isVisible()) {
+        int steps = 1;
 		QRect button_geometry(option.rect);
-		// Place it to the right (assuming height is less than width).
-		button_geometry.setLeft(button_geometry.right() + 1 - button_geometry.height());
-		m_pView->m_pLaunchBtn->setGeometry(button_geometry);
+        if (m_pView->m_pPublishBtn->isVisible()) {
+            m_pView->m_pPublishBtn->setGeometry(adjust_button_geometry(button_geometry, steps++));
+        }
+        m_pView->m_pLaunchBtn->setGeometry(adjust_button_geometry(button_geometry, steps));
 	}
 }
 

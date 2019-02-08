@@ -4,13 +4,13 @@ INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
 
 SET(
         sources
-        ImageView.cpp ImageView.h
         Filter.cpp Filter.h
         Task.cpp Task.h
         CacheDrivenTask.cpp CacheDrivenTask.h
         OptionsWidget.cpp OptionsWidget.h
         MissingApplicationsWidget.cpp MissingApplicationsWidget.h
         ChangeDpiDialog.cpp ChangeDpiDialog.h
+        ImageInfo.cpp ImageInfo.h
         Params.cpp Params.h
         Settings.cpp Settings.h
         AppDependency.cpp AppDependency.h
@@ -18,6 +18,7 @@ SET(
         QuickWidgetAccessHelper.cpp QuickWidgetAccessHelper.h
         QMLLoader.cpp QMLLoader.h
         DjVuPageGenerator.cpp DjVuPageGenerator.h
+        OrderByFileSize.cpp OrderByFileSize.h
         djview4/qdjvuwidget.cpp djview4/qdjvuwidget.h
         djview4/qdjvu.cpp djview4/qdjvu.h
 )
@@ -27,7 +28,7 @@ FILE(GLOB ui_files "ui/*.ui")
 SOURCE_GROUP("UI Files" FILES ${ui_files})
 
 QT5_WRAP_UI(ui_sources ${ui_files})
-QT5_ADD_RESOURCES(resource_files djview4/qdjvuwidget.qrc djvu_resources.qrc)
+QT5_ADD_RESOURCES(resource_files djview4/qdjvuwidget.qrc OPTIONS -no-compress)
 
 ADD_LIBRARY(publishing STATIC ${sources} ${ui_sources} ${resource_files})
 QT5_USE_MODULES(publishing Widgets Xml Qml QuickWidgets QuickControls2 )

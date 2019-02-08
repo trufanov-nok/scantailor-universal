@@ -46,3 +46,5 @@ bool GlobalStaticSettings::m_simulateSelectionModifier = false;
 bool GlobalStaticSettings::m_simulateSelectionModifierHintEnabled = true;
 bool GlobalStaticSettings::m_inversePageOrder = false;
 
+QString GlobalStaticSettings::m_djvu_pages_subfolder;
+

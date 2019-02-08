@@ -133,7 +133,7 @@ Utils::calcSoftMarginsMM(
 {
 	if (alignment.isNull()) {
 #ifdef DEBUG
-		std::cout << "\tskip soft margins: " <<  "\n";
+//		std::cout << "\tskip soft margins: " <<  "\n";
 #endif
 		// This means we are not aligning this page with others.
         return Margins(0,0,0,0);
@@ -187,9 +187,9 @@ Utils::calcSoftMarginsMM(
 	}
 
 #ifdef DEBUG
-	std::cout << "delta_width: " << delta_width << " " << "delta_height: " << delta_height << "\n";
-	std::cout << aggLeftBorder << " " << aggRightBorder << " " << aggTopBorder << " " << aggBottomBorder << ":" << "\n";
-	std::cout << leftBorder << " " << rightBorder << " " << topBorder << " " << bottomBorder << ":" << "\n";
+//	std::cout << "delta_width: " << delta_width << " " << "delta_height: " << delta_height << "\n";
+//	std::cout << aggLeftBorder << " " << aggRightBorder << " " << aggTopBorder << " " << aggBottomBorder << ":" << "\n";
+//	std::cout << leftBorder << " " << rightBorder << " " << topBorder << " " << bottomBorder << ":" << "\n";
 #endif
 
 	// if align auto and not empty page

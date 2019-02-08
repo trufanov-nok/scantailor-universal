@@ -4,13 +4,15 @@
 #include <QTemporaryFile>
 #include <iostream>
 
-DjVuPageGenerator::DjVuPageGenerator(QObject *parent): QObject(parent), m_commandExecuter(nullptr)
+DjVuPageGenerator::DjVuPageGenerator(QObject *parent): QObject(parent)
 {
 }
 
 void
-DjVuPageGenerator::setFilename(const QString &file) {
+DjVuPageGenerator::setInputImageFile(const QString &file, const QByteArray &hash) {
     m_inputFile = file;
+    m_inputFileHash = hash;
+
     QFileInfo fi(m_inputFile);
 
     m_tempFile = QDir::tempPath();
@@ -22,8 +24,6 @@ DjVuPageGenerator::setFilename(const QString &file) {
     } else {
         std::cerr << "Can't create temporary file in " << QDir::tempPath().toStdString() << "\n";
     }
-
-    m_outputFile = fi.path() + "/" + fi.completeBaseName()+".djv";
 }
 
 /*
@@ -56,42 +56,65 @@ DjVuPageGenerator::updatedCommands() const
 void
 DjVuPageGenerator::stop()
 {
-    if (m_commandExecuter) {
-
-        if (m_commandExecuter->isRunning()) {
-            disconnect(m_commandExecuter, &CommandExecuter::finished, this, &DjVuPageGenerator::executionComplete);
-            m_commandExecuter->requestInterruption();
-        }
-
-        m_commandExecuter->deleteLater();
-        m_commandExecuter = nullptr;
+    for (ExecuterHndl ex: m_executers) {
+        ex.first->requestInterruption();
     }
 }
 
-void
+bool
 DjVuPageGenerator::execute()
 {
-    stop();
+    if (m_outputFile.isEmpty()) {
+        QFileInfo fi(m_inputFile);
+        m_outputFile = fi.path() + "/" + fi.completeBaseName()+".djv";
+    }
+
+    QDir dir(QFileInfo(m_outputFile).absolutePath());
+    if (!dir.exists() && !dir.mkpath(".")) {
+        return false;
+    }
 
     if (!m_inputFile.isEmpty() && !m_commands.isEmpty()) {
+
         m_executedCommands = updatedCommands();
-        m_commandExecuter = new CommandExecuter(m_executedCommands.split('\n', QString::SkipEmptyParts));
 
-        connect(m_commandExecuter, &CommandExecuter::finished, this, &DjVuPageGenerator::executionComplete);
+        QSingleShotExec* commandExecuter = new QSingleShotExec(m_executedCommands.split('\n', QString::SkipEmptyParts));
+        m_executers += ExecuterHndl(commandExecuter, m_tempFile);
 
-        connect(m_commandExecuter, &CommandExecuter::finished, [this]() {
-            QFile f(m_tempFile);
-            if (f.exists() && !f.remove()) {
-                std::cerr << "Can't remove temporary file: " << m_tempFile.toStdString() << "\n";
-            }
-            m_commandExecuter->deleteLater();
-            m_commandExecuter = nullptr;
-        });
-
-        m_commandExecuter->start();
+        connect(commandExecuter, &QSingleShotExec::finished, this, &DjVuPageGenerator::executed, Qt::QueuedConnection);
+        commandExecuter->start();
     } else {
-        emit executionComplete();
+        emit executionComplete(false);
     }
+
+    return true;
+}
+
+void
+DjVuPageGenerator::executed()
+{
+    qDebug() << QThread::currentThreadId();
+    QSingleShotExec* sender = static_cast<QSingleShotExec*>(this->sender());
+    QString tempFile;
+    for (ExecuterHndl ex: m_executers) {
+        if (ex.first == sender) {
+            tempFile = ex.second;
+            m_executers -= ex;
+            break;
+        }
+    }
+
+    emit this->executionComplete(!sender->isInterruptionRequested());
+
+
+    if (!tempFile.isEmpty()) {
+        QFile f(tempFile);
+        if (f.exists() && !f.remove()) {
+            std::cerr << "Can't remove temporary file: " << tempFile.toStdString() << "\n";
+        }
+    }
+
+    sender->deleteLater();
 }
 
 DjVuPageGenerator::~DjVuPageGenerator()
