@@ -12,6 +12,7 @@ GroupBox {
     property alias cbLossy: cbLossy
     property alias sbLossy: sbLossy
     property alias tooltipArea: tooltipArea
+    property int __lossy_level_default__: 70
 
     Column {
         id: column
@@ -22,6 +23,7 @@ GroupBox {
             anchors.left: parent.left
             anchors.leftMargin: 6
             text: qsTr("Clean")
+            checked: true
             tooltip: qsTr("Cleanup image by removing small flyspecks")
         }
 
@@ -31,6 +33,7 @@ GroupBox {
             anchors.left: parent.left
             anchors.leftMargin: 6
             text: qsTr("Lossy")
+            checked: true
             tooltip: qsTr("Lossy compression (implies -clean as well)")
         }
 
@@ -47,10 +50,10 @@ GroupBox {
             anchors.left: parent.left
             anchors.leftMargin: 6
             maximumValue: 100
-            value: 100
+            value: __lossy_level_default__
             TooltipArea {
                 id: tooltipArea
-                text: qsTr("Loss factor (implies -lossy, default 100)")
+                text: qsTr("Loss factor (implies -lossy, default 100, but we use lesser value)")
             }
         }
     }

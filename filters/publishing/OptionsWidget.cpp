@@ -39,12 +39,10 @@ namespace publishing
 
 OptionsWidget::OptionsWidget(
         IntrusivePtr<Settings> const& settings,
-        PageSelectionAccessor const& page_selection_accessor,
-        DjVuPageGenerator& pageGenerator)
+        PageSelectionAccessor const& page_selection_accessor)
     :	m_ptrSettings(settings),
       m_pageSelectionAccessor(page_selection_accessor),
       m_QMLLoader(this),
-      m_pageGenerator(pageGenerator),
       m_QMLinitialized(false)
 {
     QQuickStyle::setStyle("Material");

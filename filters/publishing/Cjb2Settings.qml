@@ -70,7 +70,7 @@ Cjb2SettingsForm {
         _dpi_ = ("_dpi_" in state ? state["_dpi_"] : 600);
         cbClean.checked = (param_clean in state ? state[param_clean] : false);
         cbLossy.checked = (param_lossy in state ? state[param_lossy] : false);
-        sbLossy.value = (param_losslevel in state ? state[param_losslevel] : 100);
+        sbLossy.value = (param_losslevel in state ? state[param_losslevel] : __lossy_level_default__);
         unblockNotify();
     }
 

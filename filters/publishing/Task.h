@@ -52,7 +52,7 @@ public:
     FilterResultPtr process(TaskStatus const& status, const QString &image_file, const QImage &out_image);
 
 signals:
-    void displayDjVu();
+    void displayDjVu(const QString& djvu_filename);
 
 private:
 	class UiUpdater;

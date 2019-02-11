@@ -26,7 +26,6 @@
 #include "FilterResult.h"
 #include "SafeDeletingQObjectPtr.h"
 #include "ProjectPages.h"
-#include "DjVuPageGenerator.h"
 #include "djview4/qdjvu.h"
 #include "djview4/qdjvuwidget.h"
 
@@ -99,15 +98,12 @@ public:
 
     QDjVuWidget* getDjVuWidget() const { return m_ptrDjVuWidget.get(); }
 
-    DjVuPageGenerator& getPageGenerator() { return m_PageGenerator; }
-
     QMLLoader* getQMLLoader() const { return m_QMLLoader; }
 
-    void setSuppressDjVuDisplay(bool val) { m_suppressDjVuDisplay = val; }
+    void setSuppressDjVuDisplay(bool val);
 
 public slots:
-    void updateDjVuDocument();
-    void commandsExecuted(bool success);
+    void updateDjVuDocument(const QString &djvu_filename);
     void composeDjVuDocument(const QString& target_fname);
 
 private:
@@ -119,7 +115,6 @@ private:
 	
     IntrusivePtr<ProjectPages> m_ptrPages;
 	IntrusivePtr<Settings> m_ptrSettings;
-    DjVuPageGenerator m_PageGenerator;
 	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
     SafeDeletingQObjectPtr<QWidget> m_ptrImageViewer;
     QDjVuContext m_DjVuContext;

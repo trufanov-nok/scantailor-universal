@@ -233,9 +233,11 @@ TiffPostprocessorsForm {
     }
 
     cbPostprocessors.onCurrentIndexChanged: {
-        // cbPostprocessorsHint.text = getDescription();
-        var el = cbPostprocessors.model.get(cbPostprocessors.currentIndex);
-        show_jpeg_settings = (el.format === "jpeg");
+        if (cbPostprocessors.currentIndex != -1) {
+            // cbPostprocessorsHint.text = getDescription();
+            var el = cbPostprocessors.model.get(cbPostprocessors.currentIndex);
+            show_jpeg_settings = (el.format === "jpeg");
+        }
     }
 
 

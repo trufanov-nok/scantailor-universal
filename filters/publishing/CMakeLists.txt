@@ -16,8 +16,7 @@ SET(
         AppDependency.cpp AppDependency.h
         djvuencoder.cpp djvuencoder.h
         QuickWidgetAccessHelper.cpp QuickWidgetAccessHelper.h
-        QMLLoader.cpp QMLLoader.h
-        DjVuPageGenerator.cpp DjVuPageGenerator.h
+        QMLLoader.cpp QMLLoader.h        
         OrderByFileSize.cpp OrderByFileSize.h
         djview4/qdjvuwidget.cpp djview4/qdjvuwidget.h
         djview4/qdjvu.cpp djview4/qdjvu.h

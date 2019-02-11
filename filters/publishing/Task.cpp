@@ -25,7 +25,6 @@
 #include "ImageTransformation.h"
 #include "TaskStatus.h"
 #include "FilterUiInterface.h"
-#include "DjVuPageGenerator.h"
 #include <QImage>
 #include <iostream>
 #include <QFileInfo>
@@ -65,6 +64,61 @@ Task::Task(
 
 Task::~Task()
 {
+}
+
+int
+generate_djvu(const QString &image_file, QString output_file, QString cmds)
+{
+    QFileInfo fi(image_file);
+
+    if (output_file.isEmpty()) {
+        output_file = fi.absolutePath() + "/" + fi.completeBaseName()+".djv";
+    }
+
+    QDir dir(fi.absolutePath());
+    if (!dir.exists() && !dir.mkpath(".")) {
+        std::cerr << "Can't create output directory: " << qPrintable(dir.path());
+            return -1;
+    }
+
+    QString tempFile;
+    QTemporaryFile tf;
+    tf.setFileTemplate( QDir::tempPath() + "/" + fi.baseName() + "XXXXXX");
+    if (tf.open()) {
+        tempFile = tf.fileName();
+        tf.close();
+    } else {
+        std::cerr << "Can't create temporary file in " << qPrintable(QDir::tempPath()) << "\n";
+        return -1;
+    }
+
+    int pos = cmds.indexOf("%1");
+    if (pos != -1) {
+        cmds.replace(pos, 2, image_file);
+    }
+
+    bool temp_file_used = false;
+    do {
+        pos = cmds.indexOf("%1");
+        if (pos != -1) {
+            cmds.replace(pos, 2, tempFile);
+            temp_file_used = true;
+        }
+    } while (pos != -1);
+
+    cmds = cmds.arg(output_file);
+
+    int res = system(cmds.toStdString().c_str());
+
+    if (temp_file_used) {
+        QFile f(tempFile);
+        if (f.exists() && !f.remove()) {
+            std::cerr << "Can't remove temporary file: " << tempFile.toStdString() << "\n";
+            return -1;
+        }
+    }
+
+    return res;
 }
 
 FilterResultPtr
@@ -118,18 +172,24 @@ Task::process(TaskStatus const& status, QString const& image_file, const QImage&
 
     if (need_reprocess) {
 
-        m_ptrSettings->setParams(m_pageId, param);
-
-        DjVuPageGenerator& generator = m_ptrFilter->getPageGenerator();
-        generator.setInputImageFile(image_file, info.imageHash);
-        generator.setOutputFile(param.djvuFilename());
-
-        generator.setComands(param.commandToExecute().split('\n', QString::SkipEmptyParts));
-        if (!generator.execute()) {
-            QMessageBox::warning(nullptr, QObject::tr("DjVu creation"), QObject::tr("Can't create output folder for %1").arg(param.djvuFilename()));
+        int res = generate_djvu(image_file, param.djvuFilename(), param.commandToExecute());
+        if (res == 0) {
+            param.setImageFilename(image_file);
+            param.setInputImageHash(info.imageHash);
+            QFileInfo fi(param.djvuFilename());
+            int file_size = 0;
+            if (fi.exists()) {
+                file_size = (int)fi.size();
+            }
+            param.setDjVuSize(file_size);
+            param.setExecutedCommand(param.commandToExecute());
+            m_ptrSettings->setParams(m_pageId, param);
+            emit displayDjVu(param.djvuFilename());
+        } else {
+            QMessageBox::warning(qApp->activeWindow(), QObject::tr("DjVu creation"), QObject::tr("Can't create output folder for %1").arg(param.djvuFilename()));
         }
-    } else {        
-        emit displayDjVu();  // need to be done via slots as djvuwidget belongs to another thread
+    } else {
+        emit displayDjVu(param.djvuFilename());  // need to be done via slots as djvuwidget belongs to another thread
     }
 
     if (!CommandLine::get().isGui()) {

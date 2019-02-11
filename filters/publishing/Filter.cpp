@@ -41,7 +41,6 @@
 #include <iostream>
 #include <QMessageBox>
 #include <QFileDialog>
-#include "DjVuPageGenerator.h"
 #include <libdjvu/ddjvuapi.h>
 #include "CommandLine.h"
 #include "QMLLoader.h"
@@ -110,11 +109,8 @@ Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
         setupImageViewer();
 
         m_ptrOptionsWidget.reset(
-                    new OptionsWidget(m_ptrSettings, page_selection_accessor, m_PageGenerator)
+                    new OptionsWidget(m_ptrSettings, page_selection_accessor)
                     );
-
-        QObject::connect(&m_PageGenerator, &DjVuPageGenerator::executionComplete, this, &Filter::commandsExecuted);
-
         // GUI thread owns loader
         m_QMLLoader = m_ptrOptionsWidget->getQMLLoader();
     } else {
@@ -131,34 +127,13 @@ Filter::Filter(IntrusivePtr<ProjectPages> const& pages,
 }
 
 void
-Filter::commandsExecuted(bool success)
-{
-    if (!success) {
-        return;
-    }
-
-    Params param = m_ptrSettings->getParams(m_pageId);
-    param.setImageFilename(m_PageGenerator.inputFileName());
-    param.setInputImageHash(m_PageGenerator.inputFileHash());
-    param.setExecutedCommand(param.commandToExecute());
-    m_ptrSettings->setParams(m_pageId, param);
-
-    updateDjVuDocument();
-}
-
-void
-Filter::updateDjVuDocument()
+Filter::updateDjVuDocument(const QString& djvu_filename)
 {
     int file_size = 0;
-    Params param = m_ptrSettings->getParams(m_pageId);
-    QFileInfo info(param.djvuFilename());
+    QFileInfo info(djvu_filename);
 
     if (info.exists()) {
         file_size = (int)info.size();
-        if (param.djvuSize() != file_size) {
-            param.setDjVuSize(file_size);
-            m_ptrSettings->setParams(m_pageId, param);
-        }
     }
 
     StatusBarProvider::setFileSize(file_size);
@@ -168,11 +143,11 @@ Filter::updateDjVuDocument()
 
             ddjvu_cache_clear(m_DjVuContext);
             QDjVuDocument* doc = new QDjVuDocument(true);
-            doc->setFileName(&m_DjVuContext, param.djvuFilename(), false);
+            doc->setFileName(&m_DjVuContext, djvu_filename, false);
 
             if (!doc->isValid()) {
                 delete doc;
-                QMessageBox::critical(qApp->activeWindow(), tr("Cannot open file '%1'.").arg(param.djvuFilename()), tr("Opening DjVu file"));
+                QMessageBox::critical(qApp->activeWindow(), tr("Cannot open file '%1'.").arg(djvu_filename), tr("Opening DjVu file"));
             } else {
                 // technically takes doc ownership as it was created with autoDel==true
                 connect(doc, &QDjVuDocument::error, [](QString err, QString fname, int line_no) {
@@ -187,6 +162,18 @@ Filter::updateDjVuDocument()
     }
 
     emit m_ptrOptionsWidget->invalidateThumbnail(m_pageId);
+}
+
+void
+Filter::setSuppressDjVuDisplay(bool val)
+{
+    bool update_display = !val && m_suppressDjVuDisplay;
+    m_suppressDjVuDisplay = val;
+
+    if (update_display) {
+        Params param = m_ptrSettings->getParams(m_pageId);
+        updateDjVuDocument(param.djvuFilename());
+    }
 }
 
 Filter::~Filter()
@@ -359,8 +346,8 @@ Filter::composeDjVuDocument(const QString& target_fname)
         if (dlg.exec() == QDialog::Accepted) {
             QString cmd("djvum %1 %2");
             cmd = cmd.arg(dlg.selectedFiles()[0]).arg(done.join(" "));
-            QSingleShotExec* executer = new QSingleShotExec(QStringList(cmd));
-            executer->start();
+//            QSingleShotExec* executer = new QSingleShotExec(QStringList(cmd));
+//            executer->start();
         }
 
     } else {

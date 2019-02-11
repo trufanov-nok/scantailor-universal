@@ -25,7 +25,6 @@
 #include "IntrusivePtr.h"
 #include "PageSelectionAccessor.h"
 #include "djvuencoder.h"
-#include "DjVuPageGenerator.h"
 #include "QMLLoader.h"
 #include <memory>
 
@@ -40,8 +39,7 @@ class OptionsWidget :
     Q_OBJECT
 public:
     OptionsWidget(IntrusivePtr<Settings> const& settings,
-                  PageSelectionAccessor const& page_selection_accessor,
-                  DjVuPageGenerator& m_pageGenerator);
+                  PageSelectionAccessor const& page_selection_accessor);
 
     virtual ~OptionsWidget();
 
@@ -79,7 +77,6 @@ private:
     PageId m_pageId;
     PageSelectionAccessor m_pageSelectionAccessor;
     QMLLoader m_QMLLoader;
-    DjVuPageGenerator& m_pageGenerator;
     bool m_QMLinitialized;
 };
 
