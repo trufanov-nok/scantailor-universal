@@ -195,7 +195,7 @@ TiffPostprocessorsForm {
         }
 
         sbJpegQuality.value = (param_quality in state ? state[param_quality] : 100);
-        cbJpegGrayscale.checked = (param_grayscale in state ? state[param_grayscale] : false);
+        cbJpegGrayscale.checked = param_grayscale in state;
         cbJpegSmooth.checked = param_smooth in state;
         sbJpegSmooth.value = (cbJpegSmooth.checked ? state[param_smooth] : 0);
 

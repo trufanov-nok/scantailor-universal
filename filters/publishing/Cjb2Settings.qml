@@ -56,10 +56,15 @@ Cjb2SettingsForm {
 
     function getState() {
         var state = {"_dpi_":_dpi_};
-        state[param_clean] = cbClean.checked;
-        state[param_lossy] = cbLossy.checked;
-        if (sbLossy.enabled) {
-            state[param_losslevel] = sbLossy.value;
+        if (cbClean.checked) {
+            state[param_clean] = cbClean.checked;
+
+            if (cbLossy.checked) {
+                state[param_lossy] = cbLossy.checked;
+            }
+            if (sbLossy.enabled) {
+                state[param_losslevel] = sbLossy.value;
+            }
         }
 
         return state;
@@ -67,9 +72,9 @@ Cjb2SettingsForm {
 
     function setState(state) {
         blockNotify();
-        _dpi_ = ("_dpi_" in state ? state["_dpi_"] : 600);
-        cbClean.checked = (param_clean in state ? state[param_clean] : false);
-        cbLossy.checked = (param_lossy in state ? state[param_lossy] : false);
+         _dpi_ = ("_dpi_" in state ? state["_dpi_"] : 600);
+        cbClean.checked = param_clean in state;
+        cbLossy.checked = param_lossy in state;
         sbLossy.value = (param_losslevel in state ? state[param_losslevel] : __lossy_level_default__);
         unblockNotify();
     }
