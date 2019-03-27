@@ -213,6 +213,24 @@ MainWindow::MainWindow()
     connect(actionPrevPageQ, SIGNAL(triggered(bool)), this, SLOT(goPrevPage()));
     connect(actionNextPageW, SIGNAL(triggered(bool)), this, SLOT(goNextPage()));
     connect(actionAbout, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
+
+    connect(actionInsertEmptyPgBefore, &QAction::triggered, [this] () {
+        PageInfo page_info = m_ptrThumbSequence->selectionLeader();
+        if (!page_info.imageId().filePath().isEmpty()) {
+            showInsertEmptyPageDialog(BEFORE, page_info.id());
+        }
+    });
+    addAction(actionInsertEmptyPgBefore);
+
+    connect(actionInsertEmptyPgAfter, &QAction::triggered, [this] () {
+        PageInfo page_info = m_ptrThumbSequence->selectionLeader();
+        if (!page_info.imageId().filePath().isEmpty()) {
+            showInsertEmptyPageDialog(AFTER, page_info.id());
+        }
+    });
+    addAction(actionInsertEmptyPgAfter);
+
+
     connect(
         &OutOfMemoryHandler::instance(),
         SIGNAL(outOfMemory()), SLOT(handleOutOfMemorySituation())
@@ -1309,6 +1327,11 @@ MainWindow::pageContextMenuRequested(
     QAction* ins_after = menu.addAction(
         QIcon(":/icons/insert-after-16.png"), tr("Insert after...")
     );
+    QMenu* menu_ins_empty = menu.addMenu(
+        tr("Insert empty page")
+    );
+    menu_ins_empty->addAction(actionInsertEmptyPgBefore);
+    menu_ins_empty->addAction(actionInsertEmptyPgAfter);
 
     menu.addSeparator();
 
@@ -2339,9 +2362,6 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
                         selected_pages += it->id();
                     }
                 }
-                if (page.imageId() < it->id().imageId()) {
-                    break;
-                }
             }
         }
     }
@@ -2370,7 +2390,7 @@ MainWindow::ExportOutput(QString export_dir_path, bool default_out_dir, bool spl
         d.mkdir(pic_dir);
     }
 
-    std::set<PageId> const output_pages = m_ptrThumbSequence_export->toPageSequence().asPageIdSet(); // get all the pages (input pages)
+    std::vector<PageId> const output_pages = m_ptrThumbSequence_export->toPageSequence().asPageIdVector(); // get all the pages (input pages)
 
     m_outpaths_vector.clear();
 
@@ -2894,6 +2914,63 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
     }
 }
 
+/**
+ * Note: showInsertEmptyPageDialog(BEFORE, ImageId()) is legal and means inserting at the end.
+ */
+
+void
+MainWindow::showInsertEmptyPageDialog(BeforeOrAfter before_or_after, const PageId &existing_page)
+{
+    if (isBatchProcessingInProgress() || !isProjectLoaded()) {
+        return;
+    }
+
+    QString const empty_page_filename(":/images/empty-page.png");
+    QFileInfo const file_info(empty_page_filename);
+    ImageFileInfo image_file_info(file_info, std::vector<ImageMetadata>());
+
+    void (std::vector<ImageMetadata>::*push_back) (const ImageMetadata&) =
+        &std::vector<ImageMetadata>::push_back;
+    ImageMetadataLoader::Status const status = ImageMetadataLoader::load(
+        empty_page_filename, boost::lambda::bind(push_back,
+        boost::ref(image_file_info.imageInfo()), boost::lambda::_1)
+    );
+
+    if (status != ImageMetadataLoader::LOADED) {
+        return;
+    }
+
+
+    assert(image_file_info.imageInfo().size() > 0);
+
+    int next_page_num = m_ptrPages->getMaxPageNum(empty_page_filename) + 1;
+
+    ImageInfo const image_info(
+        ImageId(image_file_info.fileInfo(), next_page_num), image_file_info.imageInfo().front(), 1, false, false
+    );
+
+
+    // sugest an overriden_filename for empty_page.png to stick into right place of alphabetically sorted output files
+    PageSequence all_pages = m_ptrPages->toPageSequence(IMAGE_VIEW);
+    QStringList insert_to_filenames( QFileInfo(m_outFileNameGen.filePathFor( existing_page )).baseName() );
+    std::vector<PageInfo>::const_iterator it = all_pages.begin();
+    for (; it != all_pages.end() && it->id() != existing_page; ++it) { }
+    if (it != all_pages.end()) {
+        if ( (before_or_after == AFTER) && (++it != all_pages.end()) ) {
+            insert_to_filenames.append( QFileInfo(m_outFileNameGen.filePathFor( it->id()) ).baseName() );
+        } else if ( (before_or_after == BEFORE) && (it != all_pages.begin()) ) {
+            insert_to_filenames.prepend( QFileInfo(m_outFileNameGen.filePathFor( (--it)->id()) ).baseName() );
+        }
+    }
+
+    qDebug() << "filelist = " << insert_to_filenames;
+    QString suggested_name = m_outFileNameGen.suggestOverridenFileName(insert_to_filenames, before_or_after == AFTER);
+    qDebug() << "overriden " << suggested_name;
+
+    insertImage(image_info, before_or_after, existing_page.imageId(), suggested_name);
+
+}
+
 void
 MainWindow::showRemovePagesDialog(std::set<PageId> const& pages)
 {
@@ -2919,7 +2996,7 @@ MainWindow::showRemovePagesDialog(std::set<PageId> const& pages)
  */
 void
 MainWindow::insertImage(ImageInfo const& new_image,
-    BeforeOrAfter before_or_after, ImageId existing)
+    BeforeOrAfter before_or_after, ImageId existing, QString const& overriden_filename)
 {
     std::vector<PageInfo> pages(
         m_ptrPages->insertImage(
@@ -2934,7 +3011,8 @@ MainWindow::insertImage(ImageInfo const& new_image,
     }
 
     for (PageInfo const& page_info: pages) {
-        m_outFileNameGen.disambiguator()->registerFile(page_info.imageId().filePath());
+        ImageId imgid = page_info.imageId();
+        m_outFileNameGen.disambiguator()->registerFile(imgid.filePath(), imgid.page(), overriden_filename);
         m_ptrThumbSequence->insert(page_info, before_or_after, existing);
         existing = page_info.imageId();
     }
@@ -3143,7 +3221,8 @@ void
 MainWindow::updateDisambiguationRecords(PageSequence const& pages)
 {
     for (const PageInfo& page: pages) {
-        m_outFileNameGen.disambiguator()->registerFile(page.imageId().filePath());
+        ImageId imgid = page.imageId();
+        m_outFileNameGen.disambiguator()->registerFile(imgid.filePath(), imgid.page());
     }
 }
 
@@ -3466,6 +3545,9 @@ MainWindow::applyShortcutsSettings()
 
     actionCloseProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectClose));
     actionQuit->setShortcut(GlobalStaticSettings::createShortcut(AppQuit));
+
+    actionInsertEmptyPgBefore->setShortcut(GlobalStaticSettings::createShortcut(InsertEmptyPageBefore));
+    actionInsertEmptyPgAfter->setShortcut(GlobalStaticSettings::createShortcut(InsertEmptyPageAfter));
 
     actionSwitchFilter1->setShortcut(GlobalStaticSettings::createShortcut(StageFixOrientation));
     actionSwitchFilter2->setShortcut(GlobalStaticSettings::createShortcut(StageSplitPages));

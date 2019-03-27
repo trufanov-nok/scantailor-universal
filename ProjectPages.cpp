@@ -283,6 +283,12 @@ ProjectPages::numImages() const
 	return m_images.size();
 }
 
+int
+ProjectPages::getMaxPageNum(QString const& filepath) const
+{
+    return getMaxPageNumImpl(filepath);
+}
+
 std::vector<PageInfo>
 ProjectPages::insertImage(
 	ImageInfo const& new_image, BeforeOrAfter before_or_after,
@@ -514,6 +520,21 @@ ProjectPages::updateImageMetadataImpl(
 			break;
 		}
 	}
+}
+
+int
+ProjectPages::getMaxPageNumImpl(QString const& filepath) const
+{
+    int max_page_num = -1;
+    std::vector<ImageDesc>::const_iterator it(m_images.cbegin());
+    std::vector<ImageDesc>::const_iterator const end(m_images.cend());
+    for (; it != end; ++it) {
+        const ImageId& image_id = it->id;
+        if (image_id.filePath() == filepath && max_page_num < image_id.page()) {
+            max_page_num = image_id.page();
+        }
+    }
+    return max_page_num;
 }
 
 std::vector<PageInfo>

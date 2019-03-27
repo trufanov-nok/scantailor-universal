@@ -38,7 +38,13 @@ ImageLoader::load(QString const& file_path, int const page_num)
 	if (!file.open(QIODevice::ReadOnly)) {
 		return QImage();
 	}
-	return load(file, page_num);
+
+    if (file_path.startsWith(":")) {
+        // internally empty pages are represented as multipage image although they're just links to the same single page image in app resources
+        return load(file, 0);
+    }
+
+    return load(file, page_num);
 }
 
 QImage

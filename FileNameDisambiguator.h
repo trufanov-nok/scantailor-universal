@@ -22,6 +22,7 @@
 #include "NonCopyable.h"
 #include "RefCountable.h"
 #include <boost/function.hpp>
+#include <QString>
 #include <memory>
 #include <set>
 
@@ -77,9 +78,9 @@ public:
 		QDomDocument& doc, QString const& name,
 		boost::function<QString(QString const&)> const& file_path_packer) const;
 
-	int getLabel(QString const& file_path) const;
+    bool getLabelAndOverridenFilename(QString const& file_path, int page, int& label, QString &overriden_filename) const;
 
-	int registerFile(QString const& file_path);
+    int registerFile(QString const& file_path, int page_num = 0, QString const& overriden_filename = QString());
 
 	void performRelinking(AbstractRelinker const& relinker);
 private:

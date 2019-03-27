@@ -46,9 +46,9 @@ public:
 	QDomElement toXml(QDomDocument& doc, QString const& name,
 		boost::function<QString(QString const&)> const& file_path_packer) const;
 
-	int getLabel(QString const& file_path) const;
+    bool getLabelAndOverridenFilename(QString const& file_path, int page, int& label, QString& overriden_filename) const;
 
-	int registerFile(QString const& file_path);
+    int registerFile(QString const& file_path, int page_num = 0, const QString &overriden_filename = QString());
 
 	void performRelinking(AbstractRelinker const& relinker);
 private:
@@ -61,10 +61,12 @@ private:
 		QString filePath;
 		QString fileName;
 		int label;
+        int page;
+        QString overridenFileName;
 
-		Item(QString const& file_path, int lbl);
+        Item(QString const& file_path, int lbl, int page_num = 0, QString const& overriden_filename = QString());
 
-		Item(QString const& file_path, QString const& file_name, int lbl);
+        Item(QString const& file_path, QString const& file_name, int lbl, int page_num = 0, QString const& overriden_filename = QString());
 	};
 
 	typedef multi_index_container<
@@ -72,13 +74,19 @@ private:
 		indexed_by<
 			ordered_unique<
 				tag<ItemsByFilePathTag>,
-				member<Item, QString, &Item::filePath>
+//				member<Item, QString, &Item::filePath>
+                composite_key<
+                    Item,
+                    member<Item, QString, &Item::filePath>,
+                    member<Item, int, &Item::page>
+                >
 			>,
 			ordered_unique<
 				tag<ItemsByFileNameLabelTag>,
 				composite_key<
 					Item,
 					member<Item, QString, &Item::fileName>,
+                    member<Item, int, &Item::page>,
 					member<Item, int, &Item::label>
 				>
 			>,
@@ -132,16 +140,16 @@ FileNameDisambiguator::toXml(
 	return m_ptrImpl->toXml(doc, name, file_path_packer);
 }
 
-int
-FileNameDisambiguator::getLabel(QString const& file_path) const
+bool
+FileNameDisambiguator::getLabelAndOverridenFilename(QString const& file_path, int page, int& label, QString& overriden_filename) const
 {
-	return m_ptrImpl->getLabel(file_path);
+    return m_ptrImpl->getLabelAndOverridenFilename(file_path, page, label, overriden_filename);
 }
 
 int
-FileNameDisambiguator::registerFile(QString const& file_path)
+FileNameDisambiguator::registerFile(QString const& file_path, int page_num, QString const& overriden_filename)
 {
-	return m_ptrImpl->registerFile(file_path);
+    return m_ptrImpl->registerFile(file_path, page_num, overriden_filename);
 }
 
 void
@@ -187,7 +195,9 @@ FileNameDisambiguator::Impl::Impl(
 		}
 
 		int const label = file_el.attribute("label").toInt();
-		m_items.insert(Item(file_path, label));
+        int const page = file_el.attribute("page").toInt();
+        QString const overriden_filename(file_el.attribute("overriden"));
+        m_items.insert(Item(file_path, label, page, overriden_filename));
 	}
 }
 
@@ -210,31 +220,35 @@ FileNameDisambiguator::Impl::toXml(
 		QDomElement file_el(doc.createElement("mapping"));
 		file_el.setAttribute("file", file_path_shorthand);
 		file_el.setAttribute("label", item.label);
+        file_el.setAttribute("page", item.page);
+        file_el.setAttribute("overriden", item.overridenFileName);
 		el.appendChild(file_el);
 	}
 
 	return el;
 }
 
-int
-FileNameDisambiguator::Impl::getLabel(QString const& file_path) const
+bool
+FileNameDisambiguator::Impl::getLabelAndOverridenFilename(QString const& file_path, int page, int& label, QString& overriden_filename) const
 {
 	QMutexLocker const locker(&m_mutex);
 
-	ItemsByFilePath::iterator const fp_it(m_itemsByFilePath.find(file_path));
+    ItemsByFilePath::iterator const fp_it(m_itemsByFilePath.find(boost::make_tuple(file_path, page)));
 	if (fp_it != m_itemsByFilePath.end()) {
-		return fp_it->label;
+        label = fp_it->label;
+        overriden_filename = fp_it->overridenFileName;
+        return true;
 	}
 
-	return 0;
+    return false;
 }
 
 int
-FileNameDisambiguator::Impl::registerFile(QString const& file_path)
+FileNameDisambiguator::Impl::registerFile(QString const& file_path, int page_num, QString const& overriden_filename)
 {
 	QMutexLocker const locker(&m_mutex);
 
-	ItemsByFilePath::iterator const fp_it(m_itemsByFilePath.find(file_path));
+    ItemsByFilePath::iterator const fp_it(m_itemsByFilePath.find(boost::make_tuple(file_path, page_num)));
 	if (fp_it != m_itemsByFilePath.end()) {
 		return fp_it->label;
 	}
@@ -243,19 +257,19 @@ FileNameDisambiguator::Impl::registerFile(QString const& file_path)
 
 	QString const file_name(QFileInfo(file_path).fileName());
 	ItemsByFileNameLabel::iterator const fn_it(
-		m_itemsByFileNameLabel.upper_bound(boost::make_tuple(file_name))
+        m_itemsByFileNameLabel.upper_bound(boost::make_tuple(file_name, page_num))
 	);	
 	// If the item preceding fn_it has the same file name,
 	// the new file belongs to the same disambiguation group.
 	if (fn_it != m_itemsByFileNameLabel.begin()) {
 		ItemsByFileNameLabel::iterator prev(fn_it);
 		--prev;
-		if (prev->fileName == file_name) {
+        if (prev->fileName == file_name && prev->page == page_num) {
 			label = prev->label + 1;
 		}
 	} // Otherwise, label remains 0.
 	
-	Item const new_item(file_path, file_name, label);
+    Item const new_item(file_path, file_name, label, page_num, overriden_filename);
 	m_itemsByFileNameLabel.insert(fn_it, new_item);
 
 	return label;
@@ -269,7 +283,7 @@ FileNameDisambiguator::Impl::performRelinking(AbstractRelinker const& relinker)
 
 	for (Item const& item: m_unorderedItems) {
 		RelinkablePath const old_path(item.filePath, RelinkablePath::File);
-		Item new_item(relinker.substitutionPathFor(old_path), item.label);
+        Item new_item(relinker.substitutionPathFor(old_path), item.label, item.page, item.overridenFileName);
 		new_items.insert(new_item);
 	}
 
@@ -279,17 +293,20 @@ FileNameDisambiguator::Impl::performRelinking(AbstractRelinker const& relinker)
 
 /*============================ Impl::Item =============================*/
 
-FileNameDisambiguator::Impl::Item::Item(QString const& file_path, int lbl)
+FileNameDisambiguator::Impl::Item::Item(QString const& file_path, int lbl, int page_num, QString const& overriden_filename)
 :	filePath(file_path),
 	fileName(QFileInfo(file_path).fileName()),
-	label(lbl)
+    label(lbl),
+    page(page_num),
+    overridenFileName(overriden_filename)
 {
 }
 
-FileNameDisambiguator::Impl::Item::Item(
-	QString const& file_path, QString const& file_name, int lbl)
+FileNameDisambiguator::Impl::Item::Item(QString const& file_path, QString const& file_name, int lbl, int page_num, const QString &overriden_filename)
 :	filePath(file_path),
 	fileName(file_name),
-	label(lbl)
+    label(lbl),
+    page(page_num),
+    overridenFileName(overriden_filename)
 {
 }
