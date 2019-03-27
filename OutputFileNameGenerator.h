@@ -50,6 +50,8 @@ public:
 	QString fileNameFor(PageId const& page) const;
 
 	QString filePathFor(PageId const& page) const;
+
+    QString suggestOverridenFileName(QStringList const& insert_to_filenames, bool after) const;
 private:
 	IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
 	QString m_outDir;

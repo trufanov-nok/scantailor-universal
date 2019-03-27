@@ -71,5 +71,6 @@
         <file>icons/gimp-tool-rotate-r.png</file>
         <file>icons/gimp-tool-rotate.png</file>
         <file>icons/gimp-tool-rotate-no.png</file>
+        <file>images/empty-page.png</file>
     </qresource>
 </RCC>

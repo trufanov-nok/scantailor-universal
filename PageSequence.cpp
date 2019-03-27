@@ -67,6 +67,18 @@ PageSequence::asPageIdSet() const
     return selection;
 }
 
+std::vector<PageId>
+PageSequence::asPageIdVector() const
+{
+    std::vector<PageId> selection;
+
+    for (PageInfo const& page_info: m_pages) {
+        selection.push_back(page_info.id());
+    }
+
+    return selection;
+}
+
 //std::set<PageId>
 //PageSequence::selectPagePlusFollowers(PageId const& page) const
 //{

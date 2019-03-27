@@ -319,10 +319,13 @@ private:
 	void showInsertFileDialog(
 		BeforeOrAfter before_or_after, ImageId const& existig);
 
+    void showInsertEmptyPageDialog(
+        BeforeOrAfter before_or_after, PageId const& existing_page);
+
 	void showRemovePagesDialog(std::set<PageId> const& pages);
 	
-	void insertImage(ImageInfo const& new_image,
-		BeforeOrAfter before_or_after, ImageId existing);
+    void insertImage(ImageInfo const& new_image,
+        BeforeOrAfter before_or_after, ImageId existing, const QString &overriden_filename = QString());
 
 	void removeFromProject(std::set<PageId> const& pages);
 

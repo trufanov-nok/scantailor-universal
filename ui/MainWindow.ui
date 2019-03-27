@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>783</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
@@ -318,7 +318,7 @@
           <x>0</x>
           <y>0</y>
           <width>256</width>
-          <height>187</height>
+          <height>185</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -823,6 +823,36 @@
    </property>
    <property name="shortcut">
     <string notr="true">Alt+PgUp</string>
+   </property>
+  </action>
+  <action name="actionInsertEmptyPgBefore">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/icons/insert-before-16.png</normaloff>:/icons/insert-before-16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Insert before</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+B</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionInsertEmptyPgAfter">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/icons/insert-after-16.png</normaloff>:/icons/insert-after-16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Insert after</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

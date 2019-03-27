@@ -116,6 +116,17 @@ void QHotKeys::resetToDefaults()
     m_data.append(group_pages);
 
     data.clear();
+    data.append(HotKeyInfo(InsertEmptyPageBefore, QObject::tr("Insert empty page before"), KeysAndModifiers, HotKey,
+                               HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_B)));
+    data.append(HotKeyInfo(InsertEmptyPageAfter, QObject::tr("Insert empty page after"), KeysAndModifiers, HotKey,
+                               HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_A)));
+
+    HotKeyGroup group_pages_manipulation("page_manipulation", QObject::tr("Pages manipulation"));
+    group_pages_manipulation.setHotKeys(data);
+
+    m_data.append(group_pages_manipulation);
+
+    data.clear();
 
     data.append(HotKeyInfo(DeskewChange, QObject::tr("Change angle"), ModifierAllowed, MouseWheel,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));

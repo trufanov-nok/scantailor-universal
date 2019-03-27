@@ -66,6 +66,8 @@ enum HotKeysId {
     PagePrevSelected,
     PageNextSelected,
     ThumbSizeChange,
+    InsertEmptyPageBefore = 350,
+    InsertEmptyPageAfter,
     DeskewChange = 400,
     DeskewChangePrec,
     ContentMove = 500,

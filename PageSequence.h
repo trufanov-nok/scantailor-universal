@@ -40,6 +40,8 @@ public:
 
     std::set<PageId> asPageIdSet() const;
 
+    std::vector<PageId> asPageIdVector() const;
+
 //	std::set<PageId> selectPagePlusFollowers(PageId const& page) const;
 
 //	std::set<PageId> selectEveryOther(PageId const& base) const;

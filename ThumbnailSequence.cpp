@@ -208,7 +208,7 @@ private:
 	typedef multi_index_container<
 		Item,
 		indexed_by<
-			ordered_unique<
+            ordered_unique<
 				tag<ItemsByIdTag>,
 				const_mem_fun<Item, PageId const&, &Item::pageId>
 			>,
@@ -1817,11 +1817,15 @@ std::unique_ptr<ThumbnailSequence::LabelGroup>
 ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 {
 	PageId const& page_id = page_info.id();
-	QFileInfo const file_info(page_id.imageId().filePath());
+    QFileInfo const file_info(page_id.imageId().filePath());
 	QString const file_name(file_info.fileName());
 	
 	QString text(file_name);
-	if (page_info.imageId().isMultiPageFile()) {
+
+    // internally empty pages are represented as multipage image although they're just links to the same single page image in app resources
+    bool const is_empty_page = file_info.path().startsWith(":");
+
+    if (!is_empty_page && page_info.imageId().isMultiPageFile()) {
 		text = ThumbnailSequence::tr(
 			"%1 (page %2)"
 		).arg(file_name).arg(page_id.imageId().page());

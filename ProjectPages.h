@@ -89,6 +89,14 @@ public:
 	
 	int numImages() const;
 	
+    /**
+     * @brief returns maximum page number found in project for specified multipage image filepath
+     * @param filepath
+     * @return -1 if image not found, 0 for single page image files or max page number found in project otherwise
+     */
+
+    int getMaxPageNum(QString const& filepath) const;
+
 	/**
 	 * \brief Insert an image before or after the existing one.
 	 *
@@ -163,6 +171,8 @@ private:
 		ImageId const& image_id,
 		ImageMetadata const& metadata, bool* modified);
 	
+    int getMaxPageNumImpl(QString const& filepath) const;
+
 	std::vector<PageInfo> insertImageImpl(
 		ImageInfo const& new_image, BeforeOrAfter before_or_after,
 		ImageId const& existing, PageView view, bool& modified);
