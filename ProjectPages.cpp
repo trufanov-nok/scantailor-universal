@@ -295,17 +295,20 @@ ProjectPages::insertImage(
 	ImageId const& existing, PageView const view)
 {
 	bool was_modified = false;
-	
+    std::vector<PageInfo> res;
+
 	{
 		QMutexLocker locker(&m_mutex);
-		return insertImageImpl(
+        res = insertImageImpl(
 			new_image, before_or_after, existing, view, was_modified
 		);
 	}
-	
-	if (was_modified) {
-		emit modified();
-	}
+
+    if (was_modified) {
+        emit modified();
+    }
+
+    return res;
 }
 
 void
@@ -542,6 +545,7 @@ ProjectPages::insertImageImpl(
 	ImageInfo const& new_image, BeforeOrAfter before_or_after,
 	ImageId const& existing, PageView const view, bool& modified)
 {	
+    modified = false;
 	std::vector<PageInfo> logical_pages;
 
 	std::vector<ImageDesc>::iterator it(m_images.begin());
@@ -573,6 +577,7 @@ ProjectPages::insertImageImpl(
 	}
 
 	m_images.insert(it, image_desc);
+    modified = true;
 	
 	PageInfo page_info_templ(
 		PageId(new_image.id(), PageId::SINGLE_PAGE),
