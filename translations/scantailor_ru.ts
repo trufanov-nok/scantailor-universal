@@ -391,7 +391,7 @@ Do you want to replace it?</source>
     <message>
         <location filename="../ui/ExportDialog.ui" line="86"/>
         <source>Generate blank background subscans</source>
-        <translation>Создавать пустой файл ч/б контента даже если его нет на скане</translation>
+        <translation>Создавать пустой файл для не ч/б контента даже если его нет на скане</translation>
     </message>
     <message>
         <location filename="../ui/ExportDialog.ui" line="93"/>
@@ -407,7 +407,7 @@ Do you want to replace it?</source>
         <location filename="../ui/ExportDialog.ui" line="103"/>
         <source>Keep the original color and illumination in foreground subscans (lengthy)</source>
         <translation>Игнорировать все настройки цвета и освещения для не ч/б контента
-(замет больше времени при экспорте)</translation>
+(займет больше времени при экспорте)</translation>
     </message>
     <message>
         <location filename="../ui/ExportDialog.ui" line="150"/>
