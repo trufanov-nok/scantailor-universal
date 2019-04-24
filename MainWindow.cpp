@@ -1333,6 +1333,10 @@ MainWindow::pageContextMenuRequested(
     menu_ins_empty->addAction(actionInsertEmptyPgBefore);
     menu_ins_empty->addAction(actionInsertEmptyPgAfter);
 
+    QAction* rename_output = menu.addAction(
+        tr("Rename result filename...")
+    );
+
     menu.addSeparator();
 
     QAction* remove = menu.addAction(
@@ -1407,6 +1411,8 @@ MainWindow::pageContextMenuRequested(
         showInsertFileDialog(BEFORE, page_info.imageId());
     } else if (action == ins_after) {
         showInsertFileDialog(AFTER, page_info.imageId());
+    } else if (action == rename_output) {
+        showRenameResultFileDialog(page_info);
     } else if (action == remove) {
         showRemovePagesDialog(m_ptrThumbSequence->selectedItems());
     } else if (regenerate_action_added && action == regenerate) {
@@ -2972,6 +2978,58 @@ MainWindow::showInsertEmptyPageDialog(BeforeOrAfter before_or_after, const PageI
 }
 
 void
+MainWindow::showRenameResultFileDialog(PageInfo const& page_info)
+{
+    QString old_filepath = m_outFileNameGen.filePathFor(page_info.id());
+    QFileInfo fi(old_filepath);
+    old_filepath = fi.absoluteFilePath();
+    const QString old_filename = fi.fileName();
+    const QString old_base_filename = fi.completeBaseName();
+
+    QInputDialog dlg(this);
+    const QString title(tr("Overwrite default file name for resulting image"));
+    dlg.setWindowTitle(title);
+    dlg.setLabelText(tr("Here you may overwrite default resulting image file name\nthat will be generated for this page. It may be\nhelpful to keep the right alphabetical order of files in out subfolder."));
+    dlg.setInputMode(QInputDialog::InputMode::TextInput);
+
+    dlg.setTextValue(old_base_filename);
+
+
+
+    QLineEdit* le = dlg.findChild<QLineEdit*>(QString(), Qt::FindChildrenRecursively);
+    if (le) {
+        le->setPlaceholderText(old_base_filename);
+    }
+    if (dlg.exec() == QDialog::Accepted) {
+        const QString new_base_filename = dlg.textValue();
+        const QString new_filename = new_base_filename + ".tif";
+        fi.setFile(fi.path() + QDir::separator() + new_filename);
+        const QString new_filepath = fi.absoluteFilePath();
+        if (old_filepath != new_filepath) {
+            QFile nf(new_filepath);
+            if (nf.exists()) {
+                if (QMessageBox::question(this, title, tr("File %1 already exists in out subfolder.\nWould you like to replace it?").arg(new_filename)) == QMessageBox::Yes) {
+                    if (!nf.remove()) {
+                        QMessageBox::critical(this, title, tr("Can't remove file %1!\nCancelling...").arg(new_filename));
+                        return;
+                    };
+                }
+            }
+            QFile of(old_filepath);
+            if (of.exists()) {
+                if (!of.rename(new_filepath)) {
+                    QMessageBox::critical(this, title, tr("Can't rename file %1!\nCancelling...").arg(old_filename));
+                    return;
+                }
+            }
+        }
+
+        ImageId imgid = page_info.imageId();
+        m_outFileNameGen.disambiguator()->registerFile(imgid.filePath(), imgid.page(), &new_base_filename);
+    }
+}
+
+void
 MainWindow::showRemovePagesDialog(std::set<PageId> const& pages)
 {
     std::unique_ptr<QDialog> dialog(new QDialog(this));
@@ -3012,7 +3070,7 @@ MainWindow::insertImage(ImageInfo const& new_image,
 
     for (PageInfo const& page_info: pages) {
         ImageId imgid = page_info.imageId();
-        m_outFileNameGen.disambiguator()->registerFile(imgid.filePath(), imgid.page(), overriden_filename);
+        m_outFileNameGen.disambiguator()->registerFile(imgid.filePath(), imgid.page(), &overriden_filename);
         m_ptrThumbSequence->insert(page_info, before_or_after, existing);
         existing = page_info.imageId();
     }
