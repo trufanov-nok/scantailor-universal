@@ -80,7 +80,7 @@ public:
 
     bool getLabelAndOverridenFilename(QString const& file_path, int page, int& label, QString &overriden_filename) const;
 
-    int registerFile(QString const& file_path, int page_num = 0, QString const& overriden_filename = QString());
+    int registerFile(QString const& file_path, int page_num = 0, const QString *overriden_filename = nullptr);
 
 	void performRelinking(AbstractRelinker const& relinker);
 private:

@@ -322,6 +322,8 @@ private:
     void showInsertEmptyPageDialog(
         BeforeOrAfter before_or_after, PageId const& existing_page);
 
+    void showRenameResultFileDialog(const PageInfo &page_info);
+
 	void showRemovePagesDialog(std::set<PageId> const& pages);
 	
     void insertImage(ImageInfo const& new_image,

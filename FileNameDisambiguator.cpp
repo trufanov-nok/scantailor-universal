@@ -48,7 +48,7 @@ public:
 
     bool getLabelAndOverridenFilename(QString const& file_path, int page, int& label, QString& overriden_filename) const;
 
-    int registerFile(QString const& file_path, int page_num = 0, const QString &overriden_filename = QString());
+    int registerFile(QString const& file_path, int page_num = 0, const QString *overriden_filename = nullptr);
 
 	void performRelinking(AbstractRelinker const& relinker);
 private:
@@ -147,7 +147,7 @@ FileNameDisambiguator::getLabelAndOverridenFilename(QString const& file_path, in
 }
 
 int
-FileNameDisambiguator::registerFile(QString const& file_path, int page_num, QString const& overriden_filename)
+FileNameDisambiguator::registerFile(QString const& file_path, int page_num, QString const* overriden_filename)
 {
     return m_ptrImpl->registerFile(file_path, page_num, overriden_filename);
 }
@@ -221,7 +221,9 @@ FileNameDisambiguator::Impl::toXml(
 		file_el.setAttribute("file", file_path_shorthand);
 		file_el.setAttribute("label", item.label);
         file_el.setAttribute("page", item.page);
-        file_el.setAttribute("overriden", item.overridenFileName);
+        if (!item.overridenFileName.isEmpty()) {
+            file_el.setAttribute("overriden", item.overridenFileName);
+        }
 		el.appendChild(file_el);
 	}
 
@@ -244,12 +246,15 @@ FileNameDisambiguator::Impl::getLabelAndOverridenFilename(QString const& file_pa
 }
 
 int
-FileNameDisambiguator::Impl::registerFile(QString const& file_path, int page_num, QString const& overriden_filename)
+FileNameDisambiguator::Impl::registerFile(QString const& file_path, int page_num, QString const* overriden_filename)
 {
 	QMutexLocker const locker(&m_mutex);
 
-    ItemsByFilePath::iterator const fp_it(m_itemsByFilePath.find(boost::make_tuple(file_path, page_num)));
-	if (fp_it != m_itemsByFilePath.end()) {
+    ItemsByFilePath::iterator fp_it(m_itemsByFilePath.find(boost::make_tuple(file_path, page_num)));
+    if (fp_it != m_itemsByFilePath.end()) {
+        if (overriden_filename && fp_it->overridenFileName != *overriden_filename) {
+            fp_it.get_node()->value().overridenFileName = *overriden_filename;
+        }
 		return fp_it->label;
 	}
 
@@ -268,8 +273,8 @@ FileNameDisambiguator::Impl::registerFile(QString const& file_path, int page_num
 			label = prev->label + 1;
 		}
 	} // Otherwise, label remains 0.
-	
-    Item const new_item(file_path, file_name, label, page_num, overriden_filename);
+
+    Item const new_item(file_path, file_name, label, page_num, overriden_filename? *overriden_filename : QString());
 	m_itemsByFileNameLabel.insert(fn_it, new_item);
 
 	return label;
