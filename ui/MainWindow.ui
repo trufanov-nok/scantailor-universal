@@ -831,13 +831,10 @@
      <normaloff>:/icons/insert-before-16.png</normaloff>:/icons/insert-before-16.png</iconset>
    </property>
    <property name="text">
-    <string>Insert before</string>
+    <string notr="true">Insert before	Ctrl+Shift+B</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+B</string>
-   </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
    </property>
   </action>
   <action name="actionInsertEmptyPgAfter">
@@ -846,13 +843,10 @@
      <normaloff>:/icons/insert-after-16.png</normaloff>:/icons/insert-after-16.png</iconset>
    </property>
    <property name="text">
-    <string>Insert after</string>
+    <string notr="true">Insert after	Ctrl+Shift+A</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
-   </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>true</bool>
    </property>
   </action>
  </widget>
