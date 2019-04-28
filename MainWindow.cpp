@@ -3604,8 +3604,27 @@ MainWindow::applyShortcutsSettings()
     actionCloseProject->setShortcut(GlobalStaticSettings::createShortcut(ProjectClose));
     actionQuit->setShortcut(GlobalStaticSettings::createShortcut(AppQuit));
 
-    actionInsertEmptyPgBefore->setShortcut(GlobalStaticSettings::createShortcut(InsertEmptyPageBefore));
-    actionInsertEmptyPgAfter->setShortcut(GlobalStaticSettings::createShortcut(InsertEmptyPageAfter));
+
+    actionInsertEmptyPgBefore->setText(tr("Insert before"));
+    QKeySequence k_seq = GlobalStaticSettings::createShortcut(InsertEmptyPageBefore);
+    if (actionInsertEmptyPgBefore->property("shortcutVisibleInContextMenu").isValid()) {
+        // shortcutVisibleInContextMenu available in Qt 5.10+
+        actionInsertEmptyPgBefore->setProperty("shortcutVisibleInContextMenu", QVariant(true));
+    } else {
+        actionInsertEmptyPgBefore->setText(actionInsertEmptyPgBefore->text() + "/t" + k_seq.toString());
+    }
+    actionInsertEmptyPgBefore->setShortcut(k_seq);
+
+
+    actionInsertEmptyPgAfter->setText(tr("Insert after"));
+    k_seq = GlobalStaticSettings::createShortcut(InsertEmptyPageAfter);
+    if (actionInsertEmptyPgAfter->property("shortcutVisibleInContextMenu").isValid()) {
+        // shortcutVisibleInContextMenu available in Qt 5.10+
+        actionInsertEmptyPgAfter->setProperty("shortcutVisibleInContextMenu", QVariant(true));
+    } else {
+        actionInsertEmptyPgAfter->setText(actionInsertEmptyPgAfter->text() + "/t" + k_seq.toString());
+    }
+    actionInsertEmptyPgAfter->setShortcut(k_seq);
 
     actionSwitchFilter1->setShortcut(GlobalStaticSettings::createShortcut(StageFixOrientation));
     actionSwitchFilter2->setShortcut(GlobalStaticSettings::createShortcut(StageSplitPages));

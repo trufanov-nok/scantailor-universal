@@ -140,9 +140,9 @@ OutputFileNameGenerator::suggestOverridenFileName(QStringList const& insert_to_f
         const QString old_name = insert_to_filenames.first();
         QString new_name = old_name;
         while (new_name != QStringLiteral("&")) {
-            QChar char_to_test = new_name.back();
-            if (char_to_test > alph.back()) {
-                char_to_test = alph.back();
+			QChar char_to_test = *new_name.rbegin();
+			if (char_to_test > *alph.rbegin()) {
+				char_to_test = *alph.rbegin();
             }
 
             int i = alph.indexOf(char_to_test);
