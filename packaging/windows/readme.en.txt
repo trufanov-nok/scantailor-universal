@@ -11,7 +11,9 @@ features, making Visual Studio versions below 2013 not supported.
 First, download the following software.  Unless stated otherwise, take the
 latest stable version.
 
-1. Visual Studio Express 2013 for Windows Desktop.
+1. Visual Studio Express 2013 for Windows Desktop. (You'll need Update 5 version or upgrade
+   VS 2013 to Update 5 version. As this update fixes some bugs that could lead to failure while
+   boost library compilation).
    Homepage: http://www.microsoft.com/visualstudio/eng/products/visual-studio-express-products
 2. CMake >= 2.8.9
    Homepage: http://www.cmake.org
@@ -35,7 +37,7 @@ latest stable version.
    The process of patching libtiff is described later in this document.
    If you aren't going to distribute your Scan Tailor build and aren't going
    to open files from untrusted sources, then you don't really need patching it.
-7. Qt 5.x.x (tested with 5.1.1)
+7. Qt 5.x.x (tested with 5.7.1)
    Homepage: http://qt-project.org/
    Either a source-only or any of the binary versions will do. In either case
    a custom build of Qt will be made, though a binary version will result in
@@ -45,7 +47,7 @@ latest stable version.
    A 32-bit version is suggested. Whether or not 64-bit version would work
    is unclear. When installing make sure that "Add Perl to the PATH environment
    variable" option is set.
-9. Boost (tested with 1.55.0)
+9. Boost (tested with 1.70.0)
    Homepage: http://boost.org/
    You can download it in any file format, provided you know how to unpack it.
 10. NSIS 2.x (tested with 2.46)
@@ -61,12 +63,12 @@ latest stable version.
    itself to the build directory.  You should get a directory structure like
    this:
    C:\build
-	 | boost_1_55_0
-     | jpeg-9
-     | libpng-1.6.2
+     | boost_1_70_0
+     | jpeg-9c
+     | libpng-1.6.37
      | scantailor-0.10.0
-     | tiff-4.0.2
-     | zlib-1.2.8
+     | tiff-4.0.10
+     | zlib-1.2.11
 
    If you went for a source-only version of Qt, unpack it here as well.
    Otherwise, install Qt into whatever directory its installer suggests.
@@ -145,8 +147,8 @@ latest stable version.
 These instructions assume you've got Debian's patches for libtiff from:
 http://packages.debian.org/source/sid/tiff
 There you will find both the original libtiff sources (filename like
-tiff_4.0.2orig.tar.gz) and a patch set for it (filename like
-tiff_4.0.2-6.debian.tar.gz).  Download both and follow the instructions:
+tiff_4.0.10orig.tar.gz) and a patch set for it (filename like
+tiff_4.0.10-6.debian.tar.gz).  Download both and follow the instructions:
 
 1. Get the command line patch utility from here:
    http://gnuwin32.sourceforge.net/packages/patch.htm
@@ -157,7 +159,7 @@ tiff_4.0.2-6.debian.tar.gz).  Download both and follow the instructions:
 2. Extract the original libtiff sources into C:\build to get a directory
    structure like this:
    C:\build
-     | tiff-4.0.2
+     | tiff-4.0.10
      +-- build
        | config
        | contrib
