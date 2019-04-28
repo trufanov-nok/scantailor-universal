@@ -759,26 +759,6 @@ Cancelling...</source>
         <translation>стр. %1</translation>
     </message>
     <message>
-        <source>px</source>
-        <translation type="vanished">px</translation>
-    </message>
-    <message>
-        <source>in</source>
-        <translation type="vanished">in</translation>
-    </message>
-    <message>
-        <source>mm</source>
-        <translation type="vanished">мм</translation>
-    </message>
-    <message>
-        <source>cm</source>
-        <translation type="vanished">см</translation>
-    </message>
-    <message>
-        <source>%1 x %2 %3</source>
-        <translation type="vanished">%1 x %2 %3</translation>
-    </message>
-    <message>
         <location filename="../MainWindow.cpp" line="3567"/>
         <source>%1, %2</source>
         <translation>%1, %2</translation>
@@ -1061,18 +1041,18 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="834"/>
-        <source>Insert before</source>
-        <translation type="unfinished">Вставить перед</translation>
+        <source>Insert before	Ctrl+Shift+B</source>
+        <translation type="unfinished">Вставка пустой страницы до	Ctrl+Shift+B</translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.ui" line="849"/>
+        <source>Insert after	Ctrl+Shift+A</source>
+        <translation type="unfinished">Вставка пустой страницы после	Ctrl+Shift+A</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="837"/>
         <source>Ctrl+Shift+B</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/MainWindow.ui" line="849"/>
-        <source>Insert after</source>
-        <translation type="unfinished">Вставить после</translation>
     </message>
     <message>
         <location filename="../ui/MainWindow.ui" line="852"/>
@@ -1842,21 +1822,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QCoreApplication</name>
-    <message>
-        <source>Natural order</source>
-        <translation type="vanished">Естественный порядок</translation>
-    </message>
-    <message>
-        <source>Order by mode</source>
-        <translation type="vanished">Сортировка по режиму</translation>
-    </message>
-    <message>
-        <source>Grayscale sources on top</source>
-        <translation type="vanished">Чёрно-белые исходники сверху</translation>
-    </message>
-</context>
-<context>
     <name>QHotKeyInputDialog</name>
     <message>
         <location filename="../SettingsDialog.cpp" line="739"/>
@@ -2020,6 +1985,16 @@ and press [Enter] to edit the shortcut:</source>
         <translation>Переход между страницами</translation>
     </message>
     <message>
+        <location filename="../settings/hotkeysmanager.cpp" line="119"/>
+        <source>Insert empty page before</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settings/hotkeysmanager.cpp" line="121"/>
+        <source>Insert empty page after</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../settings/hotkeysmanager.cpp" line="131"/>
         <source>Change angle</source>
         <translation>Изменение угла</translation>
@@ -2058,16 +2033,6 @@ and press [Enter] to edit the shortcut:</source>
         <location filename="../settings/hotkeysmanager.cpp" line="148"/>
         <source>Create zone</source>
         <translation>Создать зону</translation>
-    </message>
-    <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="119"/>
-        <source>Insert empty page before</source>
-        <translation type="unfinished">Вставка пустой страницы до</translation>
-    </message>
-    <message>
-        <location filename="../settings/hotkeysmanager.cpp" line="121"/>
-        <source>Insert empty page after</source>
-        <translation type="unfinished">Вставка пустой страницы после</translation>
     </message>
     <message>
         <location filename="../settings/hotkeysmanager.cpp" line="124"/>
@@ -2459,10 +2424,6 @@ and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished">По абсолютной величине угла</translation>
     </message>
     <message>
-        <source>angle: %1</source>
-        <translation type="obsolete">угол: %1</translation>
-    </message>
-    <message>
         <location filename="../filters/output/OrderByModeProvider.cpp" line="71"/>
         <source>b/w</source>
         <translation type="unfinished">ч/б</translation>
@@ -2792,14 +2753,6 @@ and press [Enter] to edit the shortcut:</source>
         <location filename="../ui/SettingsDialog.ui" line="4097"/>
         <source>Description</source>
         <translation>Описание</translation>
-    </message>
-    <message>
-        <source>Application language - allows to switch the language of the interface. If there is no language you need and you can help us with translation please contact the project maintainer.
-
-Batch processing - a simple dialog that appears if you press the launch button and allows you to start page processing from the beginning instead of a current page.</source>
-        <translation type="obsolete">Язык интерфейса - позволяет переключать язык приложения. Изменения вступают в силу без перезапуска приложения.
-
-Пакетная обработка - простой диалог, который появляется, если вы нажимаете кнопку пакетной обработки рядом с названием этапа обработки. Он позволяет вам выбрать, какие именно страницы будут обработаны: с первой по последнюю или с текущей по последнюю.</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="314"/>
@@ -3667,18 +3620,6 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <source>Warning</source>
-        <translation type="vanished">Предупреждение</translation>
-    </message>
-    <message>
-        <source>The file</source>
-        <translation type="vanished">Файл</translation>
-    </message>
-    <message>
-        <source>is not ready for output.</source>
-        <translation type="vanished">еще не обработан и не может быть экспортирован.</translation>
-    </message>
-    <message>
         <location filename="../ThumbnailSequence.cpp" line="1657"/>
         <source>You are going to cancel %1 pages selection.
 Sometimes this could happen accidentally due to misclicks.
@@ -3829,10 +3770,6 @@ Continue?</source>
 </context>
 <context>
     <name>deskew::OptionsWidget</name>
-    <message>
-        <source>Apply Deskew</source>
-        <translation type="vanished">Применить наклон</translation>
-    </message>
     <message>
         <location filename="../filters/deskew/OptionsWidget.cpp" line="72"/>
         <source>Apply Deskew parameters</source>
