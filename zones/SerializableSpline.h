@@ -52,6 +52,8 @@ public:
 		boost::function<QPointF(QPointF const&)> const& xform) const;
 
     QPolygonF toPolygon() const { return QPolygonF(m_points); }
+
+    const QVector<QPointF>& points() const { return m_points; }
 private:
 	QVector<QPointF> m_points;
 };

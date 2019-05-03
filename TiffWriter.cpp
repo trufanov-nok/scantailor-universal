@@ -92,8 +92,8 @@ private:
 
 static tsize_t deviceRead(thandle_t context, tdata_t data, tsize_t size)
 {
-	// Not implemented.
-	return 0;
+    QIODevice* dev = (QIODevice*)context;
+    return (tsize_t)dev->read(static_cast<char*>(data), size);
 }
 
 static tsize_t deviceWrite(thandle_t context, tdata_t data, tsize_t size)
@@ -146,18 +146,18 @@ static void deviceUnmap(thandle_t, tdata_t, toff_t)
 }
 
 bool
-TiffWriter::writeImage(QString const& file_path, QImage const& image, int compression)
+TiffWriter::writeImage(QString const& file_path, QImage const& image, bool multipage, int page_no, int compression)
 {
 	if (image.isNull()) {
 		return false;
 	}
 	
 	QFile file(file_path);
-	if (!file.open(QFile::WriteOnly)) {
+    if (!file.open(QFile::ReadWrite)) {
 		return false;
 	}
 	
-	if (!writeImage(file, image, compression)) {
+    if (!writeImage(file, image, multipage, page_no, compression)) {
 		file.remove();
 		return false;
 	}
@@ -166,7 +166,7 @@ TiffWriter::writeImage(QString const& file_path, QImage const& image, int compre
 }
 
 bool
-TiffWriter::writeImage(QIODevice& device, QImage const& image, int compression)
+TiffWriter::writeImage(QIODevice& device, QImage const& image, bool multipage, int page_no, int compression)
 {
 	if (image.isNull()) {
 		return false;
@@ -179,11 +179,12 @@ TiffWriter::writeImage(QIODevice& device, QImage const& image, int compression)
 		return false;
 	}
 	
+    const QString open_mode = (multipage && page_no > 0) ? "aBm" :"wBm";
 	TiffHandle tif(
 		TIFFClientOpen(
 			// Libtiff seems to be buggy with L or H flags,
 			// so we use B.
-			"file", "wBm", &device, &deviceRead, &deviceWrite,
+            "file", open_mode.toStdString().c_str(), &device, &deviceRead, &deviceWrite,
 			&deviceSeek, &deviceClose, &deviceSize,
 			&deviceMap, &deviceUnmap
 		)
@@ -191,6 +192,11 @@ TiffWriter::writeImage(QIODevice& device, QImage const& image, int compression)
 	if (!tif.handle()) {
 		return false;
 	}
+
+    if (multipage) {
+        TIFFSetField(tif.handle(), TIFFTAG_PAGENUMBER, page_no, page_no);
+        TIFFSetField(tif.handle(), TIFFTAG_SUBFILETYPE, FILETYPE_PAGE);
+    }
 	
 	TIFFSetField(tif.handle(), TIFFTAG_IMAGEWIDTH, uint32(image.width()));
 	TIFFSetField(tif.handle(), TIFFTAG_IMAGELENGTH, uint32(image.height()));
@@ -260,7 +266,7 @@ TiffWriter::setDpm(TiffHandle const& tif, Dpm const& dpm)
 
 bool
 TiffWriter::writeBitonalOrIndexed8Image(
-	TiffHandle const& tif, QImage const& image, int compression)
+    TiffHandle const& tif, QImage const& image, bool multipage, int compression)
 {
 	TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16(1));
 	
@@ -322,19 +328,30 @@ TiffWriter::writeBitonalOrIndexed8Image(
 	}
 	
 	if (image.format() == QImage::Format_Indexed8) {
-		return write8bitLines(tif, image);
+        if (!write8bitLines(tif, image)) {
+            return false;
+        }
 	} else {
 		if (image.format() == QImage::Format_MonoLSB) {
-			return writeBinaryLinesReversed(tif, image);
+            if (!writeBinaryLinesReversed(tif, image)) {
+                return false;
+            }
 		} else {
-			return writeBinaryLinesAsIs(tif, image);
+            if (!writeBinaryLinesAsIs(tif, image)) {
+                return false;
+            }
 		}
 	}
+
+    if (multipage && (TIFFWriteDirectory(tif.handle()) == -1)) {
+        return false;
+    }
+    return true;
 }
 
 bool
 TiffWriter::writeRGB32Image(
-	TiffHandle const& tif, QImage const& image, int compression)
+    TiffHandle const& tif, QImage const& image, bool multipage, int compression)
 {
 	assert(image.format() == QImage::Format_RGB32);
 	
@@ -368,13 +385,18 @@ TiffWriter::writeRGB32Image(
 			return false;
 		}
 	}
-	
+
+
+    if (multipage && (TIFFWriteDirectory(tif.handle()) == -1)) {
+        return false;
+    }
+
 	return true;
 }
 
 bool
 TiffWriter::writeARGB32Image(
-	TiffHandle const& tif, QImage const& image, int compression)
+    TiffHandle const& tif, QImage const& image, bool multipage, int compression)
 {
 	assert(image.format() == QImage::Format_ARGB32);
 	
@@ -409,6 +431,10 @@ TiffWriter::writeARGB32Image(
 			return false;
 		}
 	}
+
+    if (multipage && (TIFFWriteDirectory(tif.handle()) == -1)) {
+        return false;
+    }
 	
 	return true;
 }

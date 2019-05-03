@@ -43,6 +43,8 @@
 #include "ImageViewTab.h"
 #include "OrderByModeProvider.h"
 #include "OrderBySourceColor.h"
+#include "version.h"
+#include "FillColorProperty.h"
 
 namespace output
 {
@@ -206,10 +208,10 @@ Filter::createTask(
 	bool const batch, bool const debug,	
 	bool keep_orig_fore_subscan,
 //Original_Foreground_Mixed
-	QImage* p_orig_fore_subscan)
+    QImage* p_orig_fore_subscan)
 {
 	ImageViewTab lastTab(TAB_OUTPUT);
-	if (m_ptrOptionsWidget.get() != 0)
+    if (m_ptrOptionsWidget.get() != nullptr)
 		lastTab = m_ptrOptionsWidget->lastTab();
 	return IntrusivePtr<Task>(
 		new Task(
@@ -218,7 +220,7 @@ Filter::createTask(
             lastTab, batch, debug,
 			keep_orig_fore_subscan, 
 //Original_Foreground_Mixed
-			p_orig_fore_subscan
+            p_orig_fore_subscan
 		)
 	);
 }
@@ -256,6 +258,58 @@ Filter::invalidateSetting(PageId const& page)
   Params p = m_ptrSettings->getParams(page);
   p.setForceReprocess(Params::RegenerateAll);
   m_ptrSettings->setParams(page, p);
+}
+
+QString zone2Coords(const Zone& zone)
+{
+    QString res;
+    for (const QPointF& p: zone.spline().points()) {
+        if (!res.isEmpty()) {
+            res += "\t";
+        }
+        res += QString("%1, %2").arg(p.x()).arg(p.y());
+    }
+    return res;
+}
+
+QStringList exportZonesInfo(ZoneSet const& picture_zones, ZoneSet const& fill_zones)
+{
+    QStringList res;
+    if (picture_zones.empty() && fill_zones.empty()) {
+        return res;
+    }
+
+    res.append(QString("; STU ").append(VERSION));
+    res.append("; Format: Type[tab]Info[tab]x1, y1<...>[tab]xN, yN");
+    res.append("; Types: 0 - layer zone (has Mode in Info field), 1 - fill zone (has Color in Info field)");
+    res.append("; Mode : 1 - subtract from auto layer, 2 - add to auto layer, 3 - subtract from all layers");
+    res.append("; Color: has format #RRGGBB/n");
+
+
+    for(const Zone& z: picture_zones) {
+        QString info = "0\t" +
+                QString::number((int) z.properties().locateOrDefault<output::PictureLayerProperty>()->layer()) + "\t" +
+                zone2Coords(z);
+        res.append(info);
+    }
+
+
+    for(const Zone& z: fill_zones) {
+        QColor const color(z.properties().locateOrDefault<output::FillColorProperty>()->color());
+        QString info = "1\t" + color.name().toUpper() + "\t" + zone2Coords(z);
+        res.append(info);
+
+
+    }
+    return res;
+}
+
+QStringList
+Filter::getZonesInfo(const PageId& id) const
+{
+    ZoneSet const new_picture_zones(m_ptrSettings->pictureZonesForPage(id));
+    ZoneSet const new_fill_zones(m_ptrSettings->fillZonesForPage(id));
+    return exportZonesInfo(new_picture_zones, new_fill_zones);
 }
 
 } // namespace output

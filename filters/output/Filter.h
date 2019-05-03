@@ -70,16 +70,15 @@ public:
 
     virtual void invalidateSetting(PageId const& page);
 	
-	IntrusivePtr<Task> createTask(
-		PageId const& page_id,
-		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		OutputFileNameGenerator const& out_file_name_gen,
+    IntrusivePtr<Task> createTask(PageId const& page_id,
+        IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+        OutputFileNameGenerator const& out_file_name_gen,
 //begin of modified by monday2000
 //Original_Foreground_Mixed
-		//bool batch, bool debug);
+        //bool batch, bool debug);
         bool batch, bool debug,
-		bool keep_orig_fore_subscan = false, 
-		QImage* p_orig_fore_subscan = nullptr);
+        bool keep_orig_fore_subscan = false,
+        QImage* p_orig_fore_subscan = nullptr);
 //end of modified by monday2000
 
 	IntrusivePtr<CacheDrivenTask> createCacheDrivenTask(
@@ -87,6 +86,7 @@ public:
 	
     OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); }
     Settings* getSettings() { return m_ptrSettings.get(); }
+    QStringList getZonesInfo(const PageId& id) const;
 
     virtual std::vector<PageOrderOption> pageOrderOptions() const;
     virtual int selectedPageOrder() const;

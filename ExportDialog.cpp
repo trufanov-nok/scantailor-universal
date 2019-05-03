@@ -34,10 +34,7 @@ ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
 :	QDialog(parent), m_defaultOutDir(defaultOutDir)
 {
 	ui.setupUi(this);
-
-	QSettings settings;
 	
-	connect(ui.SplitMixed, SIGNAL(toggled(bool)), this, SLOT(OnCheckSplitMixed(bool)));
 	connect(ui.DefaultOutputFolder, SIGNAL(toggled(bool)), this, SLOT(OnCheckDefaultOutputFolder(bool)));
 	connect(ui.ExportButton, SIGNAL(clicked()), this, SLOT(OnClickExport()));
 
@@ -47,22 +44,31 @@ ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
 		this, SLOT(outExportDirEdited(QString const&))
 	);
 
-    ui.SplitMixed->setChecked(settings.value(_key_export_split_mixed).toBool());
-    ui.DefaultOutputFolder->setChecked(settings.value(_key_export_default_output_folder).toBool());
+    ExportModes mode = (ExportModes) m_settings.value(_key_export_split_mixed_settings, ExportMode::Foreground | ExportMode::Background).toInt();
+    ui.cbExportImage->setChecked(mode.testFlag(ExportMode::WholeImage));
+    ui.cbExportWithoutOutputStage->setChecked(mode.testFlag(ExportMode::ImageWithoutOutputStage));
+    ui.cbExportForeground->setChecked(mode.testFlag(ExportMode::Foreground));
+    ui.cbExportBackground->setChecked(mode.testFlag(ExportMode::Background));
+    ui.cbExportAutomask->setChecked(mode.testFlag(ExportMode::AutoMask));
+    ui.cbExportMask->setChecked(mode.testFlag(ExportMode::Mask));
+    ui.cbExportZones->setChecked(mode.testFlag(ExportMode::Zones));
+
+
+    ui.DefaultOutputFolder->setChecked(m_settings.value(_key_export_default_output_folder, true).toBool());
 	ui.labelFilesProcessed->clear();
 	ui.ExportButton->setText(tr("Export"));	
 	ui.OkButton->setText(tr("Close"));
-	//ui.tabWidget->setCurrentIndex(0);
+    ui.tabWidget->setCurrentIndex(0); // as I often forget to set this right in ui designer
 	//connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 
 	connect(ui.GenerateBlankBackSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckGenerateBlankBackSubscans(bool)));
     connect(ui.UseSepSuffixForPics, SIGNAL(toggled(bool)), this, SLOT(OnCheckUseSepSuffixForPics(bool)));
 	connect(ui.KeepOriginalColorIllumForeSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckKeepOriginalColorIllumForeSubscans(bool)));
 
-    ui.GenerateBlankBackSubscans->setChecked(settings.value(_key_export_generate_blank_subscans).toBool());
-    ui.UseSepSuffixForPics->setChecked(settings.value(_key_export_use_sep_suffix).toBool());
-    ui.KeepOriginalColorIllumForeSubscans->setChecked(settings.value(_key_export_keep_original_color).toBool());
-	//ui.KeepOriginalColorIllumForeSubscans->setVisible(false);
+    ui.GenerateBlankBackSubscans->setChecked(m_settings.value(_key_export_generate_blank_subscans).toBool());
+    ui.UseSepSuffixForPics->setChecked(m_settings.value(_key_export_use_sep_suffix).toBool());
+    ui.KeepOriginalColorIllumForeSubscans->setChecked(m_settings.value(_key_export_keep_original_color, false).toBool());
+    ui.cbMultipageOutput->setChecked(m_settings.value(_key_export_to_multipage, false).toBool());
 }
 
 ExportDialog::~ExportDialog()
@@ -70,19 +76,10 @@ ExportDialog::~ExportDialog()
 }
 
 void
-ExportDialog::OnCheckSplitMixed(bool state)
-{
-	QSettings settings;	
-
-    settings.setValue(_key_export_split_mixed, state);
-}
-
-void
 ExportDialog::OnCheckDefaultOutputFolder(bool state)
 {
-	QSettings settings;
 
-    settings.setValue(_key_export_default_output_folder, state);
+    m_settings.setValue(_key_export_default_output_folder, state);
     ui.groupBoxExport->setEnabled(!state);
     if (state) {
         m_prevOutDir = ui.outExportDirLine->text();
@@ -172,7 +169,7 @@ ExportDialog::setExportOutputDir(QString const& dir)
 }
 
 void
-ExportDialog::outExportDirEdited(QString const& text)
+ExportDialog::outExportDirEdited(QString const& /*text*/)
 {
 	m_autoOutDir = false;
 }
@@ -195,17 +192,52 @@ ExportDialog::StepProgress()
 void
 ExportDialog::startExport(void)
 {
-	QString export_dir_path = ui.outExportDirLine->text();
-	bool split_subscans = ui.SplitMixed->isChecked();
-	bool default_out_dir = ui.DefaultOutputFolder->isChecked();
-	bool generate_blank_back_subscans = ui.GenerateBlankBackSubscans->isChecked();
-    bool use_sep_suffix_for_pics = ui.UseSepSuffixForPics->isChecked();
-	bool keep_original_color_illum_fore_subscans = ui.KeepOriginalColorIllumForeSubscans->isChecked();
-    bool export_selected_pages_only = ui.cbExportSelected->isChecked();
+    ExportModes mode = ExportMode::None;
 
-    emit ExportOutputSignal(export_dir_path, default_out_dir, split_subscans,
-                            generate_blank_back_subscans, use_sep_suffix_for_pics,
-                            keep_original_color_illum_fore_subscans, export_selected_pages_only);
+    if (ui.cbExportImage->isChecked()) {
+        mode |= ExportMode::WholeImage;
+    }
+    if (ui.cbExportZones->isChecked()) {
+        mode |= ExportMode::ImageWithoutOutputStage;
+    }
+    if (ui.cbExportForeground->isChecked()) {
+        mode |= ExportMode::Foreground;
+    }
+    if (ui.cbExportBackground->isChecked()) {
+        mode |= ExportMode::Background;
+    }
+    if (ui.cbExportAutomask->isChecked()) {
+        mode |= ExportMode::AutoMask;
+    }
+    if (ui.cbExportMask->isChecked()) {
+        mode |= ExportMode::Mask;
+    }
+    if (ui.cbExportZones->isChecked()) {
+        mode |= ExportMode::Zones;
+    }
+
+    if (mode == ExportMode::None) {
+        QMessageBox::warning(this,  tr("Error"), tr("Nothing to export. Please select some data to export."));
+        reset();
+        return;
+    }
+
+    Settings settings;
+    settings.export_mode = mode;
+    settings.default_out_dir = ui.DefaultOutputFolder->isChecked();
+    settings.export_dir_path = ui.outExportDirLine->text();
+    settings.export_to_multipage = ui.cbMultipageOutput->isChecked();
+    settings.generate_blank_back_subscans = ui.GenerateBlankBackSubscans->isChecked();
+    settings.use_sep_suffix_for_pics = ui.UseSepSuffixForPics->isChecked();
+    settings.page_gen_tweaks = PageGenTweak::NoTweaks;
+    settings.page_gen_tweaks.setFlag(PageGenTweak::KeepOriginalColorIllumForeSubscans, ui.KeepOriginalColorIllumForeSubscans->isChecked());
+    settings.page_gen_tweaks.setFlag(PageGenTweak::IgnoreOutputProcessingStage, mode.testFlag(ExportMode::ImageWithoutOutputStage));
+
+    settings.export_selected_pages_only = ui.cbExportSelected->isChecked();
+
+
+
+    emit ExportOutputSignal(settings);
 }
 
 void
@@ -234,33 +266,68 @@ ExportDialog::setStartExport(void)
 	QTimer::singleShot(1, this, SLOT(startExport()));
 }
 
-
-//void
-//ExportDialog::tabChanged(int const tab)
-//{
-//
-//}
-//end of modified by monday2000
-
-
 void
 ExportDialog::OnCheckGenerateBlankBackSubscans(bool state)
 {
-	QSettings settings;	
-
-    settings.setValue(_key_export_generate_blank_subscans, state);
+    m_settings.setValue(_key_export_generate_blank_subscans, state);
 }
 
 void
 ExportDialog::OnCheckUseSepSuffixForPics(bool state)
 {
-    QSettings().setValue(_key_export_use_sep_suffix, state);
+    m_settings.setValue(_key_export_use_sep_suffix, state);
 }
 
 void
 ExportDialog::OnCheckKeepOriginalColorIllumForeSubscans(bool state)
 {		
-	QSettings settings;	
+    m_settings.setValue(_key_export_keep_original_color, state);
+}
 
-    settings.setValue(_key_export_keep_original_color, state);
+void
+ExportDialog::saveExportMode(ExportMode val, bool on)
+{
+    ExportModes mode = (ExportModes) m_settings.value(_key_export_split_mixed_settings, ExportMode::Foreground | ExportMode::Background).toInt();
+    mode.setFlag(val, on);
+    m_settings.setValue(_key_export_split_mixed_settings, (int) mode);
+}
+
+void ExportDialog::on_cbExportForeground_stateChanged(int arg1)
+{
+    saveExportMode(ExportMode::Foreground, arg1);
+}
+
+void ExportDialog::on_cbExportBackground_stateChanged(int arg1)
+{
+    saveExportMode(ExportMode::Background, arg1);
+}
+
+void ExportDialog::on_cbExportMask_stateChanged(int arg1)
+{
+    saveExportMode(ExportMode::Mask, arg1);
+}
+
+void ExportDialog::on_cbExportZones_stateChanged(int arg1)
+{
+    saveExportMode(ExportMode::Zones, arg1);
+}
+
+void ExportDialog::on_cbMultipageOutput_toggled(bool checked)
+{
+    m_settings.setValue(_key_export_to_multipage, checked);
+}
+
+void ExportDialog::on_cbExportImage_stateChanged(int arg1)
+{
+    saveExportMode(ExportMode::WholeImage, arg1);
+}
+
+void ExportDialog::on_cbExportAutomask_stateChanged(int arg1)
+{
+    saveExportMode(ExportMode::AutoMask, arg1);
+}
+
+void ExportDialog::on_cbExportWithoutOutputStage_stateChanged(int arg1)
+{
+    saveExportMode(ExportMode::ImageWithoutOutputStage, arg1);
 }
