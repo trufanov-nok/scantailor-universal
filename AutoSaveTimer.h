@@ -5,7 +5,6 @@
 #include <QString>
 #include <functional>
 #include "ProjectPages.h"
-#include "MainWindow.h"
 
 class MainWindow;
 

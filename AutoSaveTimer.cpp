@@ -1,4 +1,5 @@
 #include "AutoSaveTimer.h"
+#include "MainWindow.h"
 #include <QFile>
 #include <QDir>
 #include "settings/ini_keys.h"
