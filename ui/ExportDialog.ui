@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>541</width>
-    <height>276</height>
+    <width>478</width>
+    <height>509</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,10 +31,84 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QCheckBox" name="SplitMixed">
-         <property name="text">
-          <string>Split mixed output</string>
+        <widget class="QGroupBox" name="gbDataToExport">
+         <property name="title">
+          <string>Data to export:</string>
          </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QCheckBox" name="cbExportImage">
+            <property name="toolTip">
+             <string>Image as it is in ./out subfolder</string>
+            </property>
+            <property name="text">
+             <string>Whole image</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbExportForeground">
+            <property name="toolTip">
+             <string>Only black (#000000) and white (#ffffff) pixels of the image</string>
+            </property>
+            <property name="text">
+             <string>Foreground (b/w text and graphics)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbExportBackground">
+            <property name="toolTip">
+             <string>Only non black (&gt; #000000) pixels of the image</string>
+            </property>
+            <property name="text">
+             <string>Background (color and grayscale images)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbExportAutomask">
+            <property name="toolTip">
+             <string>Automask could be found in ./out/cache/automask and contains autodetected mask before any zones are applied</string>
+            </property>
+            <property name="text">
+             <string>Automask (b/w mask for auto layer)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbExportMask">
+            <property name="toolTip">
+             <string>Binarized and inverted background</string>
+            </property>
+            <property name="text">
+             <string>Mask (b/w mask for background)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbExportZones">
+            <property name="toolTip">
+             <string>Some pages might have user defined zones to fill with color or indicate some content. Their coordinates may be exported to tsv text file.</string>
+            </property>
+            <property name="text">
+             <string>Coordinates of zones</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -121,6 +195,13 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
+        <widget class="QCheckBox" name="cbMultipageOutput">
+         <property name="text">
+          <string>Save images as multipage tiff file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="GenerateBlankBackSubscans">
          <property name="text">
           <string>Generate blank background subscans</string>
@@ -137,12 +218,40 @@
          </property>
         </widget>
        </item>
-       <item alignment="Qt::AlignTop">
-        <widget class="QCheckBox" name="KeepOriginalColorIllumForeSubscans">
+       <item>
+        <widget class="QCheckBox" name="cbExportWithoutOutputStage">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will have effect if only Export Whole image is checked.&lt;/p&gt;&lt;p&gt;The exported image will be drawn with colors of original image.&lt;/p&gt;&lt;p&gt;Only fill zones will be applied. In other words the exported&lt;/p&gt;&lt;p&gt;image will be a part of original image after split, rotation,&lt;/p&gt;&lt;p&gt;deskew, applying margins and fill zones. This require image&lt;/p&gt;&lt;p&gt;reprocessing so it may be time consuming.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
-          <string>Keep the original color and illumination in foreground subscans (lengthy)</string>
+          <string>Skip processing at Output stage (except for Fill Zones) 
+for exported image (lengthy)</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="KeepOriginalColorIllumForeSubscans">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will have effect if only Export Foreground is checked.&lt;/p&gt;&lt;p&gt;Foreground is a b/w image with a black content of resulting&lt;/p&gt;&lt;p&gt;image drown on white. With this mode on every black pixel will&lt;/p&gt;&lt;p&gt;be replaced with pixel on the same position taken from original&lt;/p&gt;&lt;p&gt;image. This may let you get colored or grayscale text instead of&lt;/p&gt;&lt;p&gt;binarized black one. Require image reprocessing so may be&lt;/p&gt;&lt;p&gt;time consuming.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Skip processing at Output stage (except for Fill Zones) 
+for content in foreground subscans (lengthy)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

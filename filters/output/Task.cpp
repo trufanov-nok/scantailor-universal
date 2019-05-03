@@ -398,8 +398,8 @@ Task::process(
 			params.dewarpingMode(), distortion_model,
 			params.depthPerception(),
 			false,
-			write_automask ? &automask_img : 0,
-            write_speckles_file ? &speckles_img : 0,
+            write_automask ? &automask_img : nullptr,
+            write_speckles_file ? &speckles_img : nullptr,
             m_ptrDbg.get(), &m_pageId, &m_ptrSettings
 		);
 

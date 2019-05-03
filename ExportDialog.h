@@ -24,11 +24,45 @@
 
 #include "ui_ExportDialog.h"
 #include <QDialog>
+#include <QSettings>
 
 class ExportDialog : public QDialog
 {
 	Q_OBJECT
 public:
+
+    enum ExportMode {
+        None = 0,
+        Foreground = 1,
+        Background = 2,
+        Mask = 4,
+        Zones = 8,
+        WholeImage = 16,
+        AutoMask = 32,
+        ImageWithoutOutputStage = 64
+    };
+
+    Q_DECLARE_FLAGS(ExportModes, ExportMode)
+
+    enum PageGenTweak {
+      NoTweaks = 0,
+      KeepOriginalColorIllumForeSubscans = 1,
+      IgnoreOutputProcessingStage = 2
+    };
+
+    Q_DECLARE_FLAGS(PageGenTweaks, PageGenTweak)
+
+    struct Settings {
+        ExportModes export_mode;
+        bool default_out_dir;
+        QString export_dir_path;
+        bool export_to_multipage;
+        bool generate_blank_back_subscans;
+        bool use_sep_suffix_for_pics;
+        PageGenTweaks page_gen_tweaks;
+        bool export_selected_pages_only;
+    };
+
     ExportDialog(QWidget* parent, const QString& defaultOutDir);
 
 	virtual ~ExportDialog();
@@ -40,9 +74,7 @@ public:
 	void setStartExport(void);	
 
 signals:
-    void ExportOutputSignal(QString export_dir_path, bool default_out_dir, bool split_subscans,
-                            bool generate_blank_back_subscans, bool use_sep_suffix_for_pics,
-                            bool keep_original_color_illum_fore_subscans, bool export_selected_pages_only);
+    void ExportOutputSignal(Settings settings);
 	void ExportStopSignal();
 	void SetStartExportSignal();	
 
@@ -50,7 +82,6 @@ public slots:
 	void startExport(void);
 
 private slots:	
-	void OnCheckSplitMixed(bool);
 	void OnCheckDefaultOutputFolder(bool);
 	void OnClickExport();
 	void outExportDirBrowse();
@@ -60,14 +91,34 @@ private slots:
     void OnCheckUseSepSuffixForPics(bool);
 	void OnCheckKeepOriginalColorIllumForeSubscans(bool);    
 
+    void on_cbExportZones_stateChanged(int arg1);
+
+    void on_cbExportForeground_stateChanged(int arg1);
+
+    void on_cbExportBackground_stateChanged(int arg1);
+
+    void on_cbExportMask_stateChanged(int arg1);
+
+    void on_cbMultipageOutput_toggled(bool checked);
+
+    void on_cbExportImage_stateChanged(int arg1);
+
+    void on_cbExportAutomask_stateChanged(int arg1);
+
+    void on_cbExportWithoutOutputStage_stateChanged(int arg1);
+
 private:
+    void saveExportMode(ExportMode val, bool on);
+
+private:
+    void setExportOutputDir(QString const& dir);
 	Ui::ExportDialog ui;
 
 	bool m_autoOutDir;
-	void setExportOutputDir(QString const& dir);
     int m_count;
     QString const m_defaultOutDir;
     QString m_prevOutDir;
+    QSettings m_settings;
 };
 
 #endif

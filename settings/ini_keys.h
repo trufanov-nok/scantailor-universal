@@ -82,11 +82,12 @@ static const bool _key_thumbnails_simulate_key_press_hint_def = true;
 
 /* Export images dialog */
 
-static const char* _key_export_split_mixed = "settings/split_mixed";
 static const char* _key_export_default_output_folder = "settings/default_output_folder";
 static const char* _key_export_generate_blank_subscans = "settings/generate_blank_back_subscans";
 static const char* _key_export_use_sep_suffix = "settings/use_sep_suffix_for_background_subscans";
 static const char* _key_export_keep_original_color = "settings/keep_original_color_illum_fore_subscans";
+static const char* _key_export_to_multipage = "settings/export_to_multipage";
+static const char* _key_export_split_mixed_settings = "settings/split_mixed_settings";
 
 /* insert image disalog */
 

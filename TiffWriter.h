@@ -38,7 +38,7 @@ public:
 	 * \param image The image to write.  Writing a null image will fail.
 	 * \return True on success, false on failure.
 	 */
-	static bool writeImage(QString const& file_path, QImage const& image, int compression=COMPRESSION_LZW);
+    static bool writeImage(QString const& file_path, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
 	
 	/**
 	 * \brief Writes a QImage in TIFF format to an IO device.
@@ -48,20 +48,19 @@ public:
 	 * \param image The image to write.  Writing a null image will fail.
 	 * \return True on success, false on failure.
 	 */
-	static bool writeImage(QIODevice& device, QImage const& image, int compression=COMPRESSION_LZW);
+    static bool writeImage(QIODevice& device, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
 private:
 	class TiffHandle;
 	
 	static void setDpm(TiffHandle const& tif, Dpm const& dpm);
 	
 	static bool writeBitonalOrIndexed8Image(
-		TiffHandle const& tif, QImage const& image, int compression=COMPRESSION_LZW);
+        TiffHandle const& tif, QImage const& image, bool multipage, int compression = COMPRESSION_LZW);
 	
 	static bool writeRGB32Image(
-		TiffHandle const& tif, QImage const& image, int compression=COMPRESSION_LZW);
+        TiffHandle const& tif, QImage const& image, bool multipage, int compression = COMPRESSION_LZW);
 	
-	static bool writeARGB32Image(
-		TiffHandle const& tif, QImage const& image, int compression=COMPRESSION_LZW);
+    static bool writeARGB32Image(TiffHandle const& tif, QImage const& image, bool multipage, int compression = COMPRESSION_LZW);
 	
 	static bool write8bitLines(
 		TiffHandle const& tif, QImage const& image);

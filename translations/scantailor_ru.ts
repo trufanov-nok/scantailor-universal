@@ -389,10 +389,10 @@ Do you want to replace it?</source>
     <name>ExportDialog</name>
     <message>
         <location filename="../ui/ExportDialog.ui" line="14"/>
-        <location filename="../ui/ExportDialog.ui" line="183"/>
-        <location filename="../ExportDialog.cpp" line="53"/>
-        <location filename="../ExportDialog.cpp" line="216"/>
-        <location filename="../ExportDialog.cpp" line="222"/>
+        <location filename="../ui/ExportDialog.ui" line="292"/>
+        <location filename="../ExportDialog.cpp" line="59"/>
+        <location filename="../ExportDialog.cpp" line="248"/>
+        <location filename="../ExportDialog.cpp" line="254"/>
         <source>Export</source>
         <translation>Экспорт результатов</translation>
     </message>
@@ -402,112 +402,204 @@ Do you want to replace it?</source>
         <translation>Основные параметры</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="36"/>
-        <source>Split mixed output</source>
-        <translation>Сохранить ч/б контент отдельно (напр., от изображений)</translation>
+        <location filename="../ui/ExportDialog.ui" line="61"/>
+        <source>Foreground (b/w text and graphics)</source>
+        <translation type="unfinished">Передний план (текст и ч/б графика)</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="43"/>
+        <location filename="../ui/ExportDialog.ui" line="36"/>
+        <source>Data to export:</source>
+        <translation type="unfinished">Экспортировать данные:</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="48"/>
+        <source>Image as it is in ./out subfolder</source>
+        <translation type="unfinished">Изображение из подпапки ./out без изменений</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="51"/>
+        <source>Whole image</source>
+        <translation type="unfinished">Изображение целиком</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="58"/>
+        <source>Only black (#000000) and white (#ffffff) pixels of the image</source>
+        <translation type="unfinished">Только чёрные (#000000) и белые (#ffffff) пиксели изображения</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="71"/>
+        <source>Only non black (&gt; #000000) pixels of the image</source>
+        <translation type="unfinished">Только не чёрные (&gt; #000000) пиксели изображения</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="87"/>
+        <source>Automask (b/w mask for auto layer)</source>
+        <translation type="unfinished">Маска автоматически найденных изображений (ч/б)</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="97"/>
+        <source>Mask (b/w mask for background)</source>
+        <translation type="unfinished">Маска (ч/б маска для фона)</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="107"/>
+        <source>Coordinates of zones</source>
+        <translation type="unfinished">Координаты зон</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="117"/>
         <source>Default export folder</source>
         <translation>Сохранить в папку по умолчанию</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="56"/>
+        <location filename="../ui/ExportDialog.ui" line="130"/>
         <source>Output Directory</source>
         <translation>Экспортировать в папку:</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="83"/>
+        <location filename="../ui/ExportDialog.ui" line="157"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="110"/>
+        <location filename="../ui/ExportDialog.ui" line="184"/>
         <source>Export selected pages only</source>
         <translation type="unfinished">Экспортировать только выделенные страницы</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="120"/>
+        <location filename="../ui/ExportDialog.ui" line="194"/>
         <source>Rare options</source>
-        <translation>Настройки раздельного экспорта</translation>
+        <translation type="unfinished">Настройки</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="126"/>
+        <location filename="../ui/ExportDialog.ui" line="200"/>
+        <source>Save images as multipage tiff file</source>
+        <translation type="unfinished">Сохранять как многостраничный tiff файл</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="207"/>
         <source>Generate blank background subscans</source>
         <translation>Создавать пустой файл для не ч/б контента даже если его нет на скане</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="133"/>
+        <location filename="../ui/ExportDialog.ui" line="214"/>
         <source>For better compatibility with DjVu Imager</source>
         <translation>Необходимо для лучшей совместимости с программой DjVu Imager</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="136"/>
+        <location filename="../ui/ExportDialog.ui" line="217"/>
         <source>Use .sep.tif extension instead of .tif for background subscans</source>
         <translation>Добавить суффикс .sep в имена файлов с не ч/б контентом</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="143"/>
-        <source>Keep the original color and illumination in foreground subscans (lengthy)</source>
-        <translation>Игнорировать все настройки цвета и освещения для не ч/б контента
-(займет больше времени при экспорте)</translation>
+        <location filename="../ui/ExportDialog.ui" line="235"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will have effect if only Export Foreground is checked.&lt;/p&gt;&lt;p&gt;Foreground is a b/w image with a black content of resulting&lt;/p&gt;&lt;p&gt;image drown on white. With this mode on every black pixel will&lt;/p&gt;&lt;p&gt;be replaced with pixel on the same position taken from original&lt;/p&gt;&lt;p&gt;image. This may let you get colored or grayscale text instead of&lt;/p&gt;&lt;p&gt;binarized black one. Require image reprocessing so may be&lt;/p&gt;&lt;p&gt;time consuming.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Работает только при включенном Экспорте Переднего плана.&lt;/p&gt;&lt;p&gt;Передний план - это ч/б изображение, содержащее все чёрные пиксели изображения результата&lt;/p&gt;&lt;p&gt;на белом фоне. Если эта опция включена, то каждый такой чёрный пиксель будет заменен соответствующим&lt;/p&gt;&lt;p&gt;пикселем изображения-оригинала. Это позволит вам получать цветной текст или&lt;/p&gt;&lt;p&gt;текст в градациях серого, вместо бинаризованного чёрного.&lt;/p&gt;&lt;p&gt;Функция потребует генерации изображения заново и займёт значительное время.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="190"/>
-        <location filename="../ExportDialog.cpp" line="54"/>
+        <location filename="../ui/ExportDialog.ui" line="74"/>
+        <source>Background (color and grayscale images)</source>
+        <translation type="unfinished">Фон (изображения цветные и в оттенках серого)</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="84"/>
+        <source>Automask could be found in ./out/cache/automask and contains autodetected mask before any zones are applied</source>
+        <translation type="unfinished">Маска найденных изображений обычно хранится в ./out/cache/automask/ и содержит
+автоматически обнаруженные зоны изображений до применения каких-либо пользовательских зон</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="94"/>
+        <source>Binarized and inverted background</source>
+        <translation type="unfinished">Бинаризованный и инвертированный фон</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="104"/>
+        <source>Some pages might have user defined zones to fill with color or indicate some content. Their coordinates may be exported to tsv text file.</source>
+        <translation type="unfinished">На некоторых страницах пользователем могут быть заданы зоны заливки или изображений. Их координаты могут быть экспортированы в tsv файл.</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="224"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will have effect if only Export Whole image is checked.&lt;/p&gt;&lt;p&gt;The exported image will be drawn with colors of original image.&lt;/p&gt;&lt;p&gt;Only fill zones will be applied. In other words the exported&lt;/p&gt;&lt;p&gt;image will be a part of original image after split, rotation,&lt;/p&gt;&lt;p&gt;deskew, applying margins and fill zones. This require image&lt;/p&gt;&lt;p&gt;reprocessing so it may be time consuming.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Работает только при включенном Экспорте Изображения целиком.&lt;/p&gt;&lt;p&gt;Экспортированное изображение отрисовывается в цветах исходного изображения (применяются только зоны заливки).&lt;/p&gt;&lt;p&gt; Другими словами, экспортируемое изображение будет представлять собой часть&lt;/p&gt;&lt;p&gt;исходного изображения, после разделения на страницы, поворота,&lt;/p&gt;&lt;p&gt;компенсации наклона, применения полей и зон заливки.&lt;/p&gt;&lt;p&gt;Это потребует генерации изображения заново и займёт значительное время.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="227"/>
+        <source>Skip processing at Output stage (except for Fill Zones) 
+for exported image (lengthy)</source>
+        <translation type="unfinished">Пропустить обработку этапа Вывод (за искл. зон заливки)
+при экспорте Изображения целиком
+(сильно замедляет выполнение экспорта)</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="238"/>
+        <source>Skip processing at Output stage (except for Fill Zones) 
+for content in foreground subscans (lengthy)</source>
+        <translation type="unfinished">Пропустить обработку этапа Вывод (за искл. зон заливки)
+при экспорте Переднего плана
+(сильно замедляет выполнение экспорта)</translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="299"/>
+        <location filename="../ExportDialog.cpp" line="60"/>
         <source>Close</source>
         <translation>&amp;Отмена</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="102"/>
-        <location filename="../ExportDialog.cpp" line="126"/>
-        <location filename="../ExportDialog.cpp" line="136"/>
+        <location filename="../ExportDialog.cpp" line="99"/>
+        <location filename="../ExportDialog.cpp" line="123"/>
+        <location filename="../ExportDialog.cpp" line="133"/>
+        <location filename="../ExportDialog.cpp" line="220"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="103"/>
+        <location filename="../ExportDialog.cpp" line="100"/>
         <source>The export output directory is empty.</source>
         <translation>Не задана папка для сохранения результатов экспорта</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="115"/>
+        <location filename="../ExportDialog.cpp" line="112"/>
         <source>Create Directory?</source>
         <translation>Создать папку?</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="116"/>
+        <location filename="../ExportDialog.cpp" line="113"/>
         <source>The export output directory doesn&apos;t exist. Create it?</source>
         <translation>Папка для сохранения результатов не существует. Создать её?</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="127"/>
+        <location filename="../ExportDialog.cpp" line="124"/>
         <source>Unable to create the export output directory.</source>
         <translation>Не удаётся создать папку для сохранения результатов экспорта.</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="137"/>
+        <location filename="../ExportDialog.cpp" line="134"/>
         <source>The export output directory is not set or doesn&apos;t exist.</source>
         <translation>Папка для сохранения результатов не задана или не существует.</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="142"/>
-        <location filename="../ExportDialog.cpp" line="232"/>
+        <location filename="../ExportDialog.cpp" line="139"/>
+        <location filename="../ExportDialog.cpp" line="264"/>
         <source>Stop</source>
         <translation>&amp;Стоп</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="159"/>
+        <location filename="../ExportDialog.cpp" line="156"/>
         <source>Export output directory</source>
         <translation>Выбор папки для сохранения результатов</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="190"/>
+        <location filename="../ExportDialog.cpp" line="187"/>
         <source>Processed pages %1 of %2</source>
         <translation type="unfinished">Обработка страницы %1 из %2</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="231"/>
+        <location filename="../ExportDialog.cpp" line="220"/>
+        <source>Nothing to export. Please select some data to export.</source>
+        <translation type="unfinished">Нечего экспортировать. Пожалуйста, выберите данные для экспорта.</translation>
+    </message>
+    <message>
+        <location filename="../ExportDialog.cpp" line="263"/>
         <source>Starting the export...</source>
         <translation>Экспорт начинается...</translation>
     </message>
@@ -646,83 +738,83 @@ Do you want to replace it?</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="1933"/>
-        <location filename="../MainWindow.cpp" line="1943"/>
-        <location filename="../MainWindow.cpp" line="2228"/>
-        <location filename="../MainWindow.cpp" line="2306"/>
-        <location filename="../MainWindow.cpp" line="2313"/>
-        <location filename="../MainWindow.cpp" line="2451"/>
-        <location filename="../MainWindow.cpp" line="2458"/>
-        <location filename="../MainWindow.cpp" line="2743"/>
-        <location filename="../MainWindow.cpp" line="2778"/>
+        <location filename="../MainWindow.cpp" line="1930"/>
+        <location filename="../MainWindow.cpp" line="1940"/>
+        <location filename="../MainWindow.cpp" line="2240"/>
+        <location filename="../MainWindow.cpp" line="2354"/>
+        <location filename="../MainWindow.cpp" line="2361"/>
+        <location filename="../MainWindow.cpp" line="2514"/>
+        <location filename="../MainWindow.cpp" line="2521"/>
+        <location filename="../MainWindow.cpp" line="2806"/>
+        <location filename="../MainWindow.cpp" line="2841"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2228"/>
+        <location filename="../MainWindow.cpp" line="2240"/>
         <source>The file</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2228"/>
+        <location filename="../MainWindow.cpp" line="2240"/>
         <source>is not found</source>
         <translation>не найден</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2306"/>
-        <location filename="../MainWindow.cpp" line="2451"/>
+        <location filename="../MainWindow.cpp" line="2354"/>
+        <location filename="../MainWindow.cpp" line="2514"/>
         <source>Batch processing is in the progress.</source>
         <translation>Выполняется пакетная обработка.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2313"/>
-        <location filename="../MainWindow.cpp" line="2458"/>
+        <location filename="../MainWindow.cpp" line="2361"/>
+        <location filename="../MainWindow.cpp" line="2521"/>
         <source>No project is loaded.</source>
         <translation>Ни один проект не открыт.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2443"/>
+        <location filename="../MainWindow.cpp" line="2506"/>
         <source>The files export is stopped by the user.</source>
         <translation>Экспорт изображений прерван пользователем.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2474"/>
+        <location filename="../MainWindow.cpp" line="2537"/>
         <source>build on </source>
         <translation>от </translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2677"/>
+        <location filename="../MainWindow.cpp" line="2740"/>
         <source>%2 - Scan Tailor &quot;Universal&quot; %3 [%1bit]</source>
         <translation>%2 - Scan Tailor &quot;Universal&quot; %3 [%1бит]</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2744"/>
-        <location filename="../MainWindow.cpp" line="2779"/>
+        <location filename="../MainWindow.cpp" line="2807"/>
+        <location filename="../MainWindow.cpp" line="2842"/>
         <source>Error saving the project file!</source>
         <translation>Ошибка при сохранении файла проекта!</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2773"/>
+        <location filename="../MainWindow.cpp" line="2836"/>
         <source>Saving project...</source>
         <translation>Сохранение проекта...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2828"/>
+        <location filename="../MainWindow.cpp" line="2891"/>
         <source>Files to insert</source>
         <translation>Выбор файлов для вставки</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2887"/>
+        <location filename="../MainWindow.cpp" line="2950"/>
         <source>Skip failed files</source>
         <translation>Игнорировать файлы с ошибками</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2990"/>
+        <location filename="../MainWindow.cpp" line="3053"/>
         <source>Overwrite default file name for resulting image</source>
         <translation type="unfinished">Переопределение имени файла результата</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2992"/>
+        <location filename="../MainWindow.cpp" line="3055"/>
         <source>Here you may overwrite default resulting image file name
 that will be generated for this page. It may be
 helpful to keep the right alphabetical order of files in out subfolder.</source>
@@ -733,114 +825,114 @@ helpful to keep the right alphabetical order of files in out subfolder.</source>
 и порядка следования страниц в проекте.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3011"/>
+        <location filename="../MainWindow.cpp" line="3074"/>
         <source>File %1 already exists in out subfolder.
 Would you like to replace it?</source>
         <translation type="unfinished">Файл %1 уже существует в папке результатов.
 Желаете перезаписать его?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3013"/>
+        <location filename="../MainWindow.cpp" line="3076"/>
         <source>Can&apos;t remove file %1!
 Cancelling...</source>
         <translation type="unfinished">Невозможно удалить файл %1!
 Отмена операции...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3021"/>
+        <location filename="../MainWindow.cpp" line="3084"/>
         <source>Can&apos;t rename file %1!
 Cancelling...</source>
         <translation type="unfinished">Невозможно переименовать файл %1!
 Отмена операции...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3492"/>
+        <location filename="../MainWindow.cpp" line="3562"/>
         <source>p. %1</source>
         <translation>стр. %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3567"/>
+        <location filename="../MainWindow.cpp" line="3637"/>
         <source>%1, %2</source>
         <translation>%1, %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3636"/>
+        <location filename="../MainWindow.cpp" line="3706"/>
         <source>Use %1, %2, %3 (or %4), %5 (or %6) to navigate between pages.</source>
         <translation>Используйте %1, %2, %3 (или %4), %5 (или %6) для перемещения между страницами.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="782"/>
+        <location filename="../MainWindow.cpp" line="779"/>
         <source>Save Project</source>
         <translation>Сохранение проекта</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="755"/>
-        <location filename="../MainWindow.cpp" line="2443"/>
+        <location filename="../MainWindow.cpp" line="751"/>
+        <location filename="../MainWindow.cpp" line="2506"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="755"/>
+        <location filename="../MainWindow.cpp" line="751"/>
         <source>The files export is finished.</source>
         <translation>Экспорт изображений завершен.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="782"/>
+        <location filename="../MainWindow.cpp" line="779"/>
         <source>Save this project?</source>
         <translation>Сохранить этот проект?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1315"/>
+        <location filename="../MainWindow.cpp" line="1312"/>
         <source>Go to page...</source>
         <translation>Переход к странице...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1319"/>
+        <location filename="../MainWindow.cpp" line="1316"/>
         <source>Select pages...</source>
         <translation>Выделение страниц...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1325"/>
+        <location filename="../MainWindow.cpp" line="1322"/>
         <source>Insert before...</source>
         <translation>Вставить перед...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1328"/>
+        <location filename="../MainWindow.cpp" line="1325"/>
         <source>Insert after...</source>
         <translation>Вставить после...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1331"/>
+        <location filename="../MainWindow.cpp" line="1328"/>
         <source>Insert empty page</source>
         <translation type="unfinished">Вставка пустой страницы</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1337"/>
+        <location filename="../MainWindow.cpp" line="1334"/>
         <source>Rename result filename...</source>
         <translation type="unfinished">Переименовать файл с результатом...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1343"/>
+        <location filename="../MainWindow.cpp" line="1340"/>
         <source>Remove from project...</source>
         <translation>Удалить из проекта...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1360"/>
+        <location filename="../MainWindow.cpp" line="1357"/>
         <source>Go to page</source>
         <translation>Переход к странице</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1360"/>
+        <location filename="../MainWindow.cpp" line="1357"/>
         <source>Page number:</source>
         <translation>Номер страницы:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1370"/>
+        <location filename="../MainWindow.cpp" line="1367"/>
         <source>Select pages by number</source>
         <translation>Выбор страниц по их номерам</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1371"/>
+        <location filename="../MainWindow.cpp" line="1368"/>
         <source>Numbers should start from 1
  Line ends are ignored
 Any non digit symbols are interpreted as number separators
@@ -852,45 +944,45 @@ Number followed by &apos;-&apos; or &apos;:&apos; treated as a start of page seq
 Число с последующим &apos;-&apos; или &apos;:&apos; интерпретируется как начало интервала номеров страниц</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1374"/>
+        <location filename="../MainWindow.cpp" line="1371"/>
         <source>Input page numbers:</source>
         <translation>Введите номера страниц:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1380"/>
+        <location filename="../MainWindow.cpp" line="1377"/>
         <source>Pages to be selected: %1</source>
         <translation>Будет выбрано страниц: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1433"/>
+        <location filename="../MainWindow.cpp" line="1430"/>
         <source>Insert here...</source>
         <translation>Вставить сюда...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1840"/>
-        <location filename="../MainWindow.cpp" line="1915"/>
+        <location filename="../MainWindow.cpp" line="1837"/>
+        <location filename="../MainWindow.cpp" line="1912"/>
         <source>Scan Tailor Projects</source>
         <translation>Проекты Scan Tailor</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2635"/>
+        <location filename="../MainWindow.cpp" line="2698"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Page Layout&quot;.</source>
         <translation type="unfinished">Вывод невозможен, поскольку еще не известны итоговые размеры страниц.
 Для их определения, выполните пакетную обработку на этапах &quot;Область контента&quot; или &quot;Поля&quot;.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2670"/>
+        <location filename="../MainWindow.cpp" line="2733"/>
         <source>Unnamed</source>
         <translation>Без имени</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3608"/>
+        <location filename="../MainWindow.cpp" line="3678"/>
         <source>Insert before</source>
         <translation type="unfinished">Вставить перед</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3619"/>
+        <location filename="../MainWindow.cpp" line="3689"/>
         <source>Insert after</source>
         <translation type="unfinished">Вставить после</translation>
     </message>
@@ -1060,32 +1152,32 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1914"/>
+        <location filename="../MainWindow.cpp" line="1911"/>
         <source>Open Project</source>
         <translation>Открытие проекта</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1353"/>
+        <location filename="../MainWindow.cpp" line="1350"/>
         <source>Regenerate result</source>
         <translation>Пересоздать результат</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1934"/>
+        <location filename="../MainWindow.cpp" line="1931"/>
         <source>Unable to open the project file.</source>
         <translation>Не удалось открыть файл проекта.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1944"/>
+        <location filename="../MainWindow.cpp" line="1941"/>
         <source>The project file is broken.</source>
         <translation>Файл проекта поврежден.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2836"/>
+        <location filename="../MainWindow.cpp" line="2899"/>
         <source>Images not in project (%1)</source>
         <translation>Изображений не в проекте: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3043"/>
+        <location filename="../MainWindow.cpp" line="3106"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
@@ -1110,7 +1202,7 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="591"/>
+        <location filename="../MainWindow.cpp" line="588"/>
         <source>Stop batch processing</source>
         <translation>Остановить пакетную обработку</translation>
     </message>
@@ -2406,7 +2498,7 @@ and press [Enter] to edit the shortcut:</source>
     </message>
     <message>
         <location filename="../filters/deskew/Filter.cpp" line="58"/>
-        <location filename="../filters/output/Filter.cpp" line="66"/>
+        <location filename="../filters/output/Filter.cpp" line="68"/>
         <location filename="../filters/page_layout/Filter.cpp" line="74"/>
         <location filename="../filters/page_split/Filter.cpp" line="71"/>
         <location filename="../filters/select_content/Filter.cpp" line="63"/>
@@ -2498,7 +2590,7 @@ and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished">разрез: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3551"/>
+        <location filename="../MainWindow.cpp" line="3621"/>
         <source>%1 x %2 %3</source>
         <translation type="unfinished">%1 x %2 %3</translation>
     </message>
@@ -3869,29 +3961,29 @@ Continue?</source>
 <context>
     <name>output::Filter</name>
     <message>
-        <location filename="../filters/output/Filter.cpp" line="65"/>
+        <location filename="../filters/output/Filter.cpp" line="67"/>
         <source>Natural order</source>
         <translation type="unfinished">Естественный порядок</translation>
     </message>
     <message>
-        <location filename="../filters/output/Filter.cpp" line="67"/>
+        <location filename="../filters/output/Filter.cpp" line="69"/>
         <source>Order by mode</source>
         <translation type="unfinished">Сортировка по режиму</translation>
     </message>
     <message>
-        <location filename="../filters/output/Filter.cpp" line="68"/>
+        <location filename="../filters/output/Filter.cpp" line="70"/>
         <source>Grayscale sources on top</source>
         <translation type="unfinished">Чёрно-белые исходники сверху</translation>
     </message>
     <message>
-        <location filename="../filters/output/Filter.cpp" line="69"/>
+        <location filename="../filters/output/Filter.cpp" line="71"/>
         <source>Groups the pages by presence
 of a non grey color in the source files</source>
         <translation type="unfinished">Группирует страницы по наличию
 цветных (не серых) пикселей в исходных файлах</translation>
     </message>
     <message>
-        <location filename="../filters/output/Filter.cpp" line="79"/>
+        <location filename="../filters/output/Filter.cpp" line="81"/>
         <source>Output</source>
         <translation>Вывод</translation>
     </message>
