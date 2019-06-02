@@ -69,12 +69,13 @@ Task::~Task()
 int
 generate_djvu(const QString &image_file, QString output_file, QString cmds)
 {
-    QFileInfo fi(image_file);
 
     if (output_file.isEmpty()) {
+        QFileInfo fi(image_file);
         output_file = fi.absolutePath() + "/" + fi.completeBaseName()+".djv";
     }
 
+    QFileInfo fi(output_file);
     QDir dir(fi.absolutePath());
     if (!dir.exists() && !dir.mkpath(".")) {
         std::cerr << "Can't create output directory: " << qPrintable(dir.path());
@@ -185,8 +186,8 @@ Task::process(TaskStatus const& status, QString const& image_file, const QImage&
             param.setExecutedCommand(param.commandToExecute());
             m_ptrSettings->setParams(m_pageId, param);
             emit displayDjVu(param.djvuFilename());
-        } else {
-            QMessageBox::warning(qApp->activeWindow(), QObject::tr("DjVu creation"), QObject::tr("Can't create output folder for %1").arg(param.djvuFilename()));
+        } else  if (CommandLine::get().isGui()) {
+//            QMessageBox::warning(qApp->desktop(), QObject::tr("DjVu creation"), QObject::tr("Can't generate DjVu file for %1").arg(param.djvuFilename()));
         }
     } else {
         emit displayDjVu(param.djvuFilename());  // need to be done via slots as djvuwidget belongs to another thread

@@ -340,22 +340,19 @@ Filter::composeDjVuDocument(const QString& target_fname)
     QStringList done;
     QStringList missing;
     if (m_ptrSettings->allDjVusGenerated(done, missing)) {
-        QFileDialog dlg(qApp->activeWindow(), tr("Create multipage DjVu document"),
-                        target_fname, tr("DjVu documents (*.djvu;*.djv);All files (*.*)"));
-        dlg.setDefaultSuffix(".djvu");
-        if (dlg.exec() == QDialog::Accepted) {
-            QString cmd("djvum %1 %2");
-            cmd = cmd.arg(dlg.selectedFiles()[0]).arg(done.join(" "));
+        QString djvu_out = QFileDialog::getSaveFileName(qApp->activeWindow(), tr("Create multipage DjVu document"),
+                                                        target_fname, tr("DjVu documents (*.djvu;*.djv);All files (*.*)"));
+        if (!djvu_out.isEmpty()) {
+            QString cmd("djvm -c %1 %2");
+            cmd = cmd.arg(djvu_out).arg(done.join(" "));
+            std::system(cmd.toStdString().c_str());
 //            QSingleShotExec* executer = new QSingleShotExec(QStringList(cmd));
 //            executer->start();
         }
 
     } else {
-        while (missing.count() > 10) {
-            missing.removeLast();
-        }
         QMessageBox::critical(qApp->activeWindow(), tr("Compose DjVu document"),
-                              tr("Folowing pages aren't yet encoded to DjVu format:/n%1").arg(missing.join("/n")));
+                              tr("Folowing pages aren't yet encoded to DjVu format:/n%1").arg(missing.mid(0, 10).join("/n")));
     }
 }
 
