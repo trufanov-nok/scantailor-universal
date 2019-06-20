@@ -21,6 +21,7 @@
 #include "settings/hotkeysmanager.h"
 #include "settings/ini_keys.h"
 #include <memory>
+#include <QColor>
 
 class GlobalStaticSettings
 {
@@ -74,6 +75,15 @@ public:
         m_disable_bw_smoothing = settings.value(_key_mode_bw_disable_smoothing, _key_mode_bw_disable_smoothing_def).toBool();
         m_zone_editor_min_angle = settings.value(_key_zone_editor_min_angle, _key_zone_editor_min_angle_def).toReal();
         m_picture_detection_sensitivity = settings.value(_key_picture_zones_layer_sensitivity, _key_picture_zones_layer_sensitivity_def).toInt();
+        m_deskew_controls_color.setNamedColor(settings.value(_key_deskew_controls_color, _key_deskew_controls_color_def).toString());
+        m_deskew_controls_color_pen = m_deskew_controls_color;
+        m_deskew_controls_color_pen.setAlpha(255); // ignore transparency
+        m_content_sel_content_color.setNamedColor(settings.value(_key_content_sel_content_color, _key_content_sel_content_color_def).toString());
+        m_content_sel_content_color_pen = m_content_sel_content_color;
+        m_content_sel_content_color_pen.setAlpha(255); // ignore transparency
+        m_deskew_controls_color_thumb = m_deskew_controls_color;
+        if (m_deskew_controls_color_thumb.alpha() > 70)
+            m_deskew_controls_color_thumb.setAlpha(70);
 
         m_highlightColorAdjustment = 100 + settings.value(_key_thumbnails_non_focused_selection_highlight_color_adj, _key_thumbnails_non_focused_selection_highlight_color_adj_def).toInt();
 
@@ -171,6 +181,11 @@ public:
     static bool m_disable_bw_smoothing;
     static qreal m_zone_editor_min_angle;
     static float m_picture_detection_sensitivity;
+    static QColor m_deskew_controls_color;
+    static QColor m_deskew_controls_color_pen;
+    static QColor m_deskew_controls_color_thumb;
+    static QColor m_content_sel_content_color;
+    static QColor m_content_sel_content_color_pen;
     static QHotKeys m_hotKeyManager;
     static int m_highlightColorAdjustment;
 

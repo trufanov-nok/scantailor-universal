@@ -150,6 +150,14 @@ private slots:
 
     void on_cbDontUseNativeDlg_clicked(bool checked);
 
+    void on_btnColorSelectedContent_clicked();
+
+    void on_btnColorSelectedContentReset_released();
+
+    void on_btnColorDeskew_clicked();
+
+    void on_btnColorDeskewReset_released();
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

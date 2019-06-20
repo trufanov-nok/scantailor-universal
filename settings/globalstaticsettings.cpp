@@ -28,6 +28,11 @@ bool GlobalStaticSettings::m_use_horizontal_predictor = false;
 bool GlobalStaticSettings::m_disable_bw_smoothing = false;
 qreal GlobalStaticSettings::m_zone_editor_min_angle = 3.0;
 float GlobalStaticSettings::m_picture_detection_sensitivity = 100.;
+QColor GlobalStaticSettings::m_deskew_controls_color;
+QColor GlobalStaticSettings::m_deskew_controls_color_pen;
+QColor GlobalStaticSettings::m_deskew_controls_color_thumb;
+QColor GlobalStaticSettings::m_content_sel_content_color;
+QColor GlobalStaticSettings::m_content_sel_content_color_pen;
 QHotKeys GlobalStaticSettings::m_hotKeyManager = QHotKeys();
 int  GlobalStaticSettings::m_highlightColorAdjustment = 140;
 
