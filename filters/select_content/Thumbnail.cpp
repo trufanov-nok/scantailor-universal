@@ -17,6 +17,7 @@
 */
 
 #include "Thumbnail.h"
+#include "settings/globalstaticsettings.h"
 #include <QRectF>
 #include <QSizeF>
 #include <QTransform>
@@ -50,12 +51,12 @@ Thumbnail::paintOverImage(
 
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	
-	QPen pen(QColor(0x00, 0x00, 0xff));
+    QPen pen(GlobalStaticSettings::m_content_sel_content_color_pen);
 	pen.setWidth(1);
 	pen.setCosmetic(true);
 	painter.setPen(pen);
 	
-	painter.setBrush(QColor(0x00, 0x00, 0xff, 50));
+    painter.setBrush(GlobalStaticSettings::m_content_sel_content_color);
 	
 	QRectF content_rect(virtToThumb().mapRect(m_contentRect));
 	

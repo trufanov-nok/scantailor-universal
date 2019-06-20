@@ -26,6 +26,7 @@
 #include <MainWindow.h>
 #include <QDebug>
 #include <QResource>
+#include <QColorDialog>
 #include "filters/output/DespeckleLevel.h"
 #include "filters/output/Params.h"
 #include "settings/globalstaticsettings.h"
@@ -539,6 +540,12 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.disableSmoothingBW->setChecked(m_settings.value(_key_mode_bw_disable_smoothing, _key_mode_bw_disable_smoothing_def).toBool());
     } else if (currentPage == ui.pageHotKeysManager) {
         ui.lblHotKeyManager->setText(GlobalStaticSettings::m_hotKeyManager.toDisplayableText());
+    } else if (currentPage == ui.pageDeskew) {
+        QString s("QToolButton {background: %1};");
+        ui.btnColorDeskew->setStyleSheet(s.arg(m_settings.value(_key_deskew_controls_color, _key_deskew_controls_color_def).toString()));
+    } else if (currentPage == ui.pageSelectContent) {
+        QString s("QToolButton {background: %1};");
+        ui.btnColorSelectedContent->setStyleSheet(s.arg(m_settings.value(_key_content_sel_content_color, _key_content_sel_content_color_def).toString()));
     } else if (currentPage == ui.pagePageDetecton) {
         ui.gbPageDetectionFineTuneCorners->setChecked(m_settings.value(_key_content_sel_page_detection_fine_tune_corners, _key_content_sel_page_detection_fine_tune_corners_def).toBool());
         ui.cbPageDetectionFineTuneCorners->setChecked(m_settings.value(_key_content_sel_page_detection_fine_tune_corners_is_on_by_def, _key_content_sel_page_detection_fine_tune_corners_is_on_by_def_def).toBool());
@@ -1045,4 +1052,42 @@ void SettingsDialog::on_cbOrderHints_toggled(bool checked)
 void SettingsDialog::on_cbDontUseNativeDlg_clicked(bool checked)
 {
      m_settings.setValue(_key_dont_use_native_dialog, checked);
+}
+
+void SettingsDialog::on_btnColorSelectedContent_clicked()
+{
+    QColor clr;
+    clr.setNamedColor(m_settings.value(_key_content_sel_content_color, _key_content_sel_content_color_def).toString());
+    clr = QColorDialog::getColor(clr, this, tr("Color selection"), QColorDialog::ShowAlphaChannel);
+    if (clr.isValid()) {
+        m_settings.setValue(_key_content_sel_content_color, clr.name(QColor::HexArgb));
+        QString s("QToolButton {background: %1};");
+        ui.btnColorSelectedContent->setStyleSheet(s.arg(clr.name(QColor::HexArgb)));
+    }
+}
+
+void SettingsDialog::on_btnColorSelectedContentReset_released()
+{
+    m_settings.setValue(_key_content_sel_content_color, _key_content_sel_content_color_def);
+    QString s("QToolButton {background: %1};");
+    ui.btnColorSelectedContent->setStyleSheet(s.arg(_key_content_sel_content_color_def));
+}
+
+void SettingsDialog::on_btnColorDeskew_clicked()
+{
+    QColor clr;
+    clr.setNamedColor(m_settings.value(_key_deskew_controls_color, _key_deskew_controls_color_def).toString());
+    clr = QColorDialog::getColor(clr, this, tr("Color selection"), QColorDialog::ShowAlphaChannel);
+    if (clr.isValid()) {
+        m_settings.setValue(_key_deskew_controls_color, clr.name(QColor::HexArgb));
+        QString s("QToolButton {background: %1};");
+        ui.btnColorDeskew->setStyleSheet(s.arg(clr.name(QColor::HexArgb)));
+    }
+}
+
+void SettingsDialog::on_btnColorDeskewReset_released()
+{
+    m_settings.setValue(_key_deskew_controls_color, _key_deskew_controls_color_def);
+    QString s("QToolButton {background: %1};");
+    ui.btnColorDeskew->setStyleSheet(s.arg(_key_deskew_controls_color_def));
 }

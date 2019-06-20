@@ -112,6 +112,8 @@ static const char* _key_content_sel_page_detection_fine_tune_corners = "page_det
 static const bool _key_content_sel_page_detection_fine_tune_corners_def = false;
 static const char* _key_content_sel_page_detection_borders = "page_detection/borders";
 static const bool _key_content_sel_page_detection_borders_def = false;
+static const char* _key_content_sel_content_color = "content_selection/content_color";
+static const char* _key_content_sel_content_color_def = "#320000ff";
 
 static const char* _key_content_sel_page_detection_fine_tune_corners_is_on_by_def = "page_detection/fine_tune_page_corners/default";
 static const bool _key_content_sel_page_detection_fine_tune_corners_is_on_by_def_def = false;
@@ -222,6 +224,8 @@ static const char* _key_use_3d_accel = "settings/use_3d_acceleration";
 static const bool _key_use_3d_accel_def = false;
 
 
+static const char* _key_deskew_controls_color = "deskew/controls_color";
+static const char* _key_deskew_controls_color_def = "#5A0000ff";
 static const char* _key_deskew_orient_fix_enabled = "deskew_orient_fix/enabled";
 static const bool _key_deskew_orient_fix_enabled_def = false;
 static const char* _key_deskew_deviant_enabled = "deskew_deviant/enabled";

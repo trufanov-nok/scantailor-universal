@@ -222,12 +222,12 @@ ImageView::onPaint(QPainter& painter, InteractionState const& interaction)
 	painter.setRenderHints(QPainter::Antialiasing, true);
 
 	// Draw the content bounding box.
-	QPen pen(QColor(0x00, 0x00, 0xff));
+    QPen pen(GlobalStaticSettings::m_content_sel_content_color_pen);
 	pen.setWidth(1);
 	pen.setCosmetic(true);
 	painter.setPen(pen);
 
-	painter.setBrush(QColor(0x00, 0x00, 0xff, 50));
+    painter.setBrush(GlobalStaticSettings::m_content_sel_content_color);
 
 	// Pen strokes will be outside of m_contentRect - that's how drawRect() works.
 	painter.drawRect(m_contentRect);

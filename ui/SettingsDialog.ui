@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>703</width>
-    <height>510</height>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -168,7 +168,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>11</number>
+       <number>10</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -224,8 +224,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>779</height>
+                <width>115</width>
+                <height>1057</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
@@ -396,7 +396,7 @@ You can add new images (for ex. missing pages) after project is created with Ins
              <x>0</x>
              <y>0</y>
              <width>432</width>
-             <height>51</height>
+             <height>63</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_51">
@@ -595,8 +595,8 @@ This option allows to increase page view panel size to almost a whole applicatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>1721</height>
+                <width>112</width>
+                <height>2377</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_83">
@@ -1094,8 +1094,8 @@ If project was never saved before this will create UnnamedAutoSave.Scantailor fi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>662</height>
+                <width>104</width>
+                <height>922</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_57">
@@ -1340,8 +1340,8 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>818</height>
+                <width>105</width>
+                <height>1232</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_60">
@@ -1542,36 +1542,133 @@ The dividing line can also be determined/moved automatically or specified manual
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <property name="spacing">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="leftMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="topMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="rightMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="lblDeskewDescr">
-             <property name="text">
-              <string>At this stage one may determine the angle which the page needs to be turned for the text to be properly horizontal. Since compensation is a simple rotation such distortions as keystone or curling can not be corrected at this stage. The rotation angle is determined automatically, but you can also set it manually.
-
-Images can be rotated by dragging the round handles at the edges. You can also explicitly specify the rotation angle in degrees. Positive angles will rotate the image clockwise, negative counter-clockwise. For fine adjustment of the angle it may be convenient to click the mouse on the text portion of the input field corner, then move the mouse wheel to fix it.</string>
+            <widget class="QScrollArea" name="scrollArea_21">
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <property name="wordWrap">
+             <property name="widgetResizable">
               <bool>true</bool>
              </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents_21">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>441</width>
+                <height>404</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_96">
+               <item>
+                <widget class="QLabel" name="lblDeskewDescr">
+                 <property name="text">
+                  <string>At this stage one may determine the angle which the page needs to be turned for the text to be properly horizontal. Since compensation is a simple rotation such distortions as keystone or curling can not be corrected at this stage. The rotation angle is determined automatically, but you can also set it manually.
+
+Images can be rotated by dragging the round handles at the edges. You can also explicitly specify the rotation angle in degrees. Positive angles will rotate the image clockwise, negative counter-clockwise. For fine adjustment of the angle it may be convenient to click the mouse on the text portion of the input field corner, then move the mouse wheel to fix it.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="textInteractionFlags">
+                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="gbColorDeskew" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_19">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>Grid and lines color: </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_21">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QToolButton" name="btnColorDeskew">
+                <property name="minimumSize">
+                 <size>
+                  <width>75</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Click to change color</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="btnColorDeskewReset">
+                <property name="toolTip">
+                 <string>Reset color to default</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/resources.qrc">
+                  <normaloff>:/icons/gimp-undo-history.png</normaloff>:/icons/gimp-undo-history.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -1615,8 +1712,8 @@ Images can be rotated by dragging the round handles at the edges. You can also e
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>417</width>
-                <height>413</height>
+                <width>93</width>
+                <height>1352</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_94">
@@ -1780,8 +1877,8 @@ The Deviant page on this stage is defined as a page which absolute deskew angle 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>922</height>
+                <width>94</width>
+                <height>1503</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_63">
@@ -1820,6 +1917,81 @@ If areas are identified incorrectly, you can tweak individual pages manually by 
                </item>
               </layout>
              </widget>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="gbColorContentSelected" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Content zone highlight color: </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QToolButton" name="btnColorSelectedContent">
+                <property name="minimumSize">
+                 <size>
+                  <width>75</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Click to change color</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="btnColorSelectedContentReset">
+                <property name="toolTip">
+                 <string>Reset color to default</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../resources/resources.qrc">
+                  <normaloff>:/icons/gimp-undo-history.png</normaloff>:/icons/gimp-undo-history.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -1938,8 +2110,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>1026</height>
+                <width>109</width>
+                <height>1470</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -2214,8 +2386,8 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>828</height>
+                <width>101</width>
+                <height>1286</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -2370,8 +2542,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>803</height>
+                <width>106</width>
+                <height>1182</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_90">
@@ -2657,8 +2829,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>2929</height>
+                <width>103</width>
+                <height>4266</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_89">
@@ -2850,8 +3022,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>610</height>
+                <width>111</width>
+                <height>813</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_69">
@@ -3124,8 +3296,8 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>675</height>
+                <width>101</width>
+                <height>1006</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_74">
@@ -3237,8 +3409,8 @@ Making black and white image from grayscale or color source requires binarizatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>324</height>
+                <width>90</width>
+                <height>558</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_76">
@@ -3343,8 +3515,8 @@ Equalize illumination option normalizes the background color, bringing it to whi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>558</height>
+                <width>109</width>
+                <height>828</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_77">
@@ -3449,8 +3621,8 @@ Automatic picture zones detection works well enough, but if the picture merges s
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>415</height>
+                <width>101</width>
+                <height>648</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_79">
@@ -3547,8 +3719,8 @@ This mask can't be changed directly but only switched on/off. User could also cr
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>1117</height>
+                <width>101</width>
+                <height>1743</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_81">
@@ -3694,8 +3866,8 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>1052</height>
+                <width>93</width>
+                <height>1702</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_73">
@@ -3877,8 +4049,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>984</height>
+                <width>101</width>
+                <height>1436</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_92">
@@ -4088,8 +4260,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>96</width>
-                <height>1000</height>
+                <width>116</width>
+                <height>1314</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">
@@ -4186,6 +4358,8 @@ Debug images are saved as png in temporary folder with unique filenames. These f
  <tabstops>
   <tabstop>lineEdit</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

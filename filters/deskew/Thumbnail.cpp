@@ -17,6 +17,7 @@
 */
 
 #include "Thumbnail.h"
+#include "settings/globalstaticsettings.h"
 #include <QRectF>
 #include <QLineF>
 #include <QTransform>
@@ -40,12 +41,12 @@ Thumbnail::Thumbnail(
 
 void
 Thumbnail::paintOverImage(
-	QPainter& painter, QTransform const& image_to_display,
-	QTransform const& thumb_to_display)
+    QPainter& painter, QTransform const& /*image_to_display*/,
+    QTransform const& /*thumb_to_display*/)
 {
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	
-	QPen pen(QColor(0, 0, 255, 70));
+    QPen pen(GlobalStaticSettings::m_deskew_controls_color_thumb);
 	pen.setWidth(1);
 	pen.setCosmetic(true);
 	painter.setPen(pen);
