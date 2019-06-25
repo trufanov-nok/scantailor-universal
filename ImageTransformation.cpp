@@ -30,6 +30,10 @@ ImageTransformation::ImageTransformation(
     m_origDpi(orig_dpi),
     m_pageLevel(pageLevel)
 {
+    if (!GlobalStaticSettings::m_drawDeskewOrientFix) {
+        m_pageLevel = ImageTransformation::PageLevel;
+    }
+
 	preScaleToEqualizeDpi();
 }
 
@@ -54,7 +58,7 @@ ImageTransformation::preScaleToDpi(Dpi const& dpi)
 	);
 	
 	// Undo's for the specified steps.
-    QTransform const undo21(m_preRotateXformPage.inverted() * m_preScaleXform.inverted());
+    QTransform const undo21(preRotateXform().inverted() * m_preScaleXform.inverted());
     QTransform const undo4321(m_postRotateXform.inverted() * preCropXform().inverted() * undo21);
 	
 	// Update transform #1: pre-scale.
@@ -62,10 +66,10 @@ ImageTransformation::preScaleToDpi(Dpi const& dpi)
 	m_preScaleXform.scale(xscale, yscale);
 
 	// Update transform #2: pre-rotate.
-    m_preRotateXformPage = preRotation().transform(new_pre_scaled_image_size);
+    setPreRotateXform(preRotation().transform(new_pre_scaled_image_size));
 
 	// Update transform #3: pre-crop.
-    QTransform const redo12(m_preScaleXform * m_preRotateXformPage);
+    QTransform const redo12(m_preScaleXform * preRotateXform());
     setPreCropArea((undo21 * redo12).map(preCropArea()));
     setPreCropXform(calcCropXform(preCropArea()));
 

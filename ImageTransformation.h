@@ -229,6 +229,14 @@ private:
 
     QTransform const& preRotateXform() const { return m_pageLevel == PageLevel ? m_preRotateXformPage : m_preRotateXformImage; }
 
+    void setPreRotateXform(QTransform const& val) {
+        if (m_pageLevel == PageLevel) {
+            m_preRotateXformPage = val;
+        } else {
+            m_preRotateXformImage = val;
+        }
+    }
+
 	QTransform calcCropXform(QPolygonF const& crop_area);
 
 	QTransform calcPostRotateXform(double degrees);
