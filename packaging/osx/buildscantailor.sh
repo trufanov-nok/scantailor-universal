@@ -4,7 +4,7 @@ OURDIR=`dirname $0`
 OURDIR=`cd $OURDIR; pwd`
 STSRC=`cd $OURDIR/../..; pwd`
 STHOME=`cd $OURDIR/../../..; pwd`
-echo -e "Building ScanTailor - Base Direcotry: $STHOME\n\n"
+echo -e "Building ScanTailor - Base Directory: $STHOME\n\n"
 
 # I’ve hardcoded path to SDK [truf]
 PATH_TO_SDK=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
