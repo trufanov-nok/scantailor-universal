@@ -821,7 +821,10 @@ Despeckle::despeckleInPlace(
 	
 	bool have_anchored_to_small_but_not_big = false;
 	for (Component const& comp: components) {
-		have_anchored_to_small_but_not_big = comp.anchoredToSmallButNotBig();
+		if (comp.anchoredToSmallButNotBig()) {
+			have_anchored_to_small_but_not_big = true;
+			break;
+		}
 	}
 	
 	if (have_anchored_to_small_but_not_big) {
