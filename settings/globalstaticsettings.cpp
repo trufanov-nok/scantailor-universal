@@ -18,6 +18,9 @@
 
 #include "globalstaticsettings.h"
 
+QString GlobalStaticSettings::m_tiff_compr_method;
+QStringList GlobalStaticSettings::m_tiff_list;
+int GlobalStaticSettings::m_tiff_compression_id = 5;
 bool GlobalStaticSettings::m_drawDeskewDeviants = false;
 bool GlobalStaticSettings::m_drawContentDeviants = false;
 bool GlobalStaticSettings::m_drawMarginDeviants = false;

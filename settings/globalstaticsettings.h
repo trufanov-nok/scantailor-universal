@@ -22,6 +22,8 @@
 #include "settings/ini_keys.h"
 #include <memory>
 #include <QColor>
+#include <QResource>
+#include <QRegularExpression>
 
 class GlobalStaticSettings
 {
@@ -70,6 +72,8 @@ public:
         setDrawContentDeviants(settings.value(_key_select_content_deviant_enabled, _key_select_content_deviant_enabled_def).toBool());
         setDrawMarginDeviants(settings.value(_key_margins_deviant_enabled, _key_margins_deviant_enabled_def).toBool());
 
+        m_tiff_compr_method = settings.value(_key_tiff_compr_method, _key_tiff_compr_method_def).toString();
+        updateTiffCompression(m_tiff_compr_method);
         m_binrization_threshold_control_default = settings.value(_key_output_bin_threshold_default, _key_output_bin_threshold_default_def).toInt();
         m_use_horizontal_predictor = settings.value(_key_tiff_compr_horiz_pred, _key_tiff_compr_horiz_pred_def).toBool();
         m_disable_bw_smoothing = settings.value(_key_mode_bw_disable_smoothing, _key_mode_bw_disable_smoothing_def).toBool();
@@ -150,6 +154,48 @@ public:
         return false;
     }
 
+    // TIFF compression
+    static int getCompressionVal(const QString& compression)
+    {
+        if (m_tiff_list.isEmpty()) {
+            const QResource tiff_data(":/TiffCompressionMethods.tsv");
+            m_tiff_list = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
+        }
+
+        QStringList data = m_tiff_list.filter(QRegularExpression("^"+compression+"\t.*"));
+
+        if (data.empty()) {
+            throw("Unknown compression");
+        }
+
+        Q_ASSERT(data.size() == 1);
+        data = data[0].split('\t');
+        Q_ASSERT(data.size() >= 3);
+        return data[1].toInt();
+    }
+
+    static int updateTiffCompression(const QString& name)
+    {
+
+        if (m_tiff_compr_method == name) {
+            return m_tiff_compression_id;
+        }
+
+        m_tiff_compr_method = name;
+        m_tiff_compression_id = getCompressionVal(name);
+        return m_tiff_compression_id;
+    }
+
+    static void setTiffCompression(QString const& compression)
+    {
+        if (m_tiff_compr_method != compression) {
+            m_tiff_compression_id = getCompressionVal(compression);
+            m_tiff_compr_method = compression;
+        }
+        // QSettings might be out of sync
+        QSettings().setValue(_key_tiff_compr_method, m_tiff_compr_method);
+    }
+
 private:
     inline static void updateParams()
     {
@@ -175,7 +221,10 @@ private:
     static bool m_drawContentDeviants;
     static bool m_drawMarginDeviants;
     static int m_currentStage;
+    static QStringList m_tiff_list;
 public:
+    static QString m_tiff_compr_method;
+    static int m_tiff_compression_id;
     static int m_binrization_threshold_control_default;
     static bool m_use_horizontal_predictor;
     static bool m_disable_bw_smoothing;

@@ -694,7 +694,7 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
     if (!render_params.needBinarization() || suppress_smoothing) {
 		maybe_smoothed = maybe_normalized;
 	} else {
-		maybe_smoothed = smoothToGrayscale(maybe_normalized, m_dpi);
+        maybe_smoothed =  smoothToGrayscale(maybe_normalized, m_dpi);
 		if (dbg) {
 			dbg->add(maybe_smoothed, "smoothed");
 		}

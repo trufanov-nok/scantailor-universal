@@ -208,24 +208,24 @@ TiffWriter::writeImage(QIODevice& device, QImage const& image, bool multipage, i
 
 	if (! cli.hasTiffForceRGB()) {
 		if (cli.hasTiffForceGrayscale()) {
-			return writeBitonalOrIndexed8Image(tif, imageproc::toGrayscale(image), compression);
+            return writeBitonalOrIndexed8Image(tif, imageproc::toGrayscale(image), multipage, compression);
 		}
 		switch (image.format()) {
 			case QImage::Format_Mono:
 			case QImage::Format_MonoLSB:
 			case QImage::Format_Indexed8:
-				return writeBitonalOrIndexed8Image(tif, image, compression);
+                return writeBitonalOrIndexed8Image(tif, image, multipage, compression);
 			default:;
 		}
 	}
 	
 	if (image.hasAlphaChannel()) {
 		return writeARGB32Image(
-			tif, image.convertToFormat(QImage::Format_ARGB32), compression
+            tif, image.convertToFormat(QImage::Format_ARGB32), multipage, compression
 		);
 	} else {
 		return writeRGB32Image(
-			tif, image.convertToFormat(QImage::Format_RGB32), compression
+            tif, image.convertToFormat(QImage::Format_RGB32), multipage, compression
 		);
 	}
 }
@@ -304,6 +304,7 @@ TiffWriter::writeBitonalOrIndexed8Image(
 	TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION, uint16(compression));
 	TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, bits_per_sample);
 	TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, photometric);
+    TIFFSetField(tif.handle(), TIFFTAG_FILLORDER, FILLORDER_LSB2MSB);
 	
     if (GlobalStaticSettings::m_use_horizontal_predictor && bits_per_sample == 8) {
 		TIFFSetField(tif.handle(), TIFFTAG_PREDICTOR, PREDICTOR_HORIZONTAL);
