@@ -53,7 +53,13 @@ SOURCE_GROUP("UI Files" FILES ${ui_files})
 
 QT5_WRAP_UI(ui_sources ${ui_files})
 
-ADD_LIBRARY(output STATIC ${sources} ${ui_sources})
+SET(output_filter_resource_files resources/output_filter_resources.qrc)
+SOURCE_GROUP("OutputFilterResources" FILES ${resource_files})
+
+QT5_ADD_RESOURCES(output_filter_resource_sources resources/output_filter_resources.qrc)
+SOURCE_GROUP("Generated" FILES ${output_filter_resource_sources})
+
+ADD_LIBRARY(output STATIC ${output_filter_resource_sources} ${sources} ${ui_sources})
 QT5_USE_MODULES(output Widgets Xml)
 ADD_DEPENDENCIES(output toplevel_ui_sources)
 

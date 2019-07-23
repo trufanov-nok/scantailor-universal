@@ -122,6 +122,8 @@ static bool crashCallback(wchar_t const* dump_path,
 
 int main(int argc, char** argv)
 {
+    Q_INIT_RESOURCE(output_filter_resources);
+
 #ifdef ENABLE_CRASH_REPORTER
 	getCrashReporterPath(
 		crash_reporter_path,
