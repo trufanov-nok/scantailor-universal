@@ -115,6 +115,18 @@ private:
 	QRectF m_contentRect;
 };
 
+class Settings::ModifyPageRect
+{
+public:
+    ModifyPageRect(QRectF const& page_rect): m_pageRect(page_rect) {}
+
+    void operator()(Item& item) {
+        item.pageRect = m_pageRect;
+    }
+private:
+    QRectF m_pageRect;
+};
+
 
 class Settings::Impl
 {
@@ -152,8 +164,7 @@ public:
 	AggregateSizeChanged setPageAlignment(
 		PageId const& page_id, Alignment const& alignment);
 	
-	AggregateSizeChanged setContentSizeMM(
-		PageId const& page_id, QSizeF const& content_size_mm);
+    AggregateSizeChanged setContentSizeMM(PageId const& page_id, QSizeF const& content_size_mm, const QRectF &content_rect);
 	
 	void invalidateContentSize(PageId const& page_id);
 	
@@ -325,9 +336,9 @@ Settings::setPageAlignment(PageId const& page_id, Alignment const& alignment)
 
 Settings::AggregateSizeChanged
 Settings::setContentSizeMM(
-	PageId const& page_id, QSizeF const& content_size_mm)
+    PageId const& page_id, QSizeF const& content_size_mm, QRectF const& content_rect)
 {
-	return m_ptrImpl->setContentSizeMM(page_id, content_size_mm);
+    return m_ptrImpl->setContentSizeMM(page_id, content_size_mm, content_rect);
 }
 
 void
@@ -543,6 +554,7 @@ Settings::Impl::getParams(
 		item_it = m_items.insert(it, item);
 	} else {
 		m_items.modify(it, ModifyContentSize(content_size_mm, content_rect));
+        m_items.modify(it, ModifyPageRect(page_rect)); // in case Proportional alignment was mass applied this rect may be empty or incorrect
 	}
 	
 	if (agg_hard_size_after) {
@@ -626,7 +638,7 @@ Settings::Impl::setPageAlignment(
 
 Settings::AggregateSizeChanged
 Settings::Impl::setContentSizeMM(
-	PageId const& page_id, QSizeF const& content_size_mm)
+    PageId const& page_id, QSizeF const& content_size_mm, QRectF const& content_rect)
 {
 	QMutexLocker const locker(&m_mutex);
 	
@@ -635,12 +647,12 @@ Settings::Impl::setContentSizeMM(
 	Container::iterator const it(m_items.lower_bound(page_id));
 	if (it == m_items.end() || page_id < it->pageId) {
 		Item const item(
-			page_id, m_defaultHardMarginsMM, m_invalidRect, m_invalidRect,
+            page_id, m_defaultHardMarginsMM, m_invalidRect, content_rect,
 			content_size_mm, m_defaultAlignment
 		);
 		m_items.insert(it, item);
 	} else {
-		m_items.modify(it, ModifyContentSize(content_size_mm, m_invalidRect));
+        m_items.modify(it, ModifyContentSize(content_size_mm, content_rect));
 	}
 	
 	QSizeF const agg_size_after(getAggregateHardSizeMMLocked());

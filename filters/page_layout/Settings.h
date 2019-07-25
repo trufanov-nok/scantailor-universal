@@ -144,8 +144,7 @@ public:
 	 *
 	 * The content size comes from the "Select Content" filter.
 	 */
-	AggregateSizeChanged setContentSizeMM(
-		PageId const& page_id, QSizeF const& content_size_mm);
+    AggregateSizeChanged setContentSizeMM(PageId const& page_id, QSizeF const& content_size_mm, const QRectF &content_rect);
 	
 	void invalidateContentSize(PageId const& page_id);
 	
@@ -170,6 +169,7 @@ private:
 	class ModifyMargins;
 	class ModifyAlignment;
 	class ModifyContentSize;
+        class ModifyPageRect;
 	
 	std::unique_ptr<Impl> m_ptrImpl;
 };

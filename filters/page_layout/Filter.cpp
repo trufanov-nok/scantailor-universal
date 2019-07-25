@@ -220,7 +220,7 @@ Filter::setContentBox(
 	QRectF const& content_rect)
 {
 	QSizeF const content_size_mm(Utils::calcRectSizeMM(xform, content_rect));
-	m_ptrSettings->setContentSizeMM(page_id, content_size_mm);
+    m_ptrSettings->setContentSizeMM(page_id, content_size_mm, content_rect);
 }
 
 void
