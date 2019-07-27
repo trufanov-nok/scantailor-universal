@@ -336,7 +336,7 @@ Settings::initialFillZoneProps()
 static QStringList _tiff_list;
 
 int
-getCompressionVal(const QString& compression)
+Settings::getCompressionVal(const QString& compression)
 {
     if (_tiff_list.isEmpty()) {
         const QResource tiff_data(":/TiffCompressionMethods.tsv");

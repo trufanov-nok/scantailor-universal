@@ -88,6 +88,7 @@ public:
 
 	void setFillZones(PageId const& page_id, ZoneSet const& zones);
 	    
+    int getCompressionVal(const QString& compression);
     int getTiffCompression();
     const QString getTiffCompressionName() const;
     void setTiffCompression(QString const& compression);
