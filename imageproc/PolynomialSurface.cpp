@@ -133,7 +133,6 @@ PolynomialSurface::render(QSize const& size) const
 	GrayImage image(size);
 	int const width = size.width();
 	int const height = size.height();
-	unsigned char* line = image.data();
 	int const bpl = image.stride();
 	int const num_coeffs = m_coeffs.size();
 	
@@ -169,16 +168,20 @@ PolynomialSurface::render(QSize const& size) const
 		}
 	}
 	
-	float const* vert_line = &vert_matrix[0];
-	for (int y = 0; y < height; ++y, line += bpl, vert_line += num_coeffs) {
+unsigned char* image_data = image.data(); // never call .data() inside omp
+
+#pragma omp parallel for schedule(static) shared(image, vert_matrix, hor_matrix)
+    for (int y = 0; y < height; ++y) {
+        unsigned char* line = image_data + y*bpl;
+        float const* vert_line = &vert_matrix[0] + y * num_coeffs;
 		float const* hor_line = &hor_matrix[0];
 		for (int x = 0; x < width; ++x, hor_line += num_coeffs) {
-			float sum = 0.5f / 255.0f; // for rounding purposes.
+            float sum = 0; // for rounding purposes.
 			for (int i = 0; i < num_coeffs; ++i) {
 				sum += hor_line[i] * vert_line[i];
 			}
-			int const isum = (int)(sum * 255.0);
-			line[x] = static_cast<unsigned char>(qBound(0, isum, 255));
+            int const isum = (int)(sum * 255.0 + 0.5f);
+            line[x] = isum <= 0 ? 0 : (isum >= 255 ? 255 : (unsigned char) isum);
 		}
 	}
 	
@@ -300,11 +303,11 @@ void PolynomialSurface::prepareDataForLeastSquares(
 	int const height = image.height();
 	int const num_terms = Atb.size();
 
-	uint8_t const* image_line = image.data();
-	int const image_stride = image.stride();
+    uint8_t const* image_line = image.data();
+    int const image_stride = image.stride();
 
-	uint32_t const* mask_line = mask.data();
-	int const mask_stride = mask.wordsPerLine();
+    uint32_t const* mask_line = mask.data();
+    int const mask_stride = mask.wordsPerLine();
 
 	// Pretend that both x and y positions of pixels
 	// lie in range of [0, 1].
@@ -314,63 +317,63 @@ void PolynomialSurface::prepareDataForLeastSquares(
 	// To force data samples into [0, 1] range.
 	double const data_scale = 1.0 / 255.0;
 
-	// 1, y, y^2, y^3, ...
-	VecT<double> y_powers(v_degree + 1); // Initialized to 0.
+    // 1, y, y^2, y^3, ...
+    VecT<double> y_powers(v_degree + 1); // Initialized to 0.
 
 	// Same as y_powers, except y_powers correspond to a given y,
 	// while x_powers are computed for all possible x values.
 	MatT<double> x_powers(h_degree + 1, width); // Initialized to 0.
-	for (int x = 0; x < width; ++x) {
+    for (int x = 0; x < width; ++x) {
 		double const x_adjusted = xscale * x;
 		double x_power = 1.0;
 		for (int i = 0; i <= h_degree; ++i) {
 			x_powers(i, x) = x_power;
 			x_power *= x_adjusted;
 		}
-	}
+    }
 
-	VecT<double> full_powers(num_terms);
+    VecT<double> full_powers(num_terms);
 
-	uint32_t const msb = uint32_t(1) << 31;
-	for (int y = 0; y < height; ++y) {
-		double const y_adjusted = yscale * y;
+    uint32_t const msb = uint32_t(1) << 31;
+    for (int y = 0; y < height; ++y) {
+        double const y_adjusted = yscale * y;
 
-		double y_power = 1.0;
-		for (int i = 0; i <= v_degree; ++i) {
-			y_powers[i] = y_power;
-			y_power *= y_adjusted;
-		}
+        double y_power = 1.0;
+        for (int i = 0; i <= v_degree; ++i) {
+            y_powers[i] = y_power;
+            y_power *= y_adjusted;
+        }
 
-		for (int x = 0; x < width; ++x) {
-			if (!(mask_line[x >> 5] & (msb >> (x & 31)))) {
-				continue;
-			}
+        for (int x = 0; x < width; ++x) {
+            if (!(mask_line[x >> 5] & (msb >> (x & 31)))) {
+                continue;
+            }
 
-			double const data_point = data_scale * image_line[x];
+            double const data_point = data_scale * image_line[x];
 
-			int pos = 0;
-			for (int i = 0; i <= v_degree; ++i) {
-				for (int j = 0; j <= h_degree; ++j, ++pos) {
-					full_powers[pos] = y_powers[i] * x_powers(j, x);
-				}
-			}
+            int pos = 0;
+            for (int i = 0; i <= v_degree; ++i) {
+                for (int j = 0; j <= h_degree; ++j, ++pos) {
+                    full_powers[pos] = y_powers[i] * x_powers(j, x);
+                }
+            }
 
-			double* p_AtA = AtA_data;
-			for (int i = 0; i < num_terms; ++i) {
-				double const i_val = full_powers[i];
-				Atb_data[i] += i_val * data_point;
+            double* p_AtA = AtA_data;
+            for (int i = 0; i < num_terms; ++i) {
+                double const i_val = full_powers[i];
+                Atb_data[i] += i_val * data_point;
 
-				for (int j = 0; j < num_terms; ++j) {
-					double const j_val = full_powers[j];
-					*p_AtA += i_val * j_val;
-					++p_AtA;
-				}
-			}
-		}
+                for (int j = 0; j < num_terms; ++j) {
+                    double const j_val = full_powers[j];
+                    *p_AtA += i_val * j_val;
+                    ++p_AtA;
+                }
+            }
+        }
 
-		image_line += image_stride;
-		mask_line += mask_stride;
-	}
+        image_line += image_stride;
+        mask_line += mask_stride;
+    }
 }
 
 void

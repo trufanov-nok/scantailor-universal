@@ -131,10 +131,11 @@ QImage savGolFilterGrayToGray(
 	int const dst_bpl = dst.bytesPerLine();
 	
 	// Top-left corner.
-	uint8_t const* src_line = src_data;
-	uint8_t* dst_line = dst_data;
-	Kernel kernel(window_size, QPoint(0, 0), hor_degree, vert_degree);
-	for (int y = 0; y < k_top; ++y, dst_line += dst_bpl) {
+    uint8_t const* src_line = src_data;
+    Kernel kernel(window_size, QPoint(0, 0), hor_degree, vert_degree);
+    #pragma omp parallel for schedule(static)
+    for (int y = 0; y < k_top; ++y) {
+        uint8_t* dst_line = dst_data + y * dst_bpl;
 		k_origin.setY(y);
 		for (int x = 0; x < k_left; ++x) {
 			k_origin.setX(x);
@@ -146,8 +147,9 @@ QImage savGolFilterGrayToGray(
 	// Top area between two corners.
 	k_origin.setX(k_center.x());
 	src_line = src_data - k_left;
-	dst_line = dst_data;
-	for (int y = 0; y < k_top; ++y, dst_line += dst_bpl) {
+#pragma omp parallel for schedule(static)
+    for (int y = 0; y < k_top; ++y) {
+        uint8_t* dst_line = dst_data + y * dst_bpl;
 		k_origin.setY(y);
 		kernel.recalcForOrigin(k_origin);
 		for (int x = k_left; x < width - k_right; ++x) {
@@ -158,15 +160,16 @@ QImage savGolFilterGrayToGray(
 	// Top-right corner.
 	k_origin.setY(0);
 	src_line = src_data + width - kw;
-	dst_line = dst_data;
-	for (int y = 0; y < k_top; ++y, dst_line += dst_bpl) {
+#pragma omp parallel for schedule(static)
+    for (int y = 0; y < k_top; ++y) {
+        uint8_t* dst_line = dst_data + y * dst_bpl;
+        k_origin.setY(y);
 		k_origin.setX(k_center.x() + 1);
 		for (int x = width - k_right; x < width; ++x) {
 			kernel.recalcForOrigin(k_origin);
 			kernel.convolve(dst_line + x, src_line, src_bpl);
 			k_origin.rx() += 1;
 		}
-		k_origin.ry() += 1;
 	}
 	
 	// Central area.
@@ -199,50 +202,52 @@ QImage savGolFilterGrayToGray(
 	// That may help the compiler to emit efficient SSE code.
 	int const temp_stride = (width - shift + 3) & ~3;
 	AlignedArray<float, 4> temp_array(temp_stride * height);
-	
+
 	// Horizontal pass.
 	src_line = src_data - shift;
 	float* temp_line = temp_array.data() - shift;
+#pragma omp parallel for schedule(static) shared(temp_array, temp_line, src_line)
 	for (int y = 0; y < height; ++y) {
+        float* tmp_ = temp_line + y * temp_stride;
+        uint8_t const* src_ = src_line + y * src_bpl;
 		for (int i = shift; i < width; ++i) {
 			float sum = 0.0f;
 			
-			uint8_t const* src = src_line + i;
+            uint8_t const* src = src_ + i;
 			for (int j = 0; j < kw; ++j) {
 				sum += src[j] * hor_kernel[j];
 			}
-			temp_line[i] = sum;
+            tmp_[i] = sum;
 		}
-		temp_line += temp_stride;
-		src_line += src_bpl;
 	}
 	
 	// Vertical pass.
-	dst_line = dst_data + k_top * dst_bpl + k_left - shift;
+    uint8_t* dst_line_base = dst_data + k_top * dst_bpl + k_left - shift;
 	temp_line = temp_array.data() - shift;
-	for (int y = k_top; y < height - k_bottom; ++y) {
+#pragma omp parallel for schedule(static) shared(temp_array, temp_line, dst_line_base)
+    for (int y = k_top; y < height - k_bottom; ++y) {
+        float* tmp_ = temp_line + (y-k_top) * temp_stride;
+        uint8_t* dst_ = dst_line_base + (y-k_top) * dst_bpl;
 		for (int i = shift; i < width; ++i) {
 			float sum = 0.0f;
 			
-			float* tmp = temp_line + i;
-			for (int j = 0; j < kh; ++j, tmp += temp_stride) {
-				sum += *tmp * vert_kernel[j];
+            float* tmp = tmp_ + i;
+            for (int j = 0; j < kh; ++j, tmp += temp_stride) {
+                sum += *tmp * vert_kernel[j];
 			}
 			int const val = static_cast<int>(sum);
-			dst_line[i] = static_cast<uint8_t>(qBound(0, val, 255));
+            dst_[i] = static_cast<uint8_t>(qBound(0, val, 255));
 		}
-		
-		temp_line += temp_stride;
-		dst_line += dst_bpl;
 	}
 #endif
 
 	// Left area between two corners.
-	k_origin.setX(0);
 	k_origin.setY(k_center.y() + 1);
+#pragma omp parallel for schedule(static)
 	for (int x = 0; x < k_left; ++x) {
-		src_line = src_data;
-		dst_line = dst_data + dst_bpl * k_top;
+        k_origin.setX(x);
+        uint8_t const* src_line = src_data;
+        uint8_t* dst_line = dst_data + dst_bpl * k_top;
 		
 		kernel.recalcForOrigin(k_origin);
 		for (int y = k_top; y < height - k_bottom; ++y) {
@@ -250,15 +255,15 @@ QImage savGolFilterGrayToGray(
 			src_line += src_bpl;
 			dst_line += dst_bpl;
 		}
-		k_origin.rx() += 1;
 	}
 	
 	// Right area between two corners.
-	k_origin.setX(k_center.x() + 1);
 	k_origin.setY(k_center.y());
+#pragma omp parallel for schedule(static)
 	for (int x = width - k_right; x < width; ++x) {
-		src_line = src_data + width - kw;
-		dst_line = dst_data + dst_bpl * k_top;
+        k_origin.setX(k_center.x() + x - (width - k_right -1 ));
+        uint8_t const* src_line = src_data + width - kw;
+        uint8_t* dst_line = dst_data + dst_bpl * k_top;
 		
 		kernel.recalcForOrigin(k_origin);
 		for (int y = k_top; y < height - k_bottom; ++y) {
@@ -266,47 +271,46 @@ QImage savGolFilterGrayToGray(
 			src_line += src_bpl;
 			dst_line += dst_bpl;
 		}
-		k_origin.rx() += 1;
 	}
 	
 	// Bottom-left corner.
-	k_origin.setY(k_center.y() + 1);
+//	k_origin.setY(k_center.y() + 1);
 	src_line = src_data + src_bpl * (height - kh);
-	dst_line = dst_data + dst_bpl * (height - k_bottom);
-	for (int y = height - k_bottom; y < height; ++y, dst_line += dst_bpl) {
+#pragma omp parallel for schedule(static)
+    for (int y = height - k_bottom; y < height; ++y) {
+        k_origin.setY(k_center.y() + y - (height - k_bottom - 1));
+        uint8_t* dst_line = dst_data + dst_bpl * (height - k_bottom) + (y - height + k_bottom) * dst_bpl;
 		for (int x = 0; x < k_left; ++x) {
 			k_origin.setX(x);
 			kernel.recalcForOrigin(k_origin);
 			kernel.convolve(dst_line + x, src_line, src_bpl);
 		}
-		k_origin.ry() += 1;
 	}
 	
 	// Bottom area between two corners.
 	k_origin.setX(k_center.x());
-	k_origin.setY(k_center.y() + 1);
 	src_line = src_data + src_bpl * (height - kh) - k_left;
-	dst_line = dst_data + dst_bpl * (height - k_bottom);
-	for (int y = height - k_bottom; y < height; ++y, dst_line += dst_bpl) {
+#pragma omp parallel for schedule(static)
+    for (int y = height - k_bottom; y < height; ++y) {
+        k_origin.setY(k_center.y() + y - (height - k_bottom - 1));
+        uint8_t* dst_line = dst_data + dst_bpl * (height - k_bottom) + (y - height + k_bottom) * dst_bpl;
 		kernel.recalcForOrigin(k_origin);
 		for (int x = k_left; x < width - k_right; ++x) {
 			kernel.convolve(dst_line + x, src_line + x, src_bpl);
 		}
-		k_origin.ry() += 1;
 	}
 	
 	// Bottom-right corner.
-	k_origin.setY(k_center.y() + 1);
 	src_line = src_data + src_bpl * (height - kh) + (width - kw);
-	dst_line = dst_data + dst_bpl * (height - k_bottom);
-	for (int y = height - k_bottom; y < height; ++y, dst_line += dst_bpl) {
-		k_origin.setX(k_center.x() + 1);
+#pragma omp parallel for schedule(static)
+    for (int y = height - k_bottom; y < height; ++y) {
+        k_origin.setY(k_center.y() + y - (height - k_bottom - 1));
+        uint8_t* dst_line = dst_data + dst_bpl * (height - k_bottom) + (y - height + k_bottom) * dst_bpl;
 		for (int x = width - k_right; x < width; ++x) {
+            k_origin.setX(k_center.x() + x - (width - k_right - 1));
 			kernel.recalcForOrigin(k_origin);
 			kernel.convolve(dst_line + x, src_line, src_bpl);
-			k_origin.rx() += 1;
 		}
-		k_origin.ry() += 1;
 	}
 	
 	return dst;

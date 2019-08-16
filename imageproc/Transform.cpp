@@ -57,13 +57,13 @@ struct YLess
 class Gray
 {
 public:
-	Gray() : m_grayLevel(0) {}
+    Gray() : m_grayLevel(0) {}
 	
-	void add(uint8_t const gray_level, unsigned const area) {
+    inline void add(uint8_t const gray_level, unsigned const area) {
 		m_grayLevel += gray_level * area;
 	}
 	
-	uint8_t result(unsigned const total_area) const {
+    inline uint8_t result(unsigned const total_area) const {
 		unsigned const half_area = total_area >> 1;
 		unsigned const res = (m_grayLevel + half_area) / total_area;
 		return static_cast<uint8_t>(res);
@@ -75,9 +75,9 @@ private:
 class RGB32
 {
 public:
-	RGB32() : m_red(0), m_green(0), m_blue(0) {}
+    RGB32() : m_red(0), m_green(0), m_blue(0) {}
 	
-	void add(uint32_t rgb, unsigned const area) {
+    inline void add(uint32_t rgb, unsigned const area) {
 		m_blue += (rgb & 0xFF) * area;
 		rgb >>= 8;
 		m_green += (rgb & 0xFF) * area;
@@ -85,7 +85,7 @@ public:
 		m_red += (rgb & 0xFF) * area;
 	}
 	
-	uint32_t result(unsigned const total_area) const {
+    inline uint32_t result(unsigned const total_area) const {
 		unsigned const half_area = total_area >> 1;
 		uint32_t rgb = 0x0000FF00;
 		rgb |= (m_red + half_area) / total_area;
@@ -104,9 +104,9 @@ private:
 class ARGB32
 {
 public:
-	ARGB32() : m_alpha(0), m_red(0), m_green(0), m_blue(0) {}
+    ARGB32() : m_alpha(0), m_red(0), m_green(0), m_blue(0) {}
 	
-	void add(uint32_t argb, unsigned const area) {
+    inline void add(uint32_t argb, unsigned const area) {
 		m_blue += (argb & 0xFF) * area;
 		argb >>= 8;
 		m_green += (argb & 0xFF) * area;
@@ -116,7 +116,7 @@ public:
 		m_alpha += argb * area;
 	}
 	
-	uint32_t result(unsigned const total_area) const {
+    inline uint32_t result(unsigned const total_area) const {
 		unsigned const half_area = total_area >> 1;
 		uint32_t argb = (m_alpha + half_area) / total_area;
 		argb <<= 8;
@@ -168,8 +168,6 @@ static void transformGeneric(
 	int const sh = src_size.height();
 	int const dw = dst_rect.width();
 	int const dh = dst_rect.height();
-
-	StorageUnit* dst_line = dst_data;
 	
 	QTransform inv_xform;
 	inv_xform.translate(dst_rect.x(), dst_rect.y());
@@ -183,7 +181,9 @@ static void transformGeneric(
 	int const src32_unit_w = std::max<int>(1, qRound(src32_unit_size.width()));
 	int const src32_unit_h = std::max<int>(1, qRound(src32_unit_size.height()));
 	
-	for (int dy = 0; dy < dh; ++dy, dst_line += dst_stride) {
+#pragma omp parallel for schedule(static) shared(inv_xform)
+    for (int dy = 0; dy < dh; ++dy) {
+        StorageUnit* dst_line = dst_data + dy * dst_stride;
 		double const f_dy_center = dy + 0.5;
 		double const f_sx32_base = f_dy_center * inv_xform.m21() + inv_xform.dx();
 		double const f_sy32_base = f_dy_center * inv_xform.m22() + inv_xform.dy();

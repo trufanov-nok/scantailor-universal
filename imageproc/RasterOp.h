@@ -257,6 +257,8 @@ void rasterOpInDirection(
 		src_span = src.data() - (sp.y() + dr.height() - 1)
 		                        * src_span_delta + sp.x() / 32;
 	}
+
+    const bool canBeParalleled = dst.data() != src.data();
 	
 	int src_word1_shift;
 	int src_word2_shift;
@@ -283,30 +285,32 @@ void rasterOpInDirection(
 				dst_span[0] = (dst_word & ~mask) | (new_dst_word & mask);
 			}
 		} else {
-			for (int i = dr.height(); i > 0; --i,
-			     src_span += src_span_delta, dst_span += dst_span_delta) {
-				
-				int widx = first_dst_word;
-				
-				// Handle the first (possibly incomplete) dst word in the line.
-				uint32_t src_word = src_span[widx];
-				uint32_t dst_word = dst_span[widx];
-				uint32_t new_dst_word = Rop::transform(src_word, dst_word);
-				dst_span[widx] = (dst_word & ~first_dst_mask) | (new_dst_word & first_dst_mask);
-				
-				while ((widx += dx) != last_dst_word) {
-					src_word = src_span[widx];
-					dst_word = dst_span[widx];
-					dst_span[widx] = Rop::transform(src_word, dst_word);
-				}
-				
-				// Handle the last (possibly incomplete) dst word in the line.
-				src_word = src_span[widx];
-				dst_word = dst_span[widx];
-				new_dst_word = Rop::transform(src_word, dst_word);
-				dst_span[widx] = (dst_word & ~last_dst_mask) | (new_dst_word & last_dst_mask);
-			}
-		}
+#pragma omp parallel for if( canBeParalleled )
+                    for (int i = 0; i < dr.height(); i++) {
+                        uint32_t* dst_span_loc = dst_span + i * dst_span_delta;
+                        uint32_t const* src_span_loc = src_span + i * src_span_delta;
+
+                        int widx = first_dst_word;
+
+                        // Handle the first (possibly incomplete) dst word in the line.
+                        uint32_t src_word = src_span_loc[widx];
+                        uint32_t dst_word = dst_span_loc[widx];
+                        uint32_t new_dst_word = Rop::transform(src_word, dst_word);
+                        dst_span_loc[widx] = (dst_word & ~first_dst_mask) | (new_dst_word & first_dst_mask);
+
+                        while ((widx += dx) != last_dst_word) {
+                            src_word = src_span_loc[widx];
+                            dst_word = dst_span_loc[widx];
+                            dst_span_loc[widx] = Rop::transform(src_word, dst_word);
+                        }
+
+                        // Handle the last (possibly incomplete) dst word in the line.
+                        src_word = src_span_loc[widx];
+                        dst_word = dst_span_loc[widx];
+                        new_dst_word = Rop::transform(src_word, dst_word);
+                        dst_span_loc[widx] = (dst_word & ~last_dst_mask) | (new_dst_word & last_dst_mask);
+                    }
+                }
 		return;
 	}
 	
@@ -337,31 +341,33 @@ void rasterOpInDirection(
 		uint32_t const can_last_word1 = (~uint32_t(0) << src_word1_shift) & last_dst_mask;
 		uint32_t const can_last_word2 = (~uint32_t(0) >> src_word2_shift) & last_dst_mask;
 		
-		for (int i = dr.height(); i > 0; --i,
-		     src_span += src_span_delta, dst_span += dst_span_delta) {
+#pragma omp parallel for if( canBeParalleled )
+        for (int i = 0; i < dr.height(); i++) {
+            uint32_t* dst_span_loc = dst_span + i * dst_span_delta;
+            uint32_t const* src_span_loc = src_span + i * src_span_delta;
 			
 			int widx = first_dst_word;
 			
 			// Handle the first (possibly incomplete) dst word in the line.
 			uint32_t src_word = 0;
 			if (can_first_word1) {
-				uint32_t const src_word1 = src_span[widx];
+                uint32_t const src_word1 = src_span_loc[widx];
 				src_word |= src_word1 << src_word1_shift;
 			}
 			if (can_first_word2) {
-				uint32_t const src_word2 = src_span[widx + 1];
+                uint32_t const src_word2 = src_span_loc[widx + 1];
 				src_word |= src_word2 >> src_word2_shift;
 			}
-			uint32_t dst_word = dst_span[widx];
+            uint32_t dst_word = dst_span_loc[widx];
 			uint32_t new_dst_word = Rop::transform(src_word, dst_word);
 			new_dst_word = (dst_word & ~first_dst_mask) | (new_dst_word & first_dst_mask);
 			
 			while ((widx += dx) != last_dst_word) {
-				uint32_t const src_word1 = src_span[widx];
-				uint32_t const src_word2 = src_span[widx + 1];
+                uint32_t const src_word1 = src_span_loc[widx];
+                uint32_t const src_word2 = src_span_loc[widx + 1];
 				
-				dst_word = dst_span[widx];
-				dst_span[widx - dx] = new_dst_word;
+                dst_word = dst_span_loc[widx];
+                dst_span_loc[widx - dx] = new_dst_word;
 				
 				new_dst_word = Rop::transform(
 					(src_word1 << src_word1_shift) |
@@ -373,20 +379,20 @@ void rasterOpInDirection(
 			// Handle the last (possibly incomplete) dst word in the line.
 			src_word = 0;
 			if (can_last_word1) {
-				uint32_t const src_word1 = src_span[widx];
+                uint32_t const src_word1 = src_span_loc[widx];
 				src_word |= src_word1 << src_word1_shift;
 			}
 			if (can_last_word2) {
-				uint32_t const src_word2 = src_span[widx + 1];
+                uint32_t const src_word2 = src_span_loc[widx + 1];
 				src_word |= src_word2 >> src_word2_shift;
 			}
 			
-			dst_word = dst_span[widx];
-			dst_span[widx - dx] = new_dst_word;
+            dst_word = dst_span_loc[widx];
+            dst_span_loc[widx - dx] = new_dst_word;
 			
 			new_dst_word = Rop::transform(src_word, dst_word);
 			new_dst_word = (dst_word & ~last_dst_mask) | (new_dst_word & last_dst_mask);
-			dst_span[widx] = new_dst_word;
+            dst_span_loc[widx] = new_dst_word;
 		}
 	}
 }

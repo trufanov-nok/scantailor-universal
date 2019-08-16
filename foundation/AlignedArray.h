@@ -47,9 +47,9 @@ public:
 	
 	T const* data() const { return m_pAlignedData; }
 	
-	T& operator[](size_t idx) { return m_pAlignedData[idx]; }
+    inline T& operator[](size_t idx) { return m_pAlignedData[idx]; }
 	
-	T const& operator[](size_t idx) const { return m_pAlignedData[idx]; }
+    inline T const& operator[](size_t idx) const { return m_pAlignedData[idx]; }
 	
 	void swap(AlignedArray& other);
 private:

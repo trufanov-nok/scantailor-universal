@@ -204,7 +204,7 @@ Tester2::testBlockMove(QRect const& rect, int const dx, int const dy)
 	QRect const dst_rect(rect.translated(dx, dy));
 	rasterOp<RopSrc>(dst, dst_rect, dst, rect.topLeft());
 	QImage q_src(m_image.toQImage());
-	QImage q_dst(dst.toQImage());
+    QImage q_dst(dst.toQImage());
 	if (q_src.copy(rect) != q_dst.copy(dst_rect)) {
 		return false;
 	}
@@ -216,11 +216,11 @@ Tester2::testBlockMove(QRect const& rect, int const dx, int const dy)
 BOOST_AUTO_TEST_CASE(test_move_blocks)
 {
 	Tester2 tester;
-	BOOST_REQUIRE(tester.testBlockMove(QRect(0, 0, 97, 150), 1, 0));
-	BOOST_REQUIRE(tester.testBlockMove(QRect(100, 50, 15, 100), -1, 0));
-	BOOST_REQUIRE(tester.testBlockMove(QRect(200, 200, 200, 100), -1, -1));
+    BOOST_REQUIRE(tester.testBlockMove(QRect(0, 0, 97, 150), 1, 0));
+    BOOST_REQUIRE(tester.testBlockMove(QRect(100, 50, 15, 100), -1, 0));
+    BOOST_REQUIRE(tester.testBlockMove(QRect(200, 200, 200, 100), -1, -1));
 	BOOST_REQUIRE(tester.testBlockMove(QRect(51, 35, 199, 200), 0, 1));
-	BOOST_REQUIRE(tester.testBlockMove(QRect(51, 35, 199, 200), 1, 1));
+    BOOST_REQUIRE(tester.testBlockMove(QRect(51, 35, 199, 200), 1, 1));
 }
 
 BOOST_AUTO_TEST_SUITE_END();

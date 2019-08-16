@@ -118,6 +118,32 @@ static QImage monoLsbToGrayscale(QImage const& src)
 	return dst;
 }
 
+static QImage rgbToGrayscale(QImage const& src)
+{
+    int const width = src.width();
+    int const height = src.height();
+
+    QImage dst(width, height, QImage::Format_Indexed8);
+    dst.setColorTable(createGrayscalePalette());
+    if (width > 0 && height > 0 && dst.isNull()) {
+        throw std::bad_alloc();
+    }
+
+#pragma omp parallel for
+    for (int y = 0; y < height; ++y) {
+        uint8_t* dst_line = dst.scanLine(y);
+        const QRgb* src_line = reinterpret_cast<const QRgb*>(src.scanLine(y));
+        for (int x = 0; x < width; ++x) {
+            dst_line[x] = static_cast<uint8_t>(qGray(*src_line++));
+        }
+    }
+
+    dst.setDotsPerMeterX(src.dotsPerMeterX());
+    dst.setDotsPerMeterY(src.dotsPerMeterY());
+
+    return dst;
+}
+
 static QImage anyToGrayscale(QImage const& src)
 {
 	int const width = src.width();
@@ -128,15 +154,15 @@ static QImage anyToGrayscale(QImage const& src)
 	if (width > 0 && height > 0 && dst.isNull()) {
 		throw std::bad_alloc();
 	}
-	
-	uint8_t* dst_line = dst.bits();
-	int const dst_bpl = dst.bytesPerLine();
-	
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
-			dst_line[x] = static_cast<uint8_t>(qGray(src.pixel(x, y)));
-		}
-		dst_line += dst_bpl;
+
+    int const dst_bpl = dst.bytesPerLine();
+
+#pragma omp parallel for
+    for (int y = 0; y < height; ++y) {
+        uint8_t* dst_line = dst.bits() + y*dst_bpl;
+        for (int x = 0; x < width; ++x) {
+            dst_line[x] = static_cast<uint8_t>(qGray(src.pixel(x, y)));
+        }
 	}
 	
 	dst.setDotsPerMeterX(src.dotsPerMeterX());
@@ -145,13 +171,16 @@ static QImage anyToGrayscale(QImage const& src)
 	return dst;
 }
 
+static QVector<QRgb> staticGrayscalePalette;
 QVector<QRgb> createGrayscalePalette()
 {
-	QVector<QRgb> palette(256);
-	for (int i = 0; i < 256; ++i) {
-		palette[i] = qRgb(i, i, i);
-	}
-	return palette;
+    if (staticGrayscalePalette.isEmpty()) {
+        staticGrayscalePalette.resize(256);
+        for (int i = 0; i < 256; ++i) {
+            staticGrayscalePalette[i] = qRgb(i, i, i);
+        }
+    }
+    return staticGrayscalePalette;
 }
 
 QImage toGrayscale(QImage const& src)
@@ -159,17 +188,21 @@ QImage toGrayscale(QImage const& src)
 	if (src.isNull()) {
 		return src;
 	}
-	
-	switch (src.format()) {
-	case QImage::Format_Mono:
+
+    switch (src.format()) {
+    case QImage::Format_Mono:
 		return monoMsbToGrayscale(src);
 	case QImage::Format_MonoLSB:
 		return monoLsbToGrayscale(src);
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+        return rgbToGrayscale(src);
 	case QImage::Format_Indexed8:
 		if (src.isGrayscale()) {
 			if (src.colorCount() == 256) {
 				return src;
-			} else {
+            } else {
 				QImage dst(src);
 				dst.setColorTable(createGrayscalePalette());
 				if (!src.isNull() && dst.isNull()) {
@@ -447,11 +480,12 @@ GrayscaleHistogram::fromGrayscaleImage(QImage const& img)
 	int const w = img.width();
 	int const h = img.height();
 	int const bpl = img.bytesPerLine();
-	uint8_t const* line = img.bits();
 	
-	for (int y = 0; y < h; ++y, line += bpl) {
+#pragma omp parallel for
+    for (int y = 0; y < h; ++y) {
+        uint8_t const* line = img.bits() + y*bpl;
 		for (int x = 0; x < w; ++x) {
-			++m_pixels[line[x]];
+            ++m_pixels[line[x]];
 		}
 	}
 }

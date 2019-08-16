@@ -190,6 +190,13 @@ struct BoundingBox
 		bottom = std::max(bottom, y);
 		right = std::max(right, x);
 	}
+
+    void extend(const BoundingBox& b) {
+        top = std::min(top, b.top);
+        left = std::min(left, b.left);
+        bottom = std::max(bottom, b.bottom);
+        right = std::max(right, b.right);
+    }
 };
 
 struct Vector
@@ -728,16 +735,28 @@ Despeckle::despeckleInPlace(
 	uint32_t* const cmap_data = cmap.data();
 	
 	// Count the number of pixels and a bounding rect of each component.
-	uint32_t* cmap_line = cmap_data;
 	int const cmap_stride = cmap.stride();
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
-			uint32_t const label = cmap_line[x];
-			++components[label].num_pixels;
-			bounding_boxes[label].extend(x, y);
-		}
-		cmap_line += cmap_stride;
-	}
+#pragma omp parallel
+    {
+        std::vector<Component> components_l(cmap.maxLabel() + 1);
+        std::vector<BoundingBox> bounding_boxes_l(cmap.maxLabel() + 1);
+#pragma omp for
+        for (int y = 0; y < height; ++y) {
+            uint32_t* cmap_line = cmap_data + y*cmap_stride;
+            for (int x = 0; x < width; ++x) {
+                uint32_t const label = cmap_line[x];
+                ++components_l[label].num_pixels;
+                bounding_boxes_l[label].extend(x, y);
+            }
+        }
+#pragma omp critical
+    {
+        for(int i = 0; i < components_l.size(); ++i) {
+            components[i].num_pixels += components_l[i].num_pixels;
+            bounding_boxes[i].extend(bounding_boxes_l[i]);
+        }
+    }
+    }
 	
 	status.throwIfCancelled();
 
@@ -771,13 +790,14 @@ Despeckle::despeckleInPlace(
 	uint32_t const max_label = next_avail_component - 1;
 	
 	// Remapping individual pixels.
-	cmap_line = cmap_data;
+#pragma omp parallel for
 	for (int y = 0; y < height; ++y) {
+        uint32_t* cmap_line = cmap_data + y*cmap_stride;
 		for (int x = 0; x < width; ++x) {
 			cmap_line[x] = remapping_table[cmap_line[x]];
 		}
-		cmap_line += cmap_stride;
 	}
+
 	if (dbg) {
 		dbg->add(cmap.visualized(), "big_components_unified");
 	}
@@ -821,10 +841,10 @@ Despeckle::despeckleInPlace(
 	
 	bool have_anchored_to_small_but_not_big = false;
 	for (Component const& comp: components) {
-		if (comp.anchoredToSmallButNotBig()) {
-			have_anchored_to_small_but_not_big = true;
-			break;
-		}
+        if (comp.anchoredToSmallButNotBig()) {
+            have_anchored_to_small_but_not_big = true;
+            break;
+        }
 	}
 	
 	if (have_anchored_to_small_but_not_big) {
@@ -956,16 +976,17 @@ Despeckle::despeckleInPlace(
 
 	// Remove unmarked components from the binary image.
 	uint32_t const msb = uint32_t(1) << 31;
-	uint32_t* image_line = image.data();
 	int const image_stride = image.wordsPerLine();
-	cmap_line = cmap_data;
+    uint32_t* image_data = image.data(); // never call image.data() inside omp
+
+#pragma omp parallel for
 	for (int y = 0; y < height; ++y) {
+        uint32_t* image_line = image_data + y*image_stride;
+        uint32_t* cmap_line = cmap_data + y*cmap_stride;
 		for (int x = 0; x < width; ++x) {
 			if (!components[cmap_line[x]].anchoredToBig()) {
 				image_line[x >> 5] &= ~(msb >> (x & 31));
 			}
 		}
-		image_line += image_stride;
-		cmap_line += cmap_stride;
 	}
 }

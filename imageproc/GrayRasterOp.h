@@ -198,20 +198,21 @@ void grayRasterOp(GrayImage& dst, GrayImage const& src)
 		throw std::invalid_argument("grayRasterOp: images sizes are not the same");
 	}
 	
-	uint8_t const* src_line = src.data();
-	uint8_t* dst_line = dst.data();
-	int const src_stride = src.stride();
-	int const dst_stride = dst.stride();
+    int const src_stride = src.stride();
+    int const dst_stride = dst.stride();
 	
 	int const width = src.width();
 	int const height = src.height();
+    uint8_t* dst_data = dst.data(); // never call .data() inside omp
+    const uint8_t* src_data = src.data(); // never call .data() inside omp
 	
-	for (int y = 0; y < height; ++y) {
+#pragma omp parallel for //if(dst.data() != src.data())
+    for (int y = 0; y < height; ++y) {
+        uint8_t const* src_line = src_data + y*src_stride;
+        uint8_t* dst_line = dst_data + y*dst_stride;
 		for (int x = 0; x < width; ++x) {
 			dst_line[x] = GRop::transform(src_line[x], dst_line[x]);
 		}
-		src_line += src_stride;
-		dst_line += dst_stride;
 	}
 }
 

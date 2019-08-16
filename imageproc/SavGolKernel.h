@@ -44,7 +44,7 @@ public:
 	
 	float const* data() const { return m_kernel.data(); }
 	
-	float operator[](size_t idx) const { return m_kernel[idx]; }
+    inline float operator[](size_t idx) const { return m_kernel[idx]; }
 private:
 	struct Rotation
 	{
