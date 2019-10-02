@@ -130,6 +130,12 @@ public:
 	 * was specified by the most recent reset() call.
 	 */
 	void invalidateAllThumbnails();
+
+    /**
+     * Returns count of items.
+     */
+
+    int count() const;
 	
 	/**
 	 * \brief Makes the item a selection leader, and unselects other items.

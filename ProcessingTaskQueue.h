@@ -64,6 +64,14 @@ public:
 	void cancelAndRemove(std::set<PageId> const& pages);
 
 	void cancelAndClear();
+
+    void startProgressTracking(int total_pages) {
+        m_total_pages = total_pages;
+    }
+
+    double getProgress() const {
+        return  m_total_pages ? (100. - 100. * m_queue.size() / m_total_pages) : 100.;
+    }
 private:
 	struct Entry
 	{
@@ -77,6 +85,7 @@ private:
 	std::list<Entry> m_queue;
 	PageInfo m_selectedPage;
 	Order m_order;
+    int m_total_pages;
 };
 
 #endif

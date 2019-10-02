@@ -155,6 +155,8 @@ public:
 	void invalidateThumbnail(PageInfo const& page_info);
 	
 	void invalidateAllThumbnails();
+
+    int  count() const;
 	
     bool setSelection(PageId const& page_id, const ThumbnailSequence::SelectionAction action);
 
@@ -452,6 +454,12 @@ void
 ThumbnailSequence::invalidateAllThumbnails()
 {
 	m_ptrImpl->invalidateAllThumbnails();
+}
+
+int
+ThumbnailSequence::count() const
+{
+    return m_ptrImpl->count();
 }
 
 bool
@@ -858,6 +866,16 @@ ThumbnailSequence::Impl::invalidateThumbnailImpl(ItemsById::iterator const id_it
                         );
         }
     }
+}
+
+int
+ThumbnailSequence::Impl::count() const
+{
+    int res = 0;
+    ItemsInOrder::const_iterator ord_it(m_itemsInOrder.cbegin());
+    ItemsInOrder::const_iterator const ord_end(m_itemsInOrder.cend());
+    while (ord_it++ != ord_end) { res++; }
+    return res;
 }
 
 void

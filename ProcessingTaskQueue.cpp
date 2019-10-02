@@ -27,7 +27,7 @@ ProcessingTaskQueue::Entry::Entry(
 }
 
 ProcessingTaskQueue::ProcessingTaskQueue(Order order)
-:   m_order(order)
+:   m_order(order), m_total_pages(0)
 {
 }
 

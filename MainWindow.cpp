@@ -1635,6 +1635,8 @@ MainWindow::startBatchProcessing()
         );
     }
 
+    m_ptrBatchQueue->startProgressTracking(m_ptrThumbSequence->count());
+
     focusButton->setChecked(true);
 
     removeFilterOptionsWidget();
@@ -1696,6 +1698,8 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
     if (m_ptrBatchQueue.get()) {
         m_ptrBatchQueue->processingFinished(task);
     }
+
+    updateWindowTitle();
 
     if (task->isCancelled()) {
         return;
@@ -2744,7 +2748,14 @@ MainWindow::updateWindowTitle()
         project_name = QFileInfo(m_projectFile).baseName();
     }
     QString const version(QString::fromUtf8(VERSION));
-    setWindowTitle(tr("%2 - Scan Tailor \"Universal\" %3 [%1bit]").arg(sizeof(void*)*8).arg(project_name, version));
+    QString title = tr("%2 - Scan Tailor \"Universal\" %3 [%1bit]").arg(sizeof(void*)*8).arg(project_name, version);
+    if (m_ptrBatchQueue.get()) {
+        const double progress = m_ptrBatchQueue->getProgress();
+        if (progress < 100.) {
+            title = tr("%1% - %2").arg(progress, 0, 'f', 1).arg(title);
+        }
+    }
+    setWindowTitle(title);
 }
 
 /**
