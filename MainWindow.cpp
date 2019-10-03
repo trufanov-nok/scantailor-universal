@@ -94,6 +94,7 @@
 #include "version.h"
 #include "settings/globalstaticsettings.h"
 #include "StatusBarProvider.h"
+#include "OpenWithMenuProvider.h"
 #ifndef Q_MOC_RUN
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
@@ -117,6 +118,8 @@
 #include <QString>
 #include <QByteArray>
 #include <QVariant>
+#include <QProcess>
+#include <QMimeDatabase>
 #include <QModelIndex>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -1308,6 +1311,32 @@ MainWindow::pageContextMenuRequested(
 
     QMenu menu;
 
+    // populate Open source with.. submenu
+    bool open_with_menu_is_used = false;
+    const QString source_image_file = page_info.imageId().filePath();
+    if (!source_image_file.isEmpty()) {
+        const QString mime = QMimeDatabase().mimeTypeForFile(source_image_file).name();
+        QMenu *open_with_menu = OpenWithMenuProvider::getOpenWithMenu(mime);
+        if (open_with_menu) {
+            open_with_menu->setTitle(tr("Open source with..."));
+
+            for (QAction* act: open_with_menu->actions()) {
+                QObject::connect(act, &QAction::triggered, [source_image_file, act](){
+                    QString cmd = act->data().toString();
+                    if (cmd.contains("%u", Qt::CaseInsensitive)) {
+                        cmd = cmd.replace("%u", " \"" + source_image_file + "\" ", Qt::CaseInsensitive);
+                    } else {
+                        cmd += " \"" + source_image_file + "\" ";
+                    }
+                    QProcess::startDetached(cmd);
+                });
+            }
+
+            menu.addMenu(open_with_menu);
+            open_with_menu_is_used = true;
+        }
+    }
+
     QAction* goto_page = menu.addAction(
         tr("Go to page...")
     );
@@ -1344,6 +1373,7 @@ MainWindow::pageContextMenuRequested(
     bool regenerate_action_added = m_debug &&
             (m_curFilter != m_ptrStages->fixOrientationFilterIdx()) &&
             (m_curFilter != m_ptrStages->pageLayoutFilterIdx());
+    regenerate_action_added |= open_with_menu_is_used;
 
     if (regenerate_action_added) {
         menu.addSeparator();

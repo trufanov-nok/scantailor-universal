@@ -556,7 +556,8 @@ SET(
         main.cpp
         ExportDialog.cpp ExportDialog.h
         StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
-        AutoSaveTimer.cpp AutoSaveTimer.h        
+        AutoSaveTimer.cpp AutoSaveTimer.h
+        OpenWithMenuProvider.cpp OpenWithMenuProvider.h
         #${settings_sources}
 )
 
