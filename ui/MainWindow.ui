@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>783</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
@@ -152,7 +152,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../resources/resources.qrc">
+            <iconset>
              <normaloff>:/icons/keep-in-view.png</normaloff>:/icons/keep-in-view.png</iconset>
            </property>
            <property name="checkable">
@@ -175,7 +175,7 @@
             <string notr="true"/>
            </property>
            <property name="icon">
-            <iconset resource="../resources/resources.qrc">
+            <iconset>
              <normaloff>:/icons/multi_choice.png</normaloff>:/icons/multi_choice.png</iconset>
            </property>
            <property name="shortcut">
@@ -214,10 +214,42 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="sortOptions">
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-         </property>
+        <widget class="QWidget" name="sortOptionsWgt" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QToolButton" name="resetSortingBtn">
+            <property name="statusTip">
+             <string>Reset sorting to default</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>:/icons/gimp-reset.png</normaloff>:/icons/gimp-reset.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="sortOptions">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -318,7 +350,7 @@
           <x>0</x>
           <y>0</y>
           <width>256</width>
-          <height>185</height>
+          <height>187</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -827,7 +859,7 @@
   </action>
   <action name="actionInsertEmptyPgBefore">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/icons/insert-before-16.png</normaloff>:/icons/insert-before-16.png</iconset>
    </property>
    <property name="text">
@@ -839,7 +871,7 @@
   </action>
   <action name="actionInsertEmptyPgAfter">
    <property name="icon">
-    <iconset resource="../resources/resources.qrc">
+    <iconset>
      <normaloff>:/icons/insert-after-16.png</normaloff>:/icons/insert-after-16.png</iconset>
    </property>
    <property name="text">
@@ -863,8 +895,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../resources/resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

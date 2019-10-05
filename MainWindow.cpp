@@ -164,7 +164,9 @@ MainWindow::MainWindow()
     setupUi(this);
     setupStatusBar();
 
-    sortOptions->setVisible(false);
+    sortOptionsWgt->setVisible(false);
+    connect( sortOptions, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+             [this](int index) { resetSortingBtn->setVisible(index); } );
 
     createBatchProcessingWidget();
     m_ptrProcessingIndicationWidget.reset(new ProcessingIndicationWidget);
@@ -518,7 +520,7 @@ MainWindow::switchToNewProject(
     if (project_reader && ! m_selectedPage.isNull()) {
         selection.insert(m_selectedPage.get(getCurrentView()));
     } else {
-      selection.insert(m_ptrThumbSequence->firstPage().id());
+        selection.insert(m_ptrThumbSequence->firstPage().id());
     }
 
     ensurePageVisible(selection, m_ptrThumbSequence->selectionLeader().id());
@@ -861,7 +863,8 @@ MainWindow::updateSortOptions()
         sortOptions->addItem(opt.name());
     }
 
-    sortOptions->setVisible(sortOptions->count() > 0);
+
+    sortOptionsWgt->setVisible(m_ptrPages.get() && m_ptrPages->numImages() && sortOptions->count());
 
     if (sortOptions->count() > 0) {
         sortOptions->setCurrentIndex(filter->selectedPageOrder());
@@ -3814,4 +3817,10 @@ void MainWindow::on_inverseOrderButton_toggled(bool checked)
         selection.insert(m_selectedPage.get(getCurrentView()));
         ensurePageVisible(selection, m_ptrThumbSequence->selectionLeader().id());
     }
+}
+
+void MainWindow::on_resetSortingBtn_clicked()
+{
+    sortOptions->setCurrentIndex(0);
+    resetSortingBtn->hide();
 }

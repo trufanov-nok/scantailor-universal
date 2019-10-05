@@ -236,6 +236,8 @@ private slots:
 
     void on_inverseOrderButton_toggled(bool checked);
 
+    void on_resetSortingBtn_clicked();
+
 private:
 	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
 	
