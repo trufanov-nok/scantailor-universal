@@ -32,6 +32,7 @@
 #include "ScopedIncDec.h"
 #include "config.h"
 #include "StatusBarProvider.h"
+#include "VirtualZoneProperty.h"
 #include <QtGlobal>
 #include <QVariant>
 #include <QColorDialog>
@@ -1058,4 +1059,113 @@ void output::OptionsWidget::on_actionactionDespeckleNormal_triggered()
 void output::OptionsWidget::on_actionactionDespeckleAggressive_triggered()
 {
     despeckleAggressiveBtn->click();
+}
+
+void output::OptionsWidget::copyZoneToPagesDlgRequest(void* z)
+{
+
+    if (!z) {
+        return;
+    }
+
+    const Zone* pz = static_cast<const Zone*>(z);
+    Zone zone = *pz;
+    delete pz;
+
+    zone.properties().locateOrCreate<output::VirtualZoneProperty>()->setVirtual(true);
+
+    bool is_fill_zone = m_lastTab == TAB_FILL_ZONES;
+
+    ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
+    dialog->setWindowTitle(tr("Copy zone and its settings to:"));
+    connect(
+                dialog, &ApplyToDialog::accepted,
+                this, [=](){
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        for (PageId const& page_id: pages) {
+            if (page_id != m_pageId) {
+                ZoneSet zones = is_fill_zone ? m_ptrSettings->fillZonesForPage(page_id)
+                                             : m_ptrSettings->pictureZonesForPage(page_id);
+                zones.add(zone);
+                if (is_fill_zone) {
+                    m_ptrSettings->setFillZones(page_id, zones);
+                } else {
+                    m_ptrSettings->setPictureZones(page_id, zones);
+                }
+            }
+        }
+
+        emit invalidateAllThumbnails();
+    }
+    );
+
+    dialog->show();
+}
+
+
+bool removeZonesWithUUID(const ZoneSet& zones, const QString& uuid, ZoneSet& new_zones)
+{
+    new_zones.clear();
+    bool changed = false;
+    for (Zone z: zones) {
+        IntrusivePtr<output::VirtualZoneProperty> ptrSet =
+                z.properties().locate<output::VirtualZoneProperty>();
+        if (ptrSet.get()) {
+            if (ptrSet->uuid() == uuid) {
+                changed = true;
+                continue;
+            }
+        }
+        new_zones.add(z);
+    }
+
+    return changed;
+}
+
+void output::OptionsWidget::deleteZoneFromPagesDlgRequest(void* z)
+{
+    if (!z) return;
+
+    const Zone* zone = static_cast<const Zone*>(z);
+    const IntrusivePtr<const output::VirtualZoneProperty> ptrSet =
+    zone->properties().locate<output::VirtualZoneProperty>();
+
+    if (!ptrSet.get())
+        return;
+
+    QString uuid = ptrSet->uuid();
+    delete zone;
+
+    bool is_fill_zone = m_lastTab == TAB_FILL_ZONES;
+
+    ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
+    dialog->setWindowTitle(tr("Find and remove this zone from:"));
+    connect(
+                dialog, &ApplyToDialog::accepted,
+                this, [=](){
+        std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
+        std::set<PageId> pages(vec.begin(), vec.end());
+        bool changed = false;
+        for (PageId const& page_id: pages) {
+            ZoneSet zones = is_fill_zone ? m_ptrSettings->fillZonesForPage(page_id)
+                                         : m_ptrSettings->pictureZonesForPage(page_id);
+            ZoneSet new_zones;
+            if (removeZonesWithUUID(zones, uuid, new_zones)) {
+                changed = true;
+                if (is_fill_zone) {
+                    m_ptrSettings->setFillZones(page_id, new_zones);
+                } else {
+                    m_ptrSettings->setPictureZones(page_id, new_zones);
+                }
+            }
+        }
+
+        if (changed) {
+            emit invalidateAllThumbnails();
+        }
+    }
+    );
+
+    dialog->show();
 }

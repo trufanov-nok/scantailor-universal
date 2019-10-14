@@ -61,6 +61,7 @@
 #include "imageproc/PolygonUtils.h"
 #include "imageproc/DrawOver.h"
 #include "imageproc/Transform.h"
+#include "VirtualZoneProperty.h"
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -157,6 +158,25 @@ Task::~Task()
 {
 }
 
+bool
+addVirtualZones(const ZoneSet& zones, const ImageTransformation& xform, ZoneSet& new_zones)
+{
+    new_zones.clear();
+    bool res = false;
+    for (Zone zone: zones) {
+        IntrusivePtr<VirtualZoneProperty> ptrSet =
+        zone.properties().locate<output::VirtualZoneProperty>();
+        if (ptrSet.get() && ptrSet->isVirtual()) {
+            zone = Zone(zone.spline().transformed(xform.transform().inverted()),
+                        zone.properties());
+            res = true;
+            zone.properties().locate<output::VirtualZoneProperty>()->setVirtual(false);
+        }
+        new_zones.add(zone);
+    }
+    return res;
+}
+
 FilterResultPtr
 Task::process(
 	TaskStatus const& status, FilterData const& data,
@@ -204,6 +224,19 @@ Task::process(
 	bool const need_speckles_image = params.despeckleLevel() != DESPECKLE_OFF
 		&& params.colorParams().colorMode() != ColorParams::COLOR_GRAYSCALE && !m_batchProcessing;
 	
+    //
+
+    ZoneSet new_zones;
+    if (addVirtualZones(m_ptrSettings->pictureZonesForPage(m_pageId), new_xform, new_zones)) {
+        m_ptrSettings->setPictureZones(m_pageId, new_zones);
+    }
+
+    if (addVirtualZones(m_ptrSettings->fillZonesForPage(m_pageId), new_xform, new_zones)) {
+        m_ptrSettings->setFillZones(m_pageId, new_zones);
+    }
+
+
+
 	OutputGenerator const generator(
 		params.outputDpi(), params.colorParams(), params.despeckleLevel(),
 		new_xform, content_rect_phys
@@ -648,7 +681,10 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
             opt_widget, SLOT(disablePictureLayer())
         );
 
-
+        QObject::connect(picture_zone_editor.get(), SIGNAL(copyZoneToPagesDlgRequest(void *)),
+                         opt_widget, SLOT(copyZoneToPagesDlgRequest(void *)));
+        QObject::connect(picture_zone_editor.get(), SIGNAL(deleteZoneFromPagesDlgRequest(void *)),
+                         opt_widget, SLOT(deleteZoneFromPagesDlgRequest(void *)));
 	}
 
 	// We make sure we never need to update the original <-> output
@@ -679,6 +715,11 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
 			orig_to_output, output_to_orig, m_pageId, m_ptrSettings
 		)
 	);
+
+    QObject::connect(fill_zone_editor.get(), SIGNAL(copyZoneToPagesDlgRequest(void *)),
+                     opt_widget, SLOT(copyZoneToPagesDlgRequest(void *)));
+    QObject::connect(fill_zone_editor.get(), SIGNAL(deleteZoneFromPagesDlgRequest(void *)),
+                     opt_widget, SLOT(deleteZoneFromPagesDlgRequest(void *)));
 
     if (alt_image_ptr) {
         qobject_cast<FillZoneEditor*>(fill_zone_editor.get())->setAlternativeImage(alt_image_ptr, alt_downscaled_pixmap_ptr);

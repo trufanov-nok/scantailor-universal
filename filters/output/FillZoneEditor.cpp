@@ -31,6 +31,7 @@
 #include "ImageTransformation.h"
 #include "ImagePresentation.h"
 #include "OutputMargins.h"
+#include "VirtualZoneProperty.h"
 #include <QTransform>
 #include <QImage>
 #include <QPointer>
@@ -220,8 +221,15 @@ std::vector<ZoneContextMenuItem>
 FillZoneEditor::MenuCustomizer::operator()(
 	EditableZoneSet::Zone const& zone, StdMenuItems const& std_items)
 {
+    bool was_copyed_to = false;
+    if (zone.properties().get()) {
+        IntrusivePtr<output::VirtualZoneProperty> ptrSet =
+                zone.properties()->locate<output::VirtualZoneProperty>();
+        was_copyed_to = ptrSet.get() && !ptrSet->uuid().isEmpty();
+    }
+
 	std::vector<ZoneContextMenuItem> items;
-	items.reserve(2);
+    items.reserve(was_copyed_to ? 5: 4);
 	items.push_back(
 		ZoneContextMenuItem(
 			tr("Pick color"),
@@ -231,6 +239,10 @@ FillZoneEditor::MenuCustomizer::operator()(
 			)
 		)
 	);
+    items.push_back(std_items.copyToItem);
+    if (was_copyed_to) {
+        items.push_back(std_items.deleteFromItem);
+    }
 	items.push_back(std_items.deleteItem);
 
 	return items;

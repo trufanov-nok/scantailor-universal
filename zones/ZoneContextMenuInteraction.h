@@ -48,13 +48,16 @@ public:
 	struct StandardMenuItems
 	{
         ZoneContextMenuItem copyItem;
+        ZoneContextMenuItem copyToItem;
 		ZoneContextMenuItem propertiesItem;
 		ZoneContextMenuItem deleteItem;
+        ZoneContextMenuItem deleteFromItem;
 
-		StandardMenuItems(
-            ZoneContextMenuItem const& copy_item,
-			ZoneContextMenuItem const& properties_item,
-			ZoneContextMenuItem const& delete_item);
+        StandardMenuItems(ZoneContextMenuItem const& copy_item,
+            ZoneContextMenuItem const& copy_to_item,
+            ZoneContextMenuItem const& properties_item,
+            ZoneContextMenuItem const& delete_item,
+            ZoneContextMenuItem const& delete_from_item);
 	};
 
 	typedef boost::function<
@@ -123,7 +126,11 @@ private:
 
 	InteractionHandler* deleteRequest(EditableZoneSet::Zone const& zone);
 
+    InteractionHandler* deleteFromRequest(EditableZoneSet::Zone const& zone);
+
     InteractionHandler* copyRequest(EditableZoneSet::Zone const& zone);
+
+    InteractionHandler* copyToRequest(EditableZoneSet::Zone const& zone);
 
 	InteractionHandler* propertiesRequest(EditableZoneSet::Zone const& zone);
 
@@ -131,7 +138,11 @@ private:
 
 	ZoneContextMenuItem deleteMenuItemFor(EditableZoneSet::Zone const& zone);
 
+    ZoneContextMenuItem deleteFromMenuItemFor(EditableZoneSet::Zone const& zone);
+
     ZoneContextMenuItem copyMenuItemFor(EditableZoneSet::Zone const& zone);
+
+    ZoneContextMenuItem copyToMenuItemFor(EditableZoneSet::Zone const& zone);
 
 	ZoneInteractionContext& m_rContext;
 	std::vector<Zone> m_selectableZones;

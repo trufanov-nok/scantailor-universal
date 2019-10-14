@@ -69,7 +69,9 @@ public:
 
 	bool empty() const { return m_zones.empty(); }
 
-	void add(Zone const& zone) { m_zones.push_back(zone); }
+    void clear() { return m_zones.clear(); }
+
+    void add(Zone const& zone) { m_zones.push_back(zone); }
 
 	const_iterator begin() const { return const_iterator(m_zones.begin()); }
 

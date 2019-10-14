@@ -274,6 +274,10 @@ protected:
      */
     void setCursorPosAdjustment(QPointF pos) { m_cursorPosAdjustment = pos; }    
 
+signals:
+    void copyZoneToPagesDlgRequest(void* zone);
+    void deleteZoneFromPagesDlgRequest(void* zone);
+
 private slots:
 	void initiateBuildingHqVersion();
 

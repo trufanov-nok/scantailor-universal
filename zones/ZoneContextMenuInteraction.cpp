@@ -24,6 +24,7 @@
 #include "QtSignalForwarder.h"
 #include "LocalClipboard.h"
 #include "settings/globalstaticsettings.h"
+#include "filters/output/VirtualZoneProperty.h"
 #include <QRectF>
 #include <QPolygonF>
 #include <QMenu>
@@ -146,8 +147,10 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
 
 		StandardMenuItems const std_items(
             copyMenuItemFor(*it),
+            copyToMenuItemFor(*it),
 			propertiesMenuItemFor(*it),
-			deleteMenuItemFor(*it)
+            deleteMenuItemFor(*it),
+            deleteFromMenuItemFor(*it)
 		);
 
         for (ZoneContextMenuItem const& item: menu_customizer(*it, std_items)) {
@@ -297,6 +300,26 @@ ZoneContextMenuInteraction::deleteRequest(EditableZoneSet::Zone const& zone)
 }
 
 InteractionHandler*
+ZoneContextMenuInteraction::deleteFromRequest(EditableZoneSet::Zone const& zone)
+{
+    ::Zone* z = nullptr;
+
+    if (zone.spline().get()) {
+        QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
+
+        if (zone.properties().get()) {
+            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual), *zone.properties());
+        } else {
+            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual));
+        }
+
+        m_rContext.deleteFromDialogRequested(z);
+    }
+
+    return m_rContext.createDefaultInteraction();
+}
+
+InteractionHandler*
 ZoneContextMenuInteraction::copyRequest(EditableZoneSet::Zone const& zone)
 {
     QTransform const to_virtual(m_rContext.imageView().imageToWidget());
@@ -308,6 +331,31 @@ ZoneContextMenuInteraction::copyRequest(EditableZoneSet::Zone const& zone)
     return m_rContext.createDefaultInteraction();
 }
 
+InteractionHandler*
+ZoneContextMenuInteraction::copyToRequest(EditableZoneSet::Zone const& zone)
+{
+
+    ::Zone* z = nullptr;
+
+    if (zone.spline().get()) {
+        QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
+
+        if (zone.properties().get()) {
+            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual), *zone.properties());
+            IntrusivePtr<output::ZoneCategoryProperty> ptrProp = z->properties().locate<output::ZoneCategoryProperty>();
+            if (ptrProp.get() && ptrProp->zone_category() != output::ZoneCategoryProperty::MANUAL) {
+                // auto detected picture zones may be deleted for regeneration
+                ptrProp->setZoneCategory(output::ZoneCategoryProperty::MANUAL);
+            }
+        } else {
+            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual));
+        }
+
+        m_rContext.copyToDialogRequested(z);
+    }
+
+    return m_rContext.createDefaultInteraction();
+}
 
 ZoneContextMenuItem
 ZoneContextMenuInteraction::deleteMenuItemFor(
@@ -320,12 +368,32 @@ ZoneContextMenuInteraction::deleteMenuItemFor(
 }
 
 ZoneContextMenuItem
+ZoneContextMenuInteraction::deleteFromMenuItemFor(
+    EditableZoneSet::Zone const& zone)
+{
+    return ZoneContextMenuItem(
+        tr("Delete &from..."),
+        boost::bind(&ZoneContextMenuInteraction::deleteFromRequest, this, zone)
+    );
+}
+
+ZoneContextMenuItem
 ZoneContextMenuInteraction::copyMenuItemFor(
     EditableZoneSet::Zone const& zone)
 {
     return ZoneContextMenuItem(
         tr("&Copy"),
         boost::bind(&ZoneContextMenuInteraction::copyRequest, this, zone)
+    );
+}
+
+ZoneContextMenuItem
+ZoneContextMenuInteraction::copyToMenuItemFor(
+    EditableZoneSet::Zone const& zone)
+{
+    return ZoneContextMenuItem(
+        tr("Copy &to..."),
+        boost::bind(&ZoneContextMenuInteraction::copyToRequest, this, zone)
     );
 }
 
@@ -353,11 +421,22 @@ ZoneContextMenuInteraction::highlightItem(int const zone_idx)
 
 std::vector<ZoneContextMenuItem>
 ZoneContextMenuInteraction::defaultMenuCustomizer(
-    EditableZoneSet::Zone const& /*zone*/, StandardMenuItems const& std_items)
+    EditableZoneSet::Zone const& zone, StandardMenuItems const& std_items)
 {
+    bool was_copyed_to = false;
+    if (zone.properties().get()) {
+        IntrusivePtr<output::VirtualZoneProperty> ptrSet =
+                zone.properties()->locate<output::VirtualZoneProperty>();
+        was_copyed_to = ptrSet.get() && !ptrSet->uuid().isEmpty();
+    }
+
 	std::vector<ZoneContextMenuItem> items;
-    items.reserve(3);
+    items.reserve(was_copyed_to ? 5 : 4);
     items.push_back(std_items.copyItem);
+    items.push_back(std_items.copyToItem);
+    if (was_copyed_to) {
+        items.push_back(std_items.deleteFromItem);
+    }
 	items.push_back(std_items.propertiesItem);
 	items.push_back(std_items.deleteItem);
 	return items;
@@ -368,11 +447,15 @@ ZoneContextMenuInteraction::defaultMenuCustomizer(
 
 ZoneContextMenuInteraction::StandardMenuItems::StandardMenuItems(
     ZoneContextMenuItem const& copy_item,
+    ZoneContextMenuItem const& copy_to_item,
     ZoneContextMenuItem const& properties_item,
-    ZoneContextMenuItem const& delete_item)
+    ZoneContextMenuItem const& delete_item,
+    ZoneContextMenuItem const& delete_from_item)
 :	copyItem(copy_item),
+    copyToItem(copy_to_item),
     propertiesItem(properties_item),
-	deleteItem(delete_item)
+    deleteItem(delete_item),
+    deleteFromItem(delete_from_item)
 {
 }
 

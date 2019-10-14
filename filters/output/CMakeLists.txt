@@ -27,6 +27,7 @@ SET(
 	OutputParams.cpp OutputParams.h
 	PictureLayerProperty.cpp PictureLayerProperty.h
 	ZoneCategoryProperty.cpp ZoneCategoryProperty.h
+        VirtualZoneProperty.cpp VirtualZoneProperty.h
 	PictureZonePropFactory.cpp PictureZonePropFactory.h
 	PictureZonePropDialog.cpp PictureZonePropDialog.h
 	PictureZoneComparator.cpp PictureZoneComparator.h

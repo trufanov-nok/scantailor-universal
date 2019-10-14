@@ -22,12 +22,13 @@
 #include "ZoneVertexDragInteraction.h"
 #include "ZoneDragInteraction.h"
 #include "ZoneContextMenuInteraction.h"
+#include "ImageViewBase.h"
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #endif
 
 ZoneInteractionContext::ZoneInteractionContext(
-	ImageViewBase& image_view, EditableZoneSet& zones)
+    ImageViewBase& image_view, EditableZoneSet& zones)
 :	m_rImageView(image_view),
 	m_rZones(zones),
 	m_defaultInteractionCreator(
@@ -45,7 +46,7 @@ ZoneInteractionContext::ZoneInteractionContext(
 	m_contextMenuInteractionCreator(
 		boost::bind(&ZoneInteractionContext::createStdContextMenuInteraction, this, _1)
 	),
-	m_showPropertiesCommand(&ZoneInteractionContext::showPropertiesStub)
+    m_showPropertiesCommand(&ZoneInteractionContext::showPropertiesStub)
 {
 }
 
@@ -85,4 +86,16 @@ InteractionHandler*
 ZoneInteractionContext::createStdContextMenuInteraction(InteractionState& interaction)
 {
 	return ZoneContextMenuInteraction::create(*this, interaction);
+}
+
+void
+ZoneInteractionContext::copyToDialogRequested(::Zone const* zone)
+{
+    emit m_rImageView.copyZoneToPagesDlgRequest((void*)zone);
+}
+
+void
+ZoneInteractionContext::deleteFromDialogRequested(::Zone const* zone)
+{
+    emit m_rImageView.deleteZoneFromPagesDlgRequest((void*)zone);
 }

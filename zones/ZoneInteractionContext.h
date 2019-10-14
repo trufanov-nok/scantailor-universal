@@ -22,6 +22,7 @@
 #include "EditableSpline.h"
 #include "SplineVertex.h"
 #include "EditableZoneSet.h"
+#include "Zone.h"
 #ifndef Q_MOC_RUN
 #include <boost/function.hpp>
 #endif
@@ -64,7 +65,7 @@ public:
 		void (EditableZoneSet::Zone const& zone)
 	> ShowPropertiesCommand;
 
-	ZoneInteractionContext(ImageViewBase& image_view, EditableZoneSet& zones);
+    ZoneInteractionContext(ImageViewBase& image_view, EditableZoneSet& zones);
 
 	virtual ~ZoneInteractionContext();
 
@@ -125,7 +126,10 @@ public:
 
 	void setShowPropertiesCommand(ShowPropertiesCommand const& command) {
 		m_showPropertiesCommand = command;
-	}
+    }
+
+    void copyToDialogRequested(const ::Zone *zone);
+    void deleteFromDialogRequested(const ::Zone *zone);
 private:
 	/**
 	 * Creates an instance of ZoneDefaultInteraction.
@@ -165,7 +169,7 @@ private:
 	VertexDragInteractionCreator m_vertexDragInteractionCreator;
     DragInteractionCreator m_dragInteractionCreator;
 	ContextMenuInteractionCreator m_contextMenuInteractionCreator;
-	ShowPropertiesCommand m_showPropertiesCommand;
+    ShowPropertiesCommand m_showPropertiesCommand;
 };
 
 #endif

@@ -74,6 +74,9 @@ public slots:
     void settingsChanged();
 
     void disablePictureLayer();
+
+    void copyZoneToPagesDlgRequest(void *zone);
+    void deleteZoneFromPagesDlgRequest(void *zone);
 private slots:
 		
 	void whiteMarginsToggled(bool checked);

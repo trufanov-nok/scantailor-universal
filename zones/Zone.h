@@ -52,7 +52,7 @@ public:
 
 	PropertySet const& properties() const { return m_props; }
 
-	bool isValid() const;
+    bool isValid() const;
 private:
 	SerializableSpline m_spline;
 	PropertySet m_props;
