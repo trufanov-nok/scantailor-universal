@@ -187,7 +187,7 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
                 for (const EditableZoneSet::Zone& zone: m_rContext.zones()) {
                     QPolygonF z = SerializableSpline(*zone.spline().get()).toPolygon();
                     if (new_spline == z) {
-                        // we shouldn't mix SerializableSpline::toPlygon and EditableSpline::toPolygon
+                        // we shouldn't mix SerializableSpline::toPolygon and EditableSpline::toPolygon
                         // as order of vertexes might be different.
                         found = true;
                         new_spline = shift.map(new_spline);

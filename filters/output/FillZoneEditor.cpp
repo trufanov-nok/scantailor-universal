@@ -229,7 +229,7 @@ FillZoneEditor::MenuCustomizer::operator()(
     }
 
 	std::vector<ZoneContextMenuItem> items;
-    items.reserve(was_copyed_to ? 5: 4);
+    items.reserve(was_copyed_to ? 6: 5);
 	items.push_back(
 		ZoneContextMenuItem(
 			tr("Pick color"),
@@ -239,6 +239,7 @@ FillZoneEditor::MenuCustomizer::operator()(
 			)
 		)
 	);
+    items.push_back(std_items.copyItem);
     items.push_back(std_items.copyToItem);
     if (was_copyed_to) {
         items.push_back(std_items.deleteFromItem);
