@@ -22,6 +22,7 @@
 #include <QSettings> // propagate header
 
 #include "filters/output/DespeckleLevel.h"
+#include "ExportModes.h"
 #include <QSize>
 
 /* App settings */
@@ -84,10 +85,15 @@ static const bool _key_thumbnails_simulate_key_press_hint_def = true;
 
 static const char* _key_export_default_output_folder = "settings/default_output_folder";
 static const char* _key_export_generate_blank_subscans = "settings/generate_blank_back_subscans";
+static const bool  _key_export_generate_blank_subscans_def = false;
 static const char* _key_export_use_sep_suffix = "settings/use_sep_suffix_for_background_subscans";
+static const bool  _key_export_use_sep_suffix_def = true;
 static const char* _key_export_keep_original_color = "settings/keep_original_color_illum_fore_subscans";
+static const bool  _key_export_keep_original_color_def = false;
 static const char* _key_export_to_multipage = "settings/export_to_multipage";
+static const bool  _key_export_to_multipage_def = false;
 static const char* _key_export_split_mixed_settings = "settings/split_mixed_settings";
+static const int _key_export_split_mixed_settings_def = (int) ExportModes(ExportMode::Foreground | ExportMode::Background);
 
 /* insert image disalog */
 

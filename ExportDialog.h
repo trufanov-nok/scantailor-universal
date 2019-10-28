@@ -23,6 +23,7 @@
 #define EXPORT_DIALOG_H_
 
 #include "ui_ExportDialog.h"
+#include "ExportModes.h"
 #include <QDialog>
 #include <QSettings>
 
@@ -30,19 +31,6 @@ class ExportDialog : public QDialog
 {
 	Q_OBJECT
 public:
-
-    enum ExportMode {
-        None = 0,
-        Foreground = 1,
-        Background = 2,
-        Mask = 4,
-        Zones = 8,
-        WholeImage = 16,
-        AutoMask = 32,
-        ImageWithoutOutputStage = 64
-    };
-
-    Q_DECLARE_FLAGS(ExportModes, ExportMode)
 
     enum PageGenTweak {
       NoTweaks = 0,
@@ -107,8 +95,11 @@ private slots:
 
     void on_cbExportWithoutOutputStage_stateChanged(int arg1);
 
+    void on_btnResetToDefault_clicked();
+
 private:
     void saveExportMode(ExportMode val, bool on);
+    void displayExportMode(ExportModes mode);
 
 private:
     void setExportOutputDir(QString const& dir);

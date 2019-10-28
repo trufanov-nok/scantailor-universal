@@ -270,6 +270,28 @@ for content in foreground subscans (lengthy)</string>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="btnResetToDefault">
+        <property name="toolTip">
+         <string>Reset export settings to default values</string>
+        </property>
+        <property name="text">
+         <string>Restore Defaults</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QLabel" name="labelFilesProcessed">
         <property name="sizePolicy">

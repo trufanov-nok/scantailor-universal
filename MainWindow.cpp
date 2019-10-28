@@ -2242,10 +2242,10 @@ MainWindow::ExportNextFile()
     if (m_pos_export == m_outpaths_vector.size())
         return 1; //all the files are processed
 
-    bool need_reprocess = m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Foreground) &&
+    bool need_reprocess = m_export_settings.export_mode.testFlag(ExportMode::Foreground) &&
             m_export_settings.page_gen_tweaks.testFlag(ExportDialog::PageGenTweak::KeepOriginalColorIllumForeSubscans);
     if (!need_reprocess) {
-        need_reprocess = m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::WholeImage) &&
+        need_reprocess = m_export_settings.export_mode.testFlag(ExportMode::WholeImage) &&
                 m_export_settings.page_gen_tweaks.testFlag(ExportDialog::PageGenTweak::IgnoreOutputProcessingStage);
     }
     if (need_reprocess) {
@@ -2282,7 +2282,7 @@ MainWindow::ExportNextFile()
 
     QString out_file_path_no_split = m_export_dir + QDir::separator() + name + ".tif";
 
-    if (m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Zones)) {
+    if (m_export_settings.export_mode.testFlag(ExportMode::Zones)) {
         const PageId id = m_outpaths_vector[m_pos_export].page_id;
         QStringList zones_info = m_ptrStages->outputFilter()->getZonesInfo(id);
         QString out_zone_file = m_export_dir + QDir::separator() + "zone" + QDir::separator() + name + ".tsv";
@@ -2297,10 +2297,10 @@ MainWindow::ExportNextFile()
         }
     }
 
-    std::unique_ptr<QImage> img_foreground(m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Foreground) ? new QImage() : nullptr);
-    std::unique_ptr<QImage> img_background(m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Background) ? new QImage() : nullptr);
-    std::unique_ptr<QImage> img_mask(m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Mask) ? new QImage() : nullptr);
-    const bool keep_orig = m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Foreground) &&
+    std::unique_ptr<QImage> img_foreground(m_export_settings.export_mode.testFlag(ExportMode::Foreground) ? new QImage() : nullptr);
+    std::unique_ptr<QImage> img_background(m_export_settings.export_mode.testFlag(ExportMode::Background) ? new QImage() : nullptr);
+    std::unique_ptr<QImage> img_mask(m_export_settings.export_mode.testFlag(ExportMode::Mask) ? new QImage() : nullptr);
+    const bool keep_orig = m_export_settings.export_mode.testFlag(ExportMode::Foreground) &&
             m_export_settings.page_gen_tweaks.testFlag(ExportDialog::PageGenTweak::KeepOriginalColorIllumForeSubscans);
     bool only_bw = true;
 
@@ -2325,7 +2325,7 @@ MainWindow::ExportNextFile()
 
     int page_no = 0;
 
-    if (m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::WholeImage)) {
+    if (m_export_settings.export_mode.testFlag(ExportMode::WholeImage)) {
         TiffWriter::writeImage(out_file_path_no_split,
                                m_export_settings.page_gen_tweaks.testFlag(ExportDialog::PageGenTweak::IgnoreOutputProcessingStage) ? m_orig_fore_subscan : out_img,
                                m_export_settings.export_to_multipage, page_no, GlobalStaticSettings::m_tiff_compression_id);
@@ -2352,7 +2352,7 @@ MainWindow::ExportNextFile()
                                page_no++,
                                GlobalStaticSettings::m_tiff_compression_id);
     }
-    if (m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::AutoMask)) {
+    if (m_export_settings.export_mode.testFlag(ExportMode::AutoMask)) {
         QFileInfo fi(m_outpaths_vector[m_pos_export].filename);
         QString filepath_automask = fi.path() + "/cache/automask/" + fi.fileName();
         QImage automask_img = (QFile::exists(filepath_automask)) ? ImageLoader::load(filepath_automask) :
@@ -2483,18 +2483,18 @@ MainWindow::ExportOutput(ExportDialog::Settings settings)
 
     m_export_settings = settings;
 
-    if (m_export_settings.export_mode != ExportDialog::ExportMode::None) {
+    if (m_export_settings.export_mode != ExportMode::None) {
         QDir d;
-        if (m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Foreground) && !m_export_settings.export_to_multipage) {
+        if (m_export_settings.export_mode.testFlag(ExportMode::Foreground) && !m_export_settings.export_to_multipage) {
             d.mkdir(text_dir);
         }
-        if (m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Background) && !m_export_settings.export_to_multipage) {
+        if (m_export_settings.export_mode.testFlag(ExportMode::Background) && !m_export_settings.export_to_multipage) {
             d.mkdir(pic_dir);
         }
-        if (m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Mask) && !m_export_settings.export_to_multipage) {
+        if (m_export_settings.export_mode.testFlag(ExportMode::Mask) && !m_export_settings.export_to_multipage) {
             d.mkdir(mask_dir);
         }
-        if (m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Zones)) {
+        if (m_export_settings.export_mode.testFlag(ExportMode::Zones)) {
             d.mkdir(zone_dir);
         }
     }
@@ -3296,10 +3296,10 @@ MainWindow::createCompositeTask(
         debug = false;
     }
 
-    bool keep_original = m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::Foreground) &&
+    bool keep_original = m_export_settings.export_mode.testFlag(ExportMode::Foreground) &&
             m_export_settings.page_gen_tweaks.testFlag(ExportDialog::PageGenTweak::KeepOriginalColorIllumForeSubscans);
     if (!keep_original) {
-        keep_original = m_export_settings.export_mode.testFlag(ExportDialog::ExportMode::WholeImage) &&
+        keep_original = m_export_settings.export_mode.testFlag(ExportMode::WholeImage) &&
                 m_export_settings.page_gen_tweaks.testFlag(ExportDialog::PageGenTweak::IgnoreOutputProcessingStage);
     }
 

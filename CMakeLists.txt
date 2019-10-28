@@ -554,6 +554,7 @@ SET(
         SystemLoadWidget.cpp SystemLoadWidget.h
         MainWindow.cpp MainWindow.h
         main.cpp
+        ExportModes.h
         ExportDialog.cpp ExportDialog.h
         StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
         AutoSaveTimer.cpp AutoSaveTimer.h

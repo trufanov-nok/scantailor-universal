@@ -44,18 +44,13 @@ ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
 		this, SLOT(outExportDirEdited(QString const&))
 	);
 
-    ExportModes mode = (ExportModes) m_settings.value(_key_export_split_mixed_settings, ExportMode::Foreground | ExportMode::Background).toInt();
-    ui.cbExportImage->setChecked(mode.testFlag(ExportMode::WholeImage));
-    ui.cbExportWithoutOutputStage->setChecked(mode.testFlag(ExportMode::ImageWithoutOutputStage));
-    ui.cbExportForeground->setChecked(mode.testFlag(ExportMode::Foreground));
-    ui.cbExportBackground->setChecked(mode.testFlag(ExportMode::Background));
-    ui.cbExportAutomask->setChecked(mode.testFlag(ExportMode::AutoMask));
-    ui.cbExportMask->setChecked(mode.testFlag(ExportMode::Mask));
-    ui.cbExportZones->setChecked(mode.testFlag(ExportMode::Zones));
+    ExportModes mode = (ExportModes) m_settings.value(_key_export_split_mixed_settings, _key_export_split_mixed_settings_def).toInt();
+    displayExportMode(mode);
 
 
     ui.DefaultOutputFolder->setChecked(m_settings.value(_key_export_default_output_folder, true).toBool());
 	ui.labelFilesProcessed->clear();
+    ui.btnResetToDefault->show();
 	ui.ExportButton->setText(tr("Export"));	
 	ui.OkButton->setText(tr("Close"));
     ui.tabWidget->setCurrentIndex(0); // as I often forget to set this right in ui designer
@@ -65,15 +60,28 @@ ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
     connect(ui.UseSepSuffixForPics, SIGNAL(toggled(bool)), this, SLOT(OnCheckUseSepSuffixForPics(bool)));
 	connect(ui.KeepOriginalColorIllumForeSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckKeepOriginalColorIllumForeSubscans(bool)));
 
-    ui.GenerateBlankBackSubscans->setChecked(m_settings.value(_key_export_generate_blank_subscans).toBool());
-    ui.UseSepSuffixForPics->setChecked(m_settings.value(_key_export_use_sep_suffix).toBool());
-    ui.KeepOriginalColorIllumForeSubscans->setChecked(m_settings.value(_key_export_keep_original_color, false).toBool());
-    ui.cbMultipageOutput->setChecked(m_settings.value(_key_export_to_multipage, false).toBool());
+    ui.GenerateBlankBackSubscans->setChecked(m_settings.value(_key_export_generate_blank_subscans, _key_export_generate_blank_subscans_def).toBool());
+    ui.UseSepSuffixForPics->setChecked(m_settings.value(_key_export_use_sep_suffix, _key_export_use_sep_suffix_def).toBool());
+    ui.KeepOriginalColorIllumForeSubscans->setChecked(m_settings.value(_key_export_keep_original_color, _key_export_keep_original_color_def).toBool());
+    ui.cbMultipageOutput->setChecked(m_settings.value(_key_export_to_multipage, _key_export_to_multipage_def).toBool());
 }
 
 ExportDialog::~ExportDialog()
 {
 }
+
+void
+ExportDialog::displayExportMode(ExportModes mode)
+{
+    ui.cbExportImage->setChecked(mode.testFlag(ExportMode::WholeImage));
+    ui.cbExportWithoutOutputStage->setChecked(mode.testFlag(ExportMode::ImageWithoutOutputStage));
+    ui.cbExportForeground->setChecked(mode.testFlag(ExportMode::Foreground));
+    ui.cbExportBackground->setChecked(mode.testFlag(ExportMode::Background));
+    ui.cbExportAutomask->setChecked(mode.testFlag(ExportMode::AutoMask));
+    ui.cbExportMask->setChecked(mode.testFlag(ExportMode::Mask));
+    ui.cbExportZones->setChecked(mode.testFlag(ExportMode::Zones));
+}
+
 
 void
 ExportDialog::OnCheckDefaultOutputFolder(bool state)
@@ -184,6 +192,9 @@ ExportDialog::setCount(int count)
 void
 ExportDialog::StepProgress()
 {
+    if (ui.btnResetToDefault->isVisible()) {
+        ui.btnResetToDefault->hide();
+    }
     const QString txt = tr("Processed pages %1 of %2");
     ui.labelFilesProcessed->setText( txt.arg(ui.progressBar->value()+1).arg(m_count) );
 	ui.progressBar->setValue(ui.progressBar->value() + 1);	
@@ -243,6 +254,7 @@ ExportDialog::startExport(void)
 void
 ExportDialog::reset(void)
 {
+    ui.btnResetToDefault->show();
 	ui.labelFilesProcessed->clear();
 	ui.progressBar->setValue(0);	
 	ui.ExportButton->setText(tr("Export"));
@@ -259,6 +271,7 @@ ExportDialog::setStartExport(void)
 {
 	m_count = 0;
 
+    ui.btnResetToDefault->hide();
 	ui.progressBar->setValue(0);
 	ui.labelFilesProcessed->setText(tr("Starting the export..."));		
 	ui.ExportButton->setText(tr("Stop"));	
@@ -330,4 +343,13 @@ void ExportDialog::on_cbExportAutomask_stateChanged(int arg1)
 void ExportDialog::on_cbExportWithoutOutputStage_stateChanged(int arg1)
 {
     saveExportMode(ExportMode::ImageWithoutOutputStage, arg1);
+}
+
+void ExportDialog::on_btnResetToDefault_clicked()
+{
+    displayExportMode(ExportModes(_key_export_split_mixed_settings_def));
+    ui.GenerateBlankBackSubscans->setChecked(_key_export_generate_blank_subscans_def);
+    ui.UseSepSuffixForPics->setChecked(_key_export_use_sep_suffix_def);
+    ui.KeepOriginalColorIllumForeSubscans->setChecked(_key_export_keep_original_color_def);
+    ui.cbMultipageOutput->setChecked(_key_export_to_multipage_def);
 }
