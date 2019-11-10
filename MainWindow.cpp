@@ -924,7 +924,7 @@ MainWindow::ensurePageVisible(const std::set<PageId> &_selectedPages, PageId sel
         to_be_selected.append(selectionLeader);
     }
 
-    qSort(to_be_selected);
+    std::sort(to_be_selected.begin(), to_be_selected.end());
 
     QSet<PageId> maybe_selected;
     PageSequence const displayed_pages = m_ptrThumbSequence->toPageSequenceById();
@@ -2440,7 +2440,7 @@ MainWindow::ExportOutput(ExportDialog::Settings settings)
         for (PageId const& page : m_ptrThumbSequence->selectedItems()) {
             to_be_selected.append(page);
         }
-        qSort(to_be_selected);
+        std::sort(to_be_selected.begin(), to_be_selected.end());
 
         for (PageId const& page : to_be_selected) {
             for (std::vector<PageInfo>::const_iterator it = all_pages.begin(); it != all_pages.end(); ++it) {
