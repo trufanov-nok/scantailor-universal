@@ -165,7 +165,7 @@ public:
         QStringList data = m_tiff_list.filter(QRegularExpression("^"+compression+"\t.*"));
 
         if (data.empty()) {
-            throw("Unknown compression");
+            throw std::runtime_error("Settings: unknown compression.");
         }
 
         Q_ASSERT(data.size() == 1);
