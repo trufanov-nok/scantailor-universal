@@ -137,17 +137,19 @@ OutputFileNameGenerator::suggestOverridenFileName(QStringList const& insert_to_f
     } else {
         // empty page filename should be the first one in alphabetical order among all output filenames
         // we shall find a new filename for it
-        const QString old_name = insert_to_filenames.first();
+        const QString& old_name = insert_to_filenames.first();
+        const QString alph_start = alph[0];
+        const QChar& alph_end = alph[alph.size()-1];
         QString new_name = old_name;
-        while (new_name != QStringLiteral("&")) {
-			QChar char_to_test = *new_name.rbegin();
-			if (char_to_test > *alph.rbegin()) {
-				char_to_test = *alph.rbegin();
+        while (!new_name.isEmpty() && new_name != alph_start) {
+            QChar char_to_test = new_name[new_name.size()-1];
+            if (char_to_test > alph_end) {
+                char_to_test = alph_end;
             }
 
             int i = alph.indexOf(char_to_test);
             if (i <= 0) {
-                new_name = new_name.right(new_name.size()-1);
+                new_name.chop(1);
                 continue;
             }
             char_to_test = alph[i-1];

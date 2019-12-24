@@ -241,9 +241,23 @@ ExportDialog::startExport(void)
     settings.generate_blank_back_subscans = ui.GenerateBlankBackSubscans->isChecked();
     settings.use_sep_suffix_for_pics = ui.UseSepSuffixForPics->isChecked();
     settings.page_gen_tweaks = PageGenTweak::NoTweaks;
+#ifdef TARGET_OS_MAC
+    // for compatibility with Qt 5.5
+    if (ui.KeepOriginalColorIllumForeSubscans->isChecked()) {
+        settings.page_gen_tweaks |= PageGenTweak::KeepOriginalColorIllumForeSubscans;
+    } else {
+        settings.page_gen_tweaks &= !PageGenTweak::KeepOriginalColorIllumForeSubscans;
+    }
+
+    if (mode.testFlag(ExportMode::ImageWithoutOutputStage)) {
+        settings.page_gen_tweaks |= PageGenTweak::IgnoreOutputProcessingStage;
+    } else {
+        settings.page_gen_tweaks &= !PageGenTweak::IgnoreOutputProcessingStage;
+    }
+#else
     settings.page_gen_tweaks.setFlag(PageGenTweak::KeepOriginalColorIllumForeSubscans, ui.KeepOriginalColorIllumForeSubscans->isChecked());
     settings.page_gen_tweaks.setFlag(PageGenTweak::IgnoreOutputProcessingStage, mode.testFlag(ExportMode::ImageWithoutOutputStage));
-
+#endif
     settings.export_selected_pages_only = ui.cbExportSelected->isChecked();
 
 
@@ -301,7 +315,16 @@ void
 ExportDialog::saveExportMode(ExportMode val, bool on)
 {
     ExportModes mode = (ExportModes) m_settings.value(_key_export_split_mixed_settings, ExportMode::Foreground | ExportMode::Background).toInt();
+#ifdef TARGET_OS_MAC
+    // for compatibility with Qt 5.5
+    if (on) {
+        mode |= val;
+    } else {
+        mode &= !val;
+    }
+#else
     mode.setFlag(val, on);
+#endif
     m_settings.setValue(_key_export_split_mixed_settings, (int) mode);
 }
 

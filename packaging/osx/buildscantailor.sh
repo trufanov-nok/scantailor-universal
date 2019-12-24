@@ -95,7 +95,7 @@ cd $STSRC
 # needed in case scantailor source is not updated to compile with new boost (>=1_34) test infrastructure
 #[ ! -f $STSRC/imageproc/tests/main.cpp.old ] && sed -i '.old' -e '1,$ s%^#include <boost/test/auto_unit_test\.hpp>%#include <boost/test/included/unit_test.hpp>%g' $STSRC/imageproc/tests/main.cpp # hardcoded in cpp now [truf]
 #[ ! -f $STSRC/tests/main.cpp.old ] && sed -i '.old' -e '1,$ s%^#include <boost/test/auto_unit_test\.hpp>%#include <boost/test/included/unit_test.hpp>%g' $STSRC/tests/main.cpp #hardcoded in cpp now [truf]
-[ ! -f CMakeCache.txt ] && cmake -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET -DCMAKE_OSX_SYSROOT="$PATH_TO_SDK" -DPNG_INCLUDE_DIR=$BUILDDIR -DCMAKE_PREFIX_PATH=$HOME/Qt/5.5/clang_64/ .
+[ ! -f CMakeCache.txt ] && cmake -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET -DCMAKE_OSX_SYSROOT="$PATH_TO_SDK" -DPNG_INCLUDE_DIR=$BUILDDIR -DCMAKE_PREFIX_PATH=$HOME/build/Qt/5.5/clang_64 .
 # I’ve hardcoded path to Qt above [Truf]
 make
 $OURDIR/makeapp.sh $STBUILDDIR $STSRC $BUILDDIR

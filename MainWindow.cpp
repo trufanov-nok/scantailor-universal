@@ -2053,8 +2053,13 @@ void
 MainWindow::exportDialogClosed(QObject*)
 {
     // switching off export mode
+#ifdef TARGET_OS_MAC
+    // for compatibility with Qt 5.5
+    m_export_settings.page_gen_tweaks &= !(ExportDialog::PageGenTweak::KeepOriginalColorIllumForeSubscans | ExportDialog::PageGenTweak::IgnoreOutputProcessingStage);
+#else
     m_export_settings.page_gen_tweaks.setFlag(ExportDialog::PageGenTweak::KeepOriginalColorIllumForeSubscans, false);
     m_export_settings.page_gen_tweaks.setFlag(ExportDialog::PageGenTweak::IgnoreOutputProcessingStage, false);
+#endif
 }
 
 void initSplitImage(const QImage& source_img, QImage& target_img, QImage::Format format, bool grayscale_allowed)

@@ -85,8 +85,11 @@ public:
 	void performRelinking(AbstractRelinker const& relinker);
 private:
 	class Impl;
-
-	std::unique_ptr<Impl> m_ptrImpl;
+#ifdef TARGET_OS_MAC
+    std::auto_ptr<Impl> m_ptrImpl;
+#else
+    std::unique_ptr<Impl> m_ptrImpl;
+#endif
 };
 
 #endif
