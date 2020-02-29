@@ -3156,7 +3156,7 @@ MainWindow::showRemovePagesDialog(std::set<PageId> const& pages)
     ui.setupUi(dialog.get());
     ui.icon->setPixmap(style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(48, 48));
 
-    ui.text->setText(ui.text->text().arg(pages.size()));
+    ui.text->setText(QObject::tr("Remove %n page(s) from project?", "", (int) pages.size()));
 
     QPushButton* remove_btn = ui.buttonBox->button(QDialogButtonBox::Ok);
     remove_btn->setText(tr("Remove"));
@@ -3165,6 +3165,9 @@ MainWindow::showRemovePagesDialog(std::set<PageId> const& pages)
     if (dialog->exec() == QDialog::Accepted) {
         removeFromProject(pages);
         eraseOutputFiles(pages);
+        if (ui.cbRemoveInputFiles->isChecked()) {
+            eraseInputFiles(pages);
+        }
     }
 }
 
@@ -3282,6 +3285,22 @@ MainWindow::eraseOutputFiles(std::set<PageId> const& pages)
 
         for (PageId::SubPage subpage: erase_variations) {
             QFile::remove(m_outFileNameGen.filePathFor(PageId(page_id.imageId(), subpage)));
+        }
+    }
+}
+
+void
+MainWindow::eraseInputFiles(std::set<PageId> const& pages)
+{
+    // Must be called after removeFromProject()
+    // remove input image files in case their pages were selected and
+    // file isn't used in the project anymore.
+
+    QStringList src_files = m_ptrPages->toImageFilePaths();
+    for (PageId const& page_id: pages) {
+        QString const& img_to_remove = page_id.imageId().filePath();
+        if (!src_files.contains(img_to_remove)) {
+            QFile::remove(img_to_remove);
         }
     }
 }

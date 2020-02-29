@@ -135,6 +135,8 @@ public:
 	bool validateDpis() const;
 	
 	std::vector<ImageFileInfo> toImageFileInfo() const;
+
+    QStringList toImageFilePaths() const;
 	
 	void updateMetadataFrom(std::vector<ImageFileInfo> const& files);
 signals:

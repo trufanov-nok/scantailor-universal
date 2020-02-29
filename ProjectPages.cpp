@@ -399,6 +399,21 @@ ProjectPages::toImageFileInfo() const
 	return std::vector<ImageFileInfo>(files.get<1>().begin(), files.get<1>().end());
 }
 
+QStringList
+ProjectPages::toImageFilePaths() const
+{
+    QStringList res;
+    {
+        QMutexLocker locker(&m_mutex);
+
+        for (ImageDesc const& image: m_images) {
+            res.append(image.id.filePath());
+        }
+    }
+
+    return res;
+}
+
 void
 ProjectPages::updateMetadataFrom(std::vector<ImageFileInfo> const& files)
 {

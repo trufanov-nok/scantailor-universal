@@ -334,6 +334,11 @@ private:
 	void removeFromProject(std::set<PageId> const& pages);
 
 	void eraseOutputFiles(std::set<PageId> const& pages);
+
+    // Must be called after removeFromProject()
+    // remove input image files in case their pages were selected and
+    // file isn't used in the project anymore.
+    void eraseInputFiles(std::set<PageId> const& pages);
 	
 	BackgroundTaskPtr createCompositeTask(
 		PageInfo const& page, int last_filter_idx, bool batch, bool debug);
