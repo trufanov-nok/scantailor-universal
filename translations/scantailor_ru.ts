@@ -306,19 +306,16 @@ Do you want to replace it?</source>
 <context>
     <name>DeskewApplyWidget</name>
     <message>
-        <location filename="../filters/deskew/DeskewApplyWidget.cpp" line="11"/>
         <source>Fixed deskew angle %1°</source>
-        <translation type="unfinished">Компенсировать наклон страницы в %1°</translation>
+        <translation type="obsolete">Компенсировать наклон страницы в %1°</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/DeskewApplyWidget.cpp" line="12"/>
         <source>Automatic deskew detection</source>
-        <translation type="unfinished">Автоматический режим компенсации наклона</translation>
+        <translation type="obsolete">Автоматический режим компенсации наклона</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/DeskewApplyWidget.cpp" line="14"/>
         <source>Adjust page orientation by %1°</source>
-        <translation type="unfinished">Повернуть страницу на %1°</translation>
+        <translation type="obsolete">Повернуть страницу на %1°</translation>
     </message>
 </context>
 <context>
@@ -329,42 +326,38 @@ Do you want to replace it?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="20"/>
         <source>Page Orientation fix</source>
-        <translation type="unfinished">Исправление ориентации</translation>
+        <translation type="obsolete">Исправление ориентации</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="77"/>
         <source>Turn to the left</source>
-        <translation type="unfinished">Повернуть влево</translation>
+        <translation type="obsolete">Повернуть влево</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="97"/>
         <source>Original orientation</source>
-        <translation type="unfinished">Оригинальная ориентация страницы</translation>
+        <translation type="obsolete">Оригинальная ориентация страницы</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="120"/>
         <source>Turn to the right</source>
-        <translation type="unfinished">Повернуть вправо</translation>
+        <translation type="obsolete">Повернуть вправо</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="161"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="20"/>
         <source>Deskew</source>
         <translation>Компенсация наклона</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="182"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="41"/>
         <source>Auto</source>
         <translation>Автоматически</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="198"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="57"/>
         <source>Manual</source>
         <translation>Вручную</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="281"/>
+        <location filename="../filters/deskew/ui/DeskewOptionsWidget.ui" line="140"/>
         <source>Apply To...</source>
         <translation>Применить к...</translation>
     </message>
@@ -389,10 +382,10 @@ Do you want to replace it?</source>
     <name>ExportDialog</name>
     <message>
         <location filename="../ui/ExportDialog.ui" line="14"/>
-        <location filename="../ui/ExportDialog.ui" line="292"/>
-        <location filename="../ExportDialog.cpp" line="59"/>
-        <location filename="../ExportDialog.cpp" line="248"/>
-        <location filename="../ExportDialog.cpp" line="254"/>
+        <location filename="../ui/ExportDialog.ui" line="314"/>
+        <location filename="../ExportDialog.cpp" line="54"/>
+        <location filename="../ExportDialog.cpp" line="274"/>
+        <location filename="../ExportDialog.cpp" line="280"/>
         <source>Export</source>
         <translation>Экспорт результатов</translation>
     </message>
@@ -539,67 +532,77 @@ for content in foreground subscans (lengthy)</source>
 (сильно замедляет выполнение экспорта)</translation>
     </message>
     <message>
-        <location filename="../ui/ExportDialog.ui" line="299"/>
-        <location filename="../ExportDialog.cpp" line="60"/>
+        <location filename="../ui/ExportDialog.ui" line="288"/>
+        <source>Reset export settings to default values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="291"/>
+        <source>Restore Defaults</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/ExportDialog.ui" line="321"/>
+        <location filename="../ExportDialog.cpp" line="55"/>
         <source>Close</source>
         <translation>&amp;Отмена</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="99"/>
-        <location filename="../ExportDialog.cpp" line="123"/>
-        <location filename="../ExportDialog.cpp" line="133"/>
-        <location filename="../ExportDialog.cpp" line="220"/>
+        <location filename="../ExportDialog.cpp" line="107"/>
+        <location filename="../ExportDialog.cpp" line="131"/>
+        <location filename="../ExportDialog.cpp" line="141"/>
+        <location filename="../ExportDialog.cpp" line="231"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="100"/>
+        <location filename="../ExportDialog.cpp" line="108"/>
         <source>The export output directory is empty.</source>
         <translation>Не задана папка для сохранения результатов экспорта</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="112"/>
+        <location filename="../ExportDialog.cpp" line="120"/>
         <source>Create Directory?</source>
         <translation>Создать папку?</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="113"/>
+        <location filename="../ExportDialog.cpp" line="121"/>
         <source>The export output directory doesn&apos;t exist. Create it?</source>
         <translation>Папка для сохранения результатов не существует. Создать её?</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="124"/>
+        <location filename="../ExportDialog.cpp" line="132"/>
         <source>Unable to create the export output directory.</source>
         <translation>Не удаётся создать папку для сохранения результатов экспорта.</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="134"/>
+        <location filename="../ExportDialog.cpp" line="142"/>
         <source>The export output directory is not set or doesn&apos;t exist.</source>
         <translation>Папка для сохранения результатов не задана или не существует.</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="139"/>
-        <location filename="../ExportDialog.cpp" line="264"/>
+        <location filename="../ExportDialog.cpp" line="147"/>
+        <location filename="../ExportDialog.cpp" line="291"/>
         <source>Stop</source>
         <translation>&amp;Стоп</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="156"/>
+        <location filename="../ExportDialog.cpp" line="164"/>
         <source>Export output directory</source>
         <translation>Выбор папки для сохранения результатов</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="187"/>
+        <location filename="../ExportDialog.cpp" line="198"/>
         <source>Processed pages %1 of %2</source>
         <translation type="unfinished">Обработка страницы %1 из %2</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="220"/>
+        <location filename="../ExportDialog.cpp" line="231"/>
         <source>Nothing to export. Please select some data to export.</source>
         <translation type="unfinished">Нечего экспортировать. Пожалуйста, выберите данные для экспорта.</translation>
     </message>
     <message>
-        <location filename="../ExportDialog.cpp" line="263"/>
+        <location filename="../ExportDialog.cpp" line="290"/>
         <source>Starting the export...</source>
         <translation>Экспорт начинается...</translation>
     </message>
@@ -738,83 +741,83 @@ for content in foreground subscans (lengthy)</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="1930"/>
-        <location filename="../MainWindow.cpp" line="1940"/>
-        <location filename="../MainWindow.cpp" line="2240"/>
-        <location filename="../MainWindow.cpp" line="2357"/>
-        <location filename="../MainWindow.cpp" line="2364"/>
-        <location filename="../MainWindow.cpp" line="2517"/>
-        <location filename="../MainWindow.cpp" line="2524"/>
-        <location filename="../MainWindow.cpp" line="2809"/>
-        <location filename="../MainWindow.cpp" line="2844"/>
+        <location filename="../MainWindow.cpp" line="1967"/>
+        <location filename="../MainWindow.cpp" line="1977"/>
+        <location filename="../MainWindow.cpp" line="2282"/>
+        <location filename="../MainWindow.cpp" line="2403"/>
+        <location filename="../MainWindow.cpp" line="2410"/>
+        <location filename="../MainWindow.cpp" line="2563"/>
+        <location filename="../MainWindow.cpp" line="2570"/>
+        <location filename="../MainWindow.cpp" line="2862"/>
+        <location filename="../MainWindow.cpp" line="2897"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2240"/>
+        <location filename="../MainWindow.cpp" line="2282"/>
         <source>The file</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2240"/>
+        <location filename="../MainWindow.cpp" line="2282"/>
         <source>is not found</source>
         <translation>не найден</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2357"/>
-        <location filename="../MainWindow.cpp" line="2517"/>
+        <location filename="../MainWindow.cpp" line="2403"/>
+        <location filename="../MainWindow.cpp" line="2563"/>
         <source>Batch processing is in the progress.</source>
         <translation>Выполняется пакетная обработка.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2364"/>
-        <location filename="../MainWindow.cpp" line="2524"/>
+        <location filename="../MainWindow.cpp" line="2410"/>
+        <location filename="../MainWindow.cpp" line="2570"/>
         <source>No project is loaded.</source>
         <translation>Ни один проект не открыт.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2509"/>
+        <location filename="../MainWindow.cpp" line="2555"/>
         <source>The files export is stopped by the user.</source>
         <translation>Экспорт изображений прерван пользователем.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2540"/>
+        <location filename="../MainWindow.cpp" line="2586"/>
         <source>build on </source>
         <translation>от </translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2743"/>
+        <location filename="../MainWindow.cpp" line="2789"/>
         <source>%2 - Scan Tailor &quot;Universal&quot; %3 [%1bit]</source>
         <translation>%2 - Scan Tailor &quot;Universal&quot; %3 [%1бит]</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2810"/>
-        <location filename="../MainWindow.cpp" line="2845"/>
+        <location filename="../MainWindow.cpp" line="2863"/>
+        <location filename="../MainWindow.cpp" line="2898"/>
         <source>Error saving the project file!</source>
         <translation>Ошибка при сохранении файла проекта!</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2839"/>
+        <location filename="../MainWindow.cpp" line="2892"/>
         <source>Saving project...</source>
         <translation>Сохранение проекта...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2894"/>
+        <location filename="../MainWindow.cpp" line="2947"/>
         <source>Files to insert</source>
         <translation>Выбор файлов для вставки</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2953"/>
+        <location filename="../MainWindow.cpp" line="3006"/>
         <source>Skip failed files</source>
         <translation>Игнорировать файлы с ошибками</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3056"/>
+        <location filename="../MainWindow.cpp" line="3109"/>
         <source>Overwrite default file name for resulting image</source>
         <translation type="unfinished">Переопределение имени файла результата</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3058"/>
+        <location filename="../MainWindow.cpp" line="3111"/>
         <source>Here you may overwrite default resulting image file name
 that will be generated for this page. It may be
 helpful to keep the right alphabetical order of files in out subfolder.</source>
@@ -825,114 +828,119 @@ helpful to keep the right alphabetical order of files in out subfolder.</source>
 и порядка следования страниц в проекте.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3077"/>
+        <location filename="../MainWindow.cpp" line="3130"/>
         <source>File %1 already exists in out subfolder.
 Would you like to replace it?</source>
         <translation type="unfinished">Файл %1 уже существует в папке результатов.
 Желаете перезаписать его?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3079"/>
+        <location filename="../MainWindow.cpp" line="3132"/>
         <source>Can&apos;t remove file %1!
 Cancelling...</source>
         <translation type="unfinished">Невозможно удалить файл %1!
 Отмена операции...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3087"/>
+        <location filename="../MainWindow.cpp" line="3140"/>
         <source>Can&apos;t rename file %1!
 Cancelling...</source>
         <translation type="unfinished">Невозможно переименовать файл %1!
 Отмена операции...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3565"/>
+        <location filename="../MainWindow.cpp" line="3637"/>
         <source>p. %1</source>
         <translation>стр. %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3640"/>
+        <location filename="../MainWindow.cpp" line="3712"/>
         <source>%1, %2</source>
         <translation>%1, %2</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3709"/>
+        <location filename="../MainWindow.cpp" line="3781"/>
         <source>Use %1, %2, %3 (or %4), %5 (or %6) to navigate between pages.</source>
         <translation>Используйте %1, %2, %3 (или %4), %5 (или %6) для перемещения между страницами.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="779"/>
+        <location filename="../MainWindow.cpp" line="784"/>
         <source>Save Project</source>
         <translation>Сохранение проекта</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="751"/>
-        <location filename="../MainWindow.cpp" line="2509"/>
+        <location filename="../MainWindow.cpp" line="756"/>
+        <location filename="../MainWindow.cpp" line="2555"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="751"/>
+        <location filename="../MainWindow.cpp" line="756"/>
         <source>The files export is finished.</source>
         <translation>Экспорт изображений завершен.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="779"/>
+        <location filename="../MainWindow.cpp" line="784"/>
         <source>Save this project?</source>
         <translation>Сохранить этот проект?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1312"/>
+        <location filename="../MainWindow.cpp" line="1324"/>
+        <source>Open source with...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="1344"/>
         <source>Go to page...</source>
         <translation>Переход к странице...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1316"/>
+        <location filename="../MainWindow.cpp" line="1348"/>
         <source>Select pages...</source>
         <translation>Выделение страниц...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1322"/>
+        <location filename="../MainWindow.cpp" line="1354"/>
         <source>Insert before...</source>
         <translation>Вставить перед...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1325"/>
+        <location filename="../MainWindow.cpp" line="1357"/>
         <source>Insert after...</source>
         <translation>Вставить после...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1328"/>
+        <location filename="../MainWindow.cpp" line="1360"/>
         <source>Insert empty page</source>
         <translation type="unfinished">Вставка пустой страницы</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1334"/>
+        <location filename="../MainWindow.cpp" line="1366"/>
         <source>Rename result filename...</source>
         <translation type="unfinished">Переименовать файл с результатом...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1340"/>
+        <location filename="../MainWindow.cpp" line="1372"/>
         <source>Remove from project...</source>
         <translation>Удалить из проекта...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1357"/>
+        <location filename="../MainWindow.cpp" line="1390"/>
         <source>Go to page</source>
         <translation>Переход к странице</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1357"/>
+        <location filename="../MainWindow.cpp" line="1390"/>
         <source>Page number:</source>
         <translation>Номер страницы:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1367"/>
+        <location filename="../MainWindow.cpp" line="1400"/>
         <source>Select pages by number</source>
         <translation>Выбор страниц по их номерам</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1368"/>
+        <location filename="../MainWindow.cpp" line="1401"/>
         <source>Numbers should start from 1
  Line ends are ignored
 Any non digit symbols are interpreted as number separators
@@ -944,45 +952,50 @@ Number followed by &apos;-&apos; or &apos;:&apos; treated as a start of page seq
 Число с последующим &apos;-&apos; или &apos;:&apos; интерпретируется как начало интервала номеров страниц</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1371"/>
+        <location filename="../MainWindow.cpp" line="1404"/>
         <source>Input page numbers:</source>
         <translation>Введите номера страниц:</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1377"/>
+        <location filename="../MainWindow.cpp" line="1410"/>
         <source>Pages to be selected: %1</source>
         <translation>Будет выбрано страниц: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1430"/>
+        <location filename="../MainWindow.cpp" line="1463"/>
         <source>Insert here...</source>
         <translation>Вставить сюда...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1837"/>
-        <location filename="../MainWindow.cpp" line="1912"/>
+        <location filename="../MainWindow.cpp" line="1874"/>
+        <location filename="../MainWindow.cpp" line="1949"/>
         <source>Scan Tailor Projects</source>
         <translation>Проекты Scan Tailor</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2701"/>
+        <location filename="../MainWindow.cpp" line="2747"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing at &quot;Select Content&quot; or &quot;Page Layout&quot;.</source>
         <translation type="unfinished">Вывод невозможен, поскольку еще не известны итоговые размеры страниц.
 Для их определения, выполните пакетную обработку на этапах &quot;Область контента&quot; или &quot;Поля&quot;.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2736"/>
+        <location filename="../MainWindow.cpp" line="2782"/>
         <source>Unnamed</source>
         <translation>Без имени</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3681"/>
+        <location filename="../MainWindow.cpp" line="2793"/>
+        <source>%1% - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="3753"/>
         <source>Insert before</source>
         <translation type="unfinished">Вставить перед</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3692"/>
+        <location filename="../MainWindow.cpp" line="3764"/>
         <source>Insert after</source>
         <translation type="unfinished">Вставить после</translation>
     </message>
@@ -1017,17 +1030,17 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation>Держать текущую страницу в поле зрения.</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="242"/>
+        <location filename="../ui/MainWindow.ui" line="274"/>
         <source>Filters</source>
         <translation>Этапы обработки</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="488"/>
+        <location filename="../ui/MainWindow.ui" line="520"/>
         <source>Ctrl+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="388"/>
+        <location filename="../ui/MainWindow.ui" line="420"/>
         <source>Mouse position</source>
         <translation>Координаты указателя мыши</translation>
     </message>
@@ -1052,157 +1065,162 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="391"/>
+        <location filename="../ui/MainWindow.ui" line="237"/>
+        <source>Reset sorting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/MainWindow.ui" line="423"/>
         <source>Mouse position relative to page</source>
         <translation>Координаты указателя мыши относительно страницы</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="414"/>
+        <location filename="../ui/MainWindow.ui" line="446"/>
         <source>Physical size</source>
         <translation>Физический размер</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="417"/>
+        <location filename="../ui/MainWindow.ui" line="449"/>
         <source>Physical size of image. (Click to change units of measurement)</source>
         <translation>Физический размер изображения. (Нажмите для изменения единиц измерения)</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="443"/>
+        <location filename="../ui/MainWindow.ui" line="475"/>
         <source>Page number</source>
         <translation>Номер страницы</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="446"/>
+        <location filename="../ui/MainWindow.ui" line="478"/>
         <source>Position of the selected page in current order</source>
         <translation>Положение выбранной страницы при текущей сортировке</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="485"/>
+        <location filename="../ui/MainWindow.ui" line="517"/>
         <source>&amp;Save Project</source>
         <translation>&amp;Сохранить проект</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="493"/>
+        <location filename="../ui/MainWindow.ui" line="525"/>
         <source>Save Project &amp;As...</source>
         <translation type="unfinished">Сохранить &amp;проект как...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="496"/>
+        <location filename="../ui/MainWindow.ui" line="528"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="535"/>
+        <location filename="../ui/MainWindow.ui" line="567"/>
         <source>&amp;New Project...</source>
         <translation type="unfinished">&amp;Новый проект...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="543"/>
+        <location filename="../ui/MainWindow.ui" line="575"/>
         <source>&amp;Open Project...</source>
         <translation type="unfinished">&amp;Открыть проект...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="585"/>
+        <location filename="../ui/MainWindow.ui" line="617"/>
         <source>&amp;Close Project</source>
         <translation>&amp;Закрыть проект</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="593"/>
+        <location filename="../ui/MainWindow.ui" line="625"/>
         <source>&amp;Quit</source>
         <translation>&amp;Выход</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="601"/>
+        <location filename="../ui/MainWindow.ui" line="633"/>
         <source>&amp;Settings...</source>
         <translation>&amp;Настройки...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="637"/>
+        <location filename="../ui/MainWindow.ui" line="669"/>
         <source>&amp;About</source>
         <translation>&amp;О программе</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="642"/>
+        <location filename="../ui/MainWindow.ui" line="674"/>
         <source>Fix &amp;DPI...</source>
         <translation>Исправление &amp;DPI...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="647"/>
+        <location filename="../ui/MainWindow.ui" line="679"/>
         <source>&amp;Relinking...</source>
         <translation>П&amp;ути в проекте...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="736"/>
+        <location filename="../ui/MainWindow.ui" line="768"/>
         <source>&amp;Export...</source>
         <translation>&amp;Экспорт изображений...</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="741"/>
+        <location filename="../ui/MainWindow.ui" line="773"/>
         <source>About &amp;Qt</source>
         <translation>О &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="837"/>
+        <location filename="../ui/MainWindow.ui" line="869"/>
         <source>Ctrl+Shift+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="849"/>
+        <location filename="../ui/MainWindow.ui" line="881"/>
         <source>Ctrl+Shift+A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1911"/>
+        <location filename="../MainWindow.cpp" line="1948"/>
         <source>Open Project</source>
         <translation>Открытие проекта</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1350"/>
+        <location filename="../MainWindow.cpp" line="1383"/>
         <source>Regenerate result</source>
         <translation>Пересоздать результат</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1931"/>
+        <location filename="../MainWindow.cpp" line="1968"/>
         <source>Unable to open the project file.</source>
         <translation>Не удалось открыть файл проекта.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="1941"/>
+        <location filename="../MainWindow.cpp" line="1978"/>
         <source>The project file is broken.</source>
         <translation>Файл проекта поврежден.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="2902"/>
+        <location filename="../MainWindow.cpp" line="2955"/>
         <source>Images not in project (%1)</source>
         <translation>Изображений не в проекте: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3109"/>
+        <location filename="../MainWindow.cpp" line="3162"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="538"/>
+        <location filename="../ui/MainWindow.ui" line="570"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="546"/>
+        <location filename="../ui/MainWindow.ui" line="578"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="588"/>
+        <location filename="../ui/MainWindow.ui" line="620"/>
         <source>Ctrl+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/MainWindow.ui" line="596"/>
+        <location filename="../ui/MainWindow.ui" line="628"/>
         <source>Ctrl+Q</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="588"/>
+        <location filename="../MainWindow.cpp" line="593"/>
         <source>Stop batch processing</source>
         <translation>Остановить пакетную обработку</translation>
     </message>
@@ -1916,19 +1934,19 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QHotKeyInputDialog</name>
     <message>
-        <location filename="../SettingsDialog.cpp" line="746"/>
+        <location filename="../SettingsDialog.cpp" line="745"/>
         <source>Edit key sequence</source>
         <translation>Редактирование комбинации клавиш</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="748"/>
+        <location filename="../SettingsDialog.cpp" line="747"/>
         <source>Hold the modification keys (Ctrl, Shift, Alt, Meta)
 and press [Enter] to edit the shortcut:</source>
         <translation>Удерживая клавиши-модификаторы (Ctrl, Shift, Alt, Meta) или ничего,
 нажмите Enter для изменения комбинации клавиш:</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="750"/>
+        <location filename="../SettingsDialog.cpp" line="749"/>
         <source>Hold the keys and press [Enter] to edit the shortcut:</source>
         <translation>Удерживая клавиши нажмите Enter для изменения комбинации:</translation>
     </message>
@@ -2589,8 +2607,17 @@ and press [Enter] to edit the shortcut:</source>
         <source>split: %1</source>
         <translation type="unfinished">разрез: %1</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../MainWindow.cpp" line="3159"/>
+        <source>Remove %n page(s) from project?</source>
+        <translation type="unfinished">
+            <numerusform>Удалить %n страницу из проекта?</numerusform>
+            <numerusform>Удалить %n страницы из проекта?</numerusform>
+            <numerusform>Удалить %n страниц из проекта?</numerusform>
+        </translation>
+    </message>
     <message>
-        <location filename="../MainWindow.cpp" line="3624"/>
+        <location filename="../MainWindow.cpp" line="3696"/>
         <source>%1 x %2 %3</source>
         <translation type="unfinished">%1 x %2 %3</translation>
     </message>
@@ -2615,22 +2642,22 @@ and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished">см</translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="960"/>
+        <location filename="../ThumbnailSequence.cpp" line="978"/>
         <source>Warning</source>
         <translation type="unfinished">Предупреждение</translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="961"/>
+        <location filename="../ThumbnailSequence.cpp" line="979"/>
         <source>The file &quot;%1&quot; is not ready for output.</source>
         <translation type="unfinished">Файл &quot;%1&quot; еще не обработан.</translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="1644"/>
+        <location filename="../ThumbnailSequence.cpp" line="1662"/>
         <source>Meta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="1646"/>
+        <location filename="../ThumbnailSequence.cpp" line="1664"/>
         <source>Ctrl</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2701,14 +2728,18 @@ and press [Enter] to edit the shortcut:</source>
         <translation>Удалить страницы</translation>
     </message>
     <message>
-        <location filename="../ui/RemovePagesDialog.ui" line="57"/>
         <source>Remove %1 page(s) from project?</source>
-        <translation>Удалить %1 страниц из проекта?</translation>
+        <translation type="vanished">Удалить %1 страниц из проекта?</translation>
     </message>
     <message>
         <location filename="../ui/RemovePagesDialog.ui" line="72"/>
         <source>Corresponding output files will be deleted, while input files will remain.</source>
-        <translation>Соответствующие файлы вывода будут удалены, а исходные останутся на диске.</translation>
+        <translation>Файлы с результом обработки выбранных страниц будут удалены, а исходные файлы изображений останутся на диске.</translation>
+    </message>
+    <message>
+        <location filename="../ui/RemovePagesDialog.ui" line="113"/>
+        <source>Additionally remove input files</source>
+        <translation>Дополнительно удалить исходные файлы</translation>
     </message>
 </context>
 <context>
@@ -2823,26 +2854,25 @@ and press [Enter] to edit the shortcut:</source>
         <location filename="../ui/SettingsDialog.ui" line="1312"/>
         <location filename="../ui/SettingsDialog.ui" line="1417"/>
         <location filename="../ui/SettingsDialog.ui" line="1541"/>
-        <location filename="../ui/SettingsDialog.ui" line="1684"/>
-        <location filename="../ui/SettingsDialog.ui" line="1789"/>
-        <location filename="../ui/SettingsDialog.ui" line="1849"/>
-        <location filename="../ui/SettingsDialog.ui" line="2022"/>
-        <location filename="../ui/SettingsDialog.ui" line="2082"/>
-        <location filename="../ui/SettingsDialog.ui" line="2358"/>
-        <location filename="../ui/SettingsDialog.ui" line="2454"/>
-        <location filename="../ui/SettingsDialog.ui" line="2514"/>
-        <location filename="../ui/SettingsDialog.ui" line="2801"/>
-        <location filename="../ui/SettingsDialog.ui" line="2994"/>
-        <location filename="../ui/SettingsDialog.ui" line="3268"/>
-        <location filename="../ui/SettingsDialog.ui" line="3381"/>
-        <location filename="../ui/SettingsDialog.ui" line="3487"/>
-        <location filename="../ui/SettingsDialog.ui" line="3593"/>
-        <location filename="../ui/SettingsDialog.ui" line="3691"/>
-        <location filename="../ui/SettingsDialog.ui" line="3838"/>
-        <location filename="../ui/SettingsDialog.ui" line="3954"/>
-        <location filename="../ui/SettingsDialog.ui" line="4021"/>
-        <location filename="../ui/SettingsDialog.ui" line="4137"/>
-        <location filename="../ui/SettingsDialog.ui" line="4232"/>
+        <location filename="../ui/SettingsDialog.ui" line="1699"/>
+        <location filename="../ui/SettingsDialog.ui" line="1759"/>
+        <location filename="../ui/SettingsDialog.ui" line="1932"/>
+        <location filename="../ui/SettingsDialog.ui" line="1992"/>
+        <location filename="../ui/SettingsDialog.ui" line="2268"/>
+        <location filename="../ui/SettingsDialog.ui" line="2364"/>
+        <location filename="../ui/SettingsDialog.ui" line="2424"/>
+        <location filename="../ui/SettingsDialog.ui" line="2711"/>
+        <location filename="../ui/SettingsDialog.ui" line="2904"/>
+        <location filename="../ui/SettingsDialog.ui" line="3178"/>
+        <location filename="../ui/SettingsDialog.ui" line="3291"/>
+        <location filename="../ui/SettingsDialog.ui" line="3397"/>
+        <location filename="../ui/SettingsDialog.ui" line="3503"/>
+        <location filename="../ui/SettingsDialog.ui" line="3601"/>
+        <location filename="../ui/SettingsDialog.ui" line="3748"/>
+        <location filename="../ui/SettingsDialog.ui" line="3864"/>
+        <location filename="../ui/SettingsDialog.ui" line="3931"/>
+        <location filename="../ui/SettingsDialog.ui" line="4047"/>
+        <location filename="../ui/SettingsDialog.ui" line="4142"/>
         <source>Description</source>
         <translation>Описание</translation>
     </message>
@@ -2852,18 +2882,18 @@ and press [Enter] to edit the shortcut:</source>
         <location filename="../ui/SettingsDialog.ui" line="1015"/>
         <location filename="../ui/SettingsDialog.ui" line="1147"/>
         <location filename="../ui/SettingsDialog.ui" line="1457"/>
-        <location filename="../ui/SettingsDialog.ui" line="2167"/>
-        <location filename="../ui/SettingsDialog.ui" line="2591"/>
-        <location filename="../ui/SettingsDialog.ui" line="2884"/>
-        <location filename="../ui/SettingsDialog.ui" line="3073"/>
-        <location filename="../ui/SettingsDialog.ui" line="3346"/>
-        <location filename="../ui/SettingsDialog.ui" line="3460"/>
-        <location filename="../ui/SettingsDialog.ui" line="3566"/>
-        <location filename="../ui/SettingsDialog.ui" line="3770"/>
-        <location filename="../ui/SettingsDialog.ui" line="3919"/>
-        <location filename="../ui/SettingsDialog.ui" line="3994"/>
-        <location filename="../ui/SettingsDialog.ui" line="4095"/>
-        <location filename="../ui/SettingsDialog.ui" line="4177"/>
+        <location filename="../ui/SettingsDialog.ui" line="2077"/>
+        <location filename="../ui/SettingsDialog.ui" line="2501"/>
+        <location filename="../ui/SettingsDialog.ui" line="2794"/>
+        <location filename="../ui/SettingsDialog.ui" line="2983"/>
+        <location filename="../ui/SettingsDialog.ui" line="3256"/>
+        <location filename="../ui/SettingsDialog.ui" line="3370"/>
+        <location filename="../ui/SettingsDialog.ui" line="3476"/>
+        <location filename="../ui/SettingsDialog.ui" line="3680"/>
+        <location filename="../ui/SettingsDialog.ui" line="3829"/>
+        <location filename="../ui/SettingsDialog.ui" line="3904"/>
+        <location filename="../ui/SettingsDialog.ui" line="4005"/>
+        <location filename="../ui/SettingsDialog.ui" line="4087"/>
         <source>Options</source>
         <translation type="unfinished">Настройки</translation>
     </message>
@@ -2898,17 +2928,17 @@ and press [Enter] to edit the shortcut:</source>
         <translation type="unfinished">&amp;Сбросить на значения по умолчанию</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2855"/>
+        <location filename="../ui/SettingsDialog.ui" line="2765"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alignment setting has no sense if &amp;quot;Match with other pages&amp;quot; is switched off. In this case final size for all pages is calculated separately and equal to content one plus its hard margins.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Alignment&lt;/span&gt; defines how to align content zone with its hard margins by changing soft margins. It could be combination of values of following alignment types: manual, auto-magnet and original proportions (last two are optional features).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Manual alignment&lt;/span&gt; is always available to user and allows him to choose the page side (top, left etc.), page corner (top-left, bottom-right etc.) where soft margins will be set to 0. In case of hard margins are zero for such side this means content zone will touch page border. It also allows to center content zone on page horizontally, vertically or both.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Auto-Magnet alignment&lt;/span&gt; (just Auto in other version of ST) is very similar to Manual mode. In fact - it automatically chooses one of Manual mode options based on how close original content zone to page borders. I would say content zone is magnetized to the closest side or corner of page or to its center. This type of alignment is optional.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: in case Original Proportions alignment is enabled then Auto-Magnet considers it as one of options and may choose it automatically for vertical/horizontal alignment or both.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Original Proportions alignment&lt;/span&gt; (based on Original alignment in other versions of ST) distributes soft margins proportionally to space around content zone on original page. For example, if your content on left pages of document is closer to right border of page and content on right pages is closer to left border of page and you want to keep this alignment for left/right pages in a result you&apos;ll face some problems. Because due to different dpi, scan size, splits or deskew angle your page most probably will have a slightly different sizes. And thus even if you set auto-margins or manually set unequal hard margins for left/right pages you&apos;ll end up with non-zero soft margins (unless you switch off &amp;quot;Match with other pages&amp;quot; and all your pages final sizes will be different). Or this could happen if you have cover page in your project and want all page sizes be equal - cover pages may be bigger than other pages. Anyway you&apos;ll end up with necessity to distribute non-zero soft margins. Original proportions alignment may do it for you automatically proportionally to your content zone original position on page. This type of alignment is optional.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: Original proportions alignment is done for content zone with its hard margins around, while position proportions are calculated without considering hard margin values.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: Original proportions mode considers page size after its refinement by Page Detection feature (if enabled) on previous processing step.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note&lt;/span&gt;: Final alignment is a sum of horizontal and vertical alignments (or one may say alignment by height and by width). There is a way to define them separately even for different types of alignment. For example: auto-magnet horizontally and original proportions vertically. Or original proportions horizontally and align to top border vertically.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Настройка Выравнивание не имеет смысла если для всех страниц отключена опция &amp;quot;Выровнять размеры с другими страницами&amp;quot;. В этом случае конечный размер каждой страницы страницы рассчитывается отдельно и равен размеру области контента с жёстко заданными полями вокруг него.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Выравнивание&lt;/span&gt; определяет то, как область контента с её жёстко заданными полями располагаются внутри этой страницы, после её приведения к общему для всех страниц размеру. Этот общий размер равен максимальной среди всех страниц ширине области контента (с жёстко заданными полями слева и справа) и высоте области контента (с жёстко заданными полями сверху и снизу). Для этого к каждой странице меньше этого размера добавляются компенсирующие &amp;quot;косвенно определённые поля&amp;quot;. Выравнивание также можно назвать принципом, по которому распределяются компенсирующие ширина и высота между этими полями. Выравнивание бывает: ручным, автоматическим (Авто-магнит) и пропорциональным положению на оригинале (последние два - опциональны).&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ручное выравнивание&lt;/span&gt; всегда доступно пользователю и технически, является комбинацией выравниваний по вертикали (вверх, по центру, вниз) и горизонтали (влево, по центру, вправо). Что позволяет прижать область контента с её жёстко заданными полями к центру одной из сторон (левой, верхней и т.п.) или одному из четырёх углов результирующей страницы. Технически это достигается путем установки значения одного или двух косвенно определённых полей в 0. Также оно позволяет разместить область контента с её жёсткими полями по центру результирующей страницы, равно распределив величины компенсирующих ширины и высоты  между соответствующими косвенно определёнными полями по вертикали и горизонтали.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Автоматическое выравнивание (Авто-Магнит)&lt;/span&gt; основано на ручном выравнивании и, по факту, всего лишь выбирает один из вариантов ручного выравнивания на основании того, как близка область контента к той или иной стороне на оригинальной странице. Можно сказать, что зону контента с её жёстко заданными полями примагничивает к одной из 9 точек: центру результирующей страницы, центрам её сторон или её углам. Этот тип выравнивания опционален.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Замечание&lt;/span&gt;: если включена функция выравнивания пропорционально положению на оригинале, то Авто-Магнит также рассматривает его как вариант и может выбрать такой тип для выравнивания по горизонтали, вертикали или обоим направлениям.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Выравнивание пропорционально положению на оригинале&lt;/span&gt; - распределяет величину компенсирующих значений по ширине и высоте между косвенно определёнными полями пропорционально расстоянию области контента до краёв оригинальной страницы (после разрезания и компенсации наклона, естественно). К примеру, если ваша область контента на левых страницах ближе к правой её границе, а на правых - к левой (что часто бывает в книгах) и вы хотите сохранить такое положение в результатах, то вы столкнетесь с некоторыми трудностями. Из-за различий в dpi исходных сканов, их размере, положению разрезов, углов наклона и пр. ваши страницы будут иметь немного разный размер. И поэтому, даже при помощи Авто-полей или заданных вручную неравных левых/правых полей на левых/правых страницах у вас все равно останутся ненулевые косвенно определённые поля (если только вы не отключите им &amp;quot;Выровнять размеры с другими страницами&amp;quot; и получите разные размеры страниц в результате).  В итоге, вам придется как-то распределять разницу между общим размером и размером каждой страницы по её косвенным поля. И автоматическое распределение этой разницы пропорционально положению области контента на оригинале здесь будет лучшим решением. Данный тип выравнивания опционален.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Замечание&lt;/span&gt;: Выравнивание пропорционально положению на оригинале выполняется для области контента и её жёстко заданных полей, хотя сами эти пропорции вычисляются без учёта жестко заданных полей. Возможно, если вы применяете данный тип выравнивания и по вертикали и по горизонтали, то вам будет проще просто не задавать поля вообще.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Замечание&lt;/span&gt;: Выравнивание пропорционально положению на оригинале рассчитывается с учётом результатов поиска Области страницы (если выполнялось) на предыдущем этапе обработки.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Замечание&lt;/span&gt;: Т.к. выравнивание фактически является комбинацией горизонтального и вертикального выравниваний (или, можно сказать, выравниваний по ширине и высоте) то предусмотрена возможность задать их отдельно для разных типов выравнивания. Например, Авто-магнит по ширине и оригинальные пропорции по высоте. Или оригинальные пропорции по ширине и прижимание к верхнему краю по высоте.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2947"/>
+        <location filename="../ui/SettingsDialog.ui" line="2857"/>
         <source>Description of currently selected alignment</source>
         <translation type="unfinished">Подробное описание выбранного в данный момент выравнивания</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3435"/>
+        <location filename="../ui/SettingsDialog.ui" line="3345"/>
         <source>In this mode page content is not changed.
 Margins can be filled with white or left as is. If the margins are filled in white, then the option to equalize illumination also becomes available.
 Equalize illumination option normalizes the background color, bringing it to white, and normalizes contrast, increasing it in the shaded areas.</source>
@@ -2917,7 +2947,7 @@ Equalize illumination option normalizes the background color, bringing it to whi
 Опция выравнивания освещенности нормализует цвет фона, сводя его к белому и нормализует контраст, увеличивая его в затененных областях.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3541"/>
+        <location filename="../ui/SettingsDialog.ui" line="3451"/>
         <source>Mixed mode is used for projects in which there are scans from half-tone images (grayscale or color). Pictures will be automatically detected and displayed as it is, just as in the &quot;Color / Grayscale&quot; with the included equalized illumination. The rest of the page is displayed in black and white.
 
 Automatic picture zones detection works well enough, but if the picture merges smoothly into the background the result may be unsatisfactory. In this case, you must create and configure the picture zone images. It is important to note that the creation of zones of images is possible only in mixed mode.</source>
@@ -2926,7 +2956,7 @@ Automatic picture zones detection works well enough, but if the picture merges s
 Автоматическое определение зон изображений работает достаточно хорошо, но если иллюстрация плавно переходит в цвет фона страницы, то результат может быть неудовлетворительным. В этом случае вы должны создать и настраивать зоны изображения вручную. Создание зон изображений возможно только в смешанном режиме.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3745"/>
+        <location filename="../ui/SettingsDialog.ui" line="3655"/>
         <source>Picture zones layer works on top of Auto layer results and could be useful if your pictures are known to be rectangles. Auto layer is build automatically and doesn&apos;t make any assumptions on areas geometry. Picture zones layer tries to improve its mask assuming all picture areas found should be rectangles.
 This layer doesn&apos;t modify auto layer mask but automatically creates rectangle zones on top of it. So usually it covers all auto layer with polygons. User can change these polygons as regular picture zones.
 In case sensitivity parameter is 100% the picture detection algorithm looks for the separate picture areas and adds a minimal bounding rect for each of them as a zone. In this case zone contains pixels from auto layer mask and may contain pixels that are not included in auto layer mask but still inside the rect. If sensitivity is less than 100% the algorithm additionally investigates each side of bounding rect and tries to move it towards the center of rect while the line of pixels behind it contains more than N% of pixels that are not from auto layer mask. Decreasing sensitivity may help to better fit picture zone over picture area by ignoring pixels-outliers incorrectly included in auto layer mask. Usually, the sensitivity is 75-100%.</source>
@@ -2938,22 +2968,22 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
 Параметр чувствительности влияет на то, как именно на основе маски создаются зоны изображений. Если он равен 100%, то алгоритм обнаружения изображений просто обводит прямоугольной зоной все области изображений, какой бы формы они ни были. В этом случае в такую зону могут попасть как пиксели маски, так и пиксели, маски не принадлежавшие. Представьте иллюстрацию с круглым мячом без фона. Обведенный вокруг нее прямоугольник захватит фон. Если чувствительность составляет менее 100%, то алгоритм дополнительно исследует каждую сторону описанного прямоугольника и пытается сдвинуть её в центр прямоугольника, если линия пикселей с этой стороны него содержит более N% пикселей, которые не принадлежат маске. В  нашем примере с мячом это означает, что со снижением чувствительности зона изображения перестанет быть описанным вокруг мяча прямоугольником, а начнет стремиться к его центру, пока не превратиться во вписанный в мяч прямоугольник. Подобно тому, как слой зон иллюстраций позволяет бороться с выпадением пикселей по краям иллюстраций сливающихся с фоном страницы из маски из предположений об их геометрии, данный параметр позволяет бороться с небольшими участками незаслуженно включенных в маску пикселей по краям подобных иллюстраций. Обычно значение чувствительности составляет от 75 до 100%.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4072"/>
+        <location filename="../ui/SettingsDialog.ui" line="3982"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dewarping tries to detect and fix distortion of page surface by analyzing lines of text on it. It assumes that the lines should be horizontal.&lt;/p&gt;&lt;p&gt;Automatic, marginal and manual modes are supported.&lt;/p&gt;&lt;p&gt;Try to correct auto distortion model if too skewed - if enabled then some vertical edges of automatically generated distortion model that deviate to more than 2.75 degrees to Y-axis may be treated as invalid and slope is set to sero. That may help in some cases when auto generation of distortion model gives incorrect results.&lt;/p&gt;&lt;p&gt;Try to apply additional deskew after dewarp - we already deskewed our image on one of previous processing stage but sometimes image may get skewed after dewarping. Thus additional attempt to deskew resulting image may be applied. The skew of the image after dewarping is measured and if the angle is more than 2.0 degrees - it&apos;s deskewed. There is no controls to tune this automatic deskew, it takes some CPU time and it&apos;s not working with automatic dewarping. So use it with &lt;a name=&quot;result_box&quot;/&gt;with caution.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Функция &quot;Распрямление строк&quot; пытается обнаружить и исправить искажение поверхности страницы, проанализировав на нем строки текста. Она исходит из того, что линии должны быть строго горизонтальными.&lt;/p&gt;&lt;p&gt;Поддерживаются автоматический, краевой и ручной режимы работы.&lt;/p&gt;&lt;p&gt;Попытаться исправить слишком перекошенную автоматическую модель искажений - после автоматического построения модели искажений её вертикальные границы (левая и правая) могут быть наклоненными к осям координат. Если угол такого наклона превышает 2,75 градусов к оси Y, то он признается неверным и сбрасывается в ноль. Т.о. граница модели станет совпадать с направлением оси. Если обе вертикальных границы модели слишком наклонены, то корректируется самая скошенная. Этот режим может помочь в случае, если автоматическое построение модели искажений стабильно делает ошибки подобного рода.&lt;/p&gt;&lt;p&gt;Дополнительное исправление наклона после распрямления строк, при необходимости - мы уже исправляли угол наклона всего скана на одном из предыдущих этапов обработки, но иногда уже после распрямления строк изображение может снова оказаться перекошенным. Если данная опция включена, то после распрямления строк снова производится оценка наклона всего изображения и, если оно превышает 2,0 градуса, - оно компенсируется. Данный инструмент не имеет дополнительных настроек и выполняется полностью автоматически. Он также тратит некоторое кол-во процессорного времени и не работает с автоматическим режимом распрямления строк. Поэтому, используйте его с осторожностью.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4101"/>
+        <location filename="../ui/SettingsDialog.ui" line="4011"/>
         <source>Try to correct auto distortion model if too skewed</source>
         <translation type="unfinished">Попытаться исправить слишком перекошенную автоматическую модель искажений</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4108"/>
+        <location filename="../ui/SettingsDialog.ui" line="4018"/>
         <source>Try to apply additional deskew after dewarp</source>
         <translation type="unfinished">Дополнительное исправление наклона после распрямления строк, при необходимости</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4286"/>
+        <location filename="../ui/SettingsDialog.ui" line="4196"/>
         <source>Most of the processing stages require multiple steps of image transformation, cropping, scaling, changing colors, applying filters etc. to calculate resulting image with specified parameters. These transformations could be displayed to user for debugging purposes.
 If debugging enabled you may find a new tabs on top of page view panel. Each tab contain one debugging image representing processing one step described in its title.
 
@@ -3130,7 +3160,6 @@ Images can be rotated by dragging the round handles at the edges. You can also e
         <translation type="unfinished">Цвет сетки и линий:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1738"/>
         <source>This feature enables additional control that allows change page orientation at Deskew processing stage.
 Usually user changes whole image orientation on Fix Orientation processing stage and that&apos;s enough. However if you scan a landscape oriented book and your scan image contains two pages you&apos;ll realize that ScanTailor can&apos;t split pages horizontally. So you can&apos;t get image properly oriented and split at the same time.
 
@@ -3141,7 +3170,7 @@ Orientation is changed just before skew angle detection, so Auto mode works prop
 Use &quot;Apply To&quot; button to change orientation for many pages at once.
 
 </source>
-        <translation type="unfinished">Эта функция включает дополнительное изменение ориентации страницы на этапе Исправления наклона.
+        <translation type="obsolete">Эта функция включает дополнительное изменение ориентации страницы на этапе Исправления наклона.
 Обычно пользователь меняет ориентацию всего изображения на первом этапе обработки, и этого достаточно. Однако, если сканируемая книга была ориентирована горизонтально и сканировался разворот целиком, то после изменения ориентации вы обнаружите, что Scan Tailor не может разрезать такой скан на страницы по горизонтали. Поэтому, одновременно правильно сориентировать и разрезать скан на страницы становится невозможно.
 
 В этом случае вы можете использовать дополнительную операцию изменения ориентации уже после разделения на страницы - на этапе Исправления наклона. Требуемые для этого кнопки будут показываться только для изображений, имеющих тип разреза &quot;на 2 страницы&quot;. Для страниц, полученных из изображений с другим типом разреза, кнопки не отображаются, а операция игнорируется.
@@ -3150,62 +3179,62 @@ Use &quot;Apply To&quot; button to change orientation for many pages at once.
 </translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1810"/>
+        <location filename="../ui/SettingsDialog.ui" line="1720"/>
         <source>If enabled - marks deviant pages with red asterisks in Thumbnails panel.
 The Deviant page on this stage is defined as a page which absolute deskew angle value is bigger than specified in command line (5 degrees by default) or differs from average angle more than 1.5 standard deviations. Average angle and standard deviation are statistical measurements calculated based on all pages.</source>
         <translation type="unfinished">Если включено - помечает аномальные страницы в ленте предварительного просмотра страниц при помощи красных звездочек.
 Аномальной на этом этапе обработки считается страница, абсолютное значение угла поворота которой больше, чем указано в параметре командной строки (по умолчанию 5 градусов) или отличается от среднего угла более чем на 1,5 стандартных отклонения. Средний угол и стандартное отклонение - это статистические характеристики, рассчитанные на основе всех страниц.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2173"/>
+        <location filename="../ui/SettingsDialog.ui" line="2083"/>
         <source>Fine tune page corners:</source>
         <translation type="unfinished">Избегать чёрных уголков:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2182"/>
+        <location filename="../ui/SettingsDialog.ui" line="2092"/>
         <source>Default value for page: enabled</source>
         <translation type="unfinished">Включать по умолчанию</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2192"/>
+        <location filename="../ui/SettingsDialog.ui" line="2102"/>
         <source>Target page size in MM:</source>
         <translation type="unfinished">Задать искомый размер страницы в мм:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1947"/>
+        <location filename="../ui/SettingsDialog.ui" line="1857"/>
         <source>Content zone highlight color: </source>
         <translation type="unfinished">Цвет подсветки области контента:</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="1650"/>
-        <location filename="../ui/SettingsDialog.ui" line="1973"/>
+        <location filename="../ui/SettingsDialog.ui" line="1883"/>
         <source>Click to change color</source>
         <translation type="unfinished">Нажмите для изменения цвета</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="1660"/>
-        <location filename="../ui/SettingsDialog.ui" line="1983"/>
+        <location filename="../ui/SettingsDialog.ui" line="1893"/>
         <source>Reset color to default</source>
         <translation type="unfinished">Сбросить цвет на значение по-умолчанию</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2412"/>
+        <location filename="../ui/SettingsDialog.ui" line="2322"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;At this stage you may adjust the margins added to the content box. There are &lt;span style=&quot; font-weight:600;&quot;&gt;two types of margins&lt;/span&gt; - hard and soft.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Hard margin&lt;/span&gt; - is that between the solid lines. They are set by the user. You can either move over any solid line, be it an inner or outer edge, or set the margins through numerical values.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Soft margin&lt;/span&gt; - is that between the solid and the dotted line. These margins are &lt;span style=&quot; text-decoration: underline;&quot;&gt;automatically&lt;/span&gt; added to bring the page size to the same size of other pages. If you see a dotted line - this means that somewhere in the project there is a page with that width (usable area of Hard + margin), and (possibly others) with that height. This is one big page causing the soft margins in all the other pages, if only for not leveling them off.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Alignment&lt;/span&gt; defines how to align content zone with its hard margins by changing soft margins. It could be: manual, auto-magnet and original proportions (last two are optional features).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;На этом этапе вы можете настроить поля, добавляемые вокруг области контента. Существует &lt;span style=&quot; font-weight:600;&quot;&gt;два вида полей&lt;/span&gt; - жёстко заданные и косвенно определённые.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Жёстко заданные поля&lt;/span&gt; рисуются на макете страницы сплошными линиями. Они задаются пользователем. Вы можете изменять их, двигая мышью эти линии, или задать их введя числовые значения.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Косвенно определённые&lt;/span&gt; - это поля между сплошными и пунктирными линями макета. Эти поля добавляются &lt;span style=&quot; text-decoration: underline;&quot;&gt;автоматически&lt;/span&gt; чтобы компенсировать разнице размера вашей страницы до размера остальных страниц. Если вы видите пунктирный контур - это значит, что где-то в вашем проекте есть страницы с такой шириной (вычисленной как область контента плюс поля слева и справа) и такой высотой (высота области контента плюс поля сверху и снизу). Возможно, это одна страница - тогда на ней пунктирных линий не будет вообще. Часто самой большой страницей проекта оказывается обложка. Размер, до которого происходит компенсация косвенно определёнными полями, вычисляется как максимальные ширина и высота среди всех областей контента проекта с их жёстко заданными полями. Исключением являются страницы, для которых отключена опция &quot;Выровнять размеры с другими страницами&quot; - у них косвенно определённых полей не бывает вообще, их размер полностью определяется размером области контента и жёстко заданных полей. Если вы отключите эту опцию на странице, влиявшей на величины косвенно определённых полей - они будут пересчитаны заново, исходя из размеров оставшихся страниц.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Выравнивание&lt;/span&gt; определяет то, как распределяются значения косвенно определённых полей вокруг области контента с её жёстко заданными полями. Распределяться они могут по разному. Например, если вам нужно прибавить такое поле для того, чтобы компенсировать высоту вашей страницы до общего размера, то вы можете добавить эту разницу сверху, а можете снизу, или и сверху и снизу так, чтобы область контента оказалась отцентрированной по вертикали (если размер жёстко заданных полей не слишком большой). В результате на макете это выражается в типе выравнивания области страницы внутри площади общего размера страниц. Выравнивание бывает: ручным, автоматическим (Авто-магнит) и пропорциональным положению на оригинале (последние два - опциональны).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2568"/>
+        <location filename="../ui/SettingsDialog.ui" line="2478"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Here you can set default &lt;span style=&quot; font-weight:600;&quot;&gt;&amp;quot;hard margins&amp;quot;&lt;/span&gt; values for &lt;span style=&quot; font-weight:600;&quot;&gt;top, left, right&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;bottom&lt;/span&gt; sides.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Auto margins&lt;/span&gt; let you automatically calculate margin values for content area so their combined size will match page size. Page area is usually equal to image area (after page splitting and deskew) but could be affected with optional page detection feature on content selection stage.&lt;/p&gt;&lt;p&gt;Note: Even if you apply auto margins to all pages in project that doesn&apos;t guarantee that all content rects plus corresponding hard margins will result to the same size. Thus in case of &amp;quot;Match with other pages&amp;quot; enabled you&apos;ll get some &lt;span style=&quot; font-weight:600;&quot;&gt;soft margins&lt;/span&gt; that should be addressed with help of Alignment. There could be many reasons of page size mismatch: different size of original scans, different page splitting, page geometry change after deskew or distinction in page detection results.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Здесь вы можете задать значения по умолчанию для&lt;span style=&quot; font-weight:600;&quot;&gt;&amp;quot;жёстко заданных полей&amp;quot;&lt;/span&gt; с &lt;span style=&quot; font-weight:600;&quot;&gt;верхней, левой, правой&lt;/span&gt; и &lt;span style=&quot; font-weight:600;&quot;&gt;нижней&lt;/span&gt; сторон области контента.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Авто-поля&lt;/span&gt; автоматически устанавливают значения жёстких полей такими, чтобы их сумма с размером области контента была равна размеру области страницы, и область контента сохраняла исходное местоположение в этих рамках. Область страницы обычно принимается равной размеру изображения (после разрезания и компенсации наклона), но может быть меньше, если включена соответствующая функция на этапе определения Области контента.&lt;/p&gt;&lt;p&gt;Замечание: Даже если вы примените Авто-поля ко всем страницам в проекте, это не гарантирует того, что косвенно вычисляемые поля для них окажутся нулевыми (если только вы не отключите им всем опцию &quot;Выровнять размеры с другими страницами&quot;). Поэтому, вам всё ещё нужно позаботиться о типе &lt;span style=&quot; font-weight:600;&quot;&gt;выравнивания&lt;/span&gt; ваших страниц. Это происходит из за разницы в размерах областей страниц (или изображений целиком, если область страниц не искалась), чему может быть множество причин: разный размер исходных сканов, разные координаты автоматической разрезки на страницы, изменение геометрии страницы после компенсации наклона или погрешности в работе алгоритма определения области страницы. Покуда у вас есть страницы с опцией &quot;Выровнять размеры с другими страницами&quot; - у вас будут ненулевые косвенно определённые поля и вам будет требоваться выравнивание&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2597"/>
-        <location filename="../ui/SettingsDialog.ui" line="2904"/>
+        <location filename="../ui/SettingsDialog.ui" line="2507"/>
+        <location filename="../ui/SettingsDialog.ui" line="2814"/>
         <source>Default values:</source>
         <translation type="unfinished">Значения по умолчанию:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3647"/>
+        <location filename="../ui/SettingsDialog.ui" line="3557"/>
         <source>Auto layer is switched on by default and contains automatically detected areas which are most likely pictures and should be left grayscaled/colored while other converted to b/w.
 The result is binary mask and could be viewed in Layers tab. It&apos;s highlighted by blue and glowing.
 This mask can&apos;t be changed directly but only switched on/off. User could also create zones (polygons) with &quot;subtract from Auto layer&quot; or &quot;Add to Auto layer&quot; flags to modify it.</source>
@@ -3216,36 +3245,36 @@ This mask can&apos;t be changed directly but only switched on/off. User could al
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="710"/>
-        <location filename="../ui/SettingsDialog.ui" line="2204"/>
+        <location filename="../ui/SettingsDialog.ui" line="2114"/>
         <source>Width:</source>
         <translation>Ширина:</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="684"/>
-        <location filename="../ui/SettingsDialog.ui" line="2218"/>
+        <location filename="../ui/SettingsDialog.ui" line="2128"/>
         <source>Height:</source>
         <translation>Высота:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2235"/>
+        <location filename="../ui/SettingsDialog.ui" line="2145"/>
         <source>Default borders in MM:</source>
         <translation>Отступы по умолчанию в мм:</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="841"/>
-        <location filename="../ui/SettingsDialog.ui" line="2254"/>
+        <location filename="../ui/SettingsDialog.ui" line="2164"/>
         <source>Left:</source>
         <translation>Слева:</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="881"/>
-        <location filename="../ui/SettingsDialog.ui" line="2293"/>
+        <location filename="../ui/SettingsDialog.ui" line="2203"/>
         <source>Right:</source>
         <translation>Справа:</translation>
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="821"/>
-        <location filename="../ui/SettingsDialog.ui" line="2267"/>
+        <location filename="../ui/SettingsDialog.ui" line="2177"/>
         <source>Top:</source>
         <translation>Сверху:</translation>
     </message>
@@ -3257,7 +3286,7 @@ This option allows to increase page view panel size to almost a whole applicatio
     </message>
     <message>
         <location filename="../ui/SettingsDialog.ui" line="861"/>
-        <location filename="../ui/SettingsDialog.ui" line="2303"/>
+        <location filename="../ui/SettingsDialog.ui" line="2213"/>
         <source>Bottom:</source>
         <translation>Снизу:</translation>
     </message>
@@ -3275,7 +3304,7 @@ Horizontal differencing predictor - a preprocessing step applied to image data t
 Horizontal differencing predictor - это шаг предобработки данных изображения, который может повысить эффективность их последующего сжатия (в основном, методом LZW. Подавляющее большинство остальных методов от этого шага не выигрывают). Естественно, сама предобработка требует некоторого процессорного времени. Если вы используете сжатие LZW, хотите сэкономить место на диске и у вас мощный ПК - то можете попробовать эту опцию.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="1903"/>
+        <location filename="../ui/SettingsDialog.ui" line="1813"/>
         <source>This stage determines the rectangular region with &quot;useful&quot; or usable content (shaded in color). Why do we need to define this area? Firstly in order to determine the page size to the output. The content will be added to the total margin area, and the outer limit of these margins affects the size of the output file. Secondly so that the final images don&apos;t show the line of fold or other debris from the edges. Strictly speaking whether the debris falls in the margin in the output stage depends on the mode. In most modes the margin is filled in white.
 
 If areas are identified incorrectly, you can tweak individual pages manually by setting the mouse pointer over the edge, clicking &amp; dragging as needed. Check Hotkeys manager for a list of all possible operations. Occasionally Scan Tailor may find non-existent content or conversely not select content where it should. In this case, you can manually create / delete a region by right-clicking on the image, and select the appropriate menu item.</source>
@@ -3284,14 +3313,14 @@ If areas are identified incorrectly, you can tweak individual pages manually by 
 Если результат автоматического определение области контента вас не устроил, вы можете настроить её вручную, перетащив области мышью за края. В настройках «Менеджера горячих клавиш» вы найдете список всех возможных операций, доступных при помощи клавиатуры. Иногда Scan Tailor может найти несуществующий контент или, наоборот, вообще не найти контент там, где он должен быть. В этом случае вы можете вручную создать / удалить область контента, щелкнув правой кнопкой мыши на изображении и выбрать соответствующий пункт меню.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2043"/>
+        <location filename="../ui/SettingsDialog.ui" line="1953"/>
         <source>If enabled - marks deviant pages with red asterisks in Thumbnails panel.
 The Deviant page on this stage is defined as a page which content zone square differs from average square more than 1.0 standard deviation. Factor 1.0 may be changed via command line. Average square and standard deviation are statistical measurements calculated based on all pages.</source>
         <translation type="unfinished">Если включено - помечает аномальные страницы в ленте предварительного просмотра страниц при помощи красных звездочек.
 Аномальной на этом этапе обработки считается страница, площадь области контента которой отличается от средней более чем на 1,0 стандартного отклонения. Коэффициент 1,0 может быть изменен через параметр командной строки. Среднее значение и стандартное отклонение - это статистические характеристики, рассчитанные на основе площадей всех страниц.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2136"/>
+        <location filename="../ui/SettingsDialog.ui" line="2046"/>
         <source>By default application tries to find a content area on whole page. But sometimes user have an scan bigger than page. This could happen if you scan whole possible scanner area even if your pages are smaller than it. In this case you might end up with a big image with huge black borders. If page detection is enabled the application tries to find a real page area in image before content area detection. In case of success the content area is searched inside area found only. Technically it preprocess image to excludes black borders from page area. The following enhancements could be applied (in order they&apos;re listed):
 
 Fine tune page corners - move corners of detected page area towards the center of page while the corner pixel won&apos;t be non black.
@@ -3314,69 +3343,69 @@ Everything outside page area is highlighted with yellow in page view panel.</sou
 При просмотре изображения с областью страницы меньшего размера, всё, что не попадает в эту область, будут подсвечиваться жёлтым цветом.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2604"/>
+        <location filename="../ui/SettingsDialog.ui" line="2514"/>
         <source>Millimeters (mm)</source>
         <translation>Миллиметры (мм)</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2609"/>
+        <location filename="../ui/SettingsDialog.ui" line="2519"/>
         <source>Inches (in)</source>
         <translation>Дюймы (in)</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2632"/>
+        <location filename="../ui/SettingsDialog.ui" line="2542"/>
         <source>Top</source>
         <translation>Сверху</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2669"/>
+        <location filename="../ui/SettingsDialog.ui" line="2579"/>
         <source>Left</source>
         <translation>Слева</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2689"/>
+        <location filename="../ui/SettingsDialog.ui" line="2599"/>
         <source>Right</source>
         <translation>Справа</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2726"/>
+        <location filename="../ui/SettingsDialog.ui" line="2636"/>
         <source>Bottom</source>
         <translation>Снизу</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="503"/>
+        <location filename="../SettingsDialog.cpp" line="502"/>
         <source>None</source>
         <translation>Не удалять пятна</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2475"/>
+        <location filename="../ui/SettingsDialog.ui" line="2385"/>
         <source>If enabled - marks deviant pages with red asterisks in Thumbnails panel.
 The Deviant page on this stage is defined as a page which has no alignment.</source>
         <translation type="unfinished">Если включено - помечает аномальные страницы в ленте предварительного просмотра страниц при помощи красных звездочек.
 Аномальной на этом этапе обработки считается страница, у не задано выравнивание (отключено выравнивание размера с другими страницами).</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2760"/>
+        <location filename="../ui/SettingsDialog.ui" line="2670"/>
         <source>Switched on for page by default</source>
         <translation>Включать по умолчанию</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2890"/>
+        <location filename="../ui/SettingsDialog.ui" line="2800"/>
         <source>Auto-Magnet alignment</source>
         <translation type="unfinished">Автоматическое определение выравнивания</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2897"/>
+        <location filename="../ui/SettingsDialog.ui" line="2807"/>
         <source>Original proportions alignment</source>
         <translation type="unfinished">Выравнивание пропорционально положению на оригинале</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2956"/>
+        <location filename="../ui/SettingsDialog.ui" line="2866"/>
         <source>Selected alignment</source>
         <translation>Выбранный тип выравнивания</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3048"/>
+        <location filename="../ui/SettingsDialog.ui" line="2958"/>
         <source>At this stage the output files are created from the images and written to the disk. The resultant images also appear in the central window of the program.
 
 Unlike the other stages, the &quot;Output&quot; stage becomes available only after all page pass the stages of &quot;Select Content&quot; and &quot;Page Layout&quot;. This is because the size of pages in the output depend on each other. Say if it found a big page, then all the other fields are increasing (more is described in the documentation on the Page Layout stage). Therefore it is important to know the final size of pages, and it can only be done through the stages of &quot;Select Content&quot; and &quot;Page Layout&quot;.</source>
@@ -3385,59 +3414,59 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
 В отличие от других этапов, этап «Вывод результатов» становится доступным только после того, как все страницы будут обработаны на этапах «Область контента» и «Макетирование». Это связано с тем, что размер страниц-результатов может зависеть друг от друга. Скажем, если на этапе «Макетирование» появляется страница с большим размером, то увеличивается общий размер страниц и пересчитываются значения косвенно определённых полей (подробнее описано в документации для этапа макетирования страницы). Поэтому важно знать конечный размер всех страниц, и это можно сделать только на этапах «Область контента» и «Макетирование».</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3081"/>
+        <location filename="../ui/SettingsDialog.ui" line="2991"/>
         <source>Default DPI:</source>
         <translation>DPI по умолчанию для результата:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3148"/>
+        <location filename="../ui/SettingsDialog.ui" line="3058"/>
         <source>Threshold control diapason:</source>
         <translation type="unfinished">Диапазон допустимого при выборе пороговых значений:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3157"/>
+        <location filename="../ui/SettingsDialog.ui" line="3067"/>
         <source>Min.:</source>
         <translation>Мин.:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3190"/>
+        <location filename="../ui/SettingsDialog.ui" line="3100"/>
         <source>Max.:</source>
         <translation>Макс.:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3214"/>
+        <location filename="../ui/SettingsDialog.ui" line="3124"/>
         <source>Default threshold value:</source>
         <translation>Пороговые значения по умолчанию равны:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3239"/>
+        <location filename="../ui/SettingsDialog.ui" line="3149"/>
         <source>Hold spacebar to display original page</source>
         <translation>Показывать оригинал страницы при нажатом пробеле</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3322"/>
+        <location filename="../ui/SettingsDialog.ui" line="3232"/>
         <source>Black and White is not suitable for any images and some drawings. There is an option to &quot;despeckle&quot;, and to increase or decrease the line thickness (i.e. of the text). In general it is best to not despeckle if the image is reasonably clean as despeckling can result in the loss of some portions of text. This may be compensated for to a degree by increasing the line thickness but it&apos;s probably important to experiment on a few pages before applying to the entire project.
 Making black and white image from grayscale or color source requires binarization. Binarization contains several steps which could be seen in debug mode. One of these is image smoothing. In few cases better results could be achieved if smoothing is disabled, but it&apos;s enabled by default.</source>
         <translation type="unfinished">Чёрно/белый режим не подходит для изображений и некоторых рисунков. Он имеет опцию «Удаление мусора» и настройку порога бинаризации (одним из результатов работы которого является увеличение или уменьшение толщины линий (т. е. текста). В общем, «Удаление мусора» лучше не использовать, если изображение достаточно чистое, так как «Удаление мусора» может привести к потере некоторых частей текста. Это может быть компенсировано в некоторой степени за счет увеличения порога бинаризации, но, вероятно, вам лучше поэкспериментировать на нескольких страницах перед тем, как применить эти настройки ко всему проекту.
 Создание черно-белого изображений из исходного цветного изображения или изображения в оттенках серого называют его бинаризацией. Бинаризация содержит несколько шагов, результаты работы которых можно увидеть в режиме отладки. Одним из этих шагов является сглаживание изображения. В некоторых (редких) случаях результат без сглаживания может оказаться лучше, но по умолчанию оно включено.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3352"/>
+        <location filename="../ui/SettingsDialog.ui" line="3262"/>
         <source>Disable smoothing</source>
         <translation>Отключить сглаживание</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3776"/>
+        <location filename="../ui/SettingsDialog.ui" line="3686"/>
         <source>Sensitivity:</source>
         <translation type="unfinished">Чувствительность:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3798"/>
+        <location filename="../ui/SettingsDialog.ui" line="3708"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3892"/>
+        <location filename="../ui/SettingsDialog.ui" line="3802"/>
         <source>Foreground layer allows user to fill page with white while keeping its content grayscaled or colored. Technically, it binarizes image to a b/w mask and uses such mask to separate background from foreground. Then background is filled with white while foreground is kept as is.
 It could be useful if you have some colored text, arrows or other glyphs which could be hardly represented as a rectangle picture.
 Foreground layer could be adjusted with zones. Use zones with &quot;subtract from all layers&quot; property to left a part of image below it in b/w mode. Or &quot;subtract to auto layer&quot; to remove auto layer mask below it. By default auto layer masks (if enabled) and foreground layer masks are combined.
@@ -3452,34 +3481,34 @@ As Foreground layer is using binarization to separate content from background it
 Маска данного слоя отображается вместе с маской слоя поиска иллюстраций - обе подсвечены синим и мерцают.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3925"/>
+        <location filename="../ui/SettingsDialog.ui" line="3835"/>
         <source>Separate threshold control</source>
         <translation type="unfinished">Отдельно настраивать пороговое значение 
 для слоя всего контента</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="3975"/>
+        <location filename="../ui/SettingsDialog.ui" line="3885"/>
         <source>Fill zones tab allows user to specify zones that will be filled with background cover. This is usually used to remove the library stamps, and spots that are too big to be automatically removed with Despeckle function.</source>
         <translation type="unfinished">Вкладка &quot;Зоны заливки&quot; позволяет пользователю задать зоны, которые будут закрашены цветом фона. Обычно это используется для удаления библиотечных штампов, и пятен, слишком больших, чтобы быть убранными функцией удаления мусора.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4158"/>
+        <location filename="../ui/SettingsDialog.ui" line="4068"/>
         <source>Despeckling mode tries to automatically clean page content from spots. It analyses only areas of page rendered in b/w. In a nutshell it looks for connected set of black pixels that could be bounded with a rect smaller then Despeckling mode sensitivity rect - in this case these pixels are filled with background color. Currently 3 levels of sensitivity are supported.</source>
         <translation type="unfinished">Функция &quot;Удаление мусора&quot; пытается автоматически очистить содержимое страницы от мелких точек, появляющихся в результате загрязнения страницы книги. Она анализирует только области страницы, отображаемые чёрно-белыми. Технически, функция ищет связные группы чёрных пикселей, которые могут быть вписаны в прямоугольник достаточно малого размера. Чувствительность функции &quot;Удаление мусора&quot; задает этот размер. В настоящее время поддерживаются 3 уровня чувствительности. Будьте осторожны с агрессивным уровнем - он может принять за мусор знаки препинания (точки, особенно в оглавлении книг). Весь достаточно мелкий мусор удаляется путем заливки площади описанного вокруг него прямоугольника цветом фона.
 Всегда контролируйте работу функции на соответствующей вкладке - удаленные точки подсвечиваются там красным.</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4183"/>
+        <location filename="../ui/SettingsDialog.ui" line="4093"/>
         <source>Default:</source>
         <translation>Режим по умолчанию:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4336"/>
+        <location filename="../ui/SettingsDialog.ui" line="4246"/>
         <source>Expand all</source>
         <translation>Развернуть все</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="4341"/>
+        <location filename="../ui/SettingsDialog.ui" line="4251"/>
         <source>Collapse all</source>
         <translation>Свернуть все</translation>
     </message>
@@ -3495,7 +3524,7 @@ As Foreground layer is using binarization to separate content from background it
     </message>
     <message>
         <location filename="../SettingsDialog.cpp" line="143"/>
-        <location filename="../SettingsDialog.cpp" line="1008"/>
+        <location filename="../SettingsDialog.cpp" line="1007"/>
         <source>Restore defaults</source>
         <translation>Сброс настроек</translation>
     </message>
@@ -3560,120 +3589,119 @@ As Foreground layer is using binarization to separate content from background it
         <translation>Компенсация наклона</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="236"/>
         <source>Page orientation fix</source>
-        <translation type="unfinished">Ориентация страницы</translation>
+        <translation type="obsolete">Ориентация страницы</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="237"/>
-        <location filename="../SettingsDialog.cpp" line="240"/>
-        <location filename="../SettingsDialog.cpp" line="244"/>
+        <location filename="../SettingsDialog.cpp" line="236"/>
+        <location filename="../SettingsDialog.cpp" line="239"/>
+        <location filename="../SettingsDialog.cpp" line="243"/>
         <source>Mark deviant pages</source>
         <translation>Пометить аномальные страницы</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="238"/>
+        <location filename="../SettingsDialog.cpp" line="237"/>
         <source>Select Content</source>
         <translation>Область контента</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="239"/>
+        <location filename="../SettingsDialog.cpp" line="238"/>
         <source>Page detection</source>
         <translation>Определение области страницы</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="241"/>
+        <location filename="../SettingsDialog.cpp" line="240"/>
         <source>Page layout</source>
         <translation type="unfinished">Макетирование страницы</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="242"/>
+        <location filename="../SettingsDialog.cpp" line="241"/>
         <source>Margins</source>
         <translation>Поля</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="243"/>
+        <location filename="../SettingsDialog.cpp" line="242"/>
         <source>Alignment</source>
         <translation>Выравнивание</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="504"/>
+        <location filename="../SettingsDialog.cpp" line="503"/>
         <source>Cautious</source>
         <translation type="unfinished">Осторожное</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="506"/>
+        <location filename="../SettingsDialog.cpp" line="505"/>
         <source>Aggressive</source>
         <translation type="unfinished">Агрессивный</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="1009"/>
+        <location filename="../SettingsDialog.cpp" line="1008"/>
         <source>Thumbnails view settings will be reseted to their defaults. Continue?</source>
         <translation type="unfinished">Настройки ленты предпросмотра страниц будут сброшены на значения по умолчанию. Продолжить?</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="1061"/>
-        <location filename="../SettingsDialog.cpp" line="1080"/>
+        <location filename="../SettingsDialog.cpp" line="1060"/>
+        <location filename="../SettingsDialog.cpp" line="1079"/>
         <source>Color selection</source>
         <translation type="unfinished">Выбор цвета</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsDialog.ui" line="2751"/>
+        <location filename="../ui/SettingsDialog.ui" line="2661"/>
         <source>Auto margins</source>
         <translation>Авто-поля</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="245"/>
+        <location filename="../SettingsDialog.cpp" line="244"/>
         <source>Output</source>
         <translation>Вывод результатов</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="246"/>
+        <location filename="../SettingsDialog.cpp" line="245"/>
         <source>Black &amp; White mode</source>
         <translation>Чёрно-белый режим</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="247"/>
+        <location filename="../SettingsDialog.cpp" line="246"/>
         <source>Color/Grayscale mode</source>
         <translation>Цветной/Оттенки серого</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="248"/>
+        <location filename="../SettingsDialog.cpp" line="247"/>
         <source>Mixed mode</source>
         <translation>Смешанный режим</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="249"/>
+        <location filename="../SettingsDialog.cpp" line="248"/>
         <source>Auto layer</source>
         <translation type="unfinished">Слой поиска иллюстраций</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="250"/>
+        <location filename="../SettingsDialog.cpp" line="249"/>
         <source>Picture zones layer</source>
         <translation type="unfinished">Слой зон иллюстраций</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="251"/>
+        <location filename="../SettingsDialog.cpp" line="250"/>
         <source>Foreground layer</source>
         <translation type="unfinished">Слой всего контента</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="252"/>
+        <location filename="../SettingsDialog.cpp" line="251"/>
         <source>Fill zones</source>
         <translation type="unfinished">Зоны заливки</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="253"/>
+        <location filename="../SettingsDialog.cpp" line="252"/>
         <source>Dewarping</source>
         <translation>Распрямление строк</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="254"/>
+        <location filename="../SettingsDialog.cpp" line="253"/>
         <source>Despeckling</source>
         <translation type="unfinished">Удаление мусора</translation>
     </message>
     <message>
-        <location filename="../SettingsDialog.cpp" line="505"/>
+        <location filename="../SettingsDialog.cpp" line="504"/>
         <source>Normal</source>
         <translation>Обычный</translation>
     </message>
@@ -3740,7 +3768,7 @@ As Foreground layer is using binarization to separate content from background it
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="1657"/>
+        <location filename="../ThumbnailSequence.cpp" line="1675"/>
         <source>You are going to cancel %1 pages selection.
 Sometimes this could happen accidentally due to misclicks.
 Please note that there is a button on top of pages list panel that toggles simulation of the %2 key pressing.You can use it to safely select several pages across the project.
@@ -3752,12 +3780,12 @@ Continue?</source>
 Продолжить и снять выделение?</translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="1667"/>
+        <location filename="../ThumbnailSequence.cpp" line="1685"/>
         <source>Don&apos;t show this again.</source>
         <translation type="unfinished">Больше не показывать.</translation>
     </message>
     <message>
-        <location filename="../ThumbnailSequence.cpp" line="1829"/>
+        <location filename="../ThumbnailSequence.cpp" line="1847"/>
         <source>%1 (page %2)</source>
         <translation>%1 (стр. %2)</translation>
     </message>
@@ -3765,32 +3793,42 @@ Continue?</source>
 <context>
     <name>ZoneContextMenuInteraction</name>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="170"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="173"/>
         <source>&amp;Paste</source>
         <translation>&amp;Вставить</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="287"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="290"/>
         <source>Delete confirmation</source>
         <translation>Подтверждение удаления</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="287"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="290"/>
         <source>Really delete this zone?</source>
         <translation>Действительно удалить эту зону?</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="317"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="365"/>
         <source>&amp;Delete...</source>
         <translation>&amp;Удалить...</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="327"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="375"/>
+        <source>Delete &amp;from...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="385"/>
         <source>&amp;Copy</source>
         <translation>&amp;Скопировать</translation>
     </message>
     <message>
-        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="337"/>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="395"/>
+        <source>Copy &amp;to...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../zones/ZoneContextMenuInteraction.cpp" line="405"/>
         <source>&amp;Properties...</source>
         <translation>&amp;Свойства...</translation>
     </message>
@@ -3891,37 +3929,28 @@ Continue?</source>
 <context>
     <name>deskew::OptionsWidget</name>
     <message>
-        <location filename="../filters/deskew/OptionsWidget.cpp" line="72"/>
-        <source>Apply Deskew parameters</source>
+        <location filename="../filters/deskew/OptionsWidget.cpp" line="68"/>
+        <source>Apply Deskew</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>deskewApplyWidget</name>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../filters/deskew/ui/DeskewApplyWidget.ui" line="20"/>
         <source>Apply what</source>
-        <translation type="unfinished">Перенести настройки</translation>
+        <translation type="obsolete">Перенести настройки</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyWidget.ui" line="50"/>
         <source>Orientation fix</source>
-        <translation type="unfinished">Ориентация страницы</translation>
+        <translation type="obsolete">Ориентация страницы</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyWidget.ui" line="69"/>
         <source>Auto mode of deskew detection</source>
-        <translation type="unfinished">Режим определения наклона</translation>
+        <translation type="obsolete">Режим определения наклона</translation>
     </message>
     <message>
-        <location filename="../filters/deskew/ui/DeskewApplyWidget.ui" line="79"/>
         <source>Both</source>
-        <translation type="unfinished">Все</translation>
+        <translation type="obsolete">Все</translation>
     </message>
 </context>
 <context>
@@ -3981,7 +4010,7 @@ Continue?</source>
 <context>
     <name>output::FillZoneEditor</name>
     <message>
-        <location filename="../filters/output/FillZoneEditor.cpp" line="227"/>
+        <location filename="../filters/output/FillZoneEditor.cpp" line="235"/>
         <source>Pick color</source>
         <translation>Выбрать цвет</translation>
     </message>
@@ -4019,93 +4048,103 @@ of a non grey color in the source files</source>
 <context>
     <name>output::OptionsWidget</name>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="708"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="709"/>
         <source>Apply Despeckling Level</source>
         <translation type="unfinished">Применить уровень удаления мусора</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="673"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="674"/>
         <source>Apply Depth Perception</source>
         <translation>Применить восприятие глубины</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="470"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="471"/>
         <source>%1 x %2 dpi</source>
         <translation>%1 x %2 dpi</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="475"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="476"/>
         <source>%1 dpi</source>
         <translation>%1 dpi</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="504"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="505"/>
         <source>Enforced if dewarping is on</source>
         <translation type="unfinished">Принудительно включается при использовании исправления геометрии</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="525"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="526"/>
         <source>Disabled if dewarping is on</source>
         <translation type="unfinished">Принудительно отключается при использовании исправления геометрии</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="613"/>
-        <location filename="../filters/output/OptionsWidget.cpp" line="639"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="614"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="640"/>
         <source>Off</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="616"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="617"/>
         <source>Auto</source>
         <translation>Автоматически</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="619"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="620"/>
         <source>Manual</source>
         <translation>Вручную</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="624"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="625"/>
         <source>Marginal</source>
         <translation type="unfinished">Краевое</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="640"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="641"/>
         <source>Cautious</source>
         <translation>Осторожное</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="641"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="642"/>
         <source>Normal</source>
         <translation type="unfinished">Обычное</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="642"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="643"/>
         <source>Aggressive</source>
         <translation type="unfinished">Агрессивный</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="689"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="690"/>
         <source>Apply Dewarping Mode</source>
         <translation type="unfinished">Режим распрямления строк</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="724"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="725"/>
         <source>Apply Mode</source>
         <translation type="unfinished">Применить режим вывода</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="919"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="920"/>
         <source>Apply Output Resolution</source>
         <translation type="unfinished">Применить разрешение вывода</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="1024"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="1025"/>
         <source>Apply Foreground layer threshold</source>
         <translation type="unfinished">Применить значение порога фона</translation>
     </message>
     <message>
-        <location filename="../filters/output/OptionsWidget.cpp" line="954"/>
+        <location filename="../filters/output/OptionsWidget.cpp" line="1080"/>
+        <source>Copy zone and its settings to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/OptionsWidget.cpp" line="1143"/>
+        <source>Find and remove this zone from:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../filters/output/OptionsWidget.cpp" line="955"/>
         <source>Apply Threshold</source>
         <translation>Применить значение Ч/Б порога</translation>
     </message>
@@ -4113,37 +4152,37 @@ of a non grey color in the source files</source>
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../filters/output/Task.cpp" line="631"/>
+        <location filename="../filters/output/Task.cpp" line="664"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation>Зоны картинок доступны только в режиме &quot;Смешанный&quot;.</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="695"/>
+        <location filename="../filters/output/Task.cpp" line="736"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished">Удаление мусора не роизводится в режиме &quot;Цветной / Оттенки серого&quot;.</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="721"/>
+        <location filename="../filters/output/Task.cpp" line="762"/>
         <source>Output</source>
         <translation>Вывод</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="722"/>
+        <location filename="../filters/output/Task.cpp" line="763"/>
         <source>Layers</source>
         <translation>Слои</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="723"/>
+        <location filename="../filters/output/Task.cpp" line="764"/>
         <source>Fill Zones</source>
         <translation>Зоны заливки</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="724"/>
+        <location filename="../filters/output/Task.cpp" line="765"/>
         <source>Dewarping</source>
         <translation>Распрямление строк</translation>
     </message>
     <message>
-        <location filename="../filters/output/Task.cpp" line="725"/>
+        <location filename="../filters/output/Task.cpp" line="766"/>
         <source>Despeckling</source>
         <translation type="unfinished">Удаление мусора</translation>
     </message>
