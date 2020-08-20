@@ -7,10 +7,10 @@
 
 Scan Tailor is an interactive post-processing tool for scanned pages. 
 It performs operations such as:
-  - [page splitting](https://github.com/trufanov-nok/scantailor/wiki/Split-Pages), 
-  - [deskewing](https://github.com/trufanov-nok/scantailor/wiki/Deskew), 
-  - [adding/removing borders](https://github.com/trufanov-nok/scantailor/wiki/Page-Layout), 
-  - [selecting content](https://github.com/trufanov-nok/scantailor/wiki/Select-Content) 
+  - [page splitting](https://github.com/trufanov-nok/scantailor-universal/wiki/Split-Pages), 
+  - [deskewing](https://github.com/trufanov-nok/scantailor-universal/wiki/Deskew), 
+  - [adding/removing borders](https://github.com/trufanov-nok/scantailor-universal/wiki/Page-Layout), 
+  - [selecting content](https://github.com/trufanov-nok/scantailor-universal/wiki/Select-Content) 
   - ... and others. 
   
 You give it raw scans, and you get pages ready to be printed or assembled into a PDF 
@@ -29,7 +29,7 @@ In 2014, the original developer [Joseph Artsimovich](https://github.com/Tulon) s
 and [Nate Craun](https://natecraun.net/) ([@ncraun](https://github.com/ncraun)) 
   took over as the [new maintainer](http://scantailor.org/2014/04/06/new-maintainer.html).
   
-For any suggested changes or bugs, please consult the [Issues](https://github.com/trufanov-nok/scantailor/issues) tab.
+For any suggested changes or bugs, please consult the [Issues](https://github.com/trufanov-nok/scantailor-universal/issues) tab.
 
 ## Usage
 
@@ -46,12 +46,12 @@ Scan Tailor is being used not just by enthusiasts, but also by libraries and oth
 
 ## Installation and Tips
   
-  [Scanning Tips](https://github.com/trufanov-nok/scantailor/wiki/Tips-for-Scanning), 
-  [Quick-Start-Guide](https://github.com/trufanov-nok/scantailor/wiki/Quick-Start-Guide), and complete 
-  [Usage Guide](https://github.com/trufanov-nok/scantailor/wiki/User-Guide), including installation information 
-  (via the [installer](https://github.com/trufanov-nok/scantailor/wiki/User-Guide#installation-and-first-start) or 
-  [building from from source](https://github.com/trufanov-nok/scantailor/wiki/Building-from-Source-Code-on-Linux-and-Mac-OS-X))
-  can be found in the [wiki](https://github.com/trufanov-nok/scantailor/wiki/)!
+  [Scanning Tips](https://github.com/trufanov-nok/scantailor-universal/wiki/Tips-for-Scanning), 
+  [Quick-Start-Guide](https://github.com/trufanov-nok/scantailor-universal/wiki/Quick-Start-Guide), and complete 
+  [Usage Guide](https://github.com/trufanov-nok/scantailor-universal/wiki/User-Guide), including installation information 
+  (via the [installer](https://github.com/trufanov-nok/scantailor-universal/wiki/User-Guide#installation-and-first-start) or 
+  [building from from source](https://github.com/trufanov-nok/scantailor-universal/wiki/Building-from-Source-Code-on-Linux-and-Mac-OS-X))
+  can be found in the [wiki](https://github.com/trufanov-nok/scantailor-universal/wiki/)!
 
 ## Additional Links 
 

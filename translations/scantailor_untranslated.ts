@@ -35,7 +35,7 @@
     </message>
     <message>
         <location filename="../ui/AboutDialog.ui" line="160"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lead Developer of &lt;a href=&quot;https://github.com/trufanov-nok/scantailor&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Universal&lt;/span&gt;&lt;/a&gt; version&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lead Developer of &lt;a href=&quot;https://github.com/trufanov-nok/scantailor-universal&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Universal&lt;/span&gt;&lt;/a&gt; version&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
