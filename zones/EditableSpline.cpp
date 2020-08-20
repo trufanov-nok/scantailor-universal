@@ -43,7 +43,8 @@ EditableSpline::copyFromSerializableSpline(SerializableSpline const& spline)
         vertex = m_sentinel.firstVertex();
     }
 
-    for (QPointF const& pt: spline.toPolygon()) {
+    const QPolygonF polygon = spline.toPolygon();
+    for (QPointF const& pt: polygon) {
 		appendVertex(pt);
 	}
 

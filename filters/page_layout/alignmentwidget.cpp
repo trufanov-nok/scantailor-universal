@@ -243,7 +243,7 @@ AlignmentWidget::alignmentButtonClicked(bool checked)
 void
 AlignmentWidget::clickAlignmentButton()
 {
-    for (KeyVal it: m_alignmentByButton) {
+    for (KeyVal const& it: m_alignmentByButton) {
         if (it.first->isChecked()) {
             emit it.first->toggled(true);
             break;

@@ -1108,8 +1108,8 @@ bool removeZonesWithUUID(const ZoneSet& zones, const QString& uuid, ZoneSet& new
 {
     new_zones.clear();
     bool changed = false;
-    for (Zone z: zones) {
-        IntrusivePtr<output::VirtualZoneProperty> ptrSet =
+    for (const Zone& z: zones) {
+        IntrusivePtr<const output::VirtualZoneProperty> ptrSet =
                 z.properties().locate<output::VirtualZoneProperty>();
         if (ptrSet.get()) {
             if (ptrSet->uuid() == uuid) {

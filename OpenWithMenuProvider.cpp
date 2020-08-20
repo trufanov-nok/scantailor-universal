@@ -27,7 +27,7 @@ QMenu* OpenWithMenuProvider::getOpenWithMenu(const QString& mime_type)
             mc.close();
         }
 
-        for (const QString& app : apps) {
+        for (const QString& app : qAsConst(apps)) {
             QFile f("/usr/share/applications/" + app);
             if (f.open(QFile::ReadOnly)) {
                 QString title, icon, exec;

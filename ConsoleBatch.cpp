@@ -274,8 +274,7 @@ ConsoleBatch::setupFixOrientation(std::set<PageId> allPages)
 	IntrusivePtr<fix_orientation::Filter> fix_orientation = m_ptrStages->fixOrientationFilter(); 
 	CommandLine const& cli = CommandLine::get();
 
-	for (std::set<PageId>::iterator i=allPages.begin(); i!=allPages.end(); i++) {
-		PageId page = *i;
+    for (PageId const& page : allPages) {
 
 		OrthogonalRotation rotation;
 		// FIX ORIENTATION FILTER
@@ -319,8 +318,7 @@ ConsoleBatch::setupDeskew(std::set<PageId> allPages)
 	IntrusivePtr<deskew::Filter> deskew = m_ptrStages->deskewFilter(); 
 	CommandLine const& cli = CommandLine::get();
 
-	for (std::set<PageId>::iterator i=allPages.begin(); i!=allPages.end(); i++) {
-		PageId page = *i;
+    for (PageId const& page : allPages) {
 
 		// DESKEW FILTER
 		OrthogonalRotation rotation;
@@ -346,8 +344,7 @@ ConsoleBatch::setupSelectContent(std::set<PageId> allPages)
 	IntrusivePtr<select_content::Filter> select_content = m_ptrStages->selectContentFilter(); 
 	CommandLine const& cli = CommandLine::get();
 
-	for (std::set<PageId>::iterator i=allPages.begin(); i!=allPages.end(); i++) {
-		PageId page = *i;
+    for (PageId const& page : allPages) {
 		select_content::Dependencies deps;
 
         select_content::Params params(deps);
@@ -392,9 +389,7 @@ ConsoleBatch::setupPageLayout(std::set<PageId> allPages)
 	CommandLine const& cli = CommandLine::get();
 	QMap<QString, float> img_cache;
 
-	for (std::set<PageId>::iterator i=allPages.begin(); i!=allPages.end(); i++) {
-		PageId page = *i;
-
+    for (PageId const& page : allPages) {
 		// PAGE LAYOUT FILTER
 		page_layout::Alignment alignment = cli.getAlignment();
 		if (cli.hasMatchLayoutTolerance()) {
@@ -406,8 +401,8 @@ ConsoleBatch::setupPageLayout(std::set<PageId> allPages)
 			float imgAspectRatio = img_cache[path];
 			float tolerance = cli.getMatchLayoutTolerance();
 			std::vector<float> diffs;
-			for (std::set<PageId>::iterator pi=allPages.begin(); pi!=allPages.end(); pi++) {
-				ImageId pimageId = pi->imageId();
+            for (PageId const& page : allPages) {
+                ImageId pimageId = page.imageId();
 				QString ppath = pimageId.filePath();
 				if (!img_cache.contains(ppath)) {
 					QImage img(ppath);
@@ -441,8 +436,7 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
 	IntrusivePtr<output::Filter> output = m_ptrStages->outputFilter(); 
 	CommandLine const& cli = CommandLine::get();
 
-	for (std::set<PageId>::iterator i=allPages.begin(); i!=allPages.end(); i++) {
-		PageId page = *i;
+    for (PageId const& page : allPages) {
 
 		// OUTPUT FILTER
 		output::Params params(output->getSettings()->getParams(page));

@@ -104,7 +104,7 @@ RelinkablePathVisualization::setPath(RelinkablePath const& path, bool clickable)
 	std::vector<PathComponent> path_components;
 	path_components.reserve(components.size());
 	
-	for (QStringList::const_iterator it(components.begin()); it != components.end(); ++it) {
+    for (QStringList::const_iterator it(components.cbegin()); it != components.cend(); ++it) {
 		QString const& component = *it;
 		
 		if (!prefix_path.isEmpty() && !prefix_path.endsWith('/')) {
@@ -114,7 +114,7 @@ RelinkablePathVisualization::setPath(RelinkablePath const& path, bool clickable)
 
 		// Rest of the path.
 		QString suffix_path;
-		for (QStringList::const_iterator it2(it); ++it2 != components.end(); ) {
+        for (QStringList::const_iterator it2(it); ++it2 != components.cend(); ) {
 			if (!suffix_path.isEmpty()) {
 				suffix_path += QChar('/');
 			}

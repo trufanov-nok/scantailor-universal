@@ -81,7 +81,7 @@ ZoneSet::auto_zones_found()
 {
 	typedef output::ZoneCategoryProperty ZLP;
 
-	for (std::list<Zone>::iterator it=m_zones.begin(); it!=m_zones.end();)
+    for (std::list<Zone>::const_iterator it=m_zones.cbegin(); it!=m_zones.cend();)
 	{
 		if (it->properties().locateOrDefault<ZLP>()->zone_category() ==  
 			ZLP::RECTANGULAR_OUTLINE)			

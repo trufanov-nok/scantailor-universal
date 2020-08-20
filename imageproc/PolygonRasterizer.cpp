@@ -317,7 +317,7 @@ PolygonRasterizer::Rasterizer::prepareEdges()
 	// Create an ordered list of y coordinates of polygon vertices.
 	std::vector<double> y_values;
 	y_values.reserve(num_verts + 2);
-    for (QPointF const& pt: m_fillPoly) {
+    for (QPointF const& pt: qAsConst(m_fillPoly)) {
 		y_values.push_back(pt.y());
 	}
 	

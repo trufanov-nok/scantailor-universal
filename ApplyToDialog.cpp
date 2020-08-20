@@ -74,7 +74,7 @@ PageRangeSelectorWidget& ApplyToDialog::getPageRangeSelectorWidget() const
 
 void ApplyToDialog::accept()
 {
-    for (Validator* v : m_Validators) {
+    for (Validator* v : qAsConst(m_Validators)) {
         if (!v->validate()) {
             return;
         }

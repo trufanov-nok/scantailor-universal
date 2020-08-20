@@ -44,7 +44,7 @@ ChangeDpiWidget::ChangeDpiWidget(QWidget* parent, Dpi const& dpi):	QWidget(paren
 	m_customDpiString = QString::number(requested_dpi);
 	
 	int selected_index = -1;
-    for (QString const cdpi: common_dpis) {
+    for (QString const& cdpi: qAsConst(common_dpis)) {
         if (cdpi.trimmed().toInt() == requested_dpi) {
 			selected_index = dpiSelector->count();
 		}

@@ -395,7 +395,7 @@ SequentialColumnProcessor::visualizeEnvelope(QImage const& background)
 	painter.setOpacity(0.7);
 	QRectF rect(0, 0, 9, 9);
 
-	for (QPoint pt: m_path) {
+    for (QPoint const& pt: m_path) {
 		rect.moveCenter(pt + QPointF(0.5, 0.5));
 		painter.drawEllipse(rect);
 	}

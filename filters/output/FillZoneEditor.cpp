@@ -127,7 +127,7 @@ FillZoneEditor::onPaint(QPainter& painter, InteractionState const& interaction)
 
 	painter.setPen(Qt::NoPen);
 
-	for (EditableZoneSet::Zone const& zone: m_zones) {
+    for (EditableZoneSet::Zone const& zone: qAsConst(m_zones)) {
 		typedef FillColorProperty FCP;
 		QColor const color(zone.properties()->locateOrDefault<FCP>()->color());
 		painter.setBrush(m_colorAdapter(color));
@@ -157,7 +157,7 @@ FillZoneEditor::commitZones()
 {
 	ZoneSet zones;
 
-	for (EditableZoneSet::Zone const& zone: m_zones) {
+    for (EditableZoneSet::Zone const& zone: qAsConst(m_zones)) {
 		SerializableSpline const spline(
 			SerializableSpline(*zone.spline()).transformed(m_imageToOrig)
 		);

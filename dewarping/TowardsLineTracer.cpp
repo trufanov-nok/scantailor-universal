@@ -164,7 +164,7 @@ TowardsLineTracer::setupSteps()
 	}
 
 	m_numSteps = 0;
-	for (QPoint const dir: all_directions) {
+    for (QPoint const& dir: qAsConst(all_directions)) {
 		if (m_normalTowardsLine.dot(QPointF(dir)) > 0.0) {
 			Step& step = m_steps[m_numSteps];
 			step.vec = dir;

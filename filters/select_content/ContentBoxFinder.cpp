@@ -872,7 +872,7 @@ ContentBoxFinder::estimateTextMask(
 			}
 		}
 		
-		for (Range const range: ranges) {
+        for (Range const& range: ranges) {
 			int const first = range.first - &hist[0];
 			int const last = range.second - &hist[0];
 			if (last - first < min_text_height - 1) {

@@ -216,7 +216,8 @@ ProjectFilesDialog::ProjectFilesDialog(QWidget* parent)
 	m_autoOutDir(true)
 {
     QString filter = QSettings().value(_key_app_open_filetype_filter, _key_app_open_filetype_filter_def).toString();
-    foreach (QString ext, filter.toLower().split(' ', QString::SkipEmptyParts)) {
+    const QStringList list = filter.toLower().split(' ', QString::SkipEmptyParts);
+    for (QString ext : list) {
      ext = ext.trimmed();
      if (int i = ext.lastIndexOf('.')) {
          ext = ext.right(ext.size()-i-1);

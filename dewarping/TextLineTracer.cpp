@@ -474,7 +474,7 @@ TextLineTracer::extractTextLines(
 
 	post_binarization.release(); // Save memory.
 
-	for (QPoint const seed: seeds) {
+    for (QPoint const& seed: seeds) {
 		std::vector<QPointF> polyline;
 		
 		{
@@ -676,7 +676,7 @@ TextLineTracer::visualizeMidLineSeeds(
 	painter.setPen(Qt::NoPen);
 	painter.setBrush(QColor(0x2d, 0x00, 0x6d, 255));
 	QRectF rect(0, 0, 7, 7);
-	for (QPoint const pt: seeds) {
+    for (QPoint const& pt: seeds) {
 		rect.moveCenter(pt + QPointF(0.5, 0.5));
 		painter.drawEllipse(rect);
 	}

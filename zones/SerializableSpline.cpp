@@ -66,7 +66,7 @@ SerializableSpline::toXml(QDomDocument& doc, QString const& name) const
 
 	QString const point_str("point");
 	XmlMarshaller marshaller(doc);
-    for (QPointF const& pt: m_points) {
+    for (QPointF const& pt: qAsConst(m_points)) {
 		el.appendChild(marshaller.pointF(pt, point_str));
 	}
 

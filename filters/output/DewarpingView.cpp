@@ -414,7 +414,7 @@ DewarpingView::virtMarginArea(int margin_idx) const
 	double normal_max = max;
 	ToLineProjector const vert_line_projector(vert_boundary);
 	ToLineProjector const normal_projector(normal);
-	for (QPointF const& pt: m_virtDisplayArea) {
+    for (QPointF const& pt: qAsConst(m_virtDisplayArea)) {
 		double const p1 = vert_line_projector.projectionScalar(pt);
 		if (p1 < min) {
 			min = p1;

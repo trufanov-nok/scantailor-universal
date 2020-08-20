@@ -242,7 +242,7 @@ void QHotKeys::mergeHotkeys(const QVector<HotKeyGroup>& new_data)
 {
     for (const HotKeyGroup& new_grp: new_data) {
         bool grp_found = false;
-        for (HotKeyGroup& old_grp:  m_data) {
+        for (HotKeyGroup& old_grp: m_data) {
             if (old_grp.id() == new_grp.id()) {
                 grp_found = true;
 
@@ -386,17 +386,17 @@ const QString QHotKeys::toDisplayableText() const
             "<table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px;"
                            " margin-right:0px;\"  cellspacing=\"0\" cellpadding=\"0\">";
 
-    for (HotKeyGroup grp: m_data) {
+    for (const HotKeyGroup& grp: qAsConst(m_data)) {
         res += "<tr><td><b>" + grp.title() + "</b></td></tr>";
-        for (HotKeyInfo keys: grp.hotKeys()) {
+        for (const HotKeyInfo& keys: grp.hotKeys()) {
             res += "<tr><td>"+ keys.title() + "</td>";
             QString keys_seq;
             bool add_or = false;
             int seq_pos = 0;
-            for (HotKeySequence seq: keys.sequences()) {
+            for (const HotKeySequence& seq: keys.sequences()) {
                 QString modifier = modifiersToString(seq.m_modifierSequence);
                 QString key_seq;
-                for (Qt::Key key: seq.m_keySequence) {
+                for (const Qt::Key& key: qAsConst(seq.m_keySequence)) {
                     if (key != Qt::Key_unknown) {
                         if (!key_seq.isEmpty()) {
                             key_seq += "+";
@@ -429,7 +429,7 @@ const QString QHotKeys::toDisplayableText() const
 
 const HotKeyInfo* QHotKeys::get( const HotKeysId& id) const
 {
-    for (const HotKeyGroup& grp: m_data) {
+    for (const HotKeyGroup& grp: qAsConst(m_data)) {
         for (const HotKeyInfo& info: grp.hotKeys()) {
             if (info.id() == id) {
                 return &info;
@@ -516,7 +516,7 @@ void HotKeyGroup::save(QSettings &settings) const
     settings.setValue(grp_key+"count", m_hotKeys.count());
 
     int i = 0;
-    for (const HotKeyInfo key_info: m_hotKeys) {
+    for (const HotKeyInfo& key_info: qAsConst(m_hotKeys)) {
         const QString hotkey_key = QString("%1key_%2/").arg(grp_key).arg(i++);
 
         settings.setValue(hotkey_key+"id", key_info.id());
@@ -528,7 +528,7 @@ void HotKeyGroup::save(QSettings &settings) const
         settings.setValue(hotkey_key+"count", seq_cnt);
 
         int j = 0;
-        for (const HotKeySequence seq: key_info.sequences()) {
+        for (const HotKeySequence& seq: key_info.sequences()) {
             const QString seq_key = QString("%1sequence_%2/").arg(hotkey_key).arg(j++);
             settings.setValue(seq_key+"modifiers", (int) seq.m_modifierSequence);
 
@@ -536,7 +536,7 @@ void HotKeyGroup::save(QSettings &settings) const
             settings.setValue(seq_key+"count", keys_cnt);
 
             int k = 0;
-            for (Qt::Key key: seq.m_keySequence) {
+            for (const Qt::Key& key: qAsConst(seq.m_keySequence)) {
                 if (key != Qt::Key_unknown) {
                     const QString key_key = QString("%1key_%2/").arg(seq_key).arg(k++);
                     settings.setValue(key_key+"key", key);

@@ -915,7 +915,7 @@ MainWindow::ensurePageVisible(const std::set<PageId> &_selectedPages, PageId sel
 {
 
     QVector<PageId> to_be_selected;
-    for (const PageId page: _selectedPages) {
+    for (const PageId& page: _selectedPages) {
         to_be_selected.append(page);
     }
 
@@ -929,21 +929,20 @@ MainWindow::ensurePageVisible(const std::set<PageId> &_selectedPages, PageId sel
     QSet<PageId> maybe_selected;
     PageSequence const displayed_pages = m_ptrThumbSequence->toPageSequenceById();
 
-    foreach (const PageId page, to_be_selected) {
-        for (std::vector<PageInfo>::const_iterator it = displayed_pages.begin();
-             it != displayed_pages.end(); ++it) {
-            if (it->id().imageId() == page.imageId()) {
-                if (page.subPage() == it->id().subPage()) {
+    for (const PageId& page : qAsConst(to_be_selected)) {
+        for (const PageInfo& displ_page : displayed_pages) {
+            if (displ_page.id().imageId() == page.imageId()) {
+                if (page.subPage() == displ_page.id().subPage()) {
                     maybe_selected += page;
-                } else if (( it->id().subPage() == PageId::SINGLE_PAGE ) !=
+                } else if (( displ_page.id().subPage() == PageId::SINGLE_PAGE ) !=
                            ( page.subPage() == PageId::SINGLE_PAGE )) { // different levels
-                    maybe_selected += it->id();
+                    maybe_selected += displ_page.id();
                     if (selectionLeader.imageId() == page.imageId()) {
-                        selectionLeader = it->id();
+                        selectionLeader = displ_page.id();
                     }
                 }
             }
-            if (page.imageId() < it->id().imageId()) {
+            if (page.imageId() < displ_page.id().imageId()) {
                 break;
             }
         }
@@ -1323,7 +1322,8 @@ MainWindow::pageContextMenuRequested(
         if (open_with_menu) {
             open_with_menu->setTitle(tr("Open source with..."));
 
-            for (QAction* act: open_with_menu->actions()) {
+            const QList<QAction*> actions = open_with_menu->actions();
+            for (const QAction * const act: actions) {
                 QObject::connect(act, &QAction::triggered, [source_image_file, act](){
                     QString cmd = act->data().toString();
                     if (cmd.contains("%u", Qt::CaseInsensitive)) {
@@ -1417,7 +1417,7 @@ MainWindow::pageContextMenuRequested(
             const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
 
             QSet<PageId> page_ids;
-            for (const int page_no: res) {
+            for (int page_no : qAsConst(res)) {
                 page_ids += pages.pageAt(page_no-1).id();
             }
 
@@ -2447,14 +2447,14 @@ MainWindow::ExportOutput(ExportDialog::Settings settings)
         }
         std::sort(to_be_selected.begin(), to_be_selected.end());
 
-        for (PageId const& page : to_be_selected) {
-            for (std::vector<PageInfo>::const_iterator it = all_pages.begin(); it != all_pages.end(); ++it) {
-                if (it->id().imageId() == page.imageId()) {
-                    if (page.subPage() == it->id().subPage()) {
+        for (PageId const& page : qAsConst(to_be_selected)) {
+            for (PageInfo const& p_info : all_pages) {
+                if (p_info.id().imageId() == page.imageId()) {
+                    if (page.subPage() == p_info.id().subPage()) {
                         selected_pages += page;
-                    } else if ( ( it->id().subPage() == PageId::SINGLE_PAGE ) !=
+                    } else if ( ( p_info.id().subPage() == PageId::SINGLE_PAGE ) !=
                                ( page.subPage() == PageId::SINGLE_PAGE ) ) { // different levels (image/page/subpage)
-                        selected_pages += it->id();
+                        selected_pages += p_info.id();
                     }
                 }
             }

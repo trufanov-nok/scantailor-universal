@@ -77,7 +77,7 @@ HoughLineDetector::HoughLineDetector(
 		angle *= constants::DEG2RAD;
 		
 		QPointF const uv(cos(angle), sin(angle));
-		for (QPoint const& p: checkpoints) {
+        for (QPoint const& p: qAsConst(checkpoints)) {
 			double const distance = uv.x() * p.x() + uv.y() * p.y();
 			max_distance = std::max(max_distance, distance);
 			min_distance = std::min(min_distance, distance);

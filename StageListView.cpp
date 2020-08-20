@@ -288,7 +288,8 @@ void
 StageListView::ensureSelectedRowVisible()
 {
 	// This loop won't run more than one iteration.
-	for (QModelIndex const& idx: selectionModel()->selectedRows(0)) {
+    const QModelIndexList indexes = selectionModel()->selectedRows(0);
+    for (QModelIndex const& idx: indexes) {
 		scrollTo(idx, EnsureVisible);
 	}
 }

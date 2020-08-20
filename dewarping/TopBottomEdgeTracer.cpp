@@ -260,7 +260,7 @@ TopBottomEdgeTracer::trace(
 	std::vector<std::vector<QPointF> > snakes;
 	snakes.reserve(endpoints1.size());
 	
-	for (QPoint endpoint: endpoints1) {
+    for (QPoint const& endpoint: endpoints1) {
 		snakes.push_back(pathToSnake(grid, endpoint));
 		Vec2f const dir(downTheHillDirection(downscaled.rect(), snakes.back(), avg_bounds_dir));
 		downTheHillSnake(snakes.back(), grid, dir);

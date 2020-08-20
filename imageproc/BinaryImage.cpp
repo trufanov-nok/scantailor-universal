@@ -660,12 +660,12 @@ BinaryImage::rectangularize(BWColor content_color, std::vector<QRect>& areas, in
 	while (join) {
 		join = false;
 		std::vector<QRect> tmp;
-		for (QRect area: areas) {
+        for (const QRect& area: areas) {
 			// take an area and try to join with something in tmp
 			QRect enlArea(area.adjusted(-overlap,-overlap, overlap, overlap));
 			bool intersected = false;
 			std::vector<QRect> tmp2;
-			for (QRect ta: tmp) {
+            for (const QRect& ta: tmp) {
 				QRect enlTA(ta.adjusted(-overlap,-overlap, overlap, overlap));
 				if (enlArea.intersects(enlTA)) {
 					intersected = true;

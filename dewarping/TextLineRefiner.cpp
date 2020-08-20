@@ -466,7 +466,7 @@ TextLineRefiner::visualizeSnakes(std::vector<Snake> const& snakes, Grid<float> c
 
 		// Draw knots.
 		painter.setPen(Qt::NoPen);
-		for (QPointF const& pt: middle_polyline) {
+        for (QPointF const& pt: qAsConst(middle_polyline)) {
 			knot_rect.moveCenter(pt);
 			painter.drawEllipse(knot_rect);
 		}

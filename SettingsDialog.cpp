@@ -106,9 +106,9 @@ void SettingsDialog::initLanguageList(QString cur_lang)
 void SettingsDialog::backupSettings()
 {
     m_oldSettings.clear();
-    QStringList sl = m_settings.allKeys();
+    const QStringList sl = m_settings.allKeys();
 
-    for (QString key: sl) {
+    for (QString const& key: sl) {
         m_oldSettings[key] = m_settings.value(key);
     }
 }
@@ -264,7 +264,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
     const QFontMetrics fm(treeWidget->font());
     int max_text_width = 0;
 
-    for (QString name: settingsTreeTitles) {
+    for (QString const& name: settingsTreeTitles) {
 
         QStringList metadata = tree_data[idx++].split('\t', QString::KeepEmptyParts);
         Q_ASSERT(!metadata.isEmpty());
@@ -453,9 +453,9 @@ void SettingsDialog::loadTiffList()
     ui.cbTiffCompression->clear();
 
     ui.cbTiffCompression->blockSignals(true);
-    for (QString const& s: tiff_list) {
+    for (QString const& s: qAsConst(tiff_list)) {
         if (!s.trimmed().isEmpty()) {
-            const QStringList& sl = s.split('\t');
+            const QStringList sl = s.split('\t');
             ui.cbTiffCompression->addItem(sl[0], sl[2]);
         }
     }
@@ -1007,7 +1007,8 @@ void SettingsDialog::on_btnThumbDefaults_clicked()
     if (QMessageBox::question(this, tr("Restore defaults"),
                               tr("Thumbnails view settings will be reseted to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
                               QMessageBox::Cancel) != QMessageBox::Cancel) {
-        for (const QString& key: m_settings.allKeys()) {
+        const QStringList keys = m_settings.allKeys();
+        for (const QString& key: keys) {
             if (key.startsWith(_key_thumbnails_category)) {
                 m_settings.remove(key);
             }
