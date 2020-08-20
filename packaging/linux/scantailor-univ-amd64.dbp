@@ -4,7 +4,7 @@ Package: scantailor-universal
 Version: 0.2.1
 Maintainer: Alexander Trufanov <trufanovan@gmail.com>
 Section: graphics
-Homepage: https://github.com/trufanov-nok/scantailor
+Homepage: https://github.com/trufanov-nok/scantailor-universal
 Architecture: amd64
 Priority: optional
 Depends: libqt5widgets5 (>=5.4), libqt5xml5 (>=5.4), libqt5gui5 (>=5.4), libqt5core5a (>=5.4), libtiff5 (>=4.0.3), libjpeg8 (>=8c), libgcc1 (>=1.3.0), libc6 (>=2.14), libpng16-16 (>=1.6.2-1), libstdc++6 (>=5.2)
@@ -45,7 +45,7 @@ Description: Alternative version of ScanTailor: iinteractive post-processing too
 <</CHANGELOG>>
 <<COPYRIGHT>>
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Source: https://github.com/trufanov-nok/scantailor
+Source: https://github.com/trufanov-nok/scantailor-universal
 
 Files: *
 Copyright: 2007-2013 Joseph Artsimovich <joseph.artsimovich@gmail.com>

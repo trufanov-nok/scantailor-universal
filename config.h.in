@@ -7,7 +7,7 @@
 #define TRANSLATIONS_DIR_ABS "@TRANSLATIONS_DIR_ABS@"
 #define APPLICATION_NAME "Scan Tailor Universal"
 #define ORGANIZATION_NAME APPLICATION_NAME
-#define ORGANIZATION_DOMAIN "github.com/trufanov-nok/scantailor"
+#define ORGANIZATION_DOMAIN "github.com/trufanov-nok/scantailor-universal"
 
 #cmakedefine ENABLE_CRASH_REPORTER
 #cmakedefine ENABLE_OPENGL
