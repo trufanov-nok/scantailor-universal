@@ -599,7 +599,7 @@ ADD_DEPENDENCIES(stcore toplevel_ui_sources)
 
 IF (WIN32)
         ADD_EXECUTABLE(
-                scantailor WIN32 ${gui_only_sources} ${resource_sources} ${win32_resource_file}
+	        scantailor-universal WIN32 ${gui_only_sources} ${resource_sources} ${win32_resource_file}
         )
 ELSEIF(APPLE)
 
@@ -608,45 +608,45 @@ ELSEIF(APPLE)
         set_source_files_properties( ${ICON_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
 
         ADD_EXECUTABLE(
-                scantailor MACOSX_BUNDLE ${gui_only_sources} ${resource_sources} ${ICON_PATH}
+	        scantailor-universal MACOSX_BUNDLE ${gui_only_sources} ${resource_sources} ${ICON_PATH}
         )
-        set_target_properties(scantailor PROPERTIES MACOSX_BUNDLE_INFO_PLIST
+        set_target_properties(scantailor-universal PROPERTIES MACOSX_BUNDLE_INFO_PLIST
                                   ${CMAKE_CURRENT_SOURCE_DIR}/packaging/osx/Info.plist.in)
 
 
 ELSE()
         ADD_EXECUTABLE(
-                scantailor ${gui_only_sources} ${resource_sources} ${win32_resource_file}
+	        scantailor-universal ${gui_only_sources} ${resource_sources} ${win32_resource_file}
         )
 ENDIF()
 
-ADD_EXECUTABLE(scantailor-cli ${cli_only_sources} ${common_ui_sources})
+ADD_EXECUTABLE(scantailor-universal-cli ${cli_only_sources} ${common_ui_sources})
 
 TARGET_LINK_LIBRARIES(
-        scantailor
+        scantailor-universal
         fix_orientation page_split deskew select_content page_layout output stcore
         dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(
-        scantailor-cli
+        scantailor-universal-cli
         fix_orientation page_split deskew select_content page_layout output stcore
         dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
 )
 
-QT5_USE_MODULES(scantailor Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
+QT5_USE_MODULES(scantailor-universal Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
 
 # Widgets module is used statically but not at runtime.
-QT5_USE_MODULES(scantailor-cli Widgets Xml)
+QT5_USE_MODULES(scantailor-universal-cli Widgets Xml)
 
 IF(EXTRA_LIBS)
-        TARGET_LINK_LIBRARIES(scantailor ${EXTRA_LIBS})
-        TARGET_LINK_LIBRARIES(scantailor-cli ${EXTRA_LIBS})
+        TARGET_LINK_LIBRARIES(scantailor-universal ${EXTRA_LIBS})
+	TARGET_LINK_LIBRARIES(scantailor-universal-cli ${EXTRA_LIBS})
 ENDIF()
 
 IF(APPLE)
-        INSTALL(TARGETS scantailor scantailor-cli BUNDLE DESTINATION . RUNTIME DESTINATION bin)
+        INSTALL(TARGETS scantailor-universal scantailor-universal-cli BUNDLE DESTINATION . RUNTIME DESTINATION bin)
 ELSE(APPLE)
-        INSTALL(TARGETS scantailor scantailor-cli RUNTIME DESTINATION bin)
+        INSTALL(TARGETS scantailor-universal scantailor-universal-cli RUNTIME DESTINATION bin)
 ENDIF(APPLE)
 
 IF(ENABLE_CRASH_REPORTER)
@@ -678,15 +678,15 @@ ENDIF()
 
 # Translations
 TRANSLATION_SOURCES(
-        scantailor
+        scantailor-universal
         ${common_sources} ${gui_only_sources} ${cli_only_sources}
 )
-FILE(GLOB TRANSLATION_FILES translations/scantailor_*.ts)
+FILE(GLOB TRANSLATION_FILES translations/scantailor-universal_*.ts)
 FILE(GLOB CR_TRANSLATION_FILES translations/crashreporter_*.ts)
 
-FINALIZE_TRANSLATION_SET(scantailor ${TRANSLATION_FILES})
+FINALIZE_TRANSLATION_SET(scantailor-universal ${TRANSLATION_FILES})
 FINALIZE_TRANSLATION_SET(crashreporter ${CR_TRANSLATION_FILES})
-UPDATE_TRANSLATIONS_TARGET(update_translations scantailor crashreporter)
+UPDATE_TRANSLATIONS_TARGET(update_translations scantailor-universal crashreporter)
 
 SET(ts_files ${TRANSLATION_FILES})
 IF(ENABLE_CRASH_REPORTER)
@@ -729,7 +729,7 @@ add_custom_target(uninstall
 # Source code packaging
 SET(CPACK_CMAKE_GENERATOR "")
 SET(CPACK_SOURCE_GENERATOR "TGZ")
-SET(CPACK_SOURCE_PACKAGE_FILE_NAME "scantailor-${VERSION}")
+SET(CPACK_SOURCE_PACKAGE_FILE_NAME "scantailor-universal-${VERSION}")
 SET(
         CPACK_SOURCE_IGNORE_FILES
         "/\\\\.svn/"
