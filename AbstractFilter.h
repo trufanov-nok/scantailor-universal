@@ -39,33 +39,37 @@ class QDomElement;
 class AbstractFilter : public RefCountable
 {
 public:
-	virtual ~AbstractFilter() {}
-	
-	virtual QString getName() const = 0;
-	
-	virtual PageView getView() const = 0;
-	
-	virtual void selected() {}
+    virtual ~AbstractFilter() {}
 
-	virtual int selectedPageOrder() const { return -1; }
+    virtual QString getName() const = 0;
 
-	virtual void selectPageOrder(int option) {}
+    virtual PageView getView() const = 0;
 
-	virtual std::vector<PageOrderOption> pageOrderOptions() const {
-		return std::vector<PageOrderOption>();
-	}
+    virtual void selected() {}
 
-	virtual void performRelinking(AbstractRelinker const& relinker) = 0;
+    virtual int selectedPageOrder() const
+    {
+        return -1;
+    }
 
-	virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id) = 0;
-	
+    virtual void selectPageOrder(int option) {}
+
+    virtual std::vector<PageOrderOption> pageOrderOptions() const
+    {
+        return std::vector<PageOrderOption>();
+    }
+
+    virtual void performRelinking(AbstractRelinker const& relinker) = 0;
+
+    virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id) = 0;
+
     virtual void updateStatistics() {}
 
-	virtual QDomElement saveSettings(
-		ProjectWriter const& writer, QDomDocument& doc) const = 0;
-	
-	virtual void loadSettings(
-		ProjectReader const& reader, QDomElement const& filters_el) = 0;
+    virtual QDomElement saveSettings(
+        ProjectWriter const& writer, QDomDocument& doc) const = 0;
+
+    virtual void loadSettings(
+        ProjectReader const& reader, QDomElement const& filters_el) = 0;
 
     virtual void invalidateSetting(PageId const& page) {}
 };

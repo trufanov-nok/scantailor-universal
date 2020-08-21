@@ -31,48 +31,53 @@ template<typename T = QStyledItemDelegate>
 class ChangedStateItemDelegate : public T
 {
 public:
-	ChangedStateItemDelegate(QObject* parent = 0)
-	: T(parent), m_changedFlags(), m_changedMask() {}
-	
-	void flagsForceEnabled(QStyle::State flags) {
-		m_changedFlags |= flags;
-		m_changedMask |= flags;
-	}
-	
-	void flagsForceDisabled(QStyle::State flags) {
-		m_changedFlags &= ~flags;
-		m_changedMask |= flags;
-	}
-	
-	void removeChanges(QStyle::State remove) {
-		m_changedMask &= ~remove;
-	}
-	
-	void removeAllChanges() {
-		m_changedMask = QStyle::State();
-	}
-	
-	virtual void paint(QPainter* painter,
-			QStyleOptionViewItem const& option,
-			QModelIndex const& index) const {
-		
-		QStyle::State const orig_state = option.state;
-		
-		QStyle::State const new_state = (orig_state & ~m_changedMask)
-				| (m_changedFlags & m_changedMask);
-		
-		// Evil but necessary: the alternative solution of modifying
-		// a copy doesn't work, as option doesn't really point to
-		// QStyleOptionViewItem, but to one of its subclasses.
-		QStyleOptionViewItem& non_const_opt = const_cast<QStyleOptionViewItem&>(option);
-		
-		non_const_opt.state = new_state;
-		T::paint(painter, non_const_opt, index);
-		non_const_opt.state = orig_state;
-	}
+    ChangedStateItemDelegate(QObject* parent = 0)
+        : T(parent), m_changedFlags(), m_changedMask() {}
+
+    void flagsForceEnabled(QStyle::State flags)
+    {
+        m_changedFlags |= flags;
+        m_changedMask |= flags;
+    }
+
+    void flagsForceDisabled(QStyle::State flags)
+    {
+        m_changedFlags &= ~flags;
+        m_changedMask |= flags;
+    }
+
+    void removeChanges(QStyle::State remove)
+    {
+        m_changedMask &= ~remove;
+    }
+
+    void removeAllChanges()
+    {
+        m_changedMask = QStyle::State();
+    }
+
+    virtual void paint(QPainter* painter,
+                       QStyleOptionViewItem const& option,
+                       QModelIndex const& index) const
+    {
+
+        QStyle::State const orig_state = option.state;
+
+        QStyle::State const new_state = (orig_state & ~m_changedMask)
+                                        | (m_changedFlags & m_changedMask);
+
+        // Evil but necessary: the alternative solution of modifying
+        // a copy doesn't work, as option doesn't really point to
+        // QStyleOptionViewItem, but to one of its subclasses.
+        QStyleOptionViewItem& non_const_opt = const_cast<QStyleOptionViewItem&>(option);
+
+        non_const_opt.state = new_state;
+        T::paint(painter, non_const_opt, index);
+        non_const_opt.state = orig_state;
+    }
 private:
-	QStyle::State m_changedFlags;
-	QStyle::State m_changedMask;
+    QStyle::State m_changedFlags;
+    QStyle::State m_changedMask;
 };
 
 #endif

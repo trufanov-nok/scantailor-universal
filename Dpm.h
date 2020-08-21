@@ -29,32 +29,41 @@ class QImage;
  */
 class Dpm
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	Dpm() : m_xDpm(0), m_yDpm(0) {}
-	
-	Dpm(int horizontal, int vertical) : m_xDpm(horizontal), m_yDpm(vertical) {}
-	
-	Dpm(Dpi dpi);
-	
-	explicit Dpm(QSize size);
-	
-	explicit Dpm(QImage const& image);
-	
-	int horizontal() const { return m_xDpm; }
-	
-	int vertical() const { return m_yDpm; }
-	
-	QSize toSize() const;
-	
-	bool isNull() const;
-	
-	bool operator==(Dpm const& other) const;
-	
-	bool operator!=(Dpm const& other) const { return !(*this == other); }
+    Dpm() : m_xDpm(0), m_yDpm(0) {}
+
+    Dpm(int horizontal, int vertical) : m_xDpm(horizontal), m_yDpm(vertical) {}
+
+    Dpm(Dpi dpi);
+
+    explicit Dpm(QSize size);
+
+    explicit Dpm(QImage const& image);
+
+    int horizontal() const
+    {
+        return m_xDpm;
+    }
+
+    int vertical() const
+    {
+        return m_yDpm;
+    }
+
+    QSize toSize() const;
+
+    bool isNull() const;
+
+    bool operator==(Dpm const& other) const;
+
+    bool operator!=(Dpm const& other) const
+    {
+        return !(*this == other);
+    }
 private:
-	int m_xDpm;
-	int m_yDpm;
+    int m_xDpm;
+    int m_yDpm;
 };
 
 #endif

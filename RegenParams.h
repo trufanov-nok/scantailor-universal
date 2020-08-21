@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,12 +31,18 @@ public:
     };
 
     RegenParams(Regenerate val = RegenerateNone): m_forceReprocess(val) {}
-		
-    virtual void setForceReprocess(Regenerate val) { m_forceReprocess = val; }
 
-    virtual Regenerate getForceReprocess() const { return m_forceReprocess; }
+    virtual void setForceReprocess(Regenerate val)
+    {
+        m_forceReprocess = val;
+    }
 
-private:	
+    virtual Regenerate getForceReprocess() const
+    {
+        return m_forceReprocess;
+    }
+
+private:
     Regenerate m_forceReprocess;
 };
 

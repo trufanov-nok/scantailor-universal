@@ -31,40 +31,70 @@ class ColorGrayscaleOptions
 public:
     ColorGrayscaleOptions(bool whiteMargins = false, bool normalizeIllumination = false,
                           bool autoLayer = true, bool pictureZonesLayer = false, bool foregroundLayer = false)
-    : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination),
-      m_autoLayerEnabled(autoLayer), m_pictureZonesLayerEnabled(pictureZonesLayer),
-      m_foregroundLayerEnabled(foregroundLayer) {}
-	
+        : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination),
+          m_autoLayerEnabled(autoLayer), m_pictureZonesLayerEnabled(pictureZonesLayer),
+          m_foregroundLayerEnabled(foregroundLayer) {}
+
     ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode);
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
-	
-	bool whiteMargins() const { return m_whiteMargins; }
-	
-	void setWhiteMargins(bool val) { m_whiteMargins = val; }
-	
-	bool normalizeIllumination() const { return m_normalizeIllumination; }
-	
-	void setNormalizeIllumination(bool val) { m_normalizeIllumination = val; }
 
-    bool autoLayerEnabled() const { return m_autoLayerEnabled; }
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
-    void setAutoLayerEnabled(bool enabled) { m_autoLayerEnabled = enabled; }
+    bool whiteMargins() const
+    {
+        return m_whiteMargins;
+    }
 
-    bool pictureZonesLayerEnabled() const { return m_pictureZonesLayerEnabled; }
+    void setWhiteMargins(bool val)
+    {
+        m_whiteMargins = val;
+    }
 
-    void setPictureZonesLayerEnabled(bool enabled) { m_pictureZonesLayerEnabled = enabled; }
+    bool normalizeIllumination() const
+    {
+        return m_normalizeIllumination;
+    }
 
-    bool foregroundLayerEnabled() const { return m_foregroundLayerEnabled; }
+    void setNormalizeIllumination(bool val)
+    {
+        m_normalizeIllumination = val;
+    }
 
-    void setForegroundLayerEnabled(bool enabled) { m_foregroundLayerEnabled = enabled; }
-	
-	bool operator==(ColorGrayscaleOptions const& other) const;
-	
-	bool operator!=(ColorGrayscaleOptions const& other) const;
+    bool autoLayerEnabled() const
+    {
+        return m_autoLayerEnabled;
+    }
+
+    void setAutoLayerEnabled(bool enabled)
+    {
+        m_autoLayerEnabled = enabled;
+    }
+
+    bool pictureZonesLayerEnabled() const
+    {
+        return m_pictureZonesLayerEnabled;
+    }
+
+    void setPictureZonesLayerEnabled(bool enabled)
+    {
+        m_pictureZonesLayerEnabled = enabled;
+    }
+
+    bool foregroundLayerEnabled() const
+    {
+        return m_foregroundLayerEnabled;
+    }
+
+    void setForegroundLayerEnabled(bool enabled)
+    {
+        m_foregroundLayerEnabled = enabled;
+    }
+
+    bool operator==(ColorGrayscaleOptions const& other) const;
+
+    bool operator!=(ColorGrayscaleOptions const& other) const;
 private:
-	bool m_whiteMargins;
-	bool m_normalizeIllumination;
+    bool m_whiteMargins;
+    bool m_normalizeIllumination;
     bool m_autoLayerEnabled;
     bool m_pictureZonesLayerEnabled;
     bool m_foregroundLayerEnabled;

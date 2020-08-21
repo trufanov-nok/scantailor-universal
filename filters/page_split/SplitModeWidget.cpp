@@ -30,27 +30,26 @@ namespace page_split
 
 SplitModeWidget::SplitModeWidget(
     QWidget* const parent,
-	LayoutType const layout_type,
-	PageLayout::Type const auto_detected_layout_type,
-	bool const auto_detected_layout_type_valid)
-:	QWidget(parent),
-	m_layoutType(layout_type),
-	m_autoDetectedLayoutType(auto_detected_layout_type),
-	m_autoDetectedLayoutTypeValid(auto_detected_layout_type_valid)
+    LayoutType const layout_type,
+    PageLayout::Type const auto_detected_layout_type,
+    bool const auto_detected_layout_type_valid)
+    :   QWidget(parent),
+        m_layoutType(layout_type),
+        m_autoDetectedLayoutType(auto_detected_layout_type),
+        m_autoDetectedLayoutTypeValid(auto_detected_layout_type_valid)
 {
-	setupUi(this);
-	layoutTypeLabel->setPixmap(QPixmap(iconFor(m_layoutType)));
+    setupUi(this);
+    layoutTypeLabel->setPixmap(QPixmap(iconFor(m_layoutType)));
     if (m_layoutType == AUTO_LAYOUT_TYPE && !m_autoDetectedLayoutTypeValid) {
         modeAuto->setChecked(true);
-	} else {
-		modeManual->setChecked(true);
-	}
-	
-	connect(modeAuto, SIGNAL(pressed()), this, SLOT(autoDetectionSelected()));
-	connect(modeManual, SIGNAL(pressed()), this, SLOT(manualModeSelected()));
+    } else {
+        modeManual->setChecked(true);
+    }
+
+    connect(modeAuto, SIGNAL(pressed()), this, SLOT(autoDetectionSelected()));
+    connect(modeManual, SIGNAL(pressed()), this, SLOT(manualModeSelected()));
     QSettings settings;
-    if (!settings.value(_key_page_split_apply_cut_enabled, _key_page_split_apply_cut_enabled_def).toBool())
-    {
+    if (!settings.value(_key_page_split_apply_cut_enabled, _key_page_split_apply_cut_enabled_def).toBool()) {
         optionsBox->setVisible(false);
         applyCutOption->setChecked(false);
     } else if (modeAuto->isChecked()) {
@@ -75,7 +74,7 @@ SplitModeWidget::isApplyCutChecked() const
 void
 SplitModeWidget::autoDetectionSelected()
 {
-	layoutTypeLabel->setPixmap(QPixmap(":/icons/layout_type_auto.png"));
+    layoutTypeLabel->setPixmap(QPixmap(":/icons/layout_type_auto.png"));
     applyCutOption->setChecked(false);
     applyCutOption->setDisabled(true);
 }
@@ -83,53 +82,52 @@ SplitModeWidget::autoDetectionSelected()
 void
 SplitModeWidget::manualModeSelected()
 {
-	char const* resource = iconFor(combinedLayoutType());
-	layoutTypeLabel->setPixmap(QPixmap(resource));
+    char const* resource = iconFor(combinedLayoutType());
+    layoutTypeLabel->setPixmap(QPixmap(resource));
     applyCutOption->setDisabled(false);
 }
 
 LayoutType
 SplitModeWidget::combinedLayoutType() const
 {
-	if (m_layoutType != AUTO_LAYOUT_TYPE) {
-		return m_layoutType;
-	}
-	
-	
-	switch (m_autoDetectedLayoutType) {
-		case PageLayout::SINGLE_PAGE_UNCUT:
-			return SINGLE_PAGE_UNCUT;
-		case PageLayout::SINGLE_PAGE_CUT:
-			return PAGE_PLUS_OFFCUT;
-		case PageLayout::TWO_PAGES:
-			return TWO_PAGES;
-	}
-	
-	assert(!"Unreachable");
-	return AUTO_LAYOUT_TYPE;
+    if (m_layoutType != AUTO_LAYOUT_TYPE) {
+        return m_layoutType;
+    }
+
+    switch (m_autoDetectedLayoutType) {
+    case PageLayout::SINGLE_PAGE_UNCUT:
+        return SINGLE_PAGE_UNCUT;
+    case PageLayout::SINGLE_PAGE_CUT:
+        return PAGE_PLUS_OFFCUT;
+    case PageLayout::TWO_PAGES:
+        return TWO_PAGES;
+    }
+
+    assert(!"Unreachable");
+    return AUTO_LAYOUT_TYPE;
 }
 
 char const*
 SplitModeWidget::iconFor(LayoutType const layout_type)
 {
-	char const* resource = "";
-	
-	switch (layout_type) {
-		case AUTO_LAYOUT_TYPE:
-			resource = ":/icons/layout_type_auto.png";
-			break;
-		case SINGLE_PAGE_UNCUT:
-			resource = ":/icons/single_page_uncut_selected.png";
-			break;
-		case PAGE_PLUS_OFFCUT:
-			resource = ":/icons/right_page_plus_offcut_selected.png";
-			break;
-		case TWO_PAGES:
-			resource = ":/icons/two_pages_selected.png";
-			break;
-	}
-	
-	return resource;
+    char const* resource = "";
+
+    switch (layout_type) {
+    case AUTO_LAYOUT_TYPE:
+        resource = ":/icons/layout_type_auto.png";
+        break;
+    case SINGLE_PAGE_UNCUT:
+        resource = ":/icons/single_page_uncut_selected.png";
+        break;
+    case PAGE_PLUS_OFFCUT:
+        resource = ":/icons/right_page_plus_offcut_selected.png";
+        break;
+    case TWO_PAGES:
+        resource = ":/icons/two_pages_selected.png";
+        break;
+    }
+
+    return resource;
 }
 
 } // namespace page_split

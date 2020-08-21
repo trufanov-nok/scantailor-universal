@@ -43,10 +43,10 @@ namespace output
 {
 
 CacheDrivenTask::CacheDrivenTask(
-	IntrusivePtr<Settings> const& settings,
-	OutputFileNameGenerator const& out_file_name_gen)
-:	m_ptrSettings(settings),
-	m_outFileNameGen(out_file_name_gen)
+    IntrusivePtr<Settings> const& settings,
+    OutputFileNameGenerator const& out_file_name_gen)
+    :   m_ptrSettings(settings),
+        m_outFileNameGen(out_file_name_gen)
 {
 }
 
@@ -56,56 +56,56 @@ CacheDrivenTask::~CacheDrivenTask()
 
 void
 CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform, QPolygonF const& content_rect_phys)
+    PageInfo const& page_info, AbstractFilterDataCollector* collector,
+    ImageTransformation const& xform, QPolygonF const& content_rect_phys)
 {
-	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-		
-		QString const out_file_path(m_outFileNameGen.filePathFor(page_info.id()));
-		Params const params(m_ptrSettings->getParams(page_info.id()));
+    if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
 
-		ImageTransformation new_xform(xform);
-		new_xform.postScaleToDpi(params.outputDpi());
+        QString const out_file_path(m_outFileNameGen.filePathFor(page_info.id()));
+        Params const params(m_ptrSettings->getParams(page_info.id()));
+
+        ImageTransformation new_xform(xform);
+        new_xform.postScaleToDpi(params.outputDpi());
 
         Params p = m_ptrSettings->getParams(page_info.id());
         Params::Regenerate val = p.getForceReprocess();
         bool need_reprocess = val & Params::RegenerateThumbnail;
         if (need_reprocess) {
-            val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+            val = (Params::Regenerate)(val & ~Params::RegenerateThumbnail);
             p.setForceReprocess(val);
             m_ptrSettings->setParams(page_info.id(), p);
         }
 
-		do { // Just to be able to break from it.
+        do { // Just to be able to break from it.
 
-			std::unique_ptr<OutputParams> stored_output_params(
-				m_ptrSettings->getOutputParams(page_info.id())
-			);
+            std::unique_ptr<OutputParams> stored_output_params(
+                m_ptrSettings->getOutputParams(page_info.id())
+            );
 
-			if (!stored_output_params.get()) {
-				need_reprocess = true;
-				break;
-			}
+            if (!stored_output_params.get()) {
+                need_reprocess = true;
+                break;
+            }
 
-			OutputGenerator const generator(
-				params.outputDpi(), params.colorParams(), params.despeckleLevel(),
-				new_xform, content_rect_phys
-			);
-			OutputImageParams const new_output_image_params(
-				generator.outputImageSize(), generator.outputContentRect(),
-				new_xform, params.outputDpi(), params.colorParams(),
-				params.dewarpingMode(), params.distortionModel(),
+            OutputGenerator const generator(
+                params.outputDpi(), params.colorParams(), params.despeckleLevel(),
+                new_xform, content_rect_phys
+            );
+            OutputImageParams const new_output_image_params(
+                generator.outputImageSize(), generator.outputContentRect(),
+                new_xform, params.outputDpi(), params.colorParams(),
+                params.dewarpingMode(), params.distortionModel(),
                 params.depthPerception(), params.despeckleLevel()
-			);
+            );
 
-			if (!stored_output_params->outputImageParams().matches(new_output_image_params)) {
-				need_reprocess = true;
-				break;
-			}
+            if (!stored_output_params->outputImageParams().matches(new_output_image_params)) {
+                need_reprocess = true;
+                break;
+            }
 
             ZoneSet new_picture_zones(m_ptrSettings->pictureZonesForPage(page_info.id()));
-			if (!PictureZoneComparator::equal(stored_output_params->pictureZones(), new_picture_zones)) {
-				need_reprocess = true;
+            if (!PictureZoneComparator::equal(stored_output_params->pictureZones(), new_picture_zones)) {
+                need_reprocess = true;
                 if (new_picture_zones.pictureZonesSensitivity() !=
                         GlobalStaticSettings::m_picture_detection_sensitivity) {
                     // currently there is no control to change sensitivity of a single page
@@ -113,54 +113,54 @@ CacheDrivenTask::process(
                     new_picture_zones.remove_auto_zones();
 //                    new_picture_zones.setPictureZonesSensitivity(GlobalStaticSettings::m_picture_detection_sensitivity);
                 }
-				break;
-			}
+                break;
+            }
 
-			ZoneSet const new_fill_zones(m_ptrSettings->fillZonesForPage(page_info.id()));
-			if (!FillZoneComparator::equal(stored_output_params->fillZones(), new_fill_zones)) {
-				need_reprocess = true;
-				break;
-			}
-			
-			QFileInfo const out_file_info(out_file_path);
+            ZoneSet const new_fill_zones(m_ptrSettings->fillZonesForPage(page_info.id()));
+            if (!FillZoneComparator::equal(stored_output_params->fillZones(), new_fill_zones)) {
+                need_reprocess = true;
+                break;
+            }
 
-			if (!out_file_info.exists()) {
-				need_reprocess = true;
-				break;
-			}
-			
-			if (!stored_output_params->outputFileParams().matches(OutputFileParams(out_file_info))) {
-				need_reprocess = true;
-				break;
-			}
-		} while (false);
+            QFileInfo const out_file_info(out_file_path);
 
-		if (need_reprocess) {
-			thumb_col->processThumbnail(
-				std::unique_ptr<QGraphicsItem>(
-					new IncompleteThumbnail(
-						thumb_col->thumbnailCache(),
-						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), new_xform
-					)
-				)
-			);
-		} else {
-			ImageTransformation const out_xform(
-				new_xform.resultingRect(), params.outputDpi()
-			);
+            if (!out_file_info.exists()) {
+                need_reprocess = true;
+                break;
+            }
 
-			thumb_col->processThumbnail(
-				std::unique_ptr<QGraphicsItem>(
-					new Thumbnail(
-						thumb_col->thumbnailCache(),
-						thumb_col->maxLogicalThumbSize(),
-						ImageId(out_file_path), out_xform
-					)
-				)
-			);
-		}
-	}
+            if (!stored_output_params->outputFileParams().matches(OutputFileParams(out_file_info))) {
+                need_reprocess = true;
+                break;
+            }
+        } while (false);
+
+        if (need_reprocess) {
+            thumb_col->processThumbnail(
+                std::unique_ptr<QGraphicsItem>(
+                    new IncompleteThumbnail(
+                        thumb_col->thumbnailCache(),
+                        thumb_col->maxLogicalThumbSize(),
+                        page_info.imageId(), new_xform
+                    )
+                )
+            );
+        } else {
+            ImageTransformation const out_xform(
+                new_xform.resultingRect(), params.outputDpi()
+            );
+
+            thumb_col->processThumbnail(
+                std::unique_ptr<QGraphicsItem>(
+                    new Thumbnail(
+                        thumb_col->thumbnailCache(),
+                        thumb_col->maxLogicalThumbSize(),
+                        ImageId(out_file_path), out_xform
+                    )
+                )
+            );
+        }
+    }
 }
 
 } // namespace output

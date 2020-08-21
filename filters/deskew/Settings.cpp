@@ -42,22 +42,22 @@ Settings::~Settings()
 void
 Settings::clear()
 {
-	QMutexLocker locker(&m_mutex);
-	m_perPageParams.clear();
+    QMutexLocker locker(&m_mutex);
+    m_perPageParams.clear();
 }
 
 void
 Settings::performRelinking(AbstractRelinker const& relinker)
 {
-	QMutexLocker locker(&m_mutex);
-	PerPageParams new_params;
+    QMutexLocker locker(&m_mutex);
+    PerPageParams new_params;
 
-	for (PerPageParams::value_type const& kv: m_perPageParams) {
-		RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
-		PageId new_page_id(kv.first);
-		new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
-		new_params.insert(PerPageParams::value_type(new_page_id, kv.second));
-	}
+    for (PerPageParams::value_type const& kv : m_perPageParams) {
+        RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
+        PageId new_page_id(kv.first);
+        new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
+        new_params.insert(PerPageParams::value_type(new_page_id, kv.second));
+    }
 
     m_perPageParams.swap(new_params);
 }
@@ -65,7 +65,7 @@ Settings::performRelinking(AbstractRelinker const& relinker)
 void Settings::updateDeviation()
 {
     m_avg = 0.0;
-    for (PerPageParams::value_type const& kv: m_perPageParams) {
+    for (PerPageParams::value_type const& kv : m_perPageParams) {
         m_avg += kv.second.deskewAngle();
     }
     m_avg = m_avg / m_perPageParams.size();
@@ -74,7 +74,7 @@ void Settings::updateDeviation()
 #endif
 
     double sigma2 = 0.0;
-    for (PerPageParams::value_type & kv: m_perPageParams) {
+    for (PerPageParams::value_type& kv : m_perPageParams) {
         kv.second.computeDeviation(m_avg);
         sigma2 += kv.second.deviation() * kv.second.deviation();
     }
@@ -89,37 +89,37 @@ void Settings::updateDeviation()
 void
 Settings::setPageParams(PageId const& page_id, Params const& params)
 {
-	QMutexLocker locker(&m_mutex);
-	Utils::mapSetValue(m_perPageParams, page_id, params);
+    QMutexLocker locker(&m_mutex);
+    Utils::mapSetValue(m_perPageParams, page_id, params);
 }
 
 void
 Settings::clearPageParams(PageId const& page_id)
 {
-	QMutexLocker locker(&m_mutex);
-	m_perPageParams.erase(page_id);
+    QMutexLocker locker(&m_mutex);
+    m_perPageParams.erase(page_id);
 }
 
 std::unique_ptr<Params>
 Settings::getPageParams(PageId const& page_id) const
 {
-	QMutexLocker locker(&m_mutex);
-	
-	PerPageParams::const_iterator it(m_perPageParams.find(page_id));
-	if (it != m_perPageParams.end()) {
-		return std::unique_ptr<Params>(new Params(it->second));
-	} else {
-		return std::unique_ptr<Params>();
-	}
+    QMutexLocker locker(&m_mutex);
+
+    PerPageParams::const_iterator it(m_perPageParams.find(page_id));
+    if (it != m_perPageParams.end()) {
+        return std::unique_ptr<Params>(new Params(it->second));
+    } else {
+        return std::unique_ptr<Params>();
+    }
 }
 
 void
 Settings::setDegress(std::set<PageId> const& pages, Params const& params)
 {
-	QMutexLocker const locker(&m_mutex);
-	for (PageId const& page: pages) {
-		Utils::mapSetValue(m_perPageParams, page, params);
-	}
+    QMutexLocker const locker(&m_mutex);
+    for (PageId const& page : pages) {
+        Utils::mapSetValue(m_perPageParams, page, params);
+    }
 }
 
 } // namespace deskew

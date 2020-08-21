@@ -26,24 +26,36 @@
 
 class FilterData
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	FilterData(QImage const& image);
-	
-	FilterData(FilterData const& other, ImageTransformation const& xform);
-		
-	imageproc::BinaryThreshold bwThreshold() const { return m_bwThreshold; }
-	
-	ImageTransformation const& xform() const { return m_xform; }
+    FilterData(QImage const& image);
 
-	QImage const& origImage() const {return m_origImage;}
+    FilterData(FilterData const& other, ImageTransformation const& xform);
 
-	imageproc::GrayImage const& grayImage() const {return m_grayImage;}
+    imageproc::BinaryThreshold bwThreshold() const
+    {
+        return m_bwThreshold;
+    }
+
+    ImageTransformation const& xform() const
+    {
+        return m_xform;
+    }
+
+    QImage const& origImage() const
+    {
+        return m_origImage;
+    }
+
+    imageproc::GrayImage const& grayImage() const
+    {
+        return m_grayImage;
+    }
 private:
-	QImage m_origImage;
-	imageproc::GrayImage m_grayImage;
-	ImageTransformation m_xform;
-	imageproc::BinaryThreshold m_bwThreshold;
+    QImage m_origImage;
+    imageproc::GrayImage m_grayImage;
+    ImageTransformation m_xform;
+    imageproc::BinaryThreshold m_bwThreshold;
 };
 
 #endif

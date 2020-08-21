@@ -24,25 +24,25 @@
 
 class SystemLoadWidget : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	SystemLoadWidget(QWidget* parent = 0);
+    SystemLoadWidget(QWidget* parent = 0);
 private slots:
-	void sliderPressed();
+    void sliderPressed();
 
-	void sliderMoved(int prio);
+    void sliderMoved(int prio);
 
-	void valueChanged(int prio);
+    void valueChanged(int prio);
 
-	void decreasePriority();
+    void decreasePriority();
 
-	void increasePriority();
+    void increasePriority();
 private:
-	void showHideToolTip(int prio);
+    void showHideToolTip(int prio);
 
-	static QString tooltipText(int prio);
+    static QString tooltipText(int prio);
 
-	Ui::SystemLoadWidget ui;
+    Ui::SystemLoadWidget ui;
 };
 
 #endif

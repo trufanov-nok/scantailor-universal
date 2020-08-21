@@ -32,31 +32,31 @@ class QRect;
 class ProcessingIndicationWidget : public QWidget
 {
 public:
-	ProcessingIndicationWidget(QWidget* parent = 0);
-	
-	/**
-	 * \brief Resets animation to the state it had just after
-	 *        constructing this object.
-	 */
-	void resetAnimation();
+    ProcessingIndicationWidget(QWidget* parent = 0);
 
-	/**
-	 * \brief Launch the "processing restarted" effect.
-	 */
-	void processingRestartedEffect();
+    /**
+     * \brief Resets animation to the state it had just after
+     *        constructing this object.
+     */
+    void resetAnimation();
+
+    /**
+     * \brief Launch the "processing restarted" effect.
+     */
+    void processingRestartedEffect();
 protected:
-	virtual void paintEvent(QPaintEvent* event);
-	
-	virtual void timerEvent(QTimerEvent* event);
+    virtual void paintEvent(QPaintEvent* event);
+
+    virtual void timerEvent(QTimerEvent* event);
 private:
-	QRect animationRect() const;
-	
-	BubbleAnimation m_animation;
-	QColor m_headColor;
-	QColor m_tailColor;
-	double m_distinction;
-	double m_distinctionDelta;
-	int m_timerId;
+    QRect animationRect() const;
+
+    BubbleAnimation m_animation;
+    QColor m_headColor;
+    QColor m_tailColor;
+    double m_distinction;
+    double m_distinctionDelta;
+    int m_timerId;
 };
 
 #endif

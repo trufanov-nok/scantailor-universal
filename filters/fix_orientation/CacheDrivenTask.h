@@ -28,7 +28,7 @@ class AbstractFilterDataCollector;
 
 namespace page_split
 {
-	class CacheDrivenTask;
+class CacheDrivenTask;
 }
 
 namespace fix_orientation
@@ -38,19 +38,19 @@ class Settings;
 
 class CacheDrivenTask : public CompositeCacheDrivenTask
 {
-	DECLARE_NON_COPYABLE(CacheDrivenTask)
+    DECLARE_NON_COPYABLE(CacheDrivenTask)
 public:
-	CacheDrivenTask(
-		IntrusivePtr<Settings> const& settings,
-		IntrusivePtr<page_split::CacheDrivenTask> const& next_task);
-	
-	virtual ~CacheDrivenTask();
-	
-	virtual void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector);
+    CacheDrivenTask(
+        IntrusivePtr<Settings> const& settings,
+        IntrusivePtr<page_split::CacheDrivenTask> const& next_task);
+
+    virtual ~CacheDrivenTask();
+
+    virtual void process(
+        PageInfo const& page_info, AbstractFilterDataCollector* collector);
 private:
-	IntrusivePtr<page_split::CacheDrivenTask> m_ptrNextTask;
-	IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<page_split::CacheDrivenTask> m_ptrNextTask;
+    IntrusivePtr<Settings> m_ptrSettings;
 };
 
 } // namespace fix_orientation

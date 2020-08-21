@@ -25,21 +25,30 @@
 
 class ImageFileInfo
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	ImageFileInfo(QFileInfo const& file_info, std::vector<ImageMetadata> const& image_info)
-	: m_fileInfo(file_info), m_imageInfo(image_info) {}
-	
-	QFileInfo const& fileInfo() const { return m_fileInfo; }
-	
-	std::vector<ImageMetadata>& imageInfo() { return m_imageInfo; }
-	
-	std::vector<ImageMetadata> const& imageInfo() const { return m_imageInfo; }
-	
-	bool isDpiOK() const;
+    ImageFileInfo(QFileInfo const& file_info, std::vector<ImageMetadata> const& image_info)
+        : m_fileInfo(file_info), m_imageInfo(image_info) {}
+
+    QFileInfo const& fileInfo() const
+    {
+        return m_fileInfo;
+    }
+
+    std::vector<ImageMetadata>& imageInfo()
+    {
+        return m_imageInfo;
+    }
+
+    std::vector<ImageMetadata> const& imageInfo() const
+    {
+        return m_imageInfo;
+    }
+
+    bool isDpiOK() const;
 private:
-	QFileInfo m_fileInfo;
-	std::vector<ImageMetadata> m_imageInfo;
+    QFileInfo m_fileInfo;
+    std::vector<ImageMetadata> m_imageInfo;
 };
 
 #endif

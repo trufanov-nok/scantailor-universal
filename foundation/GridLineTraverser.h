@@ -28,18 +28,21 @@
  */
 class GridLineTraverser
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	GridLineTraverser(QLineF const& line);
-	
-	bool hasNext() const { return m_stopsDone < m_totalStops; }
+    GridLineTraverser(QLineF const& line);
 
-	QPoint next();
+    bool hasNext() const
+    {
+        return m_stopsDone < m_totalStops;
+    }
+
+    QPoint next();
 private:
-	QLineF m_line;
-	double m_dt;
-	int m_totalStops;
-	int m_stopsDone;
+    QLineF m_line;
+    double m_dt;
+    int m_totalStops;
+    int m_stopsDone;
 };
 
 #endif

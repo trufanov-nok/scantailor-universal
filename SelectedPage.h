@@ -38,17 +38,20 @@
 class SelectedPage
 {
 public:
-	SelectedPage() {}
+    SelectedPage() {}
 
-	SelectedPage(PageId const& page_id, PageView view);
+    SelectedPage(PageId const& page_id, PageView view);
 
-	bool isNull() const { return m_pageId.isNull(); }
+    bool isNull() const
+    {
+        return m_pageId.isNull();
+    }
 
-	void set(PageId const& page_id, PageView view);
+    void set(PageId const& page_id, PageView view);
 
-	PageId get(PageView view) const;
+    PageId get(PageView view) const;
 private:
-	PageId m_pageId;
+    PageId m_pageId;
 };
 
 #endif

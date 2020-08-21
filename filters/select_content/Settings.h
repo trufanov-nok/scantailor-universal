@@ -34,46 +34,76 @@ namespace select_content
 
 class Settings : public RefCountable
 {
-	DECLARE_NON_COPYABLE(Settings)
+    DECLARE_NON_COPYABLE(Settings)
 public:
-	Settings();
-	
-	virtual ~Settings();
-	
-	void clear();
-	
+    Settings();
+
+    virtual ~Settings();
+
+    void clear();
+
     void performRelinking(AbstractRelinker const& relinker);
 
     void updateDeviation();
 
-	void setPageParams(PageId const& page_id, Params const& params);
-	
-	void clearPageParams(PageId const& page_id);
-	
+    void setPageParams(PageId const& page_id, Params const& params);
+
+    void clearPageParams(PageId const& page_id);
+
     std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
 
-	double maxDeviation() const { return m_maxDeviation; }
-	void setMaxDeviation(double md) { m_maxDeviation = md; }
-    
-    QSizeF pageDetectionBox() const { return m_pageDetectionBox; }
-    void setPageDetectionBox(QSizeF size) { m_pageDetectionBox = size; }
-    
-    double pageDetectionTolerance() const { return m_pageDetectionTolerance; }
-    void setPageDetectionTolerance(double tolerance) { m_pageDetectionTolerance = tolerance; }
+    double maxDeviation() const
+    {
+        return m_maxDeviation;
+    }
+    void setMaxDeviation(double md)
+    {
+        m_maxDeviation = md;
+    }
 
-    double avg() const { return m_avg; }
-    void setAvg(double a) { m_avg = a; }
+    QSizeF pageDetectionBox() const
+    {
+        return m_pageDetectionBox;
+    }
+    void setPageDetectionBox(QSizeF size)
+    {
+        m_pageDetectionBox = size;
+    }
 
-    double std() const { return m_sigma; }
-    void setStd(double s) { m_sigma = s; }
+    double pageDetectionTolerance() const
+    {
+        return m_pageDetectionTolerance;
+    }
+    void setPageDetectionTolerance(double tolerance)
+    {
+        m_pageDetectionTolerance = tolerance;
+    }
+
+    double avg() const
+    {
+        return m_avg;
+    }
+    void setAvg(double a)
+    {
+        m_avg = a;
+    }
+
+    double std() const
+    {
+        return m_sigma;
+    }
+    void setStd(double s)
+    {
+        m_sigma = s;
+    }
 private:
-	typedef std::map<PageId, Params> PageParams;
-	
-	mutable QMutex m_mutex;
+    typedef std::map<PageId, Params> PageParams;
+
+    mutable QMutex m_mutex;
     PageParams m_pageParams;
     double m_avg;
     double m_sigma;
-	double m_maxDeviation;
+    double m_maxDeviation;
     QSizeF m_pageDetectionBox;
     double m_pageDetectionTolerance;
 };

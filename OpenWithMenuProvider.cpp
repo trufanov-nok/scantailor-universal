@@ -3,7 +3,8 @@
 #include <QDirIterator>
 #include <QStringList>
 
-inline QString get_val(QString const& str) {
+inline QString get_val(QString const& str)
+{
     return str.right(str.length() - str.indexOf('=') - 1).trimmed().remove('\n');
 }
 
@@ -17,9 +18,9 @@ QMenu* OpenWithMenuProvider::getOpenWithMenu(const QString& mime_type)
         QStringList apps;
         QFile mc(linux_mime_cache);
         if (mc.open(QFile::ReadOnly)) {
-            while(!mc.atEnd()) {
+            while (!mc.atEnd()) {
                 QString s = mc.readLine().trimmed();
-                if (s.startsWith(mime_type+"=")) {
+                if (s.startsWith(mime_type + "=")) {
                     apps = get_val(s).split(';', QString::SkipEmptyParts);
                     break;
                 }

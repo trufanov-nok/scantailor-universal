@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,31 +30,31 @@
 
 class OutOfMemoryDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	OutOfMemoryDialog(QWidget* parent = 0);
+    OutOfMemoryDialog(QWidget* parent = 0);
 
-	void setParams(
-		QString const& project_file, // may be empty
-		IntrusivePtr<StageSequence> const& stages,
-		IntrusivePtr<ProjectPages> const& pages,
-		SelectedPage const& selected_page,
-		OutputFileNameGenerator const& out_file_name_gen);
+    void setParams(
+        QString const& project_file, // may be empty
+        IntrusivePtr<StageSequence> const& stages,
+        IntrusivePtr<ProjectPages> const& pages,
+        SelectedPage const& selected_page,
+        OutputFileNameGenerator const& out_file_name_gen);
 private slots:
-	void saveProject();
+    void saveProject();
 
-	void saveProjectAs();
+    void saveProjectAs();
 private:
-	bool saveProjectWithFeedback(QString const& project_file);
+    bool saveProjectWithFeedback(QString const& project_file);
 
-	void showSaveSuccessScreen();
+    void showSaveSuccessScreen();
 
-	Ui::OutOfMemoryDialog ui;
-	QString m_projectFile;
-	IntrusivePtr<StageSequence> m_ptrStages;
-	IntrusivePtr<ProjectPages> m_ptrPages;
-	SelectedPage m_selectedPage;
-	OutputFileNameGenerator m_outFileNameGen;
+    Ui::OutOfMemoryDialog ui;
+    QString m_projectFile;
+    IntrusivePtr<StageSequence> m_ptrStages;
+    IntrusivePtr<ProjectPages> m_ptrPages;
+    SelectedPage m_selectedPage;
+    OutputFileNameGenerator m_outFileNameGen;
 };
 
 #endif

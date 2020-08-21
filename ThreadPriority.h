@@ -26,37 +26,43 @@ class QSettings;
 
 class ThreadPriority
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	enum Priority {
-		Minimum,
-		Idle = Minimum,
-		Lowest,
-		Low,
-		Normal,
-		Maximum = Normal
-	};
+    enum Priority {
+        Minimum,
+        Idle = Minimum,
+        Lowest,
+        Low,
+        Normal,
+        Maximum = Normal
+    };
 
-	ThreadPriority(Priority prio) : m_prio(prio) {}
+    ThreadPriority(Priority prio) : m_prio(prio) {}
 
-	void setValue(Priority prio) { m_prio = prio; }
+    void setValue(Priority prio)
+    {
+        m_prio = prio;
+    }
 
-	Priority value() const { return m_prio; }
+    Priority value() const
+    {
+        return m_prio;
+    }
 
-	QThread::Priority toQThreadPriority() const;
+    QThread::Priority toQThreadPriority() const;
 
-	int toPosixNiceLevel() const;
+    int toPosixNiceLevel() const;
 
-	static ThreadPriority load(
-		QSettings const& settings, QString const& key, Priority dflt = Normal);
+    static ThreadPriority load(
+        QSettings const& settings, QString const& key, Priority dflt = Normal);
 
-	static ThreadPriority load(QString const& key, Priority dflt = Normal);
+    static ThreadPriority load(QString const& key, Priority dflt = Normal);
 
-	void save(QSettings& settings, QString const& key);
+    void save(QSettings& settings, QString const& key);
 
-	void save(QString const& key);
+    void save(QString const& key);
 private:
-	Priority m_prio;
+    Priority m_prio;
 };
 
 #endif

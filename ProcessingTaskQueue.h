@@ -28,63 +28,64 @@
 
 class ProcessingTaskQueue
 {
-	DECLARE_NON_COPYABLE(ProcessingTaskQueue)
+    DECLARE_NON_COPYABLE(ProcessingTaskQueue)
 public:
-	/**
-	 * Order only affects the result of selectedPage().
-	 * For single-task queues and for custom-sorted sequences,
-	 * use RANDOM_ORDER, otherwise use SEQUENTIAL_ORDER.
-	 */
-	enum Order { SEQUENTIAL_ORDER, RANDOM_ORDER };
+    /**
+     * Order only affects the result of selectedPage().
+     * For single-task queues and for custom-sorted sequences,
+     * use RANDOM_ORDER, otherwise use SEQUENTIAL_ORDER.
+     */
+    enum Order { SEQUENTIAL_ORDER, RANDOM_ORDER };
 
-	ProcessingTaskQueue(Order order);
+    ProcessingTaskQueue(Order order);
 
-	void addProcessingTask(PageInfo const& page_info, BackgroundTaskPtr const& task);
+    void addProcessingTask(PageInfo const& page_info, BackgroundTaskPtr const& task);
 
-	/**
-	 * The first task among those that haven't been already taken for processing
-	 * is marked as taken and returned.  A null task will be returned if there
-	 * are no such tasks.
-	 */
-	BackgroundTaskPtr takeForProcessing();
+    /**
+     * The first task among those that haven't been already taken for processing
+     * is marked as taken and returned.  A null task will be returned if there
+     * are no such tasks.
+     */
+    BackgroundTaskPtr takeForProcessing();
 
-	void processingFinished(BackgroundTaskPtr const& task);
+    void processingFinished(BackgroundTaskPtr const& task);
 
-	/**
-	 * \brief Returns the page to be visually selected.
-	 *
-	 * To be called after takeForProcessing() / processingFinished().
-	 * It may return a null PageInfo, meaning not to change whatever
-	 * selection we currently have.
-	 */
-	PageInfo selectedPage() const;
+    /**
+     * \brief Returns the page to be visually selected.
+     *
+     * To be called after takeForProcessing() / processingFinished().
+     * It may return a null PageInfo, meaning not to change whatever
+     * selection we currently have.
+     */
+    PageInfo selectedPage() const;
 
-	bool allProcessed() const;
+    bool allProcessed() const;
 
-	void cancelAndRemove(std::set<PageId> const& pages);
+    void cancelAndRemove(std::set<PageId> const& pages);
 
-	void cancelAndClear();
+    void cancelAndClear();
 
-    void startProgressTracking(int total_pages) {
+    void startProgressTracking(int total_pages)
+    {
         m_total_pages = total_pages;
     }
 
-    double getProgress() const {
+    double getProgress() const
+    {
         return  m_total_pages ? (100. - 100. * m_queue.size() / m_total_pages) : 100.;
     }
 private:
-	struct Entry
-	{
-		PageInfo pageInfo;
-		BackgroundTaskPtr task;
-		bool takenForProcessing;
+    struct Entry {
+        PageInfo pageInfo;
+        BackgroundTaskPtr task;
+        bool takenForProcessing;
 
-		Entry(PageInfo const& page_info, BackgroundTaskPtr const& task);
-	};
+        Entry(PageInfo const& page_info, BackgroundTaskPtr const& task);
+    };
 
-	std::list<Entry> m_queue;
-	PageInfo m_selectedPage;
-	Order m_order;
+    std::list<Entry> m_queue;
+    PageInfo m_selectedPage;
+    Order m_order;
     int m_total_pages;
 };
 

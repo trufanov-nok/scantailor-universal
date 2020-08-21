@@ -29,28 +29,40 @@ class Dpm;
 class Dpi
 {
 public:
-	Dpi() : m_xDpi(0), m_yDpi(0) {}
-	
-	Dpi(int horizontal, int vertical) : m_xDpi(horizontal), m_yDpi(vertical) {}
-	
-	Dpi(Dpm dpm);
-	
-	explicit Dpi(QSize size);
-	
-	int horizontal() const { return m_xDpi; }
-	
-	int vertical() const { return m_yDpi; }
-	
-	QSize toSize() const;
-	
-	bool isNull() const { return m_xDpi <= 1 || m_yDpi <= 1; }
-	
-	bool operator==(Dpi const& other) const;
-	
-	bool operator!=(Dpi const& other) const { return !(*this == other); }
+    Dpi() : m_xDpi(0), m_yDpi(0) {}
+
+    Dpi(int horizontal, int vertical) : m_xDpi(horizontal), m_yDpi(vertical) {}
+
+    Dpi(Dpm dpm);
+
+    explicit Dpi(QSize size);
+
+    int horizontal() const
+    {
+        return m_xDpi;
+    }
+
+    int vertical() const
+    {
+        return m_yDpi;
+    }
+
+    QSize toSize() const;
+
+    bool isNull() const
+    {
+        return m_xDpi <= 1 || m_yDpi <= 1;
+    }
+
+    bool operator==(Dpi const& other) const;
+
+    bool operator!=(Dpi const& other) const
+    {
+        return !(*this == other);
+    }
 private:
-	int m_xDpi;
-	int m_yDpi;
+    int m_xDpi;
+    int m_yDpi;
 };
 
 #endif

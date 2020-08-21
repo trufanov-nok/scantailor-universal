@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,9 +51,10 @@ void grayRasterOp(GrayImage& dst, GrayImage const& src);
 class GRopSrc
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t /*dst*/) {
-		return src;
-	}
+    static uint8_t transform(uint8_t src, uint8_t /*dst*/)
+    {
+        return src;
+    }
 };
 
 /**
@@ -63,9 +64,10 @@ public:
 class GRopDst
 {
 public:
-	static uint8_t transform(uint8_t /*src*/, uint8_t dst) {
-		return dst;
-	}
+    static uint8_t transform(uint8_t /*src*/, uint8_t dst)
+    {
+        return dst;
+    }
 };
 
 /**
@@ -76,9 +78,10 @@ template<typename Arg>
 class GRopInvert
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		return uint8_t(0xff) - Arg::transform(src, dst);
-	}
+    static uint8_t transform(uint8_t src, uint8_t dst)
+    {
+        return uint8_t(0xff) - Arg::transform(src, dst);
+    }
 };
 
 /**
@@ -93,11 +96,12 @@ template<typename Lhs, typename Rhs>
 class GRopClippedSubtract
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		uint8_t const lhs = Lhs::transform(src, dst);
-		uint8_t const rhs = Rhs::transform(src, dst);
-		return lhs > rhs ? lhs - rhs : uint8_t(0);
-	}
+    static uint8_t transform(uint8_t src, uint8_t dst)
+    {
+        uint8_t const lhs = Lhs::transform(src, dst);
+        uint8_t const rhs = Rhs::transform(src, dst);
+        return lhs > rhs ? lhs - rhs : uint8_t(0);
+    }
 };
 
 /**
@@ -112,11 +116,12 @@ template<typename Lhs, typename Rhs>
 class GRopUnclippedSubtract
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		uint8_t const lhs = Lhs::transform(src, dst);
-		uint8_t const rhs = Rhs::transform(src, dst);
-		return lhs - rhs;
-	}
+    static uint8_t transform(uint8_t src, uint8_t dst)
+    {
+        uint8_t const lhs = Lhs::transform(src, dst);
+        uint8_t const rhs = Rhs::transform(src, dst);
+        return lhs - rhs;
+    }
 };
 
 /**
@@ -130,12 +135,13 @@ template<typename Lhs, typename Rhs>
 class GRopClippedAdd
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		unsigned const lhs = Lhs::transform(src, dst);
-		unsigned const rhs = Rhs::transform(src, dst);
-		unsigned const sum = lhs + rhs;
-		return sum < 256 ? static_cast<uint8_t>(sum) : uint8_t(255);
-	}
+    static uint8_t transform(uint8_t src, uint8_t dst)
+    {
+        unsigned const lhs = Lhs::transform(src, dst);
+        unsigned const rhs = Rhs::transform(src, dst);
+        unsigned const sum = lhs + rhs;
+        return sum < 256 ? static_cast<uint8_t>(sum) : uint8_t(255);
+    }
 };
 
 /**
@@ -150,11 +156,12 @@ template<typename Lhs, typename Rhs>
 class GRopUnclippedAdd
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		uint8_t const lhs = Lhs::transform(src, dst);
-		uint8_t const rhs = Rhs::transform(src, dst);
-		return lhs + rhs;
-	}
+    static uint8_t transform(uint8_t src, uint8_t dst)
+    {
+        uint8_t const lhs = Lhs::transform(src, dst);
+        uint8_t const rhs = Rhs::transform(src, dst);
+        return lhs + rhs;
+    }
 };
 
 /**
@@ -165,11 +172,12 @@ template<typename Lhs, typename Rhs>
 class GRopDarkest
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		uint8_t const lhs = Lhs::transform(src, dst);
-		uint8_t const rhs = Rhs::transform(src, dst);
-		return lhs < rhs ? lhs : rhs;
-	}
+    static uint8_t transform(uint8_t src, uint8_t dst)
+    {
+        uint8_t const lhs = Lhs::transform(src, dst);
+        uint8_t const rhs = Rhs::transform(src, dst);
+        return lhs < rhs ? lhs : rhs;
+    }
 };
 
 /**
@@ -180,40 +188,41 @@ template<typename Lhs, typename Rhs>
 class GRopLightest
 {
 public:
-	static uint8_t transform(uint8_t src, uint8_t dst) {
-		uint8_t const lhs = Lhs::transform(src, dst);
-		uint8_t const rhs = Rhs::transform(src, dst);
-		return lhs > rhs ? lhs : rhs;
-	}
+    static uint8_t transform(uint8_t src, uint8_t dst)
+    {
+        uint8_t const lhs = Lhs::transform(src, dst);
+        uint8_t const rhs = Rhs::transform(src, dst);
+        return lhs > rhs ? lhs : rhs;
+    }
 };
 
 template<typename GRop>
 void grayRasterOp(GrayImage& dst, GrayImage const& src)
 {
-	if (dst.isNull() || src.isNull()) {
-		throw std::invalid_argument("grayRasterOp: can't operate on null images");
-	}
-	
-	if (src.size() != dst.size()) {
-		throw std::invalid_argument("grayRasterOp: images sizes are not the same");
-	}
-	
+    if (dst.isNull() || src.isNull()) {
+        throw std::invalid_argument("grayRasterOp: can't operate on null images");
+    }
+
+    if (src.size() != dst.size()) {
+        throw std::invalid_argument("grayRasterOp: images sizes are not the same");
+    }
+
     int const src_stride = src.stride();
     int const dst_stride = dst.stride();
-	
-	int const width = src.width();
-	int const height = src.height();
+
+    int const width = src.width();
+    int const height = src.height();
     uint8_t* dst_data = dst.data(); // never call .data() inside omp
     const uint8_t* src_data = src.data(); // never call .data() inside omp
-	
-#pragma omp parallel for //if(dst.data() != src.data())
+
+    #pragma omp parallel for //if(dst.data() != src.data())
     for (int y = 0; y < height; ++y) {
-        uint8_t const* src_line = src_data + y*src_stride;
-        uint8_t* dst_line = dst_data + y*dst_stride;
-		for (int x = 0; x < width; ++x) {
-			dst_line[x] = GRop::transform(src_line[x], dst_line[x]);
-		}
-	}
+        uint8_t const* src_line = src_data + y * src_stride;
+        uint8_t* dst_line = dst_data + y * dst_stride;
+        for (int x = 0; x < width; ++x) {
+            dst_line[x] = GRop::transform(src_line[x], dst_line[x]);
+        }
+    }
 }
 
 } // namespace imageproc

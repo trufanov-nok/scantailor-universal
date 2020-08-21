@@ -28,7 +28,7 @@ namespace select_content
 {
 
 OrderBySizeProvider::OrderBySizeProvider(IntrusivePtr<Settings> const& settings, bool byHeight, bool isLogical)
-:	m_ptrSettings(settings), m_byHeight(byHeight), m_isLogical(isLogical)
+    :   m_ptrSettings(settings), m_byHeight(byHeight), m_isLogical(isLogical)
 {
 }
 
@@ -40,8 +40,8 @@ OrderBySizeProvider::adjustByDpi(qreal val, std::unique_ptr<Params> const& param
         return val;
     }
 
-    Dpi const dpi = params.get()?params->origDpi():select_content::dafaultDpi;
-    qreal const d = m_byHeight? dpi.vertical() : dpi.horizontal();
+    Dpi const dpi = params.get() ? params->origDpi() : select_content::dafaultDpi;
+    qreal const d = m_byHeight ? dpi.vertical() : dpi.horizontal();
 
     if (dpi_used) {
         *dpi_used = d;
@@ -52,8 +52,8 @@ OrderBySizeProvider::adjustByDpi(qreal val, std::unique_ptr<Params> const& param
 
 bool
 OrderBySizeProvider::precedes(
-	PageId const& lhs_page, bool const lhs_incomplete,
-	PageId const& rhs_page, bool const rhs_incomplete) const
+    PageId const& lhs_page, bool const lhs_incomplete,
+    PageId const& rhs_page, bool const rhs_incomplete) const
 {
 
     if (lhs_incomplete != rhs_incomplete) {
@@ -68,18 +68,18 @@ OrderBySizeProvider::precedes(
     assert(lhs_incomplete == false);
     assert(rhs_incomplete == false);
 
-	std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
-	std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
-	
-	QSizeF lhs_size;
-	if (lhs_params.get()) {
+    std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
+    std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
+
+    QSizeF lhs_size;
+    if (lhs_params.get()) {
         lhs_size = lhs_params->contentRect().size();
-	}
-	QSizeF rhs_size;
-	if (rhs_params.get()) {
+    }
+    QSizeF rhs_size;
+    if (rhs_params.get()) {
         rhs_size = rhs_params->contentRect().size();
-	}
-	
+    }
+
     bool const lhs_invalid = !lhs_size.isValid();
     bool const rhs_invalid = !rhs_size.isValid();
 
@@ -95,8 +95,8 @@ OrderBySizeProvider::precedes(
     assert(lhs_invalid == false);
     assert(rhs_incomplete == false);
 
-    qreal rv = m_byHeight? rhs_size.height() : rhs_size.width();
-    qreal lv = m_byHeight? lhs_size.height() : lhs_size.width();
+    qreal rv = m_byHeight ? rhs_size.height() : rhs_size.width();
+    qreal lv = m_byHeight ? lhs_size.height() : lhs_size.width();
     rv = adjustByDpi(rv, rhs_params, StatusBarProvider::statusLabelPhysSizeDisplayMode);
     lv = adjustByDpi(lv, lhs_params, StatusBarProvider::statusLabelPhysSizeDisplayMode);
 
@@ -119,7 +119,7 @@ OrderBySizeProvider::hint(PageId const& page) const
     }
 
     QString res = m_byHeight ? QObject::tr("height: %1") : QObject::tr("width: %1");
-    qreal val = m_byHeight? size.height() : size.width();
+    qreal val = m_byHeight ? size.height() : size.width();
 
     if (!m_isLogical) {
         return size.isValid() ? res.arg(val) : res.arg(_unknown);
@@ -130,12 +130,12 @@ OrderBySizeProvider::hint(PageId const& page) const
         }
 
         int dpi_used = 0;
-        val = round(adjustByDpi(val, params, units_mode, &dpi_used)*100)/100;
+        val = round(adjustByDpi(val, params, units_mode, &dpi_used) * 100) / 100;
 
         return size.isValid() ? QObject::tr("%1 %2 (%3 dpi)").arg(val)
-                                .arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix(units_mode))
-                                .arg(dpi_used)
-                              : res.arg(_unknown);
+               .arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix(units_mode))
+               .arg(dpi_used)
+               : res.arg(_unknown);
     }
 }
 

@@ -36,96 +36,101 @@
 #include <map>
 
 class RelinkingModel :
-	public QAbstractListModel,
-	public VirtualFunction1<void, RelinkablePath const&>
+    public QAbstractListModel,
+    public VirtualFunction1<void, RelinkablePath const&>
 {
-	DECLARE_NON_COPYABLE(RelinkingModel)
+    DECLARE_NON_COPYABLE(RelinkingModel)
 public:
-	enum Status { Exists, Missing, StatusUpdatePending };
+    enum Status { Exists, Missing, StatusUpdatePending };
 
-	enum {
-		TypeRole = Qt::UserRole,
-		UncommittedPathRole,
-		UncommittedStatusRole
-	};
+    enum {
+        TypeRole = Qt::UserRole,
+        UncommittedPathRole,
+        UncommittedStatusRole
+    };
 
-	RelinkingModel();
+    RelinkingModel();
 
-	virtual ~RelinkingModel();
-	
-	virtual int rowCount(QModelIndex const& parent = QModelIndex()) const;
-	
-	virtual QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const;
+    virtual ~RelinkingModel();
 
-	/**
-	 * This method guarantees that
-	 * \code
-	 * model.relinker().get() == model.relinker().get()
-	 * \endcode
-	 * will hold true for the lifetime of RelinkingModel object.
-	 * This allows you to take the relinker right after construction
-	 * and then use it when accepted() signal is emitted.
-	 */
-	IntrusivePtr<AbstractRelinker> relinker() const { return m_ptrRelinker; }
+    virtual int rowCount(QModelIndex const& parent = QModelIndex()) const;
 
-	virtual void operator()(RelinkablePath const& path) { addPath(path); }
+    virtual QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const;
 
-	void addPath(RelinkablePath const& path);
+    /**
+     * This method guarantees that
+     * \code
+     * model.relinker().get() == model.relinker().get()
+     * \endcode
+     * will hold true for the lifetime of RelinkingModel object.
+     * This allows you to take the relinker right after construction
+     * and then use it when accepted() signal is emitted.
+     */
+    IntrusivePtr<AbstractRelinker> relinker() const
+    {
+        return m_ptrRelinker;
+    }
 
-	void replacePrefix(QString const& prefix, QString const& replacement, RelinkablePath::Type type);
+    virtual void operator()(RelinkablePath const& path)
+    {
+        addPath(path);
+    }
 
-	/**
-	 * Returns true if we have different original paths remapped to the same one.
-	 * Checking is done on uncommitted paths.
-	 */
-	bool checkForMerges() const;
+    void addPath(RelinkablePath const& path);
 
-	void commitChanges();
+    void replacePrefix(QString const& prefix, QString const& replacement, RelinkablePath::Type type);
 
-	void rollbackChanges();
+    /**
+     * Returns true if we have different original paths remapped to the same one.
+     * Checking is done on uncommitted paths.
+     */
+    bool checkForMerges() const;
 
-	void requestStatusUpdate(QModelIndex const& index);
+    void commitChanges();
+
+    void rollbackChanges();
+
+    void requestStatusUpdate(QModelIndex const& index);
 protected:
-	virtual void customEvent(QEvent* event);
+    virtual void customEvent(QEvent* event);
 private:
-	class StatusUpdateThread;
-	class StatusUpdateResponse;
+    class StatusUpdateThread;
+    class StatusUpdateResponse;
 
-	/** Stands for File System Object (file or directory). */
-	struct Item
-	{
-		QString origPath; /**< That's the path passed through addPath(). It never changes. */
-		QString committedPath;
-		QString uncommittedPath; /**< Same as committedPath when m_haveUncommittedChanges == false. */
-		RelinkablePath::Type type;
-		Status committedStatus;
-		Status uncommittedStatus; /**< Same as committedStatus when m_haveUncommittedChanges == false. */
+    /** Stands for File System Object (file or directory). */
+    struct Item {
+        QString origPath; /**< That's the path passed through addPath(). It never changes. */
+        QString committedPath;
+        QString uncommittedPath; /**< Same as committedPath when m_haveUncommittedChanges == false. */
+        RelinkablePath::Type type;
+        Status committedStatus;
+        Status uncommittedStatus; /**< Same as committedStatus when m_haveUncommittedChanges == false. */
 
-		Item(RelinkablePath const& path);
-	};
+        Item(RelinkablePath const& path);
+    };
 
-	class Relinker : public AbstractRelinker
-	{
-	public:
-		void addMapping(QString const& from, QString const& to);
+    class Relinker : public AbstractRelinker
+    {
+    public:
+        void addMapping(QString const& from, QString const& to);
 
-		/** Returns path.normalizedPath() if there is no mapping for it. */
-		virtual QString substitutionPathFor(RelinkablePath const& path) const;
+        /** Returns path.normalizedPath() if there is no mapping for it. */
+        virtual QString substitutionPathFor(RelinkablePath const& path) const;
 
-		void swap(Relinker& other);
-	private:
-		std::map<QString, QString> m_mappings;
-	};
+        void swap(Relinker& other);
+    private:
+        std::map<QString, QString> m_mappings;
+    };
 
-	static void ensureEndsWithSlash(QString& str);
+    static void ensureEndsWithSlash(QString& str);
 
-	QPixmap m_fileIcon;
-	QPixmap m_folderIcon;
-	std::vector<Item> m_items;
-	std::set<QString> m_origPathSet;
-	IntrusivePtr<Relinker> const m_ptrRelinker;
-	std::unique_ptr<StatusUpdateThread> m_ptrStatusUpdateThread;
-	bool m_haveUncommittedChanges;
+    QPixmap m_fileIcon;
+    QPixmap m_folderIcon;
+    std::vector<Item> m_items;
+    std::set<QString> m_origPathSet;
+    IntrusivePtr<Relinker> const m_ptrRelinker;
+    std::unique_ptr<StatusUpdateThread> m_ptrStatusUpdateThread;
+    bool m_haveUncommittedChanges;
 };
 
 #endif

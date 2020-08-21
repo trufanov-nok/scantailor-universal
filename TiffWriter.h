@@ -31,47 +31,47 @@ class Dpm;
 class TiffWriter
 {
 public:
-	/**
-	 * \brief Writes a QImage in TIFF format to a file.
-	 *
-	 * \param file_path The full path to the file.
-	 * \param image The image to write.  Writing a null image will fail.
-	 * \return True on success, false on failure.
-	 */
+    /**
+     * \brief Writes a QImage in TIFF format to a file.
+     *
+     * \param file_path The full path to the file.
+     * \param image The image to write.  Writing a null image will fail.
+     * \return True on success, false on failure.
+     */
     static bool writeImage(QString const& file_path, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
-	
-	/**
-	 * \brief Writes a QImage in TIFF format to an IO device.
-	 *
-	 * \param device The device to write to.  This device must be
-	 *        opened for writing and seekable.
-	 * \param image The image to write.  Writing a null image will fail.
-	 * \return True on success, false on failure.
-	 */
+
+    /**
+     * \brief Writes a QImage in TIFF format to an IO device.
+     *
+     * \param device The device to write to.  This device must be
+     *        opened for writing and seekable.
+     * \param image The image to write.  Writing a null image will fail.
+     * \return True on success, false on failure.
+     */
     static bool writeImage(QIODevice& device, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
 private:
-	class TiffHandle;
-	
-	static void setDpm(TiffHandle const& tif, Dpm const& dpm);
-	
-	static bool writeBitonalOrIndexed8Image(
+    class TiffHandle;
+
+    static void setDpm(TiffHandle const& tif, Dpm const& dpm);
+
+    static bool writeBitonalOrIndexed8Image(
         TiffHandle const& tif, QImage const& image, bool multipage, int compression = COMPRESSION_LZW);
-	
-	static bool writeRGB32Image(
+
+    static bool writeRGB32Image(
         TiffHandle const& tif, QImage const& image, bool multipage, int compression = COMPRESSION_LZW);
-	
+
     static bool writeARGB32Image(TiffHandle const& tif, QImage const& image, bool multipage, int compression = COMPRESSION_LZW);
-	
-	static bool write8bitLines(
-		TiffHandle const& tif, QImage const& image);
-	
-	static bool writeBinaryLinesAsIs(
-		TiffHandle const& tif, QImage const& image);
-	
-	static bool writeBinaryLinesReversed(
-		TiffHandle const& tif, QImage const& image);
-	
-	static uint8_t const m_reverseBitsLUT[256];
+
+    static bool write8bitLines(
+        TiffHandle const& tif, QImage const& image);
+
+    static bool writeBinaryLinesAsIs(
+        TiffHandle const& tif, QImage const& image);
+
+    static bool writeBinaryLinesReversed(
+        TiffHandle const& tif, QImage const& image);
+
+    static uint8_t const m_reverseBitsLUT[256];
 };
 
 #endif

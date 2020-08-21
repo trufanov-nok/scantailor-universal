@@ -29,32 +29,32 @@ namespace output
 {
 
 ChangeDewarpingWidget::ChangeDewarpingWidget(QWidget* parent, DewarpingMode const& mode)
-:	QWidget(parent),
-    m_mode(mode)
+    :   QWidget(parent),
+        m_mode(mode)
 {
 
-	ui.setupUi(this);
-	switch (mode) {
-		case DewarpingMode::OFF:
-			ui.offRB->setChecked(true);
-			break;
-		case DewarpingMode::AUTO:
-			ui.autoRB->setChecked(true);
-			break;
-		case DewarpingMode::MARGINAL:
-			ui.marginalRB->setChecked(true);
-			break;
-		case DewarpingMode::MANUAL:
-			ui.manualRB->setChecked(true);
-			break;
-	}
+    ui.setupUi(this);
+    switch (mode) {
+    case DewarpingMode::OFF:
+        ui.offRB->setChecked(true);
+        break;
+    case DewarpingMode::AUTO:
+        ui.autoRB->setChecked(true);
+        break;
+    case DewarpingMode::MARGINAL:
+        ui.marginalRB->setChecked(true);
+        break;
+    case DewarpingMode::MANUAL:
+        ui.manualRB->setChecked(true);
+        break;
+    }
 
-	// No, we don't leak memory here.
+    // No, we don't leak memory here.
     using namespace boost::lambda;
-	new QtSignalForwarder(ui.offRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::OFF);
-	new QtSignalForwarder(ui.autoRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::AUTO);
-	new QtSignalForwarder(ui.manualRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MANUAL);
-	new QtSignalForwarder(ui.marginalRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MARGINAL);
+    new QtSignalForwarder(ui.offRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::OFF);
+    new QtSignalForwarder(ui.autoRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::AUTO);
+    new QtSignalForwarder(ui.manualRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MANUAL);
+    new QtSignalForwarder(ui.marginalRB, SIGNAL(clicked(bool)), var(m_mode) = DewarpingMode::MARGINAL);
 
 }
 
@@ -73,7 +73,9 @@ ChangeDewarpingWidget::dewarpingMode() const
         return DewarpingMode::MARGINAL;
     } else if (ui.manualRB->isChecked()) {
         return DewarpingMode::MANUAL;
-    } else assert(false);
+    } else {
+        assert(false);
+    }
 
     return DewarpingMode::OFF;
 }

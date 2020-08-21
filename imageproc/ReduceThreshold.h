@@ -52,43 +52,49 @@ namespace imageproc
 class ReduceThreshold
 {
 public:
-	/**
-	 * \brief Constructor.  Doesn't do any work by itself.
-	 */
-	ReduceThreshold(BinaryImage const& image);
-	
-	/**
-	 * \brief Implicit conversion to BinaryImage.
-	 */
-	operator BinaryImage const&() const { return m_image; }
-	
-	/**
-	 * \brief Returns a reference to the reduced image.
-	 */
-	BinaryImage const& image() const { return m_image; }
-	
-	/**
-	 * \brief Performs a reduction and returns *this.
-	 */
-	ReduceThreshold& reduce(int threshold);
-	
-	/**
-	 * \brief Operator () performs a reduction and returns *this.
-	 */
-	ReduceThreshold& operator()(int threshold) {
-		return reduce(threshold);
-	}
-private:
-	void reduceHorLine(int threshold);
-	
-	void reduceVertLine(int threshold);
-	
-	/**
-	 * \brief The result of a previous reduction.
-	 */
-	BinaryImage m_image;
-};
+    /**
+     * \brief Constructor.  Doesn't do any work by itself.
+     */
+    ReduceThreshold(BinaryImage const& image);
 
+    /**
+     * \brief Implicit conversion to BinaryImage.
+     */
+    operator BinaryImage const& () const
+    {
+        return m_image;
+    }
+
+    /**
+     * \brief Returns a reference to the reduced image.
+     */
+    BinaryImage const& image() const
+    {
+        return m_image;
+    }
+
+    /**
+     * \brief Performs a reduction and returns *this.
+     */
+    ReduceThreshold& reduce(int threshold);
+
+    /**
+     * \brief Operator () performs a reduction and returns *this.
+     */
+    ReduceThreshold& operator()(int threshold)
+    {
+        return reduce(threshold);
+    }
+private:
+    void reduceHorLine(int threshold);
+
+    void reduceVertLine(int threshold);
+
+    /**
+     * \brief The result of a previous reduction.
+     */
+    BinaryImage m_image;
+};
 
 } // namespace imageproc
 

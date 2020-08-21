@@ -1,7 +1,7 @@
 #include "ApplyToDialog.h"
 #include "ui_ApplyToDialog.h"
 
-ApplyToDialog::ApplyToDialog(QWidget *parent, const PageId &cur_page, const PageSelectionAccessor &page_selection_accessor, const PageView viewType) :
+ApplyToDialog::ApplyToDialog(QWidget* parent, const PageId& cur_page, const PageSelectionAccessor& page_selection_accessor, const PageView viewType) :
     QDialog(parent),
     ui(new Ui::ApplyToDialog)
 {
@@ -35,7 +35,7 @@ QLayout& ApplyToDialog::initNewLeftSettingsPanel()
     return getLeftSettingsPanel();
 }
 
-QLayout & ApplyToDialog::getLeftSettingsPanel() const
+QLayout& ApplyToDialog::getLeftSettingsPanel() const
 {
     return * ui->widgetSettingsLeft->layout();
 }
@@ -50,12 +50,12 @@ QLayout& ApplyToDialog::initNewTopSettingsPanel()
     return getTopSettingsPanel();
 }
 
-QLayout & ApplyToDialog::getTopSettingsPanel() const
+QLayout& ApplyToDialog::getTopSettingsPanel() const
 {
     return * ui->widgetSettingsTop->layout();
 }
 
-void ApplyToDialog::showEvent( QShowEvent* /*event*/ )
+void ApplyToDialog::showEvent(QShowEvent* /*event*/)
 {
     QLayout* l = ui->widgetSettingsLeft->layout();
     const bool left_settings_visible = l && l->count() > 0;

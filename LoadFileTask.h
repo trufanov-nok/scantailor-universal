@@ -33,33 +33,33 @@ class QImage;
 
 namespace fix_orientation
 {
-	class Task;
+class Task;
 }
 
 class LoadFileTask : public BackgroundTask
 {
-	DECLARE_NON_COPYABLE(LoadFileTask)
+    DECLARE_NON_COPYABLE(LoadFileTask)
 public:
-	LoadFileTask(Type type, PageInfo const& page,
-		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		IntrusivePtr<ProjectPages> const& pages,
-		IntrusivePtr<fix_orientation::Task> const& next_task);
-	
-	virtual ~LoadFileTask();
-	
-	virtual FilterResultPtr operator()();
+    LoadFileTask(Type type, PageInfo const& page,
+                 IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+                 IntrusivePtr<ProjectPages> const& pages,
+                 IntrusivePtr<fix_orientation::Task> const& next_task);
+
+    virtual ~LoadFileTask();
+
+    virtual FilterResultPtr operator()();
 private:
-	class ErrorResult;
-	
-	void updateImageSizeIfChanged(QImage const& image);
-	
-	void overrideDpi(QImage& image) const;
-	
-	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	ImageId m_imageId;
-	ImageMetadata m_imageMetadata;
-	IntrusivePtr<ProjectPages> const m_ptrPages;
-	IntrusivePtr<fix_orientation::Task> const m_ptrNextTask;
+    class ErrorResult;
+
+    void updateImageSizeIfChanged(QImage const& image);
+
+    void overrideDpi(QImage& image) const;
+
+    IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
+    ImageId m_imageId;
+    ImageMetadata m_imageMetadata;
+    IntrusivePtr<ProjectPages> const m_ptrPages;
+    IntrusivePtr<fix_orientation::Task> const m_ptrNextTask;
 };
 
 #endif

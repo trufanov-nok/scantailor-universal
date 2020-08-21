@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ class DebugImages;
 
 namespace imageproc
 {
-	class BinaryImage;
+class BinaryImage;
 }
 
 namespace dewarping
@@ -44,7 +44,7 @@ namespace dewarping
  *       or speckles, at least not outside of the content area.
  */
 std::pair<QLineF, QLineF> detectVertContentBounds(
-	imageproc::BinaryImage const& image, DebugImages* dbg);
+    imageproc::BinaryImage const& image, DebugImages* dbg);
 
 } // namespace dewarping
 

@@ -27,33 +27,33 @@
 class PolylineIntersector
 {
 public:
-	class Hint
-	{
-		friend class PolylineIntersector;
-	public:
-		Hint();
-	private:
-		void update(int new_segment);
+    class Hint
+    {
+        friend class PolylineIntersector;
+    public:
+        Hint();
+    private:
+        void update(int new_segment);
 
-		int m_lastSegment;
-		int m_direction;
-	};
-	
-	PolylineIntersector(std::vector<QPointF> const& polyline);
+        int m_lastSegment;
+        int m_direction;
+    };
 
-	QPointF intersect(QLineF const& line, Hint& hint) const;
+    PolylineIntersector(std::vector<QPointF> const& polyline);
+
+    QPointF intersect(QLineF const& line, Hint& hint) const;
 private:
-	bool intersectsSegment(QLineF const& normal, int segment) const;
+    bool intersectsSegment(QLineF const& normal, int segment) const;
 
-	bool intersectsSpan(QLineF const& normal, QLineF const& span) const;
+    bool intersectsSpan(QLineF const& normal, QLineF const& span) const;
 
-	QPointF intersectWithSegment(QLineF const& line, int segment) const;
+    QPointF intersectWithSegment(QLineF const& line, int segment) const;
 
-	bool tryIntersectingOutsideOfPolyline(
-		QLineF const& line, QPointF& intersection, Hint& hint) const;
+    bool tryIntersectingOutsideOfPolyline(
+        QLineF const& line, QPointF& intersection, Hint& hint) const;
 
-	std::vector<QPointF> m_polyline;
-	int m_numSegments;
+    std::vector<QPointF> m_polyline;
+    int m_numSegments;
 };
 
 #endif

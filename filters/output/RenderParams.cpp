@@ -25,46 +25,46 @@ namespace output
 {
 
 RenderParams::RenderParams(ColorParams const& cp)
-:	m_mask(0)
+    :   m_mask(0)
 {
-	switch (cp.colorMode()) {
-		case ColorParams::BLACK_AND_WHITE:
-			m_mask |= WHITE_MARGINS|NORMALIZE_ILLUMINATION
-					|NEED_BINARIZATION;
-			break;
+    switch (cp.colorMode()) {
+    case ColorParams::BLACK_AND_WHITE:
+        m_mask |= WHITE_MARGINS | NORMALIZE_ILLUMINATION
+                  | NEED_BINARIZATION;
+        break;
 
-        case ColorParams::MIXED: {
-            m_mask |= NEED_BINARIZATION|MIXED_OUTPUT;
+    case ColorParams::MIXED: {
+        m_mask |= NEED_BINARIZATION | MIXED_OUTPUT;
 
-            const ColorGrayscaleOptions& opt = cp.colorGrayscaleOptions();            
+        const ColorGrayscaleOptions& opt = cp.colorGrayscaleOptions();
 
-            if (opt.autoLayerEnabled()) {
-                m_mask |= AUTO_LAYER;
+        if (opt.autoLayerEnabled()) {
+            m_mask |= AUTO_LAYER;
+        }
+
+        if (opt.pictureZonesLayerEnabled()) {
+            m_mask |= PICTURE_ZONES_LAYER;
+        }
+
+        if (opt.foregroundLayerEnabled()) {
+            m_mask |= FOREGROUND_LAYER;
+        }
+    }
+
+    // MOTE: continue to COLOR_GRAYSCALE to get colorGrayscaleOptions
+
+    case ColorParams::COLOR_GRAYSCALE: {
+        ColorGrayscaleOptions const opt(
+            cp.colorGrayscaleOptions()
+        );
+        if (opt.whiteMargins()) {
+            m_mask |= WHITE_MARGINS;
+            if (opt.normalizeIllumination()) {
+                m_mask |= NORMALIZE_ILLUMINATION;
             }
-
-            if (opt.pictureZonesLayerEnabled()) {
-                m_mask |= PICTURE_ZONES_LAYER;
-            }
-
-            if (opt.foregroundLayerEnabled()) {
-                m_mask |= FOREGROUND_LAYER;
-            }
-            }
-
-            // MOTE: continue to COLOR_GRAYSCALE to get colorGrayscaleOptions
-
-		case ColorParams::COLOR_GRAYSCALE: {
-            ColorGrayscaleOptions const opt(
-                cp.colorGrayscaleOptions()
-            );
-			if (opt.whiteMargins()) {
-				m_mask |= WHITE_MARGINS;
-				if (opt.normalizeIllumination()) {
-					m_mask |= NORMALIZE_ILLUMINATION;
-				}
-			}
-			break;
-       }
+        }
+        break;
+    }
 
     }
 }

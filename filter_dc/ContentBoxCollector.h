@@ -27,9 +27,9 @@ class QRectF;
 class ContentBoxCollector : public AbstractFilterDataCollector
 {
 public:
-	virtual void process(
-		ImageTransformation const& xform,
-		QRectF const& content_rect) = 0;
+    virtual void process(
+        ImageTransformation const& xform,
+        QRectF const& content_rect) = 0;
 };
 
 #endif

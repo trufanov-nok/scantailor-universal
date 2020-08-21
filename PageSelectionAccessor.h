@@ -31,23 +31,23 @@ class PageSequence;
 
 class PageSelectionAccessor: public QObject
 {
-Q_OBJECT
-	// Member-wise copying is OK.
+    Q_OBJECT
+    // Member-wise copying is OK.
 public:
-    PageSelectionAccessor( const PageSelectionAccessor& src);
+    PageSelectionAccessor(const PageSelectionAccessor& src);
 
-	explicit PageSelectionAccessor(
-		IntrusivePtr<PageSelectionProvider const> const& provider);
-	
-	PageSequence allPages() const;
+    explicit PageSelectionAccessor(
+        IntrusivePtr<PageSelectionProvider const> const& provider);
 
-	std::set<PageId> selectedPages() const;
-	
-	std::vector<PageRange> selectedRanges() const;
+    PageSequence allPages() const;
+
+    std::set<PageId> selectedPages() const;
+
+    std::vector<PageRange> selectedRanges() const;
 signals:
     void toBeRemoved(const std::set<PageId> pages);
 private:
-	IntrusivePtr<PageSelectionProvider const> m_ptrProvider;
+    IntrusivePtr<PageSelectionProvider const> m_ptrProvider;
 };
 
 #endif

@@ -37,81 +37,81 @@ namespace page_layout
 {
 
 OptionsWidget::OptionsWidget(
-	IntrusivePtr<Settings> const& settings,
-	PageSelectionAccessor const& page_selection_accessor)
-:	m_ptrSettings(settings),
-	m_pageSelectionAccessor(page_selection_accessor),
-	m_mmToUnit(1.0),
-	m_unitToMM(1.0),
-	m_ignoreMarginChanges(0),
-	m_leftRightLinked(true),
-	m_topBottomLinked(true)
+    IntrusivePtr<Settings> const& settings,
+    PageSelectionAccessor const& page_selection_accessor)
+    :   m_ptrSettings(settings),
+        m_pageSelectionAccessor(page_selection_accessor),
+        m_mmToUnit(1.0),
+        m_unitToMM(1.0),
+        m_ignoreMarginChanges(0),
+        m_leftRightLinked(true),
+        m_topBottomLinked(true)
 {
 
     connect(&m_pageSelectionAccessor, &PageSelectionAccessor::toBeRemoved,
             this, &OptionsWidget::toBeRemoved, Qt::DirectConnection);
 
-	{
-		QSettings app_settings;
+    {
+        QSettings app_settings;
         m_leftRightLinked = app_settings.value(_key_margins_linked_hor, _key_margins_linked_hor_def).toBool();
         m_topBottomLinked = app_settings.value(_key_margins_linked_ver, _key_margins_linked_ver_def).toBool();
-	}
+    }
 
-	m_chainIcon.addPixmap(
-		QPixmap(QLatin1String(":/icons/stock-vchain-24.png"))
-	);
-	m_brokenChainIcon.addPixmap(
-		QPixmap(QLatin1String(":/icons/stock-vchain-broken-24.png"))
-	);
-	
-	setupUi(this);
-	updateLinkDisplay(topBottomLink, m_topBottomLinked);
-	updateLinkDisplay(leftRightLink, m_leftRightLinked);
-	
-	connect(
-		unitsComboBox, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(unitsChanged(int))
-	);
-	connect(
-		topMarginSpinBox, SIGNAL(valueChanged(double)),
-		this, SLOT(vertMarginsChanged(double))
-	);
-	connect(
-		bottomMarginSpinBox, SIGNAL(valueChanged(double)),
-		this, SLOT(vertMarginsChanged(double))
-	);
-	connect(
-		leftMarginSpinBox, SIGNAL(valueChanged(double)),
-		this, SLOT(horMarginsChanged(double))
-	);
-	connect(
-		rightMarginSpinBox, SIGNAL(valueChanged(double)),
-		this, SLOT(horMarginsChanged(double))
-	);
-	connect(
-		autoMargins, SIGNAL(toggled(bool)),
-		this, SLOT(autoMarginsChanged(bool))
-	);
-	connect(
-		topBottomLink, SIGNAL(clicked()),
-		this, SLOT(topBottomLinkClicked())
-	);
-	connect(
-		leftRightLink, SIGNAL(clicked()),
-		this, SLOT(leftRightLinkClicked())
-	);
-	connect(
+    m_chainIcon.addPixmap(
+        QPixmap(QLatin1String(":/icons/stock-vchain-24.png"))
+    );
+    m_brokenChainIcon.addPixmap(
+        QPixmap(QLatin1String(":/icons/stock-vchain-broken-24.png"))
+    );
+
+    setupUi(this);
+    updateLinkDisplay(topBottomLink, m_topBottomLinked);
+    updateLinkDisplay(leftRightLink, m_leftRightLinked);
+
+    connect(
+        unitsComboBox, SIGNAL(currentIndexChanged(int)),
+        this, SLOT(unitsChanged(int))
+    );
+    connect(
+        topMarginSpinBox, SIGNAL(valueChanged(double)),
+        this, SLOT(vertMarginsChanged(double))
+    );
+    connect(
+        bottomMarginSpinBox, SIGNAL(valueChanged(double)),
+        this, SLOT(vertMarginsChanged(double))
+    );
+    connect(
+        leftMarginSpinBox, SIGNAL(valueChanged(double)),
+        this, SLOT(horMarginsChanged(double))
+    );
+    connect(
+        rightMarginSpinBox, SIGNAL(valueChanged(double)),
+        this, SLOT(horMarginsChanged(double))
+    );
+    connect(
+        autoMargins, SIGNAL(toggled(bool)),
+        this, SLOT(autoMarginsChanged(bool))
+    );
+    connect(
+        topBottomLink, SIGNAL(clicked()),
+        this, SLOT(topBottomLinkClicked())
+    );
+    connect(
+        leftRightLink, SIGNAL(clicked()),
+        this, SLOT(leftRightLinkClicked())
+    );
+    connect(
         applyMarginsBtn, SIGNAL(clicked()),
-		this, SLOT(showApplyMarginsDialog())
-	);
-	connect(
-		applyAlignmentBtn, SIGNAL(clicked()),
-		this, SLOT(showApplyAlignmentDialog())
-	);
+        this, SLOT(showApplyMarginsDialog())
+    );
+    connect(
+        applyAlignmentBtn, SIGNAL(clicked()),
+        this, SLOT(showApplyAlignmentDialog())
+    );
 
-   unitsComboBox->setCurrentIndex(QSettings().value(_key_margins_default_units, _key_margins_default_units_def).toUInt());
+    unitsComboBox->setCurrentIndex(QSettings().value(_key_margins_default_units, _key_margins_default_units_def).toUInt());
 
-   connect(widgetAlignment, &AlignmentWidget::alignmentChanged, this, &OptionsWidget::alignmentChangedExt);
+    connect(widgetAlignment, &AlignmentWidget::alignmentChanged, this, &OptionsWidget::alignmentChangedExt);
 }
 
 OptionsWidget::~OptionsWidget()
@@ -122,14 +122,14 @@ void
 OptionsWidget::preUpdateUI(
     PageId const& page_id, MarginsWithAuto const& margins_mm, Alignment const& alignment)
 {
-	m_pageId = page_id;
-	m_marginsMM = margins_mm;
-	m_alignment = alignment;
+    m_pageId = page_id;
+    m_marginsMM = margins_mm;
+    m_alignment = alignment;
 
-	bool old_ignore = m_ignoreMarginChanges;
-	m_ignoreMarginChanges = true;
-	
-	updateMarginsDisplay();
+    bool old_ignore = m_ignoreMarginChanges;
+    m_ignoreMarginChanges = true;
+
+    updateMarginsDisplay();
 
     m_ignoreMarginChanges = old_ignore;
 
@@ -146,23 +146,23 @@ OptionsWidget::preUpdateUI(
     widgetAlignment->setAlignment(&m_alignment);
 
     displayAlignmentText();
-	
-	m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
-	m_topBottomLinked = m_topBottomLinked && (margins_mm.top() == margins_mm.bottom());
-	updateLinkDisplay(topBottomLink, m_topBottomLinked);
-	updateLinkDisplay(leftRightLink, m_leftRightLinked);
-	
-	marginsGroup->setEnabled(false);
-	alignmentGroup->setEnabled(false);
 
-	m_ignoreMarginChanges = old_ignore;
+    m_leftRightLinked = m_leftRightLinked && (margins_mm.left() == margins_mm.right());
+    m_topBottomLinked = m_topBottomLinked && (margins_mm.top() == margins_mm.bottom());
+    updateLinkDisplay(topBottomLink, m_topBottomLinked);
+    updateLinkDisplay(leftRightLink, m_leftRightLinked);
+
+    marginsGroup->setEnabled(false);
+    alignmentGroup->setEnabled(false);
+
+    m_ignoreMarginChanges = old_ignore;
 }
 
 void
 OptionsWidget::postUpdateUI()
 {
-	marginsGroup->setEnabled(true);
-	alignmentGroup->setEnabled(true);
+    marginsGroup->setEnabled(true);
+    alignmentGroup->setEnabled(true);
 }
 
 void
@@ -182,95 +182,95 @@ OptionsWidget::unitsChanged(int const idx)
 {
     ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
 
-	int decimals = 0;
-	double step = 0.0;
-	
-	if (idx == 0) { // mm
-		m_mmToUnit = 1.0;
-		m_unitToMM = 1.0;
-		decimals = 1;
-		step = 1.0;
-	} else { // in
-		m_mmToUnit = MM2INCH;
-		m_unitToMM = INCH2MM;
-		decimals = 2;
-		step = 0.01;
-	}
-	
-	topMarginSpinBox->setDecimals(decimals);
-	topMarginSpinBox->setSingleStep(step);
-	bottomMarginSpinBox->setDecimals(decimals);
-	bottomMarginSpinBox->setSingleStep(step);
-	leftMarginSpinBox->setDecimals(decimals);
-	leftMarginSpinBox->setSingleStep(step);
-	rightMarginSpinBox->setDecimals(decimals);
-	rightMarginSpinBox->setSingleStep(step);
-	
-	updateMarginsDisplay();
+    int decimals = 0;
+    double step = 0.0;
+
+    if (idx == 0) { // mm
+        m_mmToUnit = 1.0;
+        m_unitToMM = 1.0;
+        decimals = 1;
+        step = 1.0;
+    } else { // in
+        m_mmToUnit = MM2INCH;
+        m_unitToMM = INCH2MM;
+        decimals = 2;
+        step = 0.01;
+    }
+
+    topMarginSpinBox->setDecimals(decimals);
+    topMarginSpinBox->setSingleStep(step);
+    bottomMarginSpinBox->setDecimals(decimals);
+    bottomMarginSpinBox->setSingleStep(step);
+    leftMarginSpinBox->setDecimals(decimals);
+    leftMarginSpinBox->setSingleStep(step);
+    rightMarginSpinBox->setDecimals(decimals);
+    rightMarginSpinBox->setSingleStep(step);
+
+    updateMarginsDisplay();
 }
 
 void
 OptionsWidget::horMarginsChanged(double const val)
 {
-	if (m_ignoreMarginChanges) {
-		return;
-	}
-	
-    if (m_leftRightLinked  && !m_marginsMM.isAutoMarginsEnabled()) {
-		ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
-		leftMarginSpinBox->setValue(val);
-		rightMarginSpinBox->setValue(val);
-	}
+    if (m_ignoreMarginChanges) {
+        return;
+    }
 
-	m_marginsMM.setLeft(leftMarginSpinBox->value() * m_unitToMM);
-	m_marginsMM.setRight(rightMarginSpinBox->value() * m_unitToMM);
-	
+    if (m_leftRightLinked  && !m_marginsMM.isAutoMarginsEnabled()) {
+        ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
+        leftMarginSpinBox->setValue(val);
+        rightMarginSpinBox->setValue(val);
+    }
+
+    m_marginsMM.setLeft(leftMarginSpinBox->value() * m_unitToMM);
+    m_marginsMM.setRight(rightMarginSpinBox->value() * m_unitToMM);
+
     emit marginsSetLocally(static_cast<Margins>(m_marginsMM));
 }
 
 void
 OptionsWidget::vertMarginsChanged(double const val)
 {
-	if (m_ignoreMarginChanges) {
-		return;
-	}
-	
+    if (m_ignoreMarginChanges) {
+        return;
+    }
+
     if (m_topBottomLinked && !m_marginsMM.isAutoMarginsEnabled()) {
-		ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
-		topMarginSpinBox->setValue(val);
-		bottomMarginSpinBox->setValue(val);
-	}
-	
-	m_marginsMM.setTop(topMarginSpinBox->value() * m_unitToMM);
-	m_marginsMM.setBottom(bottomMarginSpinBox->value() * m_unitToMM);
-	
+        ScopedIncDec<int> const ingore_scope(m_ignoreMarginChanges);
+        topMarginSpinBox->setValue(val);
+        bottomMarginSpinBox->setValue(val);
+    }
+
+    m_marginsMM.setTop(topMarginSpinBox->value() * m_unitToMM);
+    m_marginsMM.setBottom(bottomMarginSpinBox->value() * m_unitToMM);
+
     emit marginsSetLocally(static_cast<Margins>(m_marginsMM));
 }
 
 void
 OptionsWidget::topBottomLinkClicked()
 {
-	m_topBottomLinked = !m_topBottomLinked;
+    m_topBottomLinked = !m_topBottomLinked;
     QSettings().setValue(_key_margins_linked_ver, m_topBottomLinked);
-	updateLinkDisplay(topBottomLink, m_topBottomLinked);
-	topBottomLinkToggled(m_topBottomLinked);
+    updateLinkDisplay(topBottomLink, m_topBottomLinked);
+    topBottomLinkToggled(m_topBottomLinked);
 }
 
 void
 OptionsWidget::leftRightLinkClicked()
 {
-	m_leftRightLinked = !m_leftRightLinked;
+    m_leftRightLinked = !m_leftRightLinked;
     QSettings().setValue(_key_margins_linked_hor, m_leftRightLinked);
-	updateLinkDisplay(leftRightLink, m_leftRightLinked);
-	leftRightLinkToggled(m_leftRightLinked);
+    updateLinkDisplay(leftRightLink, m_leftRightLinked);
+    leftRightLinkToggled(m_leftRightLinked);
 }
 
 void
 OptionsWidget::autoMarginsChanged(bool checked)
 {
-	if (m_ignoreMarginChanges) {
-		return;
-	}
+    if (m_ignoreMarginChanges) {
+        return;
+    }
 
     m_marginsMM.setAutoMargins(checked);
     m_ptrSettings->setHardMarginsMM(m_pageId, m_marginsMM);
@@ -284,9 +284,9 @@ OptionsWidget::autoMarginsChanged(bool checked)
 
 void
 OptionsWidget::alignmentChangedExt()
-{	
+{
     displayAlignmentText();
-	emit alignmentChanged(m_alignment);
+    emit alignmentChanged(m_alignment);
 }
 
 void
@@ -297,11 +297,11 @@ OptionsWidget::showApplyDialog(const ApplySettingsWidget::DialogType dlgType)
     );
 
     dialog->setWindowTitle((dlgType == ApplySettingsWidget::Margins) ?
-                               tr("Apply Margins") :
-                               tr("Apply Alignment"));
+                           tr("Apply Margins") :
+                           tr("Apply Alignment"));
 
     ApplySettingsWidget* options = new ApplySettingsWidget(dialog, dlgType,
-                                                           m_marginsMM.isAutoMarginsEnabled());
+            m_marginsMM.isAutoMarginsEnabled());
     const bool empty_options = options->isEmpty();
     if (!empty_options) {
         QLayout& l = dialog->initNewLeftSettingsPanel();
@@ -312,7 +312,7 @@ OptionsWidget::showApplyDialog(const ApplySettingsWidget::DialogType dlgType)
 
     connect(
         dialog, &ApplyToDialog::accepted,
-                this, [=]() {
+    this, [ = ]() {
 
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
@@ -347,26 +347,26 @@ OptionsWidget::showApplyAlignmentDialog()
 void
 OptionsWidget::applyMargins(ApplySettingsWidget::MarginsApplyType const type, std::set<PageId> const& pages)
 {
-	if (pages.empty()) {
-		return;
-	}
-	
+    if (pages.empty()) {
+        return;
+    }
+
     if (!QSettings().value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool()) {
-        for (PageId const& page_id: pages) {
+        for (PageId const& page_id : pages) {
             m_ptrSettings->setHardMarginsMM(page_id, m_marginsMM);
         }
     } else if (type == ApplySettingsWidget::MarginsValues) {
         const Margins& val = static_cast<Margins&>(m_marginsMM);
-        for (PageId const& page_id: pages) {
+        for (PageId const& page_id : pages) {
             MarginsWithAuto mh =  m_ptrSettings->getHardMarginsMM(page_id);
-            if (!mh.isAutoMarginsEnabled()){
+            if (!mh.isAutoMarginsEnabled()) {
                 static_cast<Margins&>(mh) = val;
                 m_ptrSettings->setHardMarginsMM(page_id, mh);
             }
         }
     } else { //type == ApplyDialog::AutoMarginState
         const bool val = m_marginsMM.isAutoMarginsEnabled();
-        for (PageId const& page_id: pages) {
+        for (PageId const& page_id : pages) {
             MarginsWithAuto mh =  m_ptrSettings->getHardMarginsMM(page_id);
             if (mh.isAutoMarginsEnabled() != val) {
                 mh.setAutoMargins(val);
@@ -375,34 +375,33 @@ OptionsWidget::applyMargins(ApplySettingsWidget::MarginsApplyType const type, st
         }
     }
 
-	
-	emit aggregateHardSizeChanged();
-	emit invalidateAllThumbnails();
+    emit aggregateHardSizeChanged();
+    emit invalidateAllThumbnails();
 }
 
 void
 OptionsWidget::applyAlignment(std::set<PageId> const& pages)
 {
-	if (pages.empty()) {
-		return;
-	}
-	
-	for (PageId const& page_id: pages) {
-		m_ptrSettings->setPageAlignment(page_id, m_alignment);
-	}
-	
-	emit invalidateAllThumbnails();
+    if (pages.empty()) {
+        return;
+    }
+
+    for (PageId const& page_id : pages) {
+        m_ptrSettings->setPageAlignment(page_id, m_alignment);
+    }
+
+    emit invalidateAllThumbnails();
 }
 
 void
 OptionsWidget::updateMarginsDisplay()
 {
-	ScopedIncDec<int> const ignore_scope(m_ignoreMarginChanges);
-	
-	topMarginSpinBox->setValue(m_marginsMM.top() * m_mmToUnit);
-	bottomMarginSpinBox->setValue(m_marginsMM.bottom() * m_mmToUnit);
-	leftMarginSpinBox->setValue(m_marginsMM.left() * m_mmToUnit);
-	rightMarginSpinBox->setValue(m_marginsMM.right() * m_mmToUnit);
+    ScopedIncDec<int> const ignore_scope(m_ignoreMarginChanges);
+
+    topMarginSpinBox->setValue(m_marginsMM.top() * m_mmToUnit);
+    bottomMarginSpinBox->setValue(m_marginsMM.bottom() * m_mmToUnit);
+    leftMarginSpinBox->setValue(m_marginsMM.left() * m_mmToUnit);
+    rightMarginSpinBox->setValue(m_marginsMM.right() * m_mmToUnit);
 
     panelMarginsControls->setEnabled(!m_marginsMM.isAutoMarginsEnabled());
     autoMargins->setChecked(m_marginsMM.isAutoMarginsEnabled());
@@ -411,7 +410,7 @@ OptionsWidget::updateMarginsDisplay()
 void
 OptionsWidget::updateLinkDisplay(QToolButton* button, bool const linked)
 {
-	button->setIcon(linked ? m_chainIcon : m_brokenChainIcon);
+    button->setIcon(linked ? m_chainIcon : m_brokenChainIcon);
 }
 
 void OptionsWidget::displayAlignmentText()
@@ -420,7 +419,7 @@ void OptionsWidget::displayAlignmentText()
     if (res.isEmpty()) {
         lblCurrentAlignment->setText(tr("No alignment needed."));
         return;
-    }   
+    }
 
     res = tr("Alignment: %1").arg(res);
     lblCurrentAlignment->setText(res);

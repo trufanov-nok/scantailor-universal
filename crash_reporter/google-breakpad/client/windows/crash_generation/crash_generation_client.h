@@ -37,7 +37,8 @@
 #include "client/windows/common/ipc_protocol.h"
 #include "processor/scoped_ptr.h"
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 struct CustomClientInfo;
 
@@ -60,98 +61,99 @@ struct CustomClientInfo;
 // this class to set the unhandled exception filter with the
 // system by calling the SetUnhandledExceptionFilter function
 // and the client code should explicitly request dump generation.
-class CrashGenerationClient {
- public:
-  CrashGenerationClient(const wchar_t* pipe_name,
-                        MINIDUMP_TYPE dump_type,
-                        const CustomClientInfo* custom_info);
+class CrashGenerationClient
+{
+public:
+    CrashGenerationClient(const wchar_t* pipe_name,
+                          MINIDUMP_TYPE dump_type,
+                          const CustomClientInfo* custom_info);
 
-  ~CrashGenerationClient();
+    ~CrashGenerationClient();
 
-  // Registers the client process with the crash server.
-  //
-  // Returns true if the registration is successful; false otherwise.
-  bool Register();
+    // Registers the client process with the crash server.
+    //
+    // Returns true if the registration is successful; false otherwise.
+    bool Register();
 
-  // Requests the crash server to generate a dump with the given
-  // exception information.
-  //
-  // Returns true if the dump was successful; false otherwise. Note that
-  // if the registration step was not performed or it was not successful,
-  // false will be returned.
-  bool RequestDump(EXCEPTION_POINTERS* ex_info);
+    // Requests the crash server to generate a dump with the given
+    // exception information.
+    //
+    // Returns true if the dump was successful; false otherwise. Note that
+    // if the registration step was not performed or it was not successful,
+    // false will be returned.
+    bool RequestDump(EXCEPTION_POINTERS* ex_info);
 
-  // Requests the crash server to generate a dump with the given
-  // assertion information.
-  //
-  // Returns true if the dump was successful; false otherwise. Note that
-  // if the registration step was not performed or it was not successful,
-  // false will be returned.
-  bool RequestDump(MDRawAssertionInfo* assert_info);
+    // Requests the crash server to generate a dump with the given
+    // assertion information.
+    //
+    // Returns true if the dump was successful; false otherwise. Note that
+    // if the registration step was not performed or it was not successful,
+    // false will be returned.
+    bool RequestDump(MDRawAssertionInfo* assert_info);
 
- private:
-  // Connects to the appropriate pipe and sets the pipe handle state.
-  //
-  // Returns the pipe handle if everything goes well; otherwise Returns nullptr.
-  HANDLE ConnectToServer();
+private:
+    // Connects to the appropriate pipe and sets the pipe handle state.
+    //
+    // Returns the pipe handle if everything goes well; otherwise Returns nullptr.
+    HANDLE ConnectToServer();
 
-  // Performs a handshake with the server over the given pipe which should be
-  // already connected to the server.
-  //
-  // Returns true if handshake with the server was successful; false otherwise.
-  bool RegisterClient(HANDLE pipe);
+    // Performs a handshake with the server over the given pipe which should be
+    // already connected to the server.
+    //
+    // Returns true if handshake with the server was successful; false otherwise.
+    bool RegisterClient(HANDLE pipe);
 
-  // Validates the given server response.
-  bool ValidateResponse(const ProtocolMessage& msg) const;
+    // Validates the given server response.
+    bool ValidateResponse(const ProtocolMessage& msg) const;
 
-  // Returns true if the registration step succeeded; false otherwise.
-  bool IsRegistered() const;
+    // Returns true if the registration step succeeded; false otherwise.
+    bool IsRegistered() const;
 
-  // Connects to the given named pipe with given parameters.
-  //
-  // Returns true if the connection is successful; false otherwise.
-  HANDLE ConnectToPipe(const wchar_t* pipe_name,
-                       DWORD pipe_access,
-                       DWORD flags_attrs);
+    // Connects to the given named pipe with given parameters.
+    //
+    // Returns true if the connection is successful; false otherwise.
+    HANDLE ConnectToPipe(const wchar_t* pipe_name,
+                         DWORD pipe_access,
+                         DWORD flags_attrs);
 
-  // Signals the crash event and wait for the server to generate crash.
-  bool SignalCrashEventAndWait();
+    // Signals the crash event and wait for the server to generate crash.
+    bool SignalCrashEventAndWait();
 
-  // Pipe name to use to talk to server.
-  std::wstring pipe_name_;
+    // Pipe name to use to talk to server.
+    std::wstring pipe_name_;
 
-  // Custom client information
-  CustomClientInfo custom_info_;
+    // Custom client information
+    CustomClientInfo custom_info_;
 
-  // Type of dump to generate.
-  MINIDUMP_TYPE dump_type_;
+    // Type of dump to generate.
+    MINIDUMP_TYPE dump_type_;
 
-  // Event to signal in case of a crash.
-  HANDLE crash_event_;
+    // Event to signal in case of a crash.
+    HANDLE crash_event_;
 
-  // Handle to wait on after signaling a crash for the server
-  // to finish generating crash dump.
-  HANDLE crash_generated_;
+    // Handle to wait on after signaling a crash for the server
+    // to finish generating crash dump.
+    HANDLE crash_generated_;
 
-  // Handle to a mutex that will become signaled with WAIT_ABANDONED
-  // if the server process goes down.
-  HANDLE server_alive_;
+    // Handle to a mutex that will become signaled with WAIT_ABANDONED
+    // if the server process goes down.
+    HANDLE server_alive_;
 
-  // Server process id.
-  DWORD server_process_id_;
+    // Server process id.
+    DWORD server_process_id_;
 
-  // Id of the thread that caused the crash.
-  DWORD thread_id_;
+    // Id of the thread that caused the crash.
+    DWORD thread_id_;
 
-  // Exception pointers for an exception crash.
-  EXCEPTION_POINTERS* exception_pointers_;
+    // Exception pointers for an exception crash.
+    EXCEPTION_POINTERS* exception_pointers_;
 
-  // Assertion info for an invalid parameter or pure call crash.
-  MDRawAssertionInfo assert_info_;
+    // Assertion info for an invalid parameter or pure call crash.
+    MDRawAssertionInfo assert_info_;
 
-  // Disable copy ctor and operator=.
-  CrashGenerationClient(const CrashGenerationClient& crash_client);
-  CrashGenerationClient& operator=(const CrashGenerationClient& crash_client);
+    // Disable copy ctor and operator=.
+    CrashGenerationClient(const CrashGenerationClient& crash_client);
+    CrashGenerationClient& operator=(const CrashGenerationClient& crash_client);
 };
 
 }  // namespace google_breakpad

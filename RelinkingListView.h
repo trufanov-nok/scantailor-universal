@@ -28,20 +28,20 @@ class QModelIndex;
 class RelinkingListView : public QListView
 {
 public:
-	RelinkingListView(QWidget* parent = 0);
+    RelinkingListView(QWidget* parent = 0);
 protected:
-	virtual void paintEvent(QPaintEvent* e);
+    virtual void paintEvent(QPaintEvent* e);
 private:
-	class Delegate;
-	class IndicationGroup;
-	class GroupAggregator;
+    class Delegate;
+    class IndicationGroup;
+    class GroupAggregator;
 
-	void maybeDrawStatusLayer(QPainter* painter,
-		QModelIndex const& item_index, QRect const& item_paint_rect);
+    void maybeDrawStatusLayer(QPainter* painter,
+                              QModelIndex const& item_index, QRect const& item_paint_rect);
 
-	void drawStatusLayer(QPainter* painter);
+    void drawStatusLayer(QPainter* painter);
 
-	bool m_statusLayerDrawn;
+    bool m_statusLayerDrawn;
 };
 
 #endif

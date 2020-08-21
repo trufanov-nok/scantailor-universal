@@ -28,56 +28,59 @@ class StageSequence;
 
 class StageListView : public QTableView
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	StageListView(QWidget* parent);
-	
-	virtual ~StageListView();
-	
-	void setStages(IntrusivePtr<StageSequence> const& stages);
-	
-	virtual QSize sizeHint() const { return m_sizeHint; }
+    StageListView(QWidget* parent);
+
+    virtual ~StageListView();
+
+    void setStages(IntrusivePtr<StageSequence> const& stages);
+
+    virtual QSize sizeHint() const
+    {
+        return m_sizeHint;
+    }
 signals:
-	void launchBatchProcessing();
+    void launchBatchProcessing();
 public slots:
-	void setBatchProcessingPossible(bool possible);
-	
-	void setBatchProcessingInProgress(bool in_progress);
+    void setBatchProcessingPossible(bool possible);
+
+    void setBatchProcessingInProgress(bool in_progress);
 protected slots:
-	virtual void selectionChanged(
-		QItemSelection const& selected,
-		QItemSelection const& deselected);
+    virtual void selectionChanged(
+        QItemSelection const& selected,
+        QItemSelection const& deselected);
 private slots:
-	void ensureSelectedRowVisible();
+    void ensureSelectedRowVisible();
 protected:
-	virtual void timerEvent(QTimerEvent* event);
+    virtual void timerEvent(QTimerEvent* event);
 private:
-	class Model;
-	class LeftColDelegate;
-	class RightColDelegate;
-	
-	void removeLaunchButton(int row);
-	
-	void placeLaunchButton(int row);
-	
-	void initiateBatchAnimationFrameRendering();
-	
-	void createBatchAnimationSequence(int square_side);
-	
-	void updateRowSpans();
-	
-	int selectedRow() const;
-	
-	QSize m_sizeHint;
-	Model* m_pModel;
-	LeftColDelegate* m_pFirstColDelegate;
-	RightColDelegate* m_pSecondColDelegate;
-	QWidget* m_pLaunchBtn;
-	std::vector<QPixmap> m_batchAnimationPixmaps;
-	int m_curBatchAnimationFrame;
-	int m_timerId;
-	bool m_batchProcessingPossible;
-	bool m_batchProcessingInProgress;
+    class Model;
+    class LeftColDelegate;
+    class RightColDelegate;
+
+    void removeLaunchButton(int row);
+
+    void placeLaunchButton(int row);
+
+    void initiateBatchAnimationFrameRendering();
+
+    void createBatchAnimationSequence(int square_side);
+
+    void updateRowSpans();
+
+    int selectedRow() const;
+
+    QSize m_sizeHint;
+    Model* m_pModel;
+    LeftColDelegate* m_pFirstColDelegate;
+    RightColDelegate* m_pSecondColDelegate;
+    QWidget* m_pLaunchBtn;
+    std::vector<QPixmap> m_batchAnimationPixmaps;
+    int m_curBatchAnimationFrame;
+    int m_timerId;
+    bool m_batchProcessingPossible;
+    bool m_batchProcessingInProgress;
 };
 
 #endif

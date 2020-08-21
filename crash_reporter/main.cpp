@@ -25,37 +25,37 @@
 
 int main(int argc, char** argv)
 {
-	QApplication app(argc, argv);
-	
-	QString const translation("crashreporter_"+QLocale::system().name());
-	QTranslator translator;
-	
-	// Try loading from the current directory.
-	if (!translator.load(translation)) {
-		// Now try loading from where it's supposed to be.
-		QString path(QString::fromUtf8(TRANSLATIONS_DIR_ABS));
-		path += QChar('/');
-		path += translation;
-		if (!translator.load(path)) {
-			path = QString::fromUtf8(TRANSLATIONS_DIR_REL);
-			path += QChar('/');
-			path += translation;
-			translator.load(path);
-		}
-	}
-	
-	app.installTranslator(&translator);
-	
-	// Note that we use app.arguments() rather than argv,
-	// because the former is Unicode-safe under Windows.
-	QStringList const args(app.arguments());
-	if (args.size() < 3) {
-		return 1;
-	}
-	
-	CrashReportDialog* dialog = new CrashReportDialog(args[1], args[2]);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->show();
+    QApplication app(argc, argv);
 
-	return app.exec();
+    QString const translation("crashreporter_" + QLocale::system().name());
+    QTranslator translator;
+
+    // Try loading from the current directory.
+    if (!translator.load(translation)) {
+        // Now try loading from where it's supposed to be.
+        QString path(QString::fromUtf8(TRANSLATIONS_DIR_ABS));
+        path += QChar('/');
+        path += translation;
+        if (!translator.load(path)) {
+            path = QString::fromUtf8(TRANSLATIONS_DIR_REL);
+            path += QChar('/');
+            path += translation;
+            translator.load(path);
+        }
+    }
+
+    app.installTranslator(&translator);
+
+    // Note that we use app.arguments() rather than argv,
+    // because the former is Unicode-safe under Windows.
+    QStringList const args(app.arguments());
+    if (args.size() < 3) {
+        return 1;
+    }
+
+    CrashReportDialog* dialog = new CrashReportDialog(args[1], args[2]);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+
+    return app.exec();
 }

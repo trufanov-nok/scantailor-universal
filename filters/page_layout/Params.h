@@ -34,32 +34,50 @@ namespace page_layout
 
 class Params: public RegenParams
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
     Params(MarginsWithAuto const& hard_margins_mm, QRectF const& page_rect, QRectF const& content_rect,
-		QSizeF const& content_size_mm, Alignment const& alignment);
-	
-	Params(QDomElement const& el);
-	
-    MarginsWithAuto const& hardMarginsMM() const { return m_hardMarginsMM; }
-	
-	QRectF const& contentRect() const { return m_contentRect; }
+           QSizeF const& content_size_mm, Alignment const& alignment);
 
-	QRectF const& pageRect() const { return m_pageRect; }
+    Params(QDomElement const& el);
 
-	QSizeF const& contentSizeMM() const { return m_contentSizeMM; }
-	
-	Alignment const& alignment() const { return m_alignment; }
+    MarginsWithAuto const& hardMarginsMM() const
+    {
+        return m_hardMarginsMM;
+    }
 
-	bool isDeviant() const { return m_alignment.isNull(); }
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
+    QRectF const& contentRect() const
+    {
+        return m_contentRect;
+    }
+
+    QRectF const& pageRect() const
+    {
+        return m_pageRect;
+    }
+
+    QSizeF const& contentSizeMM() const
+    {
+        return m_contentSizeMM;
+    }
+
+    Alignment const& alignment() const
+    {
+        return m_alignment;
+    }
+
+    bool isDeviant() const
+    {
+        return m_alignment.isNull();
+    }
+
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
     MarginsWithAuto m_hardMarginsMM;
     QRectF m_pageRect;
-	QRectF m_contentRect;
-	QSizeF m_contentSizeMM;
-	Alignment m_alignment;
+    QRectF m_contentRect;
+    QSizeF m_contentSizeMM;
+    Alignment m_alignment;
 };
 
 } // namespace page_layout

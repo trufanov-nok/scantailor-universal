@@ -25,13 +25,19 @@ template<typename T>
 class PayloadEvent : public QEvent
 {
 public:
-	PayloadEvent(T const& payload) : QEvent(User), m_payload(payload) {}
-	
-	T const& payload() const { return m_payload; }
-	
-	T& payload() { return m_payload; } 
+    PayloadEvent(T const& payload) : QEvent(User), m_payload(payload) {}
+
+    T const& payload() const
+    {
+        return m_payload;
+    }
+
+    T& payload()
+    {
+        return m_payload;
+    }
 private:
-	T m_payload;
+    T m_payload;
 };
 
 #endif

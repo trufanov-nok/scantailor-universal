@@ -29,15 +29,15 @@ namespace page_layout
 class OrderByHeightProvider : public PageOrderProvider
 {
 public:
-	OrderByHeightProvider(IntrusivePtr<Settings> const& settings);
+    OrderByHeightProvider(IntrusivePtr<Settings> const& settings);
 
-	virtual bool precedes(
-		PageId const& lhs_page, bool lhs_incomplete,
-		PageId const& rhs_page, bool rhs_incomplete) const;
+    virtual bool precedes(
+        PageId const& lhs_page, bool lhs_incomplete,
+        PageId const& rhs_page, bool rhs_incomplete) const;
 
     virtual QString hint(PageId const& page) const;
 private:
-	IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<Settings> m_ptrSettings;
 };
 
 } // namespace page_layout

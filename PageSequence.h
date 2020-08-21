@@ -26,14 +26,17 @@
 
 class PageSequence
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	void append(PageInfo const& page_info);
-	
-	size_t numPages() const { return m_pages.size(); }
+    void append(PageInfo const& page_info);
+
+    size_t numPages() const
+    {
+        return m_pages.size();
+    }
 
     PageInfo const& pageAt(PageId page) const;
-	
+
     PageInfo const& pageAt(size_t idx) const;
 
     int pageNo(PageId const& page) const;
@@ -42,15 +45,27 @@ public:
 
     std::vector<PageId> asPageIdVector() const;
 
-//	std::set<PageId> selectPagePlusFollowers(PageId const& page) const;
+//  std::set<PageId> selectPagePlusFollowers(PageId const& page) const;
 
-//	std::set<PageId> selectEveryOther(PageId const& base) const;
+//  std::set<PageId> selectEveryOther(PageId const& base) const;
 
     // reqquired for range-based for iteration
-    std::vector<PageInfo>::iterator begin() {return m_pages.begin(); }
-    std::vector<PageInfo>::iterator end() {return m_pages.end(); }
-    std::vector<PageInfo>::const_iterator begin() const {return m_pages.cbegin(); }
-    std::vector<PageInfo>::const_iterator end() const {return m_pages.cend(); }
+    std::vector<PageInfo>::iterator begin()
+    {
+        return m_pages.begin();
+    }
+    std::vector<PageInfo>::iterator end()
+    {
+        return m_pages.end();
+    }
+    std::vector<PageInfo>::const_iterator begin() const
+    {
+        return m_pages.cbegin();
+    }
+    std::vector<PageInfo>::const_iterator end() const
+    {
+        return m_pages.cend();
+    }
 private:
     std::vector<PageInfo> m_pages;
 };

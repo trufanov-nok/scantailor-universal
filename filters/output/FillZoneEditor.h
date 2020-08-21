@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef OUTPUT_FILL_ZONE_EDITOR_H_
 #define OUTPUT_FILL_ZONE_EDITOR_H_
 
@@ -47,59 +46,58 @@ namespace output
 
 class Settings;
 
-
 class FillZoneEditor : public ImageViewBase, private InteractionHandler
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	FillZoneEditor(
-		QImage const& image, ImagePixmapUnion const& downscaled_version,
-		boost::function<QPointF(QPointF const&)> const& orig_to_image,
-		boost::function<QPointF(QPointF const&)> const& image_to_orig,
-		PageId const& page_id, IntrusivePtr<Settings> const& settings);
-	
-	virtual ~FillZoneEditor();
+    FillZoneEditor(
+        QImage const& image, ImagePixmapUnion const& downscaled_version,
+        boost::function<QPointF(QPointF const&)> const& orig_to_image,
+        boost::function<QPointF(QPointF const&)> const& image_to_orig,
+        PageId const& page_id, IntrusivePtr<Settings> const& settings);
+
+    virtual ~FillZoneEditor();
 signals:
-	void invalidateThumbnail(PageId const& page_id);
+    void invalidateThumbnail(PageId const& page_id);
 protected:
-	virtual void onPaint(QPainter& painter, InteractionState const& interaction);
+    virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 private slots:
-	void commitZones();
+    void commitZones();
 
-	void updateRequested();
+    void updateRequested();
 private:
-	class MenuCustomizer;
+    class MenuCustomizer;
 
-	typedef QColor (*ColorAdapter)(QColor const&);
+    typedef QColor(*ColorAdapter)(QColor const&);
 
-	InteractionHandler* createContextMenuInteraction(InteractionState& interaction);
+    InteractionHandler* createContextMenuInteraction(InteractionState& interaction);
 
-	InteractionHandler* createColorPickupInteraction(
-		EditableZoneSet::Zone const& zone, InteractionState& interaction);
+    InteractionHandler* createColorPickupInteraction(
+        EditableZoneSet::Zone const& zone, InteractionState& interaction);
 
-	static QColor toOpaque(QColor const& color);
+    static QColor toOpaque(QColor const& color);
 
-	static QColor toGrayscale(QColor const& color);
+    static QColor toGrayscale(QColor const& color);
 
-	static QColor toBlackWhite(QColor const& color);
+    static QColor toBlackWhite(QColor const& color);
 
-	static ColorAdapter colorAdapterFor(QImage const& image);
+    static ColorAdapter colorAdapterFor(QImage const& image);
 
-	ColorAdapter m_colorAdapter;
-	EditableZoneSet m_zones;
+    ColorAdapter m_colorAdapter;
+    EditableZoneSet m_zones;
 
-	// Must go after m_zones.
-	ZoneInteractionContext m_context;
+    // Must go after m_zones.
+    ZoneInteractionContext m_context;
 
-	// Must go after m_context.
-	ColorPickupInteraction m_colorPickupInteraction;
-	DragHandler m_dragHandler;
-	ZoomHandler m_zoomHandler;	
+    // Must go after m_context.
+    ColorPickupInteraction m_colorPickupInteraction;
+    DragHandler m_dragHandler;
+    ZoomHandler m_zoomHandler;
 
-	boost::function<QPointF(QPointF const&)> m_origToImage;
-	boost::function<QPointF(QPointF const&)> m_imageToOrig;
-	PageId m_pageId;
-	IntrusivePtr<Settings> m_ptrSettings;
+    boost::function<QPointF(QPointF const&)> m_origToImage;
+    boost::function<QPointF(QPointF const&)> m_imageToOrig;
+    PageId m_pageId;
+    IntrusivePtr<Settings> m_ptrSettings;
 };
 
 } // namespace output

@@ -35,18 +35,18 @@ namespace page_layout
 class Thumbnail : public ThumbnailBase
 {
 public:
-	Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id, Params const& params,
-		ImageTransformation const& xform, QPolygonF const& phys_content_rect);
-	
-	virtual void paintOverImage(
-		QPainter& painter,
-		QTransform const& image_to_display,
-		QTransform const& thumb_to_display);
+    Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+              QSizeF const& max_size, ImageId const& image_id, Params const& params,
+              ImageTransformation const& xform, QPolygonF const& phys_content_rect);
+
+    virtual void paintOverImage(
+        QPainter& painter,
+        QTransform const& image_to_display,
+        QTransform const& thumb_to_display);
 private:
-	Params m_params;
-	QRectF m_virtContentRect;
-	QRectF m_virtOuterRect;
+    Params m_params;
+    QRectF m_virtContentRect;
+    QRectF m_virtOuterRect;
 };
 
 } // namespace page_layout

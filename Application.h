@@ -23,11 +23,11 @@
 
 class Application : public QApplication
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	Application(int& argc, char** argv);
+    Application(int& argc, char** argv);
 
-	virtual bool notify(QObject* receiver, QEvent* e);
+    virtual bool notify(QObject* receiver, QEvent* e);
 };
 
 #endif

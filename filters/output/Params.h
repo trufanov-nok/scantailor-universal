@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,61 +32,91 @@ class QDomElement;
 
 namespace output
 {
-    enum ColorParamsApplyFilter
-    {
-        CopyMode = 1,
-        CopyThreshold = 2,
-        CopyForegroundThreshold = 4,
-        CopyAllThresholds = CopyThreshold | CopyForegroundThreshold,
-        CopyAll = CopyMode | CopyThreshold | CopyForegroundThreshold
-    };
+enum ColorParamsApplyFilter {
+    CopyMode = 1,
+    CopyThreshold = 2,
+    CopyForegroundThreshold = 4,
+    CopyAllThresholds = CopyThreshold | CopyForegroundThreshold,
+    CopyAll = CopyMode | CopyThreshold | CopyForegroundThreshold
+};
 
 class Params: public RegenParams
 {
 public:
-	Params();
-	
-	Params(QDomElement const& el);
-	
-	Dpi const& outputDpi() const { return m_dpi; }
+    Params();
 
-	void setOutputDpi(Dpi const& dpi) { m_dpi = dpi; }
-	
-	ColorParams const& colorParams() const { return m_colorParams; }
+    Params(QDomElement const& el);
+
+    Dpi const& outputDpi() const
+    {
+        return m_dpi;
+    }
+
+    void setOutputDpi(Dpi const& dpi)
+    {
+        m_dpi = dpi;
+    }
+
+    ColorParams const& colorParams() const
+    {
+        return m_colorParams;
+    }
 
     void setColorParams(ColorParams const& params, ColorParamsApplyFilter const& filter = CopyAll);
 
-	DewarpingMode const& dewarpingMode() const { return m_dewarpingMode; }
+    DewarpingMode const& dewarpingMode() const
+    {
+        return m_dewarpingMode;
+    }
 
-	void setDewarpingMode(DewarpingMode const& mode) { m_dewarpingMode = mode; }
+    void setDewarpingMode(DewarpingMode const& mode)
+    {
+        m_dewarpingMode = mode;
+    }
 
-	dewarping::DistortionModel const& distortionModel() const { return m_distortionModel; }
+    dewarping::DistortionModel const& distortionModel() const
+    {
+        return m_distortionModel;
+    }
 
-	void setDistortionModel(dewarping::DistortionModel const& model) { m_distortionModel = model; }
+    void setDistortionModel(dewarping::DistortionModel const& model)
+    {
+        m_distortionModel = model;
+    }
 
-	DepthPerception const& depthPerception() const { return m_depthPerception; }
+    DepthPerception const& depthPerception() const
+    {
+        return m_depthPerception;
+    }
 
-	void setDepthPerception(DepthPerception depth_perception) {
-		m_depthPerception = depth_perception;
-	}
+    void setDepthPerception(DepthPerception depth_perception)
+    {
+        m_depthPerception = depth_perception;
+    }
 
-	DespeckleLevel despeckleLevel() const { return m_despeckleLevel; }
+    DespeckleLevel despeckleLevel() const
+    {
+        return m_despeckleLevel;
+    }
 
-	void setDespeckleLevel(DespeckleLevel level) { m_despeckleLevel = level; }
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
+    void setDespeckleLevel(DespeckleLevel level)
+    {
+        m_despeckleLevel = level;
+    }
+
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
-	static ColorParams::ColorMode parseColorMode(QString const& str);
-	
-	static QString formatColorMode(ColorParams::ColorMode mode);
-	
-	ColorParams m_colorParams;
+    static ColorParams::ColorMode parseColorMode(QString const& str);
 
-	Dpi m_dpi;
-	dewarping::DistortionModel m_distortionModel;
-	DepthPerception m_depthPerception;
-	DewarpingMode m_dewarpingMode;
-	DespeckleLevel m_despeckleLevel;
+    static QString formatColorMode(ColorParams::ColorMode mode);
+
+    ColorParams m_colorParams;
+
+    Dpi m_dpi;
+    dewarping::DistortionModel m_distortionModel;
+    DepthPerception m_depthPerception;
+    DewarpingMode m_dewarpingMode;
+    DespeckleLevel m_despeckleLevel;
 };
 
 } // namespace output

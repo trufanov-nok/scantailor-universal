@@ -36,21 +36,23 @@
 
 #include <string>
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 using std::wstring;
 
-class GUIDString {
- public:
-  // Converts guid to a string in the format recommended by RFC 4122 and
-  // returns the string.
-  static wstring GUIDToWString(GUID *guid);
+class GUIDString
+{
+public:
+    // Converts guid to a string in the format recommended by RFC 4122 and
+    // returns the string.
+    static wstring GUIDToWString(GUID* guid);
 
-  // Converts guid to a string formatted as uppercase hexadecimal, with
-  // no separators, and returns the string.  This is the format used for
-  // symbol server identifiers, although identifiers have an age tacked
-  // on to the string.
-  static wstring GUIDToSymbolServerWString(GUID *guid);
+    // Converts guid to a string formatted as uppercase hexadecimal, with
+    // no separators, and returns the string.  This is the format used for
+    // symbol server identifiers, although identifiers have an age tacked
+    // on to the string.
+    static wstring GUIDToSymbolServerWString(GUID* guid);
 };
 
 }  // namespace google_breakpad

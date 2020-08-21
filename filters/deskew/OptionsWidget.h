@@ -34,76 +34,76 @@ namespace deskew
 class Settings;
 
 class OptionsWidget :
-	public FilterOptionsWidget, private Ui::DeskewOptionsWidget
+    public FilterOptionsWidget, private Ui::DeskewOptionsWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	class UiData
-	{
-		// Member-wise copying is OK.
-	public:
-		UiData();
-		
-		~UiData();
-		
-		void setEffectiveDeskewAngle(double degrees);
-		
-		double effectiveDeskewAngle() const;
-		
-		void setDependencies(Dependencies const& deps);
-		
-		Dependencies const& dependencies() const;
-		
-		void setMode(AutoManualMode mode);
-		
-		AutoManualMode mode() const;
-	private:
-		double m_effDeskewAngle;
-		Dependencies m_deps;
-		AutoManualMode m_mode;
-	};
-	
-	OptionsWidget(IntrusivePtr<Settings> const& settings,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~OptionsWidget();
+    class UiData
+    {
+        // Member-wise copying is OK.
+    public:
+        UiData();
+
+        ~UiData();
+
+        void setEffectiveDeskewAngle(double degrees);
+
+        double effectiveDeskewAngle() const;
+
+        void setDependencies(Dependencies const& deps);
+
+        Dependencies const& dependencies() const;
+
+        void setMode(AutoManualMode mode);
+
+        AutoManualMode mode() const;
+    private:
+        double m_effDeskewAngle;
+        Dependencies m_deps;
+        AutoManualMode m_mode;
+    };
+
+    OptionsWidget(IntrusivePtr<Settings> const& settings,
+                  PageSelectionAccessor const& page_selection_accessor);
+
+    virtual ~OptionsWidget();
 signals:
-	void manualDeskewAngleSet(double degrees);
+    void manualDeskewAngleSet(double degrees);
 public slots:
-	void manualDeskewAngleSetExternally(double degrees);
+    void manualDeskewAngleSetExternally(double degrees);
 public:
-	void preUpdateUI(PageId const& page_id);
-	
-	void postUpdateUI(UiData const& ui_data);
+    void preUpdateUI(PageId const& page_id);
+
+    void postUpdateUI(UiData const& ui_data);
 private slots:
-	void spinBoxValueChanged(double skew_degrees);
-	
-	void modeChanged(bool auto_mode);
-	void showDeskewDialog();
-	void appliedTo(std::set<PageId> const& pages);
-	void appliedToAllPages(std::set<PageId> const& pages);
+    void spinBoxValueChanged(double skew_degrees);
+
+    void modeChanged(bool auto_mode);
+    void showDeskewDialog();
+    void appliedTo(std::set<PageId> const& pages);
+    void appliedToAllPages(std::set<PageId> const& pages);
 private:
-	void updateModeIndication(AutoManualMode mode);
-	
-	void setSpinBoxUnknownState();
-	
-	void setSpinBoxKnownState(double angle);
-	
-	void commitCurrentParams();
-	
-	static double spinBoxToDegrees(double sb_value);
-	
-	static double degreesToSpinBox(double degrees);
-	
-	static double const MAX_ANGLE;
-	
-	IntrusivePtr<Settings> m_ptrSettings;
-	PageId m_pageId;
-	UiData m_uiData;
-	int m_ignoreAutoManualToggle;
-	int m_ignoreSpinBoxChanges;
-	
-	PageSelectionAccessor m_pageSelectionAccessor;
+    void updateModeIndication(AutoManualMode mode);
+
+    void setSpinBoxUnknownState();
+
+    void setSpinBoxKnownState(double angle);
+
+    void commitCurrentParams();
+
+    static double spinBoxToDegrees(double sb_value);
+
+    static double degreesToSpinBox(double degrees);
+
+    static double const MAX_ANGLE;
+
+    IntrusivePtr<Settings> m_ptrSettings;
+    PageId m_pageId;
+    UiData m_uiData;
+    int m_ignoreAutoManualToggle;
+    int m_ignoreSpinBoxChanges;
+
+    PageSelectionAccessor m_pageSelectionAccessor;
 };
 
 } // namespace deskew

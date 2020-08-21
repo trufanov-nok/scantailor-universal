@@ -33,54 +33,54 @@ BOOST_AUTO_TEST_SUITE(RastLineFinderTestSuite);
 
 static bool matchSupportPoints(std::vector<unsigned> const& idxs1, std::set<unsigned> const& idxs2)
 {
-	return std::set<unsigned>(idxs1.begin(), idxs1.end()) == idxs2;
+    return std::set<unsigned>(idxs1.begin(), idxs1.end()) == idxs2;
 }
 
 BOOST_AUTO_TEST_CASE(test1)
 {
-	// 4- and 3-point lines with min_support_points == 3
-	//--------------------------------------------------
-	// x     x
-	//   x x
-	//   x x
-	// x
-	//--------------------------------------------------
-	std::vector<QPointF> pts;
-	pts.push_back(QPointF(-100, -100));
-	pts.push_back(QPointF(0, 0));
-	pts.push_back(QPointF(100, 100));
-	pts.push_back(QPointF(200, 200));
-	pts.push_back(QPointF(0, 100));
-	pts.push_back(QPointF(100, 0));
-	pts.push_back(QPointF(-100, 200));
-	
-	std::set<unsigned> line1_idxs;
-	line1_idxs.insert(0);
-	line1_idxs.insert(1);
-	line1_idxs.insert(2);
-	line1_idxs.insert(3);
-	
-	std::set<unsigned> line2_idxs;
-	line2_idxs.insert(4);
-	line2_idxs.insert(5);
-	line2_idxs.insert(6);
-	
-	RastLineFinderParams params;
-	params.setMinSupportPoints(3);
-	RastLineFinder finder(pts, params);
+    // 4- and 3-point lines with min_support_points == 3
+    //--------------------------------------------------
+    // x     x
+    //   x x
+    //   x x
+    // x
+    //--------------------------------------------------
+    std::vector<QPointF> pts;
+    pts.push_back(QPointF(-100, -100));
+    pts.push_back(QPointF(0, 0));
+    pts.push_back(QPointF(100, 100));
+    pts.push_back(QPointF(200, 200));
+    pts.push_back(QPointF(0, 100));
+    pts.push_back(QPointF(100, 0));
+    pts.push_back(QPointF(-100, 200));
 
-	std::vector<unsigned> support_idxs;
-	
-	// line 1
-	BOOST_REQUIRE(!finder.findNext(&support_idxs).isNull());
-	BOOST_REQUIRE(matchSupportPoints(support_idxs, line1_idxs));
+    std::set<unsigned> line1_idxs;
+    line1_idxs.insert(0);
+    line1_idxs.insert(1);
+    line1_idxs.insert(2);
+    line1_idxs.insert(3);
 
-	// line2
-	BOOST_REQUIRE(!finder.findNext(&support_idxs).isNull());
-	BOOST_REQUIRE(matchSupportPoints(support_idxs, line2_idxs));
+    std::set<unsigned> line2_idxs;
+    line2_idxs.insert(4);
+    line2_idxs.insert(5);
+    line2_idxs.insert(6);
 
-	// no more lines
-	BOOST_REQUIRE(finder.findNext().isNull());
+    RastLineFinderParams params;
+    params.setMinSupportPoints(3);
+    RastLineFinder finder(pts, params);
+
+    std::vector<unsigned> support_idxs;
+
+    // line 1
+    BOOST_REQUIRE(!finder.findNext(&support_idxs).isNull());
+    BOOST_REQUIRE(matchSupportPoints(support_idxs, line1_idxs));
+
+    // line2
+    BOOST_REQUIRE(!finder.findNext(&support_idxs).isNull());
+    BOOST_REQUIRE(matchSupportPoints(support_idxs, line2_idxs));
+
+    // no more lines
+    BOOST_REQUIRE(finder.findNext().isNull());
 }
 
 BOOST_AUTO_TEST_SUITE_END();

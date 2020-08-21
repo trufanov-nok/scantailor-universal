@@ -21,13 +21,13 @@
 void
 PageSequence::append(PageInfo const& page_info)
 {
-	m_pages.push_back(page_info);	
+    m_pages.push_back(page_info);
 }
 
 PageInfo const&
 PageSequence::pageAt(size_t const idx) const
 {
-	return m_pages.at(idx); // may throw
+    return m_pages.at(idx); // may throw
 }
 
 PageInfo const&
@@ -52,7 +52,7 @@ PageSequence::pageNo(PageId const& page) const
         // Continue until we have a match.
     }
 
-    return (it == end)?-1:res;
+    return (it == end) ? -1 : res;
 }
 
 std::set<PageId>
@@ -60,7 +60,7 @@ PageSequence::asPageIdSet() const
 {
     std::set<PageId> selection;
 
-    for (PageInfo const& page_info: m_pages) {
+    for (PageInfo const& page_info : m_pages) {
         selection.insert(page_info.id());
     }
 
@@ -72,7 +72,7 @@ PageSequence::asPageIdVector() const
 {
     std::vector<PageId> selection;
 
-    for (PageInfo const& page_info: m_pages) {
+    for (PageInfo const& page_info : m_pages) {
         selection.push_back(page_info.id());
     }
 
@@ -82,42 +82,42 @@ PageSequence::asPageIdVector() const
 //std::set<PageId>
 //PageSequence::selectPagePlusFollowers(PageId const& page) const
 //{
-//	std::set<PageId> selection;
-	
-//	std::vector<PageInfo>::const_iterator it(m_pages.begin());
-//	std::vector<PageInfo>::const_iterator const end(m_pages.end());
-//	for (; it != end && it->id() != page; ++it) {
-//		// Continue until we have a match.
-//	}
-//	for (; it != end; ++it) {
-//		selection.insert(it->id());
-//	}
+//  std::set<PageId> selection;
 
-//	return selection;
+//  std::vector<PageInfo>::const_iterator it(m_pages.begin());
+//  std::vector<PageInfo>::const_iterator const end(m_pages.end());
+//  for (; it != end && it->id() != page; ++it) {
+//      // Continue until we have a match.
+//  }
+//  for (; it != end; ++it) {
+//      selection.insert(it->id());
+//  }
+
+//  return selection;
 //}
 
 //std::set<PageId>
 //PageSequence::selectEveryOther(PageId const& base) const
 //{
-//	std::set<PageId> selection;
-	
-//	std::vector<PageInfo>::const_iterator it(m_pages.begin());
-//	std::vector<PageInfo>::const_iterator const end(m_pages.end());
-//	for (; it != end && it->id() != base; ++it) {
-//		// Continue until we have a match.
-//	}
-//	if (it == end) {
-//		return selection;
-//	}
+//  std::set<PageId> selection;
 
-//	int const base_idx = it - m_pages.begin();
-//	int idx = 0;
-//	for (PageInfo const& page_info: m_pages) {
-//		if (((idx - base_idx) & 1) == 0) {
-//			selection.insert(page_info.id());
-//		}
-//		++idx;
-//	}
+//  std::vector<PageInfo>::const_iterator it(m_pages.begin());
+//  std::vector<PageInfo>::const_iterator const end(m_pages.end());
+//  for (; it != end && it->id() != base; ++it) {
+//      // Continue until we have a match.
+//  }
+//  if (it == end) {
+//      return selection;
+//  }
 
-//	return selection;
+//  int const base_idx = it - m_pages.begin();
+//  int idx = 0;
+//  for (PageInfo const& page_info: m_pages) {
+//      if (((idx - base_idx) & 1) == 0) {
+//          selection.insert(page_info.id());
+//      }
+//      ++idx;
+//  }
+
+//  return selection;
 //}

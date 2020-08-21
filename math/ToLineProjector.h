@@ -32,46 +32,46 @@
 class ToLineProjector
 {
 public:
-	/**
-	 * \brief Initializes line projector.
-	 *
-	 * If line endpoints match, all points will
-	 * be projected to that point.
-	 */
-	ToLineProjector(QLineF const& line);
+    /**
+     * \brief Initializes line projector.
+     *
+     * If line endpoints match, all points will
+     * be projected to that point.
+     */
+    ToLineProjector(QLineF const& line);
 
-	/**
-	 * \brief Finds the projection point.
-	 */
-	QPointF projectionPoint(QPointF const& pt) const;
+    /**
+     * \brief Finds the projection point.
+     */
+    QPointF projectionPoint(QPointF const& pt) const;
 
-	/**
-	 * \brief Equivalent to projectionPoint(pt) - pt.
-	 */
-	QPointF projectionVector(QPointF const& pt) const;
+    /**
+     * \brief Equivalent to projectionPoint(pt) - pt.
+     */
+    QPointF projectionVector(QPointF const& pt) const;
 
-	/**
-	 * Solves the equation of:\n
-	 * line.p1() + x * (line.p2() - line.p1()) = p\n
-	 * for x, where p would be the projection point.
-	 * This function is faster than projectionPoint().
-	 */
-	double projectionScalar(QPointF const& pt) const;
+    /**
+     * Solves the equation of:\n
+     * line.p1() + x * (line.p2() - line.p1()) = p\n
+     * for x, where p would be the projection point.
+     * This function is faster than projectionPoint().
+     */
+    double projectionScalar(QPointF const& pt) const;
 
-	/**
-	 * Returns the distance from \p pt to the projection point.
-	 */
-	double projectionDist(QPointF const& pt) const;
+    /**
+     * Returns the distance from \p pt to the projection point.
+     */
+    double projectionDist(QPointF const& pt) const;
 
-	/**
-	 * Returns the squared distance from \p pt to the projection point.
-	 * This function is faster than projectionDist().
-	 */
-	double projectionSqDist(QPointF const& pt) const;
+    /**
+     * Returns the squared distance from \p pt to the projection point.
+     * This function is faster than projectionDist().
+     */
+    double projectionSqDist(QPointF const& pt) const;
 private:
-	QPointF m_origin;
-	QPointF m_vec;
-	Vec2d m_mat;
+    QPointF m_origin;
+    QPointF m_vec;
+    Vec2d m_mat;
 };
 
 #endif

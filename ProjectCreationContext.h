@@ -33,42 +33,54 @@ class QWidget;
 
 class ProjectCreationContext : public QObject
 {
-	Q_OBJECT
-	DECLARE_NON_COPYABLE(ProjectCreationContext)
+    Q_OBJECT
+    DECLARE_NON_COPYABLE(ProjectCreationContext)
 public:
-	ProjectCreationContext(QWidget* parent);
-	
-	virtual ~ProjectCreationContext();
-	
-	std::vector<ImageFileInfo> const& files() const { return m_files; }
-	
-	QString const& outDir() const { return m_outDir; }
+    ProjectCreationContext(QWidget* parent);
 
-    QString const& inputDir() const { return m_inputDir; }
-	
-	Qt::LayoutDirection layoutDirection() const { return m_layoutDirection; }
+    virtual ~ProjectCreationContext();
+
+    std::vector<ImageFileInfo> const& files() const
+    {
+        return m_files;
+    }
+
+    QString const& outDir() const
+    {
+        return m_outDir;
+    }
+
+    QString const& inputDir() const
+    {
+        return m_inputDir;
+    }
+
+    Qt::LayoutDirection layoutDirection() const
+    {
+        return m_layoutDirection;
+    }
 signals:
-	void done(ProjectCreationContext* context);
+    void done(ProjectCreationContext* context);
 private slots:
-	void projectFilesSubmitted();
-	
-	void projectFilesDialogDestroyed();
-	
-	void fixedDpiSubmitted();
-	
-	void fixDpiDialogDestroyed();
+    void projectFilesSubmitted();
+
+    void projectFilesDialogDestroyed();
+
+    void fixedDpiSubmitted();
+
+    void fixDpiDialogDestroyed();
 private:
-	void showProjectFilesDialog();
-	
-	void showFixDpiDialog();
-	
-	QPointer<ProjectFilesDialog> m_ptrProjectFilesDialog;
-	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
-	QString m_outDir;
+    void showProjectFilesDialog();
+
+    void showFixDpiDialog();
+
+    QPointer<ProjectFilesDialog> m_ptrProjectFilesDialog;
+    QPointer<FixDpiDialog> m_ptrFixDpiDialog;
+    QString m_outDir;
     QString m_inputDir;
-	std::vector<ImageFileInfo> m_files;
-	Qt::LayoutDirection m_layoutDirection;
-	QWidget* m_pParent;
+    std::vector<ImageFileInfo> m_files;
+    Qt::LayoutDirection m_layoutDirection;
+    QWidget* m_pParent;
 };
 
 #endif

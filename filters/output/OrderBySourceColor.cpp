@@ -31,8 +31,8 @@ namespace output
 PageSequence cached_pages_views;
 bool sequence_cached = false;
 
-OrderBySourceColor::OrderBySourceColor(IntrusivePtr<Settings> const& settings, const IntrusivePtr<ProjectPages> &pages)
-:	m_ptrSettings(settings), m_pages(pages)
+OrderBySourceColor::OrderBySourceColor(IntrusivePtr<Settings> const& settings, const IntrusivePtr<ProjectPages>& pages)
+    :   m_ptrSettings(settings), m_pages(pages)
 {
     connect(&*m_pages, SIGNAL(modified()),
             this, SLOT(invalidate_metadata()));
@@ -43,8 +43,7 @@ OrderBySourceColor::precedes(
     PageId const& lhs_page, bool const /*lhs_incomplete*/,
     PageId const& rhs_page, bool const /*rhs_incomplete*/) const
 {
-    if (!sequence_cached)
-    {
+    if (!sequence_cached) {
         cached_pages_views = m_pages->toPageSequence(PAGE_VIEW);
         sequence_cached = true;
     }
@@ -52,10 +51,11 @@ OrderBySourceColor::precedes(
     const bool gs1 = cached_pages_views.pageAt(lhs_page).metadata().isGrayScale();
     const bool gs2 = cached_pages_views.pageAt(rhs_page).metadata().isGrayScale();
 
-    if (gs1 != gs2)
+    if (gs1 != gs2) {
         return gs1 > gs2;
-    else
+    } else {
         return lhs_page < rhs_page;
+    }
 
 }
 
@@ -68,8 +68,7 @@ OrderBySourceColor::invalidate_metadata()
 QString
 OrderBySourceColor::hint(PageId const& page) const
 {
-    if (!sequence_cached)
-    {
+    if (!sequence_cached) {
         cached_pages_views = m_pages->toPageSequence(PAGE_VIEW);
         sequence_cached = true;
     }

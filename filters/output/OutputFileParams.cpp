@@ -26,51 +26,51 @@ namespace output
 {
 
 OutputFileParams::OutputFileParams()
-:	m_size(-1),
-	m_mtime(0)
+    :   m_size(-1),
+        m_mtime(0)
 {
 }
 
 OutputFileParams::OutputFileParams(QFileInfo const& file_info)
-:	m_size(-1),
-	m_mtime(0)
+    :   m_size(-1),
+        m_mtime(0)
 {
-	if (file_info.exists()) {
-		m_size = file_info.size();
-		m_mtime = file_info.lastModified().toTime_t();
-	}
+    if (file_info.exists()) {
+        m_size = file_info.size();
+        m_mtime = file_info.lastModified().toTime_t();
+    }
 }
 
 OutputFileParams::OutputFileParams(QDomElement const& el)
-:	m_size(-1),
-	m_mtime(0)
+    :   m_size(-1),
+        m_mtime(0)
 {
-	if (el.hasAttribute("size")) {
-		m_size = (qint64)el.attribute("size").toLongLong();
-	}
-	if (el.hasAttribute("mtime")) {
-		m_mtime = (time_t)el.attribute("mtime").toLongLong();
-	}
+    if (el.hasAttribute("size")) {
+        m_size = (qint64)el.attribute("size").toLongLong();
+    }
+    if (el.hasAttribute("mtime")) {
+        m_mtime = (time_t)el.attribute("mtime").toLongLong();
+    }
 }
 
 QDomElement
 OutputFileParams::toXml(QDomDocument& doc, QString const& name) const
 {
-	if (isValid()) {
-		QDomElement el(doc.createElement(name));
-		el.setAttribute("size", QString::number(m_size));
-		el.setAttribute("mtime", QString::number(m_mtime));
-		return el;
-	} else {
-		return QDomElement();
-	}
+    if (isValid()) {
+        QDomElement el(doc.createElement(name));
+        el.setAttribute("size", QString::number(m_size));
+        el.setAttribute("mtime", QString::number(m_mtime));
+        return el;
+    } else {
+        return QDomElement();
+    }
 }
 
 bool
 OutputFileParams::matches(OutputFileParams const& other) const
 {
-	return isValid() && other.isValid() &&
-			m_size == other.m_size/* && m_mtime == other.m_mtime*/;
+    return isValid() && other.isValid() &&
+           m_size == other.m_size/* && m_mtime == other.m_mtime*/;
 }
 
 } // namespace output

@@ -33,9 +33,9 @@ namespace output
 class Thumbnail : public ThumbnailBase
 {
 public:
-	Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& xform);
+    Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+              QSizeF const& max_size, ImageId const& image_id,
+              ImageTransformation const& xform);
 };
 
 } // namespace output

@@ -27,11 +27,11 @@ class AbstractFilterDataCollector;
 class CompositeCacheDrivenTask : public RefCountable
 {
 public:
-	virtual ~CompositeCacheDrivenTask() {}
-	
-	virtual void process(
-		PageInfo const& page_info,
-		AbstractFilterDataCollector* collector) = 0;
+    virtual ~CompositeCacheDrivenTask() {}
+
+    virtual void process(
+        PageInfo const& page_info,
+        AbstractFilterDataCollector* collector) = 0;
 };
 
 #endif

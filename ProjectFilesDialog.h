@@ -29,61 +29,61 @@
 
 class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	ProjectFilesDialog(QWidget* parent = 0);
-	
-	virtual ~ProjectFilesDialog();
-	
-	QString inputDirectory() const;
-	
-	QString outputDirectory() const;
-	
-	std::vector<ImageFileInfo> inProjectFiles() const;
-	
-	bool isRtlLayout() const;
-	
-	bool isDpiFixingForced() const;
+    ProjectFilesDialog(QWidget* parent = 0);
+
+    virtual ~ProjectFilesDialog();
+
+    QString inputDirectory() const;
+
+    QString outputDirectory() const;
+
+    std::vector<ImageFileInfo> inProjectFiles() const;
+
+    bool isRtlLayout() const;
+
+    bool isDpiFixingForced() const;
 private slots:
-	static QString sanitizePath(QString const& path);
-	
-	void inpDirBrowse();
-	
-	void outDirBrowse();
-	
-	void inpDirEdited(QString const& text);
-	
-	void outDirEdited(QString const& text);
-	
-	void addToProject();
-	
-	void removeFromProject();
-	
-	void onOK();
+    static QString sanitizePath(QString const& path);
+
+    void inpDirBrowse();
+
+    void outDirBrowse();
+
+    void inpDirEdited(QString const& text);
+
+    void outDirEdited(QString const& text);
+
+    void addToProject();
+
+    void removeFromProject();
+
+    void onOK();
 private:
-	class Item;
-	class FileList;
-	class SortedFileList;
-	class ItemVisualOrdering;
-	
-	void setInputDir(QString const& dir, bool auto_add_files = true);
-	
-	void setOutputDir(QString const& dir);
-	
-	void startLoadingMetadata();
-	
-	virtual void timerEvent(QTimerEvent* event);
-	
-	void finishLoadingMetadata();
-	
-	QSet<QString> m_supportedExtensions;
-	std::unique_ptr<FileList> m_ptrOffProjectFiles;
-	std::unique_ptr<SortedFileList> m_ptrOffProjectFilesSorted;
-	std::unique_ptr<FileList> m_ptrInProjectFiles;
-	std::unique_ptr<SortedFileList> m_ptrInProjectFilesSorted;
-	int m_loadTimerId;
-	bool m_metadataLoadFailed;
-	bool m_autoOutDir;
+    class Item;
+    class FileList;
+    class SortedFileList;
+    class ItemVisualOrdering;
+
+    void setInputDir(QString const& dir, bool auto_add_files = true);
+
+    void setOutputDir(QString const& dir);
+
+    void startLoadingMetadata();
+
+    virtual void timerEvent(QTimerEvent* event);
+
+    void finishLoadingMetadata();
+
+    QSet<QString> m_supportedExtensions;
+    std::unique_ptr<FileList> m_ptrOffProjectFiles;
+    std::unique_ptr<SortedFileList> m_ptrOffProjectFilesSorted;
+    std::unique_ptr<FileList> m_ptrInProjectFiles;
+    std::unique_ptr<SortedFileList> m_ptrInProjectFilesSorted;
+    int m_loadTimerId;
+    bool m_metadataLoadFailed;
+    bool m_autoOutDir;
 };
 
 #endif

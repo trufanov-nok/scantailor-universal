@@ -32,45 +32,45 @@ namespace select_content
 {
 
 Thumbnail::Thumbnail(
-	IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-	QSizeF const& max_size, ImageId const& image_id,
-	ImageTransformation const& xform, QRectF const& content_rect, bool deviant)
-:	ThumbnailBase(thumbnail_cache, max_size, image_id, xform),
-	m_contentRect(content_rect), m_deviant(deviant)
+    IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+    QSizeF const& max_size, ImageId const& image_id,
+    ImageTransformation const& xform, QRectF const& content_rect, bool deviant)
+    :   ThumbnailBase(thumbnail_cache, max_size, image_id, xform),
+        m_contentRect(content_rect), m_deviant(deviant)
 {
 }
 
 void
 Thumbnail::paintOverImage(
-	QPainter& painter, QTransform const& image_to_display,
-	QTransform const& thumb_to_display)
+    QPainter& painter, QTransform const& image_to_display,
+    QTransform const& thumb_to_display)
 {
-	if (m_contentRect.isNull()) {
-		return;
-	}
+    if (m_contentRect.isNull()) {
+        return;
+    }
 
-	painter.setRenderHint(QPainter::Antialiasing, false);
-	
+    painter.setRenderHint(QPainter::Antialiasing, false);
+
     QPen pen(GlobalStaticSettings::m_content_sel_content_color_pen);
-	pen.setWidth(1);
-	pen.setCosmetic(true);
-	painter.setPen(pen);
-	
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter.setPen(pen);
+
     painter.setBrush(GlobalStaticSettings::m_content_sel_content_color);
-	
-	QRectF content_rect(virtToThumb().mapRect(m_contentRect));
-	
-	// Adjust to compensate for pen width.
-	content_rect.adjust(-1, -1, 1, 1);
-	
-	// toRect() is necessary because we turn off antialiasing.
-	// For some reason, if we let Qt round the coordinates,
-	// the result is slightly different.
+
+    QRectF content_rect(virtToThumb().mapRect(m_contentRect));
+
+    // Adjust to compensate for pen width.
+    content_rect.adjust(-1, -1, 1, 1);
+
+    // toRect() is necessary because we turn off antialiasing.
+    // For some reason, if we let Qt round the coordinates,
+    // the result is slightly different.
     painter.drawRect(content_rect.toAlignedRect());
 
-	if (m_deviant) {
-		paintDeviant(painter);
-	}
+    if (m_deviant) {
+        paintDeviant(painter);
+    }
 }
 
 } // namespace select_content

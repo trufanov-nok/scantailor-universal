@@ -3,23 +3,24 @@
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 class StartBatchProcessingDialog;
 }
 
 class StartBatchProcessingDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
-    explicit StartBatchProcessingDialog(QWidget *parent = 0, bool isAllPages = false);
+    explicit StartBatchProcessingDialog(QWidget* parent = 0, bool isAllPages = false);
     ~StartBatchProcessingDialog();
-    
+
     bool isAllPagesChecked() const;
     bool isRememberChoiceChecked() const;
-    
+
 private:
-    Ui::StartBatchProcessingDialog *ui;
+    Ui::StartBatchProcessingDialog* ui;
 };
 
 #endif // STARTBATCHPROCESSINGDIALOG_H

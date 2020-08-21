@@ -29,16 +29,16 @@ namespace output
 
 class PictureZonePropDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	PictureZonePropDialog(IntrusivePtr<PropertySet> const& props, QWidget* parent = 0);
+    PictureZonePropDialog(IntrusivePtr<PropertySet> const& props, QWidget* parent = 0);
 signals:
-	void updated();
+    void updated();
 private slots:
-	void itemToggled(bool selected);
+    void itemToggled(bool selected);
 private:
-	Ui::PictureZonePropDialog ui;
-	IntrusivePtr<PropertySet> m_ptrProps;
+    Ui::PictureZonePropDialog ui;
+    IntrusivePtr<PropertySet> m_ptrProps;
 };
 
 } // namespace output

@@ -29,17 +29,17 @@ class ImageMetadata;
 class PngMetadataLoader : public ImageMetadataLoader
 {
 public:
-	/**
-	 * \brief Register this loader in the global registry.
-	 *
-	 * The same restrictions apply here as for
-	 * ImageMetadataLoader::registerLoader()
-	 */
-	static void registerMyself();
+    /**
+     * \brief Register this loader in the global registry.
+     *
+     * The same restrictions apply here as for
+     * ImageMetadataLoader::registerLoader()
+     */
+    static void registerMyself();
 protected:
-	virtual Status loadMetadata(
-		QIODevice& io_device,
-		VirtualFunction1<void, ImageMetadata const&>& out);
+    virtual Status loadMetadata(
+        QIODevice& io_device,
+        VirtualFunction1<void, ImageMetadata const&>& out);
 };
 
 #endif

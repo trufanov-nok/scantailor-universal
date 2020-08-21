@@ -33,36 +33,42 @@ class QString;
 
 class RelinkingDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	explicit RelinkingDialog(QString const& project_file_path, QWidget* parent = 0);
+    explicit RelinkingDialog(QString const& project_file_path, QWidget* parent = 0);
 
-	VirtualFunction1<void, RelinkablePath const&>& pathCollector() { return m_model; }
+    VirtualFunction1<void, RelinkablePath const&>& pathCollector()
+    {
+        return m_model;
+    }
 
-	/**
-	 * This method guarantees that
-	 * \code
-	 * dialog->relinker().get() == dialog->relinker().get()
-	 * \endcode
-	 * will hold true for the lifetime of the dialog.
-	 * This allows you to take the relinker right after construction
-	 * and then use it when accepted() signal is emitted.
-	 */
-	IntrusivePtr<AbstractRelinker> relinker() const { return m_model.relinker(); }
+    /**
+     * This method guarantees that
+     * \code
+     * dialog->relinker().get() == dialog->relinker().get()
+     * \endcode
+     * will hold true for the lifetime of the dialog.
+     * This allows you to take the relinker right after construction
+     * and then use it when accepted() signal is emitted.
+     */
+    IntrusivePtr<AbstractRelinker> relinker() const
+    {
+        return m_model.relinker();
+    }
 private slots:
-	void selectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
+    void selectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
 
-	/** \p type is either RelinkablePath::File or RelinkablePath::Dir */
-	void pathButtonClicked(QString const& prefix_path, QString const& suffix_path, int type);
+    /** \p type is either RelinkablePath::File or RelinkablePath::Dir */
+    void pathButtonClicked(QString const& prefix_path, QString const& suffix_path, int type);
 
-	void undoButtonClicked();
+    void undoButtonClicked();
 
-	void commitChanges();
+    void commitChanges();
 private:
-	Ui::RelinkingDialog ui;
-	RelinkingModel m_model;
-	RelinkingSortingModel* m_pSortingModel;
-	QString m_projectFileDir;
+    Ui::RelinkingDialog ui;
+    RelinkingModel m_model;
+    RelinkingSortingModel* m_pSortingModel;
+    QString m_projectFileDir;
 };
 
 #endif

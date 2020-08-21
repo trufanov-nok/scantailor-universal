@@ -26,59 +26,61 @@
 class RecentProjects
 {
 public:
-	/**
-	 * \brief The default value for max_items parameters of
-	 *        write() and enumerate().
-	 */
-	enum { DEFAULT_MAX_ITEMS = 7 };
-	
-	/**
-	 * \brief Reads the list of recent projects from QSettings
-	 *        without validating them.
-	 *
-	 * The current list will be overwritten.
-	 */
-	void read();
-	
-	/**
-	 * \brief Removes non-existing project files.
-	 *
-	 * \return true if no projects were removed, false otherwise.
-	 */
-	bool validate();
-	
-	/**
-	 * \brief Appends a project to the list or moves it to the
-	 *        top of the list, if it was already there.
-	 */
-	void setMostRecent(QString const& file_path);
-	
-	void write(int max_items = DEFAULT_MAX_ITEMS) const;
-	
-	bool isEmpty() const { return m_projectFiles.empty(); }
-	
-	/**
-	 * \brief Calls out((QString const&)file_path) for every entry.
-	 *
-	 * Modifying this object from the callback is not allowed.
-	 */
-	template<typename Out>
-	void enumerate(Out out,
-		int max_items = DEFAULT_MAX_ITEMS) const;
-private:
-	std::list<QString> m_projectFiles;
-};
+    /**
+     * \brief The default value for max_items parameters of
+     *        write() and enumerate().
+     */
+    enum { DEFAULT_MAX_ITEMS = 7 };
 
+    /**
+     * \brief Reads the list of recent projects from QSettings
+     *        without validating them.
+     *
+     * The current list will be overwritten.
+     */
+    void read();
+
+    /**
+     * \brief Removes non-existing project files.
+     *
+     * \return true if no projects were removed, false otherwise.
+     */
+    bool validate();
+
+    /**
+     * \brief Appends a project to the list or moves it to the
+     *        top of the list, if it was already there.
+     */
+    void setMostRecent(QString const& file_path);
+
+    void write(int max_items = DEFAULT_MAX_ITEMS) const;
+
+    bool isEmpty() const
+    {
+        return m_projectFiles.empty();
+    }
+
+    /**
+     * \brief Calls out((QString const&)file_path) for every entry.
+     *
+     * Modifying this object from the callback is not allowed.
+     */
+    template<typename Out>
+    void enumerate(Out out,
+                   int max_items = DEFAULT_MAX_ITEMS) const;
+private:
+    std::list<QString> m_projectFiles;
+};
 
 template<typename Out>
 void
 RecentProjects::enumerate(Out out, int max_items) const
 {
-	std::list<QString>::const_iterator it(m_projectFiles.begin());
-	std::list<QString>::const_iterator const end(m_projectFiles.end());
-	for (; it != end && max_items > 0; ++it, --max_items) {
-		out(*it);
-	}
+    std::list<QString>::const_iterator it(m_projectFiles.begin());
+    std::list<QString>::const_iterator const end(m_projectFiles.end());
+    for (; it != end && max_items > 0; ++it, --max_items) {
+        out(*it);
+    }
 }
 
 #endif

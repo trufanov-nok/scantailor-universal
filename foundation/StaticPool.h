@@ -26,25 +26,25 @@
 template<typename T>
 class StaticPoolBase
 {
-	DECLARE_NON_COPYABLE(StaticPoolBase)
+    DECLARE_NON_COPYABLE(StaticPoolBase)
 public:
-	StaticPoolBase(T* buf, size_t size) : m_pNext(buf), m_sizeRemaining(size) {}
+    StaticPoolBase(T* buf, size_t size) : m_pNext(buf), m_sizeRemaining(size) {}
 
-	/**
-	 * \brief Allocates a sequence of objects.
-	 *
-	 * If the pool has enough free space, returns a sequence of requested
-	 * number of elements, otherwise throws an std::runtime_error.
-	 * If T is a POD type, the returned objects are uninitialized,
-	 * otherwise they are default-constructed.
-	 *
-	 * This function was moved to the base class in order to have
-	 * just one instantiation of it for different sized pool of the same type.
-	 */
-	T* alloc(size_t num_elements);
+    /**
+     * \brief Allocates a sequence of objects.
+     *
+     * If the pool has enough free space, returns a sequence of requested
+     * number of elements, otherwise throws an std::runtime_error.
+     * If T is a POD type, the returned objects are uninitialized,
+     * otherwise they are default-constructed.
+     *
+     * This function was moved to the base class in order to have
+     * just one instantiation of it for different sized pool of the same type.
+     */
+    T* alloc(size_t num_elements);
 private:
-	T* m_pNext;
-	size_t m_sizeRemaining;
+    T* m_pNext;
+    size_t m_sizeRemaining;
 };
 
 /**
@@ -56,27 +56,26 @@ private:
 template<typename T, size_t S>
 class StaticPool : public StaticPoolBase<T>
 {
-	DECLARE_NON_COPYABLE(StaticPool)
+    DECLARE_NON_COPYABLE(StaticPool)
 public:
-	StaticPool() : StaticPoolBase<T>(m_buf, S) {}	
+    StaticPool() : StaticPoolBase<T>(m_buf, S) {}
 private:
-	T m_buf[S];
+    T m_buf[S];
 };
-
 
 template<typename T>
 T*
 StaticPoolBase<T>::alloc(size_t num_elements)
 {
-	if (num_elements > m_sizeRemaining) {
-		throw std::runtime_error("StaticPool overflow");
-	}
+    if (num_elements > m_sizeRemaining) {
+        throw std::runtime_error("StaticPool overflow");
+    }
 
-	T* sequence = m_pNext;
-	m_pNext += num_elements;
-	m_sizeRemaining -= num_elements;
-	
-	return sequence;
+    T* sequence = m_pNext;
+    m_pNext += num_elements;
+    m_sizeRemaining -= num_elements;
+
+    return sequence;
 }
 
 #endif

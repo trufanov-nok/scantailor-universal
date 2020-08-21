@@ -30,19 +30,19 @@ namespace fix_orientation
 
 class ImageView : public ImageViewBase
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	ImageView(
-		QImage const& image, QImage const& downscaled_image,
-		ImageTransformation const& xform);
-	
-	virtual ~ImageView();
+    ImageView(
+        QImage const& image, QImage const& downscaled_image,
+        ImageTransformation const& xform);
+
+    virtual ~ImageView();
 public slots:
-	void setPreRotation(OrthogonalRotation rotation);
+    void setPreRotation(OrthogonalRotation rotation);
 private:
-	DragHandler m_dragHandler;
-	ZoomHandler m_zoomHandler;
-	ImageTransformation m_xform;
+    DragHandler m_dragHandler;
+    ZoomHandler m_zoomHandler;
+    ImageTransformation m_xform;
 };
 
 } // namespace fix_orientation

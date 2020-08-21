@@ -26,19 +26,19 @@ class QString;
 
 class NewOpenProjectPanel : public QWidget, private Ui::NewOpenProjectPanel
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	NewOpenProjectPanel(QWidget* parent = 0);
+    NewOpenProjectPanel(QWidget* parent = 0);
 signals:
-	void newProject();
-	
-	void openProject();
-	
-	void openRecentProject(QString const& project_file);
+    void newProject();
+
+    void openProject();
+
+    void openRecentProject(QString const& project_file);
 protected:
-	virtual void paintEvent(QPaintEvent* event);
+    virtual void paintEvent(QPaintEvent* event);
 private:
-	void addRecentProject(QString const& file_path);
+    void addRecentProject(QString const& file_path);
 };
 
 #endif

@@ -29,11 +29,11 @@ class QSizeF;
 class ThumbnailCollector : public AbstractFilterDataCollector
 {
 public:
-	virtual void processThumbnail(std::unique_ptr<QGraphicsItem>) = 0;
-	
-	virtual IntrusivePtr<ThumbnailPixmapCache> thumbnailCache() = 0;
-	
-	virtual QSizeF maxLogicalThumbSize() const = 0;
+    virtual void processThumbnail(std::unique_ptr<QGraphicsItem>) = 0;
+
+    virtual IntrusivePtr<ThumbnailPixmapCache> thumbnailCache() = 0;
+
+    virtual QSizeF maxLogicalThumbSize() const = 0;
 };
 
 #endif

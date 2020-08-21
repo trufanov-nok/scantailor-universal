@@ -24,16 +24,16 @@
 #include "Dpi.h"
 
 BasicImageView::BasicImageView(
-	QImage const& image, ImagePixmapUnion const& downscaled_image, Margins const& margins)
-:	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(QTransform(), QRectF(image.rect())), margins
-	),
-	m_dragHandler(*this),
-	m_zoomHandler(*this)
+    QImage const& image, ImagePixmapUnion const& downscaled_image, Margins const& margins)
+    :   ImageViewBase(
+            image, downscaled_image,
+            ImagePresentation(QTransform(), QRectF(image.rect())), margins
+        ),
+        m_dragHandler(*this),
+        m_zoomHandler(*this)
 {
-	rootInteractionHandler().makeLastFollower(m_dragHandler);
-	rootInteractionHandler().makeLastFollower(m_zoomHandler);
+    rootInteractionHandler().makeLastFollower(m_dragHandler);
+    rootInteractionHandler().makeLastFollower(m_zoomHandler);
 }
 
 BasicImageView::~BasicImageView()

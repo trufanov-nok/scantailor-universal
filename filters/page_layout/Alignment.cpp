@@ -26,32 +26,30 @@
 namespace page_layout
 {
 
-    
-Alignment::Alignment()	
+Alignment::Alignment()
 {
     *this = Alignment::load();
 }
-    
-Alignment::Alignment(Vertical vert, Horizontal hor)	
+
+Alignment::Alignment(Vertical vert, Horizontal hor)
 {
     *this = Alignment::load();
-    m_val = vert|hor;
+    m_val = vert | hor;
 }
 
 Alignment::Alignment(Vertical vert, Horizontal hor, bool is_null, double tolerance)
-    : m_val(vert|hor), m_isNull(is_null), m_tolerance(tolerance)
+    : m_val(vert | hor), m_isNull(is_null), m_tolerance(tolerance)
 {
 }
-
 
 Alignment::Alignment(QDomElement const& el)
 {
     CommandLine cli = CommandLine::get();
-    m_isNull = cli.getDefaultNull(); 
-    
-	QString const vert(el.attribute("vert"));
-	QString const hor(el.attribute("hor"));
-	m_isNull = el.attribute("null").toInt() != 0;
+    m_isNull = cli.getDefaultNull();
+
+    QString const vert(el.attribute("vert"));
+    QString const hor(el.attribute("hor"));
+    m_isNull = el.attribute("null").toInt() != 0;
     m_tolerance = el.attribute("tolerance", QString::number(_key_alignment_default_alig_tolerance_def)).toDouble();
 
     m_val = strToVertical(vert);
@@ -61,12 +59,12 @@ Alignment::Alignment(QDomElement const& el)
 QDomElement
 Alignment::toXml(QDomDocument& doc, QString const& name) const
 {
-	QDomElement el(doc.createElement(name));
+    QDomElement el(doc.createElement(name));
     el.setAttribute("vert", verticalToStr(vertical()));
     el.setAttribute("hor", horizontalToStr(horizontal()));
-	el.setAttribute("null", m_isNull ? 1 : 0);
-	el.setAttribute("tolerance", QString::number(m_tolerance));
-	return el;
+    el.setAttribute("null", m_isNull ? 1 : 0);
+    el.setAttribute("tolerance", QString::number(m_tolerance));
+    return el;
 }
 
 void
@@ -95,8 +93,8 @@ Alignment::load(QSettings* _settings)
     }
 
     QSettings& settings = *_settings;
-    Vertical vert = strToVertical( settings.value(_key_alignment_default_alig_vert, verticalToStr(Vertical::VCENTER)).toString() );
-    Horizontal hor = strToHorizontal( settings.value(_key_alignment_default_alig_hor, horizontalToStr(Horizontal::HCENTER)).toString() );
+    Vertical vert = strToVertical(settings.value(_key_alignment_default_alig_vert, verticalToStr(Vertical::VCENTER)).toString());
+    Horizontal hor = strToHorizontal(settings.value(_key_alignment_default_alig_hor, horizontalToStr(Horizontal::HCENTER)).toString());
     CommandLine cli = CommandLine::get();
 
     bool isnull = cli.getDefaultNull();
@@ -120,11 +118,9 @@ Alignment::getVerboseDescription(const Alignment& alignment)
     QString center;
     if (val == (Alignment::HCENTER | Alignment::VCENTER)) {
         return QObject::tr("centered");
-    } else
-    if (val & Alignment::HCENTER) {
+    } else if (val & Alignment::HCENTER) {
         center = QObject::tr("centered horizontally");
-    } else
-    if (val & Alignment::VCENTER) {
+    } else if (val & Alignment::VCENTER) {
         center = QObject::tr("centered vertically");
     }
 
@@ -173,21 +169,20 @@ Alignment::getVerboseDescription(const Alignment& alignment)
 
     const QString plus = QObject::tr("%1 + %2");
 
-
     if (!auto_magnet.isEmpty()) {
-        txt = txt.isEmpty()? auto_magnet : plus.arg(txt).arg(auto_magnet);
+        txt = txt.isEmpty() ? auto_magnet : plus.arg(txt).arg(auto_magnet);
     }
 
     if (!original_proportions.isEmpty()) {
-        txt = txt.isEmpty()? original_proportions : plus.arg(txt).arg(original_proportions);
+        txt = txt.isEmpty() ? original_proportions : plus.arg(txt).arg(original_proportions);
     }
 
     if (!side.isEmpty()) {
-        txt = txt.isEmpty()? side : plus.arg(txt).arg(side);
+        txt = txt.isEmpty() ? side : plus.arg(txt).arg(side);
     }
 
     if (!center.isEmpty()) {
-        txt = txt.isEmpty()? center : plus.arg(txt).arg(center);
+        txt = txt.isEmpty() ? center : plus.arg(txt).arg(center);
     }
 
     return txt;
@@ -207,11 +202,9 @@ Alignment::getShortDescription(const Alignment& alignment)
     QString center;
     if (val == (Alignment::HCENTER | Alignment::VCENTER)) {
         return QObject::tr("centered");
-    } else
-    if (val & Alignment::HCENTER) {
+    } else if (val & Alignment::HCENTER) {
         center = QObject::tr("x: center");
-    } else
-    if (val & Alignment::VCENTER) {
+    } else if (val & Alignment::VCENTER) {
         center = QObject::tr("y: center");
     }
 
@@ -260,26 +253,24 @@ Alignment::getShortDescription(const Alignment& alignment)
 
     const QString plus = QObject::tr("%1 + %2");
 
-
     if (!auto_magnet.isEmpty()) {
-        txt = txt.isEmpty()? auto_magnet : plus.arg(txt).arg(auto_magnet);
+        txt = txt.isEmpty() ? auto_magnet : plus.arg(txt).arg(auto_magnet);
     }
 
     if (!original_proportions.isEmpty()) {
-        txt = txt.isEmpty()? original_proportions : plus.arg(txt).arg(original_proportions);
+        txt = txt.isEmpty() ? original_proportions : plus.arg(txt).arg(original_proportions);
     }
 
     if (!side.isEmpty()) {
-        txt = txt.isEmpty()? side : plus.arg(txt).arg(side);
+        txt = txt.isEmpty() ? side : plus.arg(txt).arg(side);
     }
 
     if (!center.isEmpty()) {
-        txt = txt.isEmpty()? center : plus.arg(txt).arg(center);
+        txt = txt.isEmpty() ? center : plus.arg(txt).arg(center);
     }
 
     return txt;
 }
-
 
 const QString
 Alignment::verticalToStr(Vertical val)
@@ -334,7 +325,7 @@ Alignment::strToVertical(const QString& val)
 }
 
 Alignment::Horizontal
-Alignment::strToHorizontal(const QString &val)
+Alignment::strToHorizontal(const QString& val)
 {
     if (val == "left") {
         return LEFT;

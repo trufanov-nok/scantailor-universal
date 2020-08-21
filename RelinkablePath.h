@@ -26,30 +26,36 @@
  */
 class RelinkablePath
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	enum Type { File, Dir };
+    enum Type { File, Dir };
 
-	RelinkablePath(QString const& path, Type type);
+    RelinkablePath(QString const& path, Type type);
 
-	QString const& normalizedPath() const { return m_normalizedPath; }
+    QString const& normalizedPath() const
+    {
+        return m_normalizedPath;
+    }
 
-	Type type() const { return m_type; }
+    Type type() const
+    {
+        return m_type;
+    }
 
-	/**
-	 * Performs the following operations on the path:
-	 * \li Converts backwards slashes to forward slashes.
-	 * \li Eliminates redundant slashes.
-	 * \li Eliminates "/./" and resolves "/../" components.
-	 * \li Removes trailing slashes.
-	 *
-	 * \return The normalized string on success or an empty string on failure.
-	 *         Failure can happen because of unresolvable "/../" components.
-	 */
-	static QString normalize(QString const& path);
+    /**
+     * Performs the following operations on the path:
+     * \li Converts backwards slashes to forward slashes.
+     * \li Eliminates redundant slashes.
+     * \li Eliminates "/./" and resolves "/../" components.
+     * \li Removes trailing slashes.
+     *
+     * \return The normalized string on success or an empty string on failure.
+     *         Failure can happen because of unresolvable "/../" components.
+     */
+    static QString normalize(QString const& path);
 private:
-	QString m_normalizedPath;
-	Type m_type;
+    QString m_normalizedPath;
+    Type m_type;
 };
 
 #endif

@@ -33,97 +33,96 @@
 template<typename T>
 class DynamicPool
 {
-	DECLARE_NON_COPYABLE(DynamicPool)
+    DECLARE_NON_COPYABLE(DynamicPool)
 public:
-	DynamicPool() {}
+    DynamicPool() {}
 
-	~DynamicPool();
+    ~DynamicPool();
 
-	/**
-	 * \brief Allocates a sequence of objects.
-	 *
-	 * If T is a POD type, the returned objects are uninitialized,
-	 * otherwise they are default-constructed.
-	 */
-	T* alloc(size_t num_elements);
+    /**
+     * \brief Allocates a sequence of objects.
+     *
+     * If T is a POD type, the returned objects are uninitialized,
+     * otherwise they are default-constructed.
+     */
+    T* alloc(size_t num_elements);
 private:
-	enum { OVERALLOCATION_FACTOR = 3 }; /**< Allocate 3 times the requested size. */
-	enum { OVERALLOCATION_LIMIT = 256 }; /**< Don't overallocate too much. */
-	
-	struct Chunk : public boost::intrusive::list_base_hook<>
-	{
-		boost::scoped_array<T> storage;
-		T* pData;
-		size_t remainingElements;
+    enum { OVERALLOCATION_FACTOR = 3 }; /**< Allocate 3 times the requested size. */
+    enum { OVERALLOCATION_LIMIT = 256 }; /**< Don't overallocate too much. */
 
-		Chunk() : pData(0), remainingElements(0) {}
+    struct Chunk : public boost::intrusive::list_base_hook<> {
+        boost::scoped_array<T> storage;
+        T* pData;
+        size_t remainingElements;
 
-		void init(boost::scoped_array<T>& data, size_t size) {
-			data.swap(storage);
-			pData = storage.get();
-			remainingElements = size;
-		}
-	};
+        Chunk() : pData(0), remainingElements(0) {}
 
-	struct DeleteDisposer
-	{
-		void operator()(Chunk* chunk) {
-			delete chunk;
-		}
-	};
+        void init(boost::scoped_array<T>& data, size_t size)
+        {
+            data.swap(storage);
+            pData = storage.get();
+            remainingElements = size;
+        }
+    };
 
-	typedef boost::intrusive::list<Chunk, boost::intrusive::constant_time_size<false> > ChunkList;
+    struct DeleteDisposer {
+        void operator()(Chunk* chunk)
+        {
+            delete chunk;
+        }
+    };
 
-	static size_t adviseChunkSize(size_t num_elements);
+    typedef boost::intrusive::list<Chunk, boost::intrusive::constant_time_size<false> > ChunkList;
 
-	ChunkList m_chunkList;
+    static size_t adviseChunkSize(size_t num_elements);
+
+    ChunkList m_chunkList;
 };
-
 
 template<typename T>
 DynamicPool<T>::~DynamicPool()
 {
-	m_chunkList.clear_and_dispose(DeleteDisposer());
+    m_chunkList.clear_and_dispose(DeleteDisposer());
 }
 
 template<typename T>
 T*
 DynamicPool<T>::alloc(size_t num_elements)
-{	
-	Chunk* chunk = 0;
+{
+    Chunk* chunk = 0;
 
-	if (!m_chunkList.empty()) {
-		chunk = &m_chunkList.back();
-		if (chunk->remainingElements < num_elements) {
-			chunk = 0;
-		}
-	}
+    if (!m_chunkList.empty()) {
+        chunk = &m_chunkList.back();
+        if (chunk->remainingElements < num_elements) {
+            chunk = 0;
+        }
+    }
 
-	if (!chunk) {
-		// Create a new chunk.
-		size_t const chunk_size = adviseChunkSize(num_elements);
-		boost::scoped_array<T> data(new T[chunk_size]);
-		chunk = &*m_chunkList.insert(m_chunkList.end(), *new Chunk);
-		chunk->init(data, chunk_size);
-	}
+    if (!chunk) {
+        // Create a new chunk.
+        size_t const chunk_size = adviseChunkSize(num_elements);
+        boost::scoped_array<T> data(new T[chunk_size]);
+        chunk = &*m_chunkList.insert(m_chunkList.end(), *new Chunk);
+        chunk->init(data, chunk_size);
+    }
 
-	// Allocate from chunk.
-	T* data = chunk->pData;
-	chunk->pData += num_elements;
-	chunk->remainingElements -= num_elements;
-	return data;
+    // Allocate from chunk.
+    T* data = chunk->pData;
+    chunk->pData += num_elements;
+    chunk->remainingElements -= num_elements;
+    return data;
 }
 
 template<typename T>
 size_t
 DynamicPool<T>::adviseChunkSize(size_t num_elements)
 {
-	size_t factor = OVERALLOCATION_LIMIT / num_elements;
-	if (factor > (size_t)OVERALLOCATION_FACTOR) {
-		factor = OVERALLOCATION_FACTOR;
-	}
+    size_t factor = OVERALLOCATION_LIMIT / num_elements;
+    if (factor > (size_t)OVERALLOCATION_FACTOR) {
+        factor = OVERALLOCATION_FACTOR;
+    }
 
-	return num_elements * (factor + 1);
+    return num_elements * (factor + 1);
 }
 
 #endif

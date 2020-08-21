@@ -30,14 +30,14 @@ class PageId;
 class PageOrderProvider : public RefCountable
 {
 public:
-	/**
-	 * Returns true if \p lhs_page precedes \p rhs_page.
-	 * \p lhs_incomplete and \p rhs_incomplete indicate whether
-	 * a page is represented by IncompleteThumbnail.
-	 */
-	virtual bool precedes(
-		PageId const& lhs_page, bool lhs_incomplete,
-		PageId const& rhs_page, bool rhs_incomplete) const = 0;
+    /**
+     * Returns true if \p lhs_page precedes \p rhs_page.
+     * \p lhs_incomplete and \p rhs_incomplete indicate whether
+     * a page is represented by IncompleteThumbnail.
+     */
+    virtual bool precedes(
+        PageId const& lhs_page, bool lhs_incomplete,
+        PageId const& rhs_page, bool rhs_incomplete) const = 0;
 
     virtual QString hint(PageId const& page) const = 0;
 };
@@ -57,13 +57,16 @@ public:
         }
     }
 
-    virtual QString hint(PageId const& /*page*/) const { return QString(); }
+    virtual QString hint(PageId const& /*page*/) const
+    {
+        return QString();
+    }
 };
 
 class ReverseOrderWrapper : public PageOrderProvider
 {
 public:
-    ReverseOrderWrapper(const PageOrderProvider* provider = nullptr): m_orderProvider(provider){}
+    ReverseOrderWrapper(const PageOrderProvider* provider = nullptr): m_orderProvider(provider) {}
     virtual bool precedes(
         PageId const& lhs_page, bool lhs_incomplete,
         PageId const& rhs_page, bool rhs_incomplete) const
@@ -75,12 +78,17 @@ public:
         }
     }
 
-    virtual QString hint(PageId const& page) const { return m_orderProvider? m_orderProvider->hint(page) : QString(); }
+    virtual QString hint(PageId const& page) const
+    {
+        return m_orderProvider ? m_orderProvider->hint(page) : QString();
+    }
 
-    void setOrderProvider(const PageOrderProvider* provider) { m_orderProvider = provider; }
+    void setOrderProvider(const PageOrderProvider* provider)
+    {
+        m_orderProvider = provider;
+    }
 private:
     const PageOrderProvider* m_orderProvider;
 };
-
 
 #endif

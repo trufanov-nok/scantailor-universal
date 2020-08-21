@@ -16,7 +16,7 @@ public:
 public slots:
     void autoSaveProject();
 private:
-    bool copyFileTo(const QString &sFromPath, const QString &sToPath);
+    bool copyFileTo(const QString& sFromPath, const QString& sToPath);
     const QString getAutoSaveInputDir();
 private:
     MainWindow* m_MW;

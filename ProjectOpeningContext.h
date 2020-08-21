@@ -34,32 +34,38 @@ class QDomDocument;
 
 class ProjectOpeningContext : public QObject
 {
-	Q_OBJECT
-	DECLARE_NON_COPYABLE(ProjectOpeningContext)
+    Q_OBJECT
+    DECLARE_NON_COPYABLE(ProjectOpeningContext)
 public:
-	ProjectOpeningContext(
-		QWidget* parent, QString const& project_file, QDomDocument const& doc);
-	
-	virtual ~ProjectOpeningContext();
-	
-	void proceed();
-	
-	QString const& projectFile() const { return m_projectFile; }
-	
-	ProjectReader* projectReader() { return &m_reader; }
+    ProjectOpeningContext(
+        QWidget* parent, QString const& project_file, QDomDocument const& doc);
+
+    virtual ~ProjectOpeningContext();
+
+    void proceed();
+
+    QString const& projectFile() const
+    {
+        return m_projectFile;
+    }
+
+    ProjectReader* projectReader()
+    {
+        return &m_reader;
+    }
 signals:
-	void done(ProjectOpeningContext* context);
+    void done(ProjectOpeningContext* context);
 private slots:
-	void fixedDpiSubmitted();
-	
-	void fixDpiDialogDestroyed();
+    void fixedDpiSubmitted();
+
+    void fixDpiDialogDestroyed();
 private:
-	void showFixDpiDialog();
-	
-	QString m_projectFile;
-	ProjectReader m_reader;
-	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
-	QWidget* m_pParent;
+    void showFixDpiDialog();
+
+    QString m_projectFile;
+    ProjectReader m_reader;
+    QPointer<FixDpiDialog> m_ptrFixDpiDialog;
+    QWidget* m_pParent;
 };
 
 #endif

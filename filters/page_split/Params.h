@@ -32,35 +32,50 @@ class QDomElement;
 namespace page_split
 {
 
-const Dpi defaultDpi = Dpi(300,300);
+const Dpi defaultDpi = Dpi(300, 300);
 
 class Params: public RegenParams
 {
 public:
-	// Member-wise copying is OK.
-	
-	Params(PageLayout const& layout,
-        Dependencies const& deps, AutoManualMode split_line_mode, Dpi const& dpi = defaultDpi);
-	
+    // Member-wise copying is OK.
+
+    Params(PageLayout const& layout,
+           Dependencies const& deps, AutoManualMode split_line_mode, Dpi const& dpi = defaultDpi);
+
     Params(QDomElement const& el);
-	
-	~Params();
-	
-	PageLayout const& pageLayout() const { return m_layout; }
-	
-	Dependencies const& dependencies() const { return m_deps; }
-	
-	AutoManualMode splitLineMode() const { return m_splitLineMode; }
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
-    Dpi origDpi() const { return m_Dpi; }
+    ~Params();
 
-    void setOrigDpi(Dpi const& dpi) { m_Dpi = dpi; }
+    PageLayout const& pageLayout() const
+    {
+        return m_layout;
+    }
+
+    Dependencies const& dependencies() const
+    {
+        return m_deps;
+    }
+
+    AutoManualMode splitLineMode() const
+    {
+        return m_splitLineMode;
+    }
+
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
+
+    Dpi origDpi() const
+    {
+        return m_Dpi;
+    }
+
+    void setOrigDpi(Dpi const& dpi)
+    {
+        m_Dpi = dpi;
+    }
 private:
-	PageLayout m_layout;
-	Dependencies m_deps;
-	AutoManualMode m_splitLineMode;
+    PageLayout m_layout;
+    Dependencies m_deps;
+    AutoManualMode m_splitLineMode;
     Dpi m_Dpi;
 };
 

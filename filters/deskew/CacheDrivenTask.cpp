@@ -30,10 +30,10 @@ namespace deskew
 {
 
 CacheDrivenTask::CacheDrivenTask(
-	IntrusivePtr<Settings> const& settings,
-	IntrusivePtr<select_content::CacheDrivenTask> const& next_task)
-:	m_ptrNextTask(next_task),
-	m_ptrSettings(settings)
+    IntrusivePtr<Settings> const& settings,
+    IntrusivePtr<select_content::CacheDrivenTask> const& next_task)
+    :   m_ptrNextTask(next_task),
+        m_ptrSettings(settings)
 {
 }
 
@@ -43,11 +43,11 @@ CacheDrivenTask::~CacheDrivenTask()
 
 void
 CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform)
+    PageInfo const& page_info, AbstractFilterDataCollector* collector,
+    ImageTransformation const& xform)
 {
-	Dependencies const deps(xform.preCropArea(), xform.preRotation());
-	std::unique_ptr<Params> params(m_ptrSettings->getPageParams(page_info.id()));
+    Dependencies const deps(xform.preCropArea(), xform.preRotation());
+    std::unique_ptr<Params> params(m_ptrSettings->getPageParams(page_info.id()));
 
     bool need_reprocess(!params.get());
     if (!need_reprocess) {
@@ -55,48 +55,48 @@ CacheDrivenTask::process(
         Params::Regenerate val = p.getForceReprocess();
         need_reprocess = val & Params::RegenerateThumbnail;
         if (need_reprocess && !m_ptrNextTask) {
-            val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+            val = (Params::Regenerate)(val & ~Params::RegenerateThumbnail);
             p.setForceReprocess(val);
             m_ptrSettings->setPageParams(page_info.id(), p);
         }
     }
 
     if (need_reprocess || !deps.matches(params->dependencies())) {
-		
-		if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-			thumb_col->processThumbnail(
-				std::unique_ptr<QGraphicsItem>(
-					new IncompleteThumbnail(
-						thumb_col->thumbnailCache(),
-						thumb_col->maxLogicalThumbSize(),
-						page_info.imageId(), xform
-					)
-				)
-			);
-		}
-		
-		return;
-	}
-	
-	ImageTransformation new_xform(xform);
-	new_xform.setPostRotation(params->deskewAngle());
-	
-	if (m_ptrNextTask) {
-		m_ptrNextTask->process(page_info, collector, new_xform);
-		return;
-	}
-	
-	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-		thumb_col->processThumbnail(
-			std::unique_ptr<QGraphicsItem>(
-				new Thumbnail(
-					thumb_col->thumbnailCache(),
-					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), new_xform, params->isDeviant(m_ptrSettings->std(), m_ptrSettings->maxDeviation())
-				)
-			)
-		);
-	}
+
+        if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
+            thumb_col->processThumbnail(
+                std::unique_ptr<QGraphicsItem>(
+                    new IncompleteThumbnail(
+                        thumb_col->thumbnailCache(),
+                        thumb_col->maxLogicalThumbSize(),
+                        page_info.imageId(), xform
+                    )
+                )
+            );
+        }
+
+        return;
+    }
+
+    ImageTransformation new_xform(xform);
+    new_xform.setPostRotation(params->deskewAngle());
+
+    if (m_ptrNextTask) {
+        m_ptrNextTask->process(page_info, collector, new_xform);
+        return;
+    }
+
+    if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
+        thumb_col->processThumbnail(
+            std::unique_ptr<QGraphicsItem>(
+                new Thumbnail(
+                    thumb_col->thumbnailCache(),
+                    thumb_col->maxLogicalThumbSize(),
+                    page_info.imageId(), new_xform, params->isDeviant(m_ptrSettings->std(), m_ptrSettings->maxDeviation())
+                )
+            )
+        );
+    }
 }
 
 } // namespace deskew

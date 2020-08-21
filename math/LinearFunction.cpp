@@ -22,50 +22,50 @@
 #include <assert.h>
 
 LinearFunction::LinearFunction(size_t num_vars)
-: a(num_vars)
-, b(0)
+    : a(num_vars)
+    , b(0)
 {
 }
 
 void
 LinearFunction::reset()
 {
-	a.fill(0);
-	b = 0;
+    a.fill(0);
+    b = 0;
 }
 
 double
 LinearFunction::evaluate(double const* x) const
 {
-	size_t const num_vars = numVars();
+    size_t const num_vars = numVars();
 
-	double sum = b;
-	for (size_t i = 0; i < num_vars; ++i) {
-		sum += a[i] * x[i];
-	}
+    double sum = b;
+    for (size_t i = 0; i < num_vars; ++i) {
+        sum += a[i] * x[i];
+    }
 
-	return sum;
+    return sum;
 }
 
 void
 LinearFunction::swap(LinearFunction& other)
 {
-	a.swap(other.a);
-	std::swap(b, other.b);
+    a.swap(other.a);
+    std::swap(b, other.b);
 }
 
 LinearFunction&
 LinearFunction::operator+=(LinearFunction const& other)
 {
-	a += other.a;
-	b += other.b;
-	return *this;
+    a += other.a;
+    b += other.b;
+    return *this;
 }
 
 LinearFunction&
 LinearFunction::operator*=(double scalar)
 {
-	a *= scalar;
-	b *= scalar;
-	return *this;
+    a *= scalar;
+    b *= scalar;
+    return *this;
 }

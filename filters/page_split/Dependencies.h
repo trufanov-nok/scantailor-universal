@@ -39,30 +39,39 @@ class Params;
  */
 class Dependencies
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	Dependencies();
-	
-	Dependencies(QDomElement const& el);
-	
-	Dependencies(QSize const& image_size,
-		OrthogonalRotation rotation, LayoutType layout_type);
+    Dependencies();
 
-	void setLayoutType(LayoutType type) { m_layoutType = type; }
+    Dependencies(QDomElement const& el);
 
-	OrthogonalRotation const& orientation() const { return m_rotation; }
+    Dependencies(QSize const& image_size,
+                 OrthogonalRotation rotation, LayoutType layout_type);
 
-	bool compatibleWith(Params const& params) const;
+    void setLayoutType(LayoutType type)
+    {
+        m_layoutType = type;
+    }
+
+    OrthogonalRotation const& orientation() const
+    {
+        return m_rotation;
+    }
+
+    bool compatibleWith(Params const& params) const;
 
     bool fixCompatibility(Params& params) const;
-	
-	bool isNull() const { return m_imageSize.isNull(); }
-	
-	QDomElement toXml(QDomDocument& doc, QString const& tag_name) const;
+
+    bool isNull() const
+    {
+        return m_imageSize.isNull();
+    }
+
+    QDomElement toXml(QDomDocument& doc, QString const& tag_name) const;
 private:
-	QSize m_imageSize;
-	OrthogonalRotation m_rotation;
-	LayoutType m_layoutType;
+    QSize m_imageSize;
+    OrthogonalRotation m_rotation;
+    LayoutType m_layoutType;
 };
 
 } // namespace page_split

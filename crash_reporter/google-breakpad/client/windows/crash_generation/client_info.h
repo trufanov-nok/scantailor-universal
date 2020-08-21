@@ -36,133 +36,166 @@
 #include "google_breakpad/common/minidump_format.h"
 #include "processor/scoped_ptr.h"
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 class CrashGenerationServer;
 
 // Abstraction for a crash client process.
-class ClientInfo {
- public:
-  // Creates an instance with the given values. Gets the process
-  // handle for the given process id and creates necessary event
-  // objects.
-  ClientInfo(CrashGenerationServer* crash_server,
-             DWORD pid,
-             MINIDUMP_TYPE dump_type,
-             DWORD* thread_id,
-             EXCEPTION_POINTERS** ex_info,
-             MDRawAssertionInfo* assert_info,
-             const CustomClientInfo& custom_client_info);
+class ClientInfo
+{
+public:
+    // Creates an instance with the given values. Gets the process
+    // handle for the given process id and creates necessary event
+    // objects.
+    ClientInfo(CrashGenerationServer* crash_server,
+               DWORD pid,
+               MINIDUMP_TYPE dump_type,
+               DWORD* thread_id,
+               EXCEPTION_POINTERS** ex_info,
+               MDRawAssertionInfo* assert_info,
+               const CustomClientInfo& custom_client_info);
 
-  ~ClientInfo();
+    ~ClientInfo();
 
-  CrashGenerationServer* crash_server() const { return crash_server_; }
-  DWORD pid() const { return pid_; }
-  MINIDUMP_TYPE dump_type() const { return dump_type_; }
-  EXCEPTION_POINTERS** ex_info() const { return ex_info_; }
-  MDRawAssertionInfo* assert_info() const { return assert_info_; }
-  DWORD* thread_id() const { return thread_id_; }
-  HANDLE process_handle() const { return process_handle_; }
-  HANDLE dump_requested_handle() const { return dump_requested_handle_; }
-  HANDLE dump_generated_handle() const { return dump_generated_handle_; }
+    CrashGenerationServer* crash_server() const
+    {
+        return crash_server_;
+    }
+    DWORD pid() const
+    {
+        return pid_;
+    }
+    MINIDUMP_TYPE dump_type() const
+    {
+        return dump_type_;
+    }
+    EXCEPTION_POINTERS** ex_info() const
+    {
+        return ex_info_;
+    }
+    MDRawAssertionInfo* assert_info() const
+    {
+        return assert_info_;
+    }
+    DWORD* thread_id() const
+    {
+        return thread_id_;
+    }
+    HANDLE process_handle() const
+    {
+        return process_handle_;
+    }
+    HANDLE dump_requested_handle() const
+    {
+        return dump_requested_handle_;
+    }
+    HANDLE dump_generated_handle() const
+    {
+        return dump_generated_handle_;
+    }
 
-  HANDLE dump_request_wait_handle() const {
-    return dump_request_wait_handle_;
-  }
+    HANDLE dump_request_wait_handle() const
+    {
+        return dump_request_wait_handle_;
+    }
 
-  void set_dump_request_wait_handle(HANDLE value) {
-    dump_request_wait_handle_ = value;
-  }
+    void set_dump_request_wait_handle(HANDLE value)
+    {
+        dump_request_wait_handle_ = value;
+    }
 
-  HANDLE process_exit_wait_handle() const {
-    return process_exit_wait_handle_;
-  }
+    HANDLE process_exit_wait_handle() const
+    {
+        return process_exit_wait_handle_;
+    }
 
-  void set_process_exit_wait_handle(HANDLE value) {
-    process_exit_wait_handle_ = value;
-  }
+    void set_process_exit_wait_handle(HANDLE value)
+    {
+        process_exit_wait_handle_ = value;
+    }
 
-  // Unregister all waits for the client.
-  bool UnregisterWaits();
+    // Unregister all waits for the client.
+    bool UnregisterWaits();
 
-  bool Initialize();
-  bool GetClientExceptionInfo(EXCEPTION_POINTERS** ex_info) const;
-  bool GetClientThreadId(DWORD* thread_id) const;
+    bool Initialize();
+    bool GetClientExceptionInfo(EXCEPTION_POINTERS** ex_info) const;
+    bool GetClientThreadId(DWORD* thread_id) const;
 
-  // Reads the custom information from the client process address space.
-  bool PopulateCustomInfo();
+    // Reads the custom information from the client process address space.
+    bool PopulateCustomInfo();
 
-  // Returns the client custom information.
-  CustomClientInfo GetCustomInfo() const;
+    // Returns the client custom information.
+    CustomClientInfo GetCustomInfo() const;
 
- private:
-  // Calculates the uptime for the client process, converts it to a string and
-  // stores it in the last entry of client custom info.
-  void SetProcessUptime();
+private:
+    // Calculates the uptime for the client process, converts it to a string and
+    // stores it in the last entry of client custom info.
+    void SetProcessUptime();
 
-  // Crash generation server.
-  CrashGenerationServer* crash_server_;
+    // Crash generation server.
+    CrashGenerationServer* crash_server_;
 
-  // Client process ID.
-  DWORD pid_;
+    // Client process ID.
+    DWORD pid_;
 
-  // Dump type requested by the client.
-  MINIDUMP_TYPE dump_type_;
+    // Dump type requested by the client.
+    MINIDUMP_TYPE dump_type_;
 
-  // Address of an EXCEPTION_POINTERS* variable in the client
-  // process address space that will point to an instance of
-  // EXCEPTION_POINTERS containing information about crash.
-  //
-  // WARNING: Do not dereference these pointers as they are pointers
-  // in the address space of another process.
-  EXCEPTION_POINTERS** ex_info_;
+    // Address of an EXCEPTION_POINTERS* variable in the client
+    // process address space that will point to an instance of
+    // EXCEPTION_POINTERS containing information about crash.
+    //
+    // WARNING: Do not dereference these pointers as they are pointers
+    // in the address space of another process.
+    EXCEPTION_POINTERS** ex_info_;
 
-  // Address of an instance of MDRawAssertionInfo in the client
-  // process address space that will contain information about
-  // non-exception related crashes like invalid parameter assertion
-  // failures and pure calls.
-  //
-  // WARNING: Do not dereference these pointers as they are pointers
-  // in the address space of another process.
-  MDRawAssertionInfo* assert_info_;
+    // Address of an instance of MDRawAssertionInfo in the client
+    // process address space that will contain information about
+    // non-exception related crashes like invalid parameter assertion
+    // failures and pure calls.
+    //
+    // WARNING: Do not dereference these pointers as they are pointers
+    // in the address space of another process.
+    MDRawAssertionInfo* assert_info_;
 
-  // Custom information about the client.
-  CustomClientInfo custom_client_info_;
+    // Custom information about the client.
+    CustomClientInfo custom_client_info_;
 
-  // Contains the custom client info entries read from the client process
-  // memory. This will be populated only if the method GetClientCustomInfo
-  // is called.
-  scoped_array<CustomInfoEntry> custom_info_entries_;
+    // Contains the custom client info entries read from the client process
+    // memory. This will be populated only if the method GetClientCustomInfo
+    // is called.
+    scoped_array<CustomInfoEntry> custom_info_entries_;
 
-  // Address of a variable in the client process address space that
-  // will contain the thread id of the crashing client thread.
-  //
-  // WARNING: Do not dereference these pointers as they are pointers
-  // in the address space of another process.
-  DWORD* thread_id_;
+    // Address of a variable in the client process address space that
+    // will contain the thread id of the crashing client thread.
+    //
+    // WARNING: Do not dereference these pointers as they are pointers
+    // in the address space of another process.
+    DWORD* thread_id_;
 
-  // Client process handle.
-  HANDLE process_handle_;
+    // Client process handle.
+    HANDLE process_handle_;
 
-  // Dump request event handle.
-  HANDLE dump_requested_handle_;
+    // Dump request event handle.
+    HANDLE dump_requested_handle_;
 
-  // Dump generated event handle.
-  HANDLE dump_generated_handle_;
+    // Dump generated event handle.
+    HANDLE dump_generated_handle_;
 
-  // Wait handle for dump request event.
-  HANDLE dump_request_wait_handle_;
+    // Wait handle for dump request event.
+    HANDLE dump_request_wait_handle_;
 
-  // Wait handle for process exit event.
-  HANDLE process_exit_wait_handle_;
+    // Wait handle for process exit event.
+    HANDLE process_exit_wait_handle_;
 
-  // Time when the client process started. It is used to determine the uptime
-  // for the client process when it signals a crash.
-  FILETIME start_time_;
+    // Time when the client process started. It is used to determine the uptime
+    // for the client process when it signals a crash.
+    FILETIME start_time_;
 
-  // Disallow copy ctor and operator=.
-  ClientInfo(const ClientInfo& client_info);
-  ClientInfo& operator=(const ClientInfo& client_info);
+    // Disallow copy ctor and operator=.
+    ClientInfo(const ClientInfo& client_info);
+    ClientInfo& operator=(const ClientInfo& client_info);
 };
 
 }  // namespace google_breakpad

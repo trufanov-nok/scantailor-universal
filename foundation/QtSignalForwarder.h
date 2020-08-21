@@ -1,19 +1,19 @@
 /*
-	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Scan Tailor - Interactive post-processing tool for scanned pages.
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef QT_SIGNAL_FORWARDER_H_
@@ -33,25 +33,25 @@
  */
 class QtSignalForwarder : public QObject
 {
-	Q_OBJECT
-	DECLARE_NON_COPYABLE(QtSignalForwarder)
+    Q_OBJECT
+    DECLARE_NON_COPYABLE(QtSignalForwarder)
 public:
-	/**
-	 * \brief Constructor.
-	 *
-	 * \param emitter The object that will emit a signal.  The forwarder
-	 *        will become its child.
-	 * \param signal The signal specification in the form of SIGNAL(name()).
-	 *        Signals with arguments may be specified, but the arguments
-	 *        won't be forwarded.
-	 * \param slot A boost::function to forward the signal to.
-	 */
-	QtSignalForwarder(
-		QObject* emitter, char const* signal, boost::function<void()> const& slot);
+    /**
+     * \brief Constructor.
+     *
+     * \param emitter The object that will emit a signal.  The forwarder
+     *        will become its child.
+     * \param signal The signal specification in the form of SIGNAL(name()).
+     *        Signals with arguments may be specified, but the arguments
+     *        won't be forwarded.
+     * \param slot A boost::function to forward the signal to.
+     */
+    QtSignalForwarder(
+        QObject* emitter, char const* signal, boost::function<void()> const& slot);
 private slots:
-	void handleSignal();
+    void handleSignal();
 private:
-	boost::function<void()> m_slot;
+    boost::function<void()> m_slot;
 };
 
 #endif

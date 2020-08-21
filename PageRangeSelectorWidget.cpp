@@ -22,7 +22,7 @@
 
 PageRangeSelectorSignalsPropagator* PageRangeSelectorSignalsPropagator::m_obj = nullptr;
 
-PageRangeSelectorWidget::PageRangeSelectorWidget(QWidget *parent) :
+PageRangeSelectorWidget::PageRangeSelectorWidget(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::PageRangeSelectorWidget)
 {
@@ -52,18 +52,16 @@ void PageRangeSelectorWidget::setData(PageId const& cur_page, PageSelectionAcces
 //    ui->rbSelected->setEnabled(sel_cnt > 1);
 
 //    if (ui->rbSelected->isEnabled()) {
-        ui->rbSelected->blockSignals(true);
-        ui->rbSelected->setChecked(true);
-        ui->rbSelected->blockSignals(false);
-        setRange(PageRangeSelectorWidget::Selected, true);
+    ui->rbSelected->blockSignals(true);
+    ui->rbSelected->setChecked(true);
+    ui->rbSelected->blockSignals(false);
+    setRange(PageRangeSelectorWidget::Selected, true);
 //    } else {
 //        ui->rbAll->blockSignals(true);
 //        ui->rbAll->setChecked(true);
 //        ui->rbAll->blockSignals(false);
 //        setRange(PageRangeSelectorWidget::All, true);
 //    }
-
-
 
     if (mode == PageView::IMAGE_VIEW) {
         // pages aren't split to left/right yet
@@ -81,9 +79,9 @@ void PageRangeSelectorWidget::setData(PageId const& cur_page, PageSelectionAcces
     }
 
     ui->lblCurrentIsEvenOrOdd->setText(
-                odd? tr("(current page is odd)") :
-                     tr("(current page is even)")
-                     );
+        odd ? tr("(current page is odd)") :
+        tr("(current page is even)")
+    );
 
     displayLabelCounters();
 }
@@ -102,21 +100,21 @@ void PageRangeSelectorWidget::on_rbSelected_clicked()
     ui->cbEven->setEnabled(!multirange);
     ui->cbOdd->setEnabled(!multirange);
     if (multirange) {
-            ui->cbEven->blockSignals(true);
-            ui->cbOdd->blockSignals(true);
-            ui->cbEven->setChecked(false);
-            ui->cbOdd->setChecked(false);
-            const QString txt = tr("Can't do: more than one group is selected.");
-            ui->cbEven->setToolTip(txt);
-            ui->cbOdd->setToolTip(txt);
+        ui->cbEven->blockSignals(true);
+        ui->cbOdd->blockSignals(true);
+        ui->cbEven->setChecked(false);
+        ui->cbOdd->setChecked(false);
+        const QString txt = tr("Can't do: more than one group is selected.");
+        ui->cbEven->setToolTip(txt);
+        ui->cbOdd->setToolTip(txt);
 
-            int f = m_curFilter & ~(PageRangeSelectorWidget::EvenPages | PageRangeSelectorWidget::OddPages);
-            if (m_range != PageRangeSelectorWidget::Selected || m_curFilter != f) {
-                m_curFilter = f; // trick to change both filter and range at one call
-                setRange(PageRangeSelectorWidget::Selected, true);
-            }
-            ui->cbEven->blockSignals(false);
-            ui->cbOdd->blockSignals(false);
+        int f = m_curFilter & ~(PageRangeSelectorWidget::EvenPages | PageRangeSelectorWidget::OddPages);
+        if (m_range != PageRangeSelectorWidget::Selected || m_curFilter != f) {
+            m_curFilter = f; // trick to change both filter and range at one call
+            setRange(PageRangeSelectorWidget::Selected, true);
+        }
+        ui->cbEven->blockSignals(false);
+        ui->cbOdd->blockSignals(false);
     } else {
         setRange(PageRangeSelectorWidget::Selected);
     }
@@ -173,21 +171,21 @@ void PageRangeSelectorWidget::on_cbOdd_toggled(bool checked)
 void PageRangeSelectorWidget::on_cbSingle_toggled(bool checked)
 {
     int f = checked ? filter() | PageRangeSelectorWidget::SinglePages :
-                      filter() & ~PageRangeSelectorWidget::SinglePages;
+            filter() & ~PageRangeSelectorWidget::SinglePages;
     setFilter(f);
 }
 
 void PageRangeSelectorWidget::on_cbLeft_toggled(bool checked)
 {
     int f = checked ? filter() | PageRangeSelectorWidget::LeftPages :
-                      filter() & ~PageRangeSelectorWidget::LeftPages;
+            filter() & ~PageRangeSelectorWidget::LeftPages;
     setFilter(f);
 }
 
 void PageRangeSelectorWidget::on_cbRight_toggled(bool checked)
 {
     int f = checked ? filter() | PageRangeSelectorWidget::RightPages :
-                      filter() & ~PageRangeSelectorWidget::RightPages;
+            filter() & ~PageRangeSelectorWidget::RightPages;
     setFilter(f);
 }
 
@@ -199,7 +197,7 @@ void PageRangeSelectorWidget::setRange(RangeOptions range, bool force_upd)
         m_rangePages.clear();
 
         if (range == PageRangeSelectorWidget::All) {
-            for (PageInfo const& page_info: m_pages) {
+            for (PageInfo const& page_info : m_pages) {
                 m_rangePages.push_back(page_info.id());
             }
         } else if (range == PageRangeSelectorWidget::AllBefore) {
@@ -221,7 +219,7 @@ void PageRangeSelectorWidget::setRange(RangeOptions range, bool force_upd)
                 m_rangePages.push_back(it->id());
             }
         } else if (range == PageRangeSelectorWidget::Selected) {
-            for (PageInfo const& page_info: m_pages) {
+            for (PageInfo const& page_info : m_pages) {
                 // m_rangePages will contain all pages from m_selectedPages but in order as in m_pages
                 if (m_selectedPages.find(page_info.id()) != m_selectedPages.end()) {
                     m_rangePages.push_back(page_info.id());
@@ -248,7 +246,6 @@ void PageRangeSelectorWidget::setFilter(int filter, bool force_upd)
         m_filteredPages = std::vector<PageId>(m_rangePages);
         m_lblCounterFiltered = 0;
 
-
 //        {   // can't remove m_curPage beforehand as it affects odd/even
 //            std::vector<PageId>::iterator it;
 //            if ((it = std::find(m_filteredPages.begin(), m_filteredPages.end(), m_curPage)) != m_filteredPages.end()) {
@@ -273,7 +270,7 @@ void PageRangeSelectorWidget::setFilter(int filter, bool force_upd)
 
     if (count_odds && m_range != PageRangeSelectorWidget::All) {
         while (it_all->id() != *it &&
-               it_all != it_all_end) {
+                it_all != it_all_end) {
             ++it_all;
             odd = !odd;
         }
@@ -326,8 +323,8 @@ QString getText(int val)
 
 void PageRangeSelectorWidget::displayLabelCounters()
 {
-    ui->lblAffectedPagesCnt->setText(getText(m_lblCounterTotal-m_lblCounterFiltered));
-    ui->lblExcludedPagesCnt->setText(getText(-1*m_lblCounterFiltered/* + 1*/));
+    ui->lblAffectedPagesCnt->setText(getText(m_lblCounterTotal - m_lblCounterFiltered));
+    ui->lblExcludedPagesCnt->setText(getText(-1 * m_lblCounterFiltered/* + 1*/));
 
 //    const QString tt = m_lblCounterFiltered == 1 ? tr("Current page is always excluded") : "";
 //    ui->lblExcludedPagesCnt->setToolTip(tt);

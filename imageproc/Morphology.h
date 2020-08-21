@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,73 +35,93 @@ class GrayImage;
 class Brick
 {
 public:
-	/**
-	 * \brief Constructs a brick with origin at the center.
-	 */
-	Brick(QSize const& size);
-	
-	/**
-	 * \brief Constructs a brick with origin specified relative to its size.
-	 *
-	 * For example, a 3x3 brick with origin at the center would be
-	 * constructed as follows:
-	 * \code
-	 * Brick brick(QSize(3, 3), QPoint(1, 1));
-	 * \endcode
-	 * \note Origin doesn't have to be inside the brick.
-	 */
-	Brick(QSize const& size, QPoint const& origin);
-	
-	/**
-	 * \brief Constructs a brick by specifying its bounds.
-	 *
-	 * Note that all bounds are inclusive.  The order of the arguments
-	 * is the same as for QRect::adjust().
-	 */
-	Brick(int min_x, int min_y, int max_x, int max_y);
-	
-	/**
-	 * \brief Get the minimum (inclusive) X offset from the origin.
-	 */
-	int minX() const { return m_minX; }
-	
-	/**
-	 * \brief Get the maximum (inclusive) X offset from the origin.
-	 */
-	int maxX() const { return m_maxX; }
-	
-	/**
-	 * \brief Get the minimum (inclusive) Y offset from the origin.
-	 */
-	int minY() const { return m_minY; }
-	
-	/**
-	 * \brief Get the maximum (inclusive) Y offset from the origin.
-	 */
-	int maxY() const { return m_maxY; }
-	
-	int width() const { return m_maxX - m_minX + 1; }
-	
-	int height() const { return m_maxY - m_minY + 1; }
-	
-	bool isEmpty() const { return m_minX > m_maxX || m_minY > m_maxY; }
-	
-	/**
-	 * \brief Flips the brick both horizontally and vertically around the origin.
-	 */
-	void flip();
-	
-	/**
-	 * \brief Returns a brick flipped both horizontally and vertically around the origin.
-	 */
-	Brick flipped() const;
-private:
-	int m_minX;
-	int m_maxX;
-	int m_minY;
-	int m_maxY;
-};
+    /**
+     * \brief Constructs a brick with origin at the center.
+     */
+    Brick(QSize const& size);
 
+    /**
+     * \brief Constructs a brick with origin specified relative to its size.
+     *
+     * For example, a 3x3 brick with origin at the center would be
+     * constructed as follows:
+     * \code
+     * Brick brick(QSize(3, 3), QPoint(1, 1));
+     * \endcode
+     * \note Origin doesn't have to be inside the brick.
+     */
+    Brick(QSize const& size, QPoint const& origin);
+
+    /**
+     * \brief Constructs a brick by specifying its bounds.
+     *
+     * Note that all bounds are inclusive.  The order of the arguments
+     * is the same as for QRect::adjust().
+     */
+    Brick(int min_x, int min_y, int max_x, int max_y);
+
+    /**
+     * \brief Get the minimum (inclusive) X offset from the origin.
+     */
+    int minX() const
+    {
+        return m_minX;
+    }
+
+    /**
+     * \brief Get the maximum (inclusive) X offset from the origin.
+     */
+    int maxX() const
+    {
+        return m_maxX;
+    }
+
+    /**
+     * \brief Get the minimum (inclusive) Y offset from the origin.
+     */
+    int minY() const
+    {
+        return m_minY;
+    }
+
+    /**
+     * \brief Get the maximum (inclusive) Y offset from the origin.
+     */
+    int maxY() const
+    {
+        return m_maxY;
+    }
+
+    int width() const
+    {
+        return m_maxX - m_minX + 1;
+    }
+
+    int height() const
+    {
+        return m_maxY - m_minY + 1;
+    }
+
+    bool isEmpty() const
+    {
+        return m_minX > m_maxX || m_minY > m_maxY;
+    }
+
+    /**
+     * \brief Flips the brick both horizontally and vertically around the origin.
+     */
+    void flip();
+
+    /**
+     * \brief Returns a brick flipped both horizontally and vertically around the origin.
+     */
+    Brick flipped() const;
+private:
+    int m_minX;
+    int m_maxX;
+    int m_minY;
+    int m_maxY;
+};
 
 /**
  * \brief Turn every black pixel into a brick of black pixels.
@@ -115,15 +135,15 @@ private:
  *        surround the source image.
  */
 BinaryImage dilateBrick(
-	BinaryImage const& src, Brick const& brick,
-	QRect const& dst_area, BWColor src_surroundings = WHITE);
+    BinaryImage const& src, Brick const& brick,
+    QRect const& dst_area, BWColor src_surroundings = WHITE);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 BinaryImage dilateBrick(
-	BinaryImage const& src, Brick const& brick,
-	BWColor src_surroundings = WHITE);
+    BinaryImage const& src, Brick const& brick,
+    BWColor src_surroundings = WHITE);
 
 /**
  * \brief Spreads darker pixels over the brick's area.
@@ -137,15 +157,15 @@ BinaryImage dilateBrick(
  *        surround the source image.
  */
 GrayImage dilateGray(
-	GrayImage const& src, Brick const& brick,
-	QRect const& dst_area, unsigned char src_surroundings = 0xff);
+    GrayImage const& src, Brick const& brick,
+    QRect const& dst_area, unsigned char src_surroundings = 0xff);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 GrayImage dilateGray(
-	GrayImage const& src, Brick const& brick,
-	unsigned char src_surroundings = 0xff);
+    GrayImage const& src, Brick const& brick,
+    unsigned char src_surroundings = 0xff);
 
 /**
  * \brief Turn every white pixel into a brick of white pixels.
@@ -159,15 +179,15 @@ GrayImage dilateGray(
  *        surround the source image.
  */
 BinaryImage erodeBrick(
-	BinaryImage const& src, Brick const& brick,
-	QRect const& dst_area, BWColor src_surroundings = BLACK);
+    BinaryImage const& src, Brick const& brick,
+    QRect const& dst_area, BWColor src_surroundings = BLACK);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 BinaryImage erodeBrick(
-	BinaryImage const& src, Brick const& brick,
-	BWColor src_surroundings = BLACK);
+    BinaryImage const& src, Brick const& brick,
+    BWColor src_surroundings = BLACK);
 
 /**
  * \brief Spreads lighter pixels over the brick's area.
@@ -181,15 +201,15 @@ BinaryImage erodeBrick(
  *        surround the source image.
  */
 GrayImage erodeGray(
-	GrayImage const& src, Brick const& brick,
-	QRect const& dst_area, unsigned char src_surroundings = 0x00);
+    GrayImage const& src, Brick const& brick,
+    QRect const& dst_area, unsigned char src_surroundings = 0x00);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 GrayImage erodeGray(
-	GrayImage const& src, Brick const& brick,
-	unsigned char src_surroundings = 0x00);
+    GrayImage const& src, Brick const& brick,
+    unsigned char src_surroundings = 0x00);
 
 /**
  * \brief Turn the black areas where the brick doesn't fit, into white.
@@ -205,15 +225,15 @@ GrayImage erodeGray(
  *        image area actually).
  */
 BinaryImage openBrick(
-	BinaryImage const& src, QSize const& brick,
-	QRect const& dst_area, BWColor src_surroundings = WHITE);
+    BinaryImage const& src, QSize const& brick,
+    QRect const& dst_area, BWColor src_surroundings = WHITE);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 BinaryImage openBrick(
-	BinaryImage const& src, QSize const& brick,
-	BWColor src_surroundings = WHITE);
+    BinaryImage const& src, QSize const& brick,
+    BWColor src_surroundings = WHITE);
 
 /**
  * \brief Remove dark areas smaller than the structuring element.
@@ -227,15 +247,15 @@ BinaryImage openBrick(
  *        surround the source image.
  */
 GrayImage openGray(
-	GrayImage const& src, QSize const& brick,
-	QRect const& dst_area, unsigned char src_surroundings);
+    GrayImage const& src, QSize const& brick,
+    QRect const& dst_area, unsigned char src_surroundings);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 GrayImage openGray(
-	GrayImage const& src, QSize const& brick,
-	unsigned char src_surroundings);
+    GrayImage const& src, QSize const& brick,
+    unsigned char src_surroundings);
 
 /**
  * \brief Turn the white areas where the brick doesn't fit, into black.
@@ -251,15 +271,15 @@ GrayImage openGray(
  *        image area actually).
  */
 BinaryImage closeBrick(
-	BinaryImage const& src, QSize const& brick,
-	QRect const& dst_area, BWColor src_surroundings = WHITE);
+    BinaryImage const& src, QSize const& brick,
+    QRect const& dst_area, BWColor src_surroundings = WHITE);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 BinaryImage closeBrick(
-	BinaryImage const& src, QSize const& brick,
-	BWColor src_surroundings = WHITE);
+    BinaryImage const& src, QSize const& brick,
+    BWColor src_surroundings = WHITE);
 
 /**
  * \brief Remove light areas smaller than the structuring element.
@@ -273,15 +293,15 @@ BinaryImage closeBrick(
  *        surround the source image.
  */
 GrayImage closeGray(
-	GrayImage const& src, QSize const& brick,
-	QRect const& dst_area, unsigned char src_surroundings);
+    GrayImage const& src, QSize const& brick,
+    QRect const& dst_area, unsigned char src_surroundings);
 
 /**
  * \brief Same as above, but assumes dst_rect == src.rect()
  */
 GrayImage closeGray(
-	GrayImage const& src, QSize const& brick,
-	unsigned char src_surroundings);
+    GrayImage const& src, QSize const& brick,
+    unsigned char src_surroundings);
 
 /**
  * \brief Performs a hit-miss matching operation.
@@ -294,9 +314,9 @@ GrayImage closeGray(
  * \return A binary image where black pixels indicate a successful pattern match.
  */
 BinaryImage hitMissMatch(
-	BinaryImage const& src, BWColor src_surroundings,
-	std::vector<QPoint> const& hits,
-	std::vector<QPoint> const& misses);
+    BinaryImage const& src, BWColor src_surroundings,
+    std::vector<QPoint> const& hits,
+    std::vector<QPoint> const& misses);
 
 /**
  * \brief A more user-friendly version of a hit-miss match operation.
@@ -307,9 +327,9 @@ BinaryImage hitMissMatch(
  * \param pattern A string representing a pattern.  Example:
  * \code
  * char const* pattern =
- * 	"?X?"
- * 	"X X"
- * 	"?X?";
+ *  "?X?"
+ *  "X X"
+ *  "?X?";
  * \endcode
  * Here X stads for a hit (black pixel) and [space] stands for a miss
  * (white pixel).  Question marks indicate pixels that we are not interested in.
@@ -320,10 +340,10 @@ BinaryImage hitMissMatch(
  * \return A binary image where black pixels indicate a successful pattern match.
  */
 BinaryImage hitMissMatch(
-	BinaryImage const& src, BWColor src_surroundings,
-	char const* pattern,
-	int pattern_width, int pattern_height,
-	QPoint const& pattern_origin);
+    BinaryImage const& src, BWColor src_surroundings,
+    char const* pattern,
+    int pattern_width, int pattern_height,
+    QPoint const& pattern_origin);
 
 /**
  * \brief Does a hit-miss match and modifies user-specified pixels.
@@ -334,9 +354,9 @@ BinaryImage hitMissMatch(
  * \param pattern A string representing a pattern.  Example:
  * \code
  * char const* pattern =
- * 	" - "
- * 	"X+X"
- * 	"XXX";
+ *  " - "
+ *  "X+X"
+ *  "XXX";
  * \endcode
  * Pattern characters have the following meaning:\n
  * 'X': A black pixel.\n
@@ -349,8 +369,8 @@ BinaryImage hitMissMatch(
  * \return The result of a match-and-replace operation.
  */
 BinaryImage hitMissReplace(
-	BinaryImage const& src, BWColor src_surroundings,
-	char const* pattern, int pattern_width, int pattern_height);
+    BinaryImage const& src, BWColor src_surroundings,
+    char const* pattern, int pattern_width, int pattern_height);
 
 /**
  * \brief Does a hit-miss match and modifies user-specified pixels.
@@ -361,9 +381,9 @@ BinaryImage hitMissReplace(
  * \param pattern A string representing a pattern.  Example:
  * \code
  * char const* pattern =
- * 	" - "
- * 	"X+X"
- * 	"XXX";
+ *  " - "
+ *  "X+X"
+ *  "XXX";
  * \endcode
  * Pattern characters have the following meaning:\n
  * 'X': A black pixel.\n
@@ -375,8 +395,8 @@ BinaryImage hitMissReplace(
  * \param pattern_height The height of the pattern.
  */
 void hitMissReplaceInPlace(
-	BinaryImage& img, BWColor src_surroundings,
-	char const* pattern, int pattern_width, int pattern_height);
+    BinaryImage& img, BWColor src_surroundings,
+    char const* pattern, int pattern_width, int pattern_height);
 
 } // namespace imageproc
 

@@ -32,35 +32,35 @@ class QNetworkReply;
 
 class CrashReportDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	CrashReportDialog(QString const& dir, QString const& id, QWidget* parent = 0);
+    CrashReportDialog(QString const& dir, QString const& id, QWidget* parent = 0);
 
-	~CrashReportDialog();
+    ~CrashReportDialog();
 protected:
-	virtual bool eventFilter(QObject* watched, QEvent* event);
+    virtual bool eventFilter(QObject* watched, QEvent* event);
 private slots:
-	void onSubmit();
+    void onSubmit();
 
-	void dispatchDone(QNetworkReply* reply);
+    void dispatchDone(QNetworkReply* reply);
 
-	void submissionDone(QNetworkReply* reply);
+    void submissionDone(QNetworkReply* reply);
 private:
-	class SystemProxyFactory;
+    class SystemProxyFactory;
 
-	static QString formatFileSize(qint64 size);
+    static QString formatFileSize(qint64 size);
 
-	QString prepareDetails() const;
+    QString prepareDetails() const;
 
-	Ui::CrashReportDialog ui;
-	QFileInfo m_dumpFileInfo;
-	QPalette m_normalPalette;
-	QPalette m_errorPalette;
-	QPalette m_successPalette;
-	QNetworkAccessManager* m_pDispatcher;
-	QNetworkAccessManager* m_pSubmitter;
-	bool m_disregardAdditionalInfo;
-	bool m_disregardEmail;
+    Ui::CrashReportDialog ui;
+    QFileInfo m_dumpFileInfo;
+    QPalette m_normalPalette;
+    QPalette m_errorPalette;
+    QPalette m_successPalette;
+    QNetworkAccessManager* m_pDispatcher;
+    QNetworkAccessManager* m_pSubmitter;
+    bool m_disregardAdditionalInfo;
+    bool m_disregardEmail;
 };
 
 #endif

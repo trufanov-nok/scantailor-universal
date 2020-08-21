@@ -30,7 +30,7 @@ class ImageTransformation;
 
 namespace output
 {
-	class CacheDrivenTask;
+class CacheDrivenTask;
 }
 
 namespace page_layout
@@ -40,19 +40,19 @@ class Settings;
 
 class CacheDrivenTask : public RefCountable
 {
-	DECLARE_NON_COPYABLE(CacheDrivenTask)
+    DECLARE_NON_COPYABLE(CacheDrivenTask)
 public:
-	CacheDrivenTask(IntrusivePtr<output::CacheDrivenTask> const& next_task,
-		IntrusivePtr<Settings> const& settings);
-	
-	virtual ~CacheDrivenTask();
-	
-	void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform, QRectF const& content_rect);
+    CacheDrivenTask(IntrusivePtr<output::CacheDrivenTask> const& next_task,
+                    IntrusivePtr<Settings> const& settings);
+
+    virtual ~CacheDrivenTask();
+
+    void process(
+        PageInfo const& page_info, AbstractFilterDataCollector* collector,
+        ImageTransformation const& xform, QRectF const& content_rect);
 private:
-	IntrusivePtr<output::CacheDrivenTask> m_ptrNextTask;
-	IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<output::CacheDrivenTask> m_ptrNextTask;
+    IntrusivePtr<Settings> m_ptrSettings;
 };
 
 } // namespace page_layout

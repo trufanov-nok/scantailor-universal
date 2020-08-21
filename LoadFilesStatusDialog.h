@@ -26,17 +26,17 @@
 class LoadFilesStatusDialog : public QDialog
 {
 public:
-	LoadFilesStatusDialog(QWidget* parent = 0);
+    LoadFilesStatusDialog(QWidget* parent = 0);
 
-	void setLoadedFiles(std::vector<QString> const& files);
-	
-	void setFailedFiles(std::vector<QString> const& failed);
+    void setLoadedFiles(std::vector<QString> const& files);
 
-	void setOkButtonName(QString const& name);
+    void setFailedFiles(std::vector<QString> const& failed);
+
+    void setOkButtonName(QString const& name);
 private:
-	Ui::LoadFilesStatusDialog ui;
-	QString m_loadedTabNameTemplate;
-	QString m_failedTabNameTemplate;
+    Ui::LoadFilesStatusDialog ui;
+    QString m_loadedTabNameTemplate;
+    QString m_failedTabNameTemplate;
 };
 
 #endif

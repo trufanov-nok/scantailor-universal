@@ -38,8 +38,8 @@ class QRectF;
 
 namespace output
 {
-	class Task;
-	class CacheDrivenTask;
+class Task;
+class CacheDrivenTask;
 }
 
 namespace page_layout
@@ -52,66 +52,72 @@ class Settings;
 
 class Filter : public AbstractFilter
 {
-	DECLARE_NON_COPYABLE(Filter)
-	Q_DECLARE_TR_FUNCTIONS(page_layout::Filter)
+    DECLARE_NON_COPYABLE(Filter)
+    Q_DECLARE_TR_FUNCTIONS(page_layout::Filter)
 public:
-	Filter(IntrusivePtr<ProjectPages> const& page_sequence,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~Filter();
-	
-	virtual QString getName() const;
-	
-	virtual PageView getView() const;
+    Filter(IntrusivePtr<ProjectPages> const& page_sequence,
+           PageSelectionAccessor const& page_selection_accessor);
 
-	virtual void selected();
+    virtual ~Filter();
 
-	virtual int selectedPageOrder() const;
+    virtual QString getName() const;
 
-	virtual void selectPageOrder(int option);
+    virtual PageView getView() const;
 
-	virtual std::vector<PageOrderOption> pageOrderOptions() const;
+    virtual void selected();
 
-	virtual void performRelinking(AbstractRelinker const& relinker);
+    virtual int selectedPageOrder() const;
 
-	virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id);
-	
-	virtual QDomElement saveSettings(
-		ProjectWriter const& writer, QDomDocument& doc) const;
-	
-	virtual void loadSettings(
-		ProjectReader const& reader, QDomElement const& filters_el);
-	
-	void setContentBox(
-		PageId const& page_id, ImageTransformation const& xform,
-		QRectF const& content_rect);
-	
-	void invalidateContentBox(PageId const& page_id);
-	
-	bool checkReadyForOutput(
-		ProjectPages const& pages, PageId const* ignore = 0);
-	
-	IntrusivePtr<Task> createTask(
-		PageId const& page_id,
-		IntrusivePtr<output::Task> const& next_task,
-		bool batch, bool debug);
-	
-	IntrusivePtr<CacheDrivenTask> createCacheDrivenTask(
-		IntrusivePtr<output::CacheDrivenTask> const& next_task);
-	
-    OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); }
-    Settings* getSettings() { return m_ptrSettings.get(); }
+    virtual void selectPageOrder(int option);
+
+    virtual std::vector<PageOrderOption> pageOrderOptions() const;
+
+    virtual void performRelinking(AbstractRelinker const& relinker);
+
+    virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id);
+
+    virtual QDomElement saveSettings(
+        ProjectWriter const& writer, QDomDocument& doc) const;
+
+    virtual void loadSettings(
+        ProjectReader const& reader, QDomElement const& filters_el);
+
+    void setContentBox(
+        PageId const& page_id, ImageTransformation const& xform,
+        QRectF const& content_rect);
+
+    void invalidateContentBox(PageId const& page_id);
+
+    bool checkReadyForOutput(
+        ProjectPages const& pages, PageId const* ignore = 0);
+
+    IntrusivePtr<Task> createTask(
+        PageId const& page_id,
+        IntrusivePtr<output::Task> const& next_task,
+        bool batch, bool debug);
+
+    IntrusivePtr<CacheDrivenTask> createCacheDrivenTask(
+        IntrusivePtr<output::CacheDrivenTask> const& next_task);
+
+    OptionsWidget* optionsWidget()
+    {
+        return m_ptrOptionsWidget.get();
+    }
+    Settings* getSettings()
+    {
+        return m_ptrSettings.get();
+    }
     void invalidateSetting(PageId const& page_id);
 private:
-	void writePageSettings(
-		QDomDocument& doc, QDomElement& filter_el,
-		PageId const& page_id, int numeric_id) const;
-	
-	IntrusivePtr<ProjectPages> m_ptrPages;
-	IntrusivePtr<Settings> m_ptrSettings;
-	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
-	std::vector<PageOrderOption> m_pageOrderOptions;
-	int m_selectedPageOrder;
+    void writePageSettings(
+        QDomDocument& doc, QDomElement& filter_el,
+        PageId const& page_id, int numeric_id) const;
+
+    IntrusivePtr<ProjectPages> m_ptrPages;
+    IntrusivePtr<Settings> m_ptrSettings;
+    SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
+    std::vector<PageOrderOption> m_pageOrderOptions;
+    int m_selectedPageOrder;
 };
 
 } // namespace page_layout

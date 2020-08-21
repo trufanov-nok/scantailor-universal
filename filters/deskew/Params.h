@@ -38,32 +38,50 @@ namespace deskew
 class Params: public RegenParams
 {
 public:
-	// Member-wise copying is OK.
-	
-	Params(double deskew_angle_deg,
-		Dependencies const& deps, AutoManualMode mode);
-	
-	Params(QDomElement const& deskew_el); 
-	
-	~Params();
-	
-	double deskewAngle() const { return m_deskewAngleDeg; }
+    // Member-wise copying is OK.
 
-	double deviation() const { return m_deviation; }
-	void computeDeviation(double avg) { m_deviation = avg - m_deskewAngleDeg; }
-	// check if skew is too large
-	bool isDeviant(double std, double max_dev=CommandLine::get().getSkewDeviation()) const { return std::max(1.5*std, max_dev) < fabs(m_deviation); }
-	
-	Dependencies const& dependencies() const { return m_deps; }
-	
-	AutoManualMode mode() const { return m_mode; }
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
+    Params(double deskew_angle_deg,
+           Dependencies const& deps, AutoManualMode mode);
+
+    Params(QDomElement const& deskew_el);
+
+    ~Params();
+
+    double deskewAngle() const
+    {
+        return m_deskewAngleDeg;
+    }
+
+    double deviation() const
+    {
+        return m_deviation;
+    }
+    void computeDeviation(double avg)
+    {
+        m_deviation = avg - m_deskewAngleDeg;
+    }
+    // check if skew is too large
+    bool isDeviant(double std, double max_dev = CommandLine::get().getSkewDeviation()) const
+    {
+        return std::max(1.5 * std, max_dev) < fabs(m_deviation);
+    }
+
+    Dependencies const& dependencies() const
+    {
+        return m_deps;
+    }
+
+    AutoManualMode mode() const
+    {
+        return m_mode;
+    }
+
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
-	double m_deskewAngleDeg;
-	Dependencies m_deps;
-	AutoManualMode m_mode;
-	double m_deviation;
+    double m_deskewAngleDeg;
+    Dependencies m_deps;
+    AutoManualMode m_mode;
+    double m_deviation;
 };
 
 } // namespace deskew

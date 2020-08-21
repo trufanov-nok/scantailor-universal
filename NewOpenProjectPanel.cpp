@@ -44,165 +44,165 @@
 #include <algorithm>
 
 NewOpenProjectPanel::NewOpenProjectPanel(QWidget* parent)
-:	QWidget(parent)
+    :   QWidget(parent)
 {
-	setupUi(this);
-	
-	recentProjectsGroup->setLayout(new QVBoxLayout);
-	newProjectLabel->setText(
-		Utils::richTextForLink(newProjectLabel->text())
-	);
-	openProjectLabel->setText(
-		Utils::richTextForLink(openProjectLabel->text())
-	);
-	
-	RecentProjects rp;
-	rp.read();
-	if (!rp.validate()) {
-		// Some project files weren't found.
-		// Write the list without them.
-		rp.write();
-	}
-	if (rp.isEmpty()) {
-		recentProjectsGroup->setVisible(false);
-	} else {
-		rp.enumerate(
-			boost::lambda::bind(
-				&NewOpenProjectPanel::addRecentProject,
-				this, boost::lambda::_1
-			)
-		);
-	}
-	
-	connect(
-		newProjectLabel, SIGNAL(linkActivated(QString const&)),
-		this, SIGNAL(newProject())
-	);
-	connect(
-		openProjectLabel, SIGNAL(linkActivated(QString const&)),
-		this, SIGNAL(openProject())
-	);
+    setupUi(this);
+
+    recentProjectsGroup->setLayout(new QVBoxLayout);
+    newProjectLabel->setText(
+        Utils::richTextForLink(newProjectLabel->text())
+    );
+    openProjectLabel->setText(
+        Utils::richTextForLink(openProjectLabel->text())
+    );
+
+    RecentProjects rp;
+    rp.read();
+    if (!rp.validate()) {
+        // Some project files weren't found.
+        // Write the list without them.
+        rp.write();
+    }
+    if (rp.isEmpty()) {
+        recentProjectsGroup->setVisible(false);
+    } else {
+        rp.enumerate(
+            boost::lambda::bind(
+                &NewOpenProjectPanel::addRecentProject,
+                this, boost::lambda::_1
+            )
+        );
+    }
+
+    connect(
+        newProjectLabel, SIGNAL(linkActivated(QString)),
+        this, SIGNAL(newProject())
+    );
+    connect(
+        openProjectLabel, SIGNAL(linkActivated(QString)),
+        this, SIGNAL(openProject())
+    );
 }
 
 void
 NewOpenProjectPanel::addRecentProject(QString const& file_path)
 {
-	QFileInfo const file_info(file_path);
-	QString base_name(file_info.baseName());
-	if (base_name.isEmpty()) {
-		base_name = QChar('_');
-	}
-	QLabel* label = new QLabel(recentProjectsGroup);
-	label->setWordWrap(true);
-	label->setTextFormat(Qt::RichText);
-	label->setText(Utils::richTextForLink(base_name, file_path));
-	label->setToolTip(file_path);
-	recentProjectsGroup->layout()->addWidget(label);
-	
-	connect(
-		label, SIGNAL(linkActivated(QString const&)),
-		this, SIGNAL(openRecentProject(QString const&))
-	);
+    QFileInfo const file_info(file_path);
+    QString base_name(file_info.baseName());
+    if (base_name.isEmpty()) {
+        base_name = QChar('_');
+    }
+    QLabel* label = new QLabel(recentProjectsGroup);
+    label->setWordWrap(true);
+    label->setTextFormat(Qt::RichText);
+    label->setText(Utils::richTextForLink(base_name, file_path));
+    label->setToolTip(file_path);
+    recentProjectsGroup->layout()->addWidget(label);
+
+    connect(
+        label, SIGNAL(linkActivated(QString)),
+        this, SIGNAL(openRecentProject(QString))
+    );
 }
 
 void
 NewOpenProjectPanel::paintEvent(QPaintEvent* event)
 {
-	// In fact Qt doesn't draw QWidget's background, unless
-	// autoFillBackground property is set, so we can safely
-	// draw our borders and shadows in the margins area.
-	
-	int left = 0, top = 0, right = 0, bottom = 0;
-	layout()->getContentsMargins(&left, &top, &right, &bottom);
-	
-	QRect const widget_rect(rect());
-	QRect const except_margins(
-		widget_rect.adjusted(left, top, -right, -bottom)
-	);
-	
-	int const border = 1; // Solid line border width.
-	int const shadow = std::min(right, bottom) - border;
-	
-	QPainter painter(this);
-	
-	// Draw the border.
-	painter.setPen(QPen(palette().windowText(), border));
-	
-	// Note that we specify the coordinates excluding
-	// pen width.
-	painter.drawRect(except_margins);
-	
-	QColor const dark(Qt::darkGray);
-	QColor const light(Qt::transparent);
-	
-	if (shadow <= 0) {
-		return;
-	}
-	
-	// Let's adjust the margins to exclude borders.
-	left -= border;
-	right -= border;
-	top -= border;
-	bottom -= border;
-	
-	// This rectangle extends 1 pixel into each shadow area.
-	QRect const extended(
-		except_margins.adjusted(
-			-border - 1, -border - 1, border + 1, border + 1
-		)
-	);
-	
-	// Right shadow.
-	{
-		QRect rect(widget_rect);
-		rect.setWidth(shadow);
-		rect.moveLeft(extended.right());
-		rect.adjust(0, top + shadow, 0, -bottom);
-		QLinearGradient grad(rect.topLeft(), rect.topRight());
-		grad.setColorAt(0, dark);
-		grad.setColorAt(1, light);
-		painter.fillRect(rect, grad);
-	}
-	
-	// Down shadow.
-	{
-		QRect rect(widget_rect);
-		rect.setHeight(shadow);
-		rect.moveTop(extended.bottom());
-		rect.adjust(left + shadow, 0, -right, 0);
-		QLinearGradient grad(rect.topLeft(), rect.bottomLeft());
-		grad.setColorAt(0, dark);
-		grad.setColorAt(1, light);
-		painter.fillRect(rect, grad);
-	}
-	
-	// Bottom-right corner.
-	{
-		QRect rect(0, 0, shadow, shadow);
-		rect.moveTopLeft(extended.bottomRight());
-		QRadialGradient grad(rect.topLeft(), shadow);
-		grad.setColorAt(0, dark);
-		grad.setColorAt(1, light);
-		painter.fillRect(rect, grad);
-	}
-	
-	// Top-right corner.
-	{
-		QRect rect(0, 0, shadow, shadow);
-		rect.moveTopLeft(extended.topRight() + QPoint(0, border));
-		QRadialGradient grad(rect.bottomLeft(), shadow);
-		grad.setColorAt(0, dark);
-		grad.setColorAt(1, light);
-		painter.fillRect(rect, grad);
-	}
-	
-	// Bottom-left corner.
-	{
-		QRect rect(0, 0, shadow, shadow);
-		rect.moveTopLeft(extended.bottomLeft() + QPoint(border, 0));
-		QRadialGradient grad(rect.topRight(), shadow);
-		grad.setColorAt(0, dark);
-		grad.setColorAt(1, light);
-		painter.fillRect(rect, grad);
-	}
+    // In fact Qt doesn't draw QWidget's background, unless
+    // autoFillBackground property is set, so we can safely
+    // draw our borders and shadows in the margins area.
+
+    int left = 0, top = 0, right = 0, bottom = 0;
+    layout()->getContentsMargins(&left, &top, &right, &bottom);
+
+    QRect const widget_rect(rect());
+    QRect const except_margins(
+        widget_rect.adjusted(left, top, -right, -bottom)
+    );
+
+    int const border = 1; // Solid line border width.
+    int const shadow = std::min(right, bottom) - border;
+
+    QPainter painter(this);
+
+    // Draw the border.
+    painter.setPen(QPen(palette().windowText(), border));
+
+    // Note that we specify the coordinates excluding
+    // pen width.
+    painter.drawRect(except_margins);
+
+    QColor const dark(Qt::darkGray);
+    QColor const light(Qt::transparent);
+
+    if (shadow <= 0) {
+        return;
+    }
+
+    // Let's adjust the margins to exclude borders.
+    left -= border;
+    right -= border;
+    top -= border;
+    bottom -= border;
+
+    // This rectangle extends 1 pixel into each shadow area.
+    QRect const extended(
+        except_margins.adjusted(
+            -border - 1, -border - 1, border + 1, border + 1
+        )
+    );
+
+    // Right shadow.
+    {
+        QRect rect(widget_rect);
+        rect.setWidth(shadow);
+        rect.moveLeft(extended.right());
+        rect.adjust(0, top + shadow, 0, -bottom);
+        QLinearGradient grad(rect.topLeft(), rect.topRight());
+        grad.setColorAt(0, dark);
+        grad.setColorAt(1, light);
+        painter.fillRect(rect, grad);
+    }
+
+    // Down shadow.
+    {
+        QRect rect(widget_rect);
+        rect.setHeight(shadow);
+        rect.moveTop(extended.bottom());
+        rect.adjust(left + shadow, 0, -right, 0);
+        QLinearGradient grad(rect.topLeft(), rect.bottomLeft());
+        grad.setColorAt(0, dark);
+        grad.setColorAt(1, light);
+        painter.fillRect(rect, grad);
+    }
+
+    // Bottom-right corner.
+    {
+        QRect rect(0, 0, shadow, shadow);
+        rect.moveTopLeft(extended.bottomRight());
+        QRadialGradient grad(rect.topLeft(), shadow);
+        grad.setColorAt(0, dark);
+        grad.setColorAt(1, light);
+        painter.fillRect(rect, grad);
+    }
+
+    // Top-right corner.
+    {
+        QRect rect(0, 0, shadow, shadow);
+        rect.moveTopLeft(extended.topRight() + QPoint(0, border));
+        QRadialGradient grad(rect.bottomLeft(), shadow);
+        grad.setColorAt(0, dark);
+        grad.setColorAt(1, light);
+        painter.fillRect(rect, grad);
+    }
+
+    // Bottom-left corner.
+    {
+        QRect rect(0, 0, shadow, shadow);
+        rect.moveTopLeft(extended.bottomLeft() + QPoint(border, 0));
+        QRadialGradient grad(rect.topRight(), shadow);
+        grad.setColorAt(0, dark);
+        grad.setColorAt(1, light);
+        painter.fillRect(rect, grad);
+    }
 }

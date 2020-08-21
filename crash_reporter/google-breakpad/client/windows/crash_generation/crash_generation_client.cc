@@ -32,7 +32,8 @@
 #include <utility>
 #include "client/windows/common/ipc_protocol.h"
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 const int kPipeBusyWaitTimeoutMs = 2000;
 
@@ -94,33 +95,35 @@ CrashGenerationClient::CrashGenerationClient(
     const wchar_t* pipe_name,
     MINIDUMP_TYPE dump_type,
     const CustomClientInfo* custom_info)
-        : pipe_name_(pipe_name),
-          dump_type_(dump_type),
-          thread_id_(0),
-          server_process_id_(0),
-          crash_event_(nullptr),
-          crash_generated_(nullptr),
-          server_alive_(nullptr),
-          exception_pointers_(nullptr),
-          custom_info_() {
-  memset(&assert_info_, 0, sizeof(assert_info_));
-  if (custom_info) {
-    custom_info_ = *custom_info;
-  }
+    : pipe_name_(pipe_name),
+      dump_type_(dump_type),
+      thread_id_(0),
+      server_process_id_(0),
+      crash_event_(nullptr),
+      crash_generated_(nullptr),
+      server_alive_(nullptr),
+      exception_pointers_(nullptr),
+      custom_info_()
+{
+    memset(&assert_info_, 0, sizeof(assert_info_));
+    if (custom_info) {
+        custom_info_ = *custom_info;
+    }
 }
 
-CrashGenerationClient::~CrashGenerationClient() {
-  if (crash_event_) {
-    CloseHandle(crash_event_);
-  }
+CrashGenerationClient::~CrashGenerationClient()
+{
+    if (crash_event_) {
+        CloseHandle(crash_event_);
+    }
 
-  if (crash_generated_) {
-    CloseHandle(crash_generated_);
-  }
+    if (crash_generated_) {
+        CloseHandle(crash_generated_);
+    }
 
-  if (server_alive_) {
-    CloseHandle(server_alive_);
-  }
+    if (server_alive_) {
+        CloseHandle(server_alive_);
+    }
 }
 
 // Performs the registration step with the server process.
@@ -156,182 +159,191 @@ CrashGenerationClient::~CrashGenerationClient() {
 // dump generation service is not available.
 //
 // Returns true if the registration is successful; false otherwise.
-bool CrashGenerationClient::Register() {
-  HANDLE pipe = ConnectToServer();
-  if (!pipe) {
-    return false;
-  }
+bool CrashGenerationClient::Register()
+{
+    HANDLE pipe = ConnectToServer();
+    if (!pipe) {
+        return false;
+    }
 
-  bool success = RegisterClient(pipe);
-  CloseHandle(pipe);
-  return success;
-}
-
-HANDLE CrashGenerationClient::ConnectToServer() {
-  HANDLE pipe = ConnectToPipe(pipe_name_.c_str(),
-                              kPipeDesiredAccess,
-                              kPipeFlagsAndAttributes);
-  if (!pipe) {
-    return nullptr;
-  }
-
-  DWORD mode = kPipeMode;
-  if (!SetNamedPipeHandleState(pipe, &mode, nullptr, nullptr)) {
+    bool success = RegisterClient(pipe);
     CloseHandle(pipe);
-    pipe = nullptr;
-  }
-
-  return pipe;
+    return success;
 }
 
-bool CrashGenerationClient::RegisterClient(HANDLE pipe) {
-  ProtocolMessage msg(MESSAGE_TAG_REGISTRATION_REQUEST,
-                      GetCurrentProcessId(),
-                      dump_type_,
-                      &thread_id_,
-                      &exception_pointers_,
-                      &assert_info_,
-                      custom_info_,
-                      nullptr,
-                      nullptr,
-                      nullptr);
-  ProtocolMessage reply;
-  DWORD bytes_count = 0;
-  // The call to TransactNamedPipe below can be changed to a call
-  // to TransactNamedPipeDebugHelper to help repro some scenarios.
-  // For details see comments for TransactNamedPipeDebugHelper.
-  if (!TransactNamedPipe(pipe,
-                         &msg,
-                         sizeof(msg),
-                         &reply,
-                         sizeof(ProtocolMessage),
-                         &bytes_count,
-                         nullptr)) {
-    return false;
-  }
+HANDLE CrashGenerationClient::ConnectToServer()
+{
+    HANDLE pipe = ConnectToPipe(pipe_name_.c_str(),
+                                kPipeDesiredAccess,
+                                kPipeFlagsAndAttributes);
+    if (!pipe) {
+        return nullptr;
+    }
 
-  if (!ValidateResponse(reply)) {
-    return false;
-  }
+    DWORD mode = kPipeMode;
+    if (!SetNamedPipeHandleState(pipe, &mode, nullptr, nullptr)) {
+        CloseHandle(pipe);
+        pipe = nullptr;
+    }
 
-  ProtocolMessage ack_msg;
-  ack_msg.tag = MESSAGE_TAG_REGISTRATION_ACK;
+    return pipe;
+}
 
-  if (!WriteFile(pipe, &ack_msg, sizeof(ack_msg), &bytes_count, nullptr)) {
-    return false;
-  }
-  crash_event_ = reply.dump_request_handle;
-  crash_generated_ = reply.dump_generated_handle;
-  server_alive_ = reply.server_alive_handle;
-  server_process_id_ = reply.pid;
+bool CrashGenerationClient::RegisterClient(HANDLE pipe)
+{
+    ProtocolMessage msg(MESSAGE_TAG_REGISTRATION_REQUEST,
+                        GetCurrentProcessId(),
+                        dump_type_,
+                        &thread_id_,
+                        &exception_pointers_,
+                        &assert_info_,
+                        custom_info_,
+                        nullptr,
+                        nullptr,
+                        nullptr);
+    ProtocolMessage reply;
+    DWORD bytes_count = 0;
+    // The call to TransactNamedPipe below can be changed to a call
+    // to TransactNamedPipeDebugHelper to help repro some scenarios.
+    // For details see comments for TransactNamedPipeDebugHelper.
+    if (!TransactNamedPipe(pipe,
+                           &msg,
+                           sizeof(msg),
+                           &reply,
+                           sizeof(ProtocolMessage),
+                           &bytes_count,
+                           nullptr)) {
+        return false;
+    }
 
-  return true;
+    if (!ValidateResponse(reply)) {
+        return false;
+    }
+
+    ProtocolMessage ack_msg;
+    ack_msg.tag = MESSAGE_TAG_REGISTRATION_ACK;
+
+    if (!WriteFile(pipe, &ack_msg, sizeof(ack_msg), &bytes_count, nullptr)) {
+        return false;
+    }
+    crash_event_ = reply.dump_request_handle;
+    crash_generated_ = reply.dump_generated_handle;
+    server_alive_ = reply.server_alive_handle;
+    server_process_id_ = reply.pid;
+
+    return true;
 }
 
 HANDLE CrashGenerationClient::ConnectToPipe(const wchar_t* pipe_name,
-                                            DWORD pipe_access,
-                                            DWORD flags_attrs) {
-  for (int i = 0; i < kPipeConnectMaxAttempts; ++i) {
-    HANDLE pipe = CreateFile(pipe_name,
-                             pipe_access,
-                             0,
-                             nullptr,
-                             OPEN_EXISTING,
-                             flags_attrs,
-                             nullptr);
-    if (pipe != INVALID_HANDLE_VALUE) {
-      return pipe;
+        DWORD pipe_access,
+        DWORD flags_attrs)
+{
+    for (int i = 0; i < kPipeConnectMaxAttempts; ++i) {
+        HANDLE pipe = CreateFile(pipe_name,
+                                 pipe_access,
+                                 0,
+                                 nullptr,
+                                 OPEN_EXISTING,
+                                 flags_attrs,
+                                 nullptr);
+        if (pipe != INVALID_HANDLE_VALUE) {
+            return pipe;
+        }
+
+        // Cannot continue retrying if error is something other than
+        // ERROR_PIPE_BUSY.
+        if (GetLastError() != ERROR_PIPE_BUSY) {
+            break;
+        }
+
+        // Cannot continue retrying if wait on pipe fails.
+        if (!WaitNamedPipe(pipe_name, kPipeBusyWaitTimeoutMs)) {
+            break;
+        }
     }
 
-    // Cannot continue retrying if error is something other than
-    // ERROR_PIPE_BUSY.
-    if (GetLastError() != ERROR_PIPE_BUSY) {
-      break;
-    }
-
-    // Cannot continue retrying if wait on pipe fails.
-    if (!WaitNamedPipe(pipe_name, kPipeBusyWaitTimeoutMs)) {
-      break;
-    }
-  }
-
-  return nullptr;
+    return nullptr;
 }
 
 bool CrashGenerationClient::ValidateResponse(
-    const ProtocolMessage& msg) const {
-  return (msg.tag == MESSAGE_TAG_REGISTRATION_RESPONSE) &&
-         (msg.pid != 0) &&
-         (msg.dump_request_handle != nullptr) &&
-         (msg.dump_generated_handle != nullptr) &&
-         (msg.server_alive_handle != nullptr);
+    const ProtocolMessage& msg) const
+{
+    return (msg.tag == MESSAGE_TAG_REGISTRATION_RESPONSE) &&
+           (msg.pid != 0) &&
+           (msg.dump_request_handle != nullptr) &&
+           (msg.dump_generated_handle != nullptr) &&
+           (msg.server_alive_handle != nullptr);
 }
 
-bool CrashGenerationClient::IsRegistered() const {
-  return crash_event_ != nullptr;
+bool CrashGenerationClient::IsRegistered() const
+{
+    return crash_event_ != nullptr;
 }
 
-bool CrashGenerationClient::RequestDump(EXCEPTION_POINTERS* ex_info) {
-  if (!IsRegistered()) {
-    return false;
-  }
+bool CrashGenerationClient::RequestDump(EXCEPTION_POINTERS* ex_info)
+{
+    if (!IsRegistered()) {
+        return false;
+    }
 
-  exception_pointers_ = ex_info;
-  thread_id_ = GetCurrentThreadId();
+    exception_pointers_ = ex_info;
+    thread_id_ = GetCurrentThreadId();
 
-  assert_info_.line = 0;
-  assert_info_.type = 0;
-  assert_info_.expression[0] = 0;
-  assert_info_.file[0] = 0;
-  assert_info_.function[0] = 0;
+    assert_info_.line = 0;
+    assert_info_.type = 0;
+    assert_info_.expression[0] = 0;
+    assert_info_.file[0] = 0;
+    assert_info_.function[0] = 0;
 
-  return SignalCrashEventAndWait();
+    return SignalCrashEventAndWait();
 }
 
-bool CrashGenerationClient::RequestDump(MDRawAssertionInfo* assert_info) {
-  if (!IsRegistered()) {
-    return false;
-  }
+bool CrashGenerationClient::RequestDump(MDRawAssertionInfo* assert_info)
+{
+    if (!IsRegistered()) {
+        return false;
+    }
 
-  exception_pointers_ = nullptr;
+    exception_pointers_ = nullptr;
 
-  if (assert_info) {
-    memcpy(&assert_info_, assert_info, sizeof(assert_info_));
-  } else {
-    memset(&assert_info_, 0, sizeof(assert_info_));
-  }
+    if (assert_info) {
+        memcpy(&assert_info_, assert_info, sizeof(assert_info_));
+    } else {
+        memset(&assert_info_, 0, sizeof(assert_info_));
+    }
 
-  thread_id_ = GetCurrentThreadId();
+    thread_id_ = GetCurrentThreadId();
 
-  return SignalCrashEventAndWait();
+    return SignalCrashEventAndWait();
 }
 
-bool CrashGenerationClient::SignalCrashEventAndWait() {
-  assert(crash_event_);
-  assert(crash_generated_);
-  assert(server_alive_);
+bool CrashGenerationClient::SignalCrashEventAndWait()
+{
+    assert(crash_event_);
+    assert(crash_generated_);
+    assert(server_alive_);
 
-  // Reset the dump generated event before signaling the crash
-  // event so that the server can set the dump generated event
-  // once it is done generating the event.
-  if (!ResetEvent(crash_generated_)) {
-    return false;
-  }
+    // Reset the dump generated event before signaling the crash
+    // event so that the server can set the dump generated event
+    // once it is done generating the event.
+    if (!ResetEvent(crash_generated_)) {
+        return false;
+    }
 
-  if (!SetEvent(crash_event_)) {
-    return false;
-  }
+    if (!SetEvent(crash_event_)) {
+        return false;
+    }
 
-  HANDLE wait_handles[kWaitEventCount] = {crash_generated_, server_alive_};
+    HANDLE wait_handles[kWaitEventCount] = {crash_generated_, server_alive_};
 
-  DWORD result = WaitForMultipleObjects(kWaitEventCount,
-                                        wait_handles,
-                                        FALSE,
-                                        kWaitForServerTimeoutMs);
+    DWORD result = WaitForMultipleObjects(kWaitEventCount,
+                                          wait_handles,
+                                          FALSE,
+                                          kWaitForServerTimeoutMs);
 
-  // Crash dump was successfully generated only if the server
-  // signaled the crash generated event.
-  return result == WAIT_OBJECT_0;
+    // Crash dump was successfully generated only if the server
+    // signaled the crash generated event.
+    return result == WAIT_OBJECT_0;
 }
 
 }  // namespace google_breakpad

@@ -27,43 +27,43 @@
 
 class BackgroundExecutor
 {
-	DECLARE_NON_COPYABLE(BackgroundExecutor)
+    DECLARE_NON_COPYABLE(BackgroundExecutor)
 public:
-	typedef IntrusivePtr<AbstractCommand0<void> > TaskResultPtr;
-	typedef IntrusivePtr<AbstractCommand0<TaskResultPtr> > TaskPtr;
-	
-	BackgroundExecutor();
-	
-	/**
-	 * \brief Waits for background tasks to finish, then destroys the object.
-	 */
-	~BackgroundExecutor();
-	
-	/**
-	 * \brief Waits for pending jobs to finish and stop the background thread.
-	 *
-	 * The destructor also performs these tasks, so this method is only
-	 * useful to prematuraly stop task processing.  After shutdown, any
-	 * attempts to enqueue a task will be silently ignored.
-	 */
-	void shutdown();
-	
-	/**
-	 * \brief Enqueue a task for execution in a background thread.
-	 *
-	 * A task is a functor to be executed in a background thread.
-	 * That functor may optionally return another one, that is
-	 * to be executed in the thread where this BackgroundExecutor
-	 * object was constructed.
-	 */
-	void enqueueTask(TaskPtr const& task);
+    typedef IntrusivePtr<AbstractCommand0<void> > TaskResultPtr;
+    typedef IntrusivePtr<AbstractCommand0<TaskResultPtr> > TaskPtr;
+
+    BackgroundExecutor();
+
+    /**
+     * \brief Waits for background tasks to finish, then destroys the object.
+     */
+    ~BackgroundExecutor();
+
+    /**
+     * \brief Waits for pending jobs to finish and stop the background thread.
+     *
+     * The destructor also performs these tasks, so this method is only
+     * useful to prematuraly stop task processing.  After shutdown, any
+     * attempts to enqueue a task will be silently ignored.
+     */
+    void shutdown();
+
+    /**
+     * \brief Enqueue a task for execution in a background thread.
+     *
+     * A task is a functor to be executed in a background thread.
+     * That functor may optionally return another one, that is
+     * to be executed in the thread where this BackgroundExecutor
+     * object was constructed.
+     */
+    void enqueueTask(TaskPtr const& task);
 private:
-	class Impl;
-	class Dispatcher;
-	typedef PayloadEvent<TaskPtr> TaskEvent;
-	typedef PayloadEvent<TaskResultPtr> ResultEvent;
-	
-	std::unique_ptr<Impl> m_ptrImpl;
+    class Impl;
+    class Dispatcher;
+    typedef PayloadEvent<TaskPtr> TaskEvent;
+    typedef PayloadEvent<TaskResultPtr> ResultEvent;
+
+    std::unique_ptr<Impl> m_ptrImpl;
 };
 
 #endif

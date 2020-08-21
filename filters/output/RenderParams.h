@@ -27,57 +27,68 @@ class ColorParams;
 class RenderParams
 {
 public:
-	RenderParams() : m_mask(0) {}
-	
-	RenderParams(ColorParams const& color_params);
-	
-	bool whiteMargins() const { return (m_mask & WHITE_MARGINS) != 0; }
-	
-	bool normalizeIllumination() const {
-		return (m_mask & NORMALIZE_ILLUMINATION) != 0;
-	}
-	
-	bool needBinarization() const {
-        return (m_mask & NEED_BINARIZATION) != 0;
-	}
-	
-	bool mixedOutput() const {
-		return (m_mask & MIXED_OUTPUT) != 0;
-	}
-	
-	bool binaryOutput() const {
-		return (m_mask & (NEED_BINARIZATION|MIXED_OUTPUT))
-				== NEED_BINARIZATION;
-	}
+    RenderParams() : m_mask(0) {}
 
-    bool autoLayer() const {
+    RenderParams(ColorParams const& color_params);
+
+    bool whiteMargins() const
+    {
+        return (m_mask & WHITE_MARGINS) != 0;
+    }
+
+    bool normalizeIllumination() const
+    {
+        return (m_mask & NORMALIZE_ILLUMINATION) != 0;
+    }
+
+    bool needBinarization() const
+    {
+        return (m_mask & NEED_BINARIZATION) != 0;
+    }
+
+    bool mixedOutput() const
+    {
+        return (m_mask & MIXED_OUTPUT) != 0;
+    }
+
+    bool binaryOutput() const
+    {
+        return (m_mask & (NEED_BINARIZATION | MIXED_OUTPUT))
+               == NEED_BINARIZATION;
+    }
+
+    bool autoLayer() const
+    {
         return (m_mask & AUTO_LAYER) != 0;
     }
 
-    bool pictureZonesLayer() const {
+    bool pictureZonesLayer() const
+    {
         return (m_mask & PICTURE_ZONES_LAYER) != 0;
     }
 
-    bool foregroundLayer() const {
+    bool foregroundLayer() const
+    {
         return (m_mask & FOREGROUND_LAYER) != 0;
     }
 
-    bool anyLayer() const {
+    bool anyLayer() const
+    {
         return autoLayer() || pictureZonesLayer() || foregroundLayer();
     }
 
 private:
-	enum {
-		WHITE_MARGINS = 1,
-		NORMALIZE_ILLUMINATION = 2,
-		NEED_BINARIZATION = 4,
-        MIXED_OUTPUT = 8,        
+    enum {
+        WHITE_MARGINS = 1,
+        NORMALIZE_ILLUMINATION = 2,
+        NEED_BINARIZATION = 4,
+        MIXED_OUTPUT = 8,
         AUTO_LAYER = 16,
         PICTURE_ZONES_LAYER = 32,
         FOREGROUND_LAYER = 64
-	};
-	
-	int m_mask;
+    };
+
+    int m_mask;
 };
 
 } // namespace output

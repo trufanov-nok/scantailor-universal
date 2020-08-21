@@ -19,39 +19,39 @@
 #include "PageSelectionAccessor.h"
 #include "PageSequence.h"
 
-
-PageSelectionAccessor::PageSelectionAccessor( const PageSelectionAccessor& src ) {
+PageSelectionAccessor::PageSelectionAccessor(const PageSelectionAccessor& src)
+{
     m_ptrProvider = src.m_ptrProvider;
     if (m_ptrProvider.get()) {
-        QObject::connect(m_ptrProvider.get(), SIGNAL(toBeRemoved(const std::set<PageId>)),
-                         this, SIGNAL(toBeRemoved(const std::set<PageId>)), Qt::DirectConnection);
+        QObject::connect(m_ptrProvider.get(), SIGNAL(toBeRemoved(std::set<PageId>)),
+                         this, SIGNAL(toBeRemoved(std::set<PageId>)), Qt::DirectConnection);
     }
 }
 
 PageSelectionAccessor::PageSelectionAccessor(
-	IntrusivePtr<PageSelectionProvider const> const& provider)
-:	m_ptrProvider(provider)
+    IntrusivePtr<PageSelectionProvider const> const& provider)
+    :   m_ptrProvider(provider)
 {
     if (provider.get()) {
-        QObject::connect(provider.get(), SIGNAL(toBeRemoved(const std::set<PageId>)),
-                         this, SIGNAL(toBeRemoved(const std::set<PageId>)), Qt::DirectConnection);
+        QObject::connect(provider.get(), SIGNAL(toBeRemoved(std::set<PageId>)),
+                         this, SIGNAL(toBeRemoved(std::set<PageId>)), Qt::DirectConnection);
     }
 }
 
 PageSequence
 PageSelectionAccessor::allPages() const
 {
-	return m_ptrProvider->allPages();
+    return m_ptrProvider->allPages();
 }
 
 std::set<PageId>
 PageSelectionAccessor::selectedPages() const
 {
-	return m_ptrProvider->selectedPages();
+    return m_ptrProvider->selectedPages();
 }
 
 std::vector<PageRange>
 PageSelectionAccessor::selectedRanges() const
 {
-	return m_ptrProvider->selectedRanges();
+    return m_ptrProvider->selectedRanges();
 }

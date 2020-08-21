@@ -32,16 +32,16 @@ GenericMetadataLoader::registerMyself()
     static bool registered = false;
     if (!registered) {
         ImageMetadataLoader::registerLoader(
-                    IntrusivePtr<ImageMetadataLoader>(new GenericMetadataLoader)
-                    );
+            IntrusivePtr<ImageMetadataLoader>(new GenericMetadataLoader)
+        );
         registered = true;
     }
 }
 
 ImageMetadataLoader::Status
 GenericMetadataLoader::loadMetadata(
-        QIODevice& io_device,
-        VirtualFunction1<void, ImageMetadata const&>& out)
+    QIODevice& io_device,
+    VirtualFunction1<void, ImageMetadata const&>& out)
 {
     if (!io_device.isReadable()) {
         return GENERIC_ERROR;

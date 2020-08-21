@@ -28,16 +28,16 @@
 QImage
 ImageLoader::load(ImageId const& image_id)
 {
-	return load(image_id.filePath(), image_id.zeroBasedPage());
+    return load(image_id.filePath(), image_id.zeroBasedPage());
 }
 
 QImage
 ImageLoader::load(QString const& file_path, int const page_num)
 {
-	QFile file(file_path);
-	if (!file.open(QIODevice::ReadOnly)) {
-		return QImage();
-	}
+    QFile file(file_path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QImage();
+    }
 
     if (file_path.startsWith(":")) {
         // internally empty pages are represented as multipage image although they're just links to the same single page image in app resources
@@ -50,16 +50,16 @@ ImageLoader::load(QString const& file_path, int const page_num)
 QImage
 ImageLoader::load(QIODevice& io_dev, int const page_num)
 {
-	if (TiffReader::canRead(io_dev)) {
-		return TiffReader::readImage(io_dev, page_num);
-	}
-	
-	if (page_num != 0) {
-		// Qt can only load the first page of multi-page images.
-		return QImage();
-	}
-	
-	QImage image;
+    if (TiffReader::canRead(io_dev)) {
+        return TiffReader::readImage(io_dev, page_num);
+    }
+
+    if (page_num != 0) {
+        // Qt can only load the first page of multi-page images.
+        return QImage();
+    }
+
+    QImage image;
     QImageReader(&io_dev).read(&image);
-	return image;
+    return image;
 }

@@ -19,15 +19,15 @@
 #include "NonOwningWidget.h"
 
 NonOwningWidget::NonOwningWidget(QWidget* parent)
-:	QWidget(parent)
+    :   QWidget(parent)
 {
 }
 
 NonOwningWidget::~NonOwningWidget()
 {
-	for (QObject* child: children()) {
-		if (QWidget* widget = dynamic_cast<QWidget*>(child)) {
-			widget->setParent(0);
-		}
-	}
+    for (QObject* child : children()) {
+        if (QWidget* widget = dynamic_cast<QWidget*>(child)) {
+            widget->setParent(0);
+        }
+    }
 }

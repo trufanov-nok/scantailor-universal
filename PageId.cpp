@@ -21,84 +21,84 @@
 #include <assert.h>
 
 PageId::PageId()
-:	m_subPage(SINGLE_PAGE)
+    :   m_subPage(SINGLE_PAGE)
 {
 }
 
 PageId::PageId(ImageId const& image_id, SubPage subpage)
-:	m_imageId(image_id),
-	m_subPage(subpage)
+    :   m_imageId(image_id),
+        m_subPage(subpage)
 {
 }
 
 QString
 PageId::subPageToString(SubPage const sub_page)
 {
-	char const* str = 0;
-	
-	switch (sub_page) {
-		case SINGLE_PAGE:
-			str = "single";
-			break;
-		case LEFT_PAGE:
-			str = "left";
-			break;
-		case RIGHT_PAGE:
-			str = "right";
-			break;
-	}
-	
-	assert(str);
-	return QLatin1String(str);
+    char const* str = 0;
+
+    switch (sub_page) {
+    case SINGLE_PAGE:
+        str = "single";
+        break;
+    case LEFT_PAGE:
+        str = "left";
+        break;
+    case RIGHT_PAGE:
+        str = "right";
+        break;
+    }
+
+    assert(str);
+    return QLatin1String(str);
 }
 
 PageId::SubPage
 PageId::subPageFromString(QString const& string, bool* ok)
 {
-	bool recognized = true;
-	SubPage sub_page = SINGLE_PAGE;
-	
-	if (string == "single") {
-		sub_page = SINGLE_PAGE;
-	} else if (string == "left") {
-		sub_page = LEFT_PAGE;
-	} else if (string == "right") {
-		sub_page = RIGHT_PAGE;
-	} else {
-		recognized = false;
-	}
-	
-	if (ok) {
-		*ok = recognized;
-	}
-	return sub_page;
+    bool recognized = true;
+    SubPage sub_page = SINGLE_PAGE;
+
+    if (string == "single") {
+        sub_page = SINGLE_PAGE;
+    } else if (string == "left") {
+        sub_page = LEFT_PAGE;
+    } else if (string == "right") {
+        sub_page = RIGHT_PAGE;
+    } else {
+        recognized = false;
+    }
+
+    if (ok) {
+        *ok = recognized;
+    }
+    return sub_page;
 }
 
 bool operator==(PageId const& lhs, PageId const& rhs)
 {
-	return lhs.subPage() == rhs.subPage() && lhs.imageId() == rhs.imageId();
+    return lhs.subPage() == rhs.subPage() && lhs.imageId() == rhs.imageId();
 }
 
 bool operator!=(PageId const& lhs, PageId const& rhs)
 {
-	return !(lhs == rhs);
+    return !(lhs == rhs);
 }
 
 bool operator<(PageId const& lhs, PageId const& rhs)
 {
-	if (lhs.imageId() < rhs.imageId()) {
-		return true;
-	} else if (rhs.imageId() < lhs.imageId()) {
-		return false;
-	} else {
-		return lhs.subPage() < rhs.subPage();
-	}
+    if (lhs.imageId() < rhs.imageId()) {
+        return true;
+    } else if (rhs.imageId() < lhs.imageId()) {
+        return false;
+    } else {
+        return lhs.subPage() < rhs.subPage();
+    }
 }
 
-uint qHash(const PageId &tag, uint seed)
+uint qHash(const PageId& tag, uint seed)
 {
     return qHash(tag.imageId().filePath(), seed) ^
            qHash(tag.imageId().page(), seed) ^
-           qHash(tag.subPage(), seed^0xA11A);
+           qHash(tag.subPage(), seed ^ 0xA11A);
 }
 

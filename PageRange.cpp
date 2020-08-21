@@ -21,25 +21,25 @@
 std::set<PageId>
 PageRange::selectEveryOther(PageId const& base) const
 {
-	std::set<PageId> selection;
-	
-	std::vector<PageId>::const_iterator it(pages.begin());
-	std::vector<PageId>::const_iterator const end(pages.end());
-	for (; it != end && *it != base; ++it) {
-		// Continue until we have a match.
-	}
-	if (it == end) {
-		return selection;
-	}
+    std::set<PageId> selection;
 
-	int const base_idx = it - pages.begin();
-	int idx = 0;
-	for (PageId const& page_id: pages) {
-		if (((idx - base_idx) & 1) == 0) {
-			selection.insert(page_id);
-		}
-		++idx;
-	}
+    std::vector<PageId>::const_iterator it(pages.begin());
+    std::vector<PageId>::const_iterator const end(pages.end());
+    for (; it != end && *it != base; ++it) {
+        // Continue until we have a match.
+    }
+    if (it == end) {
+        return selection;
+    }
 
-	return selection;
+    int const base_idx = it - pages.begin();
+    int idx = 0;
+    for (PageId const& page_id : pages) {
+        if (((idx - base_idx) & 1) == 0) {
+            selection.insert(page_id);
+        }
+        ++idx;
+    }
+
+    return selection;
 }

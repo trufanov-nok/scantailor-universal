@@ -46,7 +46,7 @@ namespace imageproc
  * This function takes wr and wb arguments, and calculates wg as 1.0 - wr - wb.
  */
 void adjustBrightness(
-	QImage& rgb_image, QImage const& brightness, double wr, double wb);
+    QImage& rgb_image, QImage const& brightness, double wr, double wb);
 
 /**
  * \brief A custom version of adjustBrightness().

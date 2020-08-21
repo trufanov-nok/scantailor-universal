@@ -23,66 +23,69 @@ template<typename R, typename A1>
 class VirtualFunction1
 {
 public:
-	virtual ~VirtualFunction1() {}
+    virtual ~VirtualFunction1() {}
 
-	virtual R operator()(A1 arg1) = 0;
+    virtual R operator()(A1 arg1) = 0;
 };
 
 template<typename Delegate, typename R, typename A1>
 class ProxyFunction1 : public VirtualFunction1<R, A1>
 {
 public:
-	ProxyFunction1(Delegate delegate) : m_delegate(delegate) {}
+    ProxyFunction1(Delegate delegate) : m_delegate(delegate) {}
 
-	virtual R operator()(A1 arg1) {
-		return m_delegate(arg1);
-	}
+    virtual R operator()(A1 arg1)
+    {
+        return m_delegate(arg1);
+    }
 private:
-	Delegate m_delegate;
+    Delegate m_delegate;
 };
 
 template<typename R, typename A1, typename A2>
 class VirtualFunction2
 {
 public:
-	virtual ~VirtualFunction2() {}
+    virtual ~VirtualFunction2() {}
 
-	virtual R operator()(A1 arg1, A2 arg2) = 0;
+    virtual R operator()(A1 arg1, A2 arg2) = 0;
 };
 
 template<typename Delegate, typename R, typename A1, typename A2>
 class ProxyFunction2 : public VirtualFunction2<R, A1, A2>
 {
 public:
-	ProxyFunction2(Delegate delegate) : m_delegate(delegate) {}
+    ProxyFunction2(Delegate delegate) : m_delegate(delegate) {}
 
-	virtual R operator()(A1 arg1, A2 arg2) {
-		return m_delegate(arg1, arg2);
-	}
+    virtual R operator()(A1 arg1, A2 arg2)
+    {
+        return m_delegate(arg1, arg2);
+    }
 private:
-	Delegate m_delegate;
+    Delegate m_delegate;
 };
 
 template<typename R, typename A1, typename A2, typename A3>
 class VirtualFunction3
 {
 public:
-	virtual ~VirtualFunction3() {}
+    virtual ~VirtualFunction3() {}
 
-	virtual R operator()(A1 arg1, A2 arg2, A3 arg3) = 0;
+    virtual R operator()(A1 arg1, A2 arg2, A3 arg3) = 0;
 };
 
 template<typename Delegate, typename R, typename A1, typename A2, typename A3>
 class ProxyFunction3 : public VirtualFunction3<R, A1, A2, A3>
 {
 public:
-	ProxyFunction3(Delegate delegate) : m_delegate(delegate) {}
+    ProxyFunction3(Delegate delegate) : m_delegate(delegate) {}
 
-	virtual R operator()(A1 arg1, A2 arg2, A3 arg3) {
-		return m_delegate(arg1, arg2, arg3);
-	}
+    virtual R operator()(A1 arg1, A2 arg2, A3 arg3)
+    {
+        return m_delegate(arg1, arg2, arg3);
+    }
 private:
-	Delegate m_delegate;
+    Delegate m_delegate;
 };
 
 #endif

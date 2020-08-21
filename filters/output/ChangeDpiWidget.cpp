@@ -32,49 +32,49 @@
 namespace output
 {
 
-ChangeDpiWidget::ChangeDpiWidget(QWidget* parent, Dpi const& dpi):	QWidget(parent)
+ChangeDpiWidget::ChangeDpiWidget(QWidget* parent, Dpi const& dpi):  QWidget(parent)
 {
-	setupUi(this);
-	
-	dpiSelector->setValidator(new QIntValidator(dpiSelector));
-	
+    setupUi(this);
+
+    dpiSelector->setValidator(new QIntValidator(dpiSelector));
+
     QStringList common_dpis = QSettings().value(_key_dpi_change_list, _key_dpi_change_list_def).toString().split(',');
-	
+
     int const requested_dpi = std::max(dpi.horizontal(), dpi.vertical());
-	m_customDpiString = QString::number(requested_dpi);
-	
-	int selected_index = -1;
-    for (QString const& cdpi: qAsConst(common_dpis)) {
+    m_customDpiString = QString::number(requested_dpi);
+
+    int selected_index = -1;
+    for (QString const& cdpi : qAsConst(common_dpis)) {
         if (cdpi.trimmed().toInt() == requested_dpi) {
-			selected_index = dpiSelector->count();
-		}
+            selected_index = dpiSelector->count();
+        }
         dpiSelector->addItem(cdpi, cdpi);
-	}
-	
-	m_customItemIdx = dpiSelector->count();
-	dpiSelector->addItem(tr("Custom"), m_customDpiString);
-	
-	if (selected_index != -1) {
-		dpiSelector->setCurrentIndex(selected_index);
-	} else {
-		dpiSelector->setCurrentIndex(m_customItemIdx);
-		dpiSelector->setEditable(true);
-		dpiSelector->lineEdit()->setText(m_customDpiString);
-		// It looks like we need to set a new validator
-		// every time we make the combo box editable.
-		dpiSelector->setValidator(
-			new QIntValidator(0, 9999, dpiSelector)
-		);
-	}
-	
-	connect(
-		dpiSelector, SIGNAL(activated(int)),
-		this, SLOT(dpiSelectionChanged(int))
-	);
-	connect(
-		dpiSelector, SIGNAL(editTextChanged(QString const&)),
-		this, SLOT(dpiEditTextChanged(QString const&))
-	);
+    }
+
+    m_customItemIdx = dpiSelector->count();
+    dpiSelector->addItem(tr("Custom"), m_customDpiString);
+
+    if (selected_index != -1) {
+        dpiSelector->setCurrentIndex(selected_index);
+    } else {
+        dpiSelector->setCurrentIndex(m_customItemIdx);
+        dpiSelector->setEditable(true);
+        dpiSelector->lineEdit()->setText(m_customDpiString);
+        // It looks like we need to set a new validator
+        // every time we make the combo box editable.
+        dpiSelector->setValidator(
+            new QIntValidator(0, 9999, dpiSelector)
+        );
+    }
+
+    connect(
+        dpiSelector, SIGNAL(activated(int)),
+        this, SLOT(dpiSelectionChanged(int))
+    );
+    connect(
+        dpiSelector, SIGNAL(editTextChanged(QString)),
+        this, SLOT(dpiEditTextChanged(QString))
+    );
 }
 
 ChangeDpiWidget::~ChangeDpiWidget()
@@ -84,57 +84,57 @@ ChangeDpiWidget::~ChangeDpiWidget()
 void
 ChangeDpiWidget::dpiSelectionChanged(int const index)
 {
-	dpiSelector->setEditable(index == m_customItemIdx);
-	if (index == m_customItemIdx) {
-		dpiSelector->setEditText(m_customDpiString);
-		dpiSelector->lineEdit()->selectAll();
-		// It looks like we need to set a new validator
-		// every time we make the combo box editable.
-		dpiSelector->setValidator(
-			new QIntValidator(0, 9999, dpiSelector)
-		);
-	}
+    dpiSelector->setEditable(index == m_customItemIdx);
+    if (index == m_customItemIdx) {
+        dpiSelector->setEditText(m_customDpiString);
+        dpiSelector->lineEdit()->selectAll();
+        // It looks like we need to set a new validator
+        // every time we make the combo box editable.
+        dpiSelector->setValidator(
+            new QIntValidator(0, 9999, dpiSelector)
+        );
+    }
 }
 
 void
 ChangeDpiWidget::dpiEditTextChanged(QString const& text)
 {
-	if (dpiSelector->currentIndex() == m_customItemIdx) {
-		m_customDpiString = text;
-	}
+    if (dpiSelector->currentIndex() == m_customItemIdx) {
+        m_customDpiString = text;
+    }
 }
 
 bool
 ChangeDpiWidget::validate()
 {
-	QString const dpi_str(dpiSelector->currentText());
-	if (dpi_str.isEmpty()) {
-		QMessageBox::warning(
-			this, tr("Error"),
-			tr("DPI is not set.")
-		);
+    QString const dpi_str(dpiSelector->currentText());
+    if (dpi_str.isEmpty()) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("DPI is not set.")
+        );
         return false;
-	}
-	
-	int const dpi = dpi_str.toInt();
-	if (dpi < 72) {
-		QMessageBox::warning(
-			this, tr("Error"),
-			tr("DPI is too low!")
-		);
+    }
+
+    int const dpi = dpi_str.toInt();
+    if (dpi < 72) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("DPI is too low!")
+        );
         return false;
-	}
-	
-	if (dpi > 1200) {
-		QMessageBox::warning(
-			this, tr("Error"),
-			tr("DPI is too high!")
-		);
+    }
+
+    if (dpi > 1200) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("DPI is too high!")
+        );
         return false;
-	}
-	
-	// We assume the default connection from accepted() to accept()
-	// was removed.
+    }
+
+    // We assume the default connection from accepted() to accept()
+    // was removed.
     return true;
 }
 

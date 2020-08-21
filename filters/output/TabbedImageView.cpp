@@ -26,18 +26,18 @@ namespace output
 {
 
 TabbedImageView::TabbedImageView(QWidget* parent)
-:	QTabWidget(parent), m_previouslySelectedTabId(-1), m_stored_zoom_lvl(0),
-    m_stored_hrz_slider(nullptr), m_stored_vrt_slider(nullptr)
+    :   QTabWidget(parent), m_previouslySelectedTabId(-1), m_stored_zoom_lvl(0),
+        m_stored_hrz_slider(nullptr), m_stored_vrt_slider(nullptr)
 {
-	connect(this, SIGNAL(currentChanged(int)), SLOT(tabChangedSlot(int)));
+    connect(this, SIGNAL(currentChanged(int)), SLOT(tabChangedSlot(int)));
 }
 
 qreal getSliderScale(QAbstractSlider* _old, QAbstractSlider* _new)
 {
     if (_old && _new) {
-        const int val1 = _old->maximum() -_old->minimum();
-        const int val2 = _new->maximum() -_new->minimum();
-        return (qreal) val2/val1;
+        const int val1 = _old->maximum() - _old->minimum();
+        const int val2 = _new->maximum() - _new->minimum();
+        return (qreal) val2 / val1;
     }
     return 1.;
 }
@@ -45,11 +45,11 @@ qreal getSliderScale(QAbstractSlider* _old, QAbstractSlider* _new)
 void
 TabbedImageView::addTab(QWidget* widget, QString const& label, ImageViewTab tab)
 {
-	QTabWidget::addTab(widget, label);
-	m_registry[widget] = tab;
+    QTabWidget::addTab(widget, label);
+    m_registry[widget] = tab;
 
     if (DespeckleView* dw = qobject_cast<DespeckleView*>(widget)) {
-        connect(dw, &DespeckleView::imageViewCreated, [this](ImageViewBase* iv) {
+        connect(dw, &DespeckleView::imageViewCreated, [this](ImageViewBase * iv) {
             // this will be called once or twice when Despeckle view first opened
             // and create its image views
             if (!iv) {
@@ -77,17 +77,17 @@ TabbedImageView::addTab(QWidget* widget, QString const& label, ImageViewTab tab)
 void
 TabbedImageView::setCurrentTab(ImageViewTab const tab)
 {
-	int const cnt = count();
-	for (int i = 0; i < cnt; ++i) {
-		QWidget* wgt = widget(i);
-		std::map<QWidget*, ImageViewTab>::const_iterator it(m_registry.find(wgt));
-		if (it != m_registry.end()) {
-			if (it->second == tab) {
-				setCurrentIndex(i);
-				break;
-			}
-		}
-	}
+    int const cnt = count();
+    for (int i = 0; i < cnt; ++i) {
+        QWidget* wgt = widget(i);
+        std::map<QWidget*, ImageViewTab>::const_iterator it(m_registry.find(wgt));
+        if (it != m_registry.end()) {
+            if (it->second == tab) {
+                setCurrentIndex(i);
+                break;
+            }
+        }
+    }
 }
 
 ImageViewBase* findImageViewBase(QObject* parent)
@@ -99,7 +99,7 @@ ImageViewBase* findImageViewBase(QObject* parent)
     if (ImageViewBase* res = qobject_cast<ImageViewBase*> (parent)) {
         return res;
     } else {
-        for(QObject* ch: parent->children()) {
+        for (QObject* ch : parent->children()) {
             if (ImageViewBase* res = findImageViewBase(ch)) {
                 return res;
             }
@@ -111,11 +111,11 @@ ImageViewBase* findImageViewBase(QObject* parent)
 void
 TabbedImageView::tabChangedSlot(int const idx)
 {
-	QWidget* wgt = widget(idx);
-	std::map<QWidget*, ImageViewTab>::const_iterator it(m_registry.find(wgt));
-	if (it != m_registry.end()) {
-		emit tabChanged(it->second);
-	}
+    QWidget* wgt = widget(idx);
+    std::map<QWidget*, ImageViewTab>::const_iterator it(m_registry.find(wgt));
+    if (it != m_registry.end()) {
+        emit tabChanged(it->second);
+    }
 
     // copy zoom settings
     if (m_previouslySelectedTabId != -1) {

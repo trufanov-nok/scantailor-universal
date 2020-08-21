@@ -86,8 +86,9 @@ public:
         m_content_sel_content_color_pen = m_content_sel_content_color;
         m_content_sel_content_color_pen.setAlpha(255); // ignore transparency
         m_deskew_controls_color_thumb = m_deskew_controls_color;
-        if (m_deskew_controls_color_thumb.alpha() > 70)
+        if (m_deskew_controls_color_thumb.alpha() > 70) {
             m_deskew_controls_color_thumb.setAlpha(70);
+        }
 
         m_highlightColorAdjustment = 100 + settings.value(_key_thumbnails_non_focused_selection_highlight_color_adj, _key_thumbnails_non_focused_selection_highlight_color_adj_def).toInt();
 
@@ -106,7 +107,7 @@ public:
         m_simulateSelectionModifierHintEnabled = settings.value(_key_thumbnails_simulate_key_press_hint, _key_thumbnails_simulate_key_press_hint_def).toBool();
 
         m_DontUseNativeDialog = settings.value(_key_dont_use_native_dialog, _key_dont_use_native_dialog_def).toBool();
-    }    
+    }
 
     static void updateHotkeys()
     {
@@ -129,7 +130,7 @@ public:
     static bool checkKeysMatch(const HotKeysId& id, const Qt::KeyboardModifiers& modifiers, const Qt::Key& key)
     {
         const HotKeyInfo* i = m_hotKeyManager.get(id);
-        for (const HotKeySequence& seq: i->sequences()) {
+        for (const HotKeySequence& seq : i->sequences()) {
             if (seq.m_modifierSequence == modifiers &&
                     seq.m_keySequence.count() == 1 &&
                     seq.m_keySequence[0] == key) {
@@ -141,12 +142,12 @@ public:
 
     static bool checkModifiersMatch(const HotKeysId& id, const Qt::KeyboardModifiers& modifiers)
     {
-        if (modifiers == Qt::NoModifier ) {
+        if (modifiers == Qt::NoModifier) {
             return false;
         }
 
         const HotKeyInfo* i = m_hotKeyManager.get(id);
-        for (const HotKeySequence& seq: i->sequences()) {
+        for (const HotKeySequence& seq : i->sequences()) {
             if (seq.m_modifierSequence == modifiers) {
                 return true;
             }
@@ -162,7 +163,7 @@ public:
             m_tiff_list = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
         }
 
-        QStringList data = m_tiff_list.filter(QRegularExpression("^"+compression+"\t.*"));
+        QStringList data = m_tiff_list.filter(QRegularExpression("^" + compression + "\t.*"));
 
         if (data.empty()) {
             throw std::runtime_error("Settings: unknown compression.");

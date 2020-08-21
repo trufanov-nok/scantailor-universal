@@ -29,13 +29,13 @@
 
 class ExportDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
 
     enum PageGenTweak {
-      NoTweaks = 0,
-      KeepOriginalColorIllumForeSubscans = 1,
-      IgnoreOutputProcessingStage = 2
+        NoTweaks = 0,
+        KeepOriginalColorIllumForeSubscans = 1,
+        IgnoreOutputProcessingStage = 2
     };
 
     Q_DECLARE_FLAGS(PageGenTweaks, PageGenTweak)
@@ -53,31 +53,31 @@ public:
 
     ExportDialog(QWidget* parent, const QString& defaultOutDir);
 
-	virtual ~ExportDialog();
+    virtual ~ExportDialog();
 
-	void setCount(int count);
-	void StepProgress();
-	void reset(void);
-	void setExportLabel(void);
-	void setStartExport(void);	
+    void setCount(int count);
+    void StepProgress();
+    void reset(void);
+    void setExportLabel(void);
+    void setStartExport(void);
 
 signals:
     void ExportOutputSignal(Settings settings);
-	void ExportStopSignal();
-	void SetStartExportSignal();	
+    void ExportStopSignal();
+    void SetStartExportSignal();
 
-public slots:	
-	void startExport(void);
+public slots:
+    void startExport(void);
 
-private slots:	
-	void OnCheckDefaultOutputFolder(bool);
-	void OnClickExport();
-	void outExportDirBrowse();
-	void outExportDirEdited(QString const&);
-	//void tabChanged(int tab);	
-	void OnCheckGenerateBlankBackSubscans(bool);
+private slots:
+    void OnCheckDefaultOutputFolder(bool);
+    void OnClickExport();
+    void outExportDirBrowse();
+    void outExportDirEdited(QString const&);
+    //void tabChanged(int tab);
+    void OnCheckGenerateBlankBackSubscans(bool);
     void OnCheckUseSepSuffixForPics(bool);
-	void OnCheckKeepOriginalColorIllumForeSubscans(bool);    
+    void OnCheckKeepOriginalColorIllumForeSubscans(bool);
 
     void on_cbExportZones_stateChanged(int arg1);
 
@@ -103,9 +103,9 @@ private:
 
 private:
     void setExportOutputDir(QString const& dir);
-	Ui::ExportDialog ui;
+    Ui::ExportDialog ui;
 
-	bool m_autoOutDir;
+    bool m_autoOutDir;
     int m_count;
     QString const m_defaultOutDir;
     QString m_prevOutDir;

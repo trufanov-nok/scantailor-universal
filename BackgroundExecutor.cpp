@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,37 +28,35 @@
 class BackgroundExecutor::Dispatcher : public QObject
 {
 public:
-	Dispatcher(Impl& owner);
+    Dispatcher(Impl& owner);
 protected:
-	virtual void customEvent(QEvent* event);
+    virtual void customEvent(QEvent* event);
 private:
-	Impl& m_rOwner;
+    Impl& m_rOwner;
 };
-
 
 class BackgroundExecutor::Impl : public QThread
 {
 public:
-	Impl(BackgroundExecutor& owner);
-	
-	~Impl();
-	
-	void enqueueTask(TaskPtr const& task);
-protected:
-	virtual void run();
-	
-	virtual void customEvent(QEvent* event);
-private:
-	BackgroundExecutor& m_rOwner;
-	Dispatcher m_dispatcher;
-	bool m_threadStarted;
-};
+    Impl(BackgroundExecutor& owner);
 
+    ~Impl();
+
+    void enqueueTask(TaskPtr const& task);
+protected:
+    virtual void run();
+
+    virtual void customEvent(QEvent* event);
+private:
+    BackgroundExecutor& m_rOwner;
+    Dispatcher m_dispatcher;
+    bool m_threadStarted;
+};
 
 /*============================ BackgroundExecutor ==========================*/
 
 BackgroundExecutor::BackgroundExecutor()
-:	m_ptrImpl(new Impl(*this))
+    :   m_ptrImpl(new Impl(*this))
 {
 }
 
@@ -69,87 +67,85 @@ BackgroundExecutor::~BackgroundExecutor()
 void
 BackgroundExecutor::shutdown()
 {
-	m_ptrImpl.reset();
+    m_ptrImpl.reset();
 }
 
 void
 BackgroundExecutor::enqueueTask(TaskPtr const& task)
 {
-	if (m_ptrImpl.get()) {
-		m_ptrImpl->enqueueTask(task);
-	}
+    if (m_ptrImpl.get()) {
+        m_ptrImpl->enqueueTask(task);
+    }
 }
-
 
 /*===================== BackgroundExecutor::Dispatcher =====================*/
 
 BackgroundExecutor::Dispatcher::Dispatcher(Impl& owner)
-:	m_rOwner(owner)
+    :   m_rOwner(owner)
 {
 }
 
 void
 BackgroundExecutor::Dispatcher::customEvent(QEvent* event)
 {
-	try {
-		TaskEvent* evt = dynamic_cast<TaskEvent*>(event);
-		assert(evt);
+    try {
+        TaskEvent* evt = dynamic_cast<TaskEvent*>(event);
+        assert(evt);
 
-		TaskPtr const& task = evt->payload();
-		assert(task);
+        TaskPtr const& task = evt->payload();
+        assert(task);
 
-		TaskResultPtr const result((*task)());
-		if (result) {
-			QCoreApplication::postEvent(
-				&m_rOwner, new ResultEvent(result)
-			);
-		}
-	} catch (std::bad_alloc const&) {
-		OutOfMemoryHandler::instance().handleOutOfMemorySituation();
-	}
+        TaskResultPtr const result((*task)());
+        if (result) {
+            QCoreApplication::postEvent(
+                &m_rOwner, new ResultEvent(result)
+            );
+        }
+    } catch (std::bad_alloc const&) {
+        OutOfMemoryHandler::instance().handleOutOfMemorySituation();
+    }
 }
-
 
 /*======================= BackgroundExecutor::Impl =========================*/
 
 BackgroundExecutor::Impl::Impl(BackgroundExecutor& owner)
-:	m_rOwner(owner),
-	m_dispatcher(*this),
-	m_threadStarted(false)
+    :   m_rOwner(owner),
+        m_dispatcher(*this),
+        m_threadStarted(false)
 {
-	m_dispatcher.moveToThread(this);
+    m_dispatcher.moveToThread(this);
 }
 
 BackgroundExecutor::Impl::~Impl()
 {
-	exit();
-	wait();
+    exit();
+    wait();
 }
 
 void
 BackgroundExecutor::Impl::enqueueTask(TaskPtr const& task)
 {
-	QCoreApplication::postEvent(&m_dispatcher, new TaskEvent(task));
-	if (!m_threadStarted) {
-		start();
-		m_threadStarted = true;
-	}
+    QCoreApplication::postEvent(&m_dispatcher, new TaskEvent(task));
+    if (!m_threadStarted) {
+        start();
+        m_threadStarted = true;
+    }
 }
 
 void
 BackgroundExecutor::Impl::run()
 {
-	exec();
+    exec();
 }
 
 void
 BackgroundExecutor::Impl::customEvent(QEvent* event)
 {
-	ResultEvent* evt = dynamic_cast<ResultEvent*>(event);
-	assert(evt);
-	
-	TaskResultPtr const& result = evt->payload();
-	assert(result);
-	
-	(*result)();
+    ResultEvent* evt = dynamic_cast<ResultEvent*>(event);
+    assert(evt);
+
+    TaskResultPtr const& result = evt->payload();
+    assert(result);
+
+    (*result)();
 }

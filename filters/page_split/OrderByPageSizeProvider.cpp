@@ -28,7 +28,7 @@ namespace page_split
 {
 
 OrderByPageSizeProvider::OrderByPageSizeProvider(IntrusivePtr<Settings> const& settings)
-    :	m_ptrSettings(settings)
+    :   m_ptrSettings(settings)
 {
 }
 
@@ -41,11 +41,11 @@ getMaxPageWidth(page_split::PageLayout const val, qreal dpi, StatusLabelPhysSize
     case page_split::PageLayout::SINGLE_PAGE_CUT: res = val.singlePageOutline().boundingRect().width();
         break;
     case page_split::PageLayout::TWO_PAGES: res = qMax<qreal>(val.leftPageOutline().boundingRect().width(),
-                                                               val.rightPageOutline().boundingRect().width());
+                val.rightPageOutline().boundingRect().width());
     }
 
     if (dpi != 0. && res != 0.) {
-        res = Utils::adjustByDpiAndUnits( res, dpi, mode);
+        res = Utils::adjustByDpiAndUnits(res, dpi, mode);
     }
 
     return res;
@@ -66,8 +66,8 @@ getMaxPageWidth(Settings::Record const record)
 
 bool
 OrderByPageSizeProvider::precedes(
-        PageId const& lhs_page, bool const lhs_incomplete,
-        PageId const& rhs_page, bool const rhs_incomplete) const
+    PageId const& lhs_page, bool const lhs_incomplete,
+    PageId const& rhs_page, bool const rhs_incomplete) const
 {
     if (lhs_incomplete != rhs_incomplete) {
         // Pages with question mark go to the bottom.
@@ -91,8 +91,6 @@ OrderByPageSizeProvider::precedes(
     }
 }
 
-
-
 QString
 OrderByPageSizeProvider::hint(PageId const& page) const
 {
@@ -105,9 +103,9 @@ OrderByPageSizeProvider::hint(PageId const& page) const
     }
 
     Params const* params = record.params();
-    return QObject::tr("max width: %1 %2 (%3 dpi)").arg(round(max_page_size*100)/100)
-            .arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix())
-            .arg((params)?params->origDpi().horizontal() : defaultDpi.horizontal());
+    return QObject::tr("max width: %1 %2 (%3 dpi)").arg(round(max_page_size * 100) / 100)
+           .arg(StatusBarProvider::getStatusLabelPhysSizeDisplayModeSuffix())
+           .arg((params) ? params->origDpi().horizontal() : defaultDpi.horizontal());
 }
 
 } // namespace page_split

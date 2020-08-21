@@ -32,25 +32,28 @@ namespace output
 {
 
 class ChangeDpiWidget : public QWidget,
-        public ApplyToDialog::Validator,
-        private Ui::widgetOutputChangeDpi
+    public ApplyToDialog::Validator,
+    private Ui::widgetOutputChangeDpi
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
     ChangeDpiWidget(QWidget* parent, Dpi const& dpi);
-	
-	virtual ~ChangeDpiWidget();
 
-    int dpi() const { return dpiSelector->currentText().toInt(); }
+    virtual ~ChangeDpiWidget();
+
+    int dpi() const
+    {
+        return dpiSelector->currentText().toInt();
+    }
 
     virtual bool validate() override;
 private slots:
-	void dpiSelectionChanged(int index);
-	
-	void dpiEditTextChanged(QString const& text);
+    void dpiSelectionChanged(int index);
+
+    void dpiEditTextChanged(QString const& text);
 private:
-	int m_customItemIdx;
-	QString m_customDpiString;
+    int m_customItemIdx;
+    QString m_customDpiString;
 };
 
 } // namespace output

@@ -28,17 +28,17 @@
 
 class BasicImageView : public ImageViewBase
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	BasicImageView(
-		QImage const& image,
-		ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
-        Margins const& margins = Margins(0,0,0,0));
-	
-	virtual ~BasicImageView();
+    BasicImageView(
+        QImage const& image,
+        ImagePixmapUnion const& downscaled_image = ImagePixmapUnion(),
+        Margins const& margins = Margins(0, 0, 0, 0));
+
+    virtual ~BasicImageView();
 private:
-	DragHandler m_dragHandler;
-	ZoomHandler m_zoomHandler;
+    DragHandler m_dragHandler;
+    ZoomHandler m_zoomHandler;
 };
 
 #endif

@@ -44,28 +44,28 @@ namespace deskew
 
 double const ImageView::m_maxRotationDeg = 45.0;
 double const ImageView::m_maxRotationSin = sin(
-    m_maxRotationDeg * imageproc::constants::DEG2RAD
-);
+            m_maxRotationDeg * imageproc::constants::DEG2RAD
+        );
 int const ImageView::m_cellSize = 20;
 
 ImageView::ImageView(
     QImage const& image, QImage const& downscaled_image,
     ImageTransformation const& xform)
-:	ImageViewBase(
-        image, downscaled_image,
-        ImagePresentation(xform.transform(), xform.resultingPreCropArea())
-    ),
-    m_handlePixmap(":/icons/aqua-sphere.png"),
-    m_dragHandler(*this),
-    m_zoomHandler(*this),
-    m_xform(xform)
+    :   ImageViewBase(
+            image, downscaled_image,
+            ImagePresentation(xform.transform(), xform.resultingPreCropArea())
+        ),
+        m_handlePixmap(":/icons/aqua-sphere.png"),
+        m_dragHandler(*this),
+        m_zoomHandler(*this),
+        m_xform(xform)
 {
     setMouseTracking(true);
 
     interactionState().setDefaultStatusTip(
         tr("Use %1+Wheel to rotate or %2+Wheel for finer rotation.")
-                .arg(GlobalStaticSettings::getShortcutText(DeskewChange))
-                .arg(GlobalStaticSettings::getShortcutText(DeskewChangePrec))
+        .arg(GlobalStaticSettings::getShortcutText(DeskewChange))
+        .arg(GlobalStaticSettings::getShortcutText(DeskewChangePrec))
     );
 
     QString const tip(tr("Drag this handle to rotate the image."));
@@ -94,12 +94,12 @@ ImageView::ImageView(
     rootInteractionHandler().makeLastFollower(m_dragHandler);
     rootInteractionHandler().makeLastFollower(m_zoomHandler);
 
-    QAction *rotateLeft = new QAction(0);
+    QAction* rotateLeft = new QAction(0);
     rotateLeft->setShortcut(QKeySequence(","));
     connect(rotateLeft, SIGNAL(triggered(bool)), SLOT(doRotateLeft()));
     addAction(rotateLeft);
 
-    QAction *rotateRight = new QAction(0);
+    QAction* rotateRight = new QAction(0);
     rotateRight->setShortcut(QKeySequence("."));
     connect(rotateRight, SIGNAL(triggered(bool)), SLOT(doRotateRight()));
     addAction(rotateRight);
@@ -290,9 +290,9 @@ ImageView::getImageRotationOrigin() const
 {
     QRectF const viewport_rect(maxViewportRect());
     return QPointF(
-        floor(0.5 * viewport_rect.width()) + 0.5,
-        floor(0.5 * viewport_rect.height()) + 0.5
-    );
+               floor(0.5 * viewport_rect.width()) + 0.5,
+               floor(0.5 * viewport_rect.height()) + 0.5
+           );
 }
 
 /**
@@ -302,9 +302,9 @@ QRectF
 ImageView::getRotationArcSquare() const
 {
     double const h_margin = 0.5 * m_handlePixmap.width()
-        + verticalScrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, verticalScrollBar());
+                            + verticalScrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, verticalScrollBar());
     double const v_margin = 0.5 * m_handlePixmap.height()
-        + horizontalScrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, horizontalScrollBar());
+                            + horizontalScrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, horizontalScrollBar());
 
     QRectF reduced_screen_rect(maxViewportRect());
     reduced_screen_rect.adjust(h_margin, v_margin, -h_margin, -v_margin);

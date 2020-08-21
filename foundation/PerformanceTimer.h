@@ -24,11 +24,11 @@
 class PerformanceTimer
 {
 public:
-	PerformanceTimer() : m_start(clock()) {}
-	
-	void print(char const* prefix = "");
+    PerformanceTimer() : m_start(clock()) {}
+
+    void print(char const* prefix = "");
 private:
-	clock_t const m_start;
+    clock_t const m_start;
 };
 
 #endif

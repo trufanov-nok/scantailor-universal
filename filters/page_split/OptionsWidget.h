@@ -39,74 +39,73 @@ namespace page_split
 class Settings;
 
 class OptionsWidget :
-	public FilterOptionsWidget, private Ui::PageSplitOptionsWidget
+    public FilterOptionsWidget, private Ui::PageSplitOptionsWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	class UiData
-	{
-		// Member-wise copying is OK.
-	public:
-		UiData();
-		
-		~UiData();
-		
-		void setPageLayout(PageLayout const& layout);
-		
-		PageLayout const& pageLayout() const;
-		
-		void setDependencies(Dependencies const& deps);
-		
-		Dependencies const& dependencies() const;
-		
-		void setSplitLineMode(AutoManualMode mode);
-		
-		AutoManualMode splitLineMode() const;
-		
-		bool layoutTypeAutoDetected() const;
-		
-		void setLayoutTypeAutoDetected(bool val);
-	private:
-		PageLayout m_pageLayout;
-		Dependencies m_deps;
-		AutoManualMode m_splitLineMode;
-		bool m_layoutTypeAutoDetected;
-	};
-	
-	
-	OptionsWidget(IntrusivePtr<Settings> const& settings,
-		IntrusivePtr<ProjectPages> const& page_sequence,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~OptionsWidget();
-	
-	void preUpdateUI(PageId const& page_id);
-	
-	void postUpdateUI(UiData const& ui_data);
+    class UiData
+    {
+        // Member-wise copying is OK.
+    public:
+        UiData();
+
+        ~UiData();
+
+        void setPageLayout(PageLayout const& layout);
+
+        PageLayout const& pageLayout() const;
+
+        void setDependencies(Dependencies const& deps);
+
+        Dependencies const& dependencies() const;
+
+        void setSplitLineMode(AutoManualMode mode);
+
+        AutoManualMode splitLineMode() const;
+
+        bool layoutTypeAutoDetected() const;
+
+        void setLayoutTypeAutoDetected(bool val);
+    private:
+        PageLayout m_pageLayout;
+        Dependencies m_deps;
+        AutoManualMode m_splitLineMode;
+        bool m_layoutTypeAutoDetected;
+    };
+
+    OptionsWidget(IntrusivePtr<Settings> const& settings,
+                  IntrusivePtr<ProjectPages> const& page_sequence,
+                  PageSelectionAccessor const& page_selection_accessor);
+
+    virtual ~OptionsWidget();
+
+    void preUpdateUI(PageId const& page_id);
+
+    void postUpdateUI(UiData const& ui_data);
 signals:
-	void pageLayoutSetLocally(PageLayout const& page_layout);
+    void pageLayoutSetLocally(PageLayout const& page_layout);
 public slots:
-	void pageLayoutSetExternally(PageLayout const& page_layout);
+    void pageLayoutSetExternally(PageLayout const& page_layout);
 private slots:
-	void layoutTypeButtonToggled(bool checked);
-	
-	void showChangeDialog();
-	
-	void splitLineModeChanged(bool auto_mode);
+    void layoutTypeButtonToggled(bool checked);
+
+    void showChangeDialog();
+
+    void splitLineModeChanged(bool auto_mode);
 private:
-	void commitCurrentParams();
+    void commitCurrentParams();
 
     void layoutTypeSet(
         std::set<PageId> const& pages,
         bool all_pages, LayoutType layout_type, bool apply_cut);
-	
-	IntrusivePtr<Settings> m_ptrSettings;
-	IntrusivePtr<ProjectPages> m_ptrPages;
-	PageSelectionAccessor m_pageSelectionAccessor;
-	PageId m_pageId;
-	UiData m_uiData;
-	int m_ignoreAutoManualToggle;
-	int m_ignoreLayoutTypeToggle;
+
+    IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<ProjectPages> m_ptrPages;
+    PageSelectionAccessor m_pageSelectionAccessor;
+    PageId m_pageId;
+    UiData m_uiData;
+    int m_ignoreAutoManualToggle;
+    int m_ignoreLayoutTypeToggle;
 };
 
 } // namespace page_split

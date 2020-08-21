@@ -36,7 +36,7 @@ QT_END_NAMESPACE
 
 //namespace Utils {
 
-/*QTCREATOR_UTILS_EXPORT*/ QAction *execMenuAtWidget(QMenu *menu, QWidget *widget);
+/*QTCREATOR_UTILS_EXPORT*/ QAction* execMenuAtWidget(QMenu* menu, QWidget* widget);
 
 //} // namespace Utils
 #endif

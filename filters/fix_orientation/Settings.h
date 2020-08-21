@@ -35,29 +35,29 @@ namespace fix_orientation
 
 class Settings : public RefCountable
 {
-	DECLARE_NON_COPYABLE(Settings)
+    DECLARE_NON_COPYABLE(Settings)
 public:
-	Settings();
-	
-	virtual ~Settings();
-	
-	void clear();
+    Settings();
+
+    virtual ~Settings();
+
+    void clear();
 
     void performRelinking(AbstractRelinker const& relinker);
 
-	void applyRotation(ImageId const& image_id, OrthogonalRotation rotation);
-	
-	void applyRotation(std::set<PageId> const& pages, OrthogonalRotation rotation);
-	
-	OrthogonalRotation getRotationFor(ImageId const& image_id) const;
+    void applyRotation(ImageId const& image_id, OrthogonalRotation rotation);
+
+    void applyRotation(std::set<PageId> const& pages, OrthogonalRotation rotation);
+
+    OrthogonalRotation getRotationFor(ImageId const& image_id) const;
 private:
-	typedef std::map<ImageId, OrthogonalRotation> PerImageRotation;
-	
-	void setImageRotationLocked(
-		ImageId const& image_id, OrthogonalRotation const& rotation);
-	
-	mutable QMutex m_mutex;
-	PerImageRotation m_perImageRotation;
+    typedef std::map<ImageId, OrthogonalRotation> PerImageRotation;
+
+    void setImageRotationLocked(
+        ImageId const& image_id, OrthogonalRotation const& rotation);
+
+    mutable QMutex m_mutex;
+    PerImageRotation m_perImageRotation;
 };
 
 } // namespace fix_orientation

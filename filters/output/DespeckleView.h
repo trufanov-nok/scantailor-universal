@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef OUTPUT_DESPECKLE_VIEW_H_
 #define OUTPUT_DESPECKLE_VIEW_H_
 
@@ -39,49 +38,49 @@ class DespeckleVisualization;
 
 class DespeckleView : public QStackedWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	/**
-	 * \param despeckle_state Describes a particular despeckling.
-	 * \param visualization Optional despeckle visualization.
-	 *        If null, it will be reconstructed from \p despeckle_state
-	 *        when this widget becomes visible.
-	 * \param debug Indicates whether debugging is turned on.
-	 */
-	DespeckleView(DespeckleState const& despeckle_state,
-		DespeckleVisualization const& visualization, bool debug);
+    /**
+     * \param despeckle_state Describes a particular despeckling.
+     * \param visualization Optional despeckle visualization.
+     *        If null, it will be reconstructed from \p despeckle_state
+     *        when this widget becomes visible.
+     * \param debug Indicates whether debugging is turned on.
+     */
+    DespeckleView(DespeckleState const& despeckle_state,
+                  DespeckleVisualization const& visualization, bool debug);
 
-	virtual ~DespeckleView();
+    virtual ~DespeckleView();
 public slots:
-	void despeckleLevelChanged(DespeckleLevel level, bool* handled);
+    void despeckleLevelChanged(DespeckleLevel level, bool* handled);
 signals:
     void imageViewCreated(ImageViewBase*);
 protected:
-	virtual void hideEvent(QHideEvent* evt);
+    virtual void hideEvent(QHideEvent* evt);
 
-	virtual void showEvent(QShowEvent* evt);
+    virtual void showEvent(QShowEvent* evt);
 private:
-	class TaskCancelException;
-	class TaskCancelHandle;
-	class DespeckleTask;
-	class DespeckleResult;
+    class TaskCancelException;
+    class TaskCancelHandle;
+    class DespeckleTask;
+    class DespeckleResult;
 
-	enum AnimationAction { RESET_ANIMATION, RESUME_ANIMATION };
+    enum AnimationAction { RESET_ANIMATION, RESUME_ANIMATION };
 
-	void initiateDespeckling(AnimationAction anim_action);
+    void initiateDespeckling(AnimationAction anim_action);
 
-	void despeckleDone(DespeckleState const& despeckle_state,
-		DespeckleVisualization const& visualization, DebugImages* dbg);
+    void despeckleDone(DespeckleState const& despeckle_state,
+                       DespeckleVisualization const& visualization, DebugImages* dbg);
 
-	void cancelBackgroundTask();
+    void cancelBackgroundTask();
 
-	void removeImageViewWidget();
+    void removeImageViewWidget();
 
-	DespeckleState m_despeckleState;
-	IntrusivePtr<TaskCancelHandle> m_ptrCancelHandle;
-	ProcessingIndicationWidget* m_pProcessingIndicator;
-	DespeckleLevel m_despeckleLevel;
-	bool m_debug;
+    DespeckleState m_despeckleState;
+    IntrusivePtr<TaskCancelHandle> m_ptrCancelHandle;
+    ProcessingIndicationWidget* m_pProcessingIndicator;
+    DespeckleLevel m_despeckleLevel;
+    bool m_debug;
 };
 
 } // namespace output

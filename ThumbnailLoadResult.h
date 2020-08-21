@@ -24,44 +24,50 @@
 class ThumbnailLoadResult
 {
 public:
-	enum Status {
-		/**
-		 * \brief Thumbnail loaded successfully.  Pixmap is not null.
-		 */
-		LOADED,
-		
-		/**
-		 * \brief Thumbnail failed to load.  Pixmap is null.
-		 */
-		LOAD_FAILED,
-		
-		/**
-		 * \brief Request has expired.  Pixmap is null.
-		 *
-		 * Consider the following situation: we scroll our thumbnail
-		 * list from the beginning all the way to the end.  This will
-		 * result in every thumbnail being requested.  If we just
-		 * load them in request order, that would be quite slow and
-		 * inefficient.  It would be nice if we could cancel the load
-		 * requests for items that went out of view.  Unfortunately,
-		 * QGraphicsView doesn't provide "went out of view"
-		 * notifications.  Instead, we load thumbnails starting from
-		 * most recently requested, and expire requests after a certain
-		 * number of newer requests are processed.  If the client is
-		 * still interested in the thumbnail, it may request it again.
-		 */
-		REQUEST_EXPIRED
-	};
-	
-	ThumbnailLoadResult(Status status, QPixmap const& pixmap)
-	: m_pixmap(pixmap), m_status(status) {}
-	
-	Status status() const { return m_status; }
-	
-	QPixmap const& pixmap() const { return m_pixmap; }
+    enum Status {
+        /**
+         * \brief Thumbnail loaded successfully.  Pixmap is not null.
+         */
+        LOADED,
+
+        /**
+         * \brief Thumbnail failed to load.  Pixmap is null.
+         */
+        LOAD_FAILED,
+
+        /**
+         * \brief Request has expired.  Pixmap is null.
+         *
+         * Consider the following situation: we scroll our thumbnail
+         * list from the beginning all the way to the end.  This will
+         * result in every thumbnail being requested.  If we just
+         * load them in request order, that would be quite slow and
+         * inefficient.  It would be nice if we could cancel the load
+         * requests for items that went out of view.  Unfortunately,
+         * QGraphicsView doesn't provide "went out of view"
+         * notifications.  Instead, we load thumbnails starting from
+         * most recently requested, and expire requests after a certain
+         * number of newer requests are processed.  If the client is
+         * still interested in the thumbnail, it may request it again.
+         */
+        REQUEST_EXPIRED
+    };
+
+    ThumbnailLoadResult(Status status, QPixmap const& pixmap)
+        : m_pixmap(pixmap), m_status(status) {}
+
+    Status status() const
+    {
+        return m_status;
+    }
+
+    QPixmap const& pixmap() const
+    {
+        return m_pixmap;
+    }
 private:
-	QPixmap m_pixmap;
-	Status m_status;
+    QPixmap m_pixmap;
+    Status m_status;
 };
 
 #endif

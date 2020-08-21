@@ -29,7 +29,6 @@
 #include <memory>
 #include <QImage>
 
-
 class DebugImages;
 class TaskStatus;
 class FilterData;
@@ -42,7 +41,7 @@ class Dpi;
 
 namespace imageproc
 {
-	class BinaryImage;
+class BinaryImage;
 }
 
 namespace output
@@ -53,41 +52,41 @@ class Settings;
 
 class Task : public RefCountable
 {
-	DECLARE_NON_COPYABLE(Task)
+    DECLARE_NON_COPYABLE(Task)
 public:
-	Task(IntrusivePtr<Filter> const& filter,
-		IntrusivePtr<Settings> const& settings,
-		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		PageId const& page_id, OutputFileNameGenerator const& out_file_name_gen,
-		ImageViewTab last_tab, bool batch, bool debug,
-		bool keep_orig_fore_subscan = false,
+    Task(IntrusivePtr<Filter> const& filter,
+         IntrusivePtr<Settings> const& settings,
+         IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+         PageId const& page_id, OutputFileNameGenerator const& out_file_name_gen,
+         ImageViewTab last_tab, bool batch, bool debug,
+         bool keep_orig_fore_subscan = false,
 //Original_Foreground_Mixed
-		QImage* p_orig_fore_subscan = nullptr);
-	
-	virtual ~Task();
-	
-	FilterResultPtr process(
-		TaskStatus const& status, FilterData const& data,
-		QPolygonF const& content_rect_phys);
+         QImage* p_orig_fore_subscan = nullptr);
+
+    virtual ~Task();
+
+    FilterResultPtr process(
+        TaskStatus const& status, FilterData const& data,
+        QPolygonF const& content_rect_phys);
 
     QObject* getSettingsListener();
 private:
-	class UiUpdater;
-	
-	void deleteMutuallyExclusiveOutputFiles();
+    class UiUpdater;
 
-	IntrusivePtr<Filter> m_ptrFilter;
-	IntrusivePtr<Settings> m_ptrSettings;
-	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	std::unique_ptr<DebugImages> m_ptrDbg;
-	PageId m_pageId;
-	OutputFileNameGenerator m_outFileNameGen;
-	ImageViewTab m_lastTab;
-	bool m_batchProcessing;
-	bool m_debug;
-	bool m_keep_orig_fore_subscan;
+    void deleteMutuallyExclusiveOutputFiles();
+
+    IntrusivePtr<Filter> m_ptrFilter;
+    IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
+    std::unique_ptr<DebugImages> m_ptrDbg;
+    PageId m_pageId;
+    OutputFileNameGenerator m_outFileNameGen;
+    ImageViewTab m_lastTab;
+    bool m_batchProcessing;
+    bool m_debug;
+    bool m_keep_orig_fore_subscan;
 //Original_Foreground_Mixed
-	QImage* m_p_orig_fore_subscan;
+    QImage* m_p_orig_fore_subscan;
 };
 
 } // namespace output

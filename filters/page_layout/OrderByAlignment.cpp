@@ -28,14 +28,14 @@ namespace page_layout
 {
 
 OrderByAlignment::OrderByAlignment(IntrusivePtr<Settings> const& settings)
-:	m_ptrSettings(settings)
+    :   m_ptrSettings(settings)
 {
 }
 
 bool
 OrderByAlignment::precedes(
-	PageId const& lhs_page, bool const lhs_incomplete,
-	PageId const& rhs_page, bool const rhs_incomplete) const
+    PageId const& lhs_page, bool const lhs_incomplete,
+    PageId const& rhs_page, bool const rhs_incomplete) const
 {
 
     if (lhs_incomplete != rhs_incomplete) {
@@ -50,16 +50,15 @@ OrderByAlignment::precedes(
     assert(lhs_incomplete == false);
     assert(rhs_incomplete == false);
 
-	std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
-	std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
-
+    std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
+    std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
 
     bool lhs_is_null = true;
     int lhs_alignment;
-	if (lhs_params.get()) {
+    if (lhs_params.get()) {
         lhs_is_null = lhs_params->alignment().isNull();
         lhs_alignment = lhs_params->alignment().compositeAlignment();
-	}
+    }
 
     bool rhs_is_null = true;
     int rhs_alignment;
@@ -76,9 +75,9 @@ OrderByAlignment::precedes(
         // Two pages with no alignmen are ordered naturally.
         return lhs_page < rhs_page;
     }
-	
+
     if (lhs_alignment != rhs_alignment) {
-        return (! (lhs_alignment < rhs_alignment) );
+        return (!(lhs_alignment < rhs_alignment));
     } else {
         return lhs_page < rhs_page;
     }

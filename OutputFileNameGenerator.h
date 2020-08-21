@@ -29,33 +29,45 @@ class AbstractRelinker;
 
 class OutputFileNameGenerator
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	OutputFileNameGenerator();
+    OutputFileNameGenerator();
 
-	OutputFileNameGenerator(
-		IntrusivePtr<FileNameDisambiguator> const& disambiguator,
-		QString const& out_dir, Qt::LayoutDirection layout_direction);
+    OutputFileNameGenerator(
+        IntrusivePtr<FileNameDisambiguator> const& disambiguator,
+        QString const& out_dir, Qt::LayoutDirection layout_direction);
 
-	void performRelinking(AbstractRelinker const& relinker);
+    void performRelinking(AbstractRelinker const& relinker);
 
-	Qt::LayoutDirection layoutDirection() const { return m_layoutDirection; }
+    Qt::LayoutDirection layoutDirection() const
+    {
+        return m_layoutDirection;
+    }
 
-	QString const& outDir() const { return m_outDir; }
+    QString const& outDir() const
+    {
+        return m_outDir;
+    }
 
-	FileNameDisambiguator* disambiguator() { return m_ptrDisambiguator.get(); }
+    FileNameDisambiguator* disambiguator()
+    {
+        return m_ptrDisambiguator.get();
+    }
 
-	FileNameDisambiguator const* disambiguator() const { return m_ptrDisambiguator.get(); }
+    FileNameDisambiguator const* disambiguator() const
+    {
+        return m_ptrDisambiguator.get();
+    }
 
-	QString fileNameFor(PageId const& page) const;
+    QString fileNameFor(PageId const& page) const;
 
-	QString filePathFor(PageId const& page) const;
+    QString filePathFor(PageId const& page) const;
 
     QString suggestOverridenFileName(QStringList const& insert_to_filenames, bool after) const;
 private:
-	IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
-	QString m_outDir;
-	Qt::LayoutDirection m_layoutDirection;
+    IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
+    QString m_outDir;
+    Qt::LayoutDirection m_layoutDirection;
 };
 
 #endif

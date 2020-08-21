@@ -31,7 +31,7 @@ class ProjectPages;
 
 namespace deskew
 {
-	class CacheDrivenTask;
+class CacheDrivenTask;
 }
 
 namespace page_split
@@ -41,21 +41,21 @@ class Settings;
 
 class CacheDrivenTask : public RefCountable
 {
-	DECLARE_NON_COPYABLE(CacheDrivenTask)
+    DECLARE_NON_COPYABLE(CacheDrivenTask)
 public:
-	CacheDrivenTask(
-		IntrusivePtr<Settings> const& settings,
+    CacheDrivenTask(
+        IntrusivePtr<Settings> const& settings,
         IntrusivePtr<ProjectPages> projectPages,
-		IntrusivePtr<deskew::CacheDrivenTask> const& next_task);
-	
-	virtual ~CacheDrivenTask();
-	
-	void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform);
+        IntrusivePtr<deskew::CacheDrivenTask> const& next_task);
+
+    virtual ~CacheDrivenTask();
+
+    void process(
+        PageInfo const& page_info, AbstractFilterDataCollector* collector,
+        ImageTransformation const& xform);
 private:
-	IntrusivePtr<deskew::CacheDrivenTask> m_ptrNextTask;
-	IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<deskew::CacheDrivenTask> m_ptrNextTask;
+    IntrusivePtr<Settings> m_ptrSettings;
     IntrusivePtr<ProjectPages> m_projectPages;
 };
 

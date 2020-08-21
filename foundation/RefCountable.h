@@ -28,27 +28,33 @@
 class RefCountable
 {
 public:
-	RefCountable() : m_refCounter(0) {}
-	
-	RefCountable(RefCountable const& other) {
-		// don't copy the reference counter!
-	}
-	
-	void operator=(RefCountable const& other) {
-		// don't copy the reference counter!
-	}
-	
-	virtual ~RefCountable() {}
-	
-	void ref() const { m_refCounter.fetchAndAddRelaxed(1); }
-	
-	void unref() const {
-		if (m_refCounter.fetchAndAddRelease(-1) == 1) {
-			delete this;
-		}
-	}
+    RefCountable() : m_refCounter(0) {}
+
+    RefCountable(RefCountable const& other)
+    {
+        // don't copy the reference counter!
+    }
+
+    void operator=(RefCountable const& other)
+    {
+        // don't copy the reference counter!
+    }
+
+    virtual ~RefCountable() {}
+
+    void ref() const
+    {
+        m_refCounter.fetchAndAddRelaxed(1);
+    }
+
+    void unref() const
+    {
+        if (m_refCounter.fetchAndAddRelease(-1) == 1) {
+            delete this;
+        }
+    }
 private:
-	mutable QAtomicInt m_refCounter;
+    mutable QAtomicInt m_refCounter;
 };
 
 #endif

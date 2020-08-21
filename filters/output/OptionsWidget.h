@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 
 namespace dewarping
 {
-	class DistortionModel;
+class DistortionModel;
 }
 
 namespace output
@@ -46,42 +46,48 @@ class Settings;
 class DewarpingParams;
 
 class OptionsWidget
-	: public FilterOptionsWidget, private Ui::OutputOptionsWidget
+    : public FilterOptionsWidget, private Ui::OutputOptionsWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	OptionsWidget(IntrusivePtr<Settings> const& settings,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~OptionsWidget();
-	
-	void preUpdateUI(PageId const& page_id);
-	
-	void postUpdateUI();
+    OptionsWidget(IntrusivePtr<Settings> const& settings,
+                  PageSelectionAccessor const& page_selection_accessor);
 
-	ImageViewTab lastTab() const { return m_lastTab; }
+    virtual ~OptionsWidget();
 
-    DepthPerception const& depthPerception() const { return m_depthPerception; }
+    void preUpdateUI(PageId const& page_id);
+
+    void postUpdateUI();
+
+    ImageViewTab lastTab() const
+    {
+        return m_lastTab;
+    }
+
+    DepthPerception const& depthPerception() const
+    {
+        return m_depthPerception;
+    }
 signals:
-	void despeckleLevelChanged(DespeckleLevel level, bool* handled);
+    void despeckleLevelChanged(DespeckleLevel level, bool* handled);
 
-	void depthPerceptionChanged(double val);
+    void depthPerceptionChanged(double val);
 public slots:
-	void tabChanged(ImageViewTab tab);
+    void tabChanged(ImageViewTab tab);
 
-	void distortionModelChanged(dewarping::DistortionModel const& model);
+    void distortionModelChanged(dewarping::DistortionModel const& model);
 
     void settingsChanged();
 
     void disablePictureLayer();
 
-    void copyZoneToPagesDlgRequest(void *zone);
-    void deleteZoneFromPagesDlgRequest(void *zone);
+    void copyZoneToPagesDlgRequest(void* zone);
+    void deleteZoneFromPagesDlgRequest(void* zone);
 private slots:
-		
-	void whiteMarginsToggled(bool checked);
-	
-	void equalizeIlluminationToggled(bool checked);	
+
+    void whiteMarginsToggled(bool checked);
+
+    void equalizeIlluminationToggled(bool checked);
 
     void despeckleOffSelected();
 
@@ -93,15 +99,15 @@ private slots:
 
     void on_depthPerceptionSlider_valueChanged(int value);
 
-    void on_applyDepthPerception_linkActivated(const QString &);
+    void on_applyDepthPerception_linkActivated(const QString&);
 
-    void on_dewarpingStatusLabel_linkActivated(const QString &);
+    void on_dewarpingStatusLabel_linkActivated(const QString&);
 
-    void on_applyDespeckleButton_linkActivated(const QString &);
+    void on_applyDespeckleButton_linkActivated(const QString&);
 
-    void on_applyColorsButton_linkActivated(const QString &);
+    void on_applyColorsButton_linkActivated(const QString&);
 
-    void on_modeValue_linkActivated(const QString &);
+    void on_modeValue_linkActivated(const QString&);
 
     void on_actionModeBW_triggered();
 
@@ -114,11 +120,11 @@ private slots:
     void on_thresholdSlider_valueChanged();
     void on_thresholdForegroundSlider_valueChanged();
 
-    void on_dpiValue_linkActivated(const QString &);
+    void on_dpiValue_linkActivated(const QString&);
 
     void on_actionReset_to_default_value_triggered();
 
-    void on_applyThresholdButton_linkActivated(const QString &);
+    void on_applyThresholdButton_linkActivated(const QString&);
 
     void on_pictureZonesLayerCB_toggled(bool checked);
 
@@ -126,7 +132,7 @@ private slots:
 
     void on_autoLayerCB_toggled(bool checked);
 
-    void on_applyForegroundThresholdButton_linkActivated(const QString &link);
+    void on_applyForegroundThresholdButton_linkActivated(const QString& link);
 
     void on_actionReset_to_default_value_foeground_triggered();
 
@@ -152,22 +158,21 @@ private:
 
     void applyDepthPerceptionConfirmed(std::set<PageId> const& pages);
 
-
     void changeColorMode(ColorParams::ColorMode const mode);
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject* obj, QEvent* event);
 
-	void handleDespeckleLevelChange(DespeckleLevel level);
+    void handleDespeckleLevelChange(DespeckleLevel level);
 
-	void reloadIfNecessary();
+    void reloadIfNecessary();
 
-	void updateDpiDisplay();
+    void updateDpiDisplay();
 
-	void updateColorsDisplay();
+    void updateColorsDisplay();
 
     void updateLayersDisplay();
 
-	void updateDewarpingDisplay();
+    void updateDewarpingDisplay();
 
     void updateModeValueText();
 
@@ -189,17 +194,17 @@ private:
     }
 
     void updateShortcuts();
-	
-	IntrusivePtr<Settings> m_ptrSettings;
-	PageSelectionAccessor m_pageSelectionAccessor;
-	PageId m_pageId;
-	Dpi m_outputDpi;
-	ColorParams m_colorParams;
-	DepthPerception m_depthPerception;
-	DewarpingMode m_dewarpingMode;
-	DespeckleLevel m_despeckleLevel;
-	ImageViewTab m_lastTab;
-	int m_ignoreThresholdChanges;
+
+    IntrusivePtr<Settings> m_ptrSettings;
+    PageSelectionAccessor m_pageSelectionAccessor;
+    PageId m_pageId;
+    Dpi m_outputDpi;
+    ColorParams m_colorParams;
+    DepthPerception m_depthPerception;
+    DewarpingMode m_dewarpingMode;
+    DespeckleLevel m_despeckleLevel;
+    ImageViewTab m_lastTab;
+    int m_ignoreThresholdChanges;
     QMenu m_menuMode;
     ColorParams::ColorMode m_currentMode;
     bool m_ignore_system_wheel_settings;

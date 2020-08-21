@@ -32,11 +32,11 @@ class CylindricalSurfaceDewarper;
 class RasterDewarper
 {
 public:
-	static QImage dewarp(
-		QImage const& src, QSize const& dst_size,
-		CylindricalSurfaceDewarper const& distortion_model,
-		QRectF const& model_domain, QColor const& background_color
-	);
+    static QImage dewarp(
+        QImage const& src, QSize const& dst_size,
+        CylindricalSurfaceDewarper const& distortion_model,
+        QRectF const& model_domain, QColor const& background_color
+    );
 };
 
 } // namespace dewarping

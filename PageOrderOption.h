@@ -25,25 +25,34 @@
 
 class PageOrderOption
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	typedef IntrusivePtr<PageOrderProvider const> ProviderPtr;
+    typedef IntrusivePtr<PageOrderProvider const> ProviderPtr;
 
     PageOrderOption(QString const& name, ProviderPtr const& provider, QString const& toolTip = QString())
         : m_name(name), m_ptrProvider(provider), m_toolTip(toolTip) {}
 
-	QString const& name() const { return m_name; }
+    QString const& name() const
+    {
+        return m_name;
+    }
 
-    QString const& toolTip() const { return m_toolTip; }
+    QString const& toolTip() const
+    {
+        return m_toolTip;
+    }
 
-	/**
-	 * Returns the ordering information provider.
-	 * A null provider is OK and is to be interpreted as default order.
-	 */
-	ProviderPtr const& provider() const { return m_ptrProvider; }
+    /**
+     * Returns the ordering information provider.
+     * A null provider is OK and is to be interpreted as default order.
+     */
+    ProviderPtr const& provider() const
+    {
+        return m_ptrProvider;
+    }
 private:
-	QString m_name;
-	ProviderPtr m_ptrProvider;
+    QString m_name;
+    ProviderPtr m_ptrProvider;
     QString m_toolTip;
 };
 

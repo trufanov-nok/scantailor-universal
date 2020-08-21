@@ -25,41 +25,41 @@
 using namespace imageproc;
 
 Dpm::Dpm(QSize const size)
-:	m_xDpm(size.width()),
-	m_yDpm(size.height())
+    :   m_xDpm(size.width()),
+        m_yDpm(size.height())
 {
 }
 
 Dpm::Dpm(Dpi const dpi)
-:	m_xDpm(qRound(dpi.horizontal() * constants::DPI2DPM)),
-	m_yDpm(qRound(dpi.vertical() * constants::DPI2DPM))
+    :   m_xDpm(qRound(dpi.horizontal() * constants::DPI2DPM)),
+        m_yDpm(qRound(dpi.vertical() * constants::DPI2DPM))
 {
 }
 
 Dpm::Dpm(QImage const& image)
-:	m_xDpm(image.dotsPerMeterX()),
-	m_yDpm(image.dotsPerMeterY())
+    :   m_xDpm(image.dotsPerMeterX()),
+        m_yDpm(image.dotsPerMeterY())
 {
 }
 
 bool
 Dpm::isNull() const
 {
-	return Dpi(*this).isNull();
+    return Dpi(*this).isNull();
 }
 
 QSize
 Dpm::toSize() const
 {
-	if (isNull()) {
-		return QSize();
-	} else {
-		return QSize(m_xDpm, m_yDpm);
-	}
+    if (isNull()) {
+        return QSize();
+    } else {
+        return QSize(m_xDpm, m_yDpm);
+    }
 }
 
 bool
 Dpm::operator==(Dpm const& other) const
 {
-	return m_xDpm == other.m_xDpm && m_yDpm == other.m_yDpm;
+    return m_xDpm == other.m_xDpm && m_yDpm == other.m_yDpm;
 }

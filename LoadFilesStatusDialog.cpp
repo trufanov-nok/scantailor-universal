@@ -20,48 +20,48 @@
 #include <QPushButton>
 
 LoadFilesStatusDialog::LoadFilesStatusDialog(QWidget* parent)
-:	QDialog(parent)
+    :   QDialog(parent)
 {
-	ui.setupUi(this);
-	ui.tabWidget->setCurrentWidget(ui.failedTab);
-	
-	m_loadedTabNameTemplate = ui.tabWidget->tabText(0);
-	m_failedTabNameTemplate = ui.tabWidget->tabText(1);
+    ui.setupUi(this);
+    ui.tabWidget->setCurrentWidget(ui.failedTab);
 
-	setLoadedFiles(std::vector<QString>());
-	setFailedFiles(std::vector<QString>());
+    m_loadedTabNameTemplate = ui.tabWidget->tabText(0);
+    m_failedTabNameTemplate = ui.tabWidget->tabText(1);
+
+    setLoadedFiles(std::vector<QString>());
+    setFailedFiles(std::vector<QString>());
 }
 
 void
 LoadFilesStatusDialog::setLoadedFiles(std::vector<QString> const& files)
 {
-	ui.tabWidget->setTabText(0, m_loadedTabNameTemplate.arg(files.size()));
+    ui.tabWidget->setTabText(0, m_loadedTabNameTemplate.arg(files.size()));
 
-	QString text;
-	for (QString const& file: files) {
-		text.append(file);
-		text.append(QChar('\n'));
-	}
+    QString text;
+    for (QString const& file : files) {
+        text.append(file);
+        text.append(QChar('\n'));
+    }
 
-	ui.loadedFiles->setPlainText(text);
+    ui.loadedFiles->setPlainText(text);
 }
 
 void
 LoadFilesStatusDialog::setFailedFiles(std::vector<QString> const& files)
 {
-	ui.tabWidget->setTabText(1, m_failedTabNameTemplate.arg(files.size()));
+    ui.tabWidget->setTabText(1, m_failedTabNameTemplate.arg(files.size()));
 
-	QString text;
-	for (QString const& file: files) {
-		text.append(file);
-		text.append(QChar('\n'));
-	}
+    QString text;
+    for (QString const& file : files) {
+        text.append(file);
+        text.append(QChar('\n'));
+    }
 
-	ui.failedFiles->setPlainText(text);
+    ui.failedFiles->setPlainText(text);
 }
 
 void
 LoadFilesStatusDialog::setOkButtonName(QString const& name)
 {
-	ui.buttonBox->button(QDialogButtonBox::Ok)->setText(name);
+    ui.buttonBox->button(QDialogButtonBox::Ok)->setText(name);
 }

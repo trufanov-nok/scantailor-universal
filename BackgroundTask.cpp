@@ -21,14 +21,14 @@
 char const*
 BackgroundTask::CancelledException::what() const throw()
 {
-	return "BackgroundTask cancelled";
+    return "BackgroundTask cancelled";
 }
 
 void
 BackgroundTask::throwIfCancelled() const
 {
-	if (isCancelled()) {
-		throw CancelledException();
-	}
+    if (isCancelled()) {
+        throw CancelledException();
+    }
 }
 

@@ -30,25 +30,37 @@ namespace output
 class DepthPerception
 {
 public:
-	DepthPerception();
+    DepthPerception();
 
-	DepthPerception(double value);
+    DepthPerception(double value);
 
-	explicit DepthPerception(QString const& from_string);
-	
-	QString toString() const;
+    explicit DepthPerception(QString const& from_string);
 
-	void setValue(double value);
+    QString toString() const;
 
-	double value() const { return m_value; }
+    void setValue(double value);
 
-	static double minValue() { return 1.0; }
+    double value() const
+    {
+        return m_value;
+    }
 
-	static double defaultValue() { return 2.0; }
+    static double minValue()
+    {
+        return 1.0;
+    }
 
-	static double maxValue() { return 3.0; }
+    static double defaultValue()
+    {
+        return 2.0;
+    }
+
+    static double maxValue()
+    {
+        return 3.0;
+    }
 private:
-	double m_value;
+    double m_value;
 };
 
 } // namespace output

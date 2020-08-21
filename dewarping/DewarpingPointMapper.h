@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,32 +32,32 @@ class DistortionModel;
 class DewarpingPointMapper
 {
 public:
-	DewarpingPointMapper(
-		dewarping::DistortionModel const& distortion_model, double depth_perception,
-		QTransform const& distortion_model_to_output,
-		QRect const& output_content_rect);
+    DewarpingPointMapper(
+        dewarping::DistortionModel const& distortion_model, double depth_perception,
+        QTransform const& distortion_model_to_output,
+        QRect const& output_content_rect);
 
-	/**
-	 * Similar to CylindricalSurfaceDewarper::mapToDewarpedSpace(),
-	 * except it maps to dewarped image coordinates rather than
-	 * to normalized dewarped coordinates.
-	 */
-	QPointF mapToDewarpedSpace(QPointF const& warped_pt) const;
+    /**
+     * Similar to CylindricalSurfaceDewarper::mapToDewarpedSpace(),
+     * except it maps to dewarped image coordinates rather than
+     * to normalized dewarped coordinates.
+     */
+    QPointF mapToDewarpedSpace(QPointF const& warped_pt) const;
 
-	/**
-	 * Similar to CylindricalSurfaceDewarper::mapToWarpedSpace(),
-	 * except it maps from dewarped image coordinates rather than
-	 * from normalized dewarped coordinates.
-	 */
-	QPointF mapToWarpedSpace(QPointF const& dewarped_pt) const;
+    /**
+     * Similar to CylindricalSurfaceDewarper::mapToWarpedSpace(),
+     * except it maps from dewarped image coordinates rather than
+     * from normalized dewarped coordinates.
+     */
+    QPointF mapToWarpedSpace(QPointF const& dewarped_pt) const;
 private:
-	CylindricalSurfaceDewarper m_dewarper;
-	double m_modelDomainLeft;
-	double m_modelDomainTop;
-	double m_modelXScaleFromNormalized;
-	double m_modelYScaleFromNormalized;
-	double m_modelXScaleToNormalized;
-	double m_modelYScaleToNormalized;
+    CylindricalSurfaceDewarper m_dewarper;
+    double m_modelDomainLeft;
+    double m_modelDomainTop;
+    double m_modelXScaleFromNormalized;
+    double m_modelYScaleFromNormalized;
+    double m_modelXScaleToNormalized;
+    double m_modelYScaleToNormalized;
 };
 
 } // namespace dewarping

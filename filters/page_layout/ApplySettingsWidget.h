@@ -35,7 +35,7 @@ namespace page_layout
 
 class ApplySettingsWidget : public QWidget, private Ui::PageLayoutApplyWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
     enum DialogType {
         Margins,
@@ -47,10 +47,14 @@ public:
     };
 public:
     ApplySettingsWidget(QWidget* parent, const DialogType dlg_type, const bool is_auto_margin_enabled = false);
-    ApplySettingsWidget::MarginsApplyType getMarginsTypeVal() const {
+    ApplySettingsWidget::MarginsApplyType getMarginsTypeVal() const
+    {
         return (autoMarginRB->isChecked()) ? AutoMarginState : MarginsValues;
     }
-    bool isEmpty() const { return m_empty; }
+    bool isEmpty() const
+    {
+        return m_empty;
+    }
     virtual ~ApplySettingsWidget();
 private:
     DialogType m_dlgType;

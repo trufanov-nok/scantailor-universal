@@ -37,7 +37,8 @@
 #include "client/windows/crash_generation/minidump_generator.h"
 #include "processor/scoped_ptr.h"
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 // Abstraction for server side implementation of out-of-process crash
 // generation protocol for Windows platform only. It generates Windows
@@ -47,221 +48,222 @@ namespace google_breakpad {
 // register. In response, it hands them event handles that the client can
 // signal to request dump generation. When the clients request dump
 // generation in this way, the server generates Windows minidump files.
-class CrashGenerationServer {
- public:
-  typedef void (*OnClientConnectedCallback)(void* context,
-                                            const ClientInfo* client_info);
+class CrashGenerationServer
+{
+public:
+    typedef void (*OnClientConnectedCallback)(void* context,
+            const ClientInfo* client_info);
 
-  typedef void (*OnClientDumpRequestCallback)(void* context,
-                                              const ClientInfo* client_info,
-                                              const std::wstring* file_path);
+    typedef void (*OnClientDumpRequestCallback)(void* context,
+            const ClientInfo* client_info,
+            const std::wstring* file_path);
 
-  typedef void (*OnClientExitedCallback)(void* context,
-                                         const ClientInfo* client_info);
+    typedef void (*OnClientExitedCallback)(void* context,
+                                           const ClientInfo* client_info);
 
-  // Creates an instance with the given parameters.
-  //
-  // Parameter pipe_name: Name of the Windows named pipe
-  // Parameter pipe_sec_attrs Security attributes to set on the pipe. Pass
-  //     nullptr to use default security on the pipe. By default, the pipe created
-  //     allows Local System, Administrators and the Creator full control and
-  //     the Everyone group read access on the pipe.
-  // Parameter connect_callback: Callback for a new client connection.
-  // Parameter connect_context: Context for client connection callback.
-  // Parameter crash_callback: Callback for a client crash dump request.
-  // Parameter crash_context: Context for client crash dump request callback.
-  // Parameter exit_callback: Callback for client process exit.
-  // Parameter exit_context: Context for client exit callback.
-  // Parameter generate_dumps: Whether to automatically generate dumps.
-  // Client code of this class might want to generate dumps explicitly in the
-  // crash dump request callback. In that case, false can be passed for this
-  // parameter.
-  // Parameter dump_path: Path for generating dumps; required only if true is
-  // passed for generateDumps parameter; nullptr can be passed otherwise.
-  CrashGenerationServer(const std::wstring& pipe_name,
-                        SECURITY_ATTRIBUTES* pipe_sec_attrs,
-                        OnClientConnectedCallback connect_callback,
-                        void* connect_context,
-                        OnClientDumpRequestCallback dump_callback,
-                        void* dump_context,
-                        OnClientExitedCallback exit_callback,
-                        void* exit_context,
-                        bool generate_dumps,
-                        const std::wstring* dump_path);
+    // Creates an instance with the given parameters.
+    //
+    // Parameter pipe_name: Name of the Windows named pipe
+    // Parameter pipe_sec_attrs Security attributes to set on the pipe. Pass
+    //     nullptr to use default security on the pipe. By default, the pipe created
+    //     allows Local System, Administrators and the Creator full control and
+    //     the Everyone group read access on the pipe.
+    // Parameter connect_callback: Callback for a new client connection.
+    // Parameter connect_context: Context for client connection callback.
+    // Parameter crash_callback: Callback for a client crash dump request.
+    // Parameter crash_context: Context for client crash dump request callback.
+    // Parameter exit_callback: Callback for client process exit.
+    // Parameter exit_context: Context for client exit callback.
+    // Parameter generate_dumps: Whether to automatically generate dumps.
+    // Client code of this class might want to generate dumps explicitly in the
+    // crash dump request callback. In that case, false can be passed for this
+    // parameter.
+    // Parameter dump_path: Path for generating dumps; required only if true is
+    // passed for generateDumps parameter; nullptr can be passed otherwise.
+    CrashGenerationServer(const std::wstring& pipe_name,
+                          SECURITY_ATTRIBUTES* pipe_sec_attrs,
+                          OnClientConnectedCallback connect_callback,
+                          void* connect_context,
+                          OnClientDumpRequestCallback dump_callback,
+                          void* dump_context,
+                          OnClientExitedCallback exit_callback,
+                          void* exit_context,
+                          bool generate_dumps,
+                          const std::wstring* dump_path);
 
-  ~CrashGenerationServer();
+    ~CrashGenerationServer();
 
-  // Performs initialization steps needed to start listening to clients.
-  //
-  // Returns true if initialization is successful; false otherwise.
-  bool Start();
+    // Performs initialization steps needed to start listening to clients.
+    //
+    // Returns true if initialization is successful; false otherwise.
+    bool Start();
 
- private:
-  // Various states the client can be in during the handshake with
-  // the server.
-  enum IPCServerState {
-    // Server is in error state and it cannot serve any clients.
-    IPC_SERVER_STATE_ERROR,
+private:
+    // Various states the client can be in during the handshake with
+    // the server.
+    enum IPCServerState {
+        // Server is in error state and it cannot serve any clients.
+        IPC_SERVER_STATE_ERROR,
 
-    // Server starts in this state.
-    IPC_SERVER_STATE_INITIAL,
+        // Server starts in this state.
+        IPC_SERVER_STATE_INITIAL,
 
-    // Server has issued an async connect to the pipe and it is waiting
-    // for the connection to be established.
-    IPC_SERVER_STATE_CONNECTING,
+        // Server has issued an async connect to the pipe and it is waiting
+        // for the connection to be established.
+        IPC_SERVER_STATE_CONNECTING,
 
-    // Server is connected successfully.
-    IPC_SERVER_STATE_CONNECTED,
+        // Server is connected successfully.
+        IPC_SERVER_STATE_CONNECTED,
 
-    // Server has issued an async read from the pipe and it is waiting for
-    // the read to finish.
-    IPC_SERVER_STATE_READING,
+        // Server has issued an async read from the pipe and it is waiting for
+        // the read to finish.
+        IPC_SERVER_STATE_READING,
 
-    // Server is done reading from the pipe.
-    IPC_SERVER_STATE_READ_DONE,
+        // Server is done reading from the pipe.
+        IPC_SERVER_STATE_READ_DONE,
 
-    // Server has issued an async write to the pipe and it is waiting for
-    // the write to finish.
-    IPC_SERVER_STATE_WRITING,
+        // Server has issued an async write to the pipe and it is waiting for
+        // the write to finish.
+        IPC_SERVER_STATE_WRITING,
 
-    // Server is done writing to the pipe.
-    IPC_SERVER_STATE_WRITE_DONE,
+        // Server is done writing to the pipe.
+        IPC_SERVER_STATE_WRITE_DONE,
 
-    // Server has issued an async read from the pipe for an ack and it
-    // is waiting for the read to finish.
-    IPC_SERVER_STATE_READING_ACK,
+        // Server has issued an async read from the pipe for an ack and it
+        // is waiting for the read to finish.
+        IPC_SERVER_STATE_READING_ACK,
 
-    // Server is done writing to the pipe and it is now ready to disconnect
-    // and reconnect.
-    IPC_SERVER_STATE_DISCONNECTING
-  };
+        // Server is done writing to the pipe and it is now ready to disconnect
+        // and reconnect.
+        IPC_SERVER_STATE_DISCONNECTING
+    };
 
-  //
-  // Helper methods to handle various server IPC states.
-  //
-  void HandleErrorState();
-  void HandleInitialState();
-  void HandleConnectingState();
-  void HandleConnectedState();
-  void HandleReadingState();
-  void HandleReadDoneState();
-  void HandleWritingState();
-  void HandleWriteDoneState();
-  void HandleReadingAckState();
-  void HandleDisconnectingState();
+    //
+    // Helper methods to handle various server IPC states.
+    //
+    void HandleErrorState();
+    void HandleInitialState();
+    void HandleConnectingState();
+    void HandleConnectedState();
+    void HandleReadingState();
+    void HandleReadDoneState();
+    void HandleWritingState();
+    void HandleWriteDoneState();
+    void HandleReadingAckState();
+    void HandleDisconnectingState();
 
-  // Prepares reply for a client from the given parameters.
-  bool PrepareReply(const ClientInfo& client_info,
-                    ProtocolMessage* reply) const;
+    // Prepares reply for a client from the given parameters.
+    bool PrepareReply(const ClientInfo& client_info,
+                      ProtocolMessage* reply) const;
 
-  // Duplicates various handles in the ClientInfo object for the client
-  // process and stores them in the given ProtocolMessage instance. If
-  // creating any handle fails, ProtocolMessage will contain the handles
-  // already created successfully, which should be closed by the caller.
-  bool CreateClientHandles(const ClientInfo& client_info,
-                           ProtocolMessage* reply) const;
+    // Duplicates various handles in the ClientInfo object for the client
+    // process and stores them in the given ProtocolMessage instance. If
+    // creating any handle fails, ProtocolMessage will contain the handles
+    // already created successfully, which should be closed by the caller.
+    bool CreateClientHandles(const ClientInfo& client_info,
+                             ProtocolMessage* reply) const;
 
-  // Response to the given client. Return true if all steps of
-  // responding to the client succeed, false otherwise.
-  bool RespondToClient(ClientInfo* client_info);
+    // Response to the given client. Return true if all steps of
+    // responding to the client succeed, false otherwise.
+    bool RespondToClient(ClientInfo* client_info);
 
-  // Handles a connection request from the client.
-  void HandleConnectionRequest();
+    // Handles a connection request from the client.
+    void HandleConnectionRequest();
 
-  // Handles a dump request from the client.
-  void HandleDumpRequest(const ClientInfo& client_info);
+    // Handles a dump request from the client.
+    void HandleDumpRequest(const ClientInfo& client_info);
 
-  // Callback for pipe connected event.
-  static void CALLBACK OnPipeConnected(void* context, BOOLEAN timer_or_wait);
+    // Callback for pipe connected event.
+    static void CALLBACK OnPipeConnected(void* context, BOOLEAN timer_or_wait);
 
-  // Callback for a dump request.
-  static void CALLBACK OnDumpRequest(void* context, BOOLEAN timer_or_wait);
+    // Callback for a dump request.
+    static void CALLBACK OnDumpRequest(void* context, BOOLEAN timer_or_wait);
 
-  // Callback for client process exit event.
-  static void CALLBACK OnClientEnd(void* context, BOOLEAN timer_or_wait);
+    // Callback for client process exit event.
+    static void CALLBACK OnClientEnd(void* context, BOOLEAN timer_or_wait);
 
-  // Releases resources for a client.
-  static DWORD WINAPI CleanupClient(void* context);
+    // Releases resources for a client.
+    static DWORD WINAPI CleanupClient(void* context);
 
-  // Cleans up for the given client.
-  void DoCleanup(ClientInfo* client_info);
+    // Cleans up for the given client.
+    void DoCleanup(ClientInfo* client_info);
 
-  // Adds the given client to the list of registered clients.
-  bool AddClient(ClientInfo* client_info);
+    // Adds the given client to the list of registered clients.
+    bool AddClient(ClientInfo* client_info);
 
-  // Generates dump for the given client.
-  bool GenerateDump(const ClientInfo& client, std::wstring* dump_path);
+    // Generates dump for the given client.
+    bool GenerateDump(const ClientInfo& client, std::wstring* dump_path);
 
-  // Sync object for thread-safe access to the shared list of clients.
-  CRITICAL_SECTION clients_sync_;
+    // Sync object for thread-safe access to the shared list of clients.
+    CRITICAL_SECTION clients_sync_;
 
-  // List of clients.
-  std::list<ClientInfo*> clients_;
+    // List of clients.
+    std::list<ClientInfo*> clients_;
 
-  // Pipe name.
-  std::wstring pipe_name_;
+    // Pipe name.
+    std::wstring pipe_name_;
 
-  // Pipe security attributes
-  SECURITY_ATTRIBUTES* pipe_sec_attrs_;
+    // Pipe security attributes
+    SECURITY_ATTRIBUTES* pipe_sec_attrs_;
 
-  // Handle to the pipe used for handshake with clients.
-  HANDLE pipe_;
+    // Handle to the pipe used for handshake with clients.
+    HANDLE pipe_;
 
-  // Pipe wait handle.
-  HANDLE pipe_wait_handle_;
+    // Pipe wait handle.
+    HANDLE pipe_wait_handle_;
 
-  // Handle to server-alive mutex.
-  HANDLE server_alive_handle_;
+    // Handle to server-alive mutex.
+    HANDLE server_alive_handle_;
 
-  // Callback for a successful client connection.
-  OnClientConnectedCallback connect_callback_;
+    // Callback for a successful client connection.
+    OnClientConnectedCallback connect_callback_;
 
-  // Context for client connected callback.
-  void* connect_context_;
+    // Context for client connected callback.
+    void* connect_context_;
 
-  // Callback for a client dump request.
-  OnClientDumpRequestCallback dump_callback_;
+    // Callback for a client dump request.
+    OnClientDumpRequestCallback dump_callback_;
 
-  // Context for client dump request callback.
-  void* dump_context_;
+    // Context for client dump request callback.
+    void* dump_context_;
 
-  // Callback for client process exit.
-  OnClientExitedCallback exit_callback_;
+    // Callback for client process exit.
+    OnClientExitedCallback exit_callback_;
 
-  // Context for client process exit callback.
-  void* exit_context_;
+    // Context for client process exit callback.
+    void* exit_context_;
 
-  // Whether to generate dumps.
-  bool generate_dumps_;
+    // Whether to generate dumps.
+    bool generate_dumps_;
 
-  // Instance of a mini dump generator.
-  scoped_ptr<MinidumpGenerator> dump_generator_;
+    // Instance of a mini dump generator.
+    scoped_ptr<MinidumpGenerator> dump_generator_;
 
-  // State of the server in performing the IPC with the client.
-  // Note that since we restrict the pipe to one instance, we
-  // only need to keep one state of the server. Otherwise, server
-  // would have one state per client it is talking to.
-  volatile IPCServerState server_state_;
+    // State of the server in performing the IPC with the client.
+    // Note that since we restrict the pipe to one instance, we
+    // only need to keep one state of the server. Otherwise, server
+    // would have one state per client it is talking to.
+    volatile IPCServerState server_state_;
 
-  // Whether the server is shutting down.
-  volatile bool shutting_down_;
+    // Whether the server is shutting down.
+    volatile bool shutting_down_;
 
-  // Overlapped instance for async I/O on the pipe.
-  OVERLAPPED overlapped_;
+    // Overlapped instance for async I/O on the pipe.
+    OVERLAPPED overlapped_;
 
-  // Message object used in IPC with the client.
-  ProtocolMessage msg_;
+    // Message object used in IPC with the client.
+    ProtocolMessage msg_;
 
-  // Client Info for the client that's connecting to the server.
-  ClientInfo* client_info_;
+    // Client Info for the client that's connecting to the server.
+    ClientInfo* client_info_;
 
-  // Count of clean-up work items that are currently running or are
-  // already queued to run.
-  volatile LONG cleanup_item_count_;
+    // Count of clean-up work items that are currently running or are
+    // already queued to run.
+    volatile LONG cleanup_item_count_;
 
-  // Disable copy ctor and operator=.
-  CrashGenerationServer(const CrashGenerationServer& crash_server);
-  CrashGenerationServer& operator=(const CrashGenerationServer& crash_server);
+    // Disable copy ctor and operator=.
+    CrashGenerationServer(const CrashGenerationServer& crash_server);
+    CrashGenerationServer& operator=(const CrashGenerationServer& crash_server);
 };
 
 }  // namespace google_breakpad

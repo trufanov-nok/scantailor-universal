@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,27 +34,33 @@ class BinaryImage;
 class GrayscaleHistogram
 {
 public:
-	explicit GrayscaleHistogram(QImage const& img);
-	
-	GrayscaleHistogram(QImage const& img, BinaryImage const& mask);
-	
-	int& operator[](int idx) { return m_pixels[idx]; }
-	
-	int operator[](int idx) const { return m_pixels[idx]; }
+    explicit GrayscaleHistogram(QImage const& img);
+
+    GrayscaleHistogram(QImage const& img, BinaryImage const& mask);
+
+    int& operator[](int idx)
+    {
+        return m_pixels[idx];
+    }
+
+    int operator[](int idx) const
+    {
+        return m_pixels[idx];
+    }
 private:
-	void fromMonoImage(QImage const& img);
-	
-	void fromMonoMSBImage(QImage const& img, BinaryImage const& mask);
-	
-	void fromGrayscaleImage(QImage const& img);
-	
-	void fromGrayscaleImage(QImage const& img, BinaryImage const& mask);
-	
-	void fromAnyImage(QImage const& img);
-	
-	void fromAnyImage(QImage const& img, BinaryImage const& mask);
-	
-	int m_pixels[256];
+    void fromMonoImage(QImage const& img);
+
+    void fromMonoMSBImage(QImage const& img, BinaryImage const& mask);
+
+    void fromGrayscaleImage(QImage const& img);
+
+    void fromGrayscaleImage(QImage const& img, BinaryImage const& mask);
+
+    void fromAnyImage(QImage const& img);
+
+    void fromAnyImage(QImage const& img, BinaryImage const& mask);
+
+    int m_pixels[256];
 };
 
 /**
@@ -83,7 +89,7 @@ QImage toGrayscale(QImage const& src);
  * \return A grayscale image, or a null image, if \p src was null.
  */
 GrayImage stretchGrayRange(GrayImage const& src, double black_clip_fraction = 0.0,
-	double white_clip_fraction = 0.0);
+                           double white_clip_fraction = 0.0);
 
 /**
  * \brief Create a grayscale image consisting of a 1 pixel frame and an inner area.
@@ -94,8 +100,8 @@ GrayImage stretchGrayRange(GrayImage const& src, double black_clip_fraction = 0.
  * \return The resulting image.
  */
 GrayImage createFramedImage(
-	QSize const& size, unsigned char inner_color = 0xff,
-	unsigned char frame_color = 0x00);
+    QSize const& size, unsigned char inner_color = 0xff,
+    unsigned char frame_color = 0x00);
 
 /**
  * \brief Find the darkest gray level of an image.
@@ -103,7 +109,7 @@ GrayImage createFramedImage(
  * \param image The GrayImage to process.  If it's null, 0xff will
  *        be returned as the darkest image.
  */
-unsigned char darkestGrayLevel(const GrayImage &image);
+unsigned char darkestGrayLevel(const GrayImage& image);
 
 } // namespace imageproc
 

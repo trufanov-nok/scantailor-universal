@@ -36,23 +36,26 @@ namespace select_content
 class Dependencies
 {
 public:
-	// Member-wise copying is OK.
-	
-	Dependencies();
-	
-	Dependencies(QPolygonF const& rotated_page_outline);
-	
-	Dependencies(QDomElement const& deps_el);
-	
-	~Dependencies();
-	
-	QPolygonF const& rotatedPageOutline() const { return m_rotatedPageOutline; }
-	
-	bool matches(Dependencies const& other) const;
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
+    // Member-wise copying is OK.
+
+    Dependencies();
+
+    Dependencies(QPolygonF const& rotated_page_outline);
+
+    Dependencies(QDomElement const& deps_el);
+
+    ~Dependencies();
+
+    QPolygonF const& rotatedPageOutline() const
+    {
+        return m_rotatedPageOutline;
+    }
+
+    bool matches(Dependencies const& other) const;
+
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
-	QPolygonF m_rotatedPageOutline;
+    QPolygonF m_rotatedPageOutline;
 };
 
 } // namespace select_content

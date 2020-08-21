@@ -43,7 +43,7 @@ void QHotKeys::resetToDefaults()
     data.append(HotKeyInfo(ProjectSave, QObject::tr("Save project"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_S)));
     data.append(HotKeyInfo(ProjectSaveAs, QObject::tr("Save project as"), KeysAndModifiers, HotKey,
-                           HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_S)));
+                           HotKeySequence(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_S)));
     data.append(HotKeyInfo(ProjectClose, QObject::tr("Close project"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_W)));
     data.append(HotKeyInfo(AppQuit, QObject::tr("Quit"), KeysAndModifiers, HotKey,
@@ -73,30 +73,29 @@ void QHotKeys::resetToDefaults()
 
     m_data.append(group_stages);
 
-	QVector<HotKeySequence> vec;
+    QVector<HotKeySequence> vec;
 
     data.clear();
     data.append(HotKeyInfo(PageFirst, QObject::tr("First page"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Home)));
     data.append(HotKeyInfo(PageLast, QObject::tr("Last page"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_End)));
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageUp));
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Q));
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageUp));
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Q));
     data.append(HotKeyInfo(PagePrev, QObject::tr("Previous page"), KeysAndModifiers, HotKey, vec));
-	vec.clear();
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageDown));
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_W));
+    vec.clear();
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageDown));
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_W));
     data.append(HotKeyInfo(PageNext, QObject::tr("Next page"), KeysAndModifiers, HotKey, vec));
 
     data.append(HotKeyInfo(PageFirstSelected, QObject::tr("First selected page"), KeysAndModifiers, HotKey,
-                               HotKeySequence(Qt::AltModifier, Qt::Key_Home)));
+                           HotKeySequence(Qt::AltModifier, Qt::Key_Home)));
     data.append(HotKeyInfo(PageLastSelected, QObject::tr("Last selected page"), KeysAndModifiers, HotKey,
-                               HotKeySequence(Qt::AltModifier, Qt::Key_End)));
+                           HotKeySequence(Qt::AltModifier, Qt::Key_End)));
     data.append(HotKeyInfo(PagePrevSelected, QObject::tr("Previous selected page"), KeysAndModifiers, HotKey,
-                               HotKeySequence(Qt::AltModifier, Qt::Key_PageUp)));
+                           HotKeySequence(Qt::AltModifier, Qt::Key_PageUp)));
     data.append(HotKeyInfo(PageNextSelected, QObject::tr("Next selected page"), KeysAndModifiers, HotKey,
-                               HotKeySequence(Qt::AltModifier, Qt::Key_PageDown)));
-
+                           HotKeySequence(Qt::AltModifier, Qt::Key_PageDown)));
 
     QSettings _sett;
     int pg_jmp = _sett.value(_key_hot_keys_jump_forward_pg_num, _key_hot_keys_jump_forward_pg_num_def).toUInt();
@@ -104,11 +103,10 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ControlModifier, Qt::Key_PageDown)));
     pg_jmp = _sett.value(_key_hot_keys_jump_backward_pg_num, _key_hot_keys_jump_backward_pg_num_def).toUInt();
     data.append(HotKeyInfo(PageJumpBackward, QObject::tr("Jump %n pages backward", "plurals for \"page\" may be used", pg_jmp), KeysAndModifiers, HotKey,
-                               HotKeySequence(Qt::ControlModifier, Qt::Key_PageUp)));
+                           HotKeySequence(Qt::ControlModifier, Qt::Key_PageUp)));
 
     data.append(HotKeyInfo(ThumbSizeChange, QObject::tr("Change size of thumbnails"), ModifierAllowed, MouseWheel,
-                               HotKeySequence(Qt::AltModifier, Qt::Key_unknown)));
-
+                           HotKeySequence(Qt::AltModifier, Qt::Key_unknown)));
 
     HotKeyGroup group_pages("page_navigation", QObject::tr("Pages navigation"));
     group_pages.setHotKeys(data);
@@ -117,9 +115,9 @@ void QHotKeys::resetToDefaults()
 
     data.clear();
     data.append(HotKeyInfo(InsertEmptyPageBefore, QObject::tr("Insert empty page before"), KeysAndModifiers, HotKey,
-                               HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_B)));
+                           HotKeySequence(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_B)));
     data.append(HotKeyInfo(InsertEmptyPageAfter, QObject::tr("Insert empty page after"), KeysAndModifiers, HotKey,
-                               HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_A)));
+                           HotKeySequence(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_A)));
 
     HotKeyGroup group_pages_manipulation("page_manipulation", QObject::tr("Pages manipulation"));
     group_pages_manipulation.setHotKeys(data);
@@ -131,7 +129,7 @@ void QHotKeys::resetToDefaults()
     data.append(HotKeyInfo(DeskewChange, QObject::tr("Change angle"), ModifierAllowed, MouseWheel,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(DeskewChangePrec, QObject::tr("Change angle precisely"), ModifierAllowed, MouseWheel,
-                           HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
+                           HotKeySequence(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_unknown)));
     HotKeyGroup group_deskew("deskew", QObject::tr("Deskew"));
     group_deskew.setHotKeys(data);
 
@@ -144,7 +142,7 @@ void QHotKeys::resetToDefaults()
     data.append(HotKeyInfo(ContentMoveAxes, QObject::tr("Move along axes"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ContentStretch, QObject::tr("Stretch or squeeze"), ModifierAllowed, MouseHold,
-                           HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
+                           HotKeySequence(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ContentInsert, QObject::tr("Create zone"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Insert)));
     data.append(HotKeyInfo(ContentDelete, QObject::tr("Delete zone"), KeysAndModifiers, HotKey,
@@ -185,17 +183,16 @@ void QHotKeys::resetToDefaults()
     data.append(HotKeyInfo(ZoneMove, QObject::tr("Move zone"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ZoneMoveVertically, QObject::tr("Move zone vertically"), ModifierAllowed, MouseHold,
-                           HotKeySequence(Qt::ShiftModifier|Qt::MetaModifier, Qt::Key_unknown)));
+                           HotKeySequence(Qt::ShiftModifier | Qt::MetaModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ZoneMoveHorizontally, QObject::tr("Move zone horizontally"), ModifierAllowed, MouseHold,
-                           HotKeySequence(Qt::ControlModifier|Qt::ShiftModifier, Qt::Key_unknown)));
+                           HotKeySequence(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ZonePaste, QObject::tr("Paste from clipboard"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_V)));
     data.append(HotKeyInfo(ZoneClone, QObject::tr("Clone last modified zone"), ModifierAllowed, MouseDoubleCLick,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-	vec.clear();
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
-
+    vec.clear();
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
 
     data.append(HotKeyInfo(ZoneDelete, QObject::tr("Delete zone"), KeysAndModifiers, HotKey, vec));
     data.append(HotKeyInfo(ZoneCancel, QObject::tr("Cancel move or creation"), KeysAndModifiers, HotKey,
@@ -212,9 +209,9 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(DewarpingMoveHorizontally, QObject::tr("Move horizontally"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
-	vec.clear();
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
-	vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
+    vec.clear();
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
+    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
     data.append(HotKeyInfo(DewarpingDeletePoint, QObject::tr("Delete control point"), KeysAndModifiers, HotKey, vec));
 
     HotKeyGroup group_dewarping("dewarping", QObject::tr("Distortion model (dewarping)"));
@@ -240,13 +237,13 @@ void QHotKeys::resetToDefaults()
 
 void QHotKeys::mergeHotkeys(const QVector<HotKeyGroup>& new_data)
 {
-    for (const HotKeyGroup& new_grp: new_data) {
+    for (const HotKeyGroup& new_grp : new_data) {
         bool grp_found = false;
-        for (HotKeyGroup& old_grp: m_data) {
+        for (HotKeyGroup& old_grp : m_data) {
             if (old_grp.id() == new_grp.id()) {
                 grp_found = true;
 
-                for (const HotKeyInfo& new_hk: new_grp.hotKeys()) {
+                for (const HotKeyInfo& new_hk : new_grp.hotKeys()) {
                     int idx = -1;
                     for (int i = 0; i < old_grp.hotKeys().count(); i++) {
                         if (new_hk.id() == old_grp.hotKeys()[i].id()) {
@@ -269,7 +266,7 @@ void QHotKeys::mergeHotkeys(const QVector<HotKeyGroup>& new_data)
     }
 }
 
-bool QHotKeys::load(QSettings *_settings)
+bool QHotKeys::load(QSettings* _settings)
 {
     std::unique_ptr<QSettings> ptr;
     if (!_settings) {
@@ -308,7 +305,7 @@ bool QHotKeys::load(QSettings *_settings)
     return false;
 }
 
-void QHotKeys::save(QSettings *_settings) const
+void QHotKeys::save(QSettings* _settings) const
 {
     std::unique_ptr<QSettings> ptr;
     if (!_settings) {
@@ -357,46 +354,45 @@ const QString QHotKeys::modifiersToString(const Qt::KeyboardModifiers modifiers)
 
 const QString QHotKeys::keysToString(const QVector<Qt::Key>& keys)
 {
-   QString res;
-   for (const Qt::Key& key: keys) {
-       if (!res.isEmpty()) {
-           res += "+";
-       }
-       res += QKeySequence(key).toString();
-   }
-   return res;
+    QString res;
+    for (const Qt::Key& key : keys) {
+        if (!res.isEmpty()) {
+            res += "+";
+        }
+        res += QKeySequence(key).toString();
+    }
+    return res;
 }
 
 const QString QHotKeys::hotkeysToString(const Qt::KeyboardModifiers modifiers, const QVector<Qt::Key>& keys)
 {
-   QString mods_s = modifiersToString(modifiers);
-   QString keys_s = keysToString(keys);
-   if (!mods_s.isEmpty() && !keys_s.isEmpty()) {
-       mods_s += "+";
-   }
-   return mods_s + keys_s;
+    QString mods_s = modifiersToString(modifiers);
+    QString keys_s = keysToString(keys);
+    if (!mods_s.isEmpty() && !keys_s.isEmpty()) {
+        mods_s += "+";
+    }
+    return mods_s + keys_s;
 }
-
 
 const QString QHotKeys::toDisplayableText() const
 {
     QString res = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">"
-            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">"
-            "p, li { white-space: pre-wrap; }</style></head><body>"
-            "<table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px;"
-                           " margin-right:0px;\"  cellspacing=\"0\" cellpadding=\"0\">";
+                  "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">"
+                  "p, li { white-space: pre-wrap; }</style></head><body>"
+                  "<table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px;"
+                  " margin-right:0px;\"  cellspacing=\"0\" cellpadding=\"0\">";
 
-    for (const HotKeyGroup& grp: qAsConst(m_data)) {
+    for (const HotKeyGroup& grp : qAsConst(m_data)) {
         res += "<tr><td><b>" + grp.title() + "</b></td></tr>";
-        for (const HotKeyInfo& keys: grp.hotKeys()) {
-            res += "<tr><td>"+ keys.title() + "</td>";
+        for (const HotKeyInfo& keys : grp.hotKeys()) {
+            res += "<tr><td>" + keys.title() + "</td>";
             QString keys_seq;
             bool add_or = false;
             int seq_pos = 0;
-            for (const HotKeySequence& seq: keys.sequences()) {
+            for (const HotKeySequence& seq : keys.sequences()) {
                 QString modifier = modifiersToString(seq.m_modifierSequence);
                 QString key_seq;
-                for (const Qt::Key& key: qAsConst(seq.m_keySequence)) {
+                for (const Qt::Key& key : qAsConst(seq.m_keySequence)) {
                     if (key != Qt::Key_unknown) {
                         if (!key_seq.isEmpty()) {
                             key_seq += "+";
@@ -427,10 +423,10 @@ const QString QHotKeys::toDisplayableText() const
     return res + "</table></body></html>";
 }
 
-const HotKeyInfo* QHotKeys::get( const HotKeysId& id) const
+const HotKeyInfo* QHotKeys::get(const HotKeysId& id) const
 {
-    for (const HotKeyGroup& grp: qAsConst(m_data)) {
-        for (const HotKeyInfo& info: grp.hotKeys()) {
+    for (const HotKeyGroup& grp : qAsConst(m_data)) {
+        for (const HotKeyInfo& info : grp.hotKeys()) {
             if (info.id() == id) {
                 return &info;
             }
@@ -441,7 +437,7 @@ const HotKeyInfo* QHotKeys::get( const HotKeysId& id) const
 
 bool QHotKeys::replace(const HotKeysId& id, const HotKeyInfo& new_val)
 {
-    for (HotKeyGroup& grp: m_data) {
+    for (HotKeyGroup& grp : m_data) {
         for (int i = 0; i < grp.hotKeys().count(); i++) {
             const HotKeyInfo& info = grp.hotKeys()[i];
             if (info.id() == id) {
@@ -453,48 +449,47 @@ bool QHotKeys::replace(const HotKeysId& id, const HotKeyInfo& new_val)
     return false;
 }
 
-
-bool HotKeyGroup::load(const QSettings &settings)
+bool HotKeyGroup::load(const QSettings& settings)
 {
-    const QString grp_key("hot_keys_"+m_groupName+"/");
-    if (m_groupName.isEmpty() || !settings.contains(grp_key+"count")) {
+    const QString grp_key("hot_keys_" + m_groupName + "/");
+    if (m_groupName.isEmpty() || !settings.contains(grp_key + "count")) {
         return false;
     }
 
-    m_groupTitle = settings.value(grp_key+"title", m_groupTitle).toString();
+    m_groupTitle = settings.value(grp_key + "title", m_groupTitle).toString();
 
-    const uint hotkeys_cnt = settings.value(grp_key+"count", 0).toUInt();
+    const uint hotkeys_cnt = settings.value(grp_key + "count", 0).toUInt();
 
     for (uint i = 0; i < hotkeys_cnt; i++) {
         const QString hotkey_key = QString("%1key_%2/").arg(grp_key).arg(i);
 
-        const HotKeysId id = (HotKeysId) settings.value(hotkey_key+"id", HotKeysId::DefaultValueId).toUInt();
+        const HotKeysId id = (HotKeysId) settings.value(hotkey_key + "id", HotKeysId::DefaultValueId).toUInt();
         assert(id != HotKeysId::DefaultValueId);
 
-        QString title = settings.value(hotkey_key+"title", QString()).toString();
+        QString title = settings.value(hotkey_key + "title", QString()).toString();
         assert(!title.isEmpty());
 
-        const KeyType editor_type = (KeyType) settings.value(hotkey_key+"editor_type", KeyType::DefaultValueKT).toUInt();
+        const KeyType editor_type = (KeyType) settings.value(hotkey_key + "editor_type", KeyType::DefaultValueKT).toUInt();
         assert(editor_type != KeyType::DefaultValueKT);
 
-        const HotKeyType display_type = (HotKeyType) settings.value(hotkey_key+"display_type", HotKeyType::DefaultValueHK).toUInt();
+        const HotKeyType display_type = (HotKeyType) settings.value(hotkey_key + "display_type", HotKeyType::DefaultValueHK).toUInt();
         assert(display_type != HotKeyType::DefaultValueHK);
 
         QVector<HotKeySequence> sequences;
-        const uint seq_cnt = settings.value(hotkey_key+"count", 0).toUInt();
+        const uint seq_cnt = settings.value(hotkey_key + "count", 0).toUInt();
         for (uint j = 0; j < seq_cnt; j++) {
             const QString seq_key = QString("%1sequence_%2/").arg(hotkey_key).arg(j);
             Qt::KeyboardModifiers modifiers = Qt::NoModifier;
-            if (settings.contains(seq_key+"modifiers")) {
-                modifiers = (Qt::KeyboardModifiers) settings.value(seq_key+"modifiers", Qt::KeyboardModifierMask).toUInt();
+            if (settings.contains(seq_key + "modifiers")) {
+                modifiers = (Qt::KeyboardModifiers) settings.value(seq_key + "modifiers", Qt::KeyboardModifierMask).toUInt();
                 assert(modifiers != Qt::KeyboardModifierMask);
             }
-            const uint keys_cnt = settings.value(seq_key+"count", 0).toUInt();
+            const uint keys_cnt = settings.value(seq_key + "count", 0).toUInt();
             QVector<Qt::Key> keys;
             for (uint k = 0; k < keys_cnt; k++) {
                 const QString key_key = QString("%1key_%2/").arg(seq_key).arg(k);
-                if (settings.contains(key_key+"key")) {
-                    Qt::Key key = (Qt::Key) settings.value(key_key+"key", Qt::Key_unknown).toUInt();
+                if (settings.contains(key_key + "key")) {
+                    Qt::Key key = (Qt::Key) settings.value(key_key + "key", Qt::Key_unknown).toUInt();
                     assert(key != Qt::Key_unknown);
                     keys.append(key);
                 }
@@ -509,37 +504,37 @@ bool HotKeyGroup::load(const QSettings &settings)
     return true;
 }
 
-void HotKeyGroup::save(QSettings &settings) const
+void HotKeyGroup::save(QSettings& settings) const
 {
-    const QString grp_key("hot_keys_"+m_groupName+"/");
-    settings.setValue(grp_key+"title", m_groupTitle);
-    settings.setValue(grp_key+"count", m_hotKeys.count());
+    const QString grp_key("hot_keys_" + m_groupName + "/");
+    settings.setValue(grp_key + "title", m_groupTitle);
+    settings.setValue(grp_key + "count", m_hotKeys.count());
 
     int i = 0;
-    for (const HotKeyInfo& key_info: qAsConst(m_hotKeys)) {
+    for (const HotKeyInfo& key_info : qAsConst(m_hotKeys)) {
         const QString hotkey_key = QString("%1key_%2/").arg(grp_key).arg(i++);
 
-        settings.setValue(hotkey_key+"id", key_info.id());
-        settings.setValue(hotkey_key+"title", key_info.title());
-        settings.setValue(hotkey_key+"editor_type", key_info.editorType());
-        settings.setValue(hotkey_key+"display_type", key_info.displayType());
+        settings.setValue(hotkey_key + "id", key_info.id());
+        settings.setValue(hotkey_key + "title", key_info.title());
+        settings.setValue(hotkey_key + "editor_type", key_info.editorType());
+        settings.setValue(hotkey_key + "display_type", key_info.displayType());
 
         uint seq_cnt = key_info.sequences().count();
-        settings.setValue(hotkey_key+"count", seq_cnt);
+        settings.setValue(hotkey_key + "count", seq_cnt);
 
         int j = 0;
-        for (const HotKeySequence& seq: key_info.sequences()) {
+        for (const HotKeySequence& seq : key_info.sequences()) {
             const QString seq_key = QString("%1sequence_%2/").arg(hotkey_key).arg(j++);
-            settings.setValue(seq_key+"modifiers", (int) seq.m_modifierSequence);
+            settings.setValue(seq_key + "modifiers", (int) seq.m_modifierSequence);
 
             const uint keys_cnt = seq.m_keySequence.count();
-            settings.setValue(seq_key+"count", keys_cnt);
+            settings.setValue(seq_key + "count", keys_cnt);
 
             int k = 0;
-            for (const Qt::Key& key: qAsConst(seq.m_keySequence)) {
+            for (const Qt::Key& key : qAsConst(seq.m_keySequence)) {
                 if (key != Qt::Key_unknown) {
                     const QString key_key = QString("%1key_%2/").arg(seq_key).arg(k++);
-                    settings.setValue(key_key+"key", key);
+                    settings.setValue(key_key + "key", key);
                 }
             }
 
@@ -547,7 +542,7 @@ void HotKeyGroup::save(QSettings &settings) const
     }
 }
 
-const QString HotKeyInfo::hotKeyTypeToString(const HotKeyType &val)
+const QString HotKeyInfo::hotKeyTypeToString(const HotKeyType& val)
 {
     switch (val) {
     case MouseClick: return QString(QObject::tr("click"));

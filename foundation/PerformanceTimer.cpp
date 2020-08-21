@@ -22,13 +22,13 @@
 void
 PerformanceTimer::print(char const* prefix)
 {
-	clock_t const now = clock();
-	double const sec = double(now - m_start) / CLOCKS_PER_SEC;
-	if (sec > 10.0) {
-		qDebug() << prefix << (long)sec << " sec";
-	} else if (sec > 0.01) {
-		qDebug() << prefix << (long)(sec * 1000) << " msec";
-	} else {
-		qDebug() << prefix << (long)(sec * 1000000) << " usec";
-	}
+    clock_t const now = clock();
+    double const sec = double(now - m_start) / CLOCKS_PER_SEC;
+    if (sec > 10.0) {
+        qDebug() << prefix << (long)sec << " sec";
+    } else if (sec > 0.01) {
+        qDebug() << prefix << (long)(sec * 1000) << " msec";
+    } else {
+        qDebug() << prefix << (long)(sec * 1000000) << " usec";
+    }
 }

@@ -28,22 +28,22 @@
 
 class SettingsDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	SettingsDialog(QWidget* parent = 0);
-	
-	virtual ~SettingsDialog();
+    SettingsDialog(QWidget* parent = 0);
+
+    virtual ~SettingsDialog();
 signals:
     void settingsChanged();
 private slots:
-    void on_dialogButtonClicked(QAbstractButton *btn);
-	void commitChanges();
-    void filterChanged(const QString &);
-    void on_treeWidget_itemActivated(QTreeWidgetItem *item, int column);
-    void on_treeWidget_itemSelectionChanged();    
+    void on_dialogButtonClicked(QAbstractButton* btn);
+    void commitChanges();
+    void filterChanged(const QString&);
+    void on_treeWidget_itemActivated(QTreeWidgetItem* item, int column);
+    void on_treeWidget_itemSelectionChanged();
     void on_actionExpand_all_triggered();
     void on_actionCollapse_all_triggered();
-    void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+    void on_treeWidget_itemChanged(QTreeWidgetItem* item, int column);
     void on_language_currentIndexChanged(int index);
     void on_cbApplyCutDefault_clicked(bool checked);
     void on_stackedWidget_currentChanged(int arg1);
@@ -76,7 +76,7 @@ private slots:
 
     void on_originalPageDisplayOnKeyHold_clicked(bool checked);
 
-    void on_lblHotKeyManager_linkActivated(const QString &link);
+    void on_lblHotKeyManager_linkActivated(const QString& link);
 
     void on_btnResetHotKeys_clicked();
 
@@ -162,7 +162,7 @@ private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
     void populateTreeWidget(QTreeWidget* treeWidget);
-    void setupItem(QTreeWidgetItem *item, QWidget* w = nullptr, QString s = "", bool default_val = true);
+    void setupItem(QTreeWidgetItem* item, QWidget* w = nullptr, QString s = "", bool default_val = true);
     void backupSettings();
     void restoreSettings();
     void restoreSettingsTreeState(QTreeWidget* treeWidget);
@@ -170,7 +170,7 @@ private:
     void setupPictureShapeComboBox();
     void updateMarginsDisplay();
 private:
-	Ui::SettingsDialog ui;
+    Ui::SettingsDialog ui;
     QSettings m_settings;
     QSettings::SettingsMap m_oldSettings;
     bool m_accepted;
@@ -183,15 +183,21 @@ class QHotKeyInputDialog: public QInputDialog
 {
     Q_OBJECT
 public:
-    QHotKeyInputDialog(const KeyType& editor_type, QWidget *parent = Q_NULLPTR, Qt::WindowFlags flags = Qt::WindowFlags());
-    const Qt::KeyboardModifiers& modifiers() const { return m_modifiersPressed; }
-    const QVector<Qt::Key> keys() const { return m_keysPressed.toList().toVector(); }
+    QHotKeyInputDialog(const KeyType& editor_type, QWidget* parent = Q_NULLPTR, Qt::WindowFlags flags = Qt::WindowFlags());
+    const Qt::KeyboardModifiers& modifiers() const
+    {
+        return m_modifiersPressed;
+    }
+    const QVector<Qt::Key> keys() const
+    {
+        return m_keysPressed.toList().toVector();
+    }
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject* obj, QEvent* event);
 private:
     void updateLabel();
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
 
     KeyType m_editorType;
     QSet<Qt::Key> m_keysPressed;

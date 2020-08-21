@@ -29,25 +29,37 @@ namespace output
 class BlackWhiteOptions
 {
 public:
-	BlackWhiteOptions();
-	
-	BlackWhiteOptions(QDomElement const& el);
-	
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
-	
-	int thresholdAdjustment() const { return m_thresholdAdjustment; }
-	
-	void setThresholdAdjustment(int val) { m_thresholdAdjustment = val; }
+    BlackWhiteOptions();
 
-    int thresholdForegroundAdjustment() const { return m_thresholdForegroundAdjustment; }
+    BlackWhiteOptions(QDomElement const& el);
 
-    void setThresholdForegroundAdjustment(int val) { m_thresholdForegroundAdjustment = val; }
-		
-	bool operator==(BlackWhiteOptions const& other) const;
-	
-	bool operator!=(BlackWhiteOptions const& other) const;
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
+
+    int thresholdAdjustment() const
+    {
+        return m_thresholdAdjustment;
+    }
+
+    void setThresholdAdjustment(int val)
+    {
+        m_thresholdAdjustment = val;
+    }
+
+    int thresholdForegroundAdjustment() const
+    {
+        return m_thresholdForegroundAdjustment;
+    }
+
+    void setThresholdForegroundAdjustment(int val)
+    {
+        m_thresholdForegroundAdjustment = val;
+    }
+
+    bool operator==(BlackWhiteOptions const& other) const;
+
+    bool operator!=(BlackWhiteOptions const& other) const;
 private:
-	int m_thresholdAdjustment;
+    int m_thresholdAdjustment;
     int m_thresholdForegroundAdjustment;
 };
 

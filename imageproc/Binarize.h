@@ -50,8 +50,8 @@ BinaryImage binarizeOtsu(QImage const& src);
  * \return A black and white image.
  */
 BinaryImage binarizeMokji(
-	QImage const& src, unsigned max_edge_width = 3,
-	unsigned min_edge_magnitude = 20);
+    QImage const& src, unsigned max_edge_width = 3,
+    unsigned min_edge_magnitude = 20);
 
 /**
  * \brief Image binarization using Sauvola's local thresholding method.
@@ -74,8 +74,8 @@ BinaryImage binarizeSauvola(QImage const& src, QSize window_size);
  * \param upper_bound The maximum possible gray level that can be made black.
  */
 BinaryImage binarizeWolf(
-	QImage const& src, QSize window_size,
-	unsigned char lower_bound = 1, unsigned char upper_bound = 254);
+    QImage const& src, QSize window_size,
+    unsigned char lower_bound = 1, unsigned char upper_bound = 254);
 
 BinaryImage peakThreshold(QImage const& image);
 } // namespace imageproc

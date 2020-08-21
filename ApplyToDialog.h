@@ -4,7 +4,8 @@
 #include <QDialog>
 #include "PageRangeSelectorWidget.h"
 
-namespace Ui {
+namespace Ui
+{
 class ApplyToDialog;
 }
 
@@ -13,18 +14,18 @@ class ApplyToDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ApplyToDialog(QWidget *parent, PageId const& cur_page,
+    explicit ApplyToDialog(QWidget* parent, PageId const& cur_page,
                            PageSelectionAccessor const& page_selection_accessor,
                            const PageView viewType = PageView::PAGE_VIEW);
     ~ApplyToDialog();
 
-    QLayout & initNewLeftSettingsPanel();
+    QLayout& initNewLeftSettingsPanel();
 
-    QLayout & initNewTopSettingsPanel();
+    QLayout& initNewTopSettingsPanel();
 
-    QLayout & getLeftSettingsPanel() const;
+    QLayout& getLeftSettingsPanel() const;
 
-    QLayout & getTopSettingsPanel() const;
+    QLayout& getTopSettingsPanel() const;
 
     PageRangeSelectorWidget& getPageRangeSelectorWidget() const;
 
@@ -47,7 +48,7 @@ public slots:
     void accept() override;
 
 private:
-    Ui::ApplyToDialog *ui;
+    Ui::ApplyToDialog* ui;
     QVector<Validator*> m_Validators;
 };
 

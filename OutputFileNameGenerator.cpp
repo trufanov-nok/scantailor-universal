@@ -25,34 +25,34 @@
 #include <assert.h>
 
 OutputFileNameGenerator::OutputFileNameGenerator()
-:	m_ptrDisambiguator(new FileNameDisambiguator),
-	m_outDir(),
-	m_layoutDirection(Qt::LeftToRight)
+    :   m_ptrDisambiguator(new FileNameDisambiguator),
+        m_outDir(),
+        m_layoutDirection(Qt::LeftToRight)
 {
 }
 
 OutputFileNameGenerator::OutputFileNameGenerator(
-	IntrusivePtr<FileNameDisambiguator> const& disambiguator,
-	QString const& out_dir, Qt::LayoutDirection layout_direction)
-:	m_ptrDisambiguator(disambiguator),
-	m_outDir(out_dir),
-	m_layoutDirection(layout_direction)
+    IntrusivePtr<FileNameDisambiguator> const& disambiguator,
+    QString const& out_dir, Qt::LayoutDirection layout_direction)
+    :   m_ptrDisambiguator(disambiguator),
+        m_outDir(out_dir),
+        m_layoutDirection(layout_direction)
 {
-	assert(m_ptrDisambiguator.get());
+    assert(m_ptrDisambiguator.get());
 }
 
 void
 OutputFileNameGenerator::performRelinking(AbstractRelinker const& relinker)
 {
-	m_ptrDisambiguator->performRelinking(relinker);
-	m_outDir = relinker.substitutionPathFor(RelinkablePath(m_outDir, RelinkablePath::Dir));
+    m_ptrDisambiguator->performRelinking(relinker);
+    m_outDir = relinker.substitutionPathFor(RelinkablePath(m_outDir, RelinkablePath::Dir));
 }
 
 QString
 OutputFileNameGenerator::fileNameFor(PageId const& page) const
 {
-	bool const ltr = (m_layoutDirection == Qt::LeftToRight);
-	PageId::SubPage const sub_page = page.subPage();
+    bool const ltr = (m_layoutDirection == Qt::LeftToRight);
+    PageId::SubPage const sub_page = page.subPage();
     QFileInfo fi(page.imageId().filePath());
     QString name(fi.completeBaseName());
     const bool is_empty_page = fi.path().startsWith(QStringLiteral(":"));
@@ -71,37 +71,38 @@ OutputFileNameGenerator::fileNameFor(PageId const& page) const
 
     if (page.imageId().isMultiPageFile() && !is_empty_page) {
         name += QString::fromLatin1("_page%1").arg(
-			page.imageId().page(), 4, 10, QLatin1Char('0')
-		);
-	}
-	if (sub_page != PageId::SINGLE_PAGE) {
-		name += QLatin1Char('_');
-		name += QLatin1Char(ltr == (sub_page == PageId::LEFT_PAGE) ? '1' : '2');
-		name += QLatin1Char(sub_page == PageId::LEFT_PAGE ? 'L' : 'R');
-	}
+                    page.imageId().page(), 4, 10, QLatin1Char('0')
+                );
+    }
+    if (sub_page != PageId::SINGLE_PAGE) {
+        name += QLatin1Char('_');
+        name += QLatin1Char(ltr == (sub_page == PageId::LEFT_PAGE) ? '1' : '2');
+        name += QLatin1Char(sub_page == PageId::LEFT_PAGE ? 'L' : 'R');
+    }
     name += QString::fromLatin1(".tif");
-	
-	return name;
+
+    return name;
 }
 
 QString
 OutputFileNameGenerator::filePathFor(PageId const& page) const
 {
-	QString const file_name(fileNameFor(page));
-	return QDir(m_outDir).absoluteFilePath(file_name);
+    QString const file_name(fileNameFor(page));
+    return QDir(m_outDir).absoluteFilePath(file_name);
 }
 
-void get_empty_page_suffix(QString const& name, QString& base_name, int& order_num) {
+void get_empty_page_suffix(QString const& name, QString& base_name, int& order_num)
+{
     int idx = name.lastIndexOf(QLatin1String("&ep"));
     if (idx != -1) {
         base_name = name.left(idx);
-        order_num = name.right(name.size()-idx-3).toInt();
+        order_num = name.right(name.size() - idx - 3).toInt();
     } else {
         base_name = name;
     }
 }
 
-QString intToOrderNum( int order )
+QString intToOrderNum(int order)
 {
     QString order_num = QString::number(order);
     while (order_num.size() < 4) {
@@ -124,7 +125,7 @@ OutputFileNameGenerator::suggestOverridenFileName(QStringList const& insert_to_f
         get_empty_page_suffix(insert_to_filenames.first(), base_name1, val1);
         get_empty_page_suffix(insert_to_filenames.back(), base_name2, val2);
         if (base_name1 == base_name2) {
-            return base_name1 + "&ep" + intToOrderNum((val2+val1)/2);
+            return base_name1 + "&ep" + intToOrderNum((val2 + val1) / 2);
         } else {
             return base_name1 + "&ep" + intToOrderNum(val1 + 1000);
         }
@@ -139,10 +140,10 @@ OutputFileNameGenerator::suggestOverridenFileName(QStringList const& insert_to_f
         // we shall find a new filename for it
         const QString& old_name = insert_to_filenames.first();
         const QString alph_start = alph[0];
-        const QChar& alph_end = alph[alph.size()-1];
+        const QChar& alph_end = alph[alph.size() - 1];
         QString new_name = old_name;
         while (!new_name.isEmpty() && new_name != alph_start) {
-            QChar char_to_test = new_name[new_name.size()-1];
+            QChar char_to_test = new_name[new_name.size() - 1];
             if (char_to_test > alph_end) {
                 char_to_test = alph_end;
             }
@@ -152,8 +153,8 @@ OutputFileNameGenerator::suggestOverridenFileName(QStringList const& insert_to_f
                 new_name.chop(1);
                 continue;
             }
-            char_to_test = alph[i-1];
-            new_name = new_name.left(new_name.size()-1) + char_to_test;
+            char_to_test = alph[i - 1];
+            new_name = new_name.left(new_name.size() - 1) + char_to_test;
             if (new_name < old_name) {
                 return new_name + "&ep" + intToOrderNum(1000);
             }

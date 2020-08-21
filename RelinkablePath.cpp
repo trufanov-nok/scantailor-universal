@@ -20,47 +20,47 @@
 #include <QStringList>
 
 RelinkablePath::RelinkablePath(QString const& path, Type type)
-:	m_normalizedPath(normalize(path))
-,	m_type(type)
+    :   m_normalizedPath(normalize(path))
+    ,   m_type(type)
 {
 }
 
 QString
 RelinkablePath::normalize(QString const& path)
 {
-	QString front_slashes(path);
-	front_slashes.replace(QChar('\\'), QLatin1String("/"));
-	
-	QStringList new_components;
-    const QStringList components = front_slashes.split(QChar('/'), QString::KeepEmptyParts);
-    for (QString const& comp: components) {
-		if (comp.isEmpty()) {
-			if (new_components.isEmpty()
-#if _WIN32
-				|| (new_components.size() == 1 && new_components.front().isEmpty())
-#endif
-			) {
-				// This will create a leading slash or maybe two (for "\\host\share" type of paths).
-				new_components.push_back(comp);
-			} else {
-				// This will get rid of redundant slashes, including the trailing slash.
-				continue;
-			}
-		} else if (comp == ".") {
-			continue;
-		} else if (comp == "..") {
-			if (new_components.isEmpty()) {
-				return QString(); // Error.
-			}
-			QString const& last_comp = new_components.back();
-			if (last_comp.isEmpty() || last_comp.endsWith(QChar(':'))) {
-				return QString(); // Error.
-			}
-			new_components.pop_back();
-		} else {
-			new_components.push_back(comp);
-		}
-	}
+    QString front_slashes(path);
+    front_slashes.replace(QChar('\\'), QLatin1String("/"));
 
-	return new_components.join(QChar('/'));
+    QStringList new_components;
+    const QStringList components = front_slashes.split(QChar('/'), QString::KeepEmptyParts);
+    for (QString const& comp : components) {
+        if (comp.isEmpty()) {
+            if (new_components.isEmpty()
+#if _WIN32
+                    || (new_components.size() == 1 && new_components.front().isEmpty())
+#endif
+               ) {
+                // This will create a leading slash or maybe two (for "\\host\share" type of paths).
+                new_components.push_back(comp);
+            } else {
+                // This will get rid of redundant slashes, including the trailing slash.
+                continue;
+            }
+        } else if (comp == ".") {
+            continue;
+        } else if (comp == "..") {
+            if (new_components.isEmpty()) {
+                return QString(); // Error.
+            }
+            QString const& last_comp = new_components.back();
+            if (last_comp.isEmpty() || last_comp.endsWith(QChar(':'))) {
+                return QString(); // Error.
+            }
+            new_components.pop_back();
+        } else {
+            new_components.push_back(comp);
+        }
+    }
+
+    return new_components.join(QChar('/'));
 }

@@ -27,14 +27,14 @@ class QString;
 
 class ErrorWidget : public QWidget, private Ui::ErrorWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	ErrorWidget(QString const& text, Qt::TextFormat fmt = Qt::AutoText);
+    ErrorWidget(QString const& text, Qt::TextFormat fmt = Qt::AutoText);
 private slots:
-	/**
-	 * \see QLabel::linkActivated()
-	 */
-	virtual void linkActivated(QString const& link) {}
+    /**
+     * \see QLabel::linkActivated()
+     */
+    virtual void linkActivated(QString const& link) {}
 };
 
 #endif

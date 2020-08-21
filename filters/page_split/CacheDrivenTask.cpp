@@ -31,10 +31,10 @@ namespace page_split
 {
 
 CacheDrivenTask::CacheDrivenTask(IntrusivePtr<Settings> const& settings, IntrusivePtr<ProjectPages> projectPages,
-    IntrusivePtr<deskew::CacheDrivenTask> const& next_task)
-:	m_ptrNextTask(next_task),
-    m_ptrSettings(settings),
-    m_projectPages(projectPages)
+                                 IntrusivePtr<deskew::CacheDrivenTask> const& next_task)
+    :   m_ptrNextTask(next_task),
+        m_ptrSettings(settings),
+        m_projectPages(projectPages)
 {
 }
 
@@ -45,11 +45,11 @@ CacheDrivenTask::~CacheDrivenTask()
 static ProjectPages::LayoutType toPageLayoutType(PageLayout const& layout)
 {
     switch (layout.type()) {
-        case PageLayout::SINGLE_PAGE_UNCUT:
-        case PageLayout::SINGLE_PAGE_CUT:
-            return ProjectPages::ONE_PAGE_LAYOUT;
-        case PageLayout::TWO_PAGES:
-            return ProjectPages::TWO_PAGE_LAYOUT;
+    case PageLayout::SINGLE_PAGE_UNCUT:
+    case PageLayout::SINGLE_PAGE_CUT:
+        return ProjectPages::ONE_PAGE_LAYOUT;
+    case PageLayout::TWO_PAGES:
+        return ProjectPages::TWO_PAGE_LAYOUT;
     }
 
     assert(!"Unreachable");
@@ -58,20 +58,20 @@ static ProjectPages::LayoutType toPageLayoutType(PageLayout const& layout)
 
 void
 CacheDrivenTask::process(
-	PageInfo const& page_info, AbstractFilterDataCollector* collector,
-	ImageTransformation const& xform)
+    PageInfo const& page_info, AbstractFilterDataCollector* collector,
+    ImageTransformation const& xform)
 {
-	Settings::Record const record(
-		m_ptrSettings->getPageRecord(page_info.imageId())
-	);
-	
-	OrthogonalRotation const pre_rotation(xform.preRotation());
-	Dependencies const deps(
-		page_info.metadata().size(), pre_rotation,
-		record.combinedLayoutType()
-	);
-	
-	Params const* params = record.params();
+    Settings::Record const record(
+        m_ptrSettings->getPageRecord(page_info.imageId())
+    );
+
+    OrthogonalRotation const pre_rotation(xform.preRotation());
+    Dependencies const deps(
+        page_info.metadata().size(), pre_rotation,
+        record.combinedLayoutType()
+    );
+
+    Params const* params = record.params();
 
     bool compatibleWith = true;
     if (!params || !(compatibleWith = deps.compatibleWith(*params))) {
@@ -93,7 +93,7 @@ CacheDrivenTask::process(
             Params::Regenerate val = p.getForceReprocess();
             need_reprocess = val & Params::RegenerateThumbnail;
             if (need_reprocess && !m_ptrNextTask) {
-                val = (Params::Regenerate) (val & ~Params::RegenerateThumbnail);
+                val = (Params::Regenerate)(val & ~Params::RegenerateThumbnail);
                 p.setForceReprocess(val);
                 Settings::UpdateAction update_params;
                 update_params.setParams(p);
@@ -104,26 +104,25 @@ CacheDrivenTask::process(
         if (need_reprocess) {
             if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
                 thumb_col->processThumbnail(
-                            std::unique_ptr<QGraphicsItem>(
-                                new IncompleteThumbnail(
-                                    thumb_col->thumbnailCache(),
-                                    thumb_col->maxLogicalThumbSize(),
-                                    page_info.imageId(), xform
-                                    )
-                                )
-                            );
+                    std::unique_ptr<QGraphicsItem>(
+                        new IncompleteThumbnail(
+                            thumb_col->thumbnailCache(),
+                            thumb_col->maxLogicalThumbSize(),
+                            page_info.imageId(), xform
+                        )
+                    )
+                );
             }
 
             return;
         }
-	}
-	
-	PageLayout layout(params->pageLayout());
-	if (layout.uncutOutline().isEmpty()) {
-		// Backwards compatibility with versions < 0.9.9
-		layout.setUncutOutline(xform.resultingRect());
-	}
+    }
 
+    PageLayout layout(params->pageLayout());
+    if (layout.uncutOutline().isEmpty()) {
+        // Backwards compatibility with versions < 0.9.9
+        layout.setUncutOutline(xform.resultingRect());
+    }
 
     // m_projectPages controls number of pages displayed in thumbnail list
     // usually this is set in Task, but if user changed layout with Apply To..
@@ -132,26 +131,26 @@ CacheDrivenTask::process(
 
     m_projectPages->setLayoutTypeFor(page_info.id().imageId(), toPageLayoutType(layout));
 
-	if (m_ptrNextTask) {
-		ImageTransformation new_xform(xform);
-		new_xform.setPreCropArea(layout.pageOutline(page_info.id().subPage()));
-		m_ptrNextTask->process(page_info, collector, new_xform);
-		return;
-	}
-	
-	if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-		thumb_col->processThumbnail(
+    if (m_ptrNextTask) {
+        ImageTransformation new_xform(xform);
+        new_xform.setPreCropArea(layout.pageOutline(page_info.id().subPage()));
+        m_ptrNextTask->process(page_info, collector, new_xform);
+        return;
+    }
+
+    if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
+        thumb_col->processThumbnail(
             std::unique_ptr<QGraphicsItem>(
-				new Thumbnail(
-					thumb_col->thumbnailCache(),
-					thumb_col->maxLogicalThumbSize(),
-					page_info.imageId(), xform, layout,
-					page_info.leftHalfRemoved(),
-					page_info.rightHalfRemoved()
-				)
-			)
-		);
-	}
+                new Thumbnail(
+                    thumb_col->thumbnailCache(),
+                    thumb_col->maxLogicalThumbSize(),
+                    page_info.imageId(), xform, layout,
+                    page_info.leftHalfRemoved(),
+                    page_info.rightHalfRemoved()
+                )
+            )
+        );
+    }
 }
 
 } // namespace page_split

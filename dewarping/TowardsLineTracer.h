@@ -28,7 +28,7 @@
 
 namespace imageproc
 {
-	class SEDM;
+class SEDM;
 }
 
 namespace dewarping
@@ -40,32 +40,31 @@ namespace dewarping
 class TowardsLineTracer
 {
 public:
-	TowardsLineTracer(
-		imageproc::SEDM const* dm, Grid<float> const* pm, QLineF const& line, QPoint const& initial_pos);
+    TowardsLineTracer(
+        imageproc::SEDM const* dm, Grid<float> const* pm, QLineF const& line, QPoint const& initial_pos);
 
-	QPoint const* trace(float max_dist);
+    QPoint const* trace(float max_dist);
 private:
-	struct Step
-	{
-		Vec2d unitVec;
-		QPoint vec;
-		int dmOffset;
-		int pmOffset;
-	};
+    struct Step {
+        Vec2d unitVec;
+        QPoint vec;
+        int dmOffset;
+        int pmOffset;
+    };
 
-	void setupSteps();
+    void setupSteps();
 
-	uint32_t const* m_pDmData;
-	int m_dmStride;
-	float const* m_pPmData;
-	int m_pmStride;
-	QRect m_rect;
-	QLineF m_line;
-	Vec2d m_normalTowardsLine;
-	QPoint m_lastOutputPos;
-	Step m_steps[5];
-	int m_numSteps;
-	bool m_finished;
+    uint32_t const* m_pDmData;
+    int m_dmStride;
+    float const* m_pPmData;
+    int m_pmStride;
+    QRect m_rect;
+    QLineF m_line;
+    Vec2d m_normalTowardsLine;
+    QPoint m_lastOutputPos;
+    Step m_steps[5];
+    int m_numSteps;
+    bool m_finished;
 };
 
 } // namespace dewarping

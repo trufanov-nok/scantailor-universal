@@ -31,17 +31,17 @@ namespace fix_orientation
 {
 
 OptionsWidget::OptionsWidget(
-	IntrusivePtr<Settings> const& settings,
-	PageSelectionAccessor const& page_selection_accessor)
-:	m_ptrSettings(settings),
-	m_pageSelectionAccessor(page_selection_accessor)
+    IntrusivePtr<Settings> const& settings,
+    PageSelectionAccessor const& page_selection_accessor)
+    :   m_ptrSettings(settings),
+        m_pageSelectionAccessor(page_selection_accessor)
 {
-	setupUi(this);
-	
-	connect(rotateLeftBtn, SIGNAL(clicked()), this, SLOT(rotateLeft()));
-	connect(rotateRightBtn, SIGNAL(clicked()), this, SLOT(rotateRight()));
-	connect(resetBtn, SIGNAL(clicked()), this, SLOT(resetRotation()));
-	connect(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyToDialog()));
+    setupUi(this);
+
+    connect(rotateLeftBtn, SIGNAL(clicked()), this, SLOT(rotateLeft()));
+    connect(rotateRightBtn, SIGNAL(clicked()), this, SLOT(rotateRight()));
+    connect(resetBtn, SIGNAL(clicked()), this, SLOT(resetRotation()));
+    connect(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyToDialog()));
 }
 
 OptionsWidget::~OptionsWidget()
@@ -50,39 +50,39 @@ OptionsWidget::~OptionsWidget()
 
 void
 OptionsWidget::preUpdateUI(
-	PageId const& page_id, OrthogonalRotation const rotation)
+    PageId const& page_id, OrthogonalRotation const rotation)
 {
-	m_pageId = page_id;
-	m_rotation = rotation;
-	setRotationPixmap();
+    m_pageId = page_id;
+    m_rotation = rotation;
+    setRotationPixmap();
 }
 
 void
 OptionsWidget::postUpdateUI(OrthogonalRotation const rotation)
 {
-	setRotation(rotation);
+    setRotation(rotation);
 }
 
 void
 OptionsWidget::rotateLeft()
 {
-	OrthogonalRotation rotation(m_rotation);
-	rotation.prevClockwiseDirection();
-	setRotation(rotation);
+    OrthogonalRotation rotation(m_rotation);
+    rotation.prevClockwiseDirection();
+    setRotation(rotation);
 }
 
 void
 OptionsWidget::rotateRight()
 {
-	OrthogonalRotation rotation(m_rotation);
-	rotation.nextClockwiseDirection();
-	setRotation(rotation);
+    OrthogonalRotation rotation(m_rotation);
+    rotation.nextClockwiseDirection();
+    setRotation(rotation);
 }
 
 void
 OptionsWidget::resetRotation()
 {
-	setRotation(OrthogonalRotation());
+    setRotation(OrthogonalRotation());
 }
 
 void
@@ -90,11 +90,11 @@ OptionsWidget::showApplyToDialog()
 {
     ApplyToDialog* dialog = new ApplyToDialog(
         this, m_pageId, m_pageSelectionAccessor, PageView::IMAGE_VIEW
-	);
+    );
 
     dialog->setWindowTitle(tr("Fix Orientation"));
 
-    connect(dialog, &ApplyToDialog::accepted, this, [=]() {
+    connect(dialog, &ApplyToDialog::accepted, this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         if (!dialog->getPageRangeSelectorWidget().allPagesSelected()) {
@@ -104,69 +104,68 @@ OptionsWidget::showApplyToDialog()
         }
     });
 
-	dialog->show();
+    dialog->show();
 }
 
 void
 OptionsWidget::appliedTo(std::set<PageId> const& pages)
 {
-	if (pages.empty()) {
-		return;
-	}
-	
-	m_ptrSettings->applyRotation(pages, m_rotation);
-	for (PageId const& page_id: pages) {
-		emit invalidateThumbnail(page_id);
-	}
+    if (pages.empty()) {
+        return;
+    }
+
+    m_ptrSettings->applyRotation(pages, m_rotation);
+    for (PageId const& page_id : pages) {
+        emit invalidateThumbnail(page_id);
+    }
 }
 
 void
 OptionsWidget::appliedToAllPages(std::set<PageId> const& pages)
 {
-	m_ptrSettings->applyRotation(pages, m_rotation);
-	emit invalidateAllThumbnails();
+    m_ptrSettings->applyRotation(pages, m_rotation);
+    emit invalidateAllThumbnails();
 }
 
 void
 OptionsWidget::setRotation(OrthogonalRotation const rotation)
 {
-	if (rotation == m_rotation) {
-		return;
-	}
-	
-	m_rotation = rotation;
-	setRotationPixmap();
-	
-	m_ptrSettings->applyRotation(m_pageId.imageId(), rotation);
-	
-	emit rotated(rotation);
-	emit invalidateThumbnail(m_pageId);
+    if (rotation == m_rotation) {
+        return;
+    }
+
+    m_rotation = rotation;
+    setRotationPixmap();
+
+    m_ptrSettings->applyRotation(m_pageId.imageId(), rotation);
+
+    emit rotated(rotation);
+    emit invalidateThumbnail(m_pageId);
 }
 
 void
 OptionsWidget::setRotationPixmap()
 {
-	char const* path = 0;
-	
-	switch (m_rotation.toDegrees()) {
-		case 0:
-			path = ":/icons/big-up-arrow.png";
-			break;
-		case 90:
-			path = ":/icons/big-right-arrow.png";
-			break;
-		case 180:
-			path = ":/icons/big-down-arrow.png";
-			break;
-		case 270:
-			path = ":/icons/big-left-arrow.png";
-			break;
-		default:
-			assert(!"Unreachable");
-	}
-	
-	rotationIndicator->setPixmap(QPixmap(path));
-}
+    char const* path = 0;
 
+    switch (m_rotation.toDegrees()) {
+    case 0:
+        path = ":/icons/big-up-arrow.png";
+        break;
+    case 90:
+        path = ":/icons/big-right-arrow.png";
+        break;
+    case 180:
+        path = ":/icons/big-down-arrow.png";
+        break;
+    case 270:
+        path = ":/icons/big-left-arrow.png";
+        break;
+    default:
+        assert(!"Unreachable");
+    }
+
+    rotationIndicator->setPixmap(QPixmap(path));
+}
 
 } // namespace fix_orientation

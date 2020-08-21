@@ -35,50 +35,50 @@ class QItemSelection;
 
 class FixDpiDialog : public QDialog, private Ui::FixDpiDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	FixDpiDialog(std::vector<ImageFileInfo> const& files, QWidget* parent = 0);
-	
-	virtual ~FixDpiDialog();
-	
-	std::vector<ImageFileInfo> const& files() const;
+    FixDpiDialog(std::vector<ImageFileInfo> const& files, QWidget* parent = 0);
+
+    virtual ~FixDpiDialog();
+
+    std::vector<ImageFileInfo> const& files() const;
 private slots:
-	void tabChanged(int tab);
-	
-	void selectionChanged(QItemSelection const& selection);
-	
-	void dpiComboChangedByUser(int index);
-	
-	void dpiValueChanged();
-	
-	void applyClicked();
+    void tabChanged(int tab);
+
+    void selectionChanged(QItemSelection const& selection);
+
+    void dpiComboChangedByUser(int index);
+
+    void dpiValueChanged();
+
+    void applyClicked();
 private:
-	class DpiCounts;
-	class SizeGroup;
-	class TreeModel;
-	class FilterModel;
-	
-	enum Scope { ALL, NOT_OK };
-	
-	void enableDisableOkButton();
-	
-	void updateDpiFromSelection(QItemSelection const& selection);
-	
-	void resetDpiForm();
-	
-	void setDpiForm(ImageMetadata const& metadata);
-	
-	void updateDpiCombo();
-	
-	void decorateDpiInputField(QLineEdit* field, ImageMetadata::DpiStatus dpi_status) const;
-	
-	std::unique_ptr<TreeModel> m_ptrPages;
-	std::unique_ptr<FilterModel> m_ptrUndefinedDpiPages;
-	QString m_xDpiInitialValue;
-	QString m_yDpiInitialValue;
-	QSize m_selectedItemPixelSize;
-	QPalette m_normalPalette;
-	QPalette m_errorPalette;
+    class DpiCounts;
+    class SizeGroup;
+    class TreeModel;
+    class FilterModel;
+
+    enum Scope { ALL, NOT_OK };
+
+    void enableDisableOkButton();
+
+    void updateDpiFromSelection(QItemSelection const& selection);
+
+    void resetDpiForm();
+
+    void setDpiForm(ImageMetadata const& metadata);
+
+    void updateDpiCombo();
+
+    void decorateDpiInputField(QLineEdit* field, ImageMetadata::DpiStatus dpi_status) const;
+
+    std::unique_ptr<TreeModel> m_ptrPages;
+    std::unique_ptr<FilterModel> m_ptrUndefinedDpiPages;
+    QString m_xDpiInitialValue;
+    QString m_yDpiInitialValue;
+    QSize m_selectedItemPixelSize;
+    QPalette m_normalPalette;
+    QPalette m_errorPalette;
 };
 
 #endif

@@ -67,7 +67,7 @@
  * equivalent types and values in the Windows Platform SDK are given in
  * comments.
  *
- * Author: Mark Mentovai 
+ * Author: Mark Mentovai
  * Change to split into its own file: Neal Sidhwaney */
 
 /*
@@ -81,26 +81,24 @@
 #define MD_FLOATINGSAVEAREA_PPC_FPR_COUNT 32
 
 typedef struct {
-  /* fpregs is a double[32] in mach/ppc/_types.h, but a u_int64_t is used
-   * here for precise sizing. */
-  u_int64_t fpregs[MD_FLOATINGSAVEAREA_PPC_FPR_COUNT];
-  u_int32_t fpscr_pad;
-  u_int32_t fpscr;      /* Status/control */
+    /* fpregs is a double[32] in mach/ppc/_types.h, but a u_int64_t is used
+     * here for precise sizing. */
+    u_int64_t fpregs[MD_FLOATINGSAVEAREA_PPC_FPR_COUNT];
+    u_int32_t fpscr_pad;
+    u_int32_t fpscr;      /* Status/control */
 } MDFloatingSaveAreaPPC;  /* Based on ppc_float_state */
-
 
 #define MD_VECTORSAVEAREA_PPC_VR_COUNT 32
 
 typedef struct {
-  /* Vector registers (including vscr) are 128 bits, but mach/ppc/_types.h
-   * exposes them as four 32-bit quantities. */
-  u_int128_t save_vr[MD_VECTORSAVEAREA_PPC_VR_COUNT];
-  u_int128_t save_vscr;  /* Status/control */
-  u_int32_t  save_pad5[4];
-  u_int32_t  save_vrvalid;  /* Identifies which vector registers are saved */
-  u_int32_t  save_pad6[7];
+    /* Vector registers (including vscr) are 128 bits, but mach/ppc/_types.h
+     * exposes them as four 32-bit quantities. */
+    u_int128_t save_vr[MD_VECTORSAVEAREA_PPC_VR_COUNT];
+    u_int128_t save_vscr;  /* Status/control */
+    u_int32_t  save_pad5[4];
+    u_int32_t  save_vrvalid;  /* Identifies which vector registers are saved */
+    u_int32_t  save_pad6[7];
 } MDVectorSaveAreaPPC;  /* ppc_vector_state */
-
 
 #define MD_CONTEXT_PPC_GPR_COUNT 32
 
@@ -114,30 +112,30 @@ typedef struct {
 #endif
 
 typedef struct {
-  /* context_flags is not present in ppc_thread_state, but it aids
-   * identification of MDRawContextPPC among other raw context types,
-   * and it guarantees alignment when we get to float_save. */
-  u_int32_t             context_flags;
+    /* context_flags is not present in ppc_thread_state, but it aids
+     * identification of MDRawContextPPC among other raw context types,
+     * and it guarantees alignment when we get to float_save. */
+    u_int32_t             context_flags;
 
-  u_int32_t             srr0;    /* Machine status save/restore: stores pc
+    u_int32_t             srr0;    /* Machine status save/restore: stores pc
                                   * (instruction) */
-  u_int32_t             srr1;    /* Machine status save/restore: stores msr
+    u_int32_t             srr1;    /* Machine status save/restore: stores msr
                                   * (ps, program/machine state) */
-  /* ppc_thread_state contains 32 fields, r0 .. r31.  Here, an array is
-   * used for brevity. */
-  u_int32_t             gpr[MD_CONTEXT_PPC_GPR_COUNT];
-  u_int32_t             cr;      /* Condition */
-  u_int32_t             xer;     /* Integer (fiXed-point) exception */
-  u_int32_t             lr;      /* Link */
-  u_int32_t             ctr;     /* Count */
-  u_int32_t             mq;      /* Multiply/Quotient (PPC 601, POWER only) */
-  u_int32_t             vrsave;  /* Vector save */
+    /* ppc_thread_state contains 32 fields, r0 .. r31.  Here, an array is
+     * used for brevity. */
+    u_int32_t             gpr[MD_CONTEXT_PPC_GPR_COUNT];
+    u_int32_t             cr;      /* Condition */
+    u_int32_t             xer;     /* Integer (fiXed-point) exception */
+    u_int32_t             lr;      /* Link */
+    u_int32_t             ctr;     /* Count */
+    u_int32_t             mq;      /* Multiply/Quotient (PPC 601, POWER only) */
+    u_int32_t             vrsave;  /* Vector save */
 
-  /* float_save and vector_save aren't present in ppc_thread_state, but
-   * are represented in separate structures that still define a thread's
-   * context. */
-  MDFloatingSaveAreaPPC float_save;
-  MDVectorSaveAreaPPC   vector_save;
+    /* float_save and vector_save aren't present in ppc_thread_state, but
+     * are represented in separate structures that still define a thread's
+     * context. */
+    MDFloatingSaveAreaPPC float_save;
+    MDVectorSaveAreaPPC   vector_save;
 } MDRawContextPPC;  /* Based on ppc_thread_state */
 
 #if defined(__SUNPRO_C) || defined(__SUNPRO_CC)

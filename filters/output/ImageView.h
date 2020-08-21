@@ -31,14 +31,14 @@ namespace output
 
 class ImageView : public ImageViewBase
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	ImageView(QImage const& image, QImage const& downscaled_image);
-	
-	virtual ~ImageView();
+    ImageView(QImage const& image, QImage const& downscaled_image);
+
+    virtual ~ImageView();
 private:
-	DragHandler m_dragHandler;
-	ZoomHandler m_zoomHandler;
+    DragHandler m_dragHandler;
+    ZoomHandler m_zoomHandler;
 };
 
 } // namespace output

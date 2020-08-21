@@ -39,41 +39,40 @@
 #include "PageSelectionAccessor.h"
 #include "ProjectReader.h"
 
-
 class ConsoleBatch
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	ConsoleBatch(
-			std::vector<ImageFileInfo> const& images,
-			QString                    const& output_directory,
-			Qt::LayoutDirection        const  layout);
-	ConsoleBatch(QString const project_file);
+    ConsoleBatch(
+        std::vector<ImageFileInfo> const& images,
+        QString                    const& output_directory,
+        Qt::LayoutDirection        const  layout);
+    ConsoleBatch(QString const project_file);
 
-	void process();
+    void process();
     void saveProject(QString const project_file);
 private:
-	bool batch;
-	bool debug;
-	IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
-	IntrusivePtr<ProjectPages> m_ptrPages;
-	IntrusivePtr<StageSequence> m_ptrStages;
-	OutputFileNameGenerator m_outFileNameGen;
-	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	std::unique_ptr<ProjectReader> m_ptrReader;
+    bool batch;
+    bool debug;
+    IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
+    IntrusivePtr<ProjectPages> m_ptrPages;
+    IntrusivePtr<StageSequence> m_ptrStages;
+    OutputFileNameGenerator m_outFileNameGen;
+    IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
+    std::unique_ptr<ProjectReader> m_ptrReader;
 
-	void setupFilter(int idx, std::set<PageId> allPages);
-	void setupFixOrientation(std::set<PageId> allPages);
-	void setupPageSplit(std::set<PageId> allPages);
-	void setupDeskew(std::set<PageId> allPages);
-	void setupSelectContent(std::set<PageId> allPages);
-	void setupPageLayout(std::set<PageId> allPages);
-	void setupOutput(std::set<PageId> allPages);
+    void setupFilter(int idx, std::set<PageId> allPages);
+    void setupFixOrientation(std::set<PageId> allPages);
+    void setupPageSplit(std::set<PageId> allPages);
+    void setupDeskew(std::set<PageId> allPages);
+    void setupSelectContent(std::set<PageId> allPages);
+    void setupPageLayout(std::set<PageId> allPages);
+    void setupOutput(std::set<PageId> allPages);
 
-	BackgroundTaskPtr createCompositeTask(
-		PageInfo const& page,
-		int const last_filter_idx
-	);
+    BackgroundTaskPtr createCompositeTask(
+        PageInfo const& page,
+        int const last_filter_idx
+    );
 };
 
 #endif

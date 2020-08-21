@@ -86,41 +86,50 @@ class QRectF;
 class QLayout;
 
 class MainWindow :
-	public QMainWindow,
-	private FilterUiInterface,
-	private Ui::MainWindow
+    public QMainWindow,
+    private FilterUiInterface,
+    private Ui::MainWindow
 {
-	DECLARE_NON_COPYABLE(MainWindow)
-	Q_OBJECT
+    DECLARE_NON_COPYABLE(MainWindow)
+    Q_OBJECT
 public:
-	MainWindow();
-	
-    virtual ~MainWindow();
-	
-	PageSequence allPages() const;
+    MainWindow();
 
-	std::set<PageId> selectedPages() const;
-	
-	std::vector<PageRange> selectedRanges() const;
+    virtual ~MainWindow();
+
+    PageSequence allPages() const;
+
+    std::set<PageId> selectedPages() const;
+
+    std::vector<PageRange> selectedRanges() const;
     QImage m_orig_fore_subscan;
     QImage m_image_without_output_processing;
-    bool eventFilter(QObject *obj, QEvent *ev);
-	virtual void closeEvent(QCloseEvent* event);
-	virtual void timerEvent(QTimerEvent* event);
-    QString getLanguage() const { return m_current_lang; }
+    bool eventFilter(QObject* obj, QEvent* ev);
+    virtual void closeEvent(QCloseEvent* event);
+    virtual void timerEvent(QTimerEvent* event);
+    QString getLanguage() const
+    {
+        return m_current_lang;
+    }
 
     // AutoSave Timer / begin
-        int numImages() { return m_ptrPages->numImages(); }
-        const QString projectFile() { return m_projectFile; }
-        bool saveProjectWithFeedback(QString const& project_file);
+    int numImages()
+    {
+        return m_ptrPages->numImages();
+    }
+    const QString projectFile()
+    {
+        return m_projectFile;
+    }
+    bool saveProjectWithFeedback(QString const& project_file);
     // AutoSave Timer / end
 
 public slots:
-	void openProject(QString const& project_file);
+    void openProject(QString const& project_file);
 //Export_Subscans
     void ExportOutput(ExportDialog::Settings settings);
-	void ExportStop();
-	void SetStartExport();
+    void ExportStop();
+    void SetStartExport();
     void settingsChanged();
     void changeLanguage(QString lang, bool dont_store = false);
 private:
@@ -134,7 +143,7 @@ private:
     void applyShortcutsSettings();
     void saveWindowSettigns();
 signals:
-	void StartExportTimerSignal();
+    void StartExportTimerSignal();
     void settingsUpdateRequest();
     void NewOpenProjectPanelShown();
     void UpdateStatusBarPageSize();
@@ -146,77 +155,77 @@ private slots:
     void goLastPage(bool in_selection = false);
 
     void goNextPage(int cnt = 1, bool in_selection = false);
-	
+
     void goPrevPage(int cnt = -1, bool in_selection = false);
-	
+
     void goToPage(PageId const& page_id, const ThumbnailSequence::SelectionAction action = ThumbnailSequence::RESET_SELECTION);
-	
-	void currentPageChanged(
-		PageInfo const& page_info, QRectF const& thumb_rect,
-		ThumbnailSequence::SelectionFlags flags);
-	
-	void pageContextMenuRequested(
-		PageInfo const& page_info, QPoint const& screen_pos, bool selected);
-	
-	void pastLastPageContextMenuRequested(QPoint const& screen_pos);
 
-	void thumbViewFocusToggled(bool checked);
-	
-	void thumbViewScrolled();
+    void currentPageChanged(
+        PageInfo const& page_info, QRectF const& thumb_rect,
+        ThumbnailSequence::SelectionFlags flags);
 
-	void filterSelectionChanged(QItemSelection const& selected);
-	void switchFilter1();
-	void switchFilter2();
-	void switchFilter3();
-	void switchFilter4();
-	void switchFilter5();
-	void switchFilter6();
+    void pageContextMenuRequested(
+        PageInfo const& page_info, QPoint const& screen_pos, bool selected);
 
-	void pageOrderingChanged(int idx);
-	
-	void reloadRequested();
-	
-	void startBatchProcessing();
-	
-	void stopBatchProcessing(MainAreaAction main_area = UPDATE_MAIN_AREA);
-	
-	void invalidateThumbnail(PageId const& page_id);
+    void pastLastPageContextMenuRequested(QPoint const& screen_pos);
 
-	void invalidateThumbnail(PageInfo const& page_info);
-	
-	void invalidateAllThumbnails();
+    void thumbViewFocusToggled(bool checked);
 
-	void showRelinkingDialog();
-	
-	void filterResult(
-		BackgroundTaskPtr const& task,
-		FilterResultPtr const& result);
-	
-	void fixDpiDialogRequested();
+    void thumbViewScrolled();
 
-	void fixedDpiSubmitted();
+    void filterSelectionChanged(QItemSelection const& selected);
+    void switchFilter1();
+    void switchFilter2();
+    void switchFilter3();
+    void switchFilter4();
+    void switchFilter5();
+    void switchFilter6();
 
-	void saveProjectTriggered();
-	
-	void saveProjectAsTriggered();
-	
-	void newProject();
-	
-	void newProjectCreated(ProjectCreationContext* context);
-	
-	void openProject();
-	
-	void projectOpened(ProjectOpeningContext* context);
-	
-	void closeProject();
+    void pageOrderingChanged(int idx);
 
-	void openSettingsDialog();
+    void reloadRequested();
 
-	void showAboutDialog();
+    void startBatchProcessing();
 
-	void handleOutOfMemorySituation();
+    void stopBatchProcessing(MainAreaAction main_area = UPDATE_MAIN_AREA);
 
-	void openExportDialog();
+    void invalidateThumbnail(PageId const& page_id);
+
+    void invalidateThumbnail(PageInfo const& page_info);
+
+    void invalidateAllThumbnails();
+
+    void showRelinkingDialog();
+
+    void filterResult(
+        BackgroundTaskPtr const& task,
+        FilterResultPtr const& result);
+
+    void fixDpiDialogRequested();
+
+    void fixedDpiSubmitted();
+
+    void saveProjectTriggered();
+
+    void saveProjectAsTriggered();
+
+    void newProject();
+
+    void newProjectCreated(ProjectCreationContext* context);
+
+    void openProject();
+
+    void projectOpened(ProjectOpeningContext* context);
+
+    void closeProject();
+
+    void openSettingsDialog();
+
+    void showAboutDialog();
+
+    void handleOutOfMemorySituation();
+
+    void openExportDialog();
 
     void exportDialogClosed(QObject*);
 
@@ -239,180 +248,179 @@ private slots:
     void on_resetSortingBtn_clicked();
 
 private:
-	enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
-	
-	typedef IntrusivePtr<AbstractFilter> FilterPtr;
-	
-	virtual void setOptionsWidget(
-		FilterOptionsWidget* widget, Ownership ownership);
-	
-	virtual void setImageWidget(
-		QWidget* widget, Ownership ownership,
+    enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
+
+    typedef IntrusivePtr<AbstractFilter> FilterPtr;
+
+    virtual void setOptionsWidget(
+        FilterOptionsWidget* widget, Ownership ownership);
+
+    virtual void setImageWidget(
+        QWidget* widget, Ownership ownership,
         DebugImages* debug_images = 0);
 
-	virtual IntrusivePtr<AbstractCommand0<void> > relinkingDialogRequester();
-	
-    bool loadLanguage(const QString &dir, const QString& lang);
+    virtual IntrusivePtr<AbstractCommand0<void> > relinkingDialogRequester();
 
-	void switchToNewProject(
-		IntrusivePtr<ProjectPages> const& pages,
-		QString const& out_dir,
-		QString const& project_file_path = QString(),
-		ProjectReader const* project_reader = 0);
-	
-	IntrusivePtr<ThumbnailPixmapCache> createThumbnailCache();
-	
-	void setupThumbView();
-	
-	void showNewOpenProjectPanel();
-	
-	SavePromptResult promptProjectSave();
-	
-	static bool compareFiles(QString const& fpath1, QString const& fpath2);
-	
-	IntrusivePtr<PageOrderProvider const> currentPageOrderProvider() const;
+    bool loadLanguage(const QString& dir, const QString& lang);
+
+    void switchToNewProject(
+        IntrusivePtr<ProjectPages> const& pages,
+        QString const& out_dir,
+        QString const& project_file_path = QString(),
+        ProjectReader const* project_reader = 0);
+
+    IntrusivePtr<ThumbnailPixmapCache> createThumbnailCache();
+
+    void setupThumbView();
+
+    void showNewOpenProjectPanel();
+
+    SavePromptResult promptProjectSave();
+
+    static bool compareFiles(QString const& fpath1, QString const& fpath2);
+
+    IntrusivePtr<PageOrderProvider const> currentPageOrderProvider() const;
 
     IntrusivePtr<PageOrderProvider const> defaultPageOrderProvider() const;
 
-	void updateSortOptions();
+    void updateSortOptions();
 
-    void setupStatusBar();    
+    void setupStatusBar();
 
     void resetThumbSequence(IntrusivePtr<PageOrderProvider const> const& page_order_provider, const ThumbnailSequence::SelectionAction action = ThumbnailSequence::RESET_SELECTION);
 
     void ensurePageVisible(const std::set<PageId>& _selectedPages, PageId selectionLeader, ThumbnailSequence::SelectionAction const action = ThumbnailSequence::KEEP_SELECTION);
-	
-	void removeWidgetsFromLayout(QLayout* layout);
-	
-	void removeFilterOptionsWidget();
-	
-	void removeImageWidget();
-	
-	void updateProjectActions();
-	
-	bool isBatchProcessingInProgress() const;
 
-	bool isProjectLoaded() const;
-	
-	bool isBelowSelectContent() const;
-	
-	bool isBelowSelectContent(int filter_idx) const;
+    void removeWidgetsFromLayout(QLayout* layout);
 
-	bool isBelowFixOrientation(int filter_idx) const;
-	
-	bool isOutputFilter() const;
-	
-	bool isOutputFilter(int filter_idx) const;
-	
-	PageView getCurrentView() const;
-	
-	void updateMainArea();
-	
-	bool checkReadyForOutput(PageId const* ignore = 0) const;
-	
-	void loadPageInteractive(PageInfo const& page);
-	
-	void updateWindowTitle();
-	
-	bool closeProjectInteractive();
-	
-	void closeProjectWithoutSaving();
-	
-	void showInsertFileDialog(
-		BeforeOrAfter before_or_after, ImageId const& existig);
+    void removeFilterOptionsWidget();
+
+    void removeImageWidget();
+
+    void updateProjectActions();
+
+    bool isBatchProcessingInProgress() const;
+
+    bool isProjectLoaded() const;
+
+    bool isBelowSelectContent() const;
+
+    bool isBelowSelectContent(int filter_idx) const;
+
+    bool isBelowFixOrientation(int filter_idx) const;
+
+    bool isOutputFilter() const;
+
+    bool isOutputFilter(int filter_idx) const;
+
+    PageView getCurrentView() const;
+
+    void updateMainArea();
+
+    bool checkReadyForOutput(PageId const* ignore = 0) const;
+
+    void loadPageInteractive(PageInfo const& page);
+
+    void updateWindowTitle();
+
+    bool closeProjectInteractive();
+
+    void closeProjectWithoutSaving();
+
+    void showInsertFileDialog(
+        BeforeOrAfter before_or_after, ImageId const& existig);
 
     void showInsertEmptyPageDialog(
         BeforeOrAfter before_or_after, PageId const& existing_page);
 
-    void showRenameResultFileDialog(const PageInfo &page_info);
+    void showRenameResultFileDialog(const PageInfo& page_info);
 
-	void showRemovePagesDialog(std::set<PageId> const& pages);
-	
+    void showRemovePagesDialog(std::set<PageId> const& pages);
+
     void insertImage(ImageInfo const& new_image,
-        BeforeOrAfter before_or_after, ImageId existing, const QString &overriden_filename = QString());
+                     BeforeOrAfter before_or_after, ImageId existing, const QString& overriden_filename = QString());
 
-	void removeFromProject(std::set<PageId> const& pages);
+    void removeFromProject(std::set<PageId> const& pages);
 
-	void eraseOutputFiles(std::set<PageId> const& pages);
+    void eraseOutputFiles(std::set<PageId> const& pages);
 
     // Must be called after removeFromProject()
     // remove input image files in case their pages were selected and
     // file isn't used in the project anymore.
     void eraseInputFiles(std::set<PageId> const& pages);
-	
-	BackgroundTaskPtr createCompositeTask(
-		PageInfo const& page, int last_filter_idx, bool batch, bool debug);
-	
-	IntrusivePtr<CompositeCacheDrivenTask>
-	createCompositeCacheDrivenTask(int last_filter_idx);
-	
-	void createBatchProcessingWidget();
 
-	void updateDisambiguationRecords(PageSequence const& pages);
+    BackgroundTaskPtr createCompositeTask(
+        PageInfo const& page, int last_filter_idx, bool batch, bool debug);
 
-	void performRelinking(IntrusivePtr<AbstractRelinker> const& relinker);
+    IntrusivePtr<CompositeCacheDrivenTask>
+    createCompositeCacheDrivenTask(int last_filter_idx);
 
-	PageSelectionAccessor newPageSelectionAccessor();
+    void createBatchProcessingWidget();
+
+    void updateDisambiguationRecords(PageSequence const& pages);
+
+    void performRelinking(IntrusivePtr<AbstractRelinker> const& relinker);
+
+    PageSelectionAccessor newPageSelectionAccessor();
 
     // AutoSave Timer / begin
-        void createAutoSaveTimer();
+    void createAutoSaveTimer();
 
-        void pauseAutoSaveTimer();
+    void pauseAutoSaveTimer();
 
-        void resumeAutoSaveTimer();
+    void resumeAutoSaveTimer();
 
-        void destroyAutoSaveTimer();
+    void destroyAutoSaveTimer();
 
-        void setAutoSaveInputDir(const QString );
+    void setAutoSaveInputDir(const QString);
     // AutoSave Timer / end
-	
-	QSizeF m_maxLogicalThumbSize;
-	IntrusivePtr<ProjectPages> m_ptrPages;
-	IntrusivePtr<StageSequence> m_ptrStages;
-	QString m_projectFile;
-	OutputFileNameGenerator m_outFileNameGen;
-	IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
-	std::unique_ptr<ThumbnailSequence> m_ptrThumbSequence;
-	std::unique_ptr<WorkerThread> m_ptrWorkerThread;
-	std::unique_ptr<ProcessingTaskQueue> m_ptrBatchQueue;
-	std::unique_ptr<ProcessingTaskQueue> m_ptrInteractiveQueue;
-	QStackedLayout* m_pImageFrameLayout;
-	QStackedLayout* m_pOptionsFrameLayout;
-	QPointer<FilterOptionsWidget> m_ptrOptionsWidget;
-	QPointer<FixDpiDialog> m_ptrFixDpiDialog;
-	std::unique_ptr<TabbedDebugImages> m_ptrTabbedDebugImages;
-	std::unique_ptr<ContentBoxPropagator> m_ptrContentBoxPropagator;
-	std::unique_ptr<PageOrientationPropagator> m_ptrPageOrientationPropagator;
-	std::unique_ptr<QWidget> m_ptrBatchProcessingWidget;
-	std::unique_ptr<ProcessingIndicationWidget> m_ptrProcessingIndicationWidget;
-	boost::function<bool()> m_checkBeepWhenFinished;
-	SelectedPage m_selectedPage;
-	QObjectCleanupHandler m_optionsWidgetCleanup;
-	QObjectCleanupHandler m_imageWidgetCleanup;
-	std::unique_ptr<OutOfMemoryDialog> m_ptrOutOfMemoryDialog;
-	int m_curFilter;
-	int m_ignoreSelectionChanges;
-	int m_ignorePageOrderingChanges;
-	bool m_debug;
-	bool m_closing;
-	bool m_beepOnBatchProcessingCompletion;
+
+    QSizeF m_maxLogicalThumbSize;
+    IntrusivePtr<ProjectPages> m_ptrPages;
+    IntrusivePtr<StageSequence> m_ptrStages;
+    QString m_projectFile;
+    OutputFileNameGenerator m_outFileNameGen;
+    IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
+    std::unique_ptr<ThumbnailSequence> m_ptrThumbSequence;
+    std::unique_ptr<WorkerThread> m_ptrWorkerThread;
+    std::unique_ptr<ProcessingTaskQueue> m_ptrBatchQueue;
+    std::unique_ptr<ProcessingTaskQueue> m_ptrInteractiveQueue;
+    QStackedLayout* m_pImageFrameLayout;
+    QStackedLayout* m_pOptionsFrameLayout;
+    QPointer<FilterOptionsWidget> m_ptrOptionsWidget;
+    QPointer<FixDpiDialog> m_ptrFixDpiDialog;
+    std::unique_ptr<TabbedDebugImages> m_ptrTabbedDebugImages;
+    std::unique_ptr<ContentBoxPropagator> m_ptrContentBoxPropagator;
+    std::unique_ptr<PageOrientationPropagator> m_ptrPageOrientationPropagator;
+    std::unique_ptr<QWidget> m_ptrBatchProcessingWidget;
+    std::unique_ptr<ProcessingIndicationWidget> m_ptrProcessingIndicationWidget;
+    boost::function<bool()> m_checkBeepWhenFinished;
+    SelectedPage m_selectedPage;
+    QObjectCleanupHandler m_optionsWidgetCleanup;
+    QObjectCleanupHandler m_imageWidgetCleanup;
+    std::unique_ptr<OutOfMemoryDialog> m_ptrOutOfMemoryDialog;
+    int m_curFilter;
+    int m_ignoreSelectionChanges;
+    int m_ignorePageOrderingChanges;
+    bool m_debug;
+    bool m_closing;
+    bool m_beepOnBatchProcessingCompletion;
 //begin of modified by monday2000
 //Export_Subscans
 
-    struct ExportRec
-    {
+    struct ExportRec {
         int page_no;
         PageId page_id;
         QString filename;
     };
 
-	ExportDialog* m_p_export_dialog;
+    ExportDialog* m_p_export_dialog;
     QVector<ExportRec> m_outpaths_vector;
-	int ExportNextFile();
-	int m_exportTimerId;
-	QString m_export_dir;
+    int ExportNextFile();
+    int m_exportTimerId;
+    QString m_export_dir;
     ExportDialog::Settings m_export_settings;
-	int m_pos_export;
+    int m_pos_export;
 //Original_Foreground_Mixed
     std::unique_ptr<ThumbnailSequence> m_ptrThumbSequence_export;
 //Language
@@ -428,23 +436,26 @@ private:
 
 class PageSelectionProviderImpl : public PageSelectionProvider
 {
-Q_OBJECT
+    Q_OBJECT
 public:
     PageSelectionProviderImpl(MainWindow* wnd) : m_ptrWnd(wnd)
     {
-       QObject::connect(m_ptrWnd, &MainWindow::toBeRemoved,
-                        this, &PageSelectionProviderImpl::toBeRemoved, Qt::DirectConnection);
+        QObject::connect(m_ptrWnd, &MainWindow::toBeRemoved,
+                         this, &PageSelectionProviderImpl::toBeRemoved, Qt::DirectConnection);
     }
 
-    virtual PageSequence allPages() const {
+    virtual PageSequence allPages() const
+    {
         return m_ptrWnd ? m_ptrWnd->allPages() : PageSequence();
     }
 
-    virtual std::set<PageId> selectedPages() const {
+    virtual std::set<PageId> selectedPages() const
+    {
         return m_ptrWnd ? m_ptrWnd->selectedPages() : std::set<PageId>();
     }
 
-    std::vector<PageRange> selectedRanges() const {
+    std::vector<PageRange> selectedRanges() const
+    {
         return m_ptrWnd ? m_ptrWnd->selectedRanges() : std::vector<PageRange>();
     }
 signals:

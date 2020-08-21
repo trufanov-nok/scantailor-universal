@@ -38,8 +38,8 @@ public:
     static void registerMyself();
 protected:
     virtual Status loadMetadata(
-            QIODevice& io_device,
-            VirtualFunction1<void, ImageMetadata const&>& out);
+        QIODevice& io_device,
+        VirtualFunction1<void, ImageMetadata const&>& out);
 };
 
 #endif

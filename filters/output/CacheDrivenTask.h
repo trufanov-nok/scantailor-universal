@@ -36,20 +36,20 @@ class Settings;
 
 class CacheDrivenTask : public RefCountable
 {
-	DECLARE_NON_COPYABLE(CacheDrivenTask)
+    DECLARE_NON_COPYABLE(CacheDrivenTask)
 public:
-	CacheDrivenTask(
-		IntrusivePtr<Settings> const& settings,
-		OutputFileNameGenerator const& out_file_name_gen);
-	
-	virtual ~CacheDrivenTask();
-	
-	void process(
-		PageInfo const& page_info, AbstractFilterDataCollector* collector,
-		ImageTransformation const& xform, QPolygonF const& content_rect_phys);
+    CacheDrivenTask(
+        IntrusivePtr<Settings> const& settings,
+        OutputFileNameGenerator const& out_file_name_gen);
+
+    virtual ~CacheDrivenTask();
+
+    void process(
+        PageInfo const& page_info, AbstractFilterDataCollector* collector,
+        ImageTransformation const& xform, QPolygonF const& content_rect_phys);
 private:
-	IntrusivePtr<Settings> m_ptrSettings;
-	OutputFileNameGenerator m_outFileNameGen;
+    IntrusivePtr<Settings> m_ptrSettings;
+    OutputFileNameGenerator m_outFileNameGen;
 };
 
 } // namespace output

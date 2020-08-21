@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,8 +43,8 @@ class GrayImage;
  * algorithm: http://www.vincent-net.com/luc/papers/93ieeeip_recons.pdf
  */
 BinaryImage seedFill(
-	BinaryImage const& seed, BinaryImage const& mask,
-	Connectivity connectivity);
+    BinaryImage const& seed, BinaryImage const& mask,
+    Connectivity connectivity);
 
 /**
  * \brief Spread darker colors from seed as long as mask allows it.
@@ -60,13 +60,13 @@ BinaryImage seedFill(
  * http://www.vincent-net.com/luc/papers/93ieeeip_recons.pdf
  */
 GrayImage seedFillGray(
-	GrayImage const& seed, GrayImage const& mask, Connectivity connectivity);
+    GrayImage const& seed, GrayImage const& mask, Connectivity connectivity);
 
 /**
  * \brief A faster, in-place version of seedFillGray().
  */
 void seedFillGrayInPlace(
-	GrayImage& seed, GrayImage const& mask, Connectivity connectivity);
+    GrayImage& seed, GrayImage const& mask, Connectivity connectivity);
 
 /**
  * \brief A slower but more simple implementation of seedFillGray().
@@ -75,7 +75,7 @@ void seedFillGrayInPlace(
  * of the fast and complex implementation that is seedFillGray().
  */
 GrayImage seedFillGraySlow(
-	GrayImage const& seed, GrayImage const& mask, Connectivity connectivity);
+    GrayImage const& seed, GrayImage const& mask, Connectivity connectivity);
 
 } // namespace imageproc
 

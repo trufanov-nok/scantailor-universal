@@ -41,56 +41,56 @@ namespace output
 
 class DewarpingView : public ImageViewBase, protected InteractionHandler
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	DewarpingView(
-		QImage const& image, ImagePixmapUnion const& downscaled_image,
-		QTransform const& source_to_virt, QPolygonF const& virt_display_area,
-		QRectF const& virt_content_rect, PageId const& page_id,
-		DewarpingMode dewarping_mode,
-		dewarping::DistortionModel const& distortion_model,
-		DepthPerception const& depth_perception);
-	
-	virtual ~DewarpingView();
+    DewarpingView(
+        QImage const& image, ImagePixmapUnion const& downscaled_image,
+        QTransform const& source_to_virt, QPolygonF const& virt_display_area,
+        QRectF const& virt_content_rect, PageId const& page_id,
+        DewarpingMode dewarping_mode,
+        dewarping::DistortionModel const& distortion_model,
+        DepthPerception const& depth_perception);
+
+    virtual ~DewarpingView();
 signals:
-	void distortionModelChanged(dewarping::DistortionModel const& model);
+    void distortionModelChanged(dewarping::DistortionModel const& model);
 public slots:
-	void depthPerceptionChanged(double val);	
+    void depthPerceptionChanged(double val);
 protected:
-	virtual void onPaint(QPainter& painter, InteractionState const& interaction);
+    virtual void onPaint(QPainter& painter, InteractionState const& interaction);
     virtual void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction);
 private:
 //begin of modified by monday2000
 //Marginal_Dewarping
-	//static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2);
-	static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2, DewarpingMode const* p_dewarpingMode = nullptr);
+    //static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2);
+    static void initNewSpline(XSpline& spline, QPointF const& p1, QPointF const& p2, DewarpingMode const* p_dewarpingMode = nullptr);
 //end of modified by monday2000
-	static void fitSpline(XSpline& spline, std::vector<QPointF> const& polyline);
+    static void fitSpline(XSpline& spline, std::vector<QPointF> const& polyline);
 
-	void paintXSpline(
-		QPainter& painter, InteractionState const& interaction,
-		InteractiveXSpline const& ispline);
+    void paintXSpline(
+        QPainter& painter, InteractionState const& interaction,
+        InteractiveXSpline const& ispline);
 
-	void curveModified(int curve_idx);
+    void curveModified(int curve_idx);
 
-	void dragFinished();
+    void dragFinished();
 
-	QPointF sourceToWidget(QPointF const& pt) const;
+    QPointF sourceToWidget(QPointF const& pt) const;
 
-	QPointF widgetToSource(QPointF const& pt) const;
+    QPointF widgetToSource(QPointF const& pt) const;
 
-	QPolygonF virtMarginArea(int margin_idx) const;
+    QPolygonF virtMarginArea(int margin_idx) const;
 
-	PageId m_pageId;
-	QPolygonF m_virtDisplayArea;
+    PageId m_pageId;
+    QPolygonF m_virtDisplayArea;
     QRectF const m_virt_content_rect;
-	DewarpingMode m_dewarpingMode;
-	dewarping::DistortionModel m_distortionModel;
-	DepthPerception m_depthPerception;
-	InteractiveXSpline m_topSpline;
-	InteractiveXSpline m_bottomSpline;
-	DragHandler m_dragHandler;
-	ZoomHandler m_zoomHandler;
+    DewarpingMode m_dewarpingMode;
+    dewarping::DistortionModel m_distortionModel;
+    DepthPerception m_depthPerception;
+    InteractiveXSpline m_topSpline;
+    InteractiveXSpline m_bottomSpline;
+    DragHandler m_dragHandler;
+    ZoomHandler m_zoomHandler;
 };
 
 } // namespace output

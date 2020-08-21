@@ -43,87 +43,86 @@ namespace select_content
 {
 
 ImageView::ImageView(
-	QImage const& image, QImage const& downscaled_image,
-	ImageTransformation const& xform, QRectF const& content_rect, QRectF const& page_rect)
-:	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(xform.transform(), xform.resultingPreCropArea())
-	),
-	m_dragHandler(*this),
-	m_zoomHandler(*this),
-	m_pNoContentMenu(new QMenu(this)),
-	m_pHaveContentMenu(new QMenu(this)),
-	m_contentRect(content_rect),
-	m_pageRect(page_rect),
-	m_minBoxSize(10.0, 10.0)
+    QImage const& image, QImage const& downscaled_image,
+    ImageTransformation const& xform, QRectF const& content_rect, QRectF const& page_rect)
+    :   ImageViewBase(
+            image, downscaled_image,
+            ImagePresentation(xform.transform(), xform.resultingPreCropArea())
+        ),
+        m_dragHandler(*this),
+        m_zoomHandler(*this),
+        m_pNoContentMenu(new QMenu(this)),
+        m_pHaveContentMenu(new QMenu(this)),
+        m_contentRect(content_rect),
+        m_pageRect(page_rect),
+        m_minBoxSize(10.0, 10.0)
 {
-	setMouseTracking(true);
+    setMouseTracking(true);
 
-	interactionState().setDefaultStatusTip(
-		tr("Use the context menu to enable / disable the content box.")
-	);
+    interactionState().setDefaultStatusTip(
+        tr("Use the context menu to enable / disable the content box.")
+    );
 
     QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold %1 to move it, %2 to move along axes, %3 to shrink/stretch.")
                            .arg(GlobalStaticSettings::getShortcutText(ContentMove))
                            .arg(GlobalStaticSettings::getShortcutText(ContentMoveAxes))
                            .arg(GlobalStaticSettings::getShortcutText(ContentStretch)));
 
-
-	// Setup corner drag handlers.
-	static int const masks_by_corner[] = { TOP|LEFT, TOP|RIGHT, BOTTOM|RIGHT, BOTTOM|LEFT };
-	for (int i = 0; i < 4; ++i) {
-		m_corners[i].setPositionCallback(
-			boost::bind(&ImageView::cornerPosition, this, masks_by_corner[i])
-		);
-		m_corners[i].setMoveRequestCallback(
+    // Setup corner drag handlers.
+    static int const masks_by_corner[] = { TOP | LEFT, TOP | RIGHT, BOTTOM | RIGHT, BOTTOM | LEFT };
+    for (int i = 0; i < 4; ++i) {
+        m_corners[i].setPositionCallback(
+            boost::bind(&ImageView::cornerPosition, this, masks_by_corner[i])
+        );
+        m_corners[i].setMoveRequestCallback(
             boost::bind(&ImageView::cornerMoveRequest, this, masks_by_corner[i], _1, _2)
-		);
-		m_corners[i].setDragFinishedCallback(
-			boost::bind(&ImageView::dragFinished, this)
-		);
-		m_cornerHandlers[i].setObject(&m_corners[i]);
-		m_cornerHandlers[i].setProximityStatusTip(drag_tip);
-		Qt::CursorShape cursor = (i & 1) ? Qt::SizeBDiagCursor : Qt::SizeFDiagCursor;
-		m_cornerHandlers[i].setProximityCursor(cursor);
-		m_cornerHandlers[i].setInteractionCursor(cursor);
-		makeLastFollower(m_cornerHandlers[i]);
-	}
+        );
+        m_corners[i].setDragFinishedCallback(
+            boost::bind(&ImageView::dragFinished, this)
+        );
+        m_cornerHandlers[i].setObject(&m_corners[i]);
+        m_cornerHandlers[i].setProximityStatusTip(drag_tip);
+        Qt::CursorShape cursor = (i & 1) ? Qt::SizeBDiagCursor : Qt::SizeFDiagCursor;
+        m_cornerHandlers[i].setProximityCursor(cursor);
+        m_cornerHandlers[i].setInteractionCursor(cursor);
+        makeLastFollower(m_cornerHandlers[i]);
+    }
 
-	// Setup edge drag handlers.
-	static int const masks_by_edge[] = { TOP, RIGHT, BOTTOM, LEFT };
-	for (int i = 0; i < 4; ++i) {
-		m_edges[i].setPositionCallback(
-			boost::bind(&ImageView::edgePosition, this, masks_by_edge[i])
-		);
-		m_edges[i].setMoveRequestCallback(
+    // Setup edge drag handlers.
+    static int const masks_by_edge[] = { TOP, RIGHT, BOTTOM, LEFT };
+    for (int i = 0; i < 4; ++i) {
+        m_edges[i].setPositionCallback(
+            boost::bind(&ImageView::edgePosition, this, masks_by_edge[i])
+        );
+        m_edges[i].setMoveRequestCallback(
             boost::bind(&ImageView::edgeMoveRequest, this, masks_by_edge[i], _1, _2)
-		);
-		m_edges[i].setDragFinishedCallback(
-			boost::bind(&ImageView::dragFinished, this)
-		);
-		m_edgeHandlers[i].setObject(&m_edges[i]);
-		m_edgeHandlers[i].setProximityStatusTip(drag_tip);
-		Qt::CursorShape cursor = (i & 1) ? Qt::SizeHorCursor : Qt::SizeVerCursor;
-		m_edgeHandlers[i].setProximityCursor(cursor);
-		m_edgeHandlers[i].setInteractionCursor(cursor);
-		makeLastFollower(m_edgeHandlers[i]);
-	}
+        );
+        m_edges[i].setDragFinishedCallback(
+            boost::bind(&ImageView::dragFinished, this)
+        );
+        m_edgeHandlers[i].setObject(&m_edges[i]);
+        m_edgeHandlers[i].setProximityStatusTip(drag_tip);
+        Qt::CursorShape cursor = (i & 1) ? Qt::SizeHorCursor : Qt::SizeVerCursor;
+        m_edgeHandlers[i].setProximityCursor(cursor);
+        m_edgeHandlers[i].setInteractionCursor(cursor);
+        makeLastFollower(m_edgeHandlers[i]);
+    }
 
-	rootInteractionHandler().makeLastFollower(*this);
-	rootInteractionHandler().makeLastFollower(m_dragHandler);
-	rootInteractionHandler().makeLastFollower(m_zoomHandler);
-	
-	QAction* create = m_pNoContentMenu->addAction(tr("Create Content Box"));
-	QAction* remove = m_pHaveContentMenu->addAction(tr("Remove Content Box"));
+    rootInteractionHandler().makeLastFollower(*this);
+    rootInteractionHandler().makeLastFollower(m_dragHandler);
+    rootInteractionHandler().makeLastFollower(m_zoomHandler);
+
+    QAction* create = m_pNoContentMenu->addAction(tr("Create Content Box"));
+    QAction* remove = m_pHaveContentMenu->addAction(tr("Remove Content Box"));
 
     create->setShortcut(GlobalStaticSettings::createShortcut(ContentInsert));
     remove->setShortcut(GlobalStaticSettings::createShortcut(ContentDelete));
-	addAction(create);
-	addAction(remove);
-	connect(create, SIGNAL(triggered(bool)), this, SLOT(createContentBox()));
-	connect(remove, SIGNAL(triggered(bool)), this, SLOT(removeContentBox()));
+    addAction(create);
+    addAction(remove);
+    connect(create, SIGNAL(triggered(bool)), this, SLOT(createContentBox()));
+    connect(remove, SIGNAL(triggered(bool)), this, SLOT(removeContentBox()));
 
-    if ( m_contentRect.isValid()) {
+    if (m_contentRect.isValid()) {
         // override page size with content box size
         StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
         setCursorPosAdjustment(m_contentRect.topLeft());
@@ -137,19 +136,19 @@ ImageView::~ImageView()
 void
 ImageView::createContentBox()
 {
-	if (!m_contentRect.isEmpty()) {
-		return;
-	}
-	if (interactionState().captured()) {
-		return;
-	}
-	
-	QRectF const virtual_rect(virtualDisplayRect());
-	QRectF content_rect(0, 0, virtual_rect.width() * 0.7, virtual_rect.height() * 0.7);
-	content_rect.moveCenter(virtual_rect.center());
-	m_contentRect = content_rect;
-	update();
-	emit manualContentRectSet(m_contentRect);
+    if (!m_contentRect.isEmpty()) {
+        return;
+    }
+    if (interactionState().captured()) {
+        return;
+    }
+
+    QRectF const virtual_rect(virtualDisplayRect());
+    QRectF content_rect(0, 0, virtual_rect.width() * 0.7, virtual_rect.height() * 0.7);
+    content_rect.moveCenter(virtual_rect.center());
+    m_contentRect = content_rect;
+    update();
+    emit manualContentRectSet(m_contentRect);
 
     StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
     setCursorPosAdjustment(m_contentRect.topLeft());
@@ -158,16 +157,16 @@ ImageView::createContentBox()
 void
 ImageView::removeContentBox()
 {
-	if (m_contentRect.isEmpty()) {
-		return;
-	}
-	if (interactionState().captured()) {
-		return;
-	}
-	
-	m_contentRect = QRectF();
-	update();
-	emit manualContentRectSet(m_contentRect);
+    if (m_contentRect.isEmpty()) {
+        return;
+    }
+    if (interactionState().captured()) {
+        return;
+    }
+
+    m_contentRect = QRectF();
+    update();
+    emit manualContentRectSet(m_contentRect);
 
     StatusBarProvider::setPagePhysSize(virtualDisplayRect().size(), StatusBarProvider::getOriginalDpi());
     setCursorPosAdjustment(virtualDisplayRect().topLeft());
@@ -176,97 +175,96 @@ ImageView::removeContentBox()
 void
 ImageView::onPaint(QPainter& painter, InteractionState const& interaction)
 {
-	if (m_contentRect.isNull()) {
-		return;
-	}
+    if (m_contentRect.isNull()) {
+        return;
+    }
 
-	if (! m_pageRect.isNull()) {
-		// Draw detected page borders
-		QPen pen(QColor(0xee, 0xee, 0x00, 0xcc));
-		pen.setWidth(1);
-		pen.setCosmetic(true);
-		painter.setPen(pen);
-		painter.setBrush(QColor(0xee, 0xee, 0x00, 0xcc));
+    if (! m_pageRect.isNull()) {
+        // Draw detected page borders
+        QPen pen(QColor(0xee, 0xee, 0x00, 0xcc));
+        pen.setWidth(1);
+        pen.setCosmetic(true);
+        painter.setPen(pen);
+        painter.setBrush(QColor(0xee, 0xee, 0x00, 0xcc));
 
-		if (m_pageRect != virtualDisplayRect()) {
-			QRectF box;
-			QRectF r(virtualDisplayRect());
+        if (m_pageRect != virtualDisplayRect()) {
+            QRectF box;
+            QRectF r(virtualDisplayRect());
 
-			box.setLeft(m_pageRect.left());
-			box.setTop(r.top());
-			box.setRight(m_pageRect.right());
-			box.setBottom(m_pageRect.top());
-			painter.drawRect(box);
+            box.setLeft(m_pageRect.left());
+            box.setTop(r.top());
+            box.setRight(m_pageRect.right());
+            box.setBottom(m_pageRect.top());
+            painter.drawRect(box);
 
-			box.setLeft(r.left());
-			box.setTop(r.top());
-			box.setRight(m_pageRect.left());
-			box.setBottom(r.bottom());
-			painter.drawRect(box);
+            box.setLeft(r.left());
+            box.setTop(r.top());
+            box.setRight(m_pageRect.left());
+            box.setBottom(r.bottom());
+            painter.drawRect(box);
 
-			box.setLeft(m_pageRect.left());
-			box.setTop(m_pageRect.bottom());
-			box.setRight(m_pageRect.right());
-			box.setBottom(r.bottom());
-			painter.drawRect(box);
+            box.setLeft(m_pageRect.left());
+            box.setTop(m_pageRect.bottom());
+            box.setRight(m_pageRect.right());
+            box.setBottom(r.bottom());
+            painter.drawRect(box);
 
-			box.setLeft(m_pageRect.right());
-			box.setTop(r.top());
-			box.setRight(r.right());
-			box.setBottom(r.bottom());
-			painter.drawRect(box);
-		}
-	}
+            box.setLeft(m_pageRect.right());
+            box.setTop(r.top());
+            box.setRight(r.right());
+            box.setBottom(r.bottom());
+            painter.drawRect(box);
+        }
+    }
 
+    painter.setRenderHints(QPainter::Antialiasing, true);
 
-	painter.setRenderHints(QPainter::Antialiasing, true);
-
-	// Draw the content bounding box.
+    // Draw the content bounding box.
     QPen pen(GlobalStaticSettings::m_content_sel_content_color_pen);
-	pen.setWidth(1);
-	pen.setCosmetic(true);
-	painter.setPen(pen);
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter.setPen(pen);
 
     painter.setBrush(GlobalStaticSettings::m_content_sel_content_color);
 
-	// Pen strokes will be outside of m_contentRect - that's how drawRect() works.
-	painter.drawRect(m_contentRect);
+    // Pen strokes will be outside of m_contentRect - that's how drawRect() works.
+    painter.drawRect(m_contentRect);
 }
 
 void
 ImageView::onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction)
 {
-	if (interaction.captured()) {
-		// No context menus during resizing.
-		return;
-	}
+    if (interaction.captured()) {
+        // No context menus during resizing.
+        return;
+    }
 
-	if (m_contentRect.isEmpty()) {
-		m_pNoContentMenu->popup(event->globalPos());
-	} else {
-		m_pHaveContentMenu->popup(event->globalPos());
-	}
+    if (m_contentRect.isEmpty()) {
+        m_pNoContentMenu->popup(event->globalPos());
+    } else {
+        m_pHaveContentMenu->popup(event->globalPos());
+    }
 }
 
 QPointF
 ImageView::cornerPosition(int edge_mask) const
 {
-	QRectF const r(virtualToWidget().mapRect(m_contentRect));
-	QPointF pt;
+    QRectF const r(virtualToWidget().mapRect(m_contentRect));
+    QPointF pt;
 
-	if (edge_mask & TOP) {
-		pt.setY(r.top());
-	} else if (edge_mask & BOTTOM) {
-		pt.setY(r.bottom());
-	}
+    if (edge_mask & TOP) {
+        pt.setY(r.top());
+    } else if (edge_mask & BOTTOM) {
+        pt.setY(r.bottom());
+    }
 
-	if (edge_mask & LEFT) {
-		pt.setX(r.left());
-	} else if (edge_mask & RIGHT) {
-		pt.setX(r.right());
-	}
+    if (edge_mask & LEFT) {
+        pt.setX(r.left());
+    } else if (edge_mask & RIGHT) {
+        pt.setX(r.right());
+    }
 
-	return pt;
+    return pt;
 }
 
 void
@@ -313,13 +311,13 @@ ImageView::keyPressEvent(QKeyEvent* event)
     QRectF r(virtualToWidget().mapRect(m_contentRect));
     if (dx || dy) {
         r.translate(dx, dy);
-        forceInsideImage(r, TOP|BOTTOM|LEFT|RIGHT);
+        forceInsideImage(r, TOP | BOTTOM | LEFT | RIGHT);
     }
 
     m_contentRect = widgetToVirtual().mapRect(r);
     update();
 
-    if ( m_contentRect.isValid()) {
+    if (m_contentRect.isValid()) {
         StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
         setCursorPosAdjustment(m_contentRect.topLeft());
     }
@@ -332,9 +330,9 @@ ImageView::keyPressEvent(QKeyEvent* event)
 void
 ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModifiers mask)
 {
-	QRectF r(virtualToWidget().mapRect(m_contentRect));
-	qreal const minw = m_minBoxSize.width();
-	qreal const minh = m_minBoxSize.height();
+    QRectF r(virtualToWidget().mapRect(m_contentRect));
+    qreal const minw = m_minBoxSize.width();
+    qreal const minh = m_minBoxSize.height();
 
     // Only Ctrl or only Shift is pressed
     const bool move = GlobalStaticSettings::checkModifiersMatch(ContentMove, mask);
@@ -342,8 +340,7 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
     if (move || move_along_exes) {
         if (!m_moveStart.isNull()) {
             QPointF diff = pos - m_moveStart;
-            if (move_along_exes)
-            {
+            if (move_along_exes) {
                 if (edge_mask & TOP || edge_mask & BOTTOM) {
                     diff.setX(0);
                 } else {
@@ -372,12 +369,12 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
         } else {
             // Ctrl and Shift are pressed at the same time
             if (edge_mask & TOP || edge_mask & BOTTOM) {
-                qreal dy = (edge_mask & TOP)? pos.y() - r.top() : r.bottom() - pos.y();
+                qreal dy = (edge_mask & TOP) ? pos.y() - r.top() : r.bottom() - pos.y();
                 r.setTop(std::min(r.top() + dy, r.bottom() - minh));
                 r.setBottom(std::max(r.bottom() - dy, r.top() + minh));
                 edge_mask = TOP | BOTTOM;
             } else {
-                qreal dx = (edge_mask & LEFT)? pos.x() - r.left() : r.right() - pos.x();
+                qreal dx = (edge_mask & LEFT) ? pos.x() - r.left() : r.right() - pos.x();
                 r.setLeft(std::min(r.left() + dx, r.right() - minw));
                 r.setRight(std::max(r.right() - dx, r.left() + minw));
                 edge_mask = LEFT | RIGHT;
@@ -387,11 +384,10 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
         forceInsideImage(r, edge_mask);
     }
 
+    m_contentRect = widgetToVirtual().mapRect(r);
+    update();
 
-	m_contentRect = widgetToVirtual().mapRect(r);
-	update();
-
-    if ( m_contentRect.isValid()) {
+    if (m_contentRect.isValid()) {
         StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
         setCursorPosAdjustment(m_contentRect.topLeft());
     }
@@ -400,17 +396,17 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
 QLineF
 ImageView::edgePosition(int const edge) const
 {
-	QRectF const r(virtualToWidget().mapRect(m_contentRect));
+    QRectF const r(virtualToWidget().mapRect(m_contentRect));
 
-	if (edge == TOP) {
-		return QLineF(r.topLeft(), r.topRight());
-	} else if (edge == BOTTOM) {
-		return QLineF(r.bottomLeft(), r.bottomRight());
-	} else if (edge == LEFT) {
-		return QLineF(r.topLeft(), r.bottomLeft());
-	} else {
-		return QLineF(r.topRight(), r.bottomRight());
-	}
+    if (edge == TOP) {
+        return QLineF(r.topLeft(), r.topRight());
+    } else if (edge == BOTTOM) {
+        return QLineF(r.bottomLeft(), r.bottomRight());
+    } else if (edge == LEFT) {
+        return QLineF(r.topLeft(), r.bottomLeft());
+    } else {
+        return QLineF(r.topRight(), r.bottomRight());
+    }
 }
 
 void
@@ -422,32 +418,32 @@ ImageView::edgeMoveRequest(int const edge, QLineF const& line, Qt::KeyboardModif
 void
 ImageView::dragFinished()
 {
-	emit manualContentRectSet(m_contentRect);
+    emit manualContentRectSet(m_contentRect);
 }
 
 void
 ImageView::forceInsideImage(QRectF& widget_rect, int const edge_mask) const
 {
-	qreal const minw = m_minBoxSize.width();
-	qreal const minh = m_minBoxSize.height();
+    qreal const minw = m_minBoxSize.width();
+    qreal const minh = m_minBoxSize.height();
     QRectF const image_rect(virtualToWidget().mapRect(virtualDisplayRect()));
 
-	if ((edge_mask & LEFT) && widget_rect.left() < image_rect.left()) {
-		widget_rect.setLeft(image_rect.left());
-		widget_rect.setRight(std::max(widget_rect.right(), widget_rect.left() + minw));
-	}
-	if ((edge_mask & RIGHT) && widget_rect.right() > image_rect.right()) {
-		widget_rect.setRight(image_rect.right());
-		widget_rect.setLeft(std::min(widget_rect.left(), widget_rect.right() - minw));
-	}
-	if ((edge_mask & TOP) && widget_rect.top() < image_rect.top()) {
-		widget_rect.setTop(image_rect.top());
-		widget_rect.setBottom(std::max(widget_rect.bottom(), widget_rect.top() + minh));
-	}
-	if ((edge_mask & BOTTOM) && widget_rect.bottom() > image_rect.bottom()) {
-		widget_rect.setBottom(image_rect.bottom());
-		widget_rect.setTop(std::min(widget_rect.top(), widget_rect.bottom() - minh));
-	}
+    if ((edge_mask & LEFT) && widget_rect.left() < image_rect.left()) {
+        widget_rect.setLeft(image_rect.left());
+        widget_rect.setRight(std::max(widget_rect.right(), widget_rect.left() + minw));
+    }
+    if ((edge_mask & RIGHT) && widget_rect.right() > image_rect.right()) {
+        widget_rect.setRight(image_rect.right());
+        widget_rect.setLeft(std::min(widget_rect.left(), widget_rect.right() - minw));
+    }
+    if ((edge_mask & TOP) && widget_rect.top() < image_rect.top()) {
+        widget_rect.setTop(image_rect.top());
+        widget_rect.setBottom(std::max(widget_rect.bottom(), widget_rect.top() + minh));
+    }
+    if ((edge_mask & BOTTOM) && widget_rect.bottom() > image_rect.bottom()) {
+        widget_rect.setBottom(image_rect.bottom());
+        widget_rect.setTop(std::min(widget_rect.top(), widget_rect.bottom() - minh));
+    }
 }
 
 } // namespace select_content

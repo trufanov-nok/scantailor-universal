@@ -33,17 +33,17 @@ namespace select_content
 class Thumbnail : public ThumbnailBase
 {
 public:
-	Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& xform, QRectF const& content_rect, bool deviant);
-	
-	virtual void paintOverImage(
-		QPainter& painter,
-		QTransform const& image_to_display,
-		QTransform const& thumb_to_display);
+    Thumbnail(IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+              QSizeF const& max_size, ImageId const& image_id,
+              ImageTransformation const& xform, QRectF const& content_rect, bool deviant);
+
+    virtual void paintOverImage(
+        QPainter& painter,
+        QTransform const& image_to_display,
+        QTransform const& thumb_to_display);
 private:
-	QRectF m_contentRect;
-	bool m_deviant;
+    QRectF m_contentRect;
+    bool m_deviant;
 };
 
 } // namespace select_content

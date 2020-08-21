@@ -62,75 +62,82 @@
 #define swprintf swprintf_s
 #endif  // MSC_VER < 1400
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 using std::string;
 using std::wstring;
 
-class WindowsStringUtils {
- public:
-  // Roughly equivalent to MSVC8's wcscpy_s, except pre-MSVC8, this does
-  // not fail if source is longer than destination_size.  The destination
-  // buffer is always 0-terminated.
-  static void safe_wcscpy(wchar_t *destination, size_t destination_size,
-                          const wchar_t *source);
+class WindowsStringUtils
+{
+public:
+    // Roughly equivalent to MSVC8's wcscpy_s, except pre-MSVC8, this does
+    // not fail if source is longer than destination_size.  The destination
+    // buffer is always 0-terminated.
+    static void safe_wcscpy(wchar_t* destination, size_t destination_size,
+                            const wchar_t* source);
 
-  // Roughly equivalent to MSVC8's wcsncpy_s, except that _TRUNCATE cannot
-  // be passed directly, and pre-MSVC8, this will not fail if source or count
-  // are longer than destination_size.  The destination buffer is always
-  // 0-terminated.
-  static void safe_wcsncpy(wchar_t *destination, size_t destination_size,
-                           const wchar_t *source, size_t count);
+    // Roughly equivalent to MSVC8's wcsncpy_s, except that _TRUNCATE cannot
+    // be passed directly, and pre-MSVC8, this will not fail if source or count
+    // are longer than destination_size.  The destination buffer is always
+    // 0-terminated.
+    static void safe_wcsncpy(wchar_t* destination, size_t destination_size,
+                             const wchar_t* source, size_t count);
 
-  // Performs multi-byte to wide character conversion on C++ strings, using
-  // mbstowcs_s (MSVC8) or mbstowcs (pre-MSVC8).  Returns false on failure,
-  // without setting wcs.
-  static bool safe_mbstowcs(const string &mbs, wstring *wcs);
+    // Performs multi-byte to wide character conversion on C++ strings, using
+    // mbstowcs_s (MSVC8) or mbstowcs (pre-MSVC8).  Returns false on failure,
+    // without setting wcs.
+    static bool safe_mbstowcs(const string& mbs, wstring* wcs);
 
-  // Returns the base name of a file, e.g. strips off the path.
-  static wstring GetBaseName(const wstring &filename);
+    // Returns the base name of a file, e.g. strips off the path.
+    static wstring GetBaseName(const wstring& filename);
 
- private:
-  // Disallow instantiation and other object-based operations.
-  WindowsStringUtils();
-  WindowsStringUtils(const WindowsStringUtils&);
-  ~WindowsStringUtils();
-  void operator=(const WindowsStringUtils&);
+private:
+    // Disallow instantiation and other object-based operations.
+    WindowsStringUtils();
+    WindowsStringUtils(const WindowsStringUtils&);
+    ~WindowsStringUtils();
+    void operator=(const WindowsStringUtils&);
 };
 
 // static
-inline void WindowsStringUtils::safe_wcscpy(wchar_t *destination,
-                                            size_t destination_size,
-                                            const wchar_t *source) {
+inline void WindowsStringUtils::safe_wcscpy(wchar_t* destination,
+        size_t destination_size,
+        const wchar_t* source)
+{
 #if _MSC_VER >= 1400  // MSVC 2005/8
-  wcscpy_s(destination, destination_size, source);
+    wcscpy_s(destination, destination_size, source);
 #else  // _MSC_VER >= 1400
-  // Pre-MSVC 2005/8 doesn't have wcscpy_s.  Simulate it with wcsncpy.
-  // wcsncpy doesn't 0-terminate the destination buffer if the source string
-  // is longer than size.  Ensure that the destination is 0-terminated.
-  wcsncpy(destination, source, destination_size);
-  if (destination && destination_size)
-    destination[destination_size - 1] = 0;
+    // Pre-MSVC 2005/8 doesn't have wcscpy_s.  Simulate it with wcsncpy.
+    // wcsncpy doesn't 0-terminate the destination buffer if the source string
+    // is longer than size.  Ensure that the destination is 0-terminated.
+    wcsncpy(destination, source, destination_size);
+    if (destination && destination_size) {
+        destination[destination_size - 1] = 0;
+    }
 #endif  // _MSC_VER >= 1400
 }
 
 // static
-inline void WindowsStringUtils::safe_wcsncpy(wchar_t *destination,
-                                             size_t destination_size,
-                                             const wchar_t *source,
-                                             size_t count) {
+inline void WindowsStringUtils::safe_wcsncpy(wchar_t* destination,
+        size_t destination_size,
+        const wchar_t* source,
+        size_t count)
+{
 #if _MSC_VER >= 1400  // MSVC 2005/8
-  wcsncpy_s(destination, destination_size, source, count);
+    wcsncpy_s(destination, destination_size, source, count);
 #else  // _MSC_VER >= 1400
-  // Pre-MSVC 2005/8 doesn't have wcsncpy_s.  Simulate it with wcsncpy.
-  // wcsncpy doesn't 0-terminate the destination buffer if the source string
-  // is longer than size.  Ensure that the destination is 0-terminated.
-  if (destination_size < count)
-    count = destination_size;
+    // Pre-MSVC 2005/8 doesn't have wcsncpy_s.  Simulate it with wcsncpy.
+    // wcsncpy doesn't 0-terminate the destination buffer if the source string
+    // is longer than size.  Ensure that the destination is 0-terminated.
+    if (destination_size < count) {
+        count = destination_size;
+    }
 
-  wcsncpy(destination, source, count);
-  if (destination && count)
-    destination[count - 1] = 0;
+    wcsncpy(destination, source, count);
+    if (destination && count) {
+        destination[count - 1] = 0;
+    }
 #endif  // _MSC_VER >= 1400
 }
 

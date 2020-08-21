@@ -58,7 +58,7 @@ SmartFilenameOrdering::operator()(QFileInfo const& lhs, QFileInfo const& rhs) co
         int diff = left_num.size() - right_num.size();
 
         if (diff < 0) {
-            left_num.prepend(zero.repeated(-1*diff));
+            left_num.prepend(zero.repeated(-1 * diff));
         } else if (diff > 0) {
             right_num.prepend(zero.repeated(diff));
         }
@@ -66,11 +66,11 @@ SmartFilenameOrdering::operator()(QFileInfo const& lhs, QFileInfo const& rhs) co
         fn1 += left_num;
         fn2 += right_num;
     }
-    if (pos1 < left_filename.size()-1) {
-        fn1 += left_filename.right(left_filename.size()-pos1);
+    if (pos1 < left_filename.size() - 1) {
+        fn1 += left_filename.right(left_filename.size() - pos1);
     }
-    if (pos2 < right_filename.size()-1) {
-        fn2 += right_filename.right(right_filename.size()-pos2);
+    if (pos2 < right_filename.size() - 1) {
+        fn2 += right_filename.right(right_filename.size() - pos2);
     }
 
     if (int comp = fn1.compare(fn2)) {

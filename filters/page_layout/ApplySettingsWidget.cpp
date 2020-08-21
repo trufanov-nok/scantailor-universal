@@ -27,12 +27,12 @@ namespace page_layout
 {
 
 ApplySettingsWidget::ApplySettingsWidget(QWidget* parent,
-    const DialogType dlg_type, bool const is_auto_margin_enabled)
-:	QWidget(parent),
-    m_dlgType(dlg_type),
-    m_empty(true)
+        const DialogType dlg_type, bool const is_auto_margin_enabled)
+    :   QWidget(parent),
+        m_dlgType(dlg_type),
+        m_empty(true)
 {
-	setupUi(this);
+    setupUi(this);
 
     if (m_dlgType == Margins) {
         const bool auto_margins_enabled = QSettings().value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool();

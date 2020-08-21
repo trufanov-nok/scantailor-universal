@@ -29,7 +29,8 @@ class PageRangeSelectorSignalsPropagator: public QObject
 {
     Q_OBJECT
 public:
-    static PageRangeSelectorSignalsPropagator* get() {
+    static PageRangeSelectorSignalsPropagator* get()
+    {
         if (!m_obj) {
             m_obj = new PageRangeSelectorSignalsPropagator();
         }
@@ -41,8 +42,8 @@ private:
     static PageRangeSelectorSignalsPropagator* m_obj;
 };
 
-
-namespace Ui {
+namespace Ui
+{
 class PageRangeSelectorWidget;
 }
 
@@ -66,12 +67,16 @@ class PageRangeSelectorWidget : public QWidget
     };
 
 public:
-    explicit PageRangeSelectorWidget(QWidget *parent = Q_NULLPTR);
+    explicit PageRangeSelectorWidget(QWidget* parent = Q_NULLPTR);
     void setData(PageId const& cur_page, PageSelectionAccessor const& page_selection_accessor, PageView mode = PageView::PAGE_VIEW);
     ~PageRangeSelectorWidget();
 
-    std::vector<PageId> result() const { return m_filteredPages; }
-    bool allPagesSelected() const {
+    std::vector<PageId> result() const
+    {
+        return m_filteredPages;
+    }
+    bool allPagesSelected() const
+    {
         // we could check m_range and m_curFilter setting, but filter might remove nothing
         return m_filteredPages.size() == m_pages.numPages();
     }
@@ -100,8 +105,14 @@ signals:
     void maybeTargeted(const std::vector<PageId> pages);
 
 private:
-    RangeOptions range() const { return m_range; }
-    int filter() const { return m_curFilter; }
+    RangeOptions range() const
+    {
+        return m_range;
+    }
+    int filter() const
+    {
+        return m_curFilter;
+    }
 
     void setRange(RangeOptions range, bool force_upd = false);
     void setFilter(int filter, bool force_upd = false);
@@ -111,7 +122,7 @@ private:
     std::set<PageId> m_selectedPages;
     std::vector<PageRange> m_selectedRanges;
     PageId m_curPage;
-    Ui::PageRangeSelectorWidget *ui;
+    Ui::PageRangeSelectorWidget* ui;
     int m_curFilter;
     RangeOptions m_range;
     std::vector<PageId> m_rangePages;

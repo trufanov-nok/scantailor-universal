@@ -28,54 +28,54 @@ AtomicFileOverwriter::AtomicFileOverwriter()
 
 AtomicFileOverwriter::~AtomicFileOverwriter()
 {
-	abort();
+    abort();
 }
 
 QIODevice*
 AtomicFileOverwriter::startWriting(QString const& file_path)
 {
-	abort();
-	
-	m_ptrTempFile.reset(new QTemporaryFile(file_path));
-	m_ptrTempFile->setAutoRemove(false);
-	if (!m_ptrTempFile->open()) {
-		m_ptrTempFile.reset();
-	}
-	
-	return m_ptrTempFile.get();
+    abort();
+
+    m_ptrTempFile.reset(new QTemporaryFile(file_path));
+    m_ptrTempFile->setAutoRemove(false);
+    if (!m_ptrTempFile->open()) {
+        m_ptrTempFile.reset();
+    }
+
+    return m_ptrTempFile.get();
 }
 
 bool
 AtomicFileOverwriter::commit()
 {
-	if (!m_ptrTempFile.get()) {
-		return false;
-	}
-	
-	QString const temp_file_path(m_ptrTempFile->fileName());
-	QString const target_path(m_ptrTempFile->fileTemplate());
-	
-	// Yes, we have to destroy this object here, because:
-	// 1. Under Windows, open files can't be renamed or deleted.
-	// 2. QTemporaryFile::close() doesn't really close it.
-	m_ptrTempFile.reset();
-	
-	if (!Utils::overwritingRename(temp_file_path, target_path)) {
-		QFile::remove(temp_file_path);
-		return false;
-	}
-	
-	return true;
+    if (!m_ptrTempFile.get()) {
+        return false;
+    }
+
+    QString const temp_file_path(m_ptrTempFile->fileName());
+    QString const target_path(m_ptrTempFile->fileTemplate());
+
+    // Yes, we have to destroy this object here, because:
+    // 1. Under Windows, open files can't be renamed or deleted.
+    // 2. QTemporaryFile::close() doesn't really close it.
+    m_ptrTempFile.reset();
+
+    if (!Utils::overwritingRename(temp_file_path, target_path)) {
+        QFile::remove(temp_file_path);
+        return false;
+    }
+
+    return true;
 }
 
 void
 AtomicFileOverwriter::abort()
 {
-	if (!m_ptrTempFile.get()) {
-		return;
-	}
-	
-	QString const temp_file_path(m_ptrTempFile->fileName());
-	m_ptrTempFile.reset(); // See comments in commit()
-	QFile::remove(temp_file_path);
+    if (!m_ptrTempFile.get()) {
+        return;
+    }
+
+    QString const temp_file_path(m_ptrTempFile->fileName());
+    m_ptrTempFile.reset(); // See comments in commit()
+    QFile::remove(temp_file_path);
 }

@@ -24,22 +24,31 @@
 
 class ImagePixmapUnion
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	ImagePixmapUnion() {}
+    ImagePixmapUnion() {}
 
-	ImagePixmapUnion(QImage const& image) : m_image(image) {}
+    ImagePixmapUnion(QImage const& image) : m_image(image) {}
 
-	ImagePixmapUnion(QPixmap const& pixmap) : m_pixmap(pixmap) {}
+    ImagePixmapUnion(QPixmap const& pixmap) : m_pixmap(pixmap) {}
 
-	QImage const& image() const { return m_image; }
+    QImage const& image() const
+    {
+        return m_image;
+    }
 
-	QPixmap const& pixmap() const { return m_pixmap; }
+    QPixmap const& pixmap() const
+    {
+        return m_pixmap;
+    }
 
-	bool isNull() const { return m_image.isNull() && m_pixmap.isNull(); }
+    bool isNull() const
+    {
+        return m_image.isNull() && m_pixmap.isNull();
+    }
 private:
-	QImage m_image;
-	QPixmap m_pixmap;
+    QImage m_image;
+    QPixmap m_pixmap;
 };
 
 #endif

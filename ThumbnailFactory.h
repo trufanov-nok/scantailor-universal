@@ -32,21 +32,21 @@ class QGraphicsItem;
 
 class ThumbnailFactory : public RefCountable
 {
-	DECLARE_NON_COPYABLE(ThumbnailFactory)
+    DECLARE_NON_COPYABLE(ThumbnailFactory)
 public:
-	ThumbnailFactory(
-		IntrusivePtr<ThumbnailPixmapCache> const& pixmap_cache,
-		QSizeF const& max_size, IntrusivePtr<CompositeCacheDrivenTask> const& task);
-	
-	virtual ~ThumbnailFactory();
-	
-	std::unique_ptr<QGraphicsItem> get(PageInfo const& page_info);
+    ThumbnailFactory(
+        IntrusivePtr<ThumbnailPixmapCache> const& pixmap_cache,
+        QSizeF const& max_size, IntrusivePtr<CompositeCacheDrivenTask> const& task);
+
+    virtual ~ThumbnailFactory();
+
+    std::unique_ptr<QGraphicsItem> get(PageInfo const& page_info);
 private:
-	class Collector;
-	
-	IntrusivePtr<ThumbnailPixmapCache> m_ptrPixmapCache;
-	QSizeF m_maxSize;
-	IntrusivePtr<CompositeCacheDrivenTask> m_ptrTask;
+    class Collector;
+
+    IntrusivePtr<ThumbnailPixmapCache> m_ptrPixmapCache;
+    QSizeF m_maxSize;
+    IntrusivePtr<CompositeCacheDrivenTask> m_ptrTask;
 };
 
 #endif

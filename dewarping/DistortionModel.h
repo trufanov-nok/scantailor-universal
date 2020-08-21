@@ -35,50 +35,62 @@ class CylindricalSurfaceDewarper;
 class DistortionModel
 {
 public:
-	/**
-	 * \brief Constructs a null distortion model.
-	 */
-	DistortionModel();
+    /**
+     * \brief Constructs a null distortion model.
+     */
+    DistortionModel();
 
-	explicit DistortionModel(QDomElement const& el);
+    explicit DistortionModel(QDomElement const& el);
 
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
-	
-	/**
-	 * Returns true if the model is not null and in addition meets certain
-	 * criteria, like curve endpoints forming a convex quadrilateral.
-	 */
-	bool isValid() const;
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
-	void setTopCurve(Curve const& curve) { m_topCurve = curve; }
+    /**
+     * Returns true if the model is not null and in addition meets certain
+     * criteria, like curve endpoints forming a convex quadrilateral.
+     */
+    bool isValid() const;
 
-	void setBottomCurve(Curve const& curve) { m_bottomCurve = curve; }
+    void setTopCurve(Curve const& curve)
+    {
+        m_topCurve = curve;
+    }
 
-	Curve const& topCurve() const { return m_topCurve; }
+    void setBottomCurve(Curve const& curve)
+    {
+        m_bottomCurve = curve;
+    }
 
-	Curve const& bottomCurve() const { return m_bottomCurve; }
+    Curve const& topCurve() const
+    {
+        return m_topCurve;
+    }
 
-	bool matches(DistortionModel const& other) const;
+    Curve const& bottomCurve() const
+    {
+        return m_bottomCurve;
+    }
 
-	/**
-	 * Model domain is a rectangle in output image coordinates that
-	 * will be mapped to our curved quadrilateral.
-	 */
-	QRectF modelDomain(
-		CylindricalSurfaceDewarper const& dewarper,
-		QTransform const& to_output, QRectF const& output_content_rect) const;
+    bool matches(DistortionModel const& other) const;
+
+    /**
+     * Model domain is a rectangle in output image coordinates that
+     * will be mapped to our curved quadrilateral.
+     */
+    QRectF modelDomain(
+        CylindricalSurfaceDewarper const& dewarper,
+        QTransform const& to_output, QRectF const& output_content_rect) const;
 private:
-	/**
-	 * \return The bounding box of the shape formed by two curves
-	 *         and vertical segments connecting them.
-	 * \param transform Transforms from the original image coordinates
-	 *        where curve points are defined, to the desired coordinate
-	 *        system, for example to output image coordinates.
-	 */
-	QRectF boundingBox(QTransform const& transform) const;
+    /**
+     * \return The bounding box of the shape formed by two curves
+     *         and vertical segments connecting them.
+     * \param transform Transforms from the original image coordinates
+     *        where curve points are defined, to the desired coordinate
+     *        system, for example to output image coordinates.
+     */
+    QRectF boundingBox(QTransform const& transform) const;
 
-	Curve m_topCurve;
-	Curve m_bottomCurve;
+    Curve m_topCurve;
+    Curve m_bottomCurve;
 };
 
 } // namespace dewarping

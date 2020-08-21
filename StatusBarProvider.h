@@ -38,18 +38,22 @@ class QStatusBarProviderEvent: public QEvent
 {
 public:
 
-    enum NitificationTypeEnum
-    {
+    enum NitificationTypeEnum {
         PhysSizeChanged = 1,
         MousePosChanged = 2
     };
 
     Q_DECLARE_FLAGS(NitificationType, NitificationTypeEnum)
 
-
     QStatusBarProviderEvent(QEvent::Type _t, const QStatusBarProviderEvent::NitificationTypeEnum _type): QEvent(_t), m_type(_type) { }
-    void setFlag(const NitificationTypeEnum _type) { m_type |= _type; }
-    bool testFlag(const NitificationTypeEnum _type) { return m_type.testFlag(_type); }
+    void setFlag(const NitificationTypeEnum _type)
+    {
+        m_type |= _type;
+    }
+    bool testFlag(const NitificationTypeEnum _type)
+    {
+        return m_type.testFlag(_type);
+    }
 private:
     NitificationType m_type;
 };
@@ -84,15 +88,28 @@ public:
         notify(QStatusBarProviderEvent::MousePosChanged);
     }
 
-    static QPointF getMousePos() { return m_mousePos; }
-    static QSizeF getPageSize() { return m_pageSize; }
-    static Dpi getOriginalDpi() { return m_originalDpi; }
-    static Dpi getSettingsDpi() { return m_settingsDpi; notify(); }
+    static QPointF getMousePos()
+    {
+        return m_mousePos;
+    }
+    static QSizeF getPageSize()
+    {
+        return m_pageSize;
+    }
+    static Dpi getOriginalDpi()
+    {
+        return m_originalDpi;
+    }
+    static Dpi getSettingsDpi()
+    {
+        return m_settingsDpi;
+        notify();
+    }
 
     static void toggleStatusLabelPhysSizeDisplayMode()
     {
         statusLabelPhysSizeDisplayMode = (statusLabelPhysSizeDisplayMode != SM) ?
-                    (StatusLabelPhysSizeDisplayMode) ((int)statusLabelPhysSizeDisplayMode+1) : Pixels;
+                                         (StatusLabelPhysSizeDisplayMode)((int)statusLabelPhysSizeDisplayMode + 1) : Pixels;
     }
 
     static QString getStatusLabelPhysSizeDisplayModeSuffix(StatusLabelPhysSizeDisplayMode const mode)
@@ -120,7 +137,7 @@ public:
     static QEvent::Type StatusBarEventType;
     static StatusLabelPhysSizeDisplayMode statusLabelPhysSizeDisplayMode;
 private:
-    static void notify( const QStatusBarProviderEvent::NitificationTypeEnum _type = QStatusBarProviderEvent::PhysSizeChanged)
+    static void notify(const QStatusBarProviderEvent::NitificationTypeEnum _type = QStatusBarProviderEvent::PhysSizeChanged)
     {
         if (m_statusBar) {
             QApplication::postEvent(m_statusBar, new QStatusBarProviderEvent(StatusBarEventType, _type));

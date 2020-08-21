@@ -27,33 +27,33 @@
 
 class WorkerThread : public QObject
 {
-	Q_OBJECT
-	DECLARE_NON_COPYABLE(WorkerThread)
-public:	
-	WorkerThread(QObject* parent = 0);
-	
-	~WorkerThread();
-	
-	/**
-	 * \brief Waits for pending jobs to finish and stop the thread.
-	 *
-	 * The destructor also performs these tasks, so this method is only
-	 * useful to prematuraly stop task processing.
-	 */
-	void shutdown();
+    Q_OBJECT
+    DECLARE_NON_COPYABLE(WorkerThread)
+public:
+    WorkerThread(QObject* parent = 0);
+
+    ~WorkerThread();
+
+    /**
+     * \brief Waits for pending jobs to finish and stop the thread.
+     *
+     * The destructor also performs these tasks, so this method is only
+     * useful to prematuraly stop task processing.
+     */
+    void shutdown();
 public slots:
-	void performTask(BackgroundTaskPtr const& task);
+    void performTask(BackgroundTaskPtr const& task);
 signals:
-	void taskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
+    void taskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
 private:
-	void emitTaskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
-	
-	class Impl;
-	class Dispatcher;
-	class PerformTaskEvent;
-	class TaskResultEvent;
-	
-	std::unique_ptr<Impl> m_ptrImpl;
+    void emitTaskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
+
+    class Impl;
+    class Dispatcher;
+    class PerformTaskEvent;
+    class TaskResultEvent;
+
+    std::unique_ptr<Impl> m_ptrImpl;
 };
 
 #endif

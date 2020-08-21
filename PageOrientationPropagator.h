@@ -27,7 +27,7 @@ class ProjectPages;
 
 namespace page_split
 {
-	class Filter;
+class Filter;
 }
 
 /**
@@ -42,18 +42,18 @@ namespace page_split
 class PageOrientationPropagator
 {
 public:
-	PageOrientationPropagator(
-		IntrusivePtr<page_split::Filter> const& page_split_filter,
-		IntrusivePtr<CompositeCacheDrivenTask> const& task);
-	
-	~PageOrientationPropagator();
-	
-	void propagate(ProjectPages const& pages);
+    PageOrientationPropagator(
+        IntrusivePtr<page_split::Filter> const& page_split_filter,
+        IntrusivePtr<CompositeCacheDrivenTask> const& task);
+
+    ~PageOrientationPropagator();
+
+    void propagate(ProjectPages const& pages);
 private:
-	class Collector;
-	
-	IntrusivePtr<page_split::Filter> m_ptrPageSplitFilter;
-	IntrusivePtr<CompositeCacheDrivenTask> m_ptrTask;
+    class Collector;
+
+    IntrusivePtr<page_split::Filter> m_ptrPageSplitFilter;
+    IntrusivePtr<CompositeCacheDrivenTask> m_ptrTask;
 };
 
 #endif

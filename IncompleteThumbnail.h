@@ -42,20 +42,20 @@ class QRectF;
 class IncompleteThumbnail : public ThumbnailBase
 {
 public:
-	IncompleteThumbnail(
-		IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-		QSizeF const& max_size, ImageId const& image_id,
-		ImageTransformation const& image_xform);
-	
-	virtual ~IncompleteThumbnail();
-	
-	static void drawQuestionMark(QPainter& painter, QRectF const& bounding_rect);
+    IncompleteThumbnail(
+        IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+        QSizeF const& max_size, ImageId const& image_id,
+        ImageTransformation const& image_xform);
+
+    virtual ~IncompleteThumbnail();
+
+    static void drawQuestionMark(QPainter& painter, QRectF const& bounding_rect);
 protected:
-	virtual void paintOverImage(
-		QPainter& painter, QTransform const& image_to_display,
-		QTransform const& thumb_to_display);
+    virtual void paintOverImage(
+        QPainter& painter, QTransform const& image_to_display,
+        QTransform const& thumb_to_display);
 private:
-	static QPainterPath m_sCachedPath;
+    static QPainterPath m_sCachedPath;
 };
 
 #endif

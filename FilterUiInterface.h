@@ -33,25 +33,25 @@ class QWidget;
 class FilterUiInterface
 {
 public:
-	enum Ownership { KEEP_OWNERSHIP, TRANSFER_OWNERSHIP };
-	
-	virtual ~FilterUiInterface() {}
-	
-	virtual void setOptionsWidget(
-		FilterOptionsWidget* widget, Ownership ownership) = 0;
-	
-	virtual void setImageWidget(
-		QWidget* widget, Ownership ownership,
-		DebugImages* debug_images = 0) = 0;
-	
-	virtual void invalidateThumbnail(PageId const& page_id) = 0;
-	
-	virtual void invalidateAllThumbnails() = 0;
+    enum Ownership { KEEP_OWNERSHIP, TRANSFER_OWNERSHIP };
 
-	/**
-	 * Returns a callable object that when called will open a relinking dialog.
-	 */
-	virtual IntrusivePtr<AbstractCommand0<void> > relinkingDialogRequester() = 0;
+    virtual ~FilterUiInterface() {}
+
+    virtual void setOptionsWidget(
+        FilterOptionsWidget* widget, Ownership ownership) = 0;
+
+    virtual void setImageWidget(
+        QWidget* widget, Ownership ownership,
+        DebugImages* debug_images = 0) = 0;
+
+    virtual void invalidateThumbnail(PageId const& page_id) = 0;
+
+    virtual void invalidateAllThumbnails() = 0;
+
+    /**
+     * Returns a callable object that when called will open a relinking dialog.
+     */
+    virtual IntrusivePtr<AbstractCommand0<void> > relinkingDialogRequester() = 0;
 };
 
 #endif

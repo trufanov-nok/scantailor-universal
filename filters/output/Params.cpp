@@ -32,103 +32,102 @@ namespace output
 {
 
 Params::Params()
-:  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi())
+    :  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi())
 {
-   QSettings s;
-   m_despeckleLevel = (DespeckleLevel) s.value(_key_output_despeckling_default_lvl, _key_output_despeckling_default_lvl_def).toUInt();
+    QSettings s;
+    m_despeckleLevel = (DespeckleLevel) s.value(_key_output_despeckling_default_lvl, _key_output_despeckling_default_lvl_def).toUInt();
 }
 
 Params::Params(QDomElement const& el)
-:	RegenParams(),
-    m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
-	m_distortionModel(el.namedItem("distortion-model").toElement()),
-	m_depthPerception(el.attribute("depthPerception")),
-	m_dewarpingMode(el.attribute("dewarpingMode")),
-    m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
+    :   RegenParams(),
+        m_dpi(XmlUnmarshaller::dpi(el.namedItem("dpi").toElement())),
+        m_distortionModel(el.namedItem("distortion-model").toElement()),
+        m_depthPerception(el.attribute("depthPerception")),
+        m_dewarpingMode(el.attribute("dewarpingMode")),
+        m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
 
 {
-	QDomElement const cp(el.namedItem("color-params").toElement());
-	m_colorParams.setColorMode(parseColorMode(cp.attribute("colorMode")));
-	m_colorParams.setColorGrayscaleOptions(
-		ColorGrayscaleOptions(
+    QDomElement const cp(el.namedItem("color-params").toElement());
+    m_colorParams.setColorMode(parseColorMode(cp.attribute("colorMode")));
+    m_colorParams.setColorGrayscaleOptions(
+        ColorGrayscaleOptions(
             cp.namedItem("color-or-grayscale").toElement(), m_colorParams.colorMode() == ColorParams::MIXED
-		)
-	);
-	m_colorParams.setBlackWhiteOptions(
-		BlackWhiteOptions(cp.namedItem("bw").toElement())
-	);
+        )
+    );
+    m_colorParams.setBlackWhiteOptions(
+        BlackWhiteOptions(cp.namedItem("bw").toElement())
+    );
 }
 
 QDomElement
 Params::toXml(QDomDocument& doc, QString const& name) const
 {
-	XmlMarshaller marshaller(doc);
-	
-	QDomElement el(doc.createElement(name));
-	el.appendChild(m_distortionModel.toXml(doc, "distortion-model"));
-	el.setAttribute("depthPerception", m_depthPerception.toString());
-	el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
-	el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
-	el.appendChild(marshaller.dpi(m_dpi, "dpi"));
-	
-	QDomElement cp(doc.createElement("color-params"));
-	cp.setAttribute(
-		"colorMode",
-		formatColorMode(m_colorParams.colorMode())
-	);
+    XmlMarshaller marshaller(doc);
 
-	cp.appendChild(
-		m_colorParams.colorGrayscaleOptions().toXml(
-			doc, "color-or-grayscale"
-		)
-	);
-	cp.appendChild(m_colorParams.blackWhiteOptions().toXml(doc, "bw"));
-	
-	el.appendChild(cp);
-	
-	return el;
+    QDomElement el(doc.createElement(name));
+    el.appendChild(m_distortionModel.toXml(doc, "distortion-model"));
+    el.setAttribute("depthPerception", m_depthPerception.toString());
+    el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
+    el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
+    el.appendChild(marshaller.dpi(m_dpi, "dpi"));
+
+    QDomElement cp(doc.createElement("color-params"));
+    cp.setAttribute(
+        "colorMode",
+        formatColorMode(m_colorParams.colorMode())
+    );
+
+    cp.appendChild(
+        m_colorParams.colorGrayscaleOptions().toXml(
+            doc, "color-or-grayscale"
+        )
+    );
+    cp.appendChild(m_colorParams.blackWhiteOptions().toXml(doc, "bw"));
+
+    el.appendChild(cp);
+
+    return el;
 }
 
 ColorParams::ColorMode
 Params::parseColorMode(QString const& str)
 {
-	if (str == "bw") {
-		return ColorParams::BLACK_AND_WHITE;
-	} else if (str == "bitonal") {
-		// Backwards compatibility.
-		return ColorParams::BLACK_AND_WHITE;
-	} else if (str == "colorOrGray") {
-		return ColorParams::COLOR_GRAYSCALE;
-	} else if (str == "mixed") {
-		return ColorParams::MIXED;
-	} else {
-		return ColorParams::DefaultColorMode();
-	}
+    if (str == "bw") {
+        return ColorParams::BLACK_AND_WHITE;
+    } else if (str == "bitonal") {
+        // Backwards compatibility.
+        return ColorParams::BLACK_AND_WHITE;
+    } else if (str == "colorOrGray") {
+        return ColorParams::COLOR_GRAYSCALE;
+    } else if (str == "mixed") {
+        return ColorParams::MIXED;
+    } else {
+        return ColorParams::DefaultColorMode();
+    }
 }
 
 QString
 Params::formatColorMode(ColorParams::ColorMode const mode)
 {
-	char const* str = "";
-	switch (mode) {
-		case ColorParams::BLACK_AND_WHITE:
-			str = "bw";
-			break;
-		case ColorParams::COLOR_GRAYSCALE:
-			str = "colorOrGray";
-			break;
-		case ColorParams::MIXED:
-			str = "mixed";
-			break;
-	}
-	return QLatin1String(str);
+    char const* str = "";
+    switch (mode) {
+    case ColorParams::BLACK_AND_WHITE:
+        str = "bw";
+        break;
+    case ColorParams::COLOR_GRAYSCALE:
+        str = "colorOrGray";
+        break;
+    case ColorParams::MIXED:
+        str = "mixed";
+        break;
+    }
+    return QLatin1String(str);
 }
 
 void
 Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& filter)
 {
-    switch (filter)
-    {
+    switch (filter) {
     case CopyAll:
         m_colorParams = params;
         break;
@@ -140,7 +139,7 @@ Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& 
         m_colorParams.setColorMode(params.colorMode());
         m_colorParams.setColorGrayscaleOptions(params.colorGrayscaleOptions());
     }
-        break;
+    break;
 
     case CopyAllThresholds: {
         BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
@@ -148,20 +147,20 @@ Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& 
         opt.setThresholdForegroundAdjustment(params.blackWhiteOptions().thresholdForegroundAdjustment());
         m_colorParams.setBlackWhiteOptions(opt);
     }
-        break;
+    break;
 
     case CopyThreshold: {
         BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
         opt.setThresholdAdjustment(params.blackWhiteOptions().thresholdAdjustment());
         m_colorParams.setBlackWhiteOptions(opt);
     }
-        break;
+    break;
     case CopyForegroundThreshold: {
         BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
         opt.setThresholdForegroundAdjustment(params.blackWhiteOptions().thresholdForegroundAdjustment());
         m_colorParams.setBlackWhiteOptions(opt);
     }
-        break;
+    break;
     }
 }
 

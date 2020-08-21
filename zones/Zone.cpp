@@ -22,55 +22,55 @@
 #include <QString>
 
 Zone::Zone(SerializableSpline const& spline, PropertySet const& props)
-:	m_spline(spline),
-	m_props(props)
+    :   m_spline(spline),
+        m_props(props)
 {
 }
 
 Zone::Zone(QDomElement const& el, PropertyFactory const& prop_factory)
-:	m_spline(el.namedItem("spline").toElement()),
-	m_props(el.namedItem("properties").toElement(), prop_factory)
+    :   m_spline(el.namedItem("spline").toElement()),
+        m_props(el.namedItem("properties").toElement(), prop_factory)
 {
 }
 
 //begin of modified by monday2000
 //Quadro_Zoner
 Zone::Zone(QPolygonF const& polygon)
-: m_spline(polygon)
+    : m_spline(polygon)
 {
-	m_props.locateOrCreate<output::PictureLayerProperty>()->
-		setLayer(output::PictureLayerProperty::PAINTER2);
+    m_props.locateOrCreate<output::PictureLayerProperty>()->
+    setLayer(output::PictureLayerProperty::PAINTER2);
 
-	m_props.locateOrCreate<output::ZoneCategoryProperty>()->
-		setZoneCategory(output::ZoneCategoryProperty::RECTANGULAR_OUTLINE);
+    m_props.locateOrCreate<output::ZoneCategoryProperty>()->
+    setZoneCategory(output::ZoneCategoryProperty::RECTANGULAR_OUTLINE);
 }
-//end of modified by monday2000	
+//end of modified by monday2000
 
 QDomElement
 Zone::toXml(QDomDocument& doc, QString const& name) const
 {
-	QDomElement el(doc.createElement(name));
-	el.appendChild(m_spline.toXml(doc, "spline"));
-	el.appendChild(m_props.toXml(doc, "properties"));
-	return el;
+    QDomElement el(doc.createElement(name));
+    el.appendChild(m_spline.toXml(doc, "spline"));
+    el.appendChild(m_props.toXml(doc, "properties"));
+    return el;
 }
 
 bool
 Zone::isValid() const
 {
-	QPolygonF const& shape = m_spline.toPolygon();
+    QPolygonF const& shape = m_spline.toPolygon();
 
-	switch (shape.size()) {
-		case 0:
-		case 1:
-		case 2:
-			return false;
-		case 3:
-			if (shape.front() == shape.back()) {
-				return false;
-			}
-			// fall through
-		default:
-			return true;
-	}
+    switch (shape.size()) {
+    case 0:
+    case 1:
+    case 2:
+        return false;
+    case 3:
+        if (shape.front() == shape.back()) {
+            return false;
+        }
+    // fall through
+    default:
+        return true;
+    }
 }

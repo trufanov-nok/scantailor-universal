@@ -31,17 +31,17 @@ class PageRange;
 class PageSelectionProvider : public QObject, public RefCountable
 {
 public:
-	virtual PageSequence allPages() const = 0;
+    virtual PageSequence allPages() const = 0;
 
-	virtual std::set<PageId> selectedPages() const = 0;
-	
-	virtual std::vector<PageRange> selectedRanges() const = 0;
+    virtual std::set<PageId> selectedPages() const = 0;
+
+    virtual std::vector<PageRange> selectedRanges() const = 0;
 
 public:
     // this should be the signal known to others
     // notify about pages removed by project
     // should be connected with Qt::DirectConnect
-     virtual void toBeRemoved(const std::set<PageId> pages) = 0;
+    virtual void toBeRemoved(const std::set<PageId> pages) = 0;
 };
 
 #endif

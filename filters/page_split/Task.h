@@ -34,7 +34,7 @@ class QImage;
 
 namespace deskew
 {
-	class Task;
+class Task;
 }
 
 namespace page_split
@@ -46,29 +46,29 @@ class PageLayout;
 
 class Task : public RefCountable
 {
-	DECLARE_NON_COPYABLE(Task)
+    DECLARE_NON_COPYABLE(Task)
 public:
-	Task(
-		IntrusivePtr<Filter> const& filter,
-		IntrusivePtr<Settings> const& settings,
-		IntrusivePtr<ProjectPages> const& pages,
-		IntrusivePtr<deskew::Task> const& next_task,
-		PageInfo const& page_info,
-		bool batch_processing, bool debug);
-	
-	virtual ~Task();
-	
-	FilterResultPtr process(TaskStatus const& status, FilterData const& data);
-private:
-	class UiUpdater;
+    Task(
+        IntrusivePtr<Filter> const& filter,
+        IntrusivePtr<Settings> const& settings,
+        IntrusivePtr<ProjectPages> const& pages,
+        IntrusivePtr<deskew::Task> const& next_task,
+        PageInfo const& page_info,
+        bool batch_processing, bool debug);
 
-	IntrusivePtr<Filter> m_ptrFilter;
-	IntrusivePtr<Settings> m_ptrSettings;
-	IntrusivePtr<ProjectPages> m_ptrPages;
-	IntrusivePtr<deskew::Task> m_ptrNextTask;
-	std::unique_ptr<DebugImages> m_ptrDbg;
-	PageInfo m_pageInfo;
-	bool m_batchProcessing;
+    virtual ~Task();
+
+    FilterResultPtr process(TaskStatus const& status, FilterData const& data);
+private:
+    class UiUpdater;
+
+    IntrusivePtr<Filter> m_ptrFilter;
+    IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<ProjectPages> m_ptrPages;
+    IntrusivePtr<deskew::Task> m_ptrNextTask;
+    std::unique_ptr<DebugImages> m_ptrDbg;
+    PageInfo m_pageInfo;
+    bool m_batchProcessing;
 };
 
 } // namespace PageSplit

@@ -24,48 +24,67 @@
 
 class ImageMetadata
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	enum DpiStatus {
-		DPI_OK,
-		DPI_UNDEFINED,
-		DPI_TOO_LARGE,
-		DPI_TOO_SMALL,
-		DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE
-	};
-	
-	ImageMetadata() {}
-	
+    enum DpiStatus {
+        DPI_OK,
+        DPI_UNDEFINED,
+        DPI_TOO_LARGE,
+        DPI_TOO_SMALL,
+        DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE
+    };
+
+    ImageMetadata() {}
+
     ImageMetadata(QSize size, Dpi dpi, bool grayscale = true) : m_size(size), m_dpi(dpi), is_grayscale(grayscale) {}
-	
-	QSize const& size() const { return m_size; }
-	
-	void setSize(QSize const& size) { m_size = size; }
-	
-	Dpi const& dpi() const { return m_dpi; }
-	
-	void setDpi(Dpi const& dpi) { m_dpi = dpi; }
-	
-	bool isDpiOK() const;
 
-    void setGrayScale(bool const grayscale) { is_grayscale = grayscale; }
+    QSize const& size() const
+    {
+        return m_size;
+    }
 
-    bool isGrayScale() const { return is_grayscale; }
-	
-	DpiStatus horizontalDpiStatus() const;
-	
-	DpiStatus verticalDpiStatus() const;
-	
-	bool operator==(ImageMetadata const& other) const;
-	
-	bool operator!=(ImageMetadata const& other) const {
-		return !(*this == other);
-	}
+    void setSize(QSize const& size)
+    {
+        m_size = size;
+    }
+
+    Dpi const& dpi() const
+    {
+        return m_dpi;
+    }
+
+    void setDpi(Dpi const& dpi)
+    {
+        m_dpi = dpi;
+    }
+
+    bool isDpiOK() const;
+
+    void setGrayScale(bool const grayscale)
+    {
+        is_grayscale = grayscale;
+    }
+
+    bool isGrayScale() const
+    {
+        return is_grayscale;
+    }
+
+    DpiStatus horizontalDpiStatus() const;
+
+    DpiStatus verticalDpiStatus() const;
+
+    bool operator==(ImageMetadata const& other) const;
+
+    bool operator!=(ImageMetadata const& other) const
+    {
+        return !(*this == other);
+    }
 private:
-	static DpiStatus dpiStatus(int pixel_size, int dpi);
-	
-	QSize m_size;
-	Dpi m_dpi;
+    static DpiStatus dpiStatus(int pixel_size, int dpi);
+
+    QSize m_size;
+    Dpi m_dpi;
     bool is_grayscale;
 };
 

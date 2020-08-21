@@ -26,12 +26,12 @@
 class PageRange
 {
 public:
-	/**
-	 * \brief Ordered list of consecutive pages.
-	 */
-	std::vector<PageId> pages;
+    /**
+     * \brief Ordered list of consecutive pages.
+     */
+    std::vector<PageId> pages;
 
-	std::set<PageId> selectEveryOther(PageId const& base) const;
+    std::set<PageId> selectEveryOther(PageId const& base) const;
 };
 
 #endif

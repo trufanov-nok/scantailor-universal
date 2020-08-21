@@ -31,34 +31,33 @@
 #include <QTimer>
 
 ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
-:	QDialog(parent), m_defaultOutDir(defaultOutDir)
+    :   QDialog(parent), m_defaultOutDir(defaultOutDir)
 {
-	ui.setupUi(this);
-	
-	connect(ui.DefaultOutputFolder, SIGNAL(toggled(bool)), this, SLOT(OnCheckDefaultOutputFolder(bool)));
-	connect(ui.ExportButton, SIGNAL(clicked()), this, SLOT(OnClickExport()));
+    ui.setupUi(this);
 
-	connect(ui.outExportDirBrowseBtn, SIGNAL(clicked()), this, SLOT(outExportDirBrowse()));
+    connect(ui.DefaultOutputFolder, SIGNAL(toggled(bool)), this, SLOT(OnCheckDefaultOutputFolder(bool)));
+    connect(ui.ExportButton, SIGNAL(clicked()), this, SLOT(OnClickExport()));
 
-	connect(ui.outExportDirLine, SIGNAL(textEdited(QString const&)),
-		this, SLOT(outExportDirEdited(QString const&))
-	);
+    connect(ui.outExportDirBrowseBtn, SIGNAL(clicked()), this, SLOT(outExportDirBrowse()));
+
+    connect(ui.outExportDirLine, SIGNAL(textEdited(QString)),
+            this, SLOT(outExportDirEdited(QString))
+           );
 
     ExportModes mode = (ExportModes) m_settings.value(_key_export_split_mixed_settings, _key_export_split_mixed_settings_def).toInt();
     displayExportMode(mode);
 
-
     ui.DefaultOutputFolder->setChecked(m_settings.value(_key_export_default_output_folder, true).toBool());
-	ui.labelFilesProcessed->clear();
+    ui.labelFilesProcessed->clear();
     ui.btnResetToDefault->show();
-	ui.ExportButton->setText(tr("Export"));	
-	ui.OkButton->setText(tr("Close"));
+    ui.ExportButton->setText(tr("Export"));
+    ui.OkButton->setText(tr("Close"));
     ui.tabWidget->setCurrentIndex(0); // as I often forget to set this right in ui designer
-	//connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
+    //connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
 
-	connect(ui.GenerateBlankBackSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckGenerateBlankBackSubscans(bool)));
+    connect(ui.GenerateBlankBackSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckGenerateBlankBackSubscans(bool)));
     connect(ui.UseSepSuffixForPics, SIGNAL(toggled(bool)), this, SLOT(OnCheckUseSepSuffixForPics(bool)));
-	connect(ui.KeepOriginalColorIllumForeSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckKeepOriginalColorIllumForeSubscans(bool)));
+    connect(ui.KeepOriginalColorIllumForeSubscans, SIGNAL(toggled(bool)), this, SLOT(OnCheckKeepOriginalColorIllumForeSubscans(bool)));
 
     ui.GenerateBlankBackSubscans->setChecked(m_settings.value(_key_export_generate_blank_subscans, _key_export_generate_blank_subscans_def).toBool());
     ui.UseSepSuffixForPics->setChecked(m_settings.value(_key_export_use_sep_suffix, _key_export_use_sep_suffix_def).toBool());
@@ -82,7 +81,6 @@ ExportDialog::displayExportMode(ExportModes mode)
     ui.cbExportZones->setChecked(mode.testFlag(ExportMode::Zones));
 }
 
-
 void
 ExportDialog::OnCheckDefaultOutputFolder(bool state)
 {
@@ -100,93 +98,94 @@ ExportDialog::OnCheckDefaultOutputFolder(bool state)
 void
 ExportDialog::OnClickExport()
 {
-	if (ui.outExportDirLine->text().isEmpty() &&
-		!ui.DefaultOutputFolder->isChecked())
-	{
-		QMessageBox::warning(
-			this, tr("Error"),
-			tr("The export output directory is empty.")
-			);
-		return;	
-	}
+    if (ui.outExportDirLine->text().isEmpty() &&
+            !ui.DefaultOutputFolder->isChecked()) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("The export output directory is empty.")
+        );
+        return;
+    }
 
-	QDir const out_dir(ui.outExportDirLine->text());
+    QDir const out_dir(ui.outExportDirLine->text());
 
-	if (out_dir.isAbsolute() && !out_dir.exists()) {
-		// Maybe create it.
-		bool create = m_autoOutDir;
-		if (!m_autoOutDir) {
-			create = QMessageBox::question(
-				this, tr("Create Directory?"),
-                tr("The export output directory doesn't exist. Create it?"),
-				QMessageBox::Yes|QMessageBox::No
-			) == QMessageBox::Yes;
-			if (!create) {
-				return;
-			}
-		}
-		if (create) {
-			if (!out_dir.mkpath(out_dir.path())) {
-				QMessageBox::warning(
-					this, tr("Error"),
-					tr("Unable to create the export output directory.")
-				);
-				return;
-			}
-		}
-	}
-	if ((!out_dir.isAbsolute() || !out_dir.exists())&& !ui.DefaultOutputFolder->isChecked()) {		
+    if (out_dir.isAbsolute() && !out_dir.exists()) {
+        // Maybe create it.
+        bool create = m_autoOutDir;
+        if (!m_autoOutDir) {
+            create = QMessageBox::question(
+                         this, tr("Create Directory?"),
+                         tr("The export output directory doesn't exist. Create it?"),
+                         QMessageBox::Yes | QMessageBox::No
+                     ) == QMessageBox::Yes;
+            if (!create) {
+                return;
+            }
+        }
+        if (create) {
+            if (!out_dir.mkpath(out_dir.path())) {
+                QMessageBox::warning(
+                    this, tr("Error"),
+                    tr("Unable to create the export output directory.")
+                );
+                return;
+            }
+        }
+    }
+    if ((!out_dir.isAbsolute() || !out_dir.exists()) && !ui.DefaultOutputFolder->isChecked()) {
 
-		QMessageBox::warning(
-			this, tr("Error"),
-			tr("The export output directory is not set or doesn't exist.")
-		);
-		return;
-	}
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("The export output directory is not set or doesn't exist.")
+        );
+        return;
+    }
 
-	if (ui.ExportButton->text() != tr("Stop"))	
-		emit SetStartExportSignal();	
-	
-	else			
-		emit ExportStopSignal();		
+    if (ui.ExportButton->text() != tr("Stop")) {
+        emit SetStartExportSignal();
+    }
+
+    else {
+        emit ExportStopSignal();
+    }
 }
 
 void
 ExportDialog::outExportDirBrowse()
 {
-	QString initial_dir(ui.outExportDirLine->text());
-	if (initial_dir.isEmpty() || !QDir(initial_dir).exists()) {
-		initial_dir = QDir::home().absolutePath();
-	}
-	
-	QString const dir(
-		QFileDialog::getExistingDirectory(
-			this, tr("Export output directory"), initial_dir
-		)
-	);
-	
-	if (!dir.isEmpty()) {
-		setExportOutputDir(dir);
-	}
+    QString initial_dir(ui.outExportDirLine->text());
+    if (initial_dir.isEmpty() || !QDir(initial_dir).exists()) {
+        initial_dir = QDir::home().absolutePath();
+    }
+
+    QString const dir(
+        QFileDialog::getExistingDirectory(
+            this, tr("Export output directory"), initial_dir
+        )
+    );
+
+    if (!dir.isEmpty()) {
+        setExportOutputDir(dir);
+    }
 }
 
 void
 ExportDialog::setExportOutputDir(QString const& dir)
 {
-	ui.outExportDirLine->setText(QDir::toNativeSeparators(dir));
+    ui.outExportDirLine->setText(QDir::toNativeSeparators(dir));
 }
 
 void
 ExportDialog::outExportDirEdited(QString const& /*text*/)
 {
-	m_autoOutDir = false;
+    m_autoOutDir = false;
 }
 
 void
 ExportDialog::setCount(int count)
 {
-	m_count = count;
-	ui.progressBar->setMaximum(m_count);
+    m_count = count;
+    ui.progressBar->setMaximum(m_count);
 }
 
 void
@@ -196,8 +195,8 @@ ExportDialog::StepProgress()
         ui.btnResetToDefault->hide();
     }
     const QString txt = tr("Processed pages %1 of %2");
-    ui.labelFilesProcessed->setText( txt.arg(ui.progressBar->value()+1).arg(m_count) );
-	ui.progressBar->setValue(ui.progressBar->value() + 1);	
+    ui.labelFilesProcessed->setText(txt.arg(ui.progressBar->value() + 1).arg(m_count));
+    ui.progressBar->setValue(ui.progressBar->value() + 1);
 }
 
 void
@@ -260,8 +259,6 @@ ExportDialog::startExport(void)
 #endif
     settings.export_selected_pages_only = ui.cbExportSelected->isChecked();
 
-
-
     emit ExportOutputSignal(settings);
 }
 
@@ -269,28 +266,28 @@ void
 ExportDialog::reset(void)
 {
     ui.btnResetToDefault->show();
-	ui.labelFilesProcessed->clear();
-	ui.progressBar->setValue(0);	
-	ui.ExportButton->setText(tr("Export"));
+    ui.labelFilesProcessed->clear();
+    ui.progressBar->setValue(0);
+    ui.ExportButton->setText(tr("Export"));
 }
 
 void
 ExportDialog::setExportLabel(void)
 {
-	ui.ExportButton->setText(tr("Export"));
+    ui.ExportButton->setText(tr("Export"));
 }
 
 void
 ExportDialog::setStartExport(void)
 {
-	m_count = 0;
+    m_count = 0;
 
     ui.btnResetToDefault->hide();
-	ui.progressBar->setValue(0);
-	ui.labelFilesProcessed->setText(tr("Starting the export..."));		
-	ui.ExportButton->setText(tr("Stop"));	
+    ui.progressBar->setValue(0);
+    ui.labelFilesProcessed->setText(tr("Starting the export..."));
+    ui.ExportButton->setText(tr("Stop"));
 
-	QTimer::singleShot(1, this, SLOT(startExport()));
+    QTimer::singleShot(1, this, SLOT(startExport()));
 }
 
 void
@@ -307,7 +304,7 @@ ExportDialog::OnCheckUseSepSuffixForPics(bool state)
 
 void
 ExportDialog::OnCheckKeepOriginalColorIllumForeSubscans(bool state)
-{		
+{
     m_settings.setValue(_key_export_keep_original_color, state);
 }
 

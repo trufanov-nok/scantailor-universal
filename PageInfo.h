@@ -24,34 +24,58 @@
 
 class PageInfo
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	PageInfo();
-	
-	PageInfo(PageId const& page_id, ImageMetadata const& metadata,
-		int image_sub_pages, bool left_half_removed, bool right_half_removed);
+    PageInfo();
 
-	bool isNull() const { return m_pageId.isNull(); }
+    PageInfo(PageId const& page_id, ImageMetadata const& metadata,
+             int image_sub_pages, bool left_half_removed, bool right_half_removed);
 
-	PageId const& id() const { return m_pageId; }
+    bool isNull() const
+    {
+        return m_pageId.isNull();
+    }
 
-	void setId(PageId const& id) { m_pageId = id; }
-	
-	ImageId const& imageId() const { return m_pageId.imageId(); }
-	
-	ImageMetadata const& metadata() const { return m_metadata; }
-	
-	int imageSubPages() const { return m_imageSubPages; }
+    PageId const& id() const
+    {
+        return m_pageId;
+    }
 
-	bool leftHalfRemoved() const { return m_leftHalfRemoved; }
+    void setId(PageId const& id)
+    {
+        m_pageId = id;
+    }
 
-	bool rightHalfRemoved() const { return m_rightHalfRemoved; }
+    ImageId const& imageId() const
+    {
+        return m_pageId.imageId();
+    }
+
+    ImageMetadata const& metadata() const
+    {
+        return m_metadata;
+    }
+
+    int imageSubPages() const
+    {
+        return m_imageSubPages;
+    }
+
+    bool leftHalfRemoved() const
+    {
+        return m_leftHalfRemoved;
+    }
+
+    bool rightHalfRemoved() const
+    {
+        return m_rightHalfRemoved;
+    }
 private:
-	PageId m_pageId;
-	ImageMetadata m_metadata;
-	int m_imageSubPages;
-	bool m_leftHalfRemoved;
-	bool m_rightHalfRemoved;
+    PageId m_pageId;
+    ImageMetadata m_metadata;
+    int m_imageSubPages;
+    bool m_leftHalfRemoved;
+    bool m_rightHalfRemoved;
 };
 
 #endif

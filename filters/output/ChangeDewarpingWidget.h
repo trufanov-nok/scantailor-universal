@@ -33,14 +33,14 @@ namespace output
 
 class ChangeDewarpingWidget : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
     ChangeDewarpingWidget(QWidget* parent, DewarpingMode const& mode);
     DewarpingMode dewarpingMode() const;
     virtual ~ChangeDewarpingWidget();
 private:
     Ui::OutputChangeDewarpingWidget ui;
-	DewarpingMode m_mode;
+    DewarpingMode m_mode;
 };
 
 } // namespace output

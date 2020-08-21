@@ -32,7 +32,7 @@
 #include "settings/globalstaticsettings.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
-    :	QDialog(parent), m_accepted(false)
+    :   QDialog(parent), m_accepted(false)
 {
     backupSettings();
 
@@ -96,8 +96,9 @@ void SettingsDialog::initLanguageList(QString cur_lang)
 
         QString lang = QLocale::languageToString(QLocale(locale).language());
         ui.language->addItem(lang, locale);
-        if (locale == cur_lang)
-            ui.language->setCurrentIndex(i+1);
+        if (locale == cur_lang) {
+            ui.language->setCurrentIndex(i + 1);
+        }
     }
 
     ui.language->setEnabled(ui.language->count() > 0);
@@ -108,7 +109,7 @@ void SettingsDialog::backupSettings()
     m_oldSettings.clear();
     const QStringList sl = m_settings.allKeys();
 
-    for (QString const& key: sl) {
+    for (QString const& key : sl) {
         m_oldSettings[key] = m_settings.value(key);
     }
 }
@@ -137,14 +138,14 @@ SettingsDialog::~SettingsDialog()
 }
 
 void
-SettingsDialog::on_dialogButtonClicked(QAbstractButton * btn)
+SettingsDialog::on_dialogButtonClicked(QAbstractButton* btn)
 {
     if (ui.buttonBox->buttonRole(btn) == QDialogButtonBox::ResetRole) {
         if (QMessageBox::question(this, tr("Restore defaults"),
                                   tr("All settings will be set to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
                                   QMessageBox::Cancel) != QMessageBox::Cancel) {
             const QStringList keys = m_settings.allKeys();
-            for (const QString& key: keys) {
+            for (const QString& key : keys) {
                 if (!key.startsWith(_key_recent_projects)) {
                     m_settings.remove(key);
                 }
@@ -165,9 +166,8 @@ SettingsDialog::commitChanges()
     accept();
 }
 
-
 void
-SettingsDialog::on_treeWidget_itemActivated(QTreeWidgetItem *item, int column)
+SettingsDialog::on_treeWidget_itemActivated(QTreeWidgetItem* item, int column)
 {
 
 }
@@ -175,7 +175,7 @@ SettingsDialog::on_treeWidget_itemActivated(QTreeWidgetItem *item, int column)
 void
 SettingsDialog::on_treeWidget_itemSelectionChanged()
 {
-    QList<QTreeWidgetItem *> sItems= ui.treeWidget->selectedItems();
+    QList<QTreeWidgetItem*> sItems = ui.treeWidget->selectedItems();
     if (sItems.isEmpty()) {
         ui.stackedWidget->setCurrentWidget(ui.pageEmpty);
     } else {
@@ -184,19 +184,19 @@ SettingsDialog::on_treeWidget_itemSelectionChanged()
 }
 
 void
-SettingsDialog::setupItem(QTreeWidgetItem *item, QWidget* w, QString s, bool default_val)
+SettingsDialog::setupItem(QTreeWidgetItem* item, QWidget* w, QString s, bool default_val)
 {
     item->setData(0, Qt::UserRole, QVariant::fromValue(w));
-    item->setData(0, Qt::UserRole+1, s);
+    item->setData(0, Qt::UserRole + 1, s);
     if (!s.isEmpty()) {
         const bool b = m_settings.value(s, default_val).toBool();
-        item->setCheckState(1, b?Qt::Checked:Qt::Unchecked);
+        item->setCheckState(1, b ? Qt::Checked : Qt::Unchecked);
         w->setEnabled(b);
     }
 }
 
 void
-disable_subtree(QTreeWidgetItem *item)
+disable_subtree(QTreeWidgetItem* item)
 {
     item->setDisabled(true);
     for (int i = 0; i < item->childCount(); i++) {
@@ -204,18 +204,18 @@ disable_subtree(QTreeWidgetItem *item)
     }
 }
 
-void check_nested_disabled(QTreeWidgetItem *item)
+void check_nested_disabled(QTreeWidgetItem* item)
 {
-    QString key = item->data(0, Qt::UserRole+1).toString();
+    QString key = item->data(0, Qt::UserRole + 1).toString();
     bool disable_children = (!key.isEmpty() && item->checkState(1) != Qt::Checked);
 
-     for (int i = 0; i < item->childCount(); i++) {
-         if (disable_children) {
-             disable_subtree(item->child(i));
-         } else {
-             check_nested_disabled(item->child(i));
-         }
-     }
+    for (int i = 0; i < item->childCount(); i++) {
+        if (disable_children) {
+            disable_subtree(item->child(i));
+        } else {
+            check_nested_disabled(item->child(i));
+        }
+    }
 }
 
 void
@@ -229,28 +229,28 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             <<        tr("Auto-save project")
                                             <<        tr("Tiff compression")
                                             <<        tr("Debug mode"))
-                                            << tr("Fix Orientation")
-                                            << tr("Split pages")
-                                            <<        tr("Apply cut")
-                                            << tr("Deskew")
-                                            <<        tr("Mark deviant pages")
-                                            << tr("Select Content")
-                                            <<        tr("Page detection")
-                                            <<        tr("Mark deviant pages")
-                                            << tr("Page layout")
-                                            <<        tr("Margins")
-                                            <<        tr("Alignment")
-                                            <<        tr("Mark deviant pages")
-                                            << tr("Output")
-                                            <<        tr("Black & White mode")
-                                            <<        tr("Color/Grayscale mode")
-                                            <<        tr("Mixed mode")
-                                            <<               tr("Auto layer")
-                                            <<               tr("Picture zones layer")
-                                            <<               tr("Foreground layer")
-                                            <<        tr("Fill zones")
-                                            <<        tr("Dewarping")
-                                            <<        tr("Despeckling");
+                                           << tr("Fix Orientation")
+                                           << tr("Split pages")
+                                           <<        tr("Apply cut")
+                                           << tr("Deskew")
+                                           <<        tr("Mark deviant pages")
+                                           << tr("Select Content")
+                                           <<        tr("Page detection")
+                                           <<        tr("Mark deviant pages")
+                                           << tr("Page layout")
+                                           <<        tr("Margins")
+                                           <<        tr("Alignment")
+                                           <<        tr("Mark deviant pages")
+                                           << tr("Output")
+                                           <<        tr("Black & White mode")
+                                           <<        tr("Color/Grayscale mode")
+                                           <<        tr("Mixed mode")
+                                           <<               tr("Auto layer")
+                                           <<               tr("Picture zones layer")
+                                           <<               tr("Foreground layer")
+                                           <<        tr("Fill zones")
+                                           <<        tr("Dewarping")
+                                           <<        tr("Despeckling");
     const QResource tree_metadata(":/SettingsTreeData.tsv");
     QStringList tree_data = QString::fromUtf8((char const*)tree_metadata.data(), tree_metadata.size()).split('\n');
 
@@ -264,7 +264,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
     const QFontMetrics fm(treeWidget->font());
     int max_text_width = 0;
 
-    for (QString const& name: settingsTreeTitles) {
+    for (QString const& name : settingsTreeTitles) {
 
         QStringList metadata = tree_data[idx++].split('\t', QString::KeepEmptyParts);
         Q_ASSERT(!metadata.isEmpty());
@@ -272,14 +272,16 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
         int level = 0;
         int item_text_width = item_indentation + fm.width(name);
 
-        while(metadata[level++].isEmpty()) item_text_width += item_indentation;
+        while (metadata[level++].isEmpty()) {
+            item_text_width += item_indentation;
+        }
 
         max_text_width = std::max(max_text_width, item_text_width);
 
         parent_item = last_top_item; // level == 1
-        for (int i = 0; i< level-2; i++) {
+        for (int i = 0; i < level - 2; i++) {
             Q_ASSERT(parent_item != nullptr);
-            parent_item = parent_item->child(parent_item->childCount()-1);
+            parent_item = parent_item->child(parent_item->childCount() - 1);
         }
 
         if (level == 1) {
@@ -289,7 +291,7 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
             parent_item = new QTreeWidgetItem(parent_item, QStringList(name));
         }
 
-        QString id = metadata[level-1];
+        QString id = metadata[level - 1];
         Q_ASSERT(!id.isEmpty());
 
         QWidget* page = ui.stackedWidget->findChild<QWidget*>(id);
@@ -303,8 +305,8 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
         }
 
         bool state = true;
-        if (metadata.size() > level+1) {
-            state = metadata[level+1].toInt() > 0;
+        if (metadata.size() > level + 1) {
+            state = metadata[level + 1].toInt() > 0;
         }
 
         setupItem(parent_item, page, reg_key, state);
@@ -319,16 +321,15 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
 
     treeWidget->setCurrentItem(treeWidget->topLevelItem(0));
 
-    for(int i = 0; i < treeWidget->topLevelItemCount(); i++) {
+    for (int i = 0; i < treeWidget->topLevelItemCount(); i++) {
         check_nested_disabled(treeWidget->topLevelItem(i));
     }
 }
 
-bool filterItem(QTreeWidgetItem * i, const QString & filter)
+bool filterItem(QTreeWidgetItem* i, const QString& filter)
 {
     bool visible = false;
-    for (int idx = 0; idx < i->childCount(); idx++)
-    {
+    for (int idx = 0; idx < i->childCount(); idx++) {
         if (filterItem(i->child(idx), filter)) {
             visible = true;
         }
@@ -342,10 +343,10 @@ bool filterItem(QTreeWidgetItem * i, const QString & filter)
     return visible;
 }
 
-void SettingsDialog::filterChanged(const QString & filter)
+void SettingsDialog::filterChanged(const QString& filter)
 {
     ui.treeWidget->blockSignals(true);
-    for(int i = 0; i < ui.treeWidget->topLevelItemCount(); i++) {
+    for (int i = 0; i < ui.treeWidget->topLevelItemCount(); i++) {
         filterItem(ui.treeWidget->topLevelItem(i), filter);
     }
     ui.treeWidget->expandAll();
@@ -354,15 +355,15 @@ void SettingsDialog::filterChanged(const QString & filter)
 
 void conditionalExpand(QTreeWidgetItem* item, int& idx, const QStringList& states)
 {
-    item->setExpanded( (idx < states.count())? !states[idx++].isEmpty():false );
-    for(int i = 0; i < item->childCount(); i++) {
+    item->setExpanded((idx < states.count()) ? !states[idx++].isEmpty() : false);
+    for (int i = 0; i < item->childCount(); i++) {
         conditionalExpand(item->child(i), idx, states);
     }
 }
 
 void SettingsDialog::restoreSettingsTreeState(QTreeWidget* treeWidget)
 {
-    QStringList tree_expand_state = m_settings.value(_key_app_settings_tree_state).toString().split(',',QString::KeepEmptyParts);
+    QStringList tree_expand_state = m_settings.value(_key_app_settings_tree_state).toString().split(',', QString::KeepEmptyParts);
     int idx = 0;
     for (int i = 0; i < treeWidget->topLevelItemCount(); i++) {
         conditionalExpand(treeWidget->topLevelItem(i), idx, tree_expand_state);
@@ -371,8 +372,8 @@ void SettingsDialog::restoreSettingsTreeState(QTreeWidget* treeWidget)
 
 void saveExpandState(QTreeWidgetItem* item, QStringList& states)
 {
-    states << (item->isExpanded()?"1":"");
-    for(int i = 0; i < item->childCount(); i++) {
+    states << (item->isExpanded() ? "1" : "");
+    for (int i = 0; i < item->childCount(); i++) {
         saveExpandState(item->child(i), states);
     }
 }
@@ -383,10 +384,8 @@ void SettingsDialog::storeSettingsTreeState(QTreeWidget* treeWidget)
     for (int i = 0; i < treeWidget->topLevelItemCount(); i++) {
         saveExpandState(treeWidget->topLevelItem(i), tree_expand_state);
     }
-    m_settings.setValue(_key_app_settings_tree_state,tree_expand_state.join(','));
+    m_settings.setValue(_key_app_settings_tree_state, tree_expand_state.join(','));
 }
-
-
 
 void SettingsDialog::on_actionExpand_all_triggered()
 {
@@ -398,15 +397,15 @@ void SettingsDialog::on_actionCollapse_all_triggered()
     ui.treeWidget->collapseAll();
 }
 
-void SettingsDialog::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
+void SettingsDialog::on_treeWidget_itemChanged(QTreeWidgetItem* item, int column)
 {
     if (column == 1) {
-        QString key = item->data(0, Qt::UserRole+1).toString();
+        QString key = item->data(0, Qt::UserRole + 1).toString();
         bool b = item->checkState(1) == Qt::Checked;
         m_settings.setValue(key, b);
         item->data(0, Qt::UserRole).value<QWidget*>()->setEnabled(b);
         for (int i = 0; i < item->childCount(); i++) {
-            QTreeWidgetItem *c = item->child(i);
+            QTreeWidgetItem* c = item->child(i);
 
             if (c->data(1, Qt::CheckStateRole).isValid()) {
                 if (!b && c->checkState(1) != Qt::Unchecked) {
@@ -447,20 +446,18 @@ void SettingsDialog::loadTiffList()
         tiff_list = tiff_list.filter(QRegularExpression(".*\t0$"));
     }
 
-
     QString old_val = m_settings.value(_key_tiff_compr_method, _key_tiff_compr_method_def).toString();
 
     ui.cbTiffCompression->clear();
 
     ui.cbTiffCompression->blockSignals(true);
-    for (QString const& s: qAsConst(tiff_list)) {
+    for (QString const& s : qAsConst(tiff_list)) {
         if (!s.trimmed().isEmpty()) {
             const QStringList sl = s.split('\t');
             ui.cbTiffCompression->addItem(sl[0], sl[2]);
         }
     }
     ui.cbTiffCompression->blockSignals(false);
-
 
     int idx = ui.cbTiffCompression->findText(old_val);
     if (idx != -1 || ui.cbTiffCompression->count() > 0) {
@@ -486,15 +483,15 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.dpiDefaultXValue->setValue(m_settings.value(_key_output_default_dpi_x, _key_output_default_dpi_x_def).toUInt());
         ui.dpiDefaultYValue->setValue(m_settings.value(_key_output_default_dpi_y, _key_output_default_dpi_y_def).toUInt());
 
-        ui.ThresholdMinValue->setValue( m_settings.value(_key_output_bin_threshold_min, _key_output_bin_threshold_min_def).toInt() );
-        ui.ThresholdMaxValue->setValue( m_settings.value(_key_output_bin_threshold_max, _key_output_bin_threshold_max_def).toInt() );
+        ui.ThresholdMinValue->setValue(m_settings.value(_key_output_bin_threshold_min, _key_output_bin_threshold_min_def).toInt());
+        ui.ThresholdMaxValue->setValue(m_settings.value(_key_output_bin_threshold_max, _key_output_bin_threshold_max_def).toInt());
         ui.ThresholdDefaultsValue->setMinimum(ui.ThresholdMinValue->value());
         ui.ThresholdDefaultsValue->setMaximum(ui.ThresholdMaxValue->value());
-        ui.ThresholdDefaultsValue->setValue( m_settings.value(_key_output_bin_threshold_default, _key_output_bin_threshold_default_def).toInt());
-        connect( ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
-        connect( ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
+        ui.ThresholdDefaultsValue->setValue(m_settings.value(_key_output_bin_threshold_default, _key_output_bin_threshold_default_def).toInt());
+        connect(ui.ThresholdMinValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
+        connect(ui.ThresholdMaxValue, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SettingsDialog::onThresholdValueChanged);
 
-        ui.originalPageDisplayOnKeyHold->setChecked( m_settings.value(_key_output_show_orig_on_space, _key_output_show_orig_on_space_def).toBool() );
+        ui.originalPageDisplayOnKeyHold->setChecked(m_settings.value(_key_output_show_orig_on_space, _key_output_show_orig_on_space_def).toBool());
     } else if (currentPage == ui.pageDespeckling) {
         QComboBox* cb = ui.despecklingDefaultsValue;
         cb->blockSignals(true);
@@ -506,7 +503,7 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         int def = m_settings.value(_key_output_despeckling_default_lvl, output::DESPECKLE_CAUTIOUS).toInt();
 
         int idx = cb->findData(def);
-        cb->setCurrentIndex(idx!=-1?idx:0);
+        cb->setCurrentIndex(idx != -1 ? idx : 0);
 
         cb->blockSignals(false);
     } else if (currentPage == ui.pagePictureZonesLayer) {
@@ -514,13 +511,13 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     } else if (currentPage == ui.pageGeneral) {
         bool val = m_settings.value(_key_batch_dialog_start_from_current, _key_batch_dialog_start_from_current_def).toBool();
         ui.startBatchProcessingDlgAllPages->setChecked(
-                    !val);
+            !val);
         ui.startBatchProcessingDlgFromSelected->setChecked(
-                    val);
+            val);
         ui.showStartBatchProcessingDlg->setChecked(
-                    !m_settings.value(_key_batch_dialog_remember_choice, _key_batch_dialog_remember_choice_def).toBool());
+            !m_settings.value(_key_batch_dialog_remember_choice, _key_batch_dialog_remember_choice_def).toBool());
         ui.cbDontUseNativeDlg->setChecked(
-                    m_settings.value(_key_dont_use_native_dialog, _key_dont_use_native_dialog_def).toBool());
+            m_settings.value(_key_dont_use_native_dialog, _key_dont_use_native_dialog_def).toBool());
     } else if (currentPage == ui.pageThumbnails) {
         ui.cbThumbsListOrder->setChecked(m_settings.value(_key_thumbnails_multiple_items_in_row, _key_thumbnails_multiple_items_in_row_def).toBool());
         ui.sbThumbsCacheImgSize->setValue(m_settings.value(_key_thumbnails_max_cache_pixmap_size, _key_thumbnails_max_cache_pixmap_size_def).toSize().height());
@@ -558,7 +555,7 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.pageDetectionTargetWidth->setValue(target_size.width());
         ui.pageDetectionTargetHeight->setValue(target_size.height());
     } else if (currentPage == ui.pageAlignment) {
-//        m_alignment = loadAlignment(); // done via Alignment::load(QSettings*)        
+//        m_alignment = loadAlignment(); // done via Alignment::load(QSettings*)
         bool val = m_settings.value(_key_alignment_automagnet_enabled, _key_alignment_automagnet_enabled_def).toBool();
         ui.cbAlignmentAuto->setChecked(val);
         ui.widgetAlignment->setUseAutoMagnetAlignment(val);
@@ -576,7 +573,7 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         }
         ui.gbMarginsAuto->setChecked(m_settings.value(_key_margins_auto_margins_enabled, _key_margins_auto_margins_enabled_def).toBool());
         if (!ui.gbMarginsAuto->isChecked()) {
-             ui.cbMarginsAuto->setChecked(false);
+            ui.cbMarginsAuto->setChecked(false);
         } else {
             ui.cbMarginsAuto->setChecked(m_settings.value(_key_margins_auto_margins_default, _key_margins_auto_margins_default_def).toBool());
         }
@@ -619,8 +616,7 @@ void SettingsDialog::onThresholdValueChanged(int)
     if (min == max) {
         if (max < ui.ThresholdMaxValue->maximum()) {
             max++;
-        } else
-        if (min > ui.ThresholdMaxValue->minimum()) {
+        } else if (min > ui.ThresholdMaxValue->minimum()) {
             min--;
         }
     }
@@ -703,7 +699,7 @@ void SettingsDialog::on_originalPageDisplayOnKeyHold_clicked(bool checked)
     m_settings.setValue(_key_output_show_orig_on_space, checked);
 }
 
-void SettingsDialog::on_lblHotKeyManager_linkActivated(const QString &link)
+void SettingsDialog::on_lblHotKeyManager_linkActivated(const QString& link)
 {
     QStringList sl = link.split("_");
     HotKeysId id = (HotKeysId) sl[0].toUInt();
@@ -723,23 +719,19 @@ void SettingsDialog::on_lblHotKeyManager_linkActivated(const QString &link)
         }
     }
 
-
 }
 
-
-
-
-QHotKeyInputDialog::QHotKeyInputDialog(const KeyType& editor_type, QWidget *parent, Qt::WindowFlags flags): QInputDialog(parent, flags),
+QHotKeyInputDialog::QHotKeyInputDialog(const KeyType& editor_type, QWidget* parent, Qt::WindowFlags flags): QInputDialog(parent, flags),
     m_editorType(editor_type),
     m_modifiersPressed(Qt::NoModifier),
     m_edit(nullptr)
 {
-	{
-		m_modifiersList.append(Qt::Key_Control);
-		m_modifiersList.append(Qt::Key_Alt);
-		m_modifiersList.append(Qt::Key_Shift);
-		m_modifiersList.append(Qt::Key_Meta);
-	}
+    {
+        m_modifiersList.append(Qt::Key_Control);
+        m_modifiersList.append(Qt::Key_Alt);
+        m_modifiersList.append(Qt::Key_Shift);
+        m_modifiersList.append(Qt::Key_Meta);
+    }
 
     setInputMode(InputMode::TextInput);
     setWindowTitle(tr("Edit key sequence"));
@@ -753,10 +745,10 @@ QHotKeyInputDialog::QHotKeyInputDialog(const KeyType& editor_type, QWidget *pare
         m_edit = l.first();
         m_edit->setReadOnly(true);
         m_edit->installEventFilter(this);
-        connect(m_edit, &QLineEdit::textChanged, [this](const QString& val) {
+        connect(m_edit, &QLineEdit::textChanged, [this](const QString & val) {
             QList<QDialogButtonBox*> l = findChildren<QDialogButtonBox*>();
             if (!l.isEmpty()) {
-               l.first()->button(QDialogButtonBox::Ok)->setEnabled(!val.isEmpty());
+                l.first()->button(QDialogButtonBox::Ok)->setEnabled(!val.isEmpty());
             }
         });
     }
@@ -769,7 +761,7 @@ void QHotKeyInputDialog::updateLabel()
     setTextValue(val);
 }
 
-void QHotKeyInputDialog::keyPressEvent(QKeyEvent *event)
+void QHotKeyInputDialog::keyPressEvent(QKeyEvent* event)
 {
     if (event) {
         if (m_editorType & ModifierAllowed) {
@@ -787,7 +779,7 @@ void QHotKeyInputDialog::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void QHotKeyInputDialog::keyReleaseEvent(QKeyEvent *event)
+void QHotKeyInputDialog::keyReleaseEvent(QKeyEvent* event)
 {
     if (event) {
         if (m_editorType & ModifierAllowed) {
@@ -805,7 +797,7 @@ void QHotKeyInputDialog::keyReleaseEvent(QKeyEvent *event)
     }
 }
 
-bool QHotKeyInputDialog::eventFilter(QObject *obj, QEvent *event)
+bool QHotKeyInputDialog::eventFilter(QObject* obj, QEvent* event)
 {
     if (event && event->type() == QEvent::KeyPress) {
         if (obj && obj == m_edit) {
@@ -924,7 +916,7 @@ void SettingsDialog::on_pageDetectionTargetHeight_valueChanged(double arg1)
 
 void SettingsDialog::on_gbPageDetectionTargetSize_toggled(bool arg1)
 {
-     m_settings.setValue(_key_content_sel_page_detection_target_page_size_enabled, arg1);
+    m_settings.setValue(_key_content_sel_page_detection_target_page_size_enabled, arg1);
 }
 
 void SettingsDialog::on_pageDetectionTopBorder_valueChanged(double arg1)
@@ -954,7 +946,7 @@ void SettingsDialog::on_cbForegroundLayerSeparateControl_clicked(bool checked)
 
 void SettingsDialog::on_sbThumbsCacheImgSize_valueChanged(int arg1)
 {
-    m_settings.setValue(_key_thumbnails_max_cache_pixmap_size, QSize(arg1,arg1));
+    m_settings.setValue(_key_thumbnails_max_cache_pixmap_size, QSize(arg1, arg1));
 }
 
 void SettingsDialog::on_sbThumbsMinSpacing_valueChanged(int arg1)
@@ -1008,7 +1000,7 @@ void SettingsDialog::on_btnThumbDefaults_clicked()
                               tr("Thumbnails view settings will be reseted to their defaults. Continue?"), QMessageBox::Yes | QMessageBox::Cancel,
                               QMessageBox::Cancel) != QMessageBox::Cancel) {
         const QStringList keys = m_settings.allKeys();
-        for (const QString& key: keys) {
+        for (const QString& key : keys) {
             if (key.startsWith(_key_thumbnails_category)) {
                 m_settings.remove(key);
             }
@@ -1051,7 +1043,7 @@ void SettingsDialog::on_cbOrderHints_toggled(bool checked)
 
 void SettingsDialog::on_cbDontUseNativeDlg_clicked(bool checked)
 {
-     m_settings.setValue(_key_dont_use_native_dialog, checked);
+    m_settings.setValue(_key_dont_use_native_dialog, checked);
 }
 
 void SettingsDialog::on_btnColorSelectedContent_clicked()

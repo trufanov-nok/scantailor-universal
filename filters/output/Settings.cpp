@@ -35,9 +35,9 @@ namespace output
 {
 
 Settings::Settings()
-    :	m_defaultPictureZoneProps(initialPictureZoneProps()),
-      m_defaultFillZoneProps(initialFillZoneProps()),
-      m_compression(COMPRESSION_LZW)
+    :   m_defaultPictureZoneProps(initialPictureZoneProps()),
+        m_defaultFillZoneProps(initialFillZoneProps()),
+        m_compression(COMPRESSION_LZW)
 {
 }
 
@@ -68,28 +68,28 @@ Settings::performRelinking(AbstractRelinker const& relinker)
     PerPageZones new_picture_zones;
     PerPageZones new_fill_zones;
 
-    for (PerPageParams::value_type const& kv: m_perPageParams) {
+    for (PerPageParams::value_type const& kv : m_perPageParams) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
         new_params.insert(PerPageParams::value_type(new_page_id, kv.second));
     }
 
-    for (PerPageOutputParams::value_type const& kv: m_perPageOutputParams) {
+    for (PerPageOutputParams::value_type const& kv : m_perPageOutputParams) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
         new_output_params.insert(PerPageOutputParams::value_type(new_page_id, kv.second));
     }
 
-    for (PerPageZones::value_type const& kv: m_perPagePictureZones) {
+    for (PerPageZones::value_type const& kv : m_perPagePictureZones) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
         new_picture_zones.insert(PerPageZones::value_type(new_page_id, kv.second));
     }
 
-    for (PerPageZones::value_type const& kv: m_perPageFillZones) {
+    for (PerPageZones::value_type const& kv : m_perPageFillZones) {
         RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
         PageId new_page_id(kv.first);
         new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
@@ -138,9 +138,9 @@ Settings::setColorParams(PageId const& page_id, ColorParams const& prms, ColorPa
             //clearPictureAutoZonesForPage(page_id);
             PerPageZones::iterator const itz(m_perPagePictureZones.find(page_id));
             if (itz != m_perPagePictureZones.end()) {
-               ZoneSet zones = itz->second;
-               zones.remove_auto_zones();
-               itz->second = zones;
+                ZoneSet zones = itz->second;
+                zones.remove_auto_zones();
+                itz->second = zones;
             }
         }
         it->second.setColorParams(prms, filter);
@@ -343,7 +343,7 @@ Settings::getCompressionVal(const QString& compression)
         _tiff_list = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
     }
 
-    QStringList data = _tiff_list.filter(QRegularExpression("^"+compression+"\t.*"));
+    QStringList data = _tiff_list.filter(QRegularExpression("^" + compression + "\t.*"));
 
     if (data.empty()) {
         throw std::runtime_error("Settings: unknown compression.");
@@ -373,7 +373,6 @@ Settings::getTiffCompressionName() const
 {
     return QSettings().value(_key_tiff_compr_method, _key_tiff_compr_method_def).toString();
 }
-
 
 void
 Settings::setTiffCompression(QString const& compression)

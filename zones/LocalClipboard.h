@@ -33,8 +33,14 @@ public:
         clear(m_content);
     }
 
-    const ConentType getConentType() const { return m_content; }
-    const QPolygonF& getSpline() const { return m_spline; }
+    const ConentType getConentType() const
+    {
+        return m_content;
+    }
+    const QPolygonF& getSpline() const
+    {
+        return m_spline;
+    }
     void setSpline(QPolygonF const& spline)
     {
         clear();
@@ -42,7 +48,10 @@ public:
         m_content = Spline;
     }
 
-    ~LocalClipboard() { clear(); }
+    ~LocalClipboard()
+    {
+        clear();
+    }
 
     static LocalClipboard* getInstance()
     {
@@ -52,8 +61,14 @@ public:
         return m_instance;
     }
 
-    const QPolygonF& getLatestZonePolygon() const { return m_LatestZonePolygon; }
-    void setLatestZonePolygon(const QPolygonF& val) { m_LatestZonePolygon = val; }
+    const QPolygonF& getLatestZonePolygon() const
+    {
+        return m_LatestZonePolygon;
+    }
+    void setLatestZonePolygon(const QPolygonF& val)
+    {
+        m_LatestZonePolygon = val;
+    }
 private:
 
     void clear(const ConentType type)

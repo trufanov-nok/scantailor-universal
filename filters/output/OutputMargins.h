@@ -33,7 +33,7 @@ namespace output
 class OutputMargins : public Margins
 {
 public:
-	OutputMargins() : Margins(10.0, 10.0, 10.0, 10.0) {}
+    OutputMargins() : Margins(10.0, 10.0, 10.0, 10.0) {}
 };
 
 } // namespace output

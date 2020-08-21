@@ -23,14 +23,14 @@ namespace fix_orientation
 {
 
 OrderByRotationProvider::OrderByRotationProvider(IntrusivePtr<Settings> const& settings)
-    :	m_ptrSettings(settings)
+    :   m_ptrSettings(settings)
 {
 }
 
 bool
 OrderByRotationProvider::precedes(
-        PageId const& lhs_page, bool const /*lhs_incomplete*/,
-        PageId const& rhs_page, bool const /*rhs_incomplete*/) const
+    PageId const& lhs_page, bool const /*lhs_incomplete*/,
+    PageId const& rhs_page, bool const /*rhs_incomplete*/) const
 {
     int const lrotation = m_ptrSettings->getRotationFor(lhs_page.imageId()).toDegrees();
     int const rrotation = m_ptrSettings->getRotationFor(rhs_page.imageId()).toDegrees();
@@ -41,7 +41,6 @@ OrderByRotationProvider::precedes(
 
     return lhs_page < rhs_page;
 }
-
 
 QString
 OrderByRotationProvider::hint(PageId const& page) const

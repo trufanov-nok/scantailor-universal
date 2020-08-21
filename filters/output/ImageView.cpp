@@ -25,16 +25,16 @@ namespace output
 {
 
 ImageView::ImageView(QImage const& image, QImage const& downscaled_image)
-:	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(QTransform(), QRectF(image.rect())),
-		OutputMargins()
-	),
-	m_dragHandler(*this),
-	m_zoomHandler(*this)
+    :   ImageViewBase(
+            image, downscaled_image,
+            ImagePresentation(QTransform(), QRectF(image.rect())),
+            OutputMargins()
+        ),
+        m_dragHandler(*this),
+        m_zoomHandler(*this)
 {
-	rootInteractionHandler().makeLastFollower(m_dragHandler);
-	rootInteractionHandler().makeLastFollower(m_zoomHandler);
+    rootInteractionHandler().makeLastFollower(m_dragHandler);
+    rootInteractionHandler().makeLastFollower(m_zoomHandler);
 }
 
 ImageView::~ImageView()

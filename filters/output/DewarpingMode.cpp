@@ -24,39 +24,39 @@ namespace output
 
 DewarpingMode::DewarpingMode(QString const& str)
 {
-	if (str == "auto") {
-		m_mode = AUTO;
-	} else if (str == "manual") {
-		m_mode = MANUAL;
+    if (str == "auto") {
+        m_mode = AUTO;
+    } else if (str == "manual") {
+        m_mode = MANUAL;
 //begin of modified by monday2000
 //Marginal_Dewarping
-	} else if (str == "marginal") {
-		m_mode = MARGINAL;
+    } else if (str == "marginal") {
+        m_mode = MARGINAL;
 //end of modified by monday2000
-	} else {
-		m_mode = OFF;
-	}
+    } else {
+        m_mode = OFF;
+    }
 }
-	
+
 QString
 DewarpingMode::toString() const
 {
-	switch (m_mode) {
-		case OFF:
-			return "off";
-		case AUTO:
-			return "auto";
-		case MANUAL:
-			return "manual";
+    switch (m_mode) {
+    case OFF:
+        return "off";
+    case AUTO:
+        return "auto";
+    case MANUAL:
+        return "manual";
 //begin of modified by monday2000
 //Marginal_Dewarping
-		case MARGINAL:
-			return "marginal";
+    case MARGINAL:
+        return "marginal";
 //end of modified by monday2000
-	}
+    }
 
-	assert(!"Unreachable");
-	return QString();
+    assert(!"Unreachable");
+    return QString();
 }
 
 } // namespace output

@@ -32,30 +32,34 @@
 
 #include <Windows.h>
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 // Automatically enters the critical section in the constructor and leaves
 // the critical section in the destructor.
-class AutoCriticalSection {
- public:
-  // Creates a new instance with the given critical section object
-  // and enters the critical section immediately.
-  explicit AutoCriticalSection(CRITICAL_SECTION* cs) : cs_(cs) {
-    assert(cs_);
-    EnterCriticalSection(cs_);
-  }
+class AutoCriticalSection
+{
+public:
+    // Creates a new instance with the given critical section object
+    // and enters the critical section immediately.
+    explicit AutoCriticalSection(CRITICAL_SECTION* cs) : cs_(cs)
+    {
+        assert(cs_);
+        EnterCriticalSection(cs_);
+    }
 
-  // Destructor: leaves the critical section.
-  ~AutoCriticalSection() {
-    LeaveCriticalSection(cs_);
-  }
+    // Destructor: leaves the critical section.
+    ~AutoCriticalSection()
+    {
+        LeaveCriticalSection(cs_);
+    }
 
- private:
-  // Disable copy ctor and operator=.
-  AutoCriticalSection(const AutoCriticalSection&);
-  AutoCriticalSection& operator=(const AutoCriticalSection&);
+private:
+    // Disable copy ctor and operator=.
+    AutoCriticalSection(const AutoCriticalSection&);
+    AutoCriticalSection& operator=(const AutoCriticalSection&);
 
-  CRITICAL_SECTION* cs_;
+    CRITICAL_SECTION* cs_;
 };
 
 }  // namespace google_breakpad

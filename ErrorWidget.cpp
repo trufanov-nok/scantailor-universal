@@ -23,11 +23,11 @@
 
 ErrorWidget::ErrorWidget(QString const& text, Qt::TextFormat fmt)
 {
-	setupUi(this);
-	textLabel->setTextFormat(fmt);
-	textLabel->setText(text);
-	QIcon icon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning));
-	imageLabel->setPixmap(icon.pixmap(48, 48));
+    setupUi(this);
+    textLabel->setTextFormat(fmt);
+    textLabel->setText(text);
+    QIcon icon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning));
+    imageLabel->setPixmap(icon.pixmap(48, 48));
 
-	connect(textLabel, SIGNAL(linkActivated(QString const&)), SLOT(linkActivated(QString const&)));
+    connect(textLabel, SIGNAL(linkActivated(QString)), SLOT(linkActivated(QString)));
 }

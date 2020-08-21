@@ -24,8 +24,8 @@ using namespace imageproc::constants;
 
 PhysicalTransformation::PhysicalTransformation(Dpi const& dpi)
 {
-	double const xscale = dpi.horizontal() * (DPI2DPM / 1000.0);
-	double const yscale = dpi.vertical() * (DPI2DPM / 1000.0);
-	m_mmToPixels.scale(xscale, yscale);
-	m_pixelsToMM.scale(1.0 / xscale, 1.0 / yscale);
+    double const xscale = dpi.horizontal() * (DPI2DPM / 1000.0);
+    double const yscale = dpi.vertical() * (DPI2DPM / 1000.0);
+    m_mmToPixels.scale(xscale, yscale);
+    m_pixelsToMM.scale(1.0 / xscale, 1.0 / yscale);
 }

@@ -52,7 +52,6 @@ static const char* _key_batch_dialog_remember_choice = "batch_dialog/remember_ch
 static const bool _key_batch_dialog_remember_choice_def = false;
 static const char* _key_batch_processing_priority = "settings/batch_processing_priority";
 
-
 /* Thumbnails */
 
 static const char* _key_thumbnails_category = "thumbnails/";
@@ -99,7 +98,6 @@ static const int _key_export_split_mixed_settings_def = (int) ExportModes(Export
 
 static const char* _key_dont_use_native_dialog = "add_file_dlg/dont_use_native_dialog";
 static const bool _key_dont_use_native_dialog_def = true;
-
 
 /* Page split */
 
@@ -157,7 +155,6 @@ static const bool _key_margins_linked_hor_def = true;
 static const char* _key_margins_linked_ver = "margins/topBottomLinked";
 static const bool _key_margins_linked_ver_def = true;
 
-
 /* Page Layout: Alignment */
 
 static const char* _key_alignment_original_enabled =  "alignment/original_enabled";
@@ -170,7 +167,6 @@ static const char* _key_alignment_default_alig_null = "alignment/default_alignme
 static const bool _key_alignment_default_alig_null_def = false;
 static const char* _key_alignment_default_alig_tolerance = "alignment/default_alignment_tolerance";
 static const double _key_alignment_default_alig_tolerance_def = 0.2;
-
 
 /* Output stage */
 
@@ -228,7 +224,6 @@ static const char* _key_recent_projects = "project/recent";
 static const char* _key_recent_projects_item = "path";
 static const char* _key_use_3d_accel = "settings/use_3d_acceleration";
 static const bool _key_use_3d_accel_def = false;
-
 
 static const char* _key_deskew_controls_color = "deskew/controls_color";
 static const char* _key_deskew_controls_color_def = "#5A0000ff";

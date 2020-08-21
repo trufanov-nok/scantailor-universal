@@ -27,62 +27,69 @@ template<typename T>
 class IntrusivePtr
 {
 private:
-	struct BooleanTestHelper
-	{
-		int dataMember;
-	};
-	typedef int BooleanTestHelper::*BooleanTest;
+    struct BooleanTestHelper {
+        int dataMember;
+    };
+    typedef int BooleanTestHelper::* BooleanTest;
 public:
-	IntrusivePtr() : m_pObj(0) {}
-	
-	explicit
-	IntrusivePtr(T* obj);
-	
-	IntrusivePtr(IntrusivePtr const& other);
-	
-	template<typename OT>
-	IntrusivePtr(IntrusivePtr<OT> const& other);
-	
-	~IntrusivePtr();
-	
-	IntrusivePtr& operator=(IntrusivePtr const& rhs);
-	
-	template<typename OT>
-	IntrusivePtr& operator=(IntrusivePtr<OT> const& rhs);
-	
-	T& operator*() const { return *m_pObj; }
-	
-	T* operator->() const { return m_pObj; }
-	
-	T* get() const { return m_pObj; }
-	
-	void reset(T* obj = 0);
-	
-	void swap(IntrusivePtr& other);
+    IntrusivePtr() : m_pObj(0) {}
 
-	/**
-	 * Used for boolean tests, like:
-	 * \code
-	 * IntrusivePtr<T> ptr = ...;
-	 * if (ptr) {
-	 *   ...
-	 * }
-	 * if (!ptr) {
-	 *   ...
-	 * }
-	 * \endcode
-	 * This implementation insures that the following expressions fail to compile:
-	 * \code
-	 * IntrusivePtr<T> ptr = ...;
-	 * int i = ptr;
-	 * delete ptr;
-	 * \endcode
-	 */
-	inline operator BooleanTest() const;
+    explicit
+    IntrusivePtr(T* obj);
+
+    IntrusivePtr(IntrusivePtr const& other);
+
+    template<typename OT>
+    IntrusivePtr(IntrusivePtr<OT> const& other);
+
+    ~IntrusivePtr();
+
+    IntrusivePtr& operator=(IntrusivePtr const& rhs);
+
+    template<typename OT>
+    IntrusivePtr& operator=(IntrusivePtr<OT> const& rhs);
+
+    T& operator*() const
+    {
+        return *m_pObj;
+    }
+
+    T* operator->() const
+    {
+        return m_pObj;
+    }
+
+    T* get() const
+    {
+        return m_pObj;
+    }
+
+    void reset(T* obj = 0);
+
+    void swap(IntrusivePtr& other);
+
+    /**
+     * Used for boolean tests, like:
+     * \code
+     * IntrusivePtr<T> ptr = ...;
+     * if (ptr) {
+     *   ...
+     * }
+     * if (!ptr) {
+     *   ...
+     * }
+     * \endcode
+     * This implementation insures that the following expressions fail to compile:
+     * \code
+     * IntrusivePtr<T> ptr = ...;
+     * int i = ptr;
+     * delete ptr;
+     * \endcode
+     */
+    inline operator BooleanTest() const;
 private:
-	T* m_pObj;
+    T* m_pObj;
 };
-
 
 /**
  * \brief Default implementation of intrusive referencing.
@@ -92,9 +99,8 @@ private:
 template<typename T>
 inline void intrusive_ref(T& obj)
 {
-	obj.ref();
+    obj.ref();
 }
-
 
 /**
  * \brief Default implementation of intrusive unreferencing.
@@ -104,52 +110,55 @@ inline void intrusive_ref(T& obj)
 template<typename T>
 inline void intrusive_unref(T& obj)
 {
-	obj.unref();
+    obj.unref();
 }
-
 
 template<typename T>
 inline
 IntrusivePtr<T>::IntrusivePtr(T* obj)
-:	m_pObj(obj)
+    :   m_pObj(obj)
 {
-	if (obj)
-		intrusive_ref(*obj);
+    if (obj) {
+        intrusive_ref(*obj);
+    }
 }
 
 template<typename T>
 inline
 IntrusivePtr<T>::IntrusivePtr(IntrusivePtr const& other)
-:	m_pObj(other.m_pObj)
+    :   m_pObj(other.m_pObj)
 {
-	if (m_pObj)
-		intrusive_ref(*m_pObj);
+    if (m_pObj) {
+        intrusive_ref(*m_pObj);
+    }
 }
 
 template<typename T>
 template<typename OT>
 inline
 IntrusivePtr<T>::IntrusivePtr(IntrusivePtr<OT> const& other)
-:	m_pObj(other.get())
+    :   m_pObj(other.get())
 {
-	if (m_pObj)
-		intrusive_ref(*m_pObj);
+    if (m_pObj) {
+        intrusive_ref(*m_pObj);
+    }
 }
 
 template<typename T>
 inline
 IntrusivePtr<T>::~IntrusivePtr()
 {
-	if (m_pObj)
-		intrusive_unref(*m_pObj);
+    if (m_pObj) {
+        intrusive_unref(*m_pObj);
+    }
 }
 
 template<typename T>
 inline IntrusivePtr<T>&
 IntrusivePtr<T>::operator=(IntrusivePtr const& rhs)
 {
-	IntrusivePtr(rhs).swap(*this);
-	return *this;
+    IntrusivePtr(rhs).swap(*this);
+    return *this;
 }
 
 template<typename T>
@@ -157,50 +166,50 @@ template<typename OT>
 inline IntrusivePtr<T>&
 IntrusivePtr<T>::operator=(IntrusivePtr<OT> const& rhs)
 {
-	IntrusivePtr(rhs).swap(*this);
-	return *this;
+    IntrusivePtr(rhs).swap(*this);
+    return *this;
 }
 
 template<typename T>
 inline void
 IntrusivePtr<T>::reset(T* obj)
 {
-	IntrusivePtr(obj).swap(*this);
+    IntrusivePtr(obj).swap(*this);
 }
 
 template<typename T>
 inline void
 IntrusivePtr<T>::swap(IntrusivePtr& other)
 {
-	T* obj = other.m_pObj;
-	other.m_pObj = m_pObj;
-	m_pObj = obj;
+    T* obj = other.m_pObj;
+    other.m_pObj = m_pObj;
+    m_pObj = obj;
 }
 
 template<typename T>
 inline void swap(IntrusivePtr<T>& o1, IntrusivePtr<T>& o2)
 {
-	o1.swap(o2);
+    o1.swap(o2);
 }
 
 template<typename T>
 IntrusivePtr<T>::operator BooleanTest() const
 {
-	return m_pObj ? &BooleanTestHelper::dataMember : 0;
+    return m_pObj ? &BooleanTestHelper::dataMember : 0;
 }
 
 #define INTRUSIVE_PTR_OP(op) \
-template<typename T> \
-inline bool operator op(IntrusivePtr<T> const& lhs, IntrusivePtr<T> const& rhs) \
-{ \
-	return lhs.get() op rhs.get(); \
-}
+    template<typename T> \
+    inline bool operator op(IntrusivePtr<T> const& lhs, IntrusivePtr<T> const& rhs) \
+    { \
+        return lhs.get() op rhs.get(); \
+    }
 
-INTRUSIVE_PTR_OP(==)
-INTRUSIVE_PTR_OP(!=)
-INTRUSIVE_PTR_OP(<)
-INTRUSIVE_PTR_OP(>)
-INTRUSIVE_PTR_OP(<=)
-INTRUSIVE_PTR_OP(>=)
+INTRUSIVE_PTR_OP( ==)
+INTRUSIVE_PTR_OP( !=)
+INTRUSIVE_PTR_OP( <)
+INTRUSIVE_PTR_OP( >)
+INTRUSIVE_PTR_OP( <=)
+INTRUSIVE_PTR_OP( >=)
 
 #endif

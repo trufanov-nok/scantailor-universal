@@ -35,41 +35,41 @@ class QTemporaryFile;
  */
 class AtomicFileOverwriter
 {
-	DECLARE_NON_COPYABLE(AtomicFileOverwriter)
+    DECLARE_NON_COPYABLE(AtomicFileOverwriter)
 public:
-	AtomicFileOverwriter();
-	
-	/**
-	 * \brief Destroys the object and calls abort() if necessary.
-	 */
-	~AtomicFileOverwriter();
-	
-	/**
-	 * \brief Start writing to a temporary file.
-	 *
-	 * \returns A temporary file as QIODevice, or null of temporary file
-	 *          could not be opened.  In latter case, calling abort()
-	 *          is not necessary.
-	 *
-	 * If a file is already being written, it calles abort() and then
-	 * proceeds as usual.
-	 */
-	QIODevice* startWriting(QString const& file_path);
-	
-	/**
-	 * \brief Replaces the target file with the temporary one.
-	 *
-	 * If replacing failed, false is returned and the temporary file
-	 * is removed.
-	 */
-	bool commit();
-	
-	/**
-	 * \brief Removes the temporary file without touching the target one.
-	 */
-	void abort();
+    AtomicFileOverwriter();
+
+    /**
+     * \brief Destroys the object and calls abort() if necessary.
+     */
+    ~AtomicFileOverwriter();
+
+    /**
+     * \brief Start writing to a temporary file.
+     *
+     * \returns A temporary file as QIODevice, or null of temporary file
+     *          could not be opened.  In latter case, calling abort()
+     *          is not necessary.
+     *
+     * If a file is already being written, it calles abort() and then
+     * proceeds as usual.
+     */
+    QIODevice* startWriting(QString const& file_path);
+
+    /**
+     * \brief Replaces the target file with the temporary one.
+     *
+     * If replacing failed, false is returned and the temporary file
+     * is removed.
+     */
+    bool commit();
+
+    /**
+     * \brief Removes the temporary file without touching the target one.
+     */
+    void abort();
 private:
-	std::unique_ptr<QTemporaryFile> m_ptrTempFile;
+    std::unique_ptr<QTemporaryFile> m_ptrTempFile;
 };
 
 #endif

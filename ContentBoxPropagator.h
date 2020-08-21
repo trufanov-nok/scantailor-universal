@@ -27,7 +27,7 @@ class ProjectPages;
 
 namespace page_layout
 {
-	class Filter;
+class Filter;
 }
 
 /**
@@ -42,18 +42,18 @@ namespace page_layout
 class ContentBoxPropagator
 {
 public:
-	ContentBoxPropagator(
-		IntrusivePtr<page_layout::Filter> const& page_layout_filter,
-		IntrusivePtr<CompositeCacheDrivenTask> const& task);
-	
-	~ContentBoxPropagator();
-	
-	void propagate(ProjectPages const& pages);
+    ContentBoxPropagator(
+        IntrusivePtr<page_layout::Filter> const& page_layout_filter,
+        IntrusivePtr<CompositeCacheDrivenTask> const& task);
+
+    ~ContentBoxPropagator();
+
+    void propagate(ProjectPages const& pages);
 private:
-	class Collector;
-	
-	IntrusivePtr<page_layout::Filter> m_ptrPageLayoutFilter;
-	IntrusivePtr<CompositeCacheDrivenTask> m_ptrTask;
+    class Collector;
+
+    IntrusivePtr<page_layout::Filter> m_ptrPageLayoutFilter;
+    IntrusivePtr<CompositeCacheDrivenTask> m_ptrTask;
 };
 
 #endif

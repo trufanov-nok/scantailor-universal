@@ -31,7 +31,7 @@ class QRectF;
 
 namespace output
 {
-	class Task;
+class Task;
 }
 
 namespace page_layout
@@ -42,26 +42,26 @@ class Settings;
 
 class Task : public RefCountable
 {
-	DECLARE_NON_COPYABLE(Task)
+    DECLARE_NON_COPYABLE(Task)
 public:
-	Task(IntrusivePtr<Filter> const& filter,
-		IntrusivePtr<output::Task> const& next_task,
-		IntrusivePtr<Settings> const& settings,
-		PageId const& page_id, bool batch, bool debug);
-	
-	virtual ~Task();
-	
-	FilterResultPtr process(
-		TaskStatus const& status, FilterData const& data,
-		QRectF const& page_rect, QRectF const& content_rect);
+    Task(IntrusivePtr<Filter> const& filter,
+         IntrusivePtr<output::Task> const& next_task,
+         IntrusivePtr<Settings> const& settings,
+         PageId const& page_id, bool batch, bool debug);
+
+    virtual ~Task();
+
+    FilterResultPtr process(
+        TaskStatus const& status, FilterData const& data,
+        QRectF const& page_rect, QRectF const& content_rect);
 private:
-	class UiUpdater;
-	
-	IntrusivePtr<Filter> m_ptrFilter;
-	IntrusivePtr<output::Task> m_ptrNextTask;
-	IntrusivePtr<Settings> m_ptrSettings;
-	PageId m_pageId;
-	bool m_batchProcessing;
+    class UiUpdater;
+
+    IntrusivePtr<Filter> m_ptrFilter;
+    IntrusivePtr<output::Task> m_ptrNextTask;
+    IntrusivePtr<Settings> m_ptrSettings;
+    PageId m_pageId;
+    bool m_batchProcessing;
 };
 
 } // namespace page_layout

@@ -39,51 +39,51 @@ namespace deskew
 {
 
 class ImageView :
-	public ImageViewBase,
-	private InteractionHandler
+    public ImageViewBase,
+    private InteractionHandler
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	ImageView(
-		QImage const& image, QImage const& downscaled_image,
-		ImageTransformation const& xform);
-	
-	virtual ~ImageView();
+    ImageView(
+        QImage const& image, QImage const& downscaled_image,
+        ImageTransformation const& xform);
+
+    virtual ~ImageView();
 signals:
-	void manualDeskewAngleSet(double degrees);
+    void manualDeskewAngleSet(double degrees);
 public slots:
-	void manualDeskewAngleSetExternally(double degrees);
-	void doRotateLeft();
-	void doRotateRight();
+    void manualDeskewAngleSetExternally(double degrees);
+    void doRotateLeft();
+    void doRotateRight();
 protected:
-	virtual void onPaint(QPainter& painter, InteractionState const& interaction);
+    virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 
-	virtual void onWheelEvent(QWheelEvent* event, InteractionState& interaction);
-	
-	void doRotate(double deg);
+    virtual void onWheelEvent(QWheelEvent* event, InteractionState& interaction);
+
+    void doRotate(double deg);
 private:
-	QPointF handlePosition(int idx) const;
+    QPointF handlePosition(int idx) const;
 
-	void handleMoveRequest(int idx, QPointF const& pos);
+    void handleMoveRequest(int idx, QPointF const& pos);
 
-	virtual void dragFinished();
+    virtual void dragFinished();
 
-	QPointF getImageRotationOrigin() const;
+    QPointF getImageRotationOrigin() const;
 
-	QRectF getRotationArcSquare() const;
+    QRectF getRotationArcSquare() const;
 
-	std::pair<QPointF, QPointF> getRotationHandles(QRectF const& arc_square) const;
+    std::pair<QPointF, QPointF> getRotationHandles(QRectF const& arc_square) const;
 
-	static int const m_cellSize;
-	static double const m_maxRotationDeg;
-	static double const m_maxRotationSin;
+    static int const m_cellSize;
+    static double const m_maxRotationDeg;
+    static double const m_maxRotationSin;
 
-	QPixmap m_handlePixmap;
-	DraggablePoint m_handles[2];
-	ObjectDragHandler m_handleInteractors[2];
-	DragHandler m_dragHandler;
-	ZoomHandler m_zoomHandler;
-	ImageTransformation m_xform;
+    QPixmap m_handlePixmap;
+    DraggablePoint m_handles[2];
+    ObjectDragHandler m_handleInteractors[2];
+    DragHandler m_dragHandler;
+    ZoomHandler m_zoomHandler;
+    ImageTransformation m_xform;
 };
 
 } // namespace deskew

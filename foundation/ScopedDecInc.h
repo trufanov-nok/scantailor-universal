@@ -27,11 +27,17 @@ template<class T>
 class ScopedDecInc
 {
 public:
-	ScopedDecInc(T& counter) : m_counter(counter) { --counter; }
-	
-	~ScopedDecInc() { ++m_counter; }
+    ScopedDecInc(T& counter) : m_counter(counter)
+    {
+        --counter;
+    }
+
+    ~ScopedDecInc()
+    {
+        ++m_counter;
+    }
 private:
-	T& m_counter;
+    T& m_counter;
 };
 
 #endif

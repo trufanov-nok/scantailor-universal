@@ -47,60 +47,66 @@ class Settings;
 
 class Filter : public AbstractFilter
 {
-	DECLARE_NON_COPYABLE(Filter)
+    DECLARE_NON_COPYABLE(Filter)
     Q_DECLARE_TR_FUNCTIONS(output::Filter)
 public:
     Filter(IntrusivePtr<ProjectPages> const& pages, PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~Filter();
-	
-	virtual QString getName() const;
-	
-	virtual PageView getView() const;
-	
-	virtual void performRelinking(AbstractRelinker const& relinker);
 
-	virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id);
-	
-	virtual QDomElement saveSettings(
-		ProjectWriter const& writer, QDomDocument& doc) const;
-	
-	virtual void loadSettings(
-		ProjectReader const& reader, QDomElement const& filters_el);
+    virtual ~Filter();
+
+    virtual QString getName() const;
+
+    virtual PageView getView() const;
+
+    virtual void performRelinking(AbstractRelinker const& relinker);
+
+    virtual void preUpdateUI(FilterUiInterface* ui, PageId const& page_id);
+
+    virtual QDomElement saveSettings(
+        ProjectWriter const& writer, QDomDocument& doc) const;
+
+    virtual void loadSettings(
+        ProjectReader const& reader, QDomElement const& filters_el);
 
     virtual void invalidateSetting(PageId const& page);
-	
+
     IntrusivePtr<Task> createTask(PageId const& page_id,
-        IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
-        OutputFileNameGenerator const& out_file_name_gen,
+                                  IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
+                                  OutputFileNameGenerator const& out_file_name_gen,
 //begin of modified by monday2000
 //Original_Foreground_Mixed
-        //bool batch, bool debug);
-        bool batch, bool debug,
-        bool keep_orig_fore_subscan = false,
-        QImage* p_orig_fore_subscan = nullptr);
+                                  //bool batch, bool debug);
+                                  bool batch, bool debug,
+                                  bool keep_orig_fore_subscan = false,
+                                  QImage* p_orig_fore_subscan = nullptr);
 //end of modified by monday2000
 
-	IntrusivePtr<CacheDrivenTask> createCacheDrivenTask(
-		OutputFileNameGenerator const& out_file_name_gen);
-	
-    OptionsWidget* optionsWidget() { return m_ptrOptionsWidget.get(); }
-    Settings* getSettings() { return m_ptrSettings.get(); }
+    IntrusivePtr<CacheDrivenTask> createCacheDrivenTask(
+        OutputFileNameGenerator const& out_file_name_gen);
+
+    OptionsWidget* optionsWidget()
+    {
+        return m_ptrOptionsWidget.get();
+    }
+    Settings* getSettings()
+    {
+        return m_ptrSettings.get();
+    }
     QStringList getZonesInfo(const PageId& id) const;
 
     virtual std::vector<PageOrderOption> pageOrderOptions() const;
     virtual int selectedPageOrder() const;
     virtual void selectPageOrder(int option);
 private:
-	void writePageSettings(
-		QDomDocument& doc, QDomElement& filter_el,
-		PageId const& page_id, int numeric_id) const;
-	
+    void writePageSettings(
+        QDomDocument& doc, QDomElement& filter_el,
+        PageId const& page_id, int numeric_id) const;
+
     IntrusivePtr<ProjectPages> m_ptrPages;
-	IntrusivePtr<Settings> m_ptrSettings;
-	SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
-	PictureZonePropFactory m_pictureZonePropFactory;
-	FillZonePropFactory m_fillZonePropFactory;
+    IntrusivePtr<Settings> m_ptrSettings;
+    SafeDeletingQObjectPtr<OptionsWidget> m_ptrOptionsWidget;
+    PictureZonePropFactory m_pictureZonePropFactory;
+    FillZonePropFactory m_fillZonePropFactory;
     std::vector<PageOrderOption> m_pageOrderOptions;
     int m_selectedPageOrder;
 };

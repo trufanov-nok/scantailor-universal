@@ -36,29 +36,29 @@ class QPolygonF;
 class XmlUnmarshaller
 {
 public:
-	static QString string(QDomElement const& el);
-	
-	static QSize size(QDomElement const& el);
-	
-	static QSizeF sizeF(QDomElement const& el);
-	
-	static Dpi dpi(QDomElement const& el);
-	
-	static OrthogonalRotation rotation(QDomElement const& el);
-	
-	static Margins margins(QDomElement const& el);
+    static QString string(QDomElement const& el);
+
+    static QSize size(QDomElement const& el);
+
+    static QSizeF sizeF(QDomElement const& el);
+
+    static Dpi dpi(QDomElement const& el);
+
+    static OrthogonalRotation rotation(QDomElement const& el);
+
+    static Margins margins(QDomElement const& el);
 
     static MarginsWithAuto marginsHandler(QDomElement const& el);
-	
-	static QPointF pointF(QDomElement const& el);
-	
-	static QLineF lineF(QDomElement const& el);
-	
-	static QRect rect(QDomElement const& el);
-	
-	static QRectF rectF(QDomElement const& el);
-	
-	static QPolygonF polygonF(QDomElement const& el);
+
+    static QPointF pointF(QDomElement const& el);
+
+    static QLineF lineF(QDomElement const& el);
+
+    static QRect rect(QDomElement const& el);
+
+    static QRectF rectF(QDomElement const& el);
+
+    static QPolygonF polygonF(QDomElement const& el);
 };
 
 #endif

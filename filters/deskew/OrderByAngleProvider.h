@@ -28,14 +28,14 @@
 
 namespace deskew
 {
-template <double (*func) (double)>
+template <double (*func)(double)>
 class OrderByAngleProviderBase : public PageOrderProvider
 {
 public:
     OrderByAngleProviderBase(IntrusivePtr<Settings> const& settings): m_ptrSettings(settings) { }
 
-	virtual bool precedes(
-		PageId const& lhs_page, bool lhs_incomplete,
+    virtual bool precedes(
+        PageId const& lhs_page, bool lhs_incomplete,
         PageId const& rhs_page, bool rhs_incomplete) const
     {
 
@@ -66,16 +66,19 @@ public:
 
     virtual QString hint(PageId const& page) const
     {
-         std::unique_ptr<Params> const params(m_ptrSettings->getPageParams(page));
-         double const angle = params.get() ? func(-1.0 * params->deskewAngle()) : 0.;
-         return QObject::tr("angle: %1°").arg(round(angle*1000)/1000);
+        std::unique_ptr<Params> const params(m_ptrSettings->getPageParams(page));
+        double const angle = params.get() ? func(-1.0 * params->deskewAngle()) : 0.;
+        return QObject::tr("angle: %1°").arg(round(angle * 1000) / 1000);
     }
 
 private:
-	IntrusivePtr<Settings> m_ptrSettings;
+    IntrusivePtr<Settings> m_ptrSettings;
 };
 
-double noop(double v) { return v; }
+double noop(double v)
+{
+    return v;
+}
 
 typedef OrderByAngleProviderBase<noop> OrderByAngleProvider;
 typedef OrderByAngleProviderBase<std::abs> OrderByAbsAngleProvider;

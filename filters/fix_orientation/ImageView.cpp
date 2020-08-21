@@ -25,18 +25,18 @@ namespace fix_orientation
 {
 
 ImageView::ImageView(
-	QImage const& image, QImage const& downscaled_image,
-	ImageTransformation const& xform)
-:	ImageViewBase(
-		image, downscaled_image,
-		ImagePresentation(xform.transform(), xform.resultingPreCropArea())
-	),
-	m_dragHandler(*this),
-	m_zoomHandler(*this),
-	m_xform(xform)
+    QImage const& image, QImage const& downscaled_image,
+    ImageTransformation const& xform)
+    :   ImageViewBase(
+            image, downscaled_image,
+            ImagePresentation(xform.transform(), xform.resultingPreCropArea())
+        ),
+        m_dragHandler(*this),
+        m_zoomHandler(*this),
+        m_xform(xform)
 {
-	rootInteractionHandler().makeLastFollower(m_dragHandler);
-	rootInteractionHandler().makeLastFollower(m_zoomHandler);
+    rootInteractionHandler().makeLastFollower(m_dragHandler);
+    rootInteractionHandler().makeLastFollower(m_zoomHandler);
 }
 
 ImageView::~ImageView()
@@ -46,14 +46,14 @@ ImageView::~ImageView()
 void
 ImageView::setPreRotation(OrthogonalRotation const rotation)
 {
-	if (m_xform.preRotation() == rotation) {
-		return;
-	}
-	
-	m_xform.setPreRotation(rotation);
+    if (m_xform.preRotation() == rotation) {
+        return;
+    }
 
-	// This should call update() by itself.
-	updateTransform(ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea()));
+    m_xform.setPreRotation(rotation);
+
+    // This should call update() by itself.
+    updateTransform(ImagePresentation(m_xform.transform(), m_xform.resultingPreCropArea()));
 }
 
 } // namespace fix_orientation

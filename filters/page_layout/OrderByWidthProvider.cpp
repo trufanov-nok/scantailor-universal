@@ -28,14 +28,14 @@ namespace page_layout
 {
 
 OrderByWidthProvider::OrderByWidthProvider(IntrusivePtr<Settings> const& settings)
-:	m_ptrSettings(settings)
+    :   m_ptrSettings(settings)
 {
 }
 
 bool
 OrderByWidthProvider::precedes(
-	PageId const& lhs_page, bool const lhs_incomplete,
-	PageId const& rhs_page, bool const rhs_incomplete) const
+    PageId const& lhs_page, bool const lhs_incomplete,
+    PageId const& rhs_page, bool const rhs_incomplete) const
 {
 
     if (lhs_incomplete != rhs_incomplete) {
@@ -50,26 +50,26 @@ OrderByWidthProvider::precedes(
     assert(lhs_incomplete == false);
     assert(rhs_incomplete == false);
 
-	std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
-	std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
-	
-	QSizeF lhs_size;
-	if (lhs_params.get()) {
-		Margins const margins(lhs_params->hardMarginsMM());
-		lhs_size = lhs_params->contentSizeMM();
-		lhs_size += QSizeF(
-			margins.left() + margins.right(), margins.top() + margins.bottom()
-		);
-	}
-	QSizeF rhs_size;
-	if (rhs_params.get()) {
-		Margins const margins(rhs_params->hardMarginsMM());
-		rhs_size = rhs_params->contentSizeMM();
-		rhs_size += QSizeF(
-			margins.left() + margins.right(), margins.top() + margins.bottom()
-		);
-	}
-	
+    std::unique_ptr<Params> const lhs_params(m_ptrSettings->getPageParams(lhs_page));
+    std::unique_ptr<Params> const rhs_params(m_ptrSettings->getPageParams(rhs_page));
+
+    QSizeF lhs_size;
+    if (lhs_params.get()) {
+        Margins const margins(lhs_params->hardMarginsMM());
+        lhs_size = lhs_params->contentSizeMM();
+        lhs_size += QSizeF(
+                        margins.left() + margins.right(), margins.top() + margins.bottom()
+                    );
+    }
+    QSizeF rhs_size;
+    if (rhs_params.get()) {
+        Margins const margins(rhs_params->hardMarginsMM());
+        rhs_size = rhs_params->contentSizeMM();
+        rhs_size += QSizeF(
+                        margins.left() + margins.right(), margins.top() + margins.bottom()
+                    );
+    }
+
     bool const lhs_invalid = !lhs_size.isValid();
     bool const rhs_invalid = !rhs_size.isValid();
 
@@ -101,8 +101,8 @@ OrderByWidthProvider::hint(PageId const& page) const
         Margins const margins(params->hardMarginsMM());
         size = params->contentSizeMM();
         size += QSizeF(
-            margins.left() + margins.right(), margins.top() + margins.bottom()
-        );
+                    margins.left() + margins.right(), margins.top() + margins.bottom()
+                );
     }
     QString res(QObject::tr("width: %1"));
     return size.isValid() ? res.arg(size.width()) : res.arg(QObject::tr("?"));

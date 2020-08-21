@@ -24,38 +24,52 @@
 template<typename T>
 class SafeDeletingQObjectPtr
 {
-	DECLARE_NON_COPYABLE(SafeDeletingQObjectPtr)
+    DECLARE_NON_COPYABLE(SafeDeletingQObjectPtr)
 public:
-	SafeDeletingQObjectPtr(T* obj = 0) : m_pObj(obj) {}
-	
-	~SafeDeletingQObjectPtr() {
-		if (m_pObj) {
-			m_pObj->disconnect();
-			m_pObj->deleteLater();
-		}
-	}
+    SafeDeletingQObjectPtr(T* obj = 0) : m_pObj(obj) {}
 
-	void reset(T* other) { SafeDeletingQObjectPtr(other).swap(*this); }
-	
-	T& operator*() const { return *m_pObj; }
-	
-	T* operator->() const { return m_pObj; }
-	
-	T* get() const { return m_pObj; }
+    ~SafeDeletingQObjectPtr()
+    {
+        if (m_pObj) {
+            m_pObj->disconnect();
+            m_pObj->deleteLater();
+        }
+    }
 
-	void swap(SafeDeletingQObjectPtr& other) {
-		T* tmp = m_pObj;
-		m_pObj = other.m_pObj;
-		other.m_pObj = tmp;
-	}
+    void reset(T* other)
+    {
+        SafeDeletingQObjectPtr(other).swap(*this);
+    }
+
+    T& operator*() const
+    {
+        return *m_pObj;
+    }
+
+    T* operator->() const
+    {
+        return m_pObj;
+    }
+
+    T* get() const
+    {
+        return m_pObj;
+    }
+
+    void swap(SafeDeletingQObjectPtr& other)
+    {
+        T* tmp = m_pObj;
+        m_pObj = other.m_pObj;
+        other.m_pObj = tmp;
+    }
 private:
-	T* m_pObj;
+    T* m_pObj;
 };
 
 template<typename T>
 void swap(SafeDeletingQObjectPtr<T>& o1, SafeDeletingQObjectPtr<T>& o2)
 {
-	o1.swap(o2);
+    o1.swap(o2);
 }
 
 #endif

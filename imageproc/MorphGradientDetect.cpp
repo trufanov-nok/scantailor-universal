@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,16 +28,16 @@ namespace imageproc
 
 GrayImage morphGradientDetectDarkSide(GrayImage const& image, QSize const& area)
 {
-	GrayImage lighter(erodeGray(image, area, 0x00));
-	grayRasterOp<GRopUnclippedSubtract<GRopDst, GRopSrc> >(lighter, image);
-	return lighter;
+    GrayImage lighter(erodeGray(image, area, 0x00));
+    grayRasterOp<GRopUnclippedSubtract<GRopDst, GRopSrc> >(lighter, image);
+    return lighter;
 }
 
 GrayImage morphGradientDetectLightSide(GrayImage const& image, QSize const& area)
 {
-	GrayImage darker(dilateGray(image, area, 0xff));
-	grayRasterOp<GRopUnclippedSubtract<GRopSrc, GRopDst> >(darker, image);
-	return darker;
+    GrayImage darker(dilateGray(image, area, 0xff));
+    grayRasterOp<GRopUnclippedSubtract<GRopSrc, GRopDst> >(darker, image);
+    return darker;
 }
 
 } // namespace imageproc

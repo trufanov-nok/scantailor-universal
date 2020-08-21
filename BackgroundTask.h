@@ -29,31 +29,38 @@
 class BackgroundTask : public AbstractCommand0<FilterResultPtr>, public TaskStatus
 {
 public:
-	enum Type { INTERACTIVE, BATCH };
+    enum Type { INTERACTIVE, BATCH };
 
-	class CancelledException : public std::exception
-	{
-	public:
-		virtual char const* what() const throw();
-	};
-	
-	BackgroundTask(Type type) : m_type(type) {}
+    class CancelledException : public std::exception
+    {
+    public:
+        virtual char const* what() const throw();
+    };
 
-	Type type() const { return m_type; }
+    BackgroundTask(Type type) : m_type(type) {}
 
-	virtual void cancel() { m_cancelFlag.fetchAndStoreRelaxed(1); }
-	
-	virtual bool isCancelled() const {
-		return m_cancelFlag.fetchAndAddRelaxed(0) != 0;
-	}
-	
-	/**
-	 * \brief If cancelled, throws CancelledException.
-	 */
-	virtual void throwIfCancelled() const;
+    Type type() const
+    {
+        return m_type;
+    }
+
+    virtual void cancel()
+    {
+        m_cancelFlag.fetchAndStoreRelaxed(1);
+    }
+
+    virtual bool isCancelled() const
+    {
+        return m_cancelFlag.fetchAndAddRelaxed(0) != 0;
+    }
+
+    /**
+     * \brief If cancelled, throws CancelledException.
+     */
+    virtual void throwIfCancelled() const;
 private:
-	mutable QAtomicInt m_cancelFlag;
-	Type const m_type;
+    mutable QAtomicInt m_cancelFlag;
+    Type const m_type;
 };
 
 typedef IntrusivePtr<BackgroundTask> BackgroundTaskPtr;

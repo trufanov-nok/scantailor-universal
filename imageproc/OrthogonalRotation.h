@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef IMAGEPROC_ORTHOGONAL_ROTATION_H_
 #define IMAGEPROC_ORTHOGONAL_ROTATION_H_
 
@@ -41,7 +40,7 @@ class BinaryImage;
  *         possibly with width and height swapped.
  */
 BinaryImage orthogonalRotation(
-	BinaryImage const& src, QRect const& src_rect, int degrees);
+    BinaryImage const& src, QRect const& src_rect, int degrees);
 
 /**
  * \brief Rotation by 90, 180 or 270 degrees.

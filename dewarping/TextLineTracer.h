@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,9 +38,9 @@ class DebugImages;
 
 namespace imageproc
 {
-	class BinaryImage;
-	class GrayImage;
-	class SEDM;
+class BinaryImage;
+class GrayImage;
+class SEDM;
 }
 
 namespace dewarping
@@ -51,54 +51,54 @@ class DistortionModelBuilder;
 class TextLineTracer
 {
 public:
-	static void trace(
-		imageproc::GrayImage const& input, Dpi const& dpi,
-		QRect const& content_rect, DistortionModelBuilder& output,
-		TaskStatus const& status, DebugImages* dbg = 0);
+    static void trace(
+        imageproc::GrayImage const& input, Dpi const& dpi,
+        QRect const& content_rect, DistortionModelBuilder& output,
+        TaskStatus const& status, DebugImages* dbg = 0);
 private:
-	static imageproc::GrayImage downscale(imageproc::GrayImage const& input, Dpi const& dpi);
+    static imageproc::GrayImage downscale(imageproc::GrayImage const& input, Dpi const& dpi);
 
-	static void sanitizeBinaryImage(imageproc::BinaryImage& image, QRect const& content_rect);
+    static void sanitizeBinaryImage(imageproc::BinaryImage& image, QRect const& content_rect);
 
-	static void extractTextLines(
-		std::list<std::vector<QPointF> >& out, imageproc::GrayImage const& image,
-		std::pair<QLineF, QLineF> const& bounds, DebugImages* dbg);
+    static void extractTextLines(
+        std::list<std::vector<QPointF> >& out, imageproc::GrayImage const& image,
+        std::pair<QLineF, QLineF> const& bounds, DebugImages* dbg);
 
-	static Vec2f calcAvgUnitVector(std::pair<QLineF, QLineF> const& bounds);
+    static Vec2f calcAvgUnitVector(std::pair<QLineF, QLineF> const& bounds);
 
-	static imageproc::BinaryImage closeWithObstacles(
-		imageproc::BinaryImage const& image,
-		imageproc::BinaryImage const& obstacles, QSize const& brick);
+    static imageproc::BinaryImage closeWithObstacles(
+        imageproc::BinaryImage const& image,
+        imageproc::BinaryImage const& obstacles, QSize const& brick);
 
-	static QLineF calcMidLine(QLineF const& line1, QLineF const& line2);
+    static QLineF calcMidLine(QLineF const& line1, QLineF const& line2);
 
-	static void findMidLineSeeds(
-		imageproc::SEDM const& sedm, QLineF mid_line, std::vector<QPoint>& seeds);
+    static void findMidLineSeeds(
+        imageproc::SEDM const& sedm, QLineF mid_line, std::vector<QPoint>& seeds);
 
-	static bool isCurvatureConsistent(std::vector<QPointF> const& polyline);
+    static bool isCurvatureConsistent(std::vector<QPointF> const& polyline);
 
-	static bool isInsideBounds(
-		QPointF const& pt, QLineF const& left_bound, QLineF const& right_bound);
+    static bool isInsideBounds(
+        QPointF const& pt, QLineF const& left_bound, QLineF const& right_bound);
 
-	static void filterShortCurves(std::list<std::vector<QPointF> >& polylines,
-		QLineF const& left_bound, QLineF const& right_bound);
+    static void filterShortCurves(std::list<std::vector<QPointF> >& polylines,
+                                  QLineF const& left_bound, QLineF const& right_bound);
 
-	static void filterOutOfBoundsCurves(std::list<std::vector<QPointF> >& polylines,
-		QLineF const& left_bound, QLineF const& right_bound);
+    static void filterOutOfBoundsCurves(std::list<std::vector<QPointF> >& polylines,
+                                        QLineF const& left_bound, QLineF const& right_bound);
 
-	static void filterEdgyCurves(std::list<std::vector<QPointF> >& polylines);
+    static void filterEdgyCurves(std::list<std::vector<QPointF> >& polylines);
 
-	static QImage visualizeVerticalBounds(
-		QImage const& background, std::pair<QLineF, QLineF> const& bounds);
+    static QImage visualizeVerticalBounds(
+        QImage const& background, std::pair<QLineF, QLineF> const& bounds);
 
-	static QImage visualizeGradient(QImage const& background, Grid<float> const& grad);
+    static QImage visualizeGradient(QImage const& background, Grid<float> const& grad);
 
-	static QImage visualizeMidLineSeeds(QImage const& background, imageproc::BinaryImage const& overlay,
-		std::pair<QLineF, QLineF> bounds, QLineF mid_line, std::vector<QPoint> const& seeds);
+    static QImage visualizeMidLineSeeds(QImage const& background, imageproc::BinaryImage const& overlay,
+                                        std::pair<QLineF, QLineF> bounds, QLineF mid_line, std::vector<QPoint> const& seeds);
 
-	static QImage visualizePolylines(
-		QImage const& background, std::list<std::vector<QPointF> > const& polylines,
-		std::pair<QLineF, QLineF> const* vert_bounds = 0);
+    static QImage visualizePolylines(
+        QImage const& background, std::list<std::vector<QPointF> > const& polylines,
+        std::pair<QLineF, QLineF> const* vert_bounds = 0);
 };
 
 } // namespace dewarping

@@ -32,42 +32,42 @@ namespace fix_orientation
 class Settings;
 
 class OptionsWidget :
-	public FilterOptionsWidget, private Ui::OrientationOptionsWidget
+    public FilterOptionsWidget, private Ui::OrientationOptionsWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	OptionsWidget(IntrusivePtr<Settings> const& settings,
-		PageSelectionAccessor const& page_selection_accessor);
-	
-	virtual ~OptionsWidget();
-	
-	void preUpdateUI(PageId const& page_id, OrthogonalRotation rotation);
-	
-	void postUpdateUI(OrthogonalRotation rotation);
+    OptionsWidget(IntrusivePtr<Settings> const& settings,
+                  PageSelectionAccessor const& page_selection_accessor);
+
+    virtual ~OptionsWidget();
+
+    void preUpdateUI(PageId const& page_id, OrthogonalRotation rotation);
+
+    void postUpdateUI(OrthogonalRotation rotation);
 signals:
-	void rotated(OrthogonalRotation rotation);
+    void rotated(OrthogonalRotation rotation);
 private slots:
-	void rotateLeft();
-	
-	void rotateRight();
-	
-	void resetRotation();
-	
-	void showApplyToDialog();
+    void rotateLeft();
+
+    void rotateRight();
+
+    void resetRotation();
+
+    void showApplyToDialog();
 
 private:
-	void setRotation(OrthogonalRotation rotation);
-	
-	void setRotationPixmap();
+    void setRotation(OrthogonalRotation rotation);
+
+    void setRotationPixmap();
 
     void appliedTo(std::set<PageId> const& pages);
 
     void appliedToAllPages(std::set<PageId> const& pages);
-	
-	IntrusivePtr<Settings> m_ptrSettings;
-	PageSelectionAccessor m_pageSelectionAccessor;
-	PageId m_pageId;
-	OrthogonalRotation m_rotation;
+
+    IntrusivePtr<Settings> m_ptrSettings;
+    PageSelectionAccessor m_pageSelectionAccessor;
+    PageId m_pageId;
+    OrthogonalRotation m_rotation;
 };
 
 } // namespace fix_orientation

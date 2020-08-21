@@ -31,58 +31,56 @@
 #include <stdio.h>
 #endif
 
-
 bool
 Utils::overwritingRename(QString const& from, QString const& to)
 {
 #ifdef Q_OS_WIN
-	return MoveFileExW(
-		(WCHAR*)from.utf16(), (WCHAR*)to.utf16(),
-		MOVEFILE_REPLACE_EXISTING
-	) != 0;
+    return MoveFileExW(
+               (WCHAR*)from.utf16(), (WCHAR*)to.utf16(),
+               MOVEFILE_REPLACE_EXISTING
+           ) != 0;
 #else
-	return rename(
-		QFile::encodeName(from).data(),
-		QFile::encodeName(to).data()
-	) == 0;
+    return rename(
+               QFile::encodeName(from).data(),
+               QFile::encodeName(to).data()
+           ) == 0;
 #endif
 }
 
 QString
 Utils::richTextForLink(
-	QString const& label, QString const& target)
+    QString const& label, QString const& target)
 {
     return QString::fromLatin1(
-        "<a href=\"%1\">%2</a>"
-    ).arg(target.toHtmlEscaped(), label.toHtmlEscaped());
+               "<a href=\"%1\">%2</a>"
+           ).arg(target.toHtmlEscaped(), label.toHtmlEscaped());
 }
 
 void
 Utils::maybeCreateCacheDir(QString const& output_dir)
 {
-	QDir(output_dir).mkdir(QLatin1String("cache"));
-	
-	// QDir::mkdir() returns false if the directory already exists,
-	// so to prevent confusion this function return void.
+    QDir(output_dir).mkdir(QLatin1String("cache"));
+
+    // QDir::mkdir() returns false if the directory already exists,
+    // so to prevent confusion this function return void.
 }
 
 QString
 Utils::outputDirToThumbDir(QString const& output_dir)
 {
-	return output_dir+QLatin1String("/cache/thumbs");
+    return output_dir + QLatin1String("/cache/thumbs");
 }
 
 IntrusivePtr<ThumbnailPixmapCache>
 Utils::createThumbnailCache(QString const& output_dir)
 {
     QSize const max_pixmap_size = QSettings().value(_key_thumbnails_max_cache_pixmap_size, _key_thumbnails_max_cache_pixmap_size_def).toSize();
-	QString const thumbs_cache_path(outputDirToThumbDir(output_dir));
-	
-	return IntrusivePtr<ThumbnailPixmapCache>(
-		new ThumbnailPixmapCache(thumbs_cache_path, max_pixmap_size, 40, 5)
-	);
-}
+    QString const thumbs_cache_path(outputDirToThumbDir(output_dir));
 
+    return IntrusivePtr<ThumbnailPixmapCache>(
+               new ThumbnailPixmapCache(thumbs_cache_path, max_pixmap_size, 40, 5)
+           );
+}
 
 qreal
 Utils::adjustByDpiAndUnits(qreal val, qreal const dpi,

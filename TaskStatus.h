@@ -22,13 +22,13 @@
 class TaskStatus
 {
 public:
-	virtual ~TaskStatus() {}
-	
-	virtual void cancel() = 0;
-	
-	virtual bool isCancelled() const = 0;
-	
-	virtual void throwIfCancelled() const = 0;
+    virtual ~TaskStatus() {}
+
+    virtual void cancel() = 0;
+
+    virtual bool isCancelled() const = 0;
+
+    virtual void throwIfCancelled() const = 0;
 };
 
 #endif

@@ -53,22 +53,22 @@ namespace output
 {
 
 OptionsWidget::OptionsWidget(
-	IntrusivePtr<Settings> const& settings,
-	PageSelectionAccessor const& page_selection_accessor)
-:	m_ptrSettings(settings),
-	m_pageSelectionAccessor(page_selection_accessor),
-	m_despeckleLevel(DESPECKLE_NORMAL),
-	m_lastTab(TAB_OUTPUT),
-	m_ignoreThresholdChanges(0)
+    IntrusivePtr<Settings> const& settings,
+    PageSelectionAccessor const& page_selection_accessor)
+    :   m_ptrSettings(settings),
+        m_pageSelectionAccessor(page_selection_accessor),
+        m_despeckleLevel(DESPECKLE_NORMAL),
+        m_lastTab(TAB_OUTPUT),
+        m_ignoreThresholdChanges(0)
 {
     setupUi(this);
 
     setDespeckleLevel(DESPECKLE_NORMAL);
 
-	depthPerceptionSlider->setMinimum(qRound(DepthPerception::minValue() * 10));
-	depthPerceptionSlider->setMaximum(qRound(DepthPerception::maxValue() * 10));
+    depthPerceptionSlider->setMinimum(qRound(DepthPerception::minValue() * 10));
+    depthPerceptionSlider->setMaximum(qRound(DepthPerception::maxValue() * 10));
 
-	thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
+    thresholdSlider->setToolTip(QString::number(thresholdSlider->value()));
     thresholdSlider->addAction(actionReset_to_default_value);
     QSettings _settings;
     bwForegroundOptions->setVisible(_settings.value(_key_output_foreground_layer_control_threshold, _key_output_foreground_layer_control_threshold_def).toBool());
@@ -77,7 +77,7 @@ OptionsWidget::OptionsWidget(
     m_ignore_system_wheel_settings = _settings.value(_key_mouse_ignore_system_wheel_settings, _key_mouse_ignore_system_wheel_settings_def).toBool();
     thresholdSlider->installEventFilter(this);
     thresholdForegroundSlider->installEventFilter(this);
-    if (m_ignore_system_wheel_settings){
+    if (m_ignore_system_wheel_settings) {
         despeckleSlider->installEventFilter(this);
         depthPerceptionSlider->installEventFilter(this);
     }
@@ -85,19 +85,19 @@ OptionsWidget::OptionsWidget(
     m_menuMode.addAction(actionModeBW);
     m_menuMode.addAction(actionModeColorOrGrayscale);
     m_menuMode.addAction(actionModeMixed);
-	
-	updateDpiDisplay();
-	updateColorsDisplay();
-    updateLayersDisplay();
-	updateDewarpingDisplay();
 
-	connect(
-		whiteMarginsCB, SIGNAL(clicked(bool)),
-		this, SLOT(whiteMarginsToggled(bool))
-	);
-	connect(
-		equalizeIlluminationCB, SIGNAL(clicked(bool)),
-		this, SLOT(equalizeIlluminationToggled(bool))
+    updateDpiDisplay();
+    updateColorsDisplay();
+    updateLayersDisplay();
+    updateDewarpingDisplay();
+
+    connect(
+        whiteMarginsCB, SIGNAL(clicked(bool)),
+        this, SLOT(whiteMarginsToggled(bool))
+    );
+    connect(
+        equalizeIlluminationCB, SIGNAL(clicked(bool)),
+        this, SLOT(equalizeIlluminationToggled(bool))
     );
 
     despeckleSliderPanel->setVisible(false);
@@ -175,17 +175,17 @@ OptionsWidget::~OptionsWidget()
 void
 OptionsWidget::preUpdateUI(PageId const& page_id)
 {
-	Params const params(m_ptrSettings->getParams(page_id));
-	m_pageId = page_id;
-	m_outputDpi = params.outputDpi();
-	m_colorParams = params.colorParams();
+    Params const params(m_ptrSettings->getParams(page_id));
+    m_pageId = page_id;
+    m_outputDpi = params.outputDpi();
+    m_colorParams = params.colorParams();
     m_dewarpingMode = params.dewarpingMode();
-	m_depthPerception = params.depthPerception();
+    m_depthPerception = params.depthPerception();
     setDespeckleLevel(params.despeckleLevel());
-	updateDpiDisplay();
-	updateColorsDisplay();
+    updateDpiDisplay();
+    updateColorsDisplay();
     updateLayersDisplay();
-	updateDewarpingDisplay();
+    updateDewarpingDisplay();
 }
 
 void
@@ -196,37 +196,37 @@ OptionsWidget::postUpdateUI()
 void
 OptionsWidget::tabChanged(ImageViewTab const tab)
 {
-	m_lastTab = tab;
-	updateDpiDisplay();
-	updateColorsDisplay();
+    m_lastTab = tab;
+    updateDpiDisplay();
+    updateColorsDisplay();
     updateLayersDisplay();
-	updateDewarpingDisplay();
-	reloadIfNecessary();
+    updateDewarpingDisplay();
+    reloadIfNecessary();
 }
 
 void
 OptionsWidget::distortionModelChanged(dewarping::DistortionModel const& model)
 {
-	m_ptrSettings->setDistortionModel(m_pageId, model);
-	
-	// Note that OFF remains OFF while AUTO becomes MANUAL.
+    m_ptrSettings->setDistortionModel(m_pageId, model);
+
+    // Note that OFF remains OFF while AUTO becomes MANUAL.
 //begin of modified by monday2000
 // Manual_Dewarp_Auto_Switch
 // OFF becomes MANUAL too.
 // Commented the code below.
-	/*if (m_dewarpingMode == DewarpingMode::AUTO)*/ {
+    /*if (m_dewarpingMode == DewarpingMode::AUTO)*/ {
 //end of modified by monday2000
-		m_ptrSettings->setDewarpingMode(m_pageId, DewarpingMode::MANUAL);
-		m_dewarpingMode = DewarpingMode::MANUAL;
-		updateDewarpingDisplay();
-	}
+        m_ptrSettings->setDewarpingMode(m_pageId, DewarpingMode::MANUAL);
+        m_dewarpingMode = DewarpingMode::MANUAL;
+        updateDewarpingDisplay();
+    }
 }
 
 void
 OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
-{   
+{
     setModeValue(mode);
-	m_colorParams.setColorMode((ColorParams::ColorMode)mode);
+    m_colorParams.setColorMode((ColorParams::ColorMode)mode);
 
     ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
     if (opt.foregroundLayerEnabled()) {
@@ -234,67 +234,67 @@ OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
         m_colorParams.setColorGrayscaleOptions(opt);
     }
 
-    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);    
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     autoLayerCB->setChecked(true);
     pictureZonesLayerCB->setChecked(false);
     foregroundLayerCB->setChecked(false);
-	updateColorsDisplay();
+    updateColorsDisplay();
     updateLayersDisplay();
-	emit reloadRequested();
+    emit reloadRequested();
 }
 
 void
 OptionsWidget::whiteMarginsToggled(bool const checked)
 {
-	ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
-	opt.setWhiteMargins(checked);
-	if (!checked) {
-		opt.setNormalizeIllumination(false);
-		equalizeIlluminationCB->setChecked(false);
-	}
-	m_colorParams.setColorGrayscaleOptions(opt);
+    ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
+    opt.setWhiteMargins(checked);
+    if (!checked) {
+        opt.setNormalizeIllumination(false);
+        equalizeIlluminationCB->setChecked(false);
+    }
+    m_colorParams.setColorGrayscaleOptions(opt);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
-	equalizeIlluminationCB->setEnabled(checked);
-	emit reloadRequested();
+    equalizeIlluminationCB->setEnabled(checked);
+    emit reloadRequested();
 }
 
 void
 OptionsWidget::equalizeIlluminationToggled(bool const checked)
 {
-	ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
-	opt.setNormalizeIllumination(checked);
-	m_colorParams.setColorGrayscaleOptions(opt);
+    ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
+    opt.setNormalizeIllumination(checked);
+    m_colorParams.setColorGrayscaleOptions(opt);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
-	emit reloadRequested();
+    emit reloadRequested();
 }
 
 void
 OptionsWidget::dpiChanged(std::set<PageId> const& pages, Dpi const& dpi)
 {
-	for (PageId const& page_id: pages) {
-		m_ptrSettings->setDpi(page_id, dpi);
-	}
-	emit invalidateAllThumbnails();
-	
-	if (pages.find(m_pageId) != pages.end()) {
-		m_outputDpi = dpi;
-		updateDpiDisplay();
-		emit reloadRequested();
-	}
+    for (PageId const& page_id : pages) {
+        m_ptrSettings->setDpi(page_id, dpi);
+    }
+    emit invalidateAllThumbnails();
+
+    if (pages.find(m_pageId) != pages.end()) {
+        m_outputDpi = dpi;
+        updateDpiDisplay();
+        emit reloadRequested();
+    }
 }
 
 void
 OptionsWidget::applyColorsConfirmed(std::set<PageId> const& pages)
 {
-	for (PageId const& page_id: pages) {
+    for (PageId const& page_id : pages) {
         m_ptrSettings->setColorParams(page_id, m_colorParams, ColorParamsApplyFilter::CopyMode);
-	}
+    }
 
     emit invalidateAllThumbnails();
-	
-	if (pages.find(m_pageId) != pages.end()) {
-		emit reloadRequested();
-	}
+
+    if (pages.find(m_pageId) != pages.end()) {
+        emit reloadRequested();
+    }
 }
 
 void
@@ -325,143 +325,143 @@ void
 OptionsWidget::handleDespeckleLevelChange(DespeckleLevel const level)
 {
     setDespeckleLevel(level);
-	m_ptrSettings->setDespeckleLevel(m_pageId, level);
+    m_ptrSettings->setDespeckleLevel(m_pageId, level);
 
-	bool handled = false;
-	emit despeckleLevelChanged(level, &handled);
-	
-	if (handled) {
-		// This means we are on the "Despeckling" tab.
-		emit invalidateThumbnail(m_pageId);
-	} else {
-		emit reloadRequested();
-	}
+    bool handled = false;
+    emit despeckleLevelChanged(level, &handled);
+
+    if (handled) {
+        // This means we are on the "Despeckling" tab.
+        emit invalidateThumbnail(m_pageId);
+    } else {
+        emit reloadRequested();
+    }
 }
 
 void
 OptionsWidget::applyDespeckleConfirmed(std::set<PageId> const& pages)
 {
-	for (PageId const& page_id: pages) {
-		m_ptrSettings->setDespeckleLevel(page_id, m_despeckleLevel);
-	}
-	emit invalidateAllThumbnails();
-	
-	if (pages.find(m_pageId) != pages.end()) {
-		emit reloadRequested();
-	}
+    for (PageId const& page_id : pages) {
+        m_ptrSettings->setDespeckleLevel(page_id, m_despeckleLevel);
+    }
+    emit invalidateAllThumbnails();
+
+    if (pages.find(m_pageId) != pages.end()) {
+        emit reloadRequested();
+    }
 }
 
 void
 OptionsWidget::dewarpingChanged(std::set<PageId> const& pages, DewarpingMode const& mode)
 {
-	for (PageId const& page_id: pages) {
-		m_ptrSettings->setDewarpingMode(page_id, mode);
-	}
-	emit invalidateAllThumbnails();
-	
-	if (pages.find(m_pageId) != pages.end()) {
-		if (m_dewarpingMode != mode) {
-			m_dewarpingMode = mode;
-			
-			// We reload when we switch to auto dewarping, even if we've just
-			// switched to manual, as we don't store the auto-generated distortion model.
-			// We also have to reload if we are currently on the "Fill Zones" tab,
-			// as it makes use of original <-> dewarped coordinate mapping,
-			// which is too hard to update without reloading.  For consistency,
-			// we reload not just on TAB_FILL_ZONES but on all tabs except TAB_DEWARPING.
-			// PS: the static original <-> dewarped mappings are constructed
-			// in Task::UiUpdater::updateUI().  Look for "new DewarpingPointMapper" there.
-			if (mode == DewarpingMode::AUTO || m_lastTab != TAB_DEWARPING
+    for (PageId const& page_id : pages) {
+        m_ptrSettings->setDewarpingMode(page_id, mode);
+    }
+    emit invalidateAllThumbnails();
+
+    if (pages.find(m_pageId) != pages.end()) {
+        if (m_dewarpingMode != mode) {
+            m_dewarpingMode = mode;
+
+            // We reload when we switch to auto dewarping, even if we've just
+            // switched to manual, as we don't store the auto-generated distortion model.
+            // We also have to reload if we are currently on the "Fill Zones" tab,
+            // as it makes use of original <-> dewarped coordinate mapping,
+            // which is too hard to update without reloading.  For consistency,
+            // we reload not just on TAB_FILL_ZONES but on all tabs except TAB_DEWARPING.
+            // PS: the static original <-> dewarped mappings are constructed
+            // in Task::UiUpdater::updateUI().  Look for "new DewarpingPointMapper" there.
+            if (mode == DewarpingMode::AUTO || m_lastTab != TAB_DEWARPING
 //begin of modified by monday2000
 //Marginal_Dewarping
-				|| mode == DewarpingMode::MARGINAL
+                    || mode == DewarpingMode::MARGINAL
 //end of modified by monday2000
-				) {
-				// Switch to the Output tab after reloading.
-				m_lastTab = TAB_OUTPUT; 
+               ) {
+                // Switch to the Output tab after reloading.
+                m_lastTab = TAB_OUTPUT;
 
-				// These depend on the value of m_lastTab.
-				updateDpiDisplay();
-				updateColorsDisplay();
+                // These depend on the value of m_lastTab.
+                updateDpiDisplay();
+                updateColorsDisplay();
                 updateLayersDisplay();
-				updateDewarpingDisplay();
+                updateDewarpingDisplay();
 
-				emit reloadRequested();
-			} else {
-				// This one we have to call anyway, as it depends on m_dewarpingMode.
-				updateDewarpingDisplay();
-			}
-		}
-	}
+                emit reloadRequested();
+            } else {
+                // This one we have to call anyway, as it depends on m_dewarpingMode.
+                updateDewarpingDisplay();
+            }
+        }
+    }
 }
 
 void
 OptionsWidget::applyDepthPerceptionConfirmed(std::set<PageId> const& pages)
 {
-	for (PageId const& page_id: pages) {
-		m_ptrSettings->setDepthPerception(page_id, m_depthPerception);
-	}
-	emit invalidateAllThumbnails();
-	
-	if (pages.find(m_pageId) != pages.end()) {
-		emit reloadRequested();
-	}
+    for (PageId const& page_id : pages) {
+        m_ptrSettings->setDepthPerception(page_id, m_depthPerception);
+    }
+    emit invalidateAllThumbnails();
+
+    if (pages.find(m_pageId) != pages.end()) {
+        emit reloadRequested();
+    }
 }
 
 void
 OptionsWidget::reloadIfNecessary()
 {
-	ZoneSet saved_picture_zones;
-	ZoneSet saved_fill_zones;
-	DewarpingMode saved_dewarping_mode;
-	dewarping::DistortionModel saved_distortion_model;
-	DepthPerception saved_depth_perception;
-	DespeckleLevel saved_despeckle_level = DESPECKLE_CAUTIOUS;
-	
+    ZoneSet saved_picture_zones;
+    ZoneSet saved_fill_zones;
+    DewarpingMode saved_dewarping_mode;
+    dewarping::DistortionModel saved_distortion_model;
+    DepthPerception saved_depth_perception;
+    DespeckleLevel saved_despeckle_level = DESPECKLE_CAUTIOUS;
+
     std::unique_ptr<OutputParams> output_params(m_ptrSettings->getOutputParams(m_pageId));
-	if (output_params.get()) {
-		saved_picture_zones = output_params->pictureZones();
-		saved_fill_zones = output_params->fillZones();
-		saved_dewarping_mode = output_params->outputImageParams().dewarpingMode();
-		saved_distortion_model = output_params->outputImageParams().distortionModel();
-		saved_depth_perception = output_params->outputImageParams().depthPerception();
-		saved_despeckle_level = output_params->outputImageParams().despeckleLevel();
-	}
+    if (output_params.get()) {
+        saved_picture_zones = output_params->pictureZones();
+        saved_fill_zones = output_params->fillZones();
+        saved_dewarping_mode = output_params->outputImageParams().dewarpingMode();
+        saved_distortion_model = output_params->outputImageParams().distortionModel();
+        saved_depth_perception = output_params->outputImageParams().depthPerception();
+        saved_despeckle_level = output_params->outputImageParams().despeckleLevel();
+    }
 
-	if (!PictureZoneComparator::equal(saved_picture_zones, m_ptrSettings->pictureZonesForPage(m_pageId))) {
-		emit reloadRequested();
-		return;
-	} else if (!FillZoneComparator::equal(saved_fill_zones, m_ptrSettings->fillZonesForPage(m_pageId))) {
-		emit reloadRequested();
-		return;
-	}
+    if (!PictureZoneComparator::equal(saved_picture_zones, m_ptrSettings->pictureZonesForPage(m_pageId))) {
+        emit reloadRequested();
+        return;
+    } else if (!FillZoneComparator::equal(saved_fill_zones, m_ptrSettings->fillZonesForPage(m_pageId))) {
+        emit reloadRequested();
+        return;
+    }
 
-	Params const params(m_ptrSettings->getParams(m_pageId));
+    Params const params(m_ptrSettings->getParams(m_pageId));
 
-	if (saved_despeckle_level != params.despeckleLevel()) {
-		emit reloadRequested();
-		return;
-	}
+    if (saved_despeckle_level != params.despeckleLevel()) {
+        emit reloadRequested();
+        return;
+    }
 
-	if (saved_dewarping_mode == DewarpingMode::OFF && params.dewarpingMode() == DewarpingMode::OFF) {
-		// In this case the following two checks don't matter.
-	} else if (saved_depth_perception.value() != params.depthPerception().value()) {
-		emit reloadRequested();
-		return;
-	} else if (saved_dewarping_mode == DewarpingMode::AUTO && params.dewarpingMode() == DewarpingMode::AUTO) {
-		// The check below doesn't matter in this case.
+    if (saved_dewarping_mode == DewarpingMode::OFF && params.dewarpingMode() == DewarpingMode::OFF) {
+        // In this case the following two checks don't matter.
+    } else if (saved_depth_perception.value() != params.depthPerception().value()) {
+        emit reloadRequested();
+        return;
+    } else if (saved_dewarping_mode == DewarpingMode::AUTO && params.dewarpingMode() == DewarpingMode::AUTO) {
+        // The check below doesn't matter in this case.
 //begin of modified by monday2000
 //Marginal_Dewarping
-	} else if (saved_dewarping_mode == DewarpingMode::MARGINAL && params.dewarpingMode() == DewarpingMode::MARGINAL) {
-		// The check below doesn't matter in this case.
+    } else if (saved_dewarping_mode == DewarpingMode::MARGINAL && params.dewarpingMode() == DewarpingMode::MARGINAL) {
+        // The check below doesn't matter in this case.
 //end of modified by monday2000
-	} else if (!saved_distortion_model.matches(params.distortionModel())) {
-		emit reloadRequested();
-		return;
-	} else if ((saved_dewarping_mode == DewarpingMode::OFF) != (params.dewarpingMode() == DewarpingMode::OFF)) {
-		emit reloadRequested();
-		return;
-	}
+    } else if (!saved_distortion_model.matches(params.distortionModel())) {
+        emit reloadRequested();
+        return;
+    } else if ((saved_dewarping_mode == DewarpingMode::OFF) != (params.dewarpingMode() == DewarpingMode::OFF)) {
+        emit reloadRequested();
+        return;
+    }
 }
 
 void
@@ -469,8 +469,8 @@ OptionsWidget::updateDpiDisplay()
 {
     if (m_outputDpi.horizontal() != m_outputDpi.vertical()) {
         QString dpi_label = tr("%1 x %2 dpi")
-                .arg(m_outputDpi.horizontal())
-                .arg(m_outputDpi.vertical());
+                            .arg(m_outputDpi.horizontal())
+                            .arg(m_outputDpi.vertical());
         dpiValue->setText(Utils::richTextForLink(dpi_label));
     } else {
         QString dpi_label = tr("%1 dpi").arg(QString::number(m_outputDpi.horizontal()));
@@ -484,15 +484,15 @@ void
 OptionsWidget::updateModeValueText()
 {
     switch (m_currentMode) {
-        case ColorParams::BLACK_AND_WHITE:
-            modeValue->setText(Utils::richTextForLink(actionModeBW->toolTip()));
-            break;
-        case ColorParams::COLOR_GRAYSCALE:
-            modeValue->setText(Utils::richTextForLink(actionModeColorOrGrayscale->toolTip()));
-            break;
-        case ColorParams::MIXED:
-            modeValue->setText(Utils::richTextForLink(actionModeMixed->toolTip()));
-            break;
+    case ColorParams::BLACK_AND_WHITE:
+        modeValue->setText(Utils::richTextForLink(actionModeBW->toolTip()));
+        break;
+    case ColorParams::COLOR_GRAYSCALE:
+        modeValue->setText(Utils::richTextForLink(actionModeColorOrGrayscale->toolTip()));
+        break;
+    case ColorParams::MIXED:
+        modeValue->setText(Utils::richTextForLink(actionModeMixed->toolTip()));
+        break;
     }
 }
 void
@@ -534,64 +534,64 @@ OptionsWidget::updateLayersDisplay()
 
 void
 OptionsWidget::updateColorsDisplay()
-{	
+{
     setModeValue(m_colorParams.colorMode());
 
-	bool color_grayscale_options_visible = false;
-	bool bw_options_visible = false;
+    bool color_grayscale_options_visible = false;
+    bool bw_options_visible = false;
     bool foreground_treshhold_options_visible = false;
     bool despeckle_controls_enbled = true;
 
     switch (m_currentMode) {
-        case ColorParams::BLACK_AND_WHITE:
-            bw_options_visible = true;
-            break;
-        case ColorParams::COLOR_GRAYSCALE:
-            color_grayscale_options_visible = true;
-            despeckle_controls_enbled = false;
-            break;
-        case ColorParams::MIXED:
-            bw_options_visible = true;
-            color_grayscale_options_visible = true;
-            foreground_treshhold_options_visible = QSettings().value(_key_output_foreground_layer_control_threshold, _key_output_foreground_layer_control_threshold_def).toBool();
-            break;
+    case ColorParams::BLACK_AND_WHITE:
+        bw_options_visible = true;
+        break;
+    case ColorParams::COLOR_GRAYSCALE:
+        color_grayscale_options_visible = true;
+        despeckle_controls_enbled = false;
+        break;
+    case ColorParams::MIXED:
+        bw_options_visible = true;
+        color_grayscale_options_visible = true;
+        foreground_treshhold_options_visible = QSettings().value(_key_output_foreground_layer_control_threshold, _key_output_foreground_layer_control_threshold_def).toBool();
+        break;
     }
-	
+
     illuminationPanel->setVisible(color_grayscale_options_visible);
-	if (color_grayscale_options_visible) {
-		ColorGrayscaleOptions const opt(
-			m_colorParams.colorGrayscaleOptions()
-		);
-		whiteMarginsCB->setChecked(opt.whiteMargins());
+    if (color_grayscale_options_visible) {
+        ColorGrayscaleOptions const opt(
+            m_colorParams.colorGrayscaleOptions()
+        );
+        whiteMarginsCB->setChecked(opt.whiteMargins());
         whiteMarginsCB->setEnabled(m_currentMode != ColorParams::MIXED); // Mixed must have margins
-		equalizeIlluminationCB->setChecked(opt.normalizeIllumination());
-		equalizeIlluminationCB->setEnabled(opt.whiteMargins());
-	}
-	
-	modePanel->setVisible(m_lastTab != TAB_DEWARPING);
+        equalizeIlluminationCB->setChecked(opt.normalizeIllumination());
+        equalizeIlluminationCB->setEnabled(opt.whiteMargins());
+    }
+
+    modePanel->setVisible(m_lastTab != TAB_DEWARPING);
     layersPanel->setVisible(m_currentMode == ColorParams::MIXED);
     bwOptions->setVisible(bw_options_visible);
     despecklingPanel->setVisible(despeckle_controls_enbled && m_lastTab != TAB_DEWARPING);
 
     if (bw_options_visible) {
-		ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
+        ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
         thresholdSlider->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
-	}
+    }
 
     if (despeckle_controls_enbled) {
         switch (m_despeckleLevel) {
-            case DESPECKLE_OFF:
-                despeckleOffBtn->setChecked(true);
-                break;
-            case DESPECKLE_CAUTIOUS:
-                despeckleCautiousBtn->setChecked(true);
-                break;
-            case DESPECKLE_NORMAL:
-                despeckleNormalBtn->setChecked(true);
-                break;
-            case DESPECKLE_AGGRESSIVE:
-                despeckleAggressiveBtn->setChecked(true);
-                break;
+        case DESPECKLE_OFF:
+            despeckleOffBtn->setChecked(true);
+            break;
+        case DESPECKLE_CAUTIOUS:
+            despeckleCautiousBtn->setChecked(true);
+            break;
+        case DESPECKLE_NORMAL:
+            despeckleNormalBtn->setChecked(true);
+            break;
+        case DESPECKLE_AGGRESSIVE:
+            despeckleAggressiveBtn->setChecked(true);
+            break;
         }
     } else {
         despeckleOffBtn->setChecked(true);
@@ -599,7 +599,7 @@ OptionsWidget::updateColorsDisplay()
 
     bwForegroundOptions->setVisible(foreground_treshhold_options_visible);
     if (foreground_treshhold_options_visible) {
-       thresholdForegroundSlider->setValue(m_colorParams.blackWhiteOptions().thresholdForegroundAdjustment());
+        thresholdForegroundSlider->setValue(m_colorParams.blackWhiteOptions().thresholdForegroundAdjustment());
     }
 
 }
@@ -607,36 +607,36 @@ OptionsWidget::updateColorsDisplay()
 void
 OptionsWidget::updateDewarpingDisplay()
 {
-	depthPerceptionPanel->setVisible(m_lastTab == TAB_DEWARPING);
+    depthPerceptionPanel->setVisible(m_lastTab == TAB_DEWARPING);
 
-	switch (m_dewarpingMode) {
-		case DewarpingMode::OFF:
-            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Off")));
-			break;
-		case DewarpingMode::AUTO:
-            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Auto")));
-			break;
-		case DewarpingMode::MANUAL:
-            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Manual")));
-			break;
+    switch (m_dewarpingMode) {
+    case DewarpingMode::OFF:
+        dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Off")));
+        break;
+    case DewarpingMode::AUTO:
+        dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Auto")));
+        break;
+    case DewarpingMode::MANUAL:
+        dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Manual")));
+        break;
 //begin of modified by monday2000
 //Marginal_Dewarping
-		case DewarpingMode::MARGINAL:
-            dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Marginal")));
-			break;
+    case DewarpingMode::MARGINAL:
+        dewarpingStatusLabel->setText(Utils::richTextForLink(tr("Marginal")));
+        break;
 //end of modified by monday2000
-	}
+    }
 
-	depthPerceptionSlider->blockSignals(true);
-	depthPerceptionSlider->setValue(qRound(m_depthPerception.value() * 10));
-	depthPerceptionSlider->blockSignals(false);
+    depthPerceptionSlider->blockSignals(true);
+    depthPerceptionSlider->setValue(qRound(m_depthPerception.value() * 10));
+    depthPerceptionSlider->blockSignals(false);
     depthPerceptionValue->setText(QString::number(0.1 * depthPerceptionSlider->value()));
 }
 
 void
 OptionsWidget::updateDespeckleValueText()
 {
-    switch(m_despeckleLevel) {
+    switch (m_despeckleLevel) {
     case DESPECKLE_OFF: despeckleValue->setText(tr("Off")); break;
     case DESPECKLE_CAUTIOUS: despeckleValue->setText(tr("Cautious")); break;
     case DESPECKLE_NORMAL: despeckleValue->setText(tr("Normal")); break;
@@ -668,13 +668,13 @@ void output::OptionsWidget::on_depthPerceptionSlider_valueChanged(int value)
     emit depthPerceptionChanged(m_depthPerception.value());
 }
 
-void output::OptionsWidget::on_applyDepthPerception_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_applyDepthPerception_linkActivated(const QString& /*link*/)
 {
     ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Depth Perception"));
     connect(
-                dialog, &ApplyToDialog::accepted,
-                this, [=](){
+        dialog, &ApplyToDialog::accepted,
+    this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         applyDepthPerceptionConfirmed(pages);
@@ -683,7 +683,7 @@ void output::OptionsWidget::on_applyDepthPerception_linkActivated(const QString 
     dialog->show();
 }
 
-void output::OptionsWidget::on_dewarpingStatusLabel_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_dewarpingStatusLabel_linkActivated(const QString& /*link*/)
 {
     ApplyToDialog* dialog = new ApplyToDialog(
         this, m_pageId, m_pageSelectionAccessor);
@@ -693,7 +693,7 @@ void output::OptionsWidget::on_dewarpingStatusLabel_linkActivated(const QString 
     dialog->initNewTopSettingsPanel().addWidget(options);
     connect(
         dialog, &ApplyToDialog::accepted,
-                [=]() {
+    [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         dewarpingChanged(pages, options->dewarpingMode());
@@ -703,13 +703,13 @@ void output::OptionsWidget::on_dewarpingStatusLabel_linkActivated(const QString 
     dialog->show();
 }
 
-void output::OptionsWidget::on_applyDespeckleButton_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_applyDespeckleButton_linkActivated(const QString& /*link*/)
 {
     ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Despeckling Level"));
     connect(
-                dialog, &ApplyToDialog::accepted,
-                this, [=](){
+        dialog, &ApplyToDialog::accepted,
+    this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         applyDespeckleConfirmed(pages);
@@ -719,13 +719,13 @@ void output::OptionsWidget::on_applyDespeckleButton_linkActivated(const QString 
     dialog->show();
 }
 
-void output::OptionsWidget::on_applyColorsButton_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_applyColorsButton_linkActivated(const QString& /*link*/)
 {
     ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Mode"));
     connect(
-                dialog, &ApplyToDialog::accepted,
-                this, [=](){
+        dialog, &ApplyToDialog::accepted,
+    this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         applyColorsConfirmed(pages);
@@ -735,10 +735,9 @@ void output::OptionsWidget::on_applyColorsButton_linkActivated(const QString &/*
     dialog->show();
 }
 
-
-void output::OptionsWidget::on_modeValue_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_modeValue_linkActivated(const QString& /*link*/)
 {
-    m_menuMode.popup(modeValue->mapToGlobal(QPoint(0,modeValue->geometry().height())));
+    m_menuMode.popup(modeValue->mapToGlobal(QPoint(0, modeValue->geometry().height())));
 }
 
 void output::OptionsWidget::on_actionModeBW_triggered()
@@ -764,7 +763,7 @@ void output::OptionsWidget::on_actionModeMixed_triggered()
 
 void output::OptionsWidget::on_despeckleSlider_valueChanged(int value)
 {
-    switch(value) {
+    switch (value) {
     case 0: handleDespeckleLevelChange(DESPECKLE_OFF); break;
     case 1: handleDespeckleLevelChange(DESPECKLE_CAUTIOUS); break;
     case 2: handleDespeckleLevelChange(DESPECKLE_NORMAL); break;
@@ -776,10 +775,10 @@ void output::OptionsWidget::on_despeckleSlider_valueChanged(int value)
 
 int sum_y = 0;
 
-bool output::OptionsWidget::eventFilter(QObject *obj, QEvent *event)
+bool output::OptionsWidget::eventFilter(QObject* obj, QEvent* event)
 {
     if (!(obj && event
-          && (QString(obj->metaObject()->className()) == "QSlider"))) {
+            && (QString(obj->metaObject()->className()) == "QSlider"))) {
         return false;
     }
 
@@ -790,8 +789,8 @@ bool output::OptionsWidget::eventFilter(QObject *obj, QEvent *event)
             if (!angleDelta.isNull()) {
                 sum_y += angleDelta.y();
                 if (abs(sum_y) >= 30) {
-                    QSlider* slider= (QSlider*) obj;
-                    int dy = (sum_y > 0) ? slider->singleStep() : -1*slider->singleStep();
+                    QSlider* slider = (QSlider*) obj;
+                    int dy = (sum_y > 0) ? slider->singleStep() : -1 * slider->singleStep();
                     slider->setValue(slider->value() + dy);
                     sum_y = 0;
                     e->accept();
@@ -800,19 +799,19 @@ bool output::OptionsWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (event->type() == QEvent::Paint) {
-        QSlider* slider= (QSlider*) obj;
-        if (slider->minimum() <=0 && slider->maximum() >= 0) {
+        QSlider* slider = (QSlider*) obj;
+        if (slider->minimum() <= 0 && slider->maximum() >= 0) {
             int position = QStyle::sliderPositionFromValue(slider->minimum(),
-                                                           slider->maximum(),
-                                                           0,
-                                                           slider->width());
+                           slider->maximum(),
+                           0,
+                           slider->width());
             QPainter painter(slider);
             QPen p(painter.pen());
             p.setColor(QColor(Qt::blue));
             p.setWidth(3);
             painter.setPen(p);
             //        painter.drawText(QPointF(position-5, 0, position+5, slider->height()/2), "0");
-            painter.drawLine(position, 0, position, slider->height()/2-6);
+            painter.drawLine(position, 0, position, slider->height() / 2 - 6);
         }
     }
 
@@ -893,7 +892,6 @@ void output::OptionsWidget::on_thresholdForegroundSlider_valueChanged()
         return;
     }
 
-
     BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
     if (opt.thresholdForegroundAdjustment() == value) {
         // Didn't change.
@@ -908,8 +906,7 @@ void output::OptionsWidget::on_thresholdForegroundSlider_valueChanged()
     emit invalidateThumbnail(m_pageId);
 }
 
-
-void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_dpiValue_linkActivated(const QString& /*link*/)
 {
     ApplyToDialog* dialog = new ApplyToDialog(
         this, m_pageId, m_pageSelectionAccessor
@@ -920,11 +917,11 @@ void output::OptionsWidget::on_dpiValue_linkActivated(const QString &/*link*/)
     dialog->setWindowTitle(tr("Apply Output Resolution"));
     dialog->initNewTopSettingsPanel().addWidget(options);
 
-    connect(dialog, &ApplyToDialog::accepted, this, [=]() {
+    connect(dialog, &ApplyToDialog::accepted, this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         const int dpi = options->dpi();
-        dpiChanged(pages, Dpi( dpi, dpi ));
+        dpiChanged(pages, Dpi(dpi, dpi));
     });
 
     dialog->show();
@@ -938,7 +935,7 @@ void output::OptionsWidget::on_actionReset_to_default_value_triggered()
 
 void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& pages, ColorParamsApplyFilter const& paramFilter)
 {
-    for (PageId const& page_id: pages) {
+    for (PageId const& page_id : pages) {
         m_ptrSettings->setColorParams(page_id, m_colorParams, paramFilter);
     }
 
@@ -949,13 +946,13 @@ void output::OptionsWidget::applyThresholdConfirmed(std::set<PageId> const& page
     }
 }
 
-void output::OptionsWidget::on_applyThresholdButton_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_applyThresholdButton_linkActivated(const QString& /*link*/)
 {
     ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Threshold"));
     connect(
-                dialog, &ApplyToDialog::accepted,
-                this, [=](){
+        dialog, &ApplyToDialog::accepted,
+    this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         applyThresholdConfirmed(pages, ColorParamsApplyFilter::CopyThreshold);
@@ -1019,13 +1016,13 @@ void output::OptionsWidget::on_autoLayerCB_toggled(bool checked)
     }
 }
 
-void output::OptionsWidget::on_applyForegroundThresholdButton_linkActivated(const QString &/*link*/)
+void output::OptionsWidget::on_applyForegroundThresholdButton_linkActivated(const QString& /*link*/)
 {
     ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Apply Foreground layer threshold"));
     connect(
-                dialog, &ApplyToDialog::accepted,
-                this, [=](){
+        dialog, &ApplyToDialog::accepted,
+    this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         applyThresholdConfirmed(pages, ColorParamsApplyFilter::CopyForegroundThreshold);
@@ -1079,14 +1076,14 @@ void output::OptionsWidget::copyZoneToPagesDlgRequest(void* z)
     ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Copy zone and its settings to:"));
     connect(
-                dialog, &ApplyToDialog::accepted,
-                this, [=](){
+        dialog, &ApplyToDialog::accepted,
+    this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
-        for (PageId const& page_id: pages) {
+        for (PageId const& page_id : pages) {
             if (page_id != m_pageId) {
                 ZoneSet zones = is_fill_zone ? m_ptrSettings->fillZonesForPage(page_id)
-                                             : m_ptrSettings->pictureZonesForPage(page_id);
+                                : m_ptrSettings->pictureZonesForPage(page_id);
                 zones.add(zone);
                 if (is_fill_zone) {
                     m_ptrSettings->setFillZones(page_id, zones);
@@ -1103,14 +1100,13 @@ void output::OptionsWidget::copyZoneToPagesDlgRequest(void* z)
     dialog->show();
 }
 
-
 bool removeZonesWithUUID(const ZoneSet& zones, const QString& uuid, ZoneSet& new_zones)
 {
     new_zones.clear();
     bool changed = false;
-    for (const Zone& z: zones) {
+    for (const Zone& z : zones) {
         IntrusivePtr<const output::VirtualZoneProperty> ptrSet =
-                z.properties().locate<output::VirtualZoneProperty>();
+            z.properties().locate<output::VirtualZoneProperty>();
         if (ptrSet.get()) {
             if (ptrSet->uuid() == uuid) {
                 changed = true;
@@ -1125,14 +1121,17 @@ bool removeZonesWithUUID(const ZoneSet& zones, const QString& uuid, ZoneSet& new
 
 void output::OptionsWidget::deleteZoneFromPagesDlgRequest(void* z)
 {
-    if (!z) return;
+    if (!z) {
+        return;
+    }
 
     const Zone* zone = static_cast<const Zone*>(z);
     const IntrusivePtr<const output::VirtualZoneProperty> ptrSet =
-    zone->properties().locate<output::VirtualZoneProperty>();
+        zone->properties().locate<output::VirtualZoneProperty>();
 
-    if (!ptrSet.get())
+    if (!ptrSet.get()) {
         return;
+    }
 
     QString uuid = ptrSet->uuid();
     delete zone;
@@ -1142,14 +1141,14 @@ void output::OptionsWidget::deleteZoneFromPagesDlgRequest(void* z)
     ApplyToDialog* dialog = new ApplyToDialog(this, m_pageId, m_pageSelectionAccessor);
     dialog->setWindowTitle(tr("Find and remove this zone from:"));
     connect(
-                dialog, &ApplyToDialog::accepted,
-                this, [=](){
+        dialog, &ApplyToDialog::accepted,
+    this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
         bool changed = false;
-        for (PageId const& page_id: pages) {
+        for (PageId const& page_id : pages) {
             ZoneSet zones = is_fill_zone ? m_ptrSettings->fillZonesForPage(page_id)
-                                         : m_ptrSettings->pictureZonesForPage(page_id);
+                            : m_ptrSettings->pictureZonesForPage(page_id);
             ZoneSet new_zones;
             if (removeZonesWithUUID(zones, uuid, new_zones)) {
                 changed = true;

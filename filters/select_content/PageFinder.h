@@ -36,7 +36,7 @@ class QSize;
 
 namespace imageproc
 {
-	class BinaryImage;
+class BinaryImage;
 }
 
 namespace select_content
@@ -45,13 +45,13 @@ namespace select_content
 class PageFinder
 {
 public:
-	static QRectF findPageBox(
+    static QRectF findPageBox(
         TaskStatus const& status, FilterData const& data, bool fine_tune, QSizeF const& box, double tolerance, Margins borders, DebugImages* dbg = 0);
 private:
-	static QRect detectBorders(QImage const& img);
-	static int detectEdge(QImage const& img, int start, int end, int inc, int mid, Qt::Orientation orient);
-	static void fineTuneCorners(QImage const& img, QRect &rect, QSize const& size, double tolerance);
-	static bool fineTuneCorner(QImage const& img, int &x, int &y, int max_x, int max_y, int inc_x, int inc_y, QSize const& size, double tolerance);
+    static QRect detectBorders(QImage const& img);
+    static int detectEdge(QImage const& img, int start, int end, int inc, int mid, Qt::Orientation orient);
+    static void fineTuneCorners(QImage const& img, QRect& rect, QSize const& size, double tolerance);
+    static bool fineTuneCorner(QImage const& img, int& x, int& y, int max_x, int max_y, int inc_x, int inc_y, QSize const& size, double tolerance);
 };
 
 } // namespace select_content

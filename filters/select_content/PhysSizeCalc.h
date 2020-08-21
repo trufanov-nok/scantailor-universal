@@ -30,15 +30,15 @@ namespace select_content
 
 class PhysSizeCalc
 {
-	// Member-wise copying is OK.
+    // Member-wise copying is OK.
 public:
-	PhysSizeCalc();
+    PhysSizeCalc();
 
-	explicit PhysSizeCalc(ImageTransformation const& xform);
+    explicit PhysSizeCalc(ImageTransformation const& xform);
 
-	QSizeF sizeMM(QRectF const& rect_px) const;
+    QSizeF sizeMM(QRectF const& rect_px) const;
 private:
-	QTransform m_virtToPhys;
+    QTransform m_virtToPhys;
 };
 
 } // namespace select_content

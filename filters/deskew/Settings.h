@@ -35,43 +35,61 @@ namespace deskew
 
 class Settings : public RefCountable
 {
-	DECLARE_NON_COPYABLE(Settings)
+    DECLARE_NON_COPYABLE(Settings)
 public:
-	Settings();
-	
-	virtual ~Settings();
-	
-	void clear();
+    Settings();
+
+    virtual ~Settings();
+
+    void clear();
 
     void performRelinking(AbstractRelinker const& relinker);
 
     void updateDeviation();
-	
-	void setPageParams(PageId const& page_id, Params const& params);
-	
-	void clearPageParams(PageId const& page_id);
-	
-	std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
-	
+
+    void setPageParams(PageId const& page_id, Params const& params);
+
+    void clearPageParams(PageId const& page_id);
+
+    std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
+
     void setDegress(std::set<PageId> const& pages, Params const& params);
 
-	double maxDeviation() const { return m_maxDeviation; }
-	void setMaxDeviation(double md) { m_maxDeviation = md; }
+    double maxDeviation() const
+    {
+        return m_maxDeviation;
+    }
+    void setMaxDeviation(double md)
+    {
+        m_maxDeviation = md;
+    }
 
-    double avg() const { return m_avg; }
-    void setAvg(double a) { m_avg = a; }
+    double avg() const
+    {
+        return m_avg;
+    }
+    void setAvg(double a)
+    {
+        m_avg = a;
+    }
 
-    double std() const { return m_sigma; }
-    void setStd(double s) { m_sigma = s; }
+    double std() const
+    {
+        return m_sigma;
+    }
+    void setStd(double s)
+    {
+        m_sigma = s;
+    }
 
 private:
-	typedef std::map<PageId, Params> PerPageParams;
-	
-	mutable QMutex m_mutex;
+    typedef std::map<PageId, Params> PerPageParams;
+
+    mutable QMutex m_mutex;
     PerPageParams m_perPageParams;
     double m_avg;
     double m_sigma;
-	double m_maxDeviation;
+    double m_maxDeviation;
 };
 
 } // namespace deskew

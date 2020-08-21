@@ -26,7 +26,7 @@ enum BWColor { WHITE = 0, BLACK = 1 };
 
 inline BWColor operator!(BWColor c)
 {
-	return static_cast<BWColor>(~c & 1);
+    return static_cast<BWColor>(~c & 1);
 }
 
 } // namespace imageproc

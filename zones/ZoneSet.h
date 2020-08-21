@@ -1,19 +1,19 @@
 /*
-	Scan Tailor - Interactive post-processing tool for scanned pages.
-	Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Scan Tailor - Interactive post-processing tool for scanned pages.
+    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef ZONE_SET_H_
@@ -32,60 +32,87 @@ class QString;
 class ZoneSet
 {
 public:
-	class const_iterator : public boost::iterator_facade<
-		const_iterator, Zone const, boost::forward_traversal_tag
-	>
-	{
-		friend class ZoneSet;
-		friend class boost::iterator_core_access;
-	public:
-		const_iterator() {}
+    class const_iterator : public boost::iterator_facade <
+        const_iterator, Zone const, boost::forward_traversal_tag
+        >
+    {
+        friend class ZoneSet;
+        friend class boost::iterator_core_access;
+    public:
+        const_iterator() {}
 
-		void increment() { ++m_it; }
+        void increment()
+        {
+            ++m_it;
+        }
 
-		bool equal(const_iterator const& other) const {
-			return m_it == other.m_it;
-		}
+        bool equal(const_iterator const& other) const
+        {
+            return m_it == other.m_it;
+        }
 
-		Zone const& dereference() const { return *m_it; }
-	private:
-		explicit const_iterator(std::list<Zone>::const_iterator it) : m_it(it) {}
+        Zone const& dereference() const
+        {
+            return *m_it;
+        }
+    private:
+        explicit const_iterator(std::list<Zone>::const_iterator it) : m_it(it) {}
 
-		std::list<Zone>::const_iterator m_it;
-	};
+        std::list<Zone>::const_iterator m_it;
+    };
 
-	typedef const_iterator iterator;
-
+    typedef const_iterator iterator;
 
     ZoneSet(int pictureZonesSensitivity = GlobalStaticSettings::m_picture_detection_sensitivity):
-    m_pictureZonesSensitivity(pictureZonesSensitivity)
+        m_pictureZonesSensitivity(pictureZonesSensitivity)
     {}
 
-	ZoneSet(QDomElement const& el, PropertyFactory const& prop_factory);
+    ZoneSet(QDomElement const& el, PropertyFactory const& prop_factory);
 
-	virtual ~ZoneSet() {}
+    virtual ~ZoneSet() {}
 
-	QDomElement toXml(QDomDocument& doc, QString const& name) const;
+    QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
-	bool empty() const { return m_zones.empty(); }
+    bool empty() const
+    {
+        return m_zones.empty();
+    }
 
-    void clear() { return m_zones.clear(); }
+    void clear()
+    {
+        return m_zones.clear();
+    }
 
-    void add(Zone const& zone) { m_zones.push_back(zone); }
+    void add(Zone const& zone)
+    {
+        m_zones.push_back(zone);
+    }
 
-	const_iterator begin() const { return const_iterator(m_zones.begin()); }
+    const_iterator begin() const
+    {
+        return const_iterator(m_zones.begin());
+    }
 
-	const_iterator end() const { return const_iterator(m_zones.end()); }
+    const_iterator end() const
+    {
+        return const_iterator(m_zones.end());
+    }
 //begin of modified by monday2000
 //Quadro_Zoner
-	void remove_auto_zones();
-	bool auto_zones_found();
+    void remove_auto_zones();
+    bool auto_zones_found();
 //end of modified by monday2000
-    int pictureZonesSensitivity() const { return m_pictureZonesSensitivity; }
+    int pictureZonesSensitivity() const
+    {
+        return m_pictureZonesSensitivity;
+    }
 
-    void setPictureZonesSensitivity(int val) { m_pictureZonesSensitivity = val; }
+    void setPictureZonesSensitivity(int val)
+    {
+        m_pictureZonesSensitivity = val;
+    }
 private:
-	std::list<Zone> m_zones;
+    std::list<Zone> m_zones;
     int  m_pictureZonesSensitivity;
 };
 

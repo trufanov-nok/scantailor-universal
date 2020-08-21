@@ -22,7 +22,7 @@
 #include <QStandardItemModel>
 #include <QPainter>
 
-AlignmentWidget::AlignmentWidget(QWidget *parent, Alignment *alignment) :
+AlignmentWidget::AlignmentWidget(QWidget* parent, Alignment* alignment) :
     QWidget(parent), ui(new Ui::AlignmentWidget), m_alignment(alignment),
     m_useAutoMagnetAlignment(false), m_useOriginalProportionsAlignment(false),
     m_advancedAlignment(0)
@@ -70,7 +70,7 @@ AlignmentWidget::AlignmentWidget(QWidget *parent, Alignment *alignment) :
         Alignment(Alignment::BOTTOM, Alignment::RIGHT)
     );
 
-    for (KeyVal const& kv: m_alignmentByButton) {
+    for (KeyVal const& kv : m_alignmentByButton) {
         connect(kv.first, &QToolButton::toggled, this, &AlignmentWidget::alignmentButtonClicked);
     }
 
@@ -120,8 +120,8 @@ void AlignmentWidget::setUseOriginalProportionsAlignment(bool val)
     }
 }
 
-const char * _icon_prp = "basic_icon_name";
-const char * _disabled_by_prop = "disabled_by";
+const char* _icon_prp = "basic_icon_name";
+const char* _disabled_by_prop = "disabled_by";
 
 void
 AlignmentWidget::markAlignmentButtons()
@@ -207,9 +207,9 @@ void AlignmentWidget::displayAlignment()
     const int composite_alignment = alignment.compositeAlignment();
     m_advancedAlignment = composite_alignment & Alignment::maskAdvanced;
 
-    for (KeyVal const& kv: m_alignmentByButton) {
+    for (KeyVal const& kv : m_alignmentByButton) {
         const bool val = need_alignment &&
-                (applyAdvancedAlignment(kv.second, m_advancedAlignment) == alignment);
+                         (applyAdvancedAlignment(kv.second, m_advancedAlignment) == alignment);
         kv.first->setChecked(val);
     }
 
@@ -243,7 +243,7 @@ AlignmentWidget::alignmentButtonClicked(bool checked)
 void
 AlignmentWidget::clickAlignmentButton()
 {
-    for (KeyVal const& it: m_alignmentByButton) {
+    for (KeyVal const& it : m_alignmentByButton) {
         if (it.first->isChecked()) {
             emit it.first->toggled(true);
             break;
@@ -266,17 +266,17 @@ applyAdvancedAlignment(Alignment alignment, int mask)
     return alignment;
 }
 
-
 void setComboBoxItemEnabled(QComboBox* cb, const int selected_idx)
-{ // used in assumtion hat item lists are symmetric, rewrite in case of any change
+{
+    // used in assumtion hat item lists are symmetric, rewrite in case of any change
     const int _cb_items_len = 4;
-    const int _cb_items_mask[_cb_items_len][_cb_items_len] = { {1,1,1,1}, {1,0,0,0}, {1,0,0,1}, {1,0,1,0} };
+    const int _cb_items_mask[_cb_items_len][_cb_items_len] = { {1, 1, 1, 1}, {1, 0, 0, 0}, {1, 0, 0, 1}, {1, 0, 1, 0} };
 
     QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cb->model());
     for (int i = 0; i < _cb_items_len; i++) {
         QStandardItem* item = model->item(i);
         item->setFlags(_cb_items_mask[selected_idx][i] ?
-                       item->flags() | Qt::ItemIsEnabled:
+                       item->flags() | Qt::ItemIsEnabled :
                        item->flags() & ~Qt::ItemIsEnabled);
     }
 }
@@ -321,9 +321,8 @@ void AlignmentWidget::updateAlignmentButtonsDisplay()
     // update icons and buttons
     const int auto_idx = ui->cbAutoMagnet->currentIndex();
     const int orig_idx = ui->cbOriginalProp->currentIndex();
-    const bool central_btn_enabled = !( auto_idx == 1 || orig_idx == 1
-                                        || (auto_idx > 1 && orig_idx > 1) );
-
+    const bool central_btn_enabled = !(auto_idx == 1 || orig_idx == 1
+                                       || (auto_idx > 1 && orig_idx > 1));
 
     const int vert_part = m_advancedAlignment & Alignment::maskVertical;
     const int hor_part = m_advancedAlignment & Alignment::maskHorizontal;
@@ -354,7 +353,7 @@ void AlignmentWidget::updateAlignmentButtonsDisplay()
         clickAlignmentButton(); // emulate click for currently checked button
     }
 
-    for (KeyVal const& kv: m_alignmentByButton) {
+    for (KeyVal const& kv : m_alignmentByButton) {
         QToolButton* btn = kv.first;
         QString icon_filename = btn->property(_icon_prp).toString();
 
@@ -389,7 +388,6 @@ void AlignmentWidget::updateAlignmentButtonsDisplay()
 
 }
 
-
 void AlignmentWidget::on_alignWithOthersCB_toggled(bool checked)
 {
     if (m_alignment) {
@@ -398,7 +396,6 @@ void AlignmentWidget::on_alignWithOthersCB_toggled(bool checked)
         emit alignmentChanged();
     }
 }
-
 
 void AlignmentWidget::on_cbAutoMagnet_currentIndexChanged(int index)
 {
@@ -448,18 +445,19 @@ void AlignmentWidget::on_btnResetAdvAlignment_clicked()
     ui->cbOriginalProp->setCurrentIndex(0);
 }
 
-
-AlignmentComboBox::AlignmentComboBox(QWidget *parent): QComboBox(parent)
+AlignmentComboBox::AlignmentComboBox(QWidget* parent): QComboBox(parent)
 {
     m_menu.setStyle(style());
 }
 
-void AlignmentComboBox::showPopup() {
+void AlignmentComboBox::showPopup()
+{
     hidePopup();
-    m_menu.popup(mapToGlobal(QPoint(0,0)));
+    m_menu.popup(mapToGlobal(QPoint(0, 0)));
 }
 
-void AlignmentComboBox::hidePopup() {
+void AlignmentComboBox::hidePopup()
+{
     updContextMenu();
     QComboBox::hidePopup();
 }
@@ -478,7 +476,7 @@ void AlignmentComboBox::updContextMenu()
                 action->setIcon(itemIcon(i));
             } else {
                 QAction* action = m_menu.addAction(itemIcon(i), item_text);
-                connect(action, &QAction::triggered, [=]() {
+                connect(action, &QAction::triggered, [ = ]() {
                     setCurrentIndex(i);
                 });
             }

@@ -27,7 +27,7 @@ namespace output
 {
 
 OrderByModeProvider::OrderByModeProvider(IntrusivePtr<Settings> const& settings)
-:	m_ptrSettings(settings)
+    :   m_ptrSettings(settings)
 {
 }
 
@@ -63,7 +63,6 @@ OrderByModeProvider::precedes(
     }
 
 }
-
 
 QString colorMode2String(ColorParams::ColorMode const mode)
 {

@@ -67,8 +67,8 @@ typedef unsigned __int64 u_int64_t;
 #endif  /* !_WIN32 */
 
 typedef struct {
-  u_int64_t high;
-  u_int64_t low;
+    u_int64_t high;
+    u_int64_t low;
 } u_int128_t;
 
 typedef u_int64_t breakpad_time_t;

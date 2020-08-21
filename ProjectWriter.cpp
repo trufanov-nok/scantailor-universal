@@ -37,40 +37,40 @@
 #include <assert.h>
 
 ProjectWriter::ProjectWriter(
-	IntrusivePtr<ProjectPages> const& page_sequence,
-	SelectedPage const& selected_page,
-	OutputFileNameGenerator const& out_file_name_gen)
-:	m_pageSequence(page_sequence->toPageSequence(PAGE_VIEW)),
-	m_outFileNameGen(out_file_name_gen),
-	m_selectedPage(selected_page),
-	m_layoutDirection(page_sequence->layoutDirection())
+    IntrusivePtr<ProjectPages> const& page_sequence,
+    SelectedPage const& selected_page,
+    OutputFileNameGenerator const& out_file_name_gen)
+    :   m_pageSequence(page_sequence->toPageSequence(PAGE_VIEW)),
+        m_outFileNameGen(out_file_name_gen),
+        m_selectedPage(selected_page),
+        m_layoutDirection(page_sequence->layoutDirection())
 {
-	int next_id = 1;
-    for (const PageInfo& page: m_pageSequence) {
-		PageId const& page_id = page.id();
-		ImageId const& image_id = page_id.imageId();
-		QString const& file_path = image_id.filePath();
-		QFileInfo const file_info(file_path);
-		QString const dir_path(file_info.absolutePath());
-		
-		m_metadataByImage[image_id] = page.metadata();
-		
-		if (m_dirs.insert(Directory(dir_path, next_id)).second) {
-			++next_id;
-		}
-		
-		if (m_files.insert(File(file_path, next_id)).second) {
-			++next_id;
-		}
-		
-		if (m_images.insert(Image(page, next_id)).second) {
-			++next_id;
-		}
-		
-		if (m_pages.insert(Page(page_id, next_id)).second) {
-			++next_id;
-		}
-	}
+    int next_id = 1;
+    for (const PageInfo& page : m_pageSequence) {
+        PageId const& page_id = page.id();
+        ImageId const& image_id = page_id.imageId();
+        QString const& file_path = image_id.filePath();
+        QFileInfo const file_info(file_path);
+        QString const dir_path(file_info.absolutePath());
+
+        m_metadataByImage[image_id] = page.metadata();
+
+        if (m_dirs.insert(Directory(dir_path, next_id)).second) {
+            ++next_id;
+        }
+
+        if (m_files.insert(File(file_path, next_id)).second) {
+            ++next_id;
+        }
+
+        if (m_images.insert(Image(page, next_id)).second) {
+            ++next_id;
+        }
+
+        if (m_pages.insert(Page(page_id, next_id)).second) {
+            ++next_id;
+        }
+    }
 }
 
 ProjectWriter::~ProjectWriter()
@@ -86,138 +86,138 @@ ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& fil
     qSetGlobalQHashSeed(21062018);
 #endif
 
-	QDomDocument doc;
-	QDomElement root_el(doc.createElement("project"));
-	doc.appendChild(root_el);
-	root_el.setAttribute("outputDirectory", m_outFileNameGen.outDir());
-	root_el.setAttribute(
-		"layoutDirection",
-		m_layoutDirection == Qt::LeftToRight ? "LTR" : "RTL"
-	);
+    QDomDocument doc;
+    QDomElement root_el(doc.createElement("project"));
+    doc.appendChild(root_el);
+    root_el.setAttribute("outputDirectory", m_outFileNameGen.outDir());
+    root_el.setAttribute(
+        "layoutDirection",
+        m_layoutDirection == Qt::LeftToRight ? "LTR" : "RTL"
+    );
 
     QDomElement st_el(doc.createElement("scantailor"));
     st_el.setAttribute("app", "Universal");
     st_el.setAttribute("ver", VERSION);
     root_el.appendChild(st_el);
-	
-	root_el.appendChild(processDirectories(doc));
-	root_el.appendChild(processFiles(doc));
-	root_el.appendChild(processImages(doc));
-	root_el.appendChild(processPages(doc));
-	root_el.appendChild(
-		m_outFileNameGen.disambiguator()->toXml(
-			doc, "file-name-disambiguation",
-			boost::bind(&ProjectWriter::packFilePath, this, _1)
-		)
-	);
-	
-	QDomElement filters_el(doc.createElement("filters"));
-	root_el.appendChild(filters_el);
-	std::vector<FilterPtr>::const_iterator it(filters.begin());
-	std::vector<FilterPtr>::const_iterator const end(filters.end());
-	for (; it != end; ++it) {
-		filters_el.appendChild((*it)->saveSettings(*this, doc));
-	}
+
+    root_el.appendChild(processDirectories(doc));
+    root_el.appendChild(processFiles(doc));
+    root_el.appendChild(processImages(doc));
+    root_el.appendChild(processPages(doc));
+    root_el.appendChild(
+        m_outFileNameGen.disambiguator()->toXml(
+            doc, "file-name-disambiguation",
+            boost::bind(&ProjectWriter::packFilePath, this, _1)
+        )
+    );
+
+    QDomElement filters_el(doc.createElement("filters"));
+    root_el.appendChild(filters_el);
+    std::vector<FilterPtr>::const_iterator it(filters.begin());
+    std::vector<FilterPtr>::const_iterator const end(filters.end());
+    for (; it != end; ++it) {
+        filters_el.appendChild((*it)->saveSettings(*this, doc));
+    }
 
 #if QT_VERSION > 0x050600
     qSetGlobalQHashSeed(-1);
 #endif
-	
-	QFile file(file_path);
-	if (file.open(QIODevice::WriteOnly)) {
-		QTextStream strm(&file);
-		doc.save(strm, 2);
-		return true;
-	}
-	
-	return false;
+
+    QFile file(file_path);
+    if (file.open(QIODevice::WriteOnly)) {
+        QTextStream strm(&file);
+        doc.save(strm, 2);
+        return true;
+    }
+
+    return false;
 }
 
 QDomElement
 ProjectWriter::processDirectories(QDomDocument& doc) const
 {
-	QDomElement dirs_el(doc.createElement("directories"));
-	
-	for (Directory const& dir: m_dirs.get<Sequenced>()) {
-		QDomElement dir_el(doc.createElement("directory"));
-		dir_el.setAttribute("id", dir.numericId);
-		dir_el.setAttribute("path", dir.path);
-		dirs_el.appendChild(dir_el);
-	}
-	
-	return dirs_el;
+    QDomElement dirs_el(doc.createElement("directories"));
+
+    for (Directory const& dir : m_dirs.get<Sequenced>()) {
+        QDomElement dir_el(doc.createElement("directory"));
+        dir_el.setAttribute("id", dir.numericId);
+        dir_el.setAttribute("path", dir.path);
+        dirs_el.appendChild(dir_el);
+    }
+
+    return dirs_el;
 }
 
 QDomElement
 ProjectWriter::processFiles(QDomDocument& doc) const
 {
-	QDomElement files_el(doc.createElement("files"));
-	
-	for (File const& file: m_files.get<Sequenced>()) {
-		QFileInfo const file_info(file.path);
-		QString const& dir_path = file_info.absolutePath();
-		QDomElement file_el(doc.createElement("file"));
-		file_el.setAttribute("id", file.numericId);
-		file_el.setAttribute("dirId", dirId(dir_path));
-		file_el.setAttribute("name", file_info.fileName());
-		files_el.appendChild(file_el);
-	}
-	
-	return files_el;
+    QDomElement files_el(doc.createElement("files"));
+
+    for (File const& file : m_files.get<Sequenced>()) {
+        QFileInfo const file_info(file.path);
+        QString const& dir_path = file_info.absolutePath();
+        QDomElement file_el(doc.createElement("file"));
+        file_el.setAttribute("id", file.numericId);
+        file_el.setAttribute("dirId", dirId(dir_path));
+        file_el.setAttribute("name", file_info.fileName());
+        files_el.appendChild(file_el);
+    }
+
+    return files_el;
 }
 
 QDomElement
 ProjectWriter::processImages(QDomDocument& doc) const
 {
-	QDomElement images_el(doc.createElement("images"));
-	
-	for (Image const& image: m_images.get<Sequenced>()) {
-		QDomElement image_el(doc.createElement("image"));
-		image_el.setAttribute("id", image.numericId);
-		image_el.setAttribute("subPages", image.numSubPages);
-		image_el.setAttribute("fileId", fileId(image.id.filePath()));
-		image_el.setAttribute("fileImage", image.id.page());
-		if (image.leftHalfRemoved != image.rightHalfRemoved) {
-			// Both are not supposed to be removed.
-			image_el.setAttribute("removed", image.leftHalfRemoved ? "L" : "R");
-		}
-		writeImageMetadata(doc, image_el, image.id);
-		images_el.appendChild(image_el);
-	}
-	
-	return images_el;
+    QDomElement images_el(doc.createElement("images"));
+
+    for (Image const& image : m_images.get<Sequenced>()) {
+        QDomElement image_el(doc.createElement("image"));
+        image_el.setAttribute("id", image.numericId);
+        image_el.setAttribute("subPages", image.numSubPages);
+        image_el.setAttribute("fileId", fileId(image.id.filePath()));
+        image_el.setAttribute("fileImage", image.id.page());
+        if (image.leftHalfRemoved != image.rightHalfRemoved) {
+            // Both are not supposed to be removed.
+            image_el.setAttribute("removed", image.leftHalfRemoved ? "L" : "R");
+        }
+        writeImageMetadata(doc, image_el, image.id);
+        images_el.appendChild(image_el);
+    }
+
+    return images_el;
 }
 
 void
 ProjectWriter::writeImageMetadata(
-	QDomDocument& doc, QDomElement& image_el, ImageId const& image_id) const
+    QDomDocument& doc, QDomElement& image_el, ImageId const& image_id) const
 {
-	MetadataByImage::const_iterator it(m_metadataByImage.find(image_id));
-	assert(it != m_metadataByImage.end());
-	ImageMetadata const& metadata = it->second;
-	
-	QDomElement size_el(doc.createElement("size"));
-	size_el.setAttribute("width", metadata.size().width());
-	size_el.setAttribute("height", metadata.size().height());
-	image_el.appendChild(size_el);
-	
-	QDomElement dpi_el(doc.createElement("dpi"));
-	dpi_el.setAttribute("horizontal", metadata.dpi().horizontal());
-	dpi_el.setAttribute("vertical", metadata.dpi().vertical());
-	image_el.appendChild(dpi_el);
+    MetadataByImage::const_iterator it(m_metadataByImage.find(image_id));
+    assert(it != m_metadataByImage.end());
+    ImageMetadata const& metadata = it->second;
+
+    QDomElement size_el(doc.createElement("size"));
+    size_el.setAttribute("width", metadata.size().width());
+    size_el.setAttribute("height", metadata.size().height());
+    image_el.appendChild(size_el);
+
+    QDomElement dpi_el(doc.createElement("dpi"));
+    dpi_el.setAttribute("horizontal", metadata.dpi().horizontal());
+    dpi_el.setAttribute("vertical", metadata.dpi().vertical());
+    image_el.appendChild(dpi_el);
 
     QDomElement gs_el(doc.createElement("grayscale"));
-    gs_el.setAttribute("value", metadata.isGrayScale()?"1":"0");
+    gs_el.setAttribute("value", metadata.isGrayScale() ? "1" : "0");
     image_el.appendChild(gs_el);
 }
 
 QDomElement
 ProjectWriter::processPages(QDomDocument& doc) const
 {
-	QDomElement pages_el(doc.createElement("pages"));
-	
-	PageId const sel_opt_1(m_selectedPage.get(IMAGE_VIEW));
-	PageId const sel_opt_2(m_selectedPage.get(PAGE_VIEW));
+    QDomElement pages_el(doc.createElement("pages"));
+
+    PageId const sel_opt_1(m_selectedPage.get(IMAGE_VIEW));
+    PageId const sel_opt_2(m_selectedPage.get(PAGE_VIEW));
 
     PageId page_left;
     PageId page_right;
@@ -227,94 +227,92 @@ ProjectWriter::processPages(QDomDocument& doc) const
         page_right = PageId(sel_opt_2.imageId(), PageId::RIGHT_PAGE);
     }
 
-
-    for (const PageInfo& page: m_pageSequence) {
-		PageId const& page_id = page.id();
-		QDomElement page_el(doc.createElement("page"));
-		page_el.setAttribute("id", pageId(page_id));
-		page_el.setAttribute("imageId", imageId(page_id.imageId()));
-		page_el.setAttribute("subPage", page_id.subPageAsString());
+    for (const PageInfo& page : m_pageSequence) {
+        PageId const& page_id = page.id();
+        QDomElement page_el(doc.createElement("page"));
+        page_el.setAttribute("id", pageId(page_id));
+        page_el.setAttribute("imageId", imageId(page_id.imageId()));
+        page_el.setAttribute("subPage", page_id.subPageAsString());
         if (page_id == sel_opt_1 || page_id == sel_opt_2
                 || page_id == page_left || page_id == page_right) {
-			page_el.setAttribute("selected", "selected");
+            page_el.setAttribute("selected", "selected");
             page_left = page_right = PageId(); // if one of these match other shouldn't
-		}
-		pages_el.appendChild(page_el);
-	}
-	
-	return pages_el;
+        }
+        pages_el.appendChild(page_el);
+    }
+
+    return pages_el;
 }
 
 int
 ProjectWriter::dirId(QString const& dir_path) const
 {
-	Directories::const_iterator const it(m_dirs.find(dir_path));
-	assert(it != m_dirs.end());
-	return it->numericId;
+    Directories::const_iterator const it(m_dirs.find(dir_path));
+    assert(it != m_dirs.end());
+    return it->numericId;
 }
 
 int
 ProjectWriter::fileId(QString const& file_path) const
 {
-	Files::const_iterator const it(m_files.find(file_path));
-	if (it != m_files.end()) {
-		return it->numericId;
-	} else {
-		return -1;
-	}
+    Files::const_iterator const it(m_files.find(file_path));
+    if (it != m_files.end()) {
+        return it->numericId;
+    } else {
+        return -1;
+    }
 }
 
 QString
 ProjectWriter::packFilePath(QString const& file_path) const
 {
-	Files::const_iterator const it(m_files.find(file_path));
-	if (it != m_files.end()) {
-		return QString::number(it->numericId);
-	} else {
-		return QString();
-	}
+    Files::const_iterator const it(m_files.find(file_path));
+    if (it != m_files.end()) {
+        return QString::number(it->numericId);
+    } else {
+        return QString();
+    }
 }
 
 int
 ProjectWriter::imageId(ImageId const& image_id) const
 {
-	Images::const_iterator const it(m_images.find(image_id));
-	assert(it != m_images.end());
-	return it->numericId;
+    Images::const_iterator const it(m_images.find(image_id));
+    assert(it != m_images.end());
+    return it->numericId;
 }
 
 int
 ProjectWriter::pageId(PageId const& page_id) const
 {
-	Pages::const_iterator const it(m_pages.find(page_id));
-	assert(it != m_pages.end());
-	return it->numericId;
+    Pages::const_iterator const it(m_pages.find(page_id));
+    assert(it != m_pages.end());
+    return it->numericId;
 }
 
 void
 ProjectWriter::enumImagesImpl(VirtualFunction2<void, ImageId const&, int>& out) const
 {
-	for (Image const& image: m_images.get<Sequenced>()) {
-		out(image.id, image.numericId);
-	}
+    for (Image const& image : m_images.get<Sequenced>()) {
+        out(image.id, image.numericId);
+    }
 }
 
 void
 ProjectWriter::enumPagesImpl(VirtualFunction2<void, PageId const&, int>& out) const
 {
-	for (Page const& page: m_pages.get<Sequenced>()) {
-		out(page.id, page.numericId);
-	}
+    for (Page const& page : m_pages.get<Sequenced>()) {
+        out(page.id, page.numericId);
+    }
 }
-
 
 /*======================== ProjectWriter::Image =========================*/
 
 ProjectWriter::Image::Image(PageInfo const& page, int numeric_id)
-:	id(page.imageId()),
-	numericId(numeric_id),
-	numSubPages(page.imageSubPages()),
-	leftHalfRemoved(page.leftHalfRemoved()),
-	rightHalfRemoved(page.rightHalfRemoved())
+    :   id(page.imageId()),
+        numericId(numeric_id),
+        numSubPages(page.imageSubPages()),
+        leftHalfRemoved(page.leftHalfRemoved()),
+        rightHalfRemoved(page.rightHalfRemoved())
 {
 }

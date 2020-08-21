@@ -40,77 +40,92 @@ class AbstractFilter;
 class ProjectReader
 {
 public:
-	typedef IntrusivePtr<AbstractFilter> FilterPtr;
-	
-	ProjectReader(QDomDocument const& doc);
-	
-	~ProjectReader();
-	
-	void readFilterSettings(std::vector<FilterPtr> const& filters) const;
-	
-	bool success() const { return m_ptrPages.get() != 0; }
-	
-	QString const& outputDirectory() const { return m_outDir; }
+    typedef IntrusivePtr<AbstractFilter> FilterPtr;
 
-    QString const& inputDirectory() const { return m_inputDir; }
-	
-	IntrusivePtr<ProjectPages> const& pages() const { return m_ptrPages; }
+    ProjectReader(QDomDocument const& doc);
 
-	SelectedPage const& selectedPage() const { return m_selectedPage; }
+    ~ProjectReader();
 
-	IntrusivePtr<FileNameDisambiguator> const& namingDisambiguator() const {
-		return m_ptrDisambiguator;
-	}
-	
-	ImageId imageId(int numeric_id) const;
-	
-	PageId pageId(int numeric_id) const;
+    void readFilterSettings(std::vector<FilterPtr> const& filters) const;
+
+    bool success() const
+    {
+        return m_ptrPages.get() != 0;
+    }
+
+    QString const& outputDirectory() const
+    {
+        return m_outDir;
+    }
+
+    QString const& inputDirectory() const
+    {
+        return m_inputDir;
+    }
+
+    IntrusivePtr<ProjectPages> const& pages() const
+    {
+        return m_ptrPages;
+    }
+
+    SelectedPage const& selectedPage() const
+    {
+        return m_selectedPage;
+    }
+
+    IntrusivePtr<FileNameDisambiguator> const& namingDisambiguator() const
+    {
+        return m_ptrDisambiguator;
+    }
+
+    ImageId imageId(int numeric_id) const;
+
+    PageId pageId(int numeric_id) const;
 private:
-	struct FileRecord
-	{
-		QString filePath;
-		bool compatMultiPage; // Backwards compatibility.
+    struct FileRecord {
+        QString filePath;
+        bool compatMultiPage; // Backwards compatibility.
 
-		FileRecord() : compatMultiPage(false) {}
+        FileRecord() : compatMultiPage(false) {}
 
-		FileRecord(QString const& file_path, bool compat_multi_page)
-			: filePath(file_path), compatMultiPage(compat_multi_page) {}
-	};
+        FileRecord(QString const& file_path, bool compat_multi_page)
+            : filePath(file_path), compatMultiPage(compat_multi_page) {}
+    };
 
-	typedef std::map<int, QString> DirMap;
-	typedef std::map<int, FileRecord> FileMap;
-	typedef std::map<int, ImageInfo> ImageMap;
-	typedef std::map<int, PageId> PageMap;
-	
-	void processDirectories(QDomElement const& dirs_el);
-	
-	void processFiles(QDomElement const& files_el);
-	
-	void processImages(QDomElement const& images_el,
-		Qt::LayoutDirection layout_direction);
-	
-	ImageMetadata processImageMetadata(QDomElement const& image_el);
-	
-	void processPages(QDomElement const& pages_el);
-	
-	QString getDirPath(int id) const;
-	
-	FileRecord getFileRecord(int id) const;
+    typedef std::map<int, QString> DirMap;
+    typedef std::map<int, FileRecord> FileMap;
+    typedef std::map<int, ImageInfo> ImageMap;
+    typedef std::map<int, PageId> PageMap;
 
-	QString expandFilePath(QString const& path_shorthand) const;
-	
-	ImageInfo getImageInfo(int id) const;
-	
-	QDomDocument m_doc;
-	QString m_outDir;
+    void processDirectories(QDomElement const& dirs_el);
+
+    void processFiles(QDomElement const& files_el);
+
+    void processImages(QDomElement const& images_el,
+                       Qt::LayoutDirection layout_direction);
+
+    ImageMetadata processImageMetadata(QDomElement const& image_el);
+
+    void processPages(QDomElement const& pages_el);
+
+    QString getDirPath(int id) const;
+
+    FileRecord getFileRecord(int id) const;
+
+    QString expandFilePath(QString const& path_shorthand) const;
+
+    ImageInfo getImageInfo(int id) const;
+
+    QDomDocument m_doc;
+    QString m_outDir;
     QString m_inputDir;
-	DirMap m_dirMap;
-	FileMap m_fileMap;
-	ImageMap m_imageMap;
-	PageMap m_pageMap;
-	SelectedPage m_selectedPage;
-	IntrusivePtr<ProjectPages> m_ptrPages;
-	IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
+    DirMap m_dirMap;
+    FileMap m_fileMap;
+    ImageMap m_imageMap;
+    PageMap m_pageMap;
+    SelectedPage m_selectedPage;
+    IntrusivePtr<ProjectPages> m_ptrPages;
+    IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
 };
 
 #endif

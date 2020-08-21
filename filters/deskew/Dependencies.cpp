@@ -33,23 +33,23 @@ Dependencies::Dependencies()
 }
 
 Dependencies::Dependencies(
-	QPolygonF const& page_outline, OrthogonalRotation const rotation)
-:	m_pageOutline(page_outline),
-	m_rotation(rotation)
+    QPolygonF const& page_outline, OrthogonalRotation const rotation)
+    :   m_pageOutline(page_outline),
+        m_rotation(rotation)
 {
 }
 
 Dependencies::Dependencies(QDomElement const& deps_el)
-:	m_pageOutline(
-		XmlUnmarshaller::polygonF(
-			deps_el.namedItem("page-outline").toElement()
-		)
-	),
-	m_rotation(
-		XmlUnmarshaller::rotation(
-			deps_el.namedItem("rotation").toElement()
-		)
-	)
+    :   m_pageOutline(
+            XmlUnmarshaller::polygonF(
+                deps_el.namedItem("page-outline").toElement()
+            )
+        ),
+        m_rotation(
+            XmlUnmarshaller::rotation(
+                deps_el.namedItem("rotation").toElement()
+            )
+        )
 {
 }
 
@@ -60,25 +60,25 @@ Dependencies::~Dependencies()
 bool
 Dependencies::matches(Dependencies const& other) const
 {
-	if (m_rotation != other.m_rotation) {
-		return false;
-	}
-	if (!PolygonUtils::fuzzyCompare(m_pageOutline, other.m_pageOutline)) {
-		return false;
-	}
-	return true;
+    if (m_rotation != other.m_rotation) {
+        return false;
+    }
+    if (!PolygonUtils::fuzzyCompare(m_pageOutline, other.m_pageOutline)) {
+        return false;
+    }
+    return true;
 }
 
 QDomElement
 Dependencies::toXml(QDomDocument& doc, QString const& name) const
 {
-	XmlMarshaller marshaller(doc);
-	
-	QDomElement el(doc.createElement(name));
-	el.appendChild(marshaller.rotation(m_rotation, "rotation"));
-	el.appendChild(marshaller.polygonF(m_pageOutline, "page-outline"));
-	
-	return el;
+    XmlMarshaller marshaller(doc);
+
+    QDomElement el(doc.createElement(name));
+    el.appendChild(marshaller.rotation(m_rotation, "rotation"));
+    el.appendChild(marshaller.polygonF(m_pageOutline, "page-outline"));
+
+    return el;
 }
 
 } // namespace deskew

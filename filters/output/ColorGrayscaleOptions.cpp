@@ -26,7 +26,7 @@ namespace output
 
 ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode)
 {
-    QString default_value = mixed_mode?"1":"0";
+    QString default_value = mixed_mode ? "1" : "0";
     m_whiteMargins = el.attribute("whiteMargins", default_value) == "1";
     m_normalizeIllumination = el.attribute("normalizeIllumination", default_value) == "1";
     m_autoLayerEnabled = el.attribute("autoLayer", default_value) == "1";
@@ -37,25 +37,25 @@ ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_m
 QDomElement
 ColorGrayscaleOptions::toXml(QDomDocument& doc, QString const& name) const
 {
-	QDomElement el(doc.createElement(name));
-	el.setAttribute("whiteMargins", m_whiteMargins ? "1" : "0");
-	el.setAttribute("normalizeIllumination", m_normalizeIllumination ? "1" : "0");
+    QDomElement el(doc.createElement(name));
+    el.setAttribute("whiteMargins", m_whiteMargins ? "1" : "0");
+    el.setAttribute("normalizeIllumination", m_normalizeIllumination ? "1" : "0");
     el.setAttribute("autoLayer", m_autoLayerEnabled ? "1" : "0");
     el.setAttribute("pictureZonesLayer", m_pictureZonesLayerEnabled ? "1" : "0");
     el.setAttribute("foregroundLayer", m_foregroundLayerEnabled ? "1" : "0");
-	return el;
+    return el;
 }
 
 bool
 ColorGrayscaleOptions::operator==(ColorGrayscaleOptions const& other) const
 {
-	if (m_whiteMargins != other.m_whiteMargins) {
-		return false;
-	}
-	
-	if (m_normalizeIllumination != other.m_normalizeIllumination) {
-		return false;
-	}
+    if (m_whiteMargins != other.m_whiteMargins) {
+        return false;
+    }
+
+    if (m_normalizeIllumination != other.m_normalizeIllumination) {
+        return false;
+    }
 
     if (m_autoLayerEnabled != other.m_autoLayerEnabled) {
         return false;
@@ -68,14 +68,14 @@ ColorGrayscaleOptions::operator==(ColorGrayscaleOptions const& other) const
     if (m_foregroundLayerEnabled != other.m_foregroundLayerEnabled) {
         return false;
     }
-	
-	return true;
+
+    return true;
 }
 
 bool
 ColorGrayscaleOptions::operator!=(ColorGrayscaleOptions const& other) const
 {
-	return !(*this == other);
+    return !(*this == other);
 }
 
 } // namespace output

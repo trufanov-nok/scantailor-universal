@@ -37,49 +37,55 @@
 #include "common/windows/string_utils-inl.h"
 #include "google_breakpad/common/minidump_format.h"
 
-namespace google_breakpad {
+namespace google_breakpad
+{
 
 // Name/value pair for custom client information.
 struct CustomInfoEntry {
-  // Maximum length for name and value for client custom info.
-  static const int kNameMaxLength = 64;
-  static const int kValueMaxLength = 64;
+    // Maximum length for name and value for client custom info.
+    static const int kNameMaxLength = 64;
+    static const int kValueMaxLength = 64;
 
-  CustomInfoEntry() {
-    // Putting name and value in initializer list makes VC++ show warning 4351.
-    set_name(nullptr);
-    set_value(nullptr);
-  }
-
-  CustomInfoEntry(const wchar_t* name_arg, const wchar_t* value_arg) {
-    set_name(name_arg);
-    set_value(value_arg);
-  }
-
-  void set_name(const wchar_t* name_arg) {
-    if (!name_arg) {
-      name[0] = L'\0';
-      return;
-    }
-    WindowsStringUtils::safe_wcscpy(name, kNameMaxLength, name_arg);
-  }
-
-  void set_value(const wchar_t* value_arg) {
-    if (!value_arg) {
-      value[0] = L'\0';
-      return;
+    CustomInfoEntry()
+    {
+        // Putting name and value in initializer list makes VC++ show warning 4351.
+        set_name(nullptr);
+        set_value(nullptr);
     }
 
-    WindowsStringUtils::safe_wcscpy(value, kValueMaxLength, value_arg);
-  }
+    CustomInfoEntry(const wchar_t* name_arg, const wchar_t* value_arg)
+    {
+        set_name(name_arg);
+        set_value(value_arg);
+    }
 
-  void set(const wchar_t* name_arg, const wchar_t* value_arg) {
-    set_name(name_arg);
-    set_value(value_arg);
-  }
+    void set_name(const wchar_t* name_arg)
+    {
+        if (!name_arg) {
+            name[0] = L'\0';
+            return;
+        }
+        WindowsStringUtils::safe_wcscpy(name, kNameMaxLength, name_arg);
+    }
 
-  wchar_t name[kNameMaxLength];
-  wchar_t value[kValueMaxLength];
+    void set_value(const wchar_t* value_arg)
+    {
+        if (!value_arg) {
+            value[0] = L'\0';
+            return;
+        }
+
+        WindowsStringUtils::safe_wcscpy(value, kValueMaxLength, value_arg);
+    }
+
+    void set(const wchar_t* name_arg, const wchar_t* value_arg)
+    {
+        set_name(name_arg);
+        set_value(value_arg);
+    }
+
+    wchar_t name[kNameMaxLength];
+    wchar_t value[kValueMaxLength];
 };
 
 // Constants for the protocol between client and the server.
@@ -87,91 +93,93 @@ struct CustomInfoEntry {
 // Tags sent with each message indicating the purpose of
 // the message.
 enum MessageTag {
-  MESSAGE_TAG_NONE = 0,
-  MESSAGE_TAG_REGISTRATION_REQUEST = 1,
-  MESSAGE_TAG_REGISTRATION_RESPONSE = 2,
-  MESSAGE_TAG_REGISTRATION_ACK = 3
+    MESSAGE_TAG_NONE = 0,
+    MESSAGE_TAG_REGISTRATION_REQUEST = 1,
+    MESSAGE_TAG_REGISTRATION_RESPONSE = 2,
+    MESSAGE_TAG_REGISTRATION_ACK = 3
 };
 
 struct CustomClientInfo {
-  const CustomInfoEntry* entries;
-  int count;
+    const CustomInfoEntry* entries;
+    int count;
 };
 
 // Message structure for IPC between crash client and crash server.
 struct ProtocolMessage {
-  ProtocolMessage()
-      : tag(MESSAGE_TAG_NONE),
-        pid(0),
-        dump_type(MiniDumpNormal),
-        thread_id(0),
-        exception_pointers(nullptr),
-        assert_info(nullptr),
-        custom_client_info(),
-        dump_request_handle(nullptr),
-        dump_generated_handle(nullptr),
-        server_alive_handle(nullptr) {
-  }
+    ProtocolMessage()
+        : tag(MESSAGE_TAG_NONE),
+          pid(0),
+          dump_type(MiniDumpNormal),
+          thread_id(0),
+          exception_pointers(nullptr),
+          assert_info(nullptr),
+          custom_client_info(),
+          dump_request_handle(nullptr),
+          dump_generated_handle(nullptr),
+          server_alive_handle(nullptr)
+    {
+    }
 
-  // Creates an instance with the given parameters.
-  ProtocolMessage(MessageTag arg_tag,
-                  DWORD arg_pid,
-                  MINIDUMP_TYPE arg_dump_type,
-                  DWORD* arg_thread_id,
-                  EXCEPTION_POINTERS** arg_exception_pointers,
-                  MDRawAssertionInfo* arg_assert_info,
-                  const CustomClientInfo& custom_info,
-                  HANDLE arg_dump_request_handle,
-                  HANDLE arg_dump_generated_handle,
-                  HANDLE arg_server_alive)
-    : tag(arg_tag),
-      pid(arg_pid),
-      dump_type(arg_dump_type),
-      thread_id(arg_thread_id),
-      exception_pointers(arg_exception_pointers),
-      assert_info(arg_assert_info),
-      custom_client_info(custom_info),
-      dump_request_handle(arg_dump_request_handle),
-      dump_generated_handle(arg_dump_generated_handle),
-      server_alive_handle(arg_server_alive) {
-  }
+    // Creates an instance with the given parameters.
+    ProtocolMessage(MessageTag arg_tag,
+                    DWORD arg_pid,
+                    MINIDUMP_TYPE arg_dump_type,
+                    DWORD* arg_thread_id,
+                    EXCEPTION_POINTERS** arg_exception_pointers,
+                    MDRawAssertionInfo* arg_assert_info,
+                    const CustomClientInfo& custom_info,
+                    HANDLE arg_dump_request_handle,
+                    HANDLE arg_dump_generated_handle,
+                    HANDLE arg_server_alive)
+        : tag(arg_tag),
+          pid(arg_pid),
+          dump_type(arg_dump_type),
+          thread_id(arg_thread_id),
+          exception_pointers(arg_exception_pointers),
+          assert_info(arg_assert_info),
+          custom_client_info(custom_info),
+          dump_request_handle(arg_dump_request_handle),
+          dump_generated_handle(arg_dump_generated_handle),
+          server_alive_handle(arg_server_alive)
+    {
+    }
 
-  // Tag in the message.
-  MessageTag tag;
+    // Tag in the message.
+    MessageTag tag;
 
-  // Process id.
-  DWORD pid;
+    // Process id.
+    DWORD pid;
 
-  // Dump type requested.
-  MINIDUMP_TYPE dump_type;
+    // Dump type requested.
+    MINIDUMP_TYPE dump_type;
 
-  // Client thread id pointer.
-  DWORD* thread_id;
+    // Client thread id pointer.
+    DWORD* thread_id;
 
-  // Exception information.
-  EXCEPTION_POINTERS** exception_pointers;
+    // Exception information.
+    EXCEPTION_POINTERS** exception_pointers;
 
-  // Assert information in case of an invalid parameter or
-  // pure call failure.
-  MDRawAssertionInfo* assert_info;
+    // Assert information in case of an invalid parameter or
+    // pure call failure.
+    MDRawAssertionInfo* assert_info;
 
-  // Custom client information.
-  CustomClientInfo custom_client_info;
+    // Custom client information.
+    CustomClientInfo custom_client_info;
 
-  // Handle to signal the crash event.
-  HANDLE dump_request_handle;
+    // Handle to signal the crash event.
+    HANDLE dump_request_handle;
 
-  // Handle to check if server is done generating crash.
-  HANDLE dump_generated_handle;
+    // Handle to check if server is done generating crash.
+    HANDLE dump_generated_handle;
 
-  // Handle to a mutex that becomes signaled (WAIT_ABANDONED)
-  // if server process goes down.
-  HANDLE server_alive_handle;
+    // Handle to a mutex that becomes signaled (WAIT_ABANDONED)
+    // if server process goes down.
+    HANDLE server_alive_handle;
 
- private:
-  // Disable copy ctor and operator=.
-  ProtocolMessage(const ProtocolMessage& msg);
-  ProtocolMessage& operator=(const ProtocolMessage& msg);
+private:
+    // Disable copy ctor and operator=.
+    ProtocolMessage(const ProtocolMessage& msg);
+    ProtocolMessage& operator=(const ProtocolMessage& msg);
 };
 
 }  // namespace google_breakpad
