@@ -293,7 +293,7 @@ ZoneContextMenuInteraction::deleteRequest(EditableZoneSet::Zone const& zone)
     if (btn == QMessageBox::Yes) {
         m_rContext.zones().removeZone(zone.spline());
         m_rContext.zones().commit();
-        m_rContext.zones().manuallyDeleted();
+        emit m_rContext.zones().manuallyDeleted();
     }
 
     return m_rContext.createDefaultInteraction();

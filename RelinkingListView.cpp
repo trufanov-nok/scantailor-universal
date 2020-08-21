@@ -117,7 +117,8 @@ RelinkingListView::drawStatusLayer(QPainter* painter)
     }
 
     GroupAggregator group_aggregator;
-    int const rows = top_index.model()->rowCount(top_index.parent());
+    int const rows = top_index.model() ?
+                top_index.model()->rowCount(top_index.parent()) : 0;
 
     for (int row = top_index.row(); row < rows; ++row) {
         QModelIndex const index(top_index.sibling(row, 0));

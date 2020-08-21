@@ -115,12 +115,14 @@ DespeckleView::DespeckleView(
     addWidget(m_pProcessingIndicator);
 
     if (!visualization.isNull()) {
-        // Create the image view.
-        std::unique_ptr<QWidget> widget(
-            new BasicImageView(visualization.image(), visualization.downscaledImage())
-        );
-        emit imageViewCreated(qobject_cast<ImageViewBase*>(widget.get()));
-        setCurrentIndex(addWidget(widget.release()));
+        QTimer::singleShot(0, this, [=]() {
+            // Create the image view.
+            std::unique_ptr<QWidget> widget(
+                new BasicImageView(visualization.image(), visualization.downscaledImage())
+            );
+            emit imageViewCreated(qobject_cast<ImageViewBase*>(widget.get()));
+            setCurrentIndex(addWidget(widget.release()));
+        });
     }
 }
 

@@ -174,7 +174,6 @@ RelinkingModel::data(QModelIndex const& index, int role) const
 void
 RelinkingModel::addPath(RelinkablePath const& path)
 {
-    QString const normalized_path(path.normalizedPath());
 
     std::pair<std::set<QString>::iterator, bool> const ins(
         m_origPathSet.insert(path.normalizedPath())

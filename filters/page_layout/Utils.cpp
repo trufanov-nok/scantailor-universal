@@ -106,8 +106,8 @@ Utils::calcMarginsMM(ImageTransformation const& xform, QRectF const& page_rect, 
     double widthMM = page_size_mm.width() - content_size_mm.width();
     double heightMM = page_size_mm.height() - content_size_mm.height();
 
-    double width = page_rect.width() - content_rect.width();
-    double height = page_rect.height() - content_rect.height();
+//    double width = page_rect.width() - content_rect.width();
+//    double height = page_rect.height() - content_rect.height();
 
     double left = double(content_rect.left() - page_rect.left());// / double(page_rect.width());
     double right = double(page_rect.right() - content_rect.right());// / double(page_rect.width());

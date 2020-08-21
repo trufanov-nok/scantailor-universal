@@ -323,7 +323,6 @@ CylindricalSurfaceDewarper::initArcLengthMapper(
     std::vector<QPointF> const& img_directrix1,
     std::vector<QPointF> const& img_directrix2)
 {
-    double prev_elevation = 0;
     CoupledPolylinesIterator it(img_directrix1, img_directrix2, m_pln2img, m_img2pln);
     QPointF img_curve1_pt;
     QPointF img_curve2_pt;
@@ -349,7 +348,6 @@ CylindricalSurfaceDewarper::initArcLengthMapper(
         elevation = qBound(-0.5, elevation, 0.5);
 
         m_arcLengthMapper.addSample(pln_x, elevation);
-        prev_elevation = elevation;
         prev_pln_x = pln_x;
     }
 

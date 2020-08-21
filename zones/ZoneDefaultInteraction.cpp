@@ -372,6 +372,6 @@ ZoneDefaultInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& in
     }
 
     if (GlobalStaticSettings::checkKeysMatch(ZonePaste, event->modifiers(), (Qt::Key) event->key())) {
-        m_pasteAction->triggered();
+        emit m_pasteAction->triggered();
     }
 }

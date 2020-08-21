@@ -935,8 +935,9 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
     m_sceneRect = QRectF(0.0, 0.0, 0.0, 0.0);
 
     int view_width = 0;
-    if (!m_graphicsScene.views().isEmpty()) {
-        QGraphicsView* gv = m_graphicsScene.views().first();
+    const QList <QGraphicsView *> views = m_graphicsScene.views();
+    if (!views.isEmpty()) {
+        QGraphicsView* gv = views.first();
         view_width = gv->width();
         view_width -= gv->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
         if (gv->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, 0, gv)) {

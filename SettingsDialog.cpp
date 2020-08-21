@@ -757,8 +757,8 @@ QHotKeyInputDialog::QHotKeyInputDialog(const KeyType& editor_type, QWidget* pare
 
 void QHotKeyInputDialog::updateLabel()
 {
-    QString val = QHotKeys::hotkeysToString(m_modifiersPressed, m_keysPressed.toList().toVector());
-    setTextValue(val);
+    setTextValue( QHotKeys::hotkeysToString(m_modifiersPressed,
+                                            m_keysPressed.toList()) );
 }
 
 void QHotKeyInputDialog::keyPressEvent(QKeyEvent* event)

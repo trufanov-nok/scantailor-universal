@@ -78,15 +78,10 @@ public:
         return m_alignment;
     }
 signals:
-    void leftRightLinkToggled(bool linked);
-
-    void topBottomLinkToggled(bool linked);
-
     void alignmentChanged(Alignment const& alignment);
-
     void marginsSetLocally(Margins const& margins_mm);
-
     void aggregateHardSizeChanged();
+
 public slots:
     void marginsSetExternally(const Margins& margins_mm, bool keep_auto_margins = false);
 private slots:

@@ -102,13 +102,13 @@ enum HotKeysId {
 
 struct HotKeySequence {
     HotKeySequence() {}
-    HotKeySequence(Qt::KeyboardModifiers modifier, QVector<Qt::Key> keys):
+    HotKeySequence(Qt::KeyboardModifiers modifier, QList<Qt::Key> keys):
         m_modifierSequence(modifier), m_keySequence(keys) {}
     HotKeySequence(Qt::KeyboardModifiers modifier, Qt::Key key):
-        m_modifierSequence(modifier), m_keySequence(QVector<Qt::Key>(1, key)) {}
+        m_modifierSequence(modifier), m_keySequence(QList<Qt::Key>({key})) {}
 
     Qt::KeyboardModifiers m_modifierSequence;
-    QVector<Qt::Key> m_keySequence;
+    QList<Qt::Key> m_keySequence;
 };
 
 class HotKeyInfo
@@ -117,10 +117,10 @@ public:
     HotKeyInfo() {}
     HotKeyInfo(const HotKeysId id, const QString& title, const KeyType editorType, const HotKeyType displayType,
                const HotKeySequence sequence):
-        HotKeyInfo(id, title, editorType, displayType, QVector<HotKeySequence>(1, sequence)) {}
+        HotKeyInfo(id, title, editorType, displayType, QList<HotKeySequence>({sequence})) {}
 
     HotKeyInfo(const HotKeysId id, const QString& title, const KeyType editorType, const HotKeyType displayType,
-               const QVector<HotKeySequence>& sequences):
+               const QList<HotKeySequence>& sequences):
         m_id(id), m_title(title), m_editorType(editorType), m_displayType(displayType),
         m_sequences(sequences) {}
 
@@ -136,15 +136,15 @@ public:
     {
         return m_displayType;
     }
-    const KeyType editorType() const
+    KeyType editorType() const
     {
         return m_editorType;
     }
-    const QVector<HotKeySequence>& sequences() const
+    const QList<HotKeySequence>& sequences() const
     {
         return m_sequences;
     }
-    QVector<HotKeySequence>& sequences()
+    QList<HotKeySequence>& sequences()
     {
         return m_sequences;
     }
@@ -154,7 +154,7 @@ private:
     QString m_title;
     KeyType m_editorType;
     HotKeyType m_displayType;
-    QVector<HotKeySequence> m_sequences;
+    QList<HotKeySequence> m_sequences;
 };
 
 class HotKeyGroup
@@ -202,8 +202,8 @@ public:
     const HotKeyInfo* get(const HotKeysId& id) const;
     bool replace(const HotKeysId& id, const HotKeyInfo& new_val);
     static const QString modifiersToString(const Qt::KeyboardModifiers modifiers);
-    static const QString keysToString(const QVector<Qt::Key>& keys);
-    static const QString hotkeysToString(const Qt::KeyboardModifiers modifiers, const QVector<Qt::Key>& keys);
+    static const QString keysToString(const QList<Qt::Key>& keys);
+    static const QString hotkeysToString(const Qt::KeyboardModifiers modifiers, const QList<Qt::Key>& keys);
 private:
     void mergeHotkeys(const QVector<HotKeyGroup>& new_data);
 private:

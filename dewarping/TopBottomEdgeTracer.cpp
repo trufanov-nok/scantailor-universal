@@ -986,9 +986,9 @@ TopBottomEdgeTracer::upTheHillSnake(
 
         for (size_t node_idx = 0; node_idx < num_nodes; ++node_idx) {
             Vec2f const pt(snake[node_idx]);
-            float const cur_external_energy = -interpolatedGridValue(
-                                                  grid, bind<float>(&GridNode::absDirDeriv, _1), pt, 1000
-                                              );
+//            float const cur_external_energy = -interpolatedGridValue(
+//                                                  grid, bind<float>(&GridNode::absDirDeriv, _1), pt, 1000
+//                                              );
 
             for (int displacement_idx = 0; displacement_idx < num_displacements; ++displacement_idx) {
                 Step step;
@@ -1238,8 +1238,6 @@ TopBottomEdgeTracer::visualizePaths(
     uint32_t* const canvas_data = (uint32_t*)canvas.bits();
     int const canvas_stride = canvas.bytesPerLine() / 4;
 
-    int const width = grid.width();
-    int const height = grid.height();
     int const grid_stride = grid.stride();
     GridNode const* const grid_data = grid.data();
 

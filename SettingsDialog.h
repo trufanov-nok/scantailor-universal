@@ -188,12 +188,12 @@ public:
     {
         return m_modifiersPressed;
     }
-    const QVector<Qt::Key> keys() const
+    const QList<Qt::Key> keys() const
     {
-        return m_keysPressed.toList().toVector();
+        return m_keysPressed.toList();
     }
 protected:
-    bool eventFilter(QObject* obj, QEvent* event);
+    bool eventFilter(QObject* obj, QEvent* event) override;
 private:
     void updateLabel();
     void keyPressEvent(QKeyEvent* event) override;

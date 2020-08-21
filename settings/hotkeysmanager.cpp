@@ -73,20 +73,20 @@ void QHotKeys::resetToDefaults()
 
     m_data.append(group_stages);
 
-    QVector<HotKeySequence> vec;
+    QList<HotKeySequence> list;
 
     data.clear();
     data.append(HotKeyInfo(PageFirst, QObject::tr("First page"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Home)));
     data.append(HotKeyInfo(PageLast, QObject::tr("Last page"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_End)));
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageUp));
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Q));
-    data.append(HotKeyInfo(PagePrev, QObject::tr("Previous page"), KeysAndModifiers, HotKey, vec));
-    vec.clear();
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageDown));
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_W));
-    data.append(HotKeyInfo(PageNext, QObject::tr("Next page"), KeysAndModifiers, HotKey, vec));
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageUp));
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_Q));
+    data.append(HotKeyInfo(PagePrev, QObject::tr("Previous page"), KeysAndModifiers, HotKey, list));
+    list.clear();
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_PageDown));
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_W));
+    data.append(HotKeyInfo(PageNext, QObject::tr("Next page"), KeysAndModifiers, HotKey, list));
 
     data.append(HotKeyInfo(PageFirstSelected, QObject::tr("First selected page"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::AltModifier, Qt::Key_Home)));
@@ -190,11 +190,11 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ControlModifier, Qt::Key_V)));
     data.append(HotKeyInfo(ZoneClone, QObject::tr("Clone last modified zone"), ModifierAllowed, MouseDoubleCLick,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
-    vec.clear();
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
+    list.clear();
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
 
-    data.append(HotKeyInfo(ZoneDelete, QObject::tr("Delete zone"), KeysAndModifiers, HotKey, vec));
+    data.append(HotKeyInfo(ZoneDelete, QObject::tr("Delete zone"), KeysAndModifiers, HotKey, list));
     data.append(HotKeyInfo(ZoneCancel, QObject::tr("Cancel move or creation"), KeysAndModifiers, HotKey,
                            HotKeySequence(Qt::NoModifier, Qt::Key_Escape)));
 
@@ -209,10 +209,10 @@ void QHotKeys::resetToDefaults()
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(DewarpingMoveHorizontally, QObject::tr("Move horizontally"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
-    vec.clear();
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
-    vec.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
-    data.append(HotKeyInfo(DewarpingDeletePoint, QObject::tr("Delete control point"), KeysAndModifiers, HotKey, vec));
+    list.clear();
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_Delete));
+    list.append(HotKeySequence(Qt::NoModifier, Qt::Key_D));
+    data.append(HotKeyInfo(DewarpingDeletePoint, QObject::tr("Delete control point"), KeysAndModifiers, HotKey, list));
 
     HotKeyGroup group_dewarping("dewarping", QObject::tr("Distortion model (dewarping)"));
     group_dewarping.setHotKeys(data);
@@ -352,7 +352,7 @@ const QString QHotKeys::modifiersToString(const Qt::KeyboardModifiers modifiers)
     return res;
 }
 
-const QString QHotKeys::keysToString(const QVector<Qt::Key>& keys)
+const QString QHotKeys::keysToString(const QList<Qt::Key>& keys)
 {
     QString res;
     for (const Qt::Key& key : keys) {
@@ -364,7 +364,7 @@ const QString QHotKeys::keysToString(const QVector<Qt::Key>& keys)
     return res;
 }
 
-const QString QHotKeys::hotkeysToString(const Qt::KeyboardModifiers modifiers, const QVector<Qt::Key>& keys)
+const QString QHotKeys::hotkeysToString(const Qt::KeyboardModifiers modifiers, const QList<Qt::Key>& keys)
 {
     QString mods_s = modifiersToString(modifiers);
     QString keys_s = keysToString(keys);
@@ -475,7 +475,7 @@ bool HotKeyGroup::load(const QSettings& settings)
         const HotKeyType display_type = (HotKeyType) settings.value(hotkey_key + "display_type", HotKeyType::DefaultValueHK).toUInt();
         assert(display_type != HotKeyType::DefaultValueHK);
 
-        QVector<HotKeySequence> sequences;
+        QList<HotKeySequence> sequences;
         const uint seq_cnt = settings.value(hotkey_key + "count", 0).toUInt();
         for (uint j = 0; j < seq_cnt; j++) {
             const QString seq_key = QString("%1sequence_%2/").arg(hotkey_key).arg(j);
@@ -485,7 +485,7 @@ bool HotKeyGroup::load(const QSettings& settings)
                 assert(modifiers != Qt::KeyboardModifierMask);
             }
             const uint keys_cnt = settings.value(seq_key + "count", 0).toUInt();
-            QVector<Qt::Key> keys;
+            QList<Qt::Key> keys;
             for (uint k = 0; k < keys_cnt; k++) {
                 const QString key_key = QString("%1key_%2/").arg(seq_key).arg(k);
                 if (settings.contains(key_key + "key")) {

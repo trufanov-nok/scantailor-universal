@@ -205,7 +205,7 @@ PageFinder::detectEdge(QImage const& img, int start, int end, int inc, int mid, 
 
     while (i != end) {
         int black_pixels = 0;
-        int old_gap = gap;
+//        int old_gap = gap;
 
         // count black pixels on the edge around given point
         for (int j = ms; j != me; j++) {
