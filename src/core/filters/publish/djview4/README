@@ -1,0 +1,225 @@
+
+1- DJVIEW4
+==========
+
+1.1 - DJVIEW4
+-------------
+
+This package contains the djview4 viewer and browser plugin.
+This new viewer relies on the DjVulibre library and the Qt toolkit.
+
+Highlights:
+- entirely based on the public djvulibre api.
+- entirely written in portable Qt4/Qt5.
+- works natively under Unix/X11, MS Windows, and MacOS X.
+- continuous scrolling of pages
+- side-by-side display of pages
+- ability to specify a url to the djview command
+- all plugin and cgi options available from the command line
+- all silly annotations implemented
+- display thumbnails as a grid
+- display outlines
+- page names supported (see djvused command set-page-title) 
+- metadata dialog (see djvused command set-meta)
+- implemented as reusable Qt widgets
+
+Prerequisites:
+- DjVuLibre >= 3.5.18
+- Qt >= 4.4
+
+
+
+1.2 - USING DJVIEW4 AS A PLUGIN
+-------------------------------
+
+
+WARNING: USING DJVIEW AS A PLUGIN IN 2020 IS VERY DIFFICULT BECAUSE
+POPULAR BROWSERS EITHER DO NOT SUPPORT NETSCAPE PLUGINS (CHROME), OR
+REMOVED SUPPORT FOR NETSCAPE PLUGINS OTHER THAN FLASH (FIREFOX).
+We regret this decision because djview/nsdejavu is a perfect
+example of very well behaved plugin that would have been
+easy to support.
+
+Under Unix/X11, djview4 can be used as a browser plugin
+by means of the small shared library named nsdejavu.so.
+The djview3 distributed with djvulibre uses the same approach.
+
+In fact both djview3 and djview4 communicate 
+with nsdejavu.so with the same protocol.  
+You can either install the file nsdejavu.so that comes 
+with djview3 or the one that comes with djview4.  
+The file nsdejavu.so uses the viewer specified
+with the environment variable NPX_DJVIEW or searches 
+an executable viewer named djview, djview4 or djview3.
+
+
+
+2- INSTALLATION FROM SOURCES
+============================
+
+
+2.1 PREREQUISITES
+-----------------
+
+You need DjVuLibre (>= 3.5.18)
+See http://djvu.sourceforge.net for the 
+source code and for pointers to binary packages.
+Under debian type "apt-get install libdjvulibre-dev"
+
+You need Qt4 (>= 4.4.0) or QT5 (tested with 5.2)
+See http://trolltech.com for the source code.
+Select the version of Qt adapted to your platform.
+Under debian type "apt-get install libqt4-dev qt4-dev-tools
+
+Under Unix the configure script uses pkg-config
+to locate the DjVuLibre library and its ancillary files.
+See http://pkgconfig.freedesktop.org.
+If you do not have pkg-config, you will have
+to specify which compilation options using
+the variabled DDJVUAPI_CFLAGS and DDJVUAPI_LIBS.
+
+
+2.2 COMPILING AND INSTALLING UNDER UNIX
+---------------------------------------
+
+First run the script 'configure' (or 'autogen.sh' as 
+explained above) to generate the makefiles.
+
+Note that there will be no configure file if you obtain the djvulibre 
+source using git clone. Instead there is a script 'autogen.sh' that 
+uses automake to generate and call the actual configure script.
+Since all autogen.sh arguments will be passed to configure,
+you can simply treat autogen.sh as a replacement for configure.
+
+Command 'configure --help' list options and environment 
+variables that affect the generation of makefile.
+The most useful ones are:
+
+--prefix=<directory>
+        Indicate the base directory for installing djview.
+        The default prefix is /usr/local.
+        Binary packages are usually compiled with prefix /usr.
+
+--mandir=<directory>
+        Indicates where the man pages go.
+        The default is ${prefix}/man but many systems 
+        prefer to install man pages in ${prefix}/share/man.
+
+PKG_CONFIG_PATH=<colon-separated-directories>
+        Indicates the path for search pkg-config description files.
+        The default path is /usr/lib/pkgconfig:/usr/share/pkgconfig.
+        If you have installed DjVuLibre with a prefix different
+        from /usr, you probably want to add ${prefix}/lib/pkgconfig
+        to this path.
+
+DDJVUAPI_CFLAGS=<compiler-flags>
+        Compiler flags for using the DjVuLibre api.
+        This is useful when you do not have pkg-config
+        or when pkg-config does not locate DjVuLibre.
+
+DDJVUAPI_LIBS=<linker-flags>
+        Linker flags for using the DjVuLibre api.
+        This is useful when you do not have pkg-config
+        or when pkg-config does not locate DjVuLibre.
+
+QMAKE=<filaname>
+        Indicate the location of the Qt4 qmake executable.
+        This is useful when configure cannot locate Qt4.
+
+Running configure creates all the required makefiles
+and executes command qmake in directory src.
+
+
+You can then compile djview4 with command
+  % make
+
+Once the compilation is successful, install the binaries with
+  % make install
+
+
+
+2.3 COMPILATION HINTS FOR MAC OS X
+----------------------------------
+
+In general you can compile the standalone viewer djview4 on non unix platforms.
+However the browser plugin capability is currently not working on non X11 systems.
+
+We recommend the following procedure to compile on the Mac.
+
+1) Install the Qt 5.x SDK.
+
+2) Install Homebrew with the following packages
+     $ brew install autoconf automake libtool pkg-config
+     $ brew install jpeg libtiff git
+
+4) Install the djvulibre Homebrew package
+     $ brew install djvulibre
+
+   Advanced: If you want to compile a fresh version of djvulibre,
+   you can use the instructions found in the djvulibre tarball.
+   An interesting alternative is to install the current djvulibre
+   development version using the Homebrew command,
+    $ brew install --HEAD djvulibre
+   but you might find that the brew recipe is out of date.
+
+5) Get the djview source from the git repository
+    $ git clone git://git.code.sf.net/p/djvu/djview-git djvulibre-djview
+    $ cd djvulibre-djview
+   Configure with command
+    $ ./autogen.sh --enable-mac QMAKE=<path-to-qt-qmake-executable>
+   Then compile with command
+    $ make
+
+6) Prepare the djview.app bundle and the dmg file
+    $ cd mac
+    $ ./make_djview_bundle.sh
+    $ ./make_djview_dmg.sh
+
+
+
+2.4 COMPILATION HINTS FOR WINDOWS
+-----------------------------------
+
+In general you can compile the standalone 
+viewer djview4 on non unix platforms.
+However the browser plugin capability 
+is currently not working on non X11 systems.
+You will need to compile DjVuLibre.
+You will need the appropriate version of Qt.
+
+There are also two ways to compile djview under Windows.
+
+* Using Visual C++ 
+
+  - First you need to install Qt5 binaries compatible
+    with your compiler. Sometimes this means
+    compiling Qt yourself.
+  - Type command 
+       $ qmake -win32 -tp vc
+    to generate a MS Visual C++ project file.
+  - Tweak the project file to properly link with
+    the djvulibre library and the tiff library.
+    One good way to do so is to open the file "djvulibre.sln"
+    that comes with the cvs version of djvulibre. Then add the
+    project "djview.vcproj" and insert the property sheets
+    "dirs", "warnings", "libtiff" and "tools" found in the 
+    djvulibre-3.5/win32/djvulibre directory. You also need
+    to add the references to libdjvulibre and libtiff.
+    This works well despite requiring a lot of clicks.
+
+* Using the MINGW compiler (not recommended)
+
+  - Install the binary version of Qt4.
+  - Install the mingw version of zlib, libtiff, libjpeg.
+  - Compile djvulibre using the configure method.
+  - Go to directory djview4/src.
+  - Type command 
+       $ qmake DEFINES+=HAVE_TIFF \
+          LIBS+="-L$HOME/djvulibre-3.5/libdjvu/.libs -ldjvulibre -ltiff" \
+	  QMAKE_CXXFLAGS+="-I$HOME/djvulibre-3.5"
+    where you replace the paths by the actual djvulibre paths.
+  - Then compile using 
+       $ mingw32-make SHELL=cmd.exe
+    
+
+

@@ -1,0 +1,11 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+     <file>images/djvu_wait.png</file>
+     <file>images/djvu_fail.png</file>
+     <file>images/djvu_stop.png</file>
+     <file>images/djvu_logo.png</file>
+     <file>images/cursor_hand_closed.png</file>
+     <file>images/cursor_hand_open.png</file>
+</qresource>
+</RCC>
