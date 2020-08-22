@@ -32,6 +32,7 @@
 #include "Utils.h"
 #include "AbstractFilterDataCollector.h"
 #include "ThumbnailCollector.h"
+#include "filters/publish/CacheDrivenTask.h"
 #include <QString>
 #include <QFileInfo>
 #include <QRect>
@@ -43,9 +44,11 @@ namespace output
 {
 
 CacheDrivenTask::CacheDrivenTask(
+    IntrusivePtr<publish::CacheDrivenTask> const& next_task,
     IntrusivePtr<Settings> const& settings,
     OutputFileNameGenerator const& out_file_name_gen)
-    :   m_ptrSettings(settings),
+    :   m_ptrNextTask(next_task),
+        m_ptrSettings(settings),
         m_outFileNameGen(out_file_name_gen)
 {
 }
@@ -138,6 +141,11 @@ CacheDrivenTask::process(
             }
         } while (false);
 
+        if (m_ptrNextTask) {
+            m_ptrNextTask->process(page_info, collector);
+            return;
+        }
+
         if (need_reprocess) {
             thumb_col->processThumbnail(
                 std::unique_ptr<QGraphicsItem>(
@@ -162,6 +170,11 @@ CacheDrivenTask::process(
                     )
                 )
             );
+        }
+    } else {
+        if (m_ptrNextTask) {
+            m_ptrNextTask->process(page_info, collector);
+            return;
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2020 Alexander Trufanov <trufanovan@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,49 +16,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OUTPUT_CACHEDRIVENTASK_H_
-#define OUTPUT_CACHEDRIVENTASK_H_
+#ifndef PUBLISH_CACHEDRIVENTASK_H_
+#define PUBLISH_CACHEDRIVENTASK_H_
 
 #include "NonCopyable.h"
-#include "RefCountable.h"
+#include "CompositeCacheDrivenTask.h"
 #include "IntrusivePtr.h"
-#include "OutputFileNameGenerator.h"
 
-class QPolygonF;
 class PageInfo;
 class AbstractFilterDataCollector;
-class ImageTransformation;
 
 namespace publish
-{
-class CacheDrivenTask;
-}
-
-namespace output
 {
 
 class Settings;
 
-class CacheDrivenTask : public RefCountable
+class CacheDrivenTask : public CompositeCacheDrivenTask
 {
     DECLARE_NON_COPYABLE(CacheDrivenTask)
 public:
     CacheDrivenTask(
-        IntrusivePtr<publish::CacheDrivenTask> const& next_task,
-        IntrusivePtr<Settings> const& settings,
-        OutputFileNameGenerator const& out_file_name_gen);
+        IntrusivePtr<Settings> const& settings);
 
     virtual ~CacheDrivenTask();
 
-    void process(
-        PageInfo const& page_info, AbstractFilterDataCollector* collector,
-        ImageTransformation const& xform, QPolygonF const& content_rect_phys);
+    virtual void process(
+        PageInfo const& page_info, AbstractFilterDataCollector* collector);
 private:
-    IntrusivePtr<publish::CacheDrivenTask> m_ptrNextTask;
     IntrusivePtr<Settings> m_ptrSettings;
-    OutputFileNameGenerator m_outFileNameGen;
 };
 
-} // namespace output
+} // namespace publishing
 
 #endif

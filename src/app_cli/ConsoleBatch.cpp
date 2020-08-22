@@ -66,6 +66,10 @@
 #include "filters/output/Filter.h"
 #include "filters/output/Task.h"
 #include "filters/output/CacheDrivenTask.h"
+#include "filters/publish/Settings.h"
+#include "filters/publish/Filter.h"
+#include "filters/publish/Task.h"
+#include "filters/publish/CacheDrivenTask.h"
 
 #include <QMap>
 #include <QImage>
@@ -133,14 +137,22 @@ ConsoleBatch::createCompositeTask(
     IntrusivePtr<select_content::Task> select_content_task;
     IntrusivePtr<page_layout::Task> page_layout_task;
     IntrusivePtr<output::Task> output_task;
+    IntrusivePtr<publish::Task> publish_task;
 
     if (batch) {
         debug = false;
     }
 
+    if (last_filter_idx >= m_ptrStages->publishFilterIdx()) {
+        publish_task = m_ptrStages->publishFilter()->createTask(
+                    page.id(), batch
+                    );
+        debug = false;
+    }
+
     if (last_filter_idx >= m_ptrStages->outputFilterIdx()) {
         output_task = m_ptrStages->outputFilter()->createTask(
-                          page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug
+                          page.id(), m_ptrThumbnailCache, m_outFileNameGen, publish_task, batch, debug
                       );
         debug = false;
     }
@@ -264,7 +276,8 @@ ConsoleBatch::setupFilter(int idx, std::set<PageId> allPages)
         setupPageLayout(allPages);
     } else if (idx == m_ptrStages->outputFilterIdx()) {
         setupOutput(allPages);
-    }
+    } else if (idx == m_ptrStages->publishFilterIdx())
+        setupPublish(allPages);
 }
 
 void
@@ -505,4 +518,11 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
         output->getSettings()->setParams(page, params);
     }
 
+}
+
+void
+ConsoleBatch::setupPublish(std::set<PageId> allPages)
+{
+    IntrusivePtr<publish::Filter> output = m_ptrStages->publishFilter();
+    CommandLine const& cli = CommandLine::get();
 }

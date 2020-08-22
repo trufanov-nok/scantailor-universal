@@ -192,6 +192,7 @@ Filter::createTask(
     PageId const& page_id,
     IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
     OutputFileNameGenerator const& out_file_name_gen,
+    IntrusivePtr<publish::Task> const& next_task,
     bool const batch, bool const debug,
     bool keep_orig_fore_subscan,
 //Original_Foreground_Mixed
@@ -203,7 +204,7 @@ Filter::createTask(
     }
     return IntrusivePtr<Task>(
                new Task(
-                   IntrusivePtr<Filter>(this), m_ptrSettings,
+                   IntrusivePtr<Filter>(this), next_task, m_ptrSettings,
                    thumbnail_cache, page_id, out_file_name_gen,
                    lastTab, batch, debug,
                    keep_orig_fore_subscan,
@@ -214,10 +215,11 @@ Filter::createTask(
 }
 
 IntrusivePtr<CacheDrivenTask>
-Filter::createCacheDrivenTask(OutputFileNameGenerator const& out_file_name_gen)
+Filter::createCacheDrivenTask(OutputFileNameGenerator const& out_file_name_gen,
+                              IntrusivePtr<publish::CacheDrivenTask> const& next_task)
 {
     return IntrusivePtr<CacheDrivenTask>(
-               new CacheDrivenTask(m_ptrSettings, out_file_name_gen)
+               new CacheDrivenTask(next_task, m_ptrSettings, out_file_name_gen)
            );
 }
 

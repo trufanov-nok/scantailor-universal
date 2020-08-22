@@ -101,11 +101,11 @@ ENDIF()
 
 TARGET_LINK_LIBRARIES(
         scantailor-universal
-        fix_orientation page_split deskew select_content page_layout output stcore
+        fix_orientation page_split deskew select_content page_layout output publish stcore
         dewarping zones interaction imageproc math foundation exporting
 )
 
-ADD_DEPENDENCIES(scantailor-universal fix_orientation page_split deskew select_content page_layout output stcore
+ADD_DEPENDENCIES(scantailor-universal fix_orientation page_split deskew select_content page_layout output publish stcore
         dewarping zones interaction imageproc math foundation)
 
 

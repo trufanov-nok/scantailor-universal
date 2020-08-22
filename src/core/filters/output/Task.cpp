@@ -61,6 +61,7 @@
 #include "imageproc/PolygonUtils.h"
 #include "imageproc/DrawOver.h"
 #include "imageproc/Transform.h"
+#include "filters/publish/Task.h"
 #include "VirtualZoneProperty.h"
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
@@ -129,6 +130,7 @@ private:
 };
 
 Task::Task(IntrusivePtr<Filter> const& filter,
+           IntrusivePtr<publish::Task> const& next_task,
            IntrusivePtr<Settings> const& settings,
            IntrusivePtr<ThumbnailPixmapCache> const& thumbnail_cache,
            PageId const& page_id, OutputFileNameGenerator const& out_file_name_gen,
@@ -137,6 +139,7 @@ Task::Task(IntrusivePtr<Filter> const& filter,
 //Original_Foreground_Mixed
            QImage* const p_orig_fore_subscan)
     :   m_ptrFilter(filter),
+        m_ptrNextTask(next_task),
         m_ptrSettings(settings),
         m_ptrThumbnailCache(thumbnail_cache),
         m_pageId(page_id),
@@ -304,7 +307,11 @@ Task::process(
 //Original_Foreground_Mixed
         *m_p_orig_fore_subscan = out_img;
 
-        return FilterResultPtr(0);
+        if (m_ptrNextTask) {
+            return m_ptrNextTask->process(status, FilterData(data, new_xform));
+        } else {
+            return FilterResultPtr(nullptr);
+        }
     }
 //end of modified by monday2000
 
@@ -534,6 +541,10 @@ Task::process(
         despeckle_visualization = despeckle_state.visualize();
     }
 
+    if (m_ptrNextTask) {
+        return m_ptrNextTask->process(status, FilterData(data, new_xform));
+    }
+
     if (CommandLine::get().isGui()) {
         return FilterResultPtr(
                    new UiUpdater(
@@ -545,7 +556,7 @@ Task::process(
                    )
                );
     } else {
-        return FilterResultPtr(0);
+        return FilterResultPtr(nullptr);
     }
 }
 

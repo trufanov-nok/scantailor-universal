@@ -18,6 +18,7 @@ ADD_SUBDIRECTORY(filters/deskew)
 ADD_SUBDIRECTORY(filters/select_content)
 ADD_SUBDIRECTORY(filters/page_layout)
 ADD_SUBDIRECTORY(filters/output)
+ADD_SUBDIRECTORY(filters/publish)
 
 SET(
         common_sources

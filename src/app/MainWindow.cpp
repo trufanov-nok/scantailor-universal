@@ -65,6 +65,7 @@
 #include "OutOfMemoryDialog.h"
 #include "QtSignalForwarder.h"
 #include "StartBatchProcessingDialog.h"
+
 #include "filters/fix_orientation/Filter.h"
 #include "filters/fix_orientation/Task.h"
 #include "filters/fix_orientation/CacheDrivenTask.h"
@@ -83,6 +84,10 @@
 #include "filters/output/Filter.h"
 #include "filters/output/Task.h"
 #include "filters/output/CacheDrivenTask.h"
+#include "filters/publish/Filter.h"
+#include "filters/publish/Task.h"
+#include "filters/publish/CacheDrivenTask.h"
+
 #include "LoadFileTask.h"
 #include "CompositeCacheDrivenTask.h"
 #include "ScopedIncDec.h"
@@ -2139,8 +2144,8 @@ MainWindow::exportRequestedReprocessing(const PageId& page_id, QImage* fore_subs
     const PageInfo page_info = m_ptrThumbSequence_export->toPageSequence().pageAt(page_id);
 
     auto output_task = m_ptrStages->outputFilter()->createTask(
-                page_id, m_ptrThumbnailCache, m_outFileNameGen, false, m_debug,
-                true, fore_subscan
+                page_id, m_ptrThumbnailCache, m_outFileNameGen, IntrusivePtr<publish::Task>(),
+                false, m_debug, true, fore_subscan
                 );
 
     auto page_layout_task = m_ptrStages->pageLayoutFilter()->createTask(
@@ -2910,14 +2915,22 @@ MainWindow::createCompositeTask(
     IntrusivePtr<select_content::Task> select_content_task;
     IntrusivePtr<page_layout::Task> page_layout_task;
     IntrusivePtr<output::Task> output_task;
+    IntrusivePtr<publish::Task> publish_task;
 
     if (batch) {
         debug = false;
     }
 
+    if (last_filter_idx >= m_ptrStages->publishFilterIdx()) {
+        publish_task = m_ptrStages->publishFilter()->createTask(
+                    page.id(), batch
+                    );
+        debug = false;
+    }
+    
     if (last_filter_idx >= m_ptrStages->outputFilterIdx()) {
         output_task = m_ptrStages->outputFilter()->createTask(
-                          page.id(), m_ptrThumbnailCache, m_outFileNameGen, batch, debug
+                          page.id(), m_ptrThumbnailCache, m_outFileNameGen, publish_task, batch, debug
                       );
         debug = false;
         disconnect(output_task->getSettingsListener(), SLOT(settingsChanged()));
@@ -2970,10 +2983,15 @@ MainWindow::createCompositeCacheDrivenTask(int const last_filter_idx)
     IntrusivePtr<select_content::CacheDrivenTask> select_content_task;
     IntrusivePtr<page_layout::CacheDrivenTask> page_layout_task;
     IntrusivePtr<output::CacheDrivenTask> output_task;
+    IntrusivePtr<publish::CacheDrivenTask> publish_task;
 
+    if (last_filter_idx >= m_ptrStages->publishFilterIdx()) {
+        publish_task = m_ptrStages->publishFilter()
+                ->createCacheDrivenTask();
+    }
     if (last_filter_idx >= m_ptrStages->outputFilterIdx()) {
         output_task = m_ptrStages->outputFilter()
-                      ->createCacheDrivenTask(m_outFileNameGen);
+                      ->createCacheDrivenTask(m_outFileNameGen, publish_task);
     }
     if (last_filter_idx >= m_ptrStages->pageLayoutFilterIdx()) {
         page_layout_task = m_ptrStages->pageLayoutFilter()

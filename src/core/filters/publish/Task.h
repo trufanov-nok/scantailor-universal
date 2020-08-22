@@ -1,6 +1,6 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
+    Copyright (C) 2020 Alexander Trufanov <trufanovan@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,49 +16,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OUTPUT_CACHEDRIVENTASK_H_
-#define OUTPUT_CACHEDRIVENTASK_H_
+#ifndef PUBLISH_TASK_H_
+#define PUBLISH_TASK_H_
 
 #include "NonCopyable.h"
 #include "RefCountable.h"
+#include "FilterResult.h"
 #include "IntrusivePtr.h"
-#include "OutputFileNameGenerator.h"
+#include "ImageId.h"
 
-class QPolygonF;
-class PageInfo;
-class AbstractFilterDataCollector;
-class ImageTransformation;
+class TaskStatus;
+class FilterData;
+class QImage;
 
 namespace publish
 {
-class CacheDrivenTask;
-}
 
-namespace output
-{
-
+class Filter;
 class Settings;
 
-class CacheDrivenTask : public RefCountable
+class Task : public RefCountable
 {
-    DECLARE_NON_COPYABLE(CacheDrivenTask)
+    DECLARE_NON_COPYABLE(Task)
 public:
-    CacheDrivenTask(
-        IntrusivePtr<publish::CacheDrivenTask> const& next_task,
+    Task(
+        QString const& filename,
+        IntrusivePtr<Filter> const& filter,
         IntrusivePtr<Settings> const& settings,
-        OutputFileNameGenerator const& out_file_name_gen);
+        bool batch_processing);
 
-    virtual ~CacheDrivenTask();
+    virtual ~Task();
 
-    void process(
-        PageInfo const& page_info, AbstractFilterDataCollector* collector,
-        ImageTransformation const& xform, QPolygonF const& content_rect_phys);
+    FilterResultPtr process(TaskStatus const& status, FilterData const& data);
 private:
-    IntrusivePtr<publish::CacheDrivenTask> m_ptrNextTask;
+    class UiUpdater;
+
+    IntrusivePtr<Filter> m_ptrFilter;
     IntrusivePtr<Settings> m_ptrSettings;
-    OutputFileNameGenerator m_outFileNameGen;
+    QString m_filename;
+    bool m_batchProcessing;
 };
 
-} // namespace output
+} // namespace publish
 
 #endif
