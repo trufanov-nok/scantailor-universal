@@ -51,7 +51,7 @@ ZoneDragInteraction::ZoneDragInteraction(
 }
 
 void
-ZoneDragInteraction::onPaint(QPainter& painter, InteractionState const& interaction)
+ZoneDragInteraction::onPaint(QPainter& painter, InteractionState const& /*interaction*/)
 {
     painter.setWorldMatrixEnabled(false);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -61,17 +61,24 @@ ZoneDragInteraction::onPaint(QPainter& painter, InteractionState const& interact
     for (EditableZoneSet::Zone const& zone : m_rContext.zones()) {
         EditableSpline::Ptr const& spline = zone.spline();
 
-        if (spline != m_ptrSpline) {
+        if (spline == m_ptrSpline) {
             // Draw the whole spline in solid color.
+            QPen pen(0xcc1420);
+            pen.setWidthF(3);
+            pen.setCosmetic(true);
+            pen.setStyle(Qt::DotLine);
+            painter.setPen(pen);
+
+            painter.drawPolygon(to_screen.map(spline->toPolygon()), Qt::WindingFill);
+        } else {
             m_visualizer.drawSpline(painter, to_screen, spline);
-            continue;
         }
     }
 }
 
 void
 ZoneDragInteraction::onMouseReleaseEvent(
-    QMouseEvent* event, InteractionState& interaction)
+    QMouseEvent* event, InteractionState& /*interaction*/)
 {
     if (event->button() == Qt::LeftButton) {
         m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
@@ -133,6 +140,20 @@ ZoneDragInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& /*inter
 {
     if (GlobalStaticSettings::checkKeysMatch(ZoneCancel, event->modifiers(), (Qt::Key) event->key())) {
         m_ptrSpline->copyFromSerializableSpline(m_savedSpline);
+        m_rContext.zones().commit();
+        makePeerPreceeder(*m_rContext.createDefaultInteraction());
+        delete this;
+    }
+}
+
+void
+ZoneDragInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& /*interaction*/)
+{
+    const Qt::KeyboardModifiers mask = event->modifiers();
+    if (!GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) &&
+            !GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) &&
+            !GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask)) {
+        m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
         m_rContext.zones().commit();
         makePeerPreceeder(*m_rContext.createDefaultInteraction());
         delete this;

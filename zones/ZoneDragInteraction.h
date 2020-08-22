@@ -37,13 +37,11 @@ public:
         ZoneInteractionContext& context, InteractionState& interaction,
         EditableSpline::Ptr const& spline, SplineVertex::Ptr const& vertex);
 protected:
-    virtual void onPaint(QPainter& painter, InteractionState const& interaction);
-
-    virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction);
-
-    virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction);
-
+    virtual void onPaint(QPainter& painter, InteractionState const& interaction) override;
+    virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) override;
+    virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
     virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
+    virtual void onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) override;
 private:
     void checkProximity(InteractionState const& interaction);
 
