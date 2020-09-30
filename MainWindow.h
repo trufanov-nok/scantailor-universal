@@ -247,6 +247,16 @@ private slots:
 
     void on_resetSortingBtn_clicked();
 
+    void on_actionCopySourceFileName_triggered();
+
+    void on_actionCopyOutputFileName_triggered();
+
+    void on_actionCopyPageNumber_triggered();
+
+    void on_actionGoToPage_triggered();
+
+    void on_actionSelectPages_triggered();
+
 private:
     enum SavePromptResult { SAVE, DONT_SAVE, CANCEL };
 

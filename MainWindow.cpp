@@ -119,6 +119,7 @@
 #include <QByteArray>
 #include <QVariant>
 #include <QProcess>
+#include <QClipboard>
 #include <QMimeDatabase>
 #include <QModelIndex>
 #include <QFileDialog>
@@ -1349,23 +1350,32 @@ MainWindow::pageContextMenuRequested(
         }
     }
 
-    QAction* goto_page = menu.addAction(
-                             tr("Go to page...")
-                         );
-
-    QAction* select_pages = menu.addAction(
-                                tr("Select pages...")
-                            );
-
     menu.addSeparator();
 
-    QAction* ins_before = menu.addAction(
+    QMenu* menu_copy = menu.addMenu(
+                                tr("Copy")
+                            );
+
+    const QString iconThemeName("edit-copy");
+    if (QIcon::hasThemeIcon(iconThemeName)) {
+        menu_copy->setIcon(QIcon::fromTheme(iconThemeName));
+    }
+
+    menu_copy->addAction(actionCopySourceFileName);
+    menu_copy->addAction(actionCopyOutputFileName);
+    menu_copy->addAction(actionCopyPageNumber);
+
+    QMenu* menu_insert = menu.addMenu(
+                                tr("Insert")
+                            );
+
+    QAction* ins_before = menu_insert->addAction(
                               QIcon(":/icons/insert-before-16.png"), tr("Insert before...")
                           );
-    QAction* ins_after = menu.addAction(
+    QAction* ins_after = menu_insert->addAction(
                              QIcon(":/icons/insert-after-16.png"), tr("Insert after...")
                          );
-    QMenu* menu_ins_empty = menu.addMenu(
+    QMenu* menu_ins_empty = menu_insert->addMenu(
                                 tr("Insert empty page")
                             );
     menu_ins_empty->addAction(actionInsertEmptyPgBefore);
@@ -1393,60 +1403,7 @@ MainWindow::pageContextMenuRequested(
     }
 
     QAction* action = menu.exec(screen_pos);
-    if (action == goto_page) {
-        bool ok;
-        const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
-        int page_no = QInputDialog::getInt(this, tr("Go to page"), tr("Page number:"),
-                                           1, 1, pages.numPages(), 1, &ok,
-                                           Qt::Dialog);
-        if (ok) {
-            goToPage(pages.pageAt(page_no - 1).id());
-        }
-    } else if (action == select_pages) {
-        QInputDialog dlg(this, Qt::Dialog);
-        dlg.setInputMode(QInputDialog::TextInput);
-        dlg.setOption(QInputDialog::UsePlainTextEditForTextInput);
-        dlg.setWindowTitle(tr("Select pages by number"));
-        dlg.setToolTip(tr("Numbers should start from 1\n Line ends are ignored\n" \
-                          "Any non digit symbols are interpreted as number separators\n" \
-                          "Number followed by '-' or ':' treated as a start of page sequence\n"));
-        const QString default_label_text(tr("Input page numbers:"));
-        dlg.setLabelText(default_label_text);
-        QVector<int> res;
-        connect(&dlg, &QInputDialog::textValueChanged, [&dlg, &default_label_text, &res](const QString & text) {
-            getPageNumbersFromStr(text, res);
-            if (!res.isEmpty()) {
-                dlg.setLabelText(tr("Pages to be selected: %1").arg(res.count()));
-            } else {
-                dlg.setLabelText(default_label_text);
-            }
-        });
-
-        if (dlg.exec() == QDialog::Accepted && !res.isEmpty()) {
-            const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
-
-            QSet<PageId> page_ids;
-            for (int page_no : qAsConst(res)) {
-                page_ids += pages.pageAt(page_no - 1).id();
-            }
-
-            m_ptrThumbSequence->setSelection(page_ids, ThumbnailSequence::RESET_SELECTION);
-
-//            const int pages_cnt = pages.numPages();
-//            for (int i = 0; i < res.count(); i++) {
-//                const int page_no = res[i];
-//                if (page_no > 0 && page_no <= pages_cnt) {
-//                    const PageId id = pages.pageAt(page_no-1).id();
-//                    if (!id.isNull()) {
-//                        m_ptrThumbSequence->setSelection(id, (i>0) ? ThumbnailSequence::KEEP_SELECTION :
-//                                                                     ThumbnailSequence::RESET_SELECTION);
-//                    }
-//                }
-//            }
-            updateMainArea();
-        }
-
-    } else if (action == ins_before) {
+    if (action == ins_before) {
         showInsertFileDialog(BEFORE, page_info.imageId());
     } else if (action == ins_after) {
         showInsertFileDialog(AFTER, page_info.imageId());
@@ -2629,7 +2586,7 @@ MainWindow::removeFilterOptionsWidget()
     // Delete the old widget we were owning, if any.
     m_optionsWidgetCleanup.clear();
 
-    m_ptrOptionsWidget = 0;
+    m_ptrOptionsWidget = nullptr;
 }
 
 void
@@ -2641,6 +2598,8 @@ MainWindow::updateProjectActions()
     actionFixDpi->setEnabled(loaded);
     actionRelinking->setEnabled(loaded);
     actionExport->setEnabled(loaded);
+    actionGoToPage->setEnabled(loaded);
+    actionSelectPages->setEnabled(loaded);
     if (m_ptrStages.get()) {
         // just in case it ever changes
         StatusBarProvider::setOutputFilterIdx(m_ptrStages->outputFilterIdx());
@@ -3839,4 +3798,95 @@ void MainWindow::on_resetSortingBtn_clicked()
 {
     sortOptions->setCurrentIndex(0);
     resetSortingBtn->hide();
+}
+
+void MainWindow::on_actionCopySourceFileName_triggered()
+{
+    const std::set<PageId> sel_pages = selectedPages();
+    QStringList filenames;
+    for (PageId const &page: sel_pages) {
+        filenames.append(page.imageId().filePath());
+    }
+    QGuiApplication::clipboard()->setText(filenames.join('\n'));
+}
+
+void MainWindow::on_actionCopyOutputFileName_triggered()
+{
+    const std::set<PageId> sel_pages = selectedPages();
+    QStringList filenames;
+    for (PageId const &page: sel_pages) {
+        filenames.append(m_outFileNameGen.filePathFor(page));
+    }
+    QGuiApplication::clipboard()->setText(filenames.join('\n'));
+}
+
+void MainWindow::on_actionCopyPageNumber_triggered()
+{
+    const std::set<PageId> sel_pages = selectedPages();
+    const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
+    QStringList numbers;
+    for (PageId const &page: sel_pages) {
+        numbers.append(QString::number(pages.pageNo(page)));
+    }
+
+    QGuiApplication::clipboard()->setText(numbers.join('\n'));
+}
+
+
+void MainWindow::on_actionGoToPage_triggered()
+{
+    bool ok;
+    const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
+    int page_no = QInputDialog::getInt(this, tr("Go to page"), tr("Page number:"),
+                                       1, 1, pages.numPages(), 1, &ok,
+                                       Qt::Dialog);
+    if (ok) {
+        goToPage(pages.pageAt(page_no - 1).id());
+    }
+}
+
+void MainWindow::on_actionSelectPages_triggered()
+{
+    QInputDialog dlg(this, Qt::Dialog);
+    dlg.setInputMode(QInputDialog::TextInput);
+    dlg.setOption(QInputDialog::UsePlainTextEditForTextInput);
+    dlg.setWindowTitle(tr("Select pages by number"));
+    dlg.setToolTip(tr("Numbers should start from 1\n Line ends are ignored\n" \
+                      "Any non digit symbols are interpreted as number separators\n" \
+                      "Number followed by '-' or ':' treated as a start of page sequence\n"));
+    const QString default_label_text(tr("Input page numbers:"));
+    dlg.setLabelText(default_label_text);
+    QVector<int> res;
+    connect(&dlg, &QInputDialog::textValueChanged, [&dlg, &default_label_text, &res](const QString & text) {
+        getPageNumbersFromStr(text, res);
+        if (!res.isEmpty()) {
+            dlg.setLabelText(tr("Pages to be selected: %1").arg(res.count()));
+        } else {
+            dlg.setLabelText(default_label_text);
+        }
+    });
+
+    if (dlg.exec() == QDialog::Accepted && !res.isEmpty()) {
+        const PageSequence pages = m_ptrPages->toPageSequence(getCurrentView());
+
+        QSet<PageId> page_ids;
+        for (int page_no : qAsConst(res)) {
+            page_ids += pages.pageAt(page_no - 1).id();
+        }
+
+        m_ptrThumbSequence->setSelection(page_ids, ThumbnailSequence::RESET_SELECTION);
+
+//            const int pages_cnt = pages.numPages();
+//            for (int i = 0; i < res.count(); i++) {
+//                const int page_no = res[i];
+//                if (page_no > 0 && page_no <= pages_cnt) {
+//                    const PageId id = pages.pageAt(page_no-1).id();
+//                    if (!id.isNull()) {
+//                        m_ptrThumbSequence->setSelection(id, (i>0) ? ThumbnailSequence::KEEP_SELECTION :
+//                                                                     ThumbnailSequence::RESET_SELECTION);
+//                    }
+//                }
+//            }
+        updateMainArea();
+    }
 }

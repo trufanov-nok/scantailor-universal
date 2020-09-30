@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>783</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDebug">
@@ -91,7 +91,15 @@
     <addaction name="actionAbout_Qt"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionGoToPage"/>
+    <addaction name="actionSelectPages"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuDebug"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -152,7 +160,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/resources.qrc">
              <normaloff>:/icons/keep-in-view.png</normaloff>:/icons/keep-in-view.png</iconset>
            </property>
            <property name="checkable">
@@ -175,7 +183,7 @@
             <string notr="true"/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="../resources/resources.qrc">
              <normaloff>:/icons/multi_choice.png</normaloff>:/icons/multi_choice.png</iconset>
            </property>
            <property name="shortcut">
@@ -237,7 +245,7 @@
              <string>Reset sorting to default</string>
             </property>
             <property name="icon">
-             <iconset>
+             <iconset resource="../resources/resources.qrc">
               <normaloff>:/icons/gimp-reset.png</normaloff>:/icons/gimp-reset.png</iconset>
             </property>
            </widget>
@@ -350,7 +358,7 @@
           <x>0</x>
           <y>0</y>
           <width>256</width>
-          <height>187</height>
+          <height>185</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -859,11 +867,14 @@
   </action>
   <action name="actionInsertEmptyPgBefore">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/insert-before-16.png</normaloff>:/icons/insert-before-16.png</iconset>
    </property>
    <property name="text">
     <string notr="true">Insert before	Ctrl+Shift+B</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert before</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+B</string>
@@ -871,14 +882,49 @@
   </action>
   <action name="actionInsertEmptyPgAfter">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/insert-after-16.png</normaloff>:/icons/insert-after-16.png</iconset>
    </property>
    <property name="text">
     <string notr="true">Insert after	Ctrl+Shift+A</string>
    </property>
+   <property name="toolTip">
+    <string>Insert after</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionCopySourceFileName">
+   <property name="icon">
+    <iconset theme="copy">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Copy source file name(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionCopyOutputFileName">
+   <property name="text">
+    <string>Copy output file name(s)</string>
+   </property>
+  </action>
+  <action name="actionCopyPageNumber">
+   <property name="text">
+    <string>Copy page number(s)</string>
+   </property>
+  </action>
+  <action name="actionGoToPage">
+   <property name="text">
+    <string>Go to page...</string>
+   </property>
+  </action>
+  <action name="actionSelectPages">
+   <property name="text">
+    <string>Select pages...</string>
    </property>
   </action>
  </widget>
@@ -895,6 +941,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
