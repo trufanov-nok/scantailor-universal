@@ -3425,7 +3425,7 @@ MainWindow::setDockingPanels(bool enabled)
 bool
 MainWindow::loadLanguage(const QString& dir, const QString& lang)
 {
-    const QString translation("scantailor_" + lang);
+    const QString translation("scantailor-universal_" + lang);
     bool loaded = m_translator.load(dir + translation);
 
 #if defined(unix) || defined(__unix__) || defined(__unix)

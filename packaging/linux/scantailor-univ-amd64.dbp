@@ -21,7 +21,7 @@ Description: Alternative version of ScanTailor: iinteractive post-processing too
 <<FILES>>
 1
 /home/truf/dev/pl/scantailor/build/scantailor-universal.svg -> scantailor-universal.svg -> /usr/share/pixmaps
-/home/truf/dev/pl/scantailor/build/scantailor_ru.qm -> scantailor_ru.qm -> /usr/share/scantailor-universal/translations
+/home/truf/dev/pl/scantailor/build/scantailor-universal_ru.qm -> scantailor-universal_ru.qm -> /usr/share/scantailor-universal/translations
 /home/truf/dev/pl/scantailor/build/scantailor-universal-cli* -> scantailor-universal-cli -> /usr/bin
 /home/truf/dev/pl/scantailor/build/scantailor-universal* -> scantailor-universal -> /usr/bin
 <</FILES>>
