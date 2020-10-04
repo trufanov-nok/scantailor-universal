@@ -254,7 +254,9 @@ void QHotKeys::mergeHotkeys(const QVector<HotKeyGroup>& new_data)
                     if (idx == -1) {
                         old_grp.hotKeys().append(new_hk);
                     } else {
-                        old_grp.hotKeys().replace(idx, new_hk);
+                        HotKeyInfo info = new_hk;
+                        info.setTitle(old_grp.hotKeys()[idx].title()); // keep current title translation
+                        old_grp.hotKeys().replace(idx, info);
                     }
                 }
                 break;

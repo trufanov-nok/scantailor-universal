@@ -124,7 +124,7 @@ public:
         m_id(id), m_title(title), m_editorType(editorType), m_displayType(displayType),
         m_sequences(sequences) {}
 
-    const HotKeysId id() const
+    HotKeysId id() const
     {
         return m_id;
     }
@@ -132,7 +132,13 @@ public:
     {
         return m_title;
     }
-    const HotKeyType displayType() const
+
+    void setTitle(const QString& title)
+    {
+	m_title = title;
+    }
+
+    HotKeyType displayType() const
     {
         return m_displayType;
     }
