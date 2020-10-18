@@ -35,6 +35,8 @@ class QString;
 class SerializableSpline
 {
 public:
+    SerializableSpline() {}
+
     SerializableSpline(EditableSpline const& spline);
 
     explicit SerializableSpline(QDomElement const& el);
@@ -60,6 +62,12 @@ public:
     {
         return m_points;
     }
+
+    bool isValid() const
+    {
+        return !m_points.isEmpty();
+    }
+
 private:
     QVector<QPointF> m_points;
 };

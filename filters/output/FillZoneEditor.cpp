@@ -102,11 +102,19 @@ FillZoneEditor::FillZoneEditor(
     rootInteractionHandler().makeLastFollower(m_dragHandler);
     rootInteractionHandler().makeLastFollower(m_zoomHandler);
 
-    for (Zone const& zone : m_ptrSettings->fillZonesForPage(page_id)) {
-        EditableSpline::Ptr spline(
-            new EditableSpline(zone.spline().transformed(m_origToImage))
-        );
-        m_zones.addZone(spline, zone.properties());
+    const ZoneSet zones = m_ptrSettings->fillZonesForPage(page_id);
+    for (Zone const& zone : zones) {
+        if (zone.type() == Zone::SplineType) {
+            EditableSpline::Ptr spline(
+                        new EditableSpline(zone.spline().transformed(m_origToImage))
+                        );
+            m_zones.addSpline(spline, zone.properties());
+        } else if (zone.type() == Zone::EllipseType) {
+            EditableEllipse::Ptr ellipse(
+                        new EditableEllipse(zone.ellipse().transformed(m_origToImage))
+                        );
+            m_zones.addEllipse(ellipse, zone.properties());
+        }
     }
 }
 
@@ -130,7 +138,20 @@ FillZoneEditor::onPaint(QPainter& painter, InteractionState const& interaction)
         typedef FillColorProperty FCP;
         QColor const color(zone.properties()->locateOrDefault<FCP>()->color());
         painter.setBrush(m_colorAdapter(color));
-        painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+        if (!zone.isEllipse()) {
+            painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+        } else {
+            const EditableEllipse::Ptr& e = zone.ellipse();
+            const QPointF& center = e->center();
+
+            QPainterPath path;
+            path.addEllipse(center, e->rx(), e->ry());
+            QTransform t;
+            t.translate(center.x(), center.y());
+            t.rotate(zone.ellipse()->angle());
+            t.translate(-center.x(), -center.y());
+            painter.drawPolygon(t.map(path).toFillPolygon(), Qt::WindingFill);
+        }
     }
 }
 
@@ -157,10 +178,17 @@ FillZoneEditor::commitZones()
     ZoneSet zones;
 
     for (EditableZoneSet::Zone const& zone : qAsConst(m_zones)) {
-        SerializableSpline const spline(
-            SerializableSpline(*zone.spline()).transformed(m_imageToOrig)
-        );
-        zones.add(Zone(spline, *zone.properties()));
+        if (!zone.isEllipse()) {
+            SerializableSpline const spline(
+                        SerializableSpline(*zone.spline()).transformed(m_imageToOrig)
+                        );
+            zones.add(Zone(spline, *zone.properties()));
+        } else {
+            SerializableEllipse const ellipse(
+                        SerializableEllipse(*zone.ellipse()).transformed(m_imageToOrig)
+                        );
+            zones.add(Zone(ellipse, *zone.properties()));
+        }
     }
 
     m_ptrSettings->setFillZones(m_pageId, zones);

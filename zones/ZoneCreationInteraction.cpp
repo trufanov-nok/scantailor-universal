@@ -44,7 +44,8 @@ ZoneCreationInteraction::ZoneCreationInteraction(
         m_dragHandler(context.imageView(), boost::lambda::constant(true)),
         m_dragWatcher(m_dragHandler),
         m_zoomHandler(context.imageView(), boost::lambda::constant(true)),
-        m_ptrSpline(new EditableSpline)
+        m_ptrSpline(new EditableSpline),
+        m_ptrEllipse(new EditableEllipse)
 {
     QPointF const screen_mouse_pos(
         m_rContext.imageView().mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5)
@@ -56,7 +57,7 @@ ZoneCreationInteraction::ZoneCreationInteraction(
 //added:
     m_nextVertexImagePos_mid1 = m_nextVertexImagePos;
     m_nextVertexImagePos_mid2 = m_nextVertexImagePos;
-    m_RectZoneMode = false;
+    m_zoneMode = None;
 //end of modified by monday2000
 
     makeLastFollower(m_dragHandler);
@@ -66,20 +67,21 @@ ZoneCreationInteraction::ZoneCreationInteraction(
 
     interaction.capture(m_interaction);
     m_ptrSpline->appendVertex(m_nextVertexImagePos);
+    m_ptrEllipse->setCenter(m_nextVertexImagePos);
 
     updateStatusTip();
 }
 
 void
-ZoneCreationInteraction::onPaint(QPainter& painter, InteractionState const& interaction)
+ZoneCreationInteraction::onPaint(QPainter& painter, InteractionState const& /*interaction*/)
 {
     painter.setWorldMatrixEnabled(false);
     painter.setRenderHint(QPainter::Antialiasing);
 
     QTransform const to_screen(m_rContext.imageView().imageToWidget());
-    QTransform const from_screen(m_rContext.imageView().widgetToImage());
+//    QTransform const from_screen(m_rContext.imageView().widgetToImage());
 
-    m_visualizer.drawSplines(painter, to_screen, m_rContext.zones());
+    m_visualizer.drawZones(painter, to_screen, m_rContext.zones());
 
     QPen solid_line_pen(m_visualizer.solidColor());
     solid_line_pen.setCosmetic(true);
@@ -118,8 +120,28 @@ ZoneCreationInteraction::onPaint(QPainter& painter, InteractionState const& inte
     gradient_mid2.setColorAt(0.0, mid_color);
     gradient_mid2.setColorAt(1.0, stop_color);
 
+    if (m_nextVertexImagePos != m_ptrEllipse->center() && (m_zoneMode == Ellipse)) {
+
+        QPointF to_screen_center = to_screen.map(m_ptrEllipse->center());
+        QPointF to_screen_nextVertexImagePos = to_screen.map(m_ptrEllipse->const_data()[0]);
+        qreal r = std::sqrt(std::pow(to_screen_center.x() - to_screen_nextVertexImagePos.x(), 2) +
+                      std::pow(to_screen_center.y() - to_screen_nextVertexImagePos.y(), 2));
+
+        painter.drawEllipse(to_screen_center, r, r);
+
+        m_visualizer.drawVertex(
+            painter, to_screen.map(m_ptrEllipse->center()), m_visualizer.highlightBrightColor()
+        );
+
+        for (const QPointF  &p: m_ptrEllipse->const_data()) {
+            m_visualizer.drawVertex(
+                        painter, to_screen.map(p), m_visualizer.highlightBrightColor()
+                        );
+        }
+
+    } else
     if (m_nextVertexImagePos != m_nextVertexImagePos_mid1 &&
-            m_nextVertexImagePos != m_nextVertexImagePos_mid2 && m_RectZoneMode) {
+               m_nextVertexImagePos != m_nextVertexImagePos_mid2 && (m_zoneMode == Rectangle)) {
         m_visualizer.drawVertex(
             painter, to_screen.map(m_nextVertexImagePos_mid1), m_visualizer.highlightBrightColor()
         );
@@ -225,17 +247,31 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
         return;
     }
 
-    QTransform const to_screen(m_rContext.imageView().imageToWidget());
+//    QTransform const to_screen(m_rContext.imageView().imageToWidget());
     QTransform const from_screen(m_rContext.imageView().widgetToImage());
     QPointF const screen_mouse_pos(event->pos() + QPointF(0.5, 0.5));
     QPointF const image_mouse_pos(from_screen.map(screen_mouse_pos));
+
+
+    if (m_nextVertexImagePos != m_ptrEllipse->center() && (m_zoneMode == Ellipse)) {
+
+        updateStatusTip();
+        m_rContext.zones().addEllipse(m_ptrEllipse);
+        LocalClipboard::getInstance()->setLastZoneEllipse(SerializableEllipse(*m_ptrEllipse));
+        m_rContext.zones().commit();
+
+        makePeerPreceeder(*m_rContext.createDefaultInteraction());
+        m_rContext.imageView().update();
+        delete this;
+
+    } else
 
 //begin of modified by monday2000
 //Square_Picture_Zones
 //added:
 
     if (m_nextVertexImagePos != m_nextVertexImagePos_mid1 &&
-            m_nextVertexImagePos != m_nextVertexImagePos_mid2 && m_RectZoneMode) {
+            m_nextVertexImagePos != m_nextVertexImagePos_mid2 && (m_zoneMode == Rectangle)) {
         m_ptrSpline->appendVertex(m_nextVertexImagePos_mid1);
         m_ptrSpline->appendVertex(image_mouse_pos);
         m_ptrSpline->appendVertex(m_nextVertexImagePos_mid2);
@@ -245,8 +281,8 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
         // will create another segment.
         m_ptrSpline->setBridged(true);
         m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
-        m_rContext.zones().addZone(m_ptrSpline);
-        LocalClipboard::getInstance()->setLatestZonePolygon(m_ptrSpline->toPolygon());
+        m_rContext.zones().addSpline(m_ptrSpline);
+        LocalClipboard::getInstance()->setLastZonePolygon(m_ptrSpline->toPolygon());
         m_rContext.zones().commit();
 
         makePeerPreceeder(*m_rContext.createDefaultInteraction());
@@ -261,8 +297,8 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
             // will create another segment.
             m_ptrSpline->setBridged(true);
             m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
-            m_rContext.zones().addZone(m_ptrSpline);
-            LocalClipboard::getInstance()->setLatestZonePolygon(m_ptrSpline->toPolygon());
+            m_rContext.zones().addSpline(m_ptrSpline);
+            LocalClipboard::getInstance()->setLastZonePolygon(m_ptrSpline->toPolygon());
             m_rContext.zones().commit();
 
             makePeerPreceeder(*m_rContext.createDefaultInteraction());
@@ -299,46 +335,53 @@ ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& 
     QTransform const to_screen(m_rContext.imageView().imageToWidget());
     QTransform const from_screen(m_rContext.imageView().widgetToImage());
 
-    m_nextVertexImagePos = from_screen.map(screen_mouse_pos);
-
-    QPointF const last(to_screen.map(m_ptrSpline->lastVertex()->point()));
+    if (GlobalStaticSettings::checkModifiersMatch(ZoneEllipse, event->modifiers())) {
+        if (m_ptrSpline->segmentsCount() == 0) {
+            m_zoneMode = Ellipse;
+            m_nextVertexImagePos = from_screen.map(screen_mouse_pos);
+            m_ptrEllipse->changePoint(0, m_nextVertexImagePos, true);
+        }
+    } else {
+        m_nextVertexImagePos = from_screen.map(screen_mouse_pos);
+        QPointF const last(to_screen.map(m_ptrSpline->lastVertex()->point()));
 
 //begin of modified by monday2000
 //Square_Picture_Zones
 
-    if (GlobalStaticSettings::checkModifiersMatch(ZoneRectangle, event->modifiers())) {
-        if (m_ptrSpline->segmentsCount() == 0) {
-            m_RectZoneMode = true;
+        if (GlobalStaticSettings::checkModifiersMatch(ZoneRectangle, event->modifiers())) {
+            if (m_ptrSpline->segmentsCount() == 0) {
+                m_zoneMode = Rectangle;
 
-            QPointF screen_mouse_pos_mid1;
-            screen_mouse_pos_mid1.setX(last.x());
-            screen_mouse_pos_mid1.setY(screen_mouse_pos.y());
+                QPointF screen_mouse_pos_mid1;
+                screen_mouse_pos_mid1.setX(last.x());
+                screen_mouse_pos_mid1.setY(screen_mouse_pos.y());
 
-            QPointF screen_mouse_pos_mid2;
-            screen_mouse_pos_mid2.setX(screen_mouse_pos.x());
-            screen_mouse_pos_mid2.setY(last.y());
+                QPointF screen_mouse_pos_mid2;
+                screen_mouse_pos_mid2.setX(screen_mouse_pos.x());
+                screen_mouse_pos_mid2.setY(last.y());
 
-            int dx = screen_mouse_pos.x() - last.x();
-            int dy = screen_mouse_pos.y() - last.y();
+                int dx = screen_mouse_pos.x() - last.x();
+                int dy = screen_mouse_pos.y() - last.y();
 
-            if ((dx > 0 && dy > 0) || (dx < 0 && dy < 0)) {
-                m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid1);
-                m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid2);
-            } else {
-                m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid1);
-                m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid2);
+                if ((dx > 0 && dy > 0) || (dx < 0 && dy < 0)) {
+                    m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid1);
+                    m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid2);
+                } else {
+                    m_nextVertexImagePos_mid2 = from_screen.map(screen_mouse_pos_mid1);
+                    m_nextVertexImagePos_mid1 = from_screen.map(screen_mouse_pos_mid2);
+                }
             }
         }
-    }
-//end of modified by monday2000
+        //end of modified by monday2000
 
-    if (Proximity(last, screen_mouse_pos) <= interaction.proximityThreshold()) {
-        m_nextVertexImagePos = m_ptrSpline->lastVertex()->point();
-    } else if (m_ptrSpline->hasAtLeastSegments(2)) {
-        QPointF const first(to_screen.map(m_ptrSpline->firstVertex()->point()));
-        if (Proximity(first, screen_mouse_pos) <= interaction.proximityThreshold()) {
-            m_nextVertexImagePos = m_ptrSpline->firstVertex()->point();
-            updateStatusTip();
+        if (Proximity(last, screen_mouse_pos) <= interaction.proximityThreshold()) {
+            m_nextVertexImagePos = m_ptrSpline->lastVertex()->point();
+        } else if (m_ptrSpline->hasAtLeastSegments(2)) {
+            QPointF const first(to_screen.map(m_ptrSpline->firstVertex()->point()));
+            if (Proximity(first, screen_mouse_pos) <= interaction.proximityThreshold()) {
+                m_nextVertexImagePos = m_ptrSpline->firstVertex()->point();
+                updateStatusTip();
+            }
         }
     }
 
@@ -349,20 +392,8 @@ void
 ZoneCreationInteraction::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*interaction*/)
 {
     if (GlobalStaticSettings::checkModifiersMatch(ZoneClone, event->modifiers()) &&
-            !LocalClipboard::getInstance()->getLatestZonePolygon().isEmpty()) {
-        // Paste latest created/changed zone. Middle of zone should be ~ mouse_pos
-        // This is useful for mass creation of fill zones.
-        QTransform const from_screen(m_rContext.imageView().widgetToImage());
-        const QPointF mouse_pos = from_screen.map(event->localPos());
-
-        QPolygonF new_zone = LocalClipboard::getInstance()->getLatestZonePolygon();
-        QRectF r = new_zone.boundingRect();
-        new_zone.translate(mouse_pos.x() - r.left() - r.width() / 2, mouse_pos.y() - r.top() - r.height() / 2);
-
-        EditableSpline::Ptr spline(new EditableSpline(SerializableSpline(new_zone)));
-        spline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
-        m_rContext.zones().addZone(spline);
-        m_rContext.zones().commit();
+            LocalClipboard::getInstance()->lastZoneIsValid()) {
+        LocalClipboard::getInstance()->repeatLastZone(m_rContext, event->localPos());
     }
 }
 
@@ -380,9 +411,10 @@ ZoneCreationInteraction::updateStatusTip()
                   .arg(GlobalStaticSettings::getShortcutText(ZoneCancel));
         }
     } else {
-        tip = tr("Zones need to have at least 3 points. Hold %2 for rectangle. %1 to cancel.")
+        tip = tr("Zones need to have at least 3 points. Hold %2 for rectangle, %3 for ellipse. %1 to cancel.")
               .arg(GlobalStaticSettings::getShortcutText(ZoneCancel))
-              .arg(GlobalStaticSettings::getShortcutText(ZoneRectangle));
+              .arg(GlobalStaticSettings::getShortcutText(ZoneRectangle))
+              .arg(GlobalStaticSettings::getShortcutText(ZoneEllipse));
     }
 
     m_interaction.setInteractionStatusTip(tip);

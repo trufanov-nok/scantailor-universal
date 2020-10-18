@@ -49,10 +49,8 @@ class ZoneContextMenuInteraction::OrderByArea
 public:
     bool operator()(EditableZoneSet::Zone const& lhs, EditableZoneSet::Zone const& rhs) const
     {
-        QRectF const lhs_bbox(lhs.spline()->toPolygon().boundingRect());
-        QRectF const rhs_bbox(rhs.spline()->toPolygon().boundingRect());
-        qreal const lhs_area = lhs_bbox.width() * lhs_bbox.height();
-        qreal const rhs_area = rhs_bbox.width() * rhs_bbox.height();
+        qreal const lhs_area = lhs.isEllipse() ? lhs.ellipse()->area() : lhs.spline()->area();
+        qreal const rhs_area = rhs.isEllipse() ? rhs.ellipse()->area() : rhs.spline()->area();
         return lhs_area < rhs_area;
     }
 };
@@ -93,13 +91,21 @@ ZoneContextMenuInteraction::zonesUnderMouse(ZoneInteractionContext& context)
 
     // Find zones containing the mouse position.
     std::vector<Zone> selectable_zones;
-    for (EditableZoneSet::Zone const& zone : context.zones()) {
+    const EditableZoneSet& zones = context.zones();
+    for (EditableZoneSet::Zone const& zone : zones) {
         QPainterPath path;
         path.setFillRule(Qt::WindingFill);
-        path.addPolygon(zone.spline()->toPolygon());
-        if (path.contains(image_mouse_pos)) {
-            selectable_zones.push_back(Zone(zone));
+        if (zone.isEllipse()) {
+            if (zone.ellipse()->contains(image_mouse_pos)) {
+                selectable_zones.push_back(Zone(zone));
+            }
+        } else {
+            path.addPolygon(zone.spline()->toPolygon());
+            if (path.contains(image_mouse_pos)) {
+                selectable_zones.push_back(Zone(zone));
+            }
         }
+
     }
 
     return selectable_zones;
@@ -173,33 +179,13 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
 
     QAction* paste = m_ptrMenu->addAction(tr("&Paste"));
     paste->setShortcut(GlobalStaticSettings::createShortcut(ZonePaste));
-    paste->setEnabled(LocalClipboard::getInstance()->getConentType() == LocalClipboard::Spline);
+    paste->setEnabled(LocalClipboard::getInstance()->copiedZoneType() == LocalClipboard::Spline);
 
     if (paste->isEnabled()) {
         QObject::connect(paste, &QAction::triggered, [ = ]() {
-            QTransform widget_to_virtual(m_rContext.imageView().widgetToImage());
-            QPolygonF new_spline = LocalClipboard::getInstance()->getSpline();
-            new_spline = widget_to_virtual.map(new_spline);
-            QTransform shift = QTransform().translate(100, 100);
-
-            do {
-                bool found = false;
-                for (const EditableZoneSet::Zone& zone : m_rContext.zones()) {
-                    QPolygonF z = SerializableSpline(*zone.spline().get()).toPolygon();
-                    if (new_spline == z) {
-                        // we shouldn't mix SerializableSpline::toPolygon and EditableSpline::toPolygon
-                        // as order of vertexes might be different.
-                        found = true;
-                        new_spline = shift.map(new_spline);
-                        break;
-                    }
-                }
-                if (!found) {
-                    m_rContext.zones().addZone(EditableSpline::Ptr(new EditableSpline(SerializableSpline(new_spline))));
-                    m_rContext.zones().commit();
-                    break;
-                }
-            } while (true);
+            if (LocalClipboard* clb = LocalClipboard::getInstance()) {
+                clb->pasteZone(m_rContext);
+            }
         });
     }
 
@@ -227,7 +213,7 @@ ZoneContextMenuInteraction::onPaint(QPainter& painter, InteractionState const&)
     if (m_highlightedZoneIdx >= 0) {
         QTransform const to_screen(m_rContext.imageView().imageToWidget());
         Zone const& zone = m_selectableZones[m_highlightedZoneIdx];
-        m_visualizer.drawSpline(painter, to_screen, zone.spline());
+        m_visualizer.drawZone(painter, to_screen, zone);
     }
 }
 
@@ -291,7 +277,12 @@ ZoneContextMenuInteraction::deleteRequest(EditableZoneSet::Zone const& zone)
             QMessageBox::Yes | QMessageBox::No
                                             );
     if (btn == QMessageBox::Yes) {
-        m_rContext.zones().removeZone(zone.spline());
+        if (zone.isEllipse()) {
+            m_rContext.zones().removeEllipse(zone.ellipse());
+        } else {
+            m_rContext.zones().removeSpline(zone.spline());
+        }
+
         m_rContext.zones().commit();
         emit m_rContext.zones().manuallyDeleted();
     }
@@ -304,16 +295,30 @@ ZoneContextMenuInteraction::deleteFromRequest(EditableZoneSet::Zone const& zone)
 {
     ::Zone* z = nullptr;
 
-    if (zone.spline().get()) {
-        QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
+    if (!zone.isEllipse()) {
+        if (zone.spline().get()) {
+            QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
 
-        if (zone.properties().get()) {
-            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual), *zone.properties());
-        } else {
-            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual));
+            if (zone.properties().get()) {
+                z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual), *zone.properties());
+            } else {
+                z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual));
+            }
+
+            m_rContext.deleteFromDialogRequested(z);
         }
+    } else {
+        if (zone.ellipse().get()) {
+            QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
 
-        m_rContext.deleteFromDialogRequested(z);
+            if (zone.properties().get()) {
+                z = new ::Zone(SerializableEllipse(*zone.ellipse()).transformed(to_virtual), *zone.properties());
+            } else {
+                z = new ::Zone(SerializableEllipse(*zone.ellipse()).transformed(to_virtual));
+            }
+
+            m_rContext.deleteFromDialogRequested(z);
+        }
     }
 
     return m_rContext.createDefaultInteraction();
@@ -323,10 +328,13 @@ InteractionHandler*
 ZoneContextMenuInteraction::copyRequest(EditableZoneSet::Zone const& zone)
 {
     QTransform const to_virtual(m_rContext.imageView().imageToWidget());
-    if (zone.spline().get()) {
+    if (!zone.isEllipse()) {
         LocalClipboard::getInstance()->setSpline(
-            SerializableSpline(*zone.spline().get())
+            SerializableSpline(*zone.spline())
             .transformed(to_virtual).toPolygon());
+    } else {
+        const SerializableEllipse ellipse = SerializableEllipse(*zone.ellipse()).transformed(to_virtual);
+        LocalClipboard::getInstance()->setEllipse(ellipse);
     }
     return m_rContext.createDefaultInteraction();
 }
@@ -337,21 +345,40 @@ ZoneContextMenuInteraction::copyToRequest(EditableZoneSet::Zone const& zone)
 
     ::Zone* z = nullptr;
 
-    if (zone.spline().get()) {
-        QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
+    if (!zone.isEllipse()) {
+        if (zone.spline().get()) {
+            QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
 
-        if (zone.properties().get()) {
-            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual), *zone.properties());
-            IntrusivePtr<output::ZoneCategoryProperty> ptrProp = z->properties().locate<output::ZoneCategoryProperty>();
-            if (ptrProp.get() && ptrProp->zone_category() != output::ZoneCategoryProperty::MANUAL) {
-                // auto detected picture zones may be deleted for regeneration
-                ptrProp->setZoneCategory(output::ZoneCategoryProperty::MANUAL);
+            if (zone.properties().get()) {
+                z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual), *zone.properties());
+                IntrusivePtr<output::ZoneCategoryProperty> ptrProp = z->properties().locate<output::ZoneCategoryProperty>();
+                if (ptrProp.get() && ptrProp->zone_category() != output::ZoneCategoryProperty::MANUAL) {
+                    // auto detected picture zones may be deleted for regeneration
+                    ptrProp->setZoneCategory(output::ZoneCategoryProperty::MANUAL);
+                }
+            } else {
+                z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual));
             }
-        } else {
-            z = new ::Zone(SerializableSpline(*zone.spline()).transformed(to_virtual));
-        }
 
-        m_rContext.copyToDialogRequested(z);
+            m_rContext.copyToDialogRequested(z);
+        }
+    } else {
+        if (zone.ellipse().get()) {
+            QTransform const to_virtual(m_rContext.imageView().imageToVirtual());
+
+            if (zone.properties().get()) {
+                z = new ::Zone(SerializableEllipse(*zone.ellipse()).transformed(to_virtual), *zone.properties());
+                IntrusivePtr<output::ZoneCategoryProperty> ptrProp = z->properties().locate<output::ZoneCategoryProperty>();
+                if (ptrProp.get() && ptrProp->zone_category() != output::ZoneCategoryProperty::MANUAL) {
+                    // auto detected picture zones may be deleted for regeneration
+                    ptrProp->setZoneCategory(output::ZoneCategoryProperty::MANUAL);
+                }
+            } else {
+                z = new ::Zone(SerializableEllipse(*zone.ellipse()).transformed(to_virtual));
+            }
+
+            m_rContext.copyToDialogRequested(z);
+        }
     }
 
     return m_rContext.createDefaultInteraction();
@@ -477,6 +504,16 @@ ZoneContextMenuInteraction::Visualizer::prepareForSpline(
     QPainter& painter, EditableSpline::Ptr const& spline)
 {
     BasicSplineVisualizer::prepareForSpline(painter, spline);
+    if (m_color.isValid()) {
+        painter.setBrush(m_color);
+    }
+}
+
+void
+ZoneContextMenuInteraction::Visualizer::prepareForEllipse(
+    QPainter& painter, EditableEllipse::Ptr const& ellipse)
+{
+    BasicSplineVisualizer::prepareForEllipse(painter, ellipse);
     if (m_color.isValid()) {
         painter.setBrush(m_color);
     }

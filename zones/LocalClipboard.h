@@ -1,6 +1,7 @@
 /*
-    Scan Tailor - Interactive post-processing tool for scanned pages.
-    Copyright (C) 2007-2009  Joseph Artsimovich <joseph_a@mail.ru>
+    Scan Tailor Universal - Interactive post-processing tool for scanned
+    pages. A fork of Scan Tailor by Joseph Artsimovich.
+    Copyright (C) 2020 Alexander Trufanov <trufanovan@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,38 +21,34 @@
 #define LOCAL_CLIPBOARD_H_
 
 #include "SerializableSpline.h"
+#include "SerializableEllipse.h"
+#include "ZoneInteractionContext.h"
 
 class LocalClipboard
 {
 public:
-    enum ConentType {None, Spline};
+    enum ZoneType {None, Spline, Ellipse};
 
-    LocalClipboard(): m_content(None) {}
+    LocalClipboard(): m_copiedZoneType(None), m_lastZoneType(None) {}
 
-    void clear()
-    {
-        clear(m_content);
-    }
+    ZoneType copiedZoneType() const { return m_copiedZoneType; }
+    bool isEmpty() const { return m_copiedZoneType == None; }
 
-    const ConentType getConentType() const
-    {
-        return m_content;
-    }
-    const QPolygonF& getSpline() const
-    {
-        return m_spline;
-    }
+    const QPolygonF& spline() const { return m_spline; }
     void setSpline(QPolygonF const& spline)
     {
-        clear();
+        setCopiedZoneType(Spline);
         m_spline = spline;
-        m_content = Spline;
     }
 
-    ~LocalClipboard()
+    const SerializableEllipse& ellipse() const { return m_ellipse; }
+    void setEllipse(SerializableEllipse const & ellipse)
     {
-        clear();
+        setCopiedZoneType(Ellipse);
+        m_ellipse = ellipse;
     }
+
+    ~LocalClipboard() { }
 
     static LocalClipboard* getInstance()
     {
@@ -61,27 +58,63 @@ public:
         return m_instance;
     }
 
-    const QPolygonF& getLatestZonePolygon() const
-    {
-        return m_LatestZonePolygon;
+    ZoneType lastZoneType() const { return m_lastZoneType; }
+    bool lastZoneIsValid() const {
+        return !m_lastZonePolygon.isEmpty() || m_lastZoneEllipse.isValid();
     }
-    void setLatestZonePolygon(const QPolygonF& val)
-    {
-        m_LatestZonePolygon = val;
+    const QPolygonF& lastZonePolygon() const { return m_lastZonePolygon; }
+    void setLastZonePolygon(const QPolygonF& val) {
+        setLastZoneType(Spline);
+        m_lastZonePolygon = val;
     }
+
+    const SerializableEllipse& lastZoneEllipse() const { return m_lastZoneEllipse; }
+    void setLastZoneEllipse(const SerializableEllipse& val) {
+        setLastZoneType(Ellipse);
+        m_lastZoneEllipse = val;
+    }
+
+    void pasteZone(ZoneInteractionContext& context) const;
+    void repeatLastZone(ZoneInteractionContext& context, const QPointF &mouse_pos) const;
+
 private:
 
-    void clear(const ConentType type)
+    void setCopiedZoneType(ZoneType val)
     {
-        if (type == Spline) {
-            m_spline = QPolygonF();
+        if (val != m_copiedZoneType) {
+            if (m_copiedZoneType == Spline) {
+                m_spline = QPolygonF();
+            }
+            if (m_copiedZoneType == Ellipse) {
+                m_ellipse = SerializableEllipse();
+            }
+            m_copiedZoneType = val;
         }
-        m_content = None;
     }
 
-    ConentType m_content;
+    void setLastZoneType(ZoneType val)
+    {
+        if (val != m_lastZoneType) {
+            if (m_lastZoneType == Spline) {
+                m_lastZonePolygon = QPolygonF();
+            }
+            if (m_lastZoneType == Ellipse) {
+                m_lastZoneEllipse = SerializableEllipse();
+            }
+            m_lastZoneType = val;
+        }
+    }
+
+
+    ZoneType m_copiedZoneType;
+    ZoneType m_lastZoneType;
+
     QPolygonF m_spline;
-    QPolygonF m_LatestZonePolygon;
+    SerializableEllipse m_ellipse;
+
+    QPolygonF m_lastZonePolygon;
+    SerializableEllipse m_lastZoneEllipse;
+
     static LocalClipboard* m_instance;
 };
 

@@ -91,6 +91,7 @@ enum HotKeysId {
     ZoneClone,
     ZoneDelete,
     ZoneCancel,
+    ZoneEllipse,
     DewarpingMoveVertically = 800,
     DewarpingMoveHorizontally,
     DewarpingDeletePoint,

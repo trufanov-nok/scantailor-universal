@@ -24,6 +24,7 @@
 #include "DragHandler.h"
 #include "DragWatcher.h"
 #include "BasicSplineVisualizer.h"
+#include "EditableZoneSet.h"
 #include "EditableSpline.h"
 #include "SplineVertex.h"
 #include "SplineSegment.h"
@@ -46,17 +47,17 @@ protected:
         return m_rContext;
     }
 
-    virtual void onPaint(QPainter& painter, InteractionState const& interaction);
+    virtual void onPaint(QPainter& painter, InteractionState const& interaction) override;
 
     virtual void onProximityUpdate(QPointF const& mouse_pos, InteractionState& interaction) override;
 
-    virtual void onMousePressEvent(QMouseEvent* event, InteractionState& interaction);
+    virtual void onMousePressEvent(QMouseEvent* event, InteractionState& interaction) override;
 
-    virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction);
+    virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) override;
 
-    virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction);
+    virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
 
-    virtual void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction);
+    virtual void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) override;
 
     virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
 
@@ -68,6 +69,8 @@ private:
     BasicSplineVisualizer m_visualizer;
     InteractionState::Captor m_vertexProximity;
     InteractionState::Captor m_segmentProximity;
+    InteractionState::Captor m_ellipseCenterProximity;
+    InteractionState::Captor m_ellipseCoVertexProximity;
     InteractionState::Captor m_zoneAreaProximity;
     QPointF m_screenMousePos;
 
@@ -88,7 +91,9 @@ private:
     // These are valid if m_vertexProximity is the proximity leader.
     SplineVertex::Ptr m_ptrNearestVertex;
     EditableSpline::Ptr m_ptrNearestVertexSpline;
-    EditableSpline::Ptr m_ptrNearestZoneSpline;
+    EditableZoneSet::Zone m_ptrNearestZone;
+    EditableEllipse::Ptr m_ptrNearestEllipse;
+    bool m_mouse_over_zone;
 
     // These are valid if m_segmentProximity is the proximity leader.
     SplineSegment m_nearestSegment;
@@ -97,6 +102,9 @@ private:
     ShiftState m_lastMovingState;
     QMenu m_defaultMenu;
     QAction* m_pasteAction;
+
+    // These are valid if m_ellipseCoVertexProximity is the proximity leader.
+    int m_nearestEllipseVertexId;
 };
 
 #endif

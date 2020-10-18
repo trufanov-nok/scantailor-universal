@@ -19,6 +19,7 @@
 
 #include "EditableZoneSet.h"
 #include "EditableZoneSet.moc"
+#include "ZoneSet.h"
 
 EditableZoneSet::EditableZoneSet()
 {
@@ -31,23 +32,43 @@ EditableZoneSet::setDefaultProperties(PropertySet const& props)
 }
 
 void
-EditableZoneSet::addZone(EditableSpline::Ptr const& spline)
+EditableZoneSet::addSpline(EditableSpline::Ptr const& spline)
 {
     IntrusivePtr<PropertySet> new_props(new PropertySet(m_defaultProps));
-    m_splineMap.insert(Map::value_type(spline, new_props));
+    m_zonesMap.insert(Map::value_type(GenericZonePtr(spline), new_props));
 }
 
 void
-EditableZoneSet::addZone(EditableSpline::Ptr const& spline, PropertySet const& props)
+EditableZoneSet::addSpline(EditableSpline::Ptr const& spline, PropertySet const& props)
 {
     IntrusivePtr<PropertySet> new_props(new PropertySet(props));
-    m_splineMap.insert(Map::value_type(spline, new_props));
+    m_zonesMap.insert(Map::value_type(GenericZonePtr(spline), new_props));
 }
 
 void
-EditableZoneSet::removeZone(EditableSpline::Ptr const& spline)
+EditableZoneSet::removeSpline(EditableSpline::Ptr const& spline)
 {
-    m_splineMap.erase(spline);
+    m_zonesMap.erase(GenericZonePtr(spline));
+}
+
+void
+EditableZoneSet::addEllipse(EditableEllipse::Ptr const& ellipse)
+{
+    IntrusivePtr<PropertySet> new_props(new PropertySet(m_defaultProps));
+    m_zonesMap.insert(Map::value_type(GenericZonePtr(ellipse), new_props));
+}
+
+void
+EditableZoneSet::addEllipse(EditableEllipse::Ptr const& ellipse, PropertySet const& props)
+{
+    IntrusivePtr<PropertySet> new_props(new PropertySet(props));
+    m_zonesMap.insert(Map::value_type(GenericZonePtr(ellipse), new_props));
+}
+
+void
+EditableZoneSet::removeEllipse(EditableEllipse::Ptr const& ellipse)
+{
+    m_zonesMap.erase(GenericZonePtr(ellipse));
 }
 
 void
@@ -59,8 +80,8 @@ EditableZoneSet::commit()
 IntrusivePtr<PropertySet>
 EditableZoneSet::propertiesFor(EditableSpline::Ptr const& spline)
 {
-    Map::iterator it(m_splineMap.find(spline));
-    if (it != m_splineMap.end()) {
+    Map::iterator it(m_zonesMap.find(spline));
+    if (it != m_zonesMap.end()) {
         return it->second;
     } else {
         return IntrusivePtr<PropertySet>();
@@ -70,8 +91,8 @@ EditableZoneSet::propertiesFor(EditableSpline::Ptr const& spline)
 IntrusivePtr<PropertySet const>
 EditableZoneSet::propertiesFor(EditableSpline::Ptr const& spline) const
 {
-    Map::const_iterator it(m_splineMap.find(spline));
-    if (it != m_splineMap.end()) {
+    Map::const_iterator it(m_zonesMap.find(spline));
+    if (it != m_zonesMap.end()) {
         return it->second;
     } else {
         return IntrusivePtr<PropertySet const>();

@@ -20,6 +20,7 @@
 #define ZONE_H_
 
 #include "SerializableSpline.h"
+#include "SerializableEllipse.h"
 #include "IntrusivePtr.h"
 #include "PropertySet.h"
 //begin of modified by monday2000
@@ -35,9 +36,18 @@ class QString;
 
 class Zone
 {
+public:
+    enum ZoneType
+    {
+        SplineType,
+        EllipseType
+    };
+
     // Member-wise copying is OK, but that will produce a partly shallow copy.
 public:
     Zone(SerializableSpline const& spline, PropertySet const& props = PropertySet());
+
+    Zone(SerializableEllipse const& ellipse, PropertySet const& props = PropertySet());
 
     Zone(QDomElement const& el, PropertyFactory const& prop_factory);
 //begin of modified by monday2000
@@ -46,9 +56,20 @@ public:
 //end of modified by monday2000
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
+    ZoneType type() const
+    {
+        return m_type;
+    }
+
+
     SerializableSpline const& spline() const
     {
         return m_spline;
+    }
+
+    SerializableEllipse const& ellipse() const
+    {
+        return m_ellipse;
     }
 
     PropertySet& properties()
@@ -63,7 +84,9 @@ public:
 
     bool isValid() const;
 private:
+    ZoneType m_type;
     SerializableSpline m_spline;
+    SerializableEllipse m_ellipse;
     PropertySet m_props;
 };
 

@@ -53,7 +53,14 @@ public:
     typedef boost::function <
     InteractionHandler* (
         InteractionState& interaction,
-        EditableSpline::Ptr const& spline, SplineVertex::Ptr const& vertex
+        EditableEllipse::Ptr const& spline, int vertexId
+    )
+    > EllipseVertexDragInteractionCreator;
+
+    typedef boost::function <
+    InteractionHandler* (
+        InteractionState& interaction,
+        EditableZoneSet::Zone const& zone, QPointF const& vertex
     )
     > DragInteractionCreator;
 
@@ -106,16 +113,28 @@ public:
         return m_vertexDragInteractionCreator(interaction, spline, vertex);
     }
 
+    virtual InteractionHandler* createEllipseVertexDragInteraction(
+        InteractionState& interaction, EditableEllipse::Ptr const& ellipse,
+        int vertexId)
+    {
+        return m_ellipseVertexDragInteractionCreator(interaction, ellipse, vertexId);
+    }
+
     void setVertexDragInteractionCreator(VertexDragInteractionCreator const& creator)
     {
         m_vertexDragInteractionCreator = creator;
     }
 
-    virtual InteractionHandler* createDragInteraction(
-        InteractionState& interaction, EditableSpline::Ptr const& spline,
-        SplineVertex::Ptr const& vertex)
+    void setEllipseVertexDragInteractionCreator(EllipseVertexDragInteractionCreator const& creator)
     {
-        return m_dragInteractionCreator(interaction, spline, vertex);
+        m_ellipseVertexDragInteractionCreator = creator;
+    }
+
+    virtual InteractionHandler* createDragInteraction(
+        InteractionState& interaction, EditableZoneSet::Zone const& zone,
+        QPointF const& vertex)
+    {
+        return m_dragInteractionCreator(interaction, zone, vertex);
     }
 
     void setDragInteractionCreator(DragInteractionCreator const& creator)
@@ -167,11 +186,17 @@ private:
         SplineVertex::Ptr const& vertex);
 
     /**
+     * Creates an instance of ZoneEllipseVertexDragInteraction.
+     */
+    InteractionHandler* createStdEllipseVertexDragInteraction(
+        InteractionState& interaction, EditableEllipse::Ptr const& ellipse,
+        int vertexId);
+
+    /**
      * Creates an instance of ZoneDragInteraction.
      */
-    InteractionHandler* createStdDragInteraction(
-        InteractionState& interaction, EditableSpline::Ptr const& spline,
-        SplineVertex::Ptr const& vertex);
+    InteractionHandler* createStdDragInteraction(InteractionState& interaction, EditableZoneSet::Zone const& zone,
+        const QPointF &vertex);
 
     /**
      * Creates an instance of ZoneContextMenuInteraction.  May return null.
@@ -185,6 +210,7 @@ private:
     DefaultInteractionCreator m_defaultInteractionCreator;
     ZoneCreationInteractionCreator m_zoneCreationInteractionCreator;
     VertexDragInteractionCreator m_vertexDragInteractionCreator;
+    EllipseVertexDragInteractionCreator m_ellipseVertexDragInteractionCreator;
     DragInteractionCreator m_dragInteractionCreator;
     ContextMenuInteractionCreator m_contextMenuInteractionCreator;
     ShowPropertiesCommand m_showPropertiesCommand;

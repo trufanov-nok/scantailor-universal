@@ -9,6 +9,8 @@ SET(
 	SplineSegment.cpp SplineSegment.h
 	EditableSpline.cpp EditableSpline.h
 	SerializableSpline.cpp SerializableSpline.h
+	EditableEllipse.cpp EditableEllipse.h
+	SerializableEllipse.cpp SerializableEllipse.h
 	Zone.cpp Zone.h
 	ZoneSet.cpp ZoneSet.h
 	EditableZoneSet.cpp EditableZoneSet.h
@@ -17,6 +19,7 @@ SET(
 	ZoneDefaultInteraction.cpp ZoneDefaultInteraction.h
 	ZoneCreationInteraction.cpp ZoneCreationInteraction.h
 	ZoneVertexDragInteraction.cpp ZoneVertexDragInteraction.h
+	ZoneEllipseVertexDragInteraction.cpp ZoneEllipseVertexDragInteraction.h
         ZoneDragInteraction.cpp ZoneDragInteraction.h
 	ZoneContextMenuInteraction.cpp ZoneContextMenuInteraction.h        
         ZoneContextMenuItem.h

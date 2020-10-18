@@ -20,6 +20,7 @@
 #include "ZoneDefaultInteraction.h"
 #include "ZoneCreationInteraction.h"
 #include "ZoneVertexDragInteraction.h"
+#include "ZoneEllipseVertexDragInteraction.h"
 #include "ZoneDragInteraction.h"
 #include "ZoneContextMenuInteraction.h"
 #include "ImageViewBase.h"
@@ -39,6 +40,9 @@ ZoneInteractionContext::ZoneInteractionContext(
         ),
         m_vertexDragInteractionCreator(
             boost::bind(&ZoneInteractionContext::createStdVertexDragInteraction, this, _1, _2, _3)
+        ),
+        m_ellipseVertexDragInteractionCreator(
+            boost::bind(&ZoneInteractionContext::createStdEllipseVertexDragInteraction, this, _1, _2, _3)
         ),
         m_dragInteractionCreator(
             boost::bind(&ZoneInteractionContext::createStdDragInteraction, this, _1, _2, _3)
@@ -75,11 +79,19 @@ ZoneInteractionContext::createStdVertexDragInteraction(
 }
 
 InteractionHandler*
-ZoneInteractionContext::createStdDragInteraction(
-    InteractionState& interaction, EditableSpline::Ptr const& spline,
-    SplineVertex::Ptr const& vertex)
+ZoneInteractionContext::createStdEllipseVertexDragInteraction(
+    InteractionState& interaction, EditableEllipse::Ptr const& ellipse,
+    int vertexId)
 {
-    return new ZoneDragInteraction(*this, interaction, spline, vertex);
+    return new ZoneEllipseVertexDragInteraction(*this, interaction, ellipse, vertexId);
+}
+
+InteractionHandler*
+ZoneInteractionContext::createStdDragInteraction(
+    InteractionState& interaction, EditableZoneSet::Zone const& zone,
+    QPointF const& vertex)
+{
+    return new ZoneDragInteraction(*this, interaction, zone, vertex);
 }
 
 InteractionHandler*

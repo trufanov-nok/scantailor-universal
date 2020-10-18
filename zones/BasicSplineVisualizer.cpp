@@ -21,6 +21,7 @@
 #include <QPainter>
 #include <QBrush>
 #include <Qt>
+#include <cmath>
 
 BasicSplineVisualizer::BasicSplineVisualizer()
     :   m_solidColor(0xcc1420),
@@ -33,12 +34,28 @@ BasicSplineVisualizer::BasicSplineVisualizer()
 }
 
 void
-BasicSplineVisualizer::drawSplines(
+BasicSplineVisualizer::drawZones(
     QPainter& painter, QTransform const& to_screen,
     EditableZoneSet const& zones)
 {
     for (EditableZoneSet::Zone const& zone : zones) {
+        if (!zone.isEllipse()) {
+            drawSpline(painter, to_screen, zone.spline());
+        } else {
+            drawEllipse(painter, to_screen, zone.ellipse());
+        }
+    }
+}
+
+void
+BasicSplineVisualizer::drawZone(
+    QPainter& painter, QTransform const& to_screen,
+    EditableZoneSet::Zone const& zone)
+{
+    if (!zone.isEllipse()) {
         drawSpline(painter, to_screen, zone.spline());
+    } else {
+        drawEllipse(painter, to_screen, zone.ellipse());
     }
 }
 
@@ -48,6 +65,18 @@ BasicSplineVisualizer::drawSpline(
 {
     prepareForSpline(painter, spline);
     painter.drawPolygon(to_screen.map(spline->toPolygon()), Qt::WindingFill);
+}
+
+void
+BasicSplineVisualizer::drawEllipse(
+    QPainter& painter, QTransform const& to_screen, EditableEllipse::Ptr const& ellipse)
+{
+    prepareForEllipse(painter, ellipse);
+    painter.save();
+    painter.setWorldMatrixEnabled(true);
+    painter.setTransform(ellipse->transform(to_screen), false);
+    painter.drawEllipse(ellipse->center(), ellipse->rx(), ellipse->ry());
+    painter.restore();
 }
 
 void
@@ -64,6 +93,14 @@ BasicSplineVisualizer::drawVertex(QPainter& painter, QPointF const& pt, QColor c
 void
 BasicSplineVisualizer::prepareForSpline(
     QPainter& painter, EditableSpline::Ptr const&)
+{
+    painter.setPen(m_pen);
+    painter.setBrush(Qt::NoBrush);
+}
+
+void
+BasicSplineVisualizer::prepareForEllipse(
+    QPainter& painter, EditableEllipse::Ptr const&)
 {
     painter.setPen(m_pen);
     painter.setBrush(Qt::NoBrush);

@@ -264,13 +264,20 @@ Filter::invalidateSetting(PageId const& page)
 QString zone2Coords(const Zone& zone)
 {
     QString res;
-    for (const QPointF& p : zone.spline().points()) {
-        if (!res.isEmpty()) {
-            res += "\t";
+    if (zone.type() == Zone::SplineType) {
+        for (const QPointF& p : zone.spline().points()) {
+            if (!res.isEmpty()) {
+                res += "\t";
+            }
+            res += QString("%1, %2").arg(p.x()).arg(p.y());
         }
-        res += QString("%1, %2").arg(p.x()).arg(p.y());
-    }
-    return res;
+    } else if (zone.type() == Zone::EllipseType) {
+        const SerializableEllipse& e = zone.ellipse();
+        res += QString("rx: %1\try: %2\tangle: %3\tcenter: %4, %5")
+                .arg(e.rx()).arg(e.ry()).arg(e.angle())
+                .arg(e.center().x()).arg(e.center().y());
+    } 
+    return res
 }
 
 QStringList exportZonesInfo(ZoneSet const& picture_zones, ZoneSet const& fill_zones)

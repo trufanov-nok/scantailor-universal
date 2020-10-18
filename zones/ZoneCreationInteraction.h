@@ -26,6 +26,7 @@
 #include "ZoomHandler.h"
 #include "BasicSplineVisualizer.h"
 #include "EditableSpline.h"
+#include "EditableEllipse.h"
 #include <QPointF>
 #include <QDateTime>
 #include <QCoreApplication>
@@ -36,6 +37,13 @@ class ZoneCreationInteraction : public InteractionHandler
 {
     Q_DECLARE_TR_FUNCTIONS(ZoneCreationInteraction)
 public:
+
+    enum ZoneCreationMode {
+        None,
+        Rectangle,
+        Ellipse
+    };
+
     ZoneCreationInteraction(
         ZoneInteractionContext& context, InteractionState& interaction);
 protected:
@@ -44,13 +52,13 @@ protected:
         return m_rContext;
     }
 
-    virtual void onPaint(QPainter& painter, InteractionState const& interaction);
+    virtual void onPaint(QPainter& painter, InteractionState const& interaction) override;
 
-    virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction);
+    virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
 
-    virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction);
+    virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) override;
 
-    virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction);
+    virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
 
     virtual void onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) override;
 private:
@@ -82,11 +90,12 @@ private:
     BasicSplineVisualizer m_visualizer;
     InteractionState::Captor m_interaction;
     EditableSpline::Ptr m_ptrSpline;
+    EditableEllipse::Ptr m_ptrEllipse;
     QPointF m_nextVertexImagePos;
 //begin of modified by monday2000
 //Square_Picture_Zones
 //added
-    bool m_RectZoneMode;
+    ZoneCreationMode m_zoneMode;
     QPointF m_nextVertexImagePos_mid1;
     QPointF m_nextVertexImagePos_mid2;
 //end of modified by monday2000

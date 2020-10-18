@@ -462,8 +462,20 @@ OutputGenerator::modifyBinarizationMask(
     if (filter & BINARIZATION_MASK_ERASER1) {
         for (Zone const& zone : zones) {
             if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::ERASER1) {
-                QPolygonF const poly(zone.spline().toPolygon());
-                PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
+                if (zone.type() == Zone::SplineType) {
+                    QPolygonF const poly(zone.spline().toPolygon());
+                    PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
+                } else if (zone.type() == Zone::EllipseType) {
+                    QPainterPath path;
+                    QTransform t;
+                    t.translate(zone.ellipse().center().x(), zone.ellipse().center().y());
+                    t.rotate(zone.ellipse().angle());
+                    t.translate(-zone.ellipse().center().x(), -zone.ellipse().center().y());
+                    path.addEllipse(zone.ellipse().center(), zone.ellipse().rx(), zone.ellipse().ry());
+                    path = t.map(path);
+//                    path = xform.map(path);
+                    PolygonRasterizer::fill(bw_mask, BLACK, xform.map(path.toFillPolygon()), Qt::WindingFill);
+                }
             }
         }
     }
@@ -472,8 +484,20 @@ OutputGenerator::modifyBinarizationMask(
     if (filter & BINARIZATION_MASK_PAINTER2) {
         for (Zone const& zone : zones) {
             if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::PAINTER2) {
-                QPolygonF const poly(zone.spline().toPolygon());
-                PolygonRasterizer::fill(bw_mask, WHITE, xform.map(poly), Qt::WindingFill);
+                if (zone.type() == Zone::SplineType) {
+                    QPolygonF const poly(zone.spline().toPolygon());
+                    PolygonRasterizer::fill(bw_mask, WHITE, xform.map(poly), Qt::WindingFill);
+                } else if (zone.type() == Zone::EllipseType) {
+                    QPainterPath path;
+                    QTransform t;
+                    t.translate(zone.ellipse().center().x(), zone.ellipse().center().y());
+                    t.rotate(zone.ellipse().angle());
+                    t.translate(-zone.ellipse().center().x(), -zone.ellipse().center().y());
+                    path.addEllipse(zone.ellipse().center(), zone.ellipse().rx(), zone.ellipse().ry());
+                    path = t.map(path);
+//                    path = xform.map(path);
+                    PolygonRasterizer::fill(bw_mask, WHITE, xform.map(path.toFillPolygon()), Qt::WindingFill);
+                }
             }
         }
     }
@@ -482,8 +506,20 @@ OutputGenerator::modifyBinarizationMask(
     if (filter & BINARIZATION_MASK_ERASER3) {
         for (Zone const& zone : zones) {
             if (zone.properties().locateOrDefault<PLP>()->layer() == PLP::ERASER3) {
-                QPolygonF const poly(zone.spline().toPolygon());
-                PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
+                if (zone.type() == Zone::SplineType) {
+                    QPolygonF const poly(zone.spline().toPolygon());
+                    PolygonRasterizer::fill(bw_mask, BLACK, xform.map(poly), Qt::WindingFill);
+                } else if (zone.type() == Zone::EllipseType) {
+                    QPainterPath path;
+                    QTransform t;
+                    t.translate(zone.ellipse().center().x(), zone.ellipse().center().y());
+                    t.rotate(zone.ellipse().angle());
+                    t.translate(-zone.ellipse().center().x(), -zone.ellipse().center().y());
+                    path.addEllipse(zone.ellipse().center(), zone.ellipse().rx(), zone.ellipse().ry());
+                    path = t.map(path);
+//                    path = xform.map(path);
+                    PolygonRasterizer::fill(bw_mask, BLACK, xform.map(path.toFillPolygon()), Qt::WindingFill);
+                }
             }
         }
     }
@@ -2309,9 +2345,21 @@ OutputGenerator::applyFillZonesInPlace(
 
         for (Zone const& zone : zones) {
             QColor const color(zone.properties().locateOrDefault<FillColorProperty>()->color());
-            QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());
             painter.setBrush(color);
-            painter.drawPolygon(poly, Qt::WindingFill);
+            if (zone.type() == Zone::SplineType) {
+                QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());
+                painter.drawPolygon(poly, Qt::WindingFill);
+            } else if (zone.type() == Zone::EllipseType) {
+                const SerializableEllipse e = zone.ellipse().transformed(orig_to_output);
+                QPainterPath path;
+                QTransform t;
+                t.translate(e.center().x(), e.center().y());
+                t.rotate(e.angle());
+                t.translate(-e.center().x(), -e.center().y());
+                path.addEllipse(e.center(), e.rx(), e.ry());
+                path = t.map(path);
+                painter.drawPolygon(path.toFillPolygon(), Qt::WindingFill);
+            }
         }
     }
 
@@ -2347,8 +2395,20 @@ OutputGenerator::applyFillZonesInPlace(
     for (Zone const& zone : zones) {
         QColor const color(zone.properties().locateOrDefault<FillColorProperty>()->color());
         BWColor const bw_color = qGray(color.rgb()) < 128 ? BLACK : WHITE;
-        QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());
-        PolygonRasterizer::fill(img, bw_color, poly, Qt::WindingFill);
+        if (zone.type() == Zone::SplineType) {
+            QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());
+            PolygonRasterizer::fill(img, bw_color, poly, Qt::WindingFill);
+        } else if (zone.type() == Zone::EllipseType) {
+            const SerializableEllipse e = zone.ellipse().transformed(orig_to_output);
+            QPainterPath path;
+            QTransform t;
+            t.translate(e.center().x(), e.center().y());
+            t.rotate(e.angle());
+            t.translate(-e.center().x(), -e.center().y());
+            path.addEllipse(e.center(), e.rx(), e.ry());
+            path = t.map(path);
+            PolygonRasterizer::fill(img, bw_color, path.toFillPolygon(), Qt::WindingFill);
+        }
     }
 }
 
