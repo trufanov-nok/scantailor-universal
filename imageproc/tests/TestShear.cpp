@@ -22,7 +22,7 @@
 #include "Utils.h"
 #include <QImage>
 #ifndef Q_MOC_RUN
-#include <boost/test/auto_unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #endif
 
 namespace imageproc
