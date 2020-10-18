@@ -21,6 +21,7 @@
 #define EDITABLE_ZONE_SET_H_
 
 #include "EditableSpline.h"
+#include "EditableEllipse.h"
 #include "PropertySet.h"
 #include "IntrusivePtr.h"
 #include <QObject>
@@ -30,11 +31,33 @@
 #endif
 #include <map>
 
+class ZoneSet;
+
+struct GenericZonePtr
+{
+    GenericZonePtr(): m_spline(nullptr), m_ellipse(nullptr) {}
+    GenericZonePtr(EditableSpline::Ptr const& spline): m_spline(spline), m_ellipse(nullptr) {}
+    GenericZonePtr(EditableEllipse::Ptr const& ellipse): m_spline(nullptr), m_ellipse(ellipse) {}
+    bool isEllipse() const { return m_ellipse.get() != nullptr; }
+    bool operator<(GenericZonePtr const& rhs) const {
+        if (m_spline && rhs.m_spline) {
+            return m_spline < rhs.m_spline;
+        }
+        if (m_ellipse && rhs.m_ellipse) {
+            return m_ellipse < rhs.m_ellipse;
+        }
+        return m_ellipse.get();
+    }
+
+    EditableSpline::Ptr m_spline;
+    EditableEllipse::Ptr m_ellipse;
+};
+
 class EditableZoneSet : public QObject
 {
     Q_OBJECT
 private:
-    typedef std::map<EditableSpline::Ptr, IntrusivePtr<PropertySet> > Map;
+    typedef std::map<GenericZonePtr, IntrusivePtr<PropertySet> > Map;
 public:
     class const_iterator;
 
@@ -46,7 +69,17 @@ public:
 
         EditableSpline::Ptr const& spline() const
         {
-            return m_iter->first;
+            return m_iter->first.m_spline;
+        }
+
+        EditableEllipse::Ptr const& ellipse() const
+        {
+            return m_iter->first.m_ellipse;
+        }
+
+        bool isEllipse() const
+        {
+            return m_iter->first.isEllipse();
         }
 
         IntrusivePtr<PropertySet> const& properties() const
@@ -94,12 +127,12 @@ public:
 
     const_iterator begin() const
     {
-        return iterator(m_splineMap.begin());
+        return iterator(m_zonesMap.begin());
     }
 
     const_iterator end() const
     {
-        return iterator(m_splineMap.end());
+        return iterator(m_zonesMap.end());
     }
 
     PropertySet const& defaultProperties() const
@@ -109,11 +142,17 @@ public:
 
     void setDefaultProperties(PropertySet const& props);
 
-    void addZone(EditableSpline::Ptr const& spline);
+    void addSpline(EditableSpline::Ptr const& spline);
 
-    void addZone(EditableSpline::Ptr const& spline, PropertySet const& props);
+    void addSpline(EditableSpline::Ptr const& spline, PropertySet const& props);
 
-    void removeZone(EditableSpline::Ptr const& spline);
+    void removeSpline(EditableSpline::Ptr const& spline);
+
+    void addEllipse(EditableEllipse::Ptr const& ellipse);
+
+    void addEllipse(EditableEllipse::Ptr const& ellipse, PropertySet const& props);
+
+    void removeEllipse(EditableEllipse::Ptr const& ellipse);
 
     void commit();
 
@@ -124,7 +163,7 @@ signals:
     void committed();
     void manuallyDeleted();
 private:
-    Map m_splineMap;
+    Map m_zonesMap;
     PropertySet m_defaultProps;
 };
 

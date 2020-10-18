@@ -169,8 +169,13 @@ addVirtualZones(const ZoneSet& zones, const ImageTransformation& xform, ZoneSet&
         IntrusivePtr<VirtualZoneProperty> ptrSet =
             zone.properties().locate<output::VirtualZoneProperty>();
         if (ptrSet.get() && ptrSet->isVirtual()) {
-            zone = Zone(zone.spline().transformed(xform.transform().inverted()),
-                        zone.properties());
+            if (zone.type() == Zone::SplineType) {
+                zone = Zone(zone.spline().transformed(xform.transform().inverted()),
+                            zone.properties());
+            } else {
+                zone = Zone(zone.ellipse().transformed(xform.transform().inverted()),
+                            zone.properties());
+            }
             res = true;
             zone.properties().locate<output::VirtualZoneProperty>()->setVirtual(false);
         }

@@ -180,6 +180,8 @@ void QHotKeys::resetToDefaults()
 
     data.append(HotKeyInfo(ZoneRectangle, QObject::tr("Create rectangle zone"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ControlModifier, Qt::Key_unknown)));
+    data.append(HotKeyInfo(ZoneEllipse, QObject::tr("Create ellipse zone"), ModifierAllowed, MouseHold,
+                           HotKeySequence(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ZoneMove, QObject::tr("Move zone"), ModifierAllowed, MouseHold,
                            HotKeySequence(Qt::ShiftModifier, Qt::Key_unknown)));
     data.append(HotKeyInfo(ZoneMoveVertically, QObject::tr("Move zone vertically"), ModifierAllowed, MouseHold,

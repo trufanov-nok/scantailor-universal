@@ -29,19 +29,23 @@
 #include <Qt>
 #include <QLineF>
 
-ZoneDragInteraction::ZoneDragInteraction(
-    ZoneInteractionContext& context, InteractionState& interaction,
-    EditableSpline::Ptr const& spline, SplineVertex::Ptr const& vertex)
+ZoneDragInteraction::ZoneDragInteraction(ZoneInteractionContext& context, InteractionState& interaction,
+    const EditableZoneSet::Zone &zone, QPointF const& vertex)
     :   m_rContext(context),
-        m_ptrSpline(spline),
-        m_savedSpline(*spline.get()),
-        m_ptrVertex(vertex)
+        m_Zone(zone),
+        m_Vertex(vertex)
 {
+    if (!zone.isEllipse()) {
+        m_savedSpline = *zone.spline();
+    } else {
+        m_savedEllipse = *zone.ellipse();
+    }
+
     QPointF const screen_mouse_pos(
         m_rContext.imageView().mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5)
     );
     QTransform const to_screen(m_rContext.imageView().imageToWidget());
-    m_dragOffset = to_screen.map(vertex->point()) - screen_mouse_pos;
+    m_dragOffset = to_screen.map(m_Vertex) - screen_mouse_pos;
 
     m_interaction.setInteractionCursor(QCursor(Qt::DragMoveCursor));
     m_interaction.setInteractionStatusTip(tr("Press %1 to cancel")
@@ -59,9 +63,9 @@ ZoneDragInteraction::onPaint(QPainter& painter, InteractionState const& /*intera
     QTransform const to_screen(m_rContext.imageView().imageToWidget());
 
     for (EditableZoneSet::Zone const& zone : m_rContext.zones()) {
-        EditableSpline::Ptr const& spline = zone.spline();
 
-        if (spline == m_ptrSpline) {
+
+        if (&zone == &m_Zone) {
             // Draw the whole spline in solid color.
             QPen pen(0xcc1420);
             pen.setWidthF(3);
@@ -69,9 +73,17 @@ ZoneDragInteraction::onPaint(QPainter& painter, InteractionState const& /*intera
             pen.setStyle(Qt::DotLine);
             painter.setPen(pen);
 
-            painter.drawPolygon(to_screen.map(spline->toPolygon()), Qt::WindingFill);
+            if (!zone.isEllipse()) {
+                painter.drawPolygon(to_screen.map(zone.spline()->toPolygon()), Qt::WindingFill);
+            } else {
+                EditableEllipse::Ptr const & e = zone.ellipse();
+                painter.save();
+                painter.setTransform(e->transform(), true);
+                painter.drawEllipse(e->center(to_screen), e->rx(to_screen), e->ry(to_screen) );
+                painter.restore();
+            }
         } else {
-            m_visualizer.drawSpline(painter, to_screen, spline);
+            m_visualizer.drawZone(painter, to_screen, zone);
         }
     }
 }
@@ -81,7 +93,9 @@ ZoneDragInteraction::onMouseReleaseEvent(
     QMouseEvent* event, InteractionState& /*interaction*/)
 {
     if (event->button() == Qt::LeftButton) {
-        m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
+        if (!m_Zone.isEllipse()) {
+            m_Zone.spline()->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
+        }
         m_rContext.zones().commit();
         makePeerPreceeder(*m_rContext.createDefaultInteraction());
         delete this;
@@ -94,7 +108,7 @@ ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& inte
     QTransform const from_screen(m_rContext.imageView().widgetToImage());
     const Qt::KeyboardModifiers mask = event->modifiers();
 
-    const bool move = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask);
+    const bool move = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) || m_Zone.isEllipse();
     const bool nove_hor = GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask);
     const bool nove_vert = GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
 
@@ -110,20 +124,24 @@ ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& inte
                 diff.setY(0);
             }
 
-            SplineVertex::Ptr i = m_ptrSpline->firstVertex();
-            do {
-                // m_ptrVertex is changed in this loop too
-                QPointF current = i->point();
-                current += diff;
-                i->setPoint(current);
-                i = i->next(SplineVertex::NO_LOOP);
-            } while (i.get());
+            if (!m_Zone.isEllipse()) {
+                SplineVertex::Ptr i = m_Zone.spline()->firstVertex();
+                do {
+                    // m_ptrVertex is changed in this loop too
+                    QPointF current = i->point();
+                    current += diff;
+                    i->setPoint(current);
+                    i = i->next(SplineVertex::NO_LOOP);
+                } while (i.get());
+            } else {
+                m_Zone.ellipse()->setCenter(m_Zone.ellipse()->center() + diff);
+            }
         }
         m_moveStart = current;
     } else {
         // No modifiers
         m_moveStart = QPointF();
-        m_ptrVertex->setPoint(from_screen.map(event->pos() + QPointF(0.5, 0.5) + m_dragOffset));
+        m_Vertex = from_screen.map(event->pos() + QPointF(0.5, 0.5) + m_dragOffset);
     }
 
     checkProximity(interaction);
@@ -139,7 +157,11 @@ void
 ZoneDragInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& /*interaction*/)
 {
     if (GlobalStaticSettings::checkKeysMatch(ZoneCancel, event->modifiers(), (Qt::Key) event->key())) {
-        m_ptrSpline->copyFromSerializableSpline(m_savedSpline);
+        if (!m_Zone.isEllipse()) {
+            m_Zone.spline()->copyFromSerializableSpline(m_savedSpline);
+        } else {
+            m_Zone.ellipse()->copyFromSerializableEllipse(m_savedEllipse);
+        }
         m_rContext.zones().commit();
         makePeerPreceeder(*m_rContext.createDefaultInteraction());
         delete this;
@@ -153,7 +175,9 @@ ZoneDragInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& /*int
     if (!GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) &&
             !GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) &&
             !GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask)) {
-        m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
+        if (!m_Zone.isEllipse()) {
+            m_Zone.spline()->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
+        }
         m_rContext.zones().commit();
         makePeerPreceeder(*m_rContext.createDefaultInteraction());
         delete this;

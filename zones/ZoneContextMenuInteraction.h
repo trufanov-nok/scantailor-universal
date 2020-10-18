@@ -113,7 +113,8 @@ private:
 
         void switchToStrokeMode();
 
-        virtual void prepareForSpline(QPainter& painter, EditableSpline::Ptr const& spline);
+        virtual void prepareForSpline(QPainter& painter, EditableSpline::Ptr const& spline) override;
+        virtual void prepareForEllipse(QPainter& painter, EditableEllipse::Ptr const& ellipse) override;
     private:
         QColor m_color;
     };

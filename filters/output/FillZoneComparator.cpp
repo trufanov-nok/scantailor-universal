@@ -48,8 +48,16 @@ FillZoneComparator::equal(ZoneSet const& lhs, ZoneSet const& rhs)
 bool
 FillZoneComparator::equal(Zone const& lhs, Zone const& rhs)
 {
-    if (!PolygonUtils::fuzzyCompare(lhs.spline().toPolygon(), rhs.spline().toPolygon())) {
+    if (lhs.type() != rhs.type()) {
         return false;
+    } else if (lhs.type() == Zone::SplineType) {
+        if (!PolygonUtils::fuzzyCompare(lhs.spline().toPolygon(), rhs.spline().toPolygon())) {
+            return false;
+        }
+    } else if (lhs.type() == Zone::EllipseType) {
+        if (lhs.ellipse() != rhs.ellipse()) {
+            return false;
+        }
     }
 
     return equal(lhs.properties(), rhs.properties());

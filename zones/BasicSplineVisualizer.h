@@ -19,11 +19,11 @@
 #ifndef BASIC_SPLINE_VISUALIZER_H_
 #define BASIC_SPLINE_VISUALIZER_H_
 
-#include "EditableSpline.h"
+#include "EditableZoneSet.h"
+#include "EditableEllipse.h"
 #include <QPen>
 #include <QColor>
 
-class EditableZoneSet;
 class QPainter;
 class QTransform;
 
@@ -49,13 +49,21 @@ public:
 
     void drawVertex(QPainter& painter, QPointF const& pt, QColor const& color);
 
-    void drawSplines(QPainter& painter, QTransform const& to_screen,
+    void drawZones(QPainter& painter, QTransform const& to_screen,
                      EditableZoneSet const& zones);
+
+    void drawZone(QPainter& painter, QTransform const& to_screen,
+                  EditableZoneSet::Zone const& zone);
 
     virtual void drawSpline(QPainter& painter, QTransform const& to_screen,
                             EditableSpline::Ptr const& spline);
 
+    virtual void drawEllipse(QPainter& painter, QTransform const& to_screen,
+                            EditableEllipse::Ptr const& ellipse);
+
     virtual void prepareForSpline(QPainter& painter, EditableSpline::Ptr const& spline);
+
+    virtual void prepareForEllipse(QPainter& painter, EditableEllipse::Ptr const& ellipse);
 protected:
     QRgb m_solidColor;
     QRgb m_highlightBrightColor;

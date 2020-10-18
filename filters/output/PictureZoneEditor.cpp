@@ -155,8 +155,13 @@ PictureZoneEditor::PictureZoneEditor(
     m_pictureMaskRebuildTimer.setInterval(150);
 
     for (Zone const& zone : m_ptrSettings->pictureZonesForPage(page_id)) {
-        EditableSpline::Ptr spline(new EditableSpline(zone.spline()));
-        m_zones.addZone(spline, zone.properties());
+        if (zone.spline().isValid()) {
+            EditableSpline::Ptr spline(new EditableSpline(zone.spline()));
+            m_zones.addSpline(spline, zone.properties());
+        } else if (zone.ellipse().isValid()) {
+            EditableEllipse::Ptr ellipse(new EditableEllipse(zone.ellipse()));
+            m_zones.addEllipse(ellipse, zone.properties());
+        }
     }
 }
 
@@ -273,27 +278,48 @@ PictureZoneEditor::paintOverPictureMask(QPainter& painter)
     painter.setCompositionMode(QPainter::CompositionMode_Clear);
 
     // First pass: ERASER1
-    for (EditableZoneSet::Zone const& zone : m_zones) {
+    for (EditableZoneSet::Zone const& zone : qAsConst(m_zones)) {
         if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ERASER1) {
-            painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+            if (!zone.isEllipse()) {
+                painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+            } else {
+                painter.save();
+                painter.setTransform(zone.ellipse()->transform(), true);
+                painter.drawEllipse(zone.ellipse()->center(), zone.ellipse()->rx(), zone.ellipse()->ry());
+                painter.restore();
+            }
         }
     }
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     // Second pass: PAINTER2
-    for (EditableZoneSet::Zone const& zone : m_zones) {
+    for (EditableZoneSet::Zone const& zone : qAsConst(m_zones)) {
         if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::PAINTER2) {
-            painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+            if (!zone.isEllipse()) {
+                painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+            } else {
+                painter.save();
+                painter.setTransform(zone.ellipse()->transform(), true);
+                painter.drawEllipse(zone.ellipse()->center(), zone.ellipse()->rx(), zone.ellipse()->ry());
+                painter.restore();
+            }
         }
     }
 
     painter.setCompositionMode(QPainter::CompositionMode_Clear);
 
     // Third pass: ERASER1
-    for (EditableZoneSet::Zone const& zone : m_zones) {
+    for (EditableZoneSet::Zone const& zone : qAsConst(m_zones)) {
         if (zone.properties()->locateOrDefault<PLP>()->layer() == PLP::ERASER3) {
-            painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+            if (!zone.isEllipse()) {
+                painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+            } else {
+                painter.save();
+                painter.setTransform(zone.ellipse()->transform(), true);
+                painter.drawEllipse(zone.ellipse()->center(), zone.ellipse()->rx(), zone.ellipse()->ry());
+                painter.restore();
+            }
         }
     }
 }
@@ -326,8 +352,12 @@ PictureZoneEditor::commitZones()
 {
     ZoneSet zones;
 
-    for (EditableZoneSet::Zone const& zone : m_zones) {
-        zones.add(Zone(*zone.spline(), *zone.properties()));
+    for (EditableZoneSet::Zone const& zone : qAsConst(m_zones)) {
+        if (!zone.isEllipse()) {
+            zones.add(Zone(*zone.spline(), *zone.properties()));
+        } else {
+            zones.add(Zone(*zone.ellipse(), *zone.properties()));
+        }
     }
 
     m_ptrSettings->setPictureZones(m_pageId, zones);

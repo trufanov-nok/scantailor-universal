@@ -60,7 +60,7 @@ ZoneVertexDragInteraction::onPaint(QPainter& painter, InteractionState const& in
 
         if (spline != m_ptrSpline) {
             // Draw the whole spline in solid color.
-            m_visualizer.drawSpline(painter, to_screen, spline);
+            m_visualizer.drawZone(painter, to_screen, zone);
             continue;
         }
 
@@ -119,7 +119,7 @@ ZoneVertexDragInteraction::onMouseReleaseEvent(
         }
 
         m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
-        LocalClipboard::getInstance()->setLatestZonePolygon(m_ptrSpline->toPolygon());
+        LocalClipboard::getInstance()->setLastZonePolygon(m_ptrSpline->toPolygon());
         m_rContext.zones().commit();
         makePeerPreceeder(*m_rContext.createDefaultInteraction());
         delete this;

@@ -80,6 +80,8 @@ public:
     }
 
     QPolygonF toPolygon() const;
+
+    double area() const;
 private:
     SentinelSplineVertex m_sentinel;
 };

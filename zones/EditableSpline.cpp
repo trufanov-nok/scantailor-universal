@@ -163,3 +163,9 @@ EditableSpline::SegmentIterator::next()
         return SplineSegment(origin, m_ptrNextVertex);
     }
 }
+
+double EditableSpline::area() const
+{
+    QRectF const bbox(toPolygon().boundingRect());
+    return bbox.width() * bbox.height();
+}
