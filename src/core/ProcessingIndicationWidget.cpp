@@ -26,34 +26,89 @@
 #include <QRectF>
 #include <math.h>
 
+
 using namespace imageproc;
 
-static double const distinction_increase = 1.0 / 5.0;
-static double const distinction_decrease = -1.0 / 3.0;
-
-ProcessingIndicationWidget::ProcessingIndicationWidget(QWidget* parent)
-    :   QWidget(parent),
-        m_animation(10),
-        m_distinction(1.0),
-        m_distinctionDelta(distinction_increase),
-        m_timerId(0)
+QCommonProgressIndicator::QCommonProgressIndicator(QObject* parent): QObject(parent),
+    m_ref(0),
+    distinction_increase(1.0 / 5.0),
+    distinction_decrease(-1.0 / 3.0),
+    m_distinctionDelta(distinction_increase),
+    m_animation(10),
+    m_distinction(1.0)
 {
-    m_headColor = palette().color(QPalette::Window).darker(200);
-    m_tailColor = palette().color(QPalette::Window).darker(130);
+    connect(&m_timer, &QTimer::timeout, this, &QCommonProgressIndicator::triggered, Qt::DirectConnection);
 }
 
 void
-ProcessingIndicationWidget::resetAnimation()
+QCommonProgressIndicator::triggered()
 {
+    m_distinction += m_distinctionDelta;
+    if (m_distinction > 1.0) {
+        m_distinction = 1.0;
+    } else if (m_distinction <= 0.0) {
+        m_distinction = 0.0;
+        m_distinctionDelta = distinction_increase;
+    }
+    m_animation.nextFrame();
+    emit timeout();
+}
+
+bool
+QCommonProgressIndicator::start() {
+    m_ref++;
+    if (!m_timer.isActive()) {
+        m_timer.start(180);
+        return true;
+    }
+    return false;
+}
+
+bool
+QCommonProgressIndicator::stop() {
+    m_ref--;
+    if (m_ref <= 0 && m_timer.isActive()) {
+        m_timer.stop();
+        m_ref = 0;
+        return true;
+    }
+    return false;
+}
+
+void
+QCommonProgressIndicator::resetAnimation() {
     m_distinction = 1.0;
     m_distinctionDelta = distinction_increase;
 }
 
 void
-ProcessingIndicationWidget::processingRestartedEffect()
-{
+QCommonProgressIndicator::processingRestartedEffect() {
     m_distinction = 1.0;
     m_distinctionDelta = distinction_decrease;
+}
+
+static QCommonProgressIndicator _shared_timer;
+
+ProcessingIndicationWidget::ProcessingIndicationWidget(QWidget* parent, const QRect& indicator_size)
+    :   QWidget(parent), m_indicator_size(indicator_size)
+{
+    m_headColor = palette().color(QPalette::Window).darker(200);
+    m_tailColor = palette().color(QPalette::Window).darker(130);
+    connect(&_shared_timer, &QCommonProgressIndicator::timeout,
+            this, [=](){update(animationRect());}, Qt::DirectConnection);
+    _shared_timer.start();
+}
+
+void
+ProcessingIndicationWidget::resetAnimation()
+{
+    _shared_timer.resetAnimation();
+}
+
+void
+ProcessingIndicationWidget::processingRestartedEffect()
+{
+    _shared_timer.processingRestartedEffect();
 }
 
 void
@@ -65,37 +120,29 @@ ProcessingIndicationWidget::paintEvent(QPaintEvent* event)
         return;
     }
 
-    QColor head_color(colorInterpolation(m_tailColor, m_headColor, m_distinction));
-
-    m_distinction += m_distinctionDelta;
-    if (m_distinction > 1.0) {
-        m_distinction = 1.0;
-    } else if (m_distinction <= 0.0) {
-        m_distinction = 0.0;
-        m_distinctionDelta = distinction_increase;
-    }
+    QColor head_color(colorInterpolation(m_tailColor, m_headColor,
+                                         _shared_timer.m_distinction));
 
     QPainter painter(this);
-    m_animation.nextFrame(head_color, m_tailColor, &painter, animation_rect);
-
-    if (m_timerId == 0) {
-        m_timerId = startTimer(180);
-    }
-}
-
-void
-ProcessingIndicationWidget::timerEvent(QTimerEvent* event)
-{
-    killTimer(event->timerId());
-    m_timerId = 0;
-    update(animationRect());
+    _shared_timer.m_animation.paintFrame(head_color, m_tailColor, &painter, animation_rect);
 }
 
 QRect
 ProcessingIndicationWidget::animationRect() const
 {
-    QRect r(0, 0, 80, 80);
+    QRect r(m_indicator_size);
     r.moveCenter(rect().center());
     r &= rect();
     return r;
+}
+
+QSize
+ProcessingIndicationWidget::sizeHint() const
+{
+    return m_indicator_size.size();
+}
+
+ProcessingIndicationWidget::~ProcessingIndicationWidget()
+{
+    _shared_timer.stop();
 }

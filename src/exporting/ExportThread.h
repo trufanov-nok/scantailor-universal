@@ -26,6 +26,7 @@
 #include <QImage>
 #include "PageId.h"
 #include "ExportSettings.h"
+#include "ExportSuggestions.h"
 
 namespace exporting {
 
@@ -33,16 +34,25 @@ class ExportThread : public QThread
 {
     Q_OBJECT
 public:
+
     struct ExportRec {
+        ExportRec(): page_no(0) {}
         int page_no;
         PageId page_id;
         QString filename;
+        QString override_background_filename;
+        QString override_foreground_filename;
         QStringList zones_info;
     };
 
     ExportThread(const ExportSettings& settings, const QVector<ExportRec>& outpaths,
-                 const QString& export_dir, QObject *parent = nullptr);
-    ~ExportThread() { requestInterruption(); }
+                 const QString& export_dir, const ExportSuggestions& export_suggestions, QObject *parent = nullptr);
+    ~ExportThread() {
+        if (isRunning()) {
+            requestInterruption();
+            wait();
+        }
+    }
 
     void run() override;
 
@@ -59,12 +69,13 @@ private:
     bool isCancelRequested();
 private:
     ExportSettings m_settings;
-    QVector<ExportRec> m_outpaths_vector;
+    const QVector<ExportRec> m_outpaths_vector; // copy constructed
     QString m_export_dir;
     QMutex m_paused;
     QWaitCondition m_wait;
     QImage m_orig_fore_subscan;
     bool m_interrupted;
+    const ExportSuggestions m_export_suggestions; // must be copy constructed
 };
 
 }

@@ -27,3 +27,10 @@ pageOutput
 	pageFillZones
 	pageDewarping
 	pageDespeckling
+pagePublish
+	pageForegroundSettings
+	pageBackgroundSettings
+	pageDictSettings
+	pageContents
+	pageMetadata
+	pageOCR

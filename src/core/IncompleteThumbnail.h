@@ -28,7 +28,7 @@ class QSizeF;
 class QRectF;
 
 /**
- * \brief A thumbnail represeting a page not completely processed.
+ * \brief A thumbnail representing a page not completely processed.
  *
  * Suppose you have switched to the Deskew filter without running all images
  * through the previous filters.  The thumbnail view of the Deskew filter

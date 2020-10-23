@@ -22,8 +22,10 @@
 #include "config.h"
 #include <QSettings> // propagate header
 
-#include "../filters/output/DespeckleLevel.h"
-#include "../../exporting/ExportModes.h"
+#include "filters/output/DespeckleLevel.h"
+#include "filters/publish/DjbzDispatcher.h"
+#include "filters/publish/FreeImageFilters.h"
+#include "exporting/ExportModes.h"
 #include <QSize>
 
 /* App settings */
@@ -275,5 +277,84 @@ static const char* _key_foreground_layer_adj_override = "foreground_layer_adj_ov
 static const int _key_foreground_layer_adj_override_def = 0;
 static const char* _key_mouse_ignore_system_wheel_settings = "mouse/ignore_system_wheel_settings";
 static const bool _key_mouse_ignore_system_wheel_settings_def = true;
+
+// DjVu
+
+static const char* _key_djvu_bin_minidjvu = "djvu_minidjvu";
+static const char* _key_djvu_bin_c44 = "djvu_c44";
+static const char* _key_djvu_bin_djvuextract= "djvu_djvuextract";
+static const char* _key_djvu_bin_djvumake = "djvu_djvumake";
+static const char* _key_djvu_bin_djvused = "djvu_djvused";
+static const char* _key_djvu_bin_tesseract = "djvu_tesseract";
+static const char* _key_djvu_bin_djvm = "djvu_djvm";
+#ifdef _WIN32
+static const char* _key_djvu_bin_minidjvu_def = "./bin/minidjvu-mod";
+static const char* _key_djvu_bin_c44_def = "./bin/c44-fi";
+static const char* _key_djvu_bin_djvuextract_def = "./bin/djvuextract";
+static const char* _key_djvu_bin_djvumake_def = "./bin/djvumake";
+static const char* _key_djvu_bin_djvused_def = "./bin/djvused";
+static const char* _key_djvu_bin_tesseract_def = "./bin/tesseract";
+static const char* _key_djvu_bin_djvm_def = "./bin/djvm";
+#else
+static const char* _key_djvu_bin_minidjvu_def = "minidjvu-mod";
+static const char* _key_djvu_bin_c44_def = "c44-fi";
+static const char* _key_djvu_bin_djvuextract_def = "djvuextract";
+static const char* _key_djvu_bin_djvumake_def = "djvumake";
+static const char* _key_djvu_bin_djvused_def = "djvused";
+static const char* _key_djvu_bin_tesseract_def = "tesseract";
+static const char* _key_djvu_bin_djvm_def = "djvm";
+#endif
+static const char* _key_djvu_pages_subfolder = "djvu_pages_subfolder";
+static const char* _key_djvu_pages_subfolder_def = "djvu";
+static const char* _key_djvu_layers_subfolder = "djvu_layers_subfolder";
+static const char* _key_djvu_layers_subfolder_def = "layers";
+static const char* _key_djvu_pages_per_djbz = "djvu_pages_per_djbz";
+static const int _key_djvu_pages_per_djbz_def = 20;
+static const char* _key_djvu_djbz_erosion = "djvu_djbz_erosion";
+static const bool _key_djvu_djbz_erosion_def = false;
+static const char* _key_djvu_djbz_use_prototypes = "djvu_djbz_use_prototypes";
+static const bool _key_djvu_djbz_use_prototypes_def = true;
+static const char* _key_djvu_djbz_use_averaging = "djvu_djbz_use_averaging";
+static const bool _key_djvu_djbz_use_averaging_def = true;
+static const char* _key_djvu_djbz_aggression = "djvu_djbz_aggression";
+static const int _key_djvu_djbz_aggression_def = 100;
+static const char* _key_djvu_djbz_extension = "djvu_djbz_extension";
+static const char* _key_djvu_djbz_extension_def = "djbz";
+
+
+static const char* _key_djvu_default_clean = "djvu_clean";
+static const bool _key_djvu_default_clean_def = false;
+static const char* _key_djvu_default_erosion = "djvu_erosion";
+static const bool _key_djvu_default_erosion_def = false;
+static const char* _key_djvu_default_smooth = "djvu_smooth";
+static const bool _key_djvu_default_smooth_def = false;
+static const char* _key_djvu_default_rotation = "djvu_rotation";
+static const uint _key_djvu_default_rotation_def = 0;
+static const char* _key_djvu_default_text_clr = "djvu_text_clr";
+static const char* _key_djvu_default_text_clr_def = "#black";
+
+static const char* _key_djvu_scale_bsf = "bsf";
+static const int _key_djvu_scale_bsf_def = 1;
+static const char* _key_djvu_scale_filter = "scale_filter";
+static const FREE_IMAGE_FILTER _key_djvu_scale_filter_def = FREE_IMAGE_FILTER::FILTER_BICUBIC;
+
+static const char* _key_djvu_contents_as_id = "contents_as_is";
+static const bool  _key_djvu_contents_as_id_def = false;
+
+static const char* _key_ocr_enabled_by_default = "ocr_enabled_by_default";
+static const bool  _key_ocr_enabled_by_default_def = false;
+static const char* _key_ocr_path_to_exe = "ocr_path_to_exe";
+#ifdef _WIN32
+static const char* _key_ocr_path_to_exe_def = "tesseract";
+#endif
+static const char* _key_ocr_path_to_exe_def = "tesseract";
+
+static const char* _key_ocr_additional_args = "ocr_additional_args";
+static const char* _key_ocr_additional_args_def = "";
+static const char* _key_ocr_langs = "ocr_langs";
+static const char* _key_ocr_langs_def = "rus+eng";
+static const char* _key_ocr_keep_hocr = "ocr_keep_hocr";
+static const bool  _key_ocr_keep_hocr_def = false;
+
 
 #endif // INI_KEYS_H

@@ -41,6 +41,7 @@
 #include "imageproc/SeedFill.h"
 #include "imageproc/Connectivity.h"
 #include "imageproc/Morphology.h"
+#include "ProcessingIndicationPropagator.h"
 #include <QImage>
 #include <QSize>
 #include <QPoint>
@@ -157,6 +158,9 @@ Task::process(TaskStatus const& status, FilterData const& data)
     }
 
     if (need_reprocess) {
+
+        ProcessingIndicationPropagator::instance().emitPageProcessingStarted(m_pageId);
+
         QRectF const image_area(
             data.xform().transformBack().mapRect(data.xform().resultingRect())
         );
@@ -221,6 +225,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
     if (m_ptrNextTask) {
         return m_ptrNextTask->process(status, FilterData(data, new_xform));
     } else {
+        ProcessingIndicationPropagator::instance().emitPageProcessingFinished(m_pageId);
         return FilterResultPtr(
                    new UiUpdater(
                        m_ptrFilter, m_ptrDbg, data.origImage(),

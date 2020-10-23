@@ -34,6 +34,7 @@
 #include "ImageTransformation.h"
 #include "PhysSizeCalc.h"
 #include "filters/page_layout/Task.h"
+#include "ProcessingIndicationPropagator.h"
 #include <QObject>
 #include <QTransform>
 #include <QDebug>
@@ -135,6 +136,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
             goto create_new_content;
         }
     } else {
+        ProcessingIndicationPropagator::instance().emitPageProcessingStarted(m_pageId);
     create_new_content:
         QRectF page_rect(data.xform().resultingRect());
         QRectF content_rect(page_rect);
@@ -266,6 +268,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
                    ui_data.pageRect(), ui_data.contentRect()
                );
     } else {
+        ProcessingIndicationPropagator::instance().emitPageProcessingFinished(m_pageId);
         return FilterResultPtr(
                    new UiUpdater(
                        m_ptrFilter, m_pageId, m_ptrDbg, data.origImage(),

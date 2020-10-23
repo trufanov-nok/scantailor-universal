@@ -65,6 +65,39 @@ bool GlobalStaticSettings::m_inversePageOrder = false;
 
 bool GlobalStaticSettings::m_DontUseNativeDialog = true;
 
+QString GlobalStaticSettings::m_djvu_bin_minidjvu;
+QString GlobalStaticSettings::m_djvu_bin_c44;
+QString GlobalStaticSettings::m_djvu_bin_djvuextract;
+QString GlobalStaticSettings::m_djvu_bin_djvumake;
+QString GlobalStaticSettings::m_djvu_bin_djvused;
+QString GlobalStaticSettings::m_djvu_bin_tesseract;
+QString GlobalStaticSettings::m_djvu_bin_djvm;
+QString GlobalStaticSettings::m_djvu_pages_subfolder;
+QString GlobalStaticSettings::m_djvu_layers_subfolder;
+int GlobalStaticSettings::m_djvu_pages_per_djbz;
+bool GlobalStaticSettings::m_djvu_djbz_erosion;
+bool GlobalStaticSettings::m_djvu_djbz_use_prototypes;
+bool GlobalStaticSettings::m_djvu_djbz_use_averaging;
+int GlobalStaticSettings::m_djvu_djbz_aggression;
+QString GlobalStaticSettings::m_djvu_djbz_extension;
+
+uint GlobalStaticSettings::m_djvu_default_rotation;
+bool GlobalStaticSettings::m_djvu_default_clean;
+bool GlobalStaticSettings::m_djvu_default_erosion;
+bool GlobalStaticSettings::m_djvu_default_smooth;
+QString GlobalStaticSettings::m_djvu_default_text_color = "#black";
+
+
+uint GlobalStaticSettings::m_djvu_default_bsf = 2;
+FREE_IMAGE_FILTER GlobalStaticSettings::m_djvu_default_scale_filter = FREE_IMAGE_FILTER::FILTER_BICUBIC;
+
+bool GlobalStaticSettings::m_djvu_contents_as_id = false;
+
+bool GlobalStaticSettings::m_ocr_enabled_by_default;
+QString GlobalStaticSettings::m_ocr_path_to_exe;
+QString GlobalStaticSettings::m_ocr_additional_args;
+QString GlobalStaticSettings::m_ocr_langs;
+bool GlobalStaticSettings::m_ocr_keep_hocr;
 
 SettingsChangesSignaller _instance; // we need one instance just to be able to send signals
 
@@ -217,6 +250,33 @@ void GlobalStaticSettings::updateSettings()
     m_simulateSelectionModifierHintEnabled = settings.value(_key_thumbnails_simulate_key_press_hint, _key_thumbnails_simulate_key_press_hint_def).toBool();
 
     m_DontUseNativeDialog = settings.value(_key_dont_use_native_dialog, _key_dont_use_native_dialog_def).toBool();
+
+    m_djvu_bin_c44 = settings.value(_key_djvu_bin_c44, _key_djvu_bin_c44_def).toString();
+    m_djvu_bin_minidjvu = settings.value(_key_djvu_bin_minidjvu, _key_djvu_bin_minidjvu_def).toString();
+    m_djvu_bin_djvuextract = settings.value(_key_djvu_bin_djvuextract, _key_djvu_bin_djvuextract_def).toString();
+    m_djvu_bin_djvumake = settings.value(_key_djvu_bin_djvumake, _key_djvu_bin_djvumake_def).toString();
+    m_djvu_bin_djvused = settings.value(_key_djvu_bin_djvused, _key_djvu_bin_djvused_def).toString();
+    m_djvu_bin_tesseract = settings.value(_key_djvu_bin_tesseract, _key_djvu_bin_tesseract_def).toString();
+    m_djvu_bin_djvm = settings.value(_key_djvu_bin_djvm, _key_djvu_bin_djvm_def).toString();
+    m_djvu_pages_subfolder = settings.value(_key_djvu_pages_subfolder, _key_djvu_pages_subfolder_def).toString();
+    m_djvu_layers_subfolder = settings.value(_key_djvu_layers_subfolder, _key_djvu_layers_subfolder_def).toString();
+    m_djvu_pages_per_djbz  = settings.value(_key_djvu_pages_per_djbz, _key_djvu_pages_per_djbz_def).toInt();
+    m_djvu_djbz_erosion    = settings.value(_key_djvu_djbz_erosion, _key_djvu_djbz_erosion_def).toBool();
+    m_djvu_djbz_use_prototypes = settings.value(_key_djvu_djbz_use_prototypes, _key_djvu_djbz_use_prototypes_def).toBool();
+    m_djvu_djbz_use_averaging = settings.value(_key_djvu_djbz_use_averaging, _key_djvu_djbz_use_averaging_def).toBool();
+    m_djvu_djbz_aggression = settings.value(_key_djvu_djbz_aggression, _key_djvu_djbz_aggression_def).toInt();
+    m_djvu_djbz_extension  = settings.value(_key_djvu_djbz_extension, _key_djvu_djbz_extension_def).toString();
+
+    m_djvu_default_bsf = settings.value(_key_djvu_scale_bsf, _key_djvu_scale_bsf_def).toUInt();
+    m_djvu_default_scale_filter = (FREE_IMAGE_FILTER) settings.value(_key_djvu_scale_filter, _key_djvu_scale_filter_def).toUInt();
+
+    m_djvu_contents_as_id = settings.value(_key_djvu_contents_as_id, _key_djvu_contents_as_id_def).toBool();
+
+    m_ocr_enabled_by_default = settings.value(_key_ocr_enabled_by_default, _key_ocr_enabled_by_default_def).toBool();
+    m_ocr_path_to_exe = settings.value(_key_ocr_path_to_exe, _key_ocr_path_to_exe_def).toString();
+    m_ocr_additional_args = settings.value(_key_ocr_additional_args, _key_ocr_additional_args_def).toString();
+    m_ocr_langs = settings.value(_key_ocr_langs, _key_ocr_langs_def).toString();
+    m_ocr_keep_hocr = settings.value(_key_ocr_keep_hocr, _key_ocr_keep_hocr_def).toBool();
 }
 
 void GlobalStaticSettings::updateHotkeys()

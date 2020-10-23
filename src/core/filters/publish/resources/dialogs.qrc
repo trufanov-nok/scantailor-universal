@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+     <file>icons/page_no_dec.png</file>
+     <file>icons/page_no_inc.png</file>
+</qresource>
+</RCC>

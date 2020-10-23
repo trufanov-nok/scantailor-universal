@@ -51,7 +51,8 @@ public:
         PageId const& rhs_page, bool rhs_incomplete) const
     {
         if (lhs_incomplete != rhs_incomplete) {
-            return !lhs_incomplete;
+            // Pages with question mark go to the bottom.
+            return rhs_incomplete;
         } else {
             return lhs_page < rhs_page;
         }

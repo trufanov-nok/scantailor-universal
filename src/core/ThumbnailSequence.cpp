@@ -30,6 +30,7 @@
 #include "ScopedIncDec.h"
 #include "settings/globalstaticsettings.h"
 #include "PageRangeSelectorWidget.h"
+#include "ProcessingIndicationPropagator.h"
 #ifndef Q_MOC_RUN
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -67,11 +68,16 @@
 #include <QCursor>
 #include <Qt>
 #include <QDebug>
+#include <QDrag>
+#include <QMimeData>
 #include <algorithm>
 #include <stddef.h>
 #include <assert.h>
 #include <QMessageBox>
 #include <QCheckBox>
+
+#include <QGraphicsProxyWidget>
+#include "ProcessingIndicationWidget.h"
 
 using namespace ::boost::multi_index;
 
@@ -205,6 +211,8 @@ public:
     bool AllThumbnailsComplete(bool check_only_selected_pages);
 //end of modified by monday2000
 
+    bool isThumbnailComplete(const PageId& page);
+
     void setMaxLogicalThumbSize(QSizeF const& max_size)
     {
         m_maxLogicalThumbSize = max_size;
@@ -216,6 +224,27 @@ public:
     }
 
     void setPagesMaybeTargeted(const std::vector<PageId> pages);
+
+    bool findPageByGraphicsItem(QGraphicsItem* item, PageId& page);
+
+    void setDraggingEnabled(bool enable)
+    {
+        m_draggingEnabled = enable;
+    }
+
+    bool isDraggingEnabled() const
+    {
+        return m_draggingEnabled;
+    }
+
+    void setIsDjbzView(bool enable)
+    {
+        m_isDjbzView = enable;
+    }
+
+    void displayProcessingIndicator(const PageId& page_id, bool on);
+    void clearAllProcessingIndicators();
+
 private:
     class ItemsByIdTag;
     class ItemsInOrderTag;
@@ -315,6 +344,9 @@ private:
             return m_ptrOrderProvider.get();
         }
     }
+
+    bool m_draggingEnabled;
+    bool m_isDjbzView;
 };
 
 class ThumbnailSequence::PlaceholderThumb : public QGraphicsItem
@@ -392,10 +424,17 @@ public:
         m_col = col;
     }
 
-protected:
-    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* event);
+    void displayProcessingWidget(bool on, QGraphicsScene *scene = nullptr);
 
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
+    bool hasProcessingWidget() const { return m_processingWidget != nullptr; }
+protected:
+    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
+
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 private:
     // We no longer use QGraphicsView's selection mechanism, so we
     // shadow isSelected() and setSelected() with unimplemented private
@@ -411,6 +450,8 @@ private:
     LabelGroup* m_pHintGroup;
     int m_row;
     int m_col;
+
+    QGraphicsProxyWidget* m_processingWidget;
 };
 
 /*============================= ThumbnailSequence ===========================*/
@@ -420,6 +461,11 @@ ThumbnailSequence::ThumbnailSequence(QSizeF const& max_logical_thumb_size)
 {
     connect(PageRangeSelectorSignalsPropagator::get(), &PageRangeSelectorSignalsPropagator::maybeTargeted,
             this, &ThumbnailSequence::on_pagesMaybeTargeted);
+
+    connect(&ProcessingIndicationPropagator::instance(), &ProcessingIndicationPropagator::displayProcessingIndicator,
+            this, &ThumbnailSequence::displayProcessingIndicator);
+    connect(&ProcessingIndicationPropagator::instance(), &ProcessingIndicationPropagator::allProcessingFinished,
+            this, &ThumbnailSequence::clearAllProcessingIndicators);
 }
 
 ThumbnailSequence::~ThumbnailSequence()
@@ -586,6 +632,35 @@ ThumbnailSequence::emitNewSelectionLeader(
     emit newSelectionLeader(page_info, thumb_rect, flags);
 }
 
+bool
+ThumbnailSequence::findPageByGraphicsItem(QGraphicsItem* item, PageId& page)
+{
+    return m_ptrImpl->findPageByGraphicsItem(item, page);
+}
+
+void
+ThumbnailSequence::setDraggingEnabled(bool enable)
+{
+    m_ptrImpl->setDraggingEnabled(enable);
+}
+
+void
+ThumbnailSequence::setIsDjbzView(bool enable)
+{
+    m_ptrImpl->setIsDjbzView(enable);
+}
+
+void
+ThumbnailSequence::displayProcessingIndicator(const PageId& page_id, bool on)
+{
+    m_ptrImpl->displayProcessingIndicator(page_id, on);
+}
+
+void
+ThumbnailSequence::clearAllProcessingIndicators()
+{
+    m_ptrImpl->clearAllProcessingIndicators();
+}
 /*======================== ThumbnailSequence::Impl ==========================*/
 
 ThumbnailSequence::Impl::Impl(
@@ -596,7 +671,9 @@ ThumbnailSequence::Impl::Impl(
         m_itemsById(m_items.get<ItemsByIdTag>()),
         m_itemsInOrder(m_items.get<ItemsInOrderTag>()),
         m_selectedThenUnselected(m_items.get<SelectedThenUnselectedTag>()),
-        m_pSelectionLeader(0)
+        m_pSelectionLeader(0),
+        m_draggingEnabled(false),
+        m_isDjbzView(false)
 {
 	m_graphicsScene.setContextMenuEventCallback(
 		[this](QGraphicsSceneContextMenuEvent* evt) {
@@ -1040,6 +1117,18 @@ ThumbnailSequence::Impl::AllThumbnailsComplete(bool check_only_selected_pages)
     return true;
 }
 
+bool
+ThumbnailSequence::Impl::isThumbnailComplete(const PageId& page)
+{
+    for (ItemsInOrder::iterator id_it = m_itemsInOrder.begin();
+         id_it != m_itemsInOrder.end(); id_it++) {
+        if (id_it->pageId() == page) {
+            return !id_it->composite->incompleteThumbnail();
+        }
+    }
+    return false;
+}
+
 void
 ThumbnailSequence::Impl::setPagesMaybeTargeted(const std::vector<PageId> pages)
 {
@@ -1060,6 +1149,12 @@ ThumbnailSequence::AllThumbnailsComplete(bool check_only_selected_pages)
     return m_ptrImpl->AllThumbnailsComplete(check_only_selected_pages);
 }
 // end of modified by monday2000
+
+bool
+ThumbnailSequence::isThumbnailComplete(const PageId& page)
+{
+    return m_ptrImpl->isThumbnailComplete(page);
+}
 
 void
 ThumbnailSequence::setMaxLogicalThumbSize(QSizeF const& max_size)
@@ -1878,13 +1973,20 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
 
     QGraphicsSimpleTextItem* normal_text_item(new QGraphicsSimpleTextItem);
     normal_text_item->setText(text);
-
     QGraphicsSimpleTextItem* bold_text_item(new QGraphicsSimpleTextItem);
     bold_text_item->setText(text);
-    QFont bold_font(bold_text_item->font());
-//  bold_font.setWeight(QFont::Bold);
-    bold_text_item->setFont(bold_font);
     bold_text_item->setBrush(QApplication::palette().highlightedText());
+
+    if (m_isDjbzView) {
+        QFont font(normal_text_item->font());
+        if (font.pointSizeF() != -1) {
+            font.setPointSizeF(font.pointSizeF()*0.5);
+        } else if (font.pixelSize() != -1) {
+            font.setPixelSize(font.pixelSize()*0.5);
+        }
+        normal_text_item->setFont(font);
+        bold_text_item->setFont(font);
+    }
 
     QRectF normal_text_box(normal_text_item->boundingRect());
     QRectF bold_text_box(bold_text_item->boundingRect());
@@ -1905,7 +2007,10 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
         return std::unique_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item));
     }
 
-    QPixmap const pixmap(pixmap_resource);
+    QPixmap pixmap(pixmap_resource);
+    if (m_isDjbzView) {
+        pixmap = pixmap.scaled(pixmap.size()/1.5, Qt::KeepAspectRatio);
+    }
     QGraphicsPixmapItem* pixmap_item(new QGraphicsPixmapItem);
     pixmap_item->setPixmap(pixmap);
 
@@ -1963,6 +2068,7 @@ ThumbnailSequence::Impl::getCompositeItem(
         new CompositeItem(*this, thumb, label_group, hint_group)
     );
     composite->setItem(item);
+
     return composite;
 }
 
@@ -2095,7 +2201,8 @@ ThumbnailSequence::CompositeItem::CompositeItem(
         m_pItem(0),
         m_pThumb(thumbnail),
         m_pLabelGroup(label_group),
-        m_pHintGroup(hint_group), m_row(0), m_col(0)
+        m_pHintGroup(hint_group), m_row(0), m_col(0),
+        m_processingWidget(nullptr)
 {
     QSizeF const thumb_size(thumbnail->boundingRect().size());
     QSizeF const label_size(label_group->boundingRect().size());
@@ -2199,10 +2306,51 @@ ThumbnailSequence::CompositeItem::mousePressEvent(
     QGraphicsItemGroup::mousePressEvent(event);
 
     event->accept();
+}
+
+void
+ThumbnailSequence::CompositeItem::mouseReleaseEvent(
+    QGraphicsSceneMouseEvent* const event)
+{
+    QGraphicsItemGroup::mouseReleaseEvent(event);
+
+    event->accept();
 
     if (event->button() == Qt::LeftButton) {
         m_rOwner.itemSelectedByUser(this, event->modifiers());
     }
+}
+
+void
+ThumbnailSequence::CompositeItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItemGroup::mouseMoveEvent(event);
+
+  if (!m_rOwner.isDraggingEnabled() || QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton)).length() < QApplication::startDragDistance()) {
+      return;
+  }
+
+  const std::set<PageId> sel_pages = m_rOwner.selectedItems();
+  if (sel_pages.empty()) {
+      return;
+  }
+
+  int sel_len = sel_pages.size();
+  QByteArray drag_data;
+  drag_data.resize(sizeof(sel_len));
+  memcpy(drag_data.data(), &sel_len, sizeof(sel_len));
+  for (const PageId& p: sel_pages) {
+      drag_data.append(p.toByteArray());
+  }
+
+  QDrag *drag = new QDrag(event->widget());
+  QMimeData *mime = new QMimeData();
+  mime->setData(PageId::mimeType, drag_data);
+  drag->setMimeData(mime);
+  drag->setPixmap(QPixmap(":/icons/document-multiple.png"));
+  drag->setHotSpot(QPoint(15, 30));
+
+  drag->exec();
 }
 
 void
@@ -2213,4 +2361,66 @@ ThumbnailSequence::CompositeItem::contextMenuEvent(
     m_rOwner.contextMenuRequested(
         m_pItem->pageInfo, event->screenPos(), m_pItem->isSelected()
     );
+}
+
+void
+ThumbnailSequence::CompositeItem::displayProcessingWidget(bool on, QGraphicsScene* scene)
+{
+    if (on && scene && !m_processingWidget) {
+        ProcessingIndicationWidget* progress = new ProcessingIndicationWidget(nullptr, QRect(0, 0, 40, 40));
+        QPalette palette;
+        palette.setBrush(QPalette::Background, Qt::transparent);
+        progress->setPalette(palette);
+        progress->setAutoFillBackground(false);
+
+        m_processingWidget = scene->addWidget(progress);
+        m_processingWidget->setParentItem(m_pThumb);
+        const QSizeF psize = m_pThumb->boundingRect().size();
+        const QSizeF wsize = m_processingWidget->size();
+        m_processingWidget->setPos(psize.width()/2 - wsize.width()/2,
+                  psize.height()/2 - wsize.height()/2);
+
+        m_processingWidget->setZValue(1);
+    } else if (!on && m_processingWidget) {
+        delete m_processingWidget;
+        m_processingWidget = nullptr;
+    }
+}
+
+bool
+ThumbnailSequence::Impl::findPageByGraphicsItem(QGraphicsItem* item, PageId& page)
+{
+    ThumbnailSequence::CompositeItem* ci =
+            dynamic_cast<ThumbnailSequence::CompositeItem*>(item);
+    if (ci) {
+        for (ThumbnailSequence::Item i: m_itemsInOrder) {
+            if(i.composite == ci) {
+                page = i.pageId();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void
+ThumbnailSequence::Impl::displayProcessingIndicator(const PageId& page_id, bool on)
+{
+    ItemsById::iterator const id_it(m_itemsById.find(page_id));
+    if (id_it != m_itemsById.end()) {
+        if (id_it->composite) {
+            id_it->composite->displayProcessingWidget(on, &m_graphicsScene);
+        }
+    }
+}
+
+void
+ThumbnailSequence::Impl::clearAllProcessingIndicators()
+{
+    for (ItemsById::iterator id_it = m_itemsById.begin();
+         id_it != m_itemsById.end(); ++id_it) {
+        if (id_it->composite->hasProcessingWidget()) {
+            id_it->composite->displayProcessingWidget(false, &m_graphicsScene);
+        }
+    }
 }

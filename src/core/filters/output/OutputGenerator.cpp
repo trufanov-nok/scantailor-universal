@@ -129,7 +129,7 @@ struct CombineInverted {
 
 /**
  * In picture areas we make sure we don't use pure black and pure white colors.
- * These are reserved for text areas.  This behaviour makes it possible to
+ * These are reserved for text areas.  This behavior makes it possible to
  * detect those picture areas later and treat them differently, for example
  * encoding them as a background layer in DjVu format.
  */
@@ -1930,6 +1930,7 @@ OutputGenerator::detectPictures(
     seedFillGrayInPlace(marker, gray_gradient, CONN8);
     GrayImage reconstructed(marker);
     marker = GrayImage();
+    gray_gradient = GrayImage();
     if (dbg) {
         dbg->add(reconstructed, "reconstructed");
     }

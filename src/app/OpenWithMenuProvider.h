@@ -6,7 +6,7 @@
 class OpenWithMenuProvider
 {
 public:
-    static QMenu* getOpenWithMenu(const QString& mime_type);
+    static QMenu* getOpenWithMenu(const QString &filename);
 };
 
 #endif // OPENWITHMENUPROVIDER_H

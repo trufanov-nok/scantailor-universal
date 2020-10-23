@@ -39,6 +39,7 @@
 #include "ImageView.h"
 #include "FilterUiInterface.h"
 #include "DebugImages.h"
+#include "ProcessingIndicationPropagator.h"
 #include <QImage>
 #include <QObject>
 #include <QDebug>
@@ -162,6 +163,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
         }
 
         if (need_reprocess) {
+            ProcessingIndicationPropagator::instance().emitPageProcessingStarted(m_pageInfo.id());
             new_layout = PageLayoutEstimator::estimatePageLayout(
                              record.combinedLayoutType(),
                              data.grayImage(), data.xform(),
@@ -229,6 +231,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
         new_xform.setPreCropArea(layout.pageOutline(m_pageInfo.id().subPage()));
         return m_ptrNextTask->process(status, FilterData(data, new_xform));
     } else {
+        ProcessingIndicationPropagator::instance().emitPageProcessingFinished(m_pageInfo.id());
         return FilterResultPtr(
                    new UiUpdater(
                        m_ptrFilter, m_ptrPages, m_ptrDbg, data.origImage(),

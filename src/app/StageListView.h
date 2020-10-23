@@ -44,8 +44,10 @@ signals:
     void launchBatchProcessing();
 public slots:
     void setBatchProcessingPossible(bool possible);
-
     void setBatchProcessingInProgress(bool in_progress);
+    void enableBundledDjVuButton(bool enabled);
+    void setBundledDjVuDoc(const QString& filename);
+    void updateComposeDjVuButtonStatusTip();
 protected slots:
     virtual void selectionChanged(
         QItemSelection const& selected,
@@ -60,9 +62,12 @@ private:
     class LeftColDelegate;
     class RightColDelegate;
 
-    void removeLaunchButton(int row);
+    void removeStageListButton(QWidget* btn, int row);
+    void placeStageListButton(QWidget* btn, int row, int steps_from_left = 1);
+    inline void removeLaunchBatchButton(int row);
+    inline void removeComposeDjVuButton(int row);
+    inline void removeStageListButtons(int row);
 
-    void placeLaunchButton(int row);
 
     void initiateBatchAnimationFrameRendering();
 
@@ -77,6 +82,9 @@ private:
     LeftColDelegate* m_pFirstColDelegate;
     RightColDelegate* m_pSecondColDelegate;
     QWidget* m_pLaunchBtn;
+    QWidget* m_pOpenDjVuBtn;
+    QString m_bundledDjVuDoc;
+    int m_publishStageIdx;
     std::vector<QPixmap> m_batchAnimationPixmaps;
     int m_curBatchAnimationFrame;
     int m_timerId;

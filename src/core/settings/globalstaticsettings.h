@@ -104,6 +104,39 @@ public:
     static bool m_inversePageOrder;
 
     static bool m_DontUseNativeDialog;
+
+    static QString m_djvu_bin_minidjvu;
+    static QString m_djvu_bin_c44;
+    static QString m_djvu_bin_djvuextract;
+    static QString m_djvu_bin_djvumake;
+    static QString m_djvu_bin_djvused;
+    static QString m_djvu_bin_tesseract;
+    static QString m_djvu_bin_djvm;
+    static QString m_djvu_pages_subfolder;
+    static QString m_djvu_layers_subfolder;
+    static int m_djvu_pages_per_djbz;
+    static bool m_djvu_djbz_erosion;
+    static bool m_djvu_djbz_use_prototypes;
+    static bool m_djvu_djbz_use_averaging;
+    static int m_djvu_djbz_aggression;
+    static QString m_djvu_djbz_extension;
+
+    static uint m_djvu_default_rotation;
+    static bool m_djvu_default_clean;
+    static bool m_djvu_default_erosion;
+    static bool m_djvu_default_smooth;
+    static QString m_djvu_default_text_color;
+
+    static uint m_djvu_default_bsf;
+    static FREE_IMAGE_FILTER m_djvu_default_scale_filter;
+
+    static bool m_djvu_contents_as_id;
+
+    static bool m_ocr_enabled_by_default;
+    static QString m_ocr_path_to_exe;
+    static QString m_ocr_additional_args;
+    static QString m_ocr_langs;
+    static bool m_ocr_keep_hocr;
 };
 
 #endif // GLOBALSTATICSETTINGS_H

@@ -1,3 +1,6 @@
 [submodule "src/stylesheets/BreezeStyleSheets"]
 	path = src/stylesheets/BreezeStyleSheets
 	url = https://github.com/trufanov-nok/BreezeStyleSheets-for-STU
+[submodule "src/core/filters/publish/tesseract2djvused"]
+	path = src/core/filters/publish/tesseract2djvused
+	url = https://github.com/trufanov-nok/tesseract2djvused.git

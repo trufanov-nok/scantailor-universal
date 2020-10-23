@@ -137,7 +137,7 @@ template<typename T>
 template<typename OT>
 inline
 IntrusivePtr<T>::IntrusivePtr(IntrusivePtr<OT> const& other)
-    :   m_pObj(other.get())
+    : m_pObj(other.get())
 {
     if (m_pObj) {
         intrusive_ref(*m_pObj);

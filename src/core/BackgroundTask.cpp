@@ -17,6 +17,7 @@
 */
 
 #include "BackgroundTask.h"
+#include "ProcessingIndicationPropagator.h"
 
 char const*
 BackgroundTask::CancelledException::what() const throw()
@@ -28,6 +29,7 @@ void
 BackgroundTask::throwIfCancelled() const
 {
     if (isCancelled()) {
+        ProcessingIndicationPropagator::instance().emitAllProcessingFinished();
         throw CancelledException();
     }
 }

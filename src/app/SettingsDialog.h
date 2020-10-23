@@ -36,6 +36,12 @@ public:
 signals:
     void settingsChanged();
 private slots:
+    void on_edMinidjvu_textChanged(const QString &arg1);
+
+private slots:
+    void on_btnMinidjvuChoose_clicked();
+
+private slots:
     void on_dialogButtonClicked(QAbstractButton* btn);
     void commitChanges();
     void filterChanged(const QString&);
@@ -163,6 +169,20 @@ private slots:
 
     void on_cbStyleSheet_currentIndexChanged(int index);
 
+    void on_cbContentsAsId_toggled(bool checked);
+
+    void on_edPathToOCR_textChanged(const QString &arg1);
+
+    void on_btnSelectOCRexecutable_clicked();
+
+    void on_edOCRArgs_textChanged(const QString &arg1);
+
+    void on_edOCRLanguages_textEdited(const QString &arg1);
+
+    void on_cbOCREnabledByDefault_toggled(bool checked);
+
+    void on_cbKeep_hOCR_Output_toggled(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();
@@ -174,6 +194,8 @@ private:
     void storeSettingsTreeState(QTreeWidget* treeWidget);
     void setupPictureShapeComboBox();
     void updateMarginsDisplay();
+    void displayOCRLanguages(const QStringList& available_langs, const QString &langs);
+    void updateOCRLanguagesModel(const QString& value);
 private:
     Ui::SettingsDialog ui;
     QSettings m_settings;

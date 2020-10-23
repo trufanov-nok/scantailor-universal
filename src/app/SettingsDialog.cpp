@@ -26,13 +26,20 @@
 #include <QDebug>
 #include <QResource>
 #include <QColorDialog>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
+#include <QProcess>
+#include <QStandardPaths>
+#include <QStandardItemModel>
 #include "MainWindow.h"
 #include "filters/output/DespeckleLevel.h"
 #include "filters/output/Params.h"
 #include "settings/TiffCompressionInfo.h"
 #include "settings/globalstaticsettings.h"
+
+
+static QStandardItemModel modelOCRLangs(0,1);
 
 SettingsDialog::SettingsDialog(QWidget* parent)
     :   QDialog(parent), m_accepted(false)
@@ -68,6 +75,40 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     });
 
     on_stackedWidget_currentChanged(0);
+
+    ui.cbOCRAvailableLangs->setModel(&modelOCRLangs);
+    connect(&modelOCRLangs, &QStandardItemModel::itemChanged, this, [=]() {
+
+        if (!modelOCRLangs.rowCount()) {
+            return;
+        }
+
+        QStringList langs = ui.edOCRLanguages->text().split("+", Qt::SkipEmptyParts);
+        for (QString& s: langs) { s = s.trimmed(); }
+
+        QStringList langs_to_add;
+        for ( int i = 0; i < modelOCRLangs.rowCount(); i++) {
+            QStandardItem* item = modelOCRLangs.item(i);
+            const QString lang = modelOCRLangs.item(i)->text();
+            bool found = langs.contains(lang);
+
+            if (item->checkState() == Qt::Checked && !found) {
+                langs_to_add.append(lang);
+            } else if (item->checkState() == Qt::Unchecked && found) {
+                langs.removeAll(lang);
+            }
+
+        }
+
+        // append missing languages that were checked
+        langs += langs_to_add;
+        const QString val = langs.join("+");
+        ui.edOCRLanguages->blockSignals(true);
+        ui.edOCRLanguages->setText(val);
+        ui.edOCRLanguages->blockSignals(false);
+        m_settings.setValue(_key_ocr_langs, val);
+    } );
+
 }
 
 void SettingsDialog::initLanguageList(QString cur_lang)
@@ -217,7 +258,7 @@ void check_nested_disabled(QTreeWidgetItem* item)
     QString key = item->data(0, Qt::UserRole + 1).toString();
     bool disable_children = (!key.isEmpty() && item->checkState(1) != Qt::Checked);
 
-    for (int i = 0; i < item->childCount(); i++) {
+    for (int i = 0; i < item->childCount(); i++)     {
         if (disable_children) {
             disable_subtree(item->child(i));
         } else {
@@ -258,7 +299,14 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                            <<               tr("Foreground layer")
                                            <<        tr("Fill zones")
                                            <<        tr("Dewarping")
-                                           <<        tr("Despeckling");
+                                           <<        tr("Despeckling")
+                                           << tr("Publish")
+                                           <<        tr("Foreground encoding")
+                                           <<        tr("Background encoding")
+                                           <<        tr("Dictionary encoding")
+                                           <<        tr("Table of contents")
+                                           <<        tr("Metadata")
+                                           <<        tr("OCR");
     const QResource tree_metadata(":/SettingsTreeData.tsv");
     QStringList tree_data = QString::fromUtf8((char const*)tree_metadata.data(), tree_metadata.size()).split('\n');
 
@@ -663,6 +711,24 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     } else if (currentPage == ui.pageDewarping) {
         ui.cbTryVertHalfCorrection->setChecked(m_settings.value(_key_dewarp_auto_vert_half_correction, _key_dewarp_auto_vert_half_correction_def).toBool());
         ui.cbTryDeskewAfterDewarp->setChecked(m_settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool());
+    } else if (currentPage == ui.pagePublish) {
+        ui.edMinidjvu->setText(m_settings.value(_key_djvu_bin_minidjvu, _key_djvu_bin_minidjvu_def).toString());
+    } else if (currentPage == ui.pageContents) {
+        ui.cbContentsAsId->setChecked(m_settings.value(_key_djvu_contents_as_id, _key_djvu_contents_as_id_def).toBool());
+    } else if (currentPage == ui.pageOCR) {
+        ui.cbOCREnabledByDefault->setChecked(m_settings.value(_key_ocr_enabled_by_default, _key_ocr_enabled_by_default_def).toBool());
+        // must be set first as used in on_edPathToOCR_textChanged()/displayOCRLanguages()
+        ui.edOCRLanguages->setText(m_settings.value(_key_ocr_langs, _key_ocr_langs_def).toString());
+        // supposed to invoke on_edPathToOCR_textChanged()
+        ui.edPathToOCR->setText(m_settings.value(_key_ocr_path_to_exe, _key_ocr_path_to_exe_def).toString());
+        ui.edOCRArgs->setText(m_settings.value(_key_ocr_additional_args, _key_ocr_additional_args_def).toString());
+        ui.cbKeep_hOCR_Output->setChecked(m_settings.value(_key_ocr_keep_hocr, _key_ocr_keep_hocr_def).toBool());
+    } else if (currentPage == ui.pageForegroundSettings) {
+        if (!ui.cbDjVuPageRotation->count()) {
+            for (int i = 0; i < 4; i++) {
+                ui.cbDjVuPageRotation->addItem(tr("%1°").arg(90*i), i);
+            }
+        }
     }
 
 }
@@ -1189,4 +1255,168 @@ void SettingsDialog::on_cbStyleSheet_currentIndexChanged(int index)
         m_settings.setValue(_key_app_stylsheet_file, val.toString());
     }
     GlobalStaticSettings::applyAppStyle(m_settings);
+}
+
+void SettingsDialog::on_btnMinidjvuChoose_clicked()
+{
+    QString path = qApp->applicationDirPath();
+#ifdef _WIN32
+    QString filter = "minidjvu-mod (minidjvu-mod.exe)";
+#else
+    QString filter = "minidjvu-mod (minidjvu-mod)";
+#endif
+
+    QString minidjvu = QFileDialog::getOpenFileName(this, tr("Choose minidjvu-mod executable"), path, filter);
+    if (!minidjvu.isEmpty()) {
+        ui.edMinidjvu->setText(minidjvu);
+    }
+}
+
+void SettingsDialog::on_edMinidjvu_textChanged(const QString &txt)
+{
+    QProcess proc(this);
+    proc.start(txt, QStringList());
+    proc.waitForFinished(2000);
+
+    const QString output(proc.readAllStandardOutput());
+
+    // Let's grep the minidjvu version
+    QRegularExpression re(".*minidjvu-mod ([0-9.a-zA-Z]+) - .*");
+    QRegularExpressionMatch match = re.match(output);
+    QString version(tr("Version: "));
+
+    if (match.hasMatch() && match.lastCapturedIndex() > 0) {
+        version += match.captured(1);
+        m_settings.setValue(_key_djvu_bin_minidjvu, txt);
+    } else {
+        //"Предупреждение: версии программы и библиотеки не совпадают:
+        //program version 0.9, library version 0.9m01."
+        re.setPattern(".*program version ([0-9.a-zA-Z]+, library version [0-9.a-zA-Z]+)\\..*");
+        match = re.match(output);
+        if (match.hasMatch() && match.lastCapturedIndex() > 0) {
+            version += match.captured(1);
+            m_settings.setValue(_key_djvu_bin_minidjvu, txt);
+        } else {
+            version = tr("minidjvu-mod executable can't be found !");
+        }
+    }
+    ui.lblMinidjvuVersion->setText(version);
+}
+
+void SettingsDialog::on_cbContentsAsId_toggled(bool checked)
+{
+    m_settings.setValue(_key_djvu_contents_as_id, checked);
+}
+
+void SettingsDialog::displayOCRLanguages(const QStringList& available_langs, const QString& langs)
+{
+    modelOCRLangs.clear();
+    if (!available_langs.isEmpty()) {
+        QStringList cur_langs = langs.toLower().split("+", Qt::SkipEmptyParts);
+        for (QString& s: cur_langs) { s = s.trimmed(); }
+
+        for (const QString & s: qAsConst(available_langs)) {
+            QStandardItem* item = new QStandardItem(s);
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+
+            QString ls = s.trimmed().toLower();
+            if (cur_langs.contains(ls)) {
+                item->setData(Qt::Checked, Qt::CheckStateRole);
+            } else {
+                item->setData(Qt::Unchecked, Qt::CheckStateRole);
+            }
+            modelOCRLangs.appendRow(item);
+        }
+    }
+}
+
+void SettingsDialog::on_edPathToOCR_textChanged(const QString &cmd)
+{    
+    ui.lblOCRVersionVal->setText("");
+
+    QProcess proc(this);
+    proc.setProcessChannelMode(QProcess::MergedChannels);
+    proc.start(cmd, QStringList("--version"));
+    proc.waitForFinished(-1);
+    const QString res(proc.readAll());
+    QRegularExpression re("[tT]esseract\\s+([-+0-9.a-zA-Z]+).*");
+    QRegularExpressionMatch match = re.match(res);
+    if (match.hasMatch() && match.capturedLength() > 1) {
+        ui.lblOCRVersionVal->setText(match.captured(1));
+    }
+
+    m_settings.setValue(_key_ocr_path_to_exe, cmd);
+
+    proc.start(cmd, QStringList("--list-langs"));
+    proc.waitForFinished(-1);
+    QStringList langs(QString(proc.readAll()).split("\n", Qt::SkipEmptyParts));
+    if (langs.size() > 1 && langs.first().contains(":")) {
+        langs.removeAt(0); // text "List of available languages (3):"
+    }
+
+    displayOCRLanguages(langs, ui.edOCRLanguages->text());
+}
+
+void SettingsDialog::on_btnSelectOCRexecutable_clicked()
+{
+    QString execs_dir;
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+    const QString filter = " (*)";
+    execs_dir = "/usr/bin/";
+#else
+    const QString filter = " (*.exe *.bat *.cmd)";
+    QStringList sl = QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
+    if (!sl.isEmpty()) {
+        execs_dir = sl.first();
+    }
+#endif
+
+    QFileDialog dlg(this, tr("Select OCR executable"), execs_dir,
+                    tr("OCR executable") + filter);
+    dlg.setFileMode(QFileDialog::ExistingFile);
+
+
+    if (dlg.exec() == QDialog::Accepted) {
+        QStringList fileNames = dlg.selectedFiles();
+        if (!fileNames.isEmpty()) {
+            ui.edPathToOCR->setText(fileNames.first());
+        }
+    }
+}
+
+void SettingsDialog::on_edOCRArgs_textChanged(const QString &args)
+{
+    m_settings.setValue(_key_ocr_additional_args, args);
+}
+
+void SettingsDialog::updateOCRLanguagesModel(const QString& value)
+{
+    QStringList cur_langs = value.split("+", Qt::SkipEmptyParts);
+    for (QString& s: cur_langs) { s = s.trimmed(); }
+    modelOCRLangs.blockSignals(true);
+    for ( int i = 0; i < modelOCRLangs.rowCount(); i++) {
+        QStandardItem* item = modelOCRLangs.item(i);
+        const QString lang = modelOCRLangs.item(i)->text();
+        item->setCheckState(cur_langs.contains(lang) ? Qt::Checked : Qt::Unchecked);
+    }
+    modelOCRLangs.blockSignals(false);
+}
+
+void SettingsDialog::on_edOCRLanguages_textEdited(const QString &arg1)
+{
+    QStringList langs = arg1.split("+", Qt::SkipEmptyParts);
+    for (QString& s: langs) { s = s.trimmed(); }
+    m_settings.setValue(_key_ocr_langs, langs.join("+"));
+    updateOCRLanguagesModel(arg1);
+}
+
+void SettingsDialog::on_cbOCREnabledByDefault_toggled(bool checked)
+{
+    m_settings.setValue(_key_ocr_enabled_by_default, checked);
+}
+
+void SettingsDialog::on_cbKeep_hOCR_Output_toggled(bool checked)
+{
+    m_settings.setValue(_key_ocr_keep_hocr, checked);
 }

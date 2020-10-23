@@ -34,6 +34,7 @@
 #include "Dpi.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/RasterOp.h"
+#include "ProcessingIndicationPropagator.h"
 #include <QPointer>
 #include <QDebug>
 #include <memory>
@@ -108,7 +109,7 @@ DespeckleView::DespeckleView(
     DespeckleState const& despeckle_state,
     DespeckleVisualization const& visualization, bool debug)
     :   m_despeckleState(despeckle_state),
-        m_pProcessingIndicator(new ProcessingIndicationWidget(this)),
+        m_pProcessingIndicator(new ProcessingIndicationWidget(this, QRect(0,0,80,80))),
         m_despeckleLevel(despeckle_state.level()),
         m_debug(debug)
 {
@@ -335,6 +336,7 @@ void
 DespeckleView::TaskCancelHandle::throwIfCancelled() const
 {
     if (isCancelled()) {
+        ProcessingIndicationPropagator::instance().emitAllProcessingFinished();
         throw TaskCancelException();
     }
 }

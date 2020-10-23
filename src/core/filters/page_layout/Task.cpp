@@ -30,6 +30,7 @@
 #include "ImageTransformation.h"
 #include "PhysicalTransformation.h"
 #include "filters/output/Task.h"
+#include "ProcessingIndicationPropagator.h"
 #include <QSizeF>
 #include <QRectF>
 #include <QLineF>
@@ -146,6 +147,7 @@ Task::process(
                    status, FilterData(data, new_xform), content_rect_phys
                );
     } else if (m_ptrFilter->optionsWidget() != 0) {
+        ProcessingIndicationPropagator::instance().emitPageProcessingFinished(m_pageId);
         return FilterResultPtr(
                    new UiUpdater(
                        m_ptrFilter, m_ptrSettings, m_pageId,

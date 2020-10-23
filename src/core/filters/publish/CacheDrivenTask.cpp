@@ -17,20 +17,26 @@
 */
 
 #include "CacheDrivenTask.h"
+#include "DjbzDispatcher.h"
 #include "Settings.h"
 #include "PageInfo.h"
 #include "PageId.h"
 #include "ImageId.h"
+#include "IncompleteThumbnail.h"
 #include "ImageTransformation.h"
 #include "ThumbnailBase.h"
 #include "AbstractFilterDataCollector.h"
 #include "ThumbnailCollector.h"
+#include "OutputParams.h"
+#include "OutputFileNameGenerator.h"
 
 namespace publish
 {
 
-CacheDrivenTask::CacheDrivenTask(IntrusivePtr<Settings> const& settings)
-    :   m_ptrSettings(settings)
+CacheDrivenTask::CacheDrivenTask(IntrusivePtr<Settings> const& settings, OutputFileNameGenerator const& out_file_name_gen)
+    : m_ptrSettings(settings),
+      m_ptrDjbzDispatcher(m_ptrSettings->djbzDispatcher()),
+      m_refOutputFileNameGenerator(out_file_name_gen)
 {
 }
 
@@ -38,23 +44,108 @@ CacheDrivenTask::~CacheDrivenTask()
 {
 }
 
+bool
+CacheDrivenTask::needPageReprocess(const PageId& page_id) const
+{
+    std::unique_ptr<Params> params(m_ptrSettings->getPageParams(page_id));
+    if (!params.get()) {
+        return true;
+    }
+
+    Params::Regenerate val = params->getForceReprocess();
+    if (val & Params::RegenerateThumbnail) {
+        val = (Params::Regenerate)(val & ~Params::RegenerateThumbnail);
+        params->setForceReprocess(val);
+        m_ptrSettings->setPageParams(page_id, *params);
+        return true;
+    }
+
+    const QString dict_id = m_ptrDjbzDispatcher->dictionaryIdByPage(page_id);
+    if (dict_id.isEmpty()) {
+        return true;
+    }
+
+    if (params->hasOutputParams()) {
+        const DjbzDict* dict = m_ptrDjbzDispatcher->dictionary(dict_id);
+        if (  *params != params->outputParams().params() ||
+              dict->params() != params->outputParams().djbzParams() ) {
+            return true;
+        }
+    } else {
+        return true;
+    }
+
+    return false;
+
+}
+
+
 void
 CacheDrivenTask::process(
-    PageInfo const& page_info, AbstractFilterDataCollector* collector)
+        PageInfo const& page_info, AbstractFilterDataCollector* collector,
+        ImageTransformation const& xform)
 {
-    QRectF const initial_rect(QPointF(0.0, 0.0), page_info.metadata().size());
-    ImageTransformation xform(initial_rect, page_info.metadata().dpi());
+    m_pageId = page_info.id();
+
+
 
     if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
-        thumb_col->processThumbnail(
-            std::unique_ptr<QGraphicsItem>(
-                new ThumbnailBase(
-                    thumb_col->thumbnailCache(),
-                    thumb_col->maxLogicalThumbSize(),
-                    page_info.imageId(), xform
-                )
-            )
-        );
+
+        bool need_reprocess = false;
+
+        std::unique_ptr<Params> params = m_ptrSettings->getPageParams(m_pageId);
+        if (!params.get()) {
+            params.reset(new Params());
+            m_ptrSettings->setPageParams(m_pageId, *params);
+            need_reprocess = true;
+        }
+
+        if (!need_reprocess) {
+            const DjbzDict* dict = m_ptrDjbzDispatcher->dictionaryByPage(m_pageId);
+            need_reprocess = !m_ptrDjbzDispatcher->isDictionaryCached(dict);
+        }
+
+        if (!need_reprocess) {
+            need_reprocess = !params->isDjVuCached();
+        }
+
+        if (!need_reprocess) {
+            need_reprocess = needPageReprocess(m_pageId);
+        }
+
+        if (need_reprocess) {
+            QString thumbnail_source;
+            thumbnail_source = params->sourceImagesInfo().source_filename();
+            if (thumbnail_source.isEmpty() || !QFileInfo::exists(thumbnail_source)) {
+                thumbnail_source = m_refOutputFileNameGenerator.outDir() + "/" +
+                        m_refOutputFileNameGenerator.fileNameFor(m_pageId);
+                if (!QFileInfo::exists(thumbnail_source)) {
+                    thumbnail_source = page_info.id().imageId().filePath();
+                }
+            }
+
+            thumb_col->processThumbnail(
+                        std::unique_ptr<QGraphicsItem>(
+                            new IncompleteThumbnail(
+                                thumb_col->thumbnailCache(),
+                                thumb_col->maxLogicalThumbSize(),
+                                ImageId(thumbnail_source), xform
+                                )
+                            )
+                        );
+
+        } else {
+
+            thumb_col->processThumbnail(
+                        std::unique_ptr<QGraphicsItem>(
+                            new ThumbnailBase(
+                                thumb_col->thumbnailCache(),
+                                thumb_col->maxLogicalThumbSize(),
+                                ImageId(params->djvuFilename()), xform
+                                )
+                            )
+                        );
+        }
     }
 }
 

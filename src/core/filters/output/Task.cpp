@@ -63,6 +63,7 @@
 #include "imageproc/Transform.h"
 #include "filters/publish/Task.h"
 #include "VirtualZoneProperty.h"
+#include "ProcessingIndicationPropagator.h"
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -326,6 +327,11 @@ Task::process(
 
     do { // Just to be able to break from it.
 
+        if (!m_ptrSettings->exportSuggestions().contains(m_pageId)) {
+            need_reprocess = true;
+            break;
+        }
+
         std::unique_ptr<OutputParams> stored_output_params(
             m_ptrSettings->getOutputParams(m_pageId)
         );
@@ -358,6 +364,12 @@ Task::process(
         }
 
         if (!out_file_info.exists()) {
+            need_reprocess = true;
+            break;
+        }
+
+        if (!m_ptrSettings->exportSuggestions().contains(m_pageId) ||
+                !m_ptrSettings->exportSuggestions()[m_pageId].isValid) {
             need_reprocess = true;
             break;
         }
@@ -421,6 +433,9 @@ Task::process(
     }
 
     if (need_reprocess) {
+
+        ProcessingIndicationPropagator::instance().emitPageProcessingStarted(m_pageId);
+
         // Even in batch processing mode we should still write automask, because it
         // will be needed when we view the results back in interactive mode.
         // The same applies even more to speckles file, as we need it not only
@@ -524,6 +539,7 @@ Task::process(
             );
 
             m_ptrSettings->setOutputParams(m_pageId, out_params);
+            m_ptrSettings->setExportSuggestion(m_pageId, ExportSuggestion(out_img));
         }
 
         m_ptrThumbnailCache->recreateThumbnail(ImageId(out_file_path), out_img);
@@ -542,10 +558,11 @@ Task::process(
     }
 
     if (m_ptrNextTask) {
-        return m_ptrNextTask->process(status, FilterData(data, new_xform));
+        return m_ptrNextTask->process(status, FilterData(data, new_xform, &m_ptrSettings->exportSuggestions()));
     }
 
     if (CommandLine::get().isGui()) {
+        ProcessingIndicationPropagator::instance().emitPageProcessingFinished(m_pageId);
         return FilterResultPtr(
                    new UiUpdater(
                        m_ptrFilter, m_ptrSettings, m_ptrDbg, params,

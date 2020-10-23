@@ -2,14 +2,17 @@
 #include <QFile>
 #include <QDirIterator>
 #include <QStringList>
+#include <QMimeDatabase>
+#include <QProcess>
 
 inline QString get_val(QString const& str)
 {
     return str.right(str.length() - str.indexOf('=') - 1).trimmed().remove('\n');
 }
 
-QMenu* OpenWithMenuProvider::getOpenWithMenu(const QString& mime_type)
+QMenu* OpenWithMenuProvider::getOpenWithMenu(const QString& filename)
 {
+    const QString mime_type = QMimeDatabase().mimeTypeForFile(filename).name();
     QMenu* res = new QMenu();
 
     const QString linux_mime_cache("/usr/share/applications/mimeinfo.cache");
@@ -79,6 +82,17 @@ QMenu* OpenWithMenuProvider::getOpenWithMenu(const QString& mime_type)
                     QAction* act = !icons.isEmpty() ? res->addAction(QIcon(icons.first()), title)
                                                     : res->addAction(title);
                     act->setData(exec);
+                    QObject::connect(act, &QAction::triggered, [filename, act]() {
+                        QString cmd = act->data().toString();
+                        if (cmd.contains("%u", Qt::CaseInsensitive)) {
+                            cmd = cmd.replace("%u", " \"" + filename + "\" ", Qt::CaseInsensitive);
+                        } else if (cmd.contains("%f", Qt::CaseInsensitive)) {
+                            cmd = cmd.replace("%f", " \"" + filename + "\" ", Qt::CaseInsensitive);
+                        } else {
+                            cmd += " \"" + filename + "\" ";
+                        }
+                        QProcess::startDetached(cmd);
+                    });
                 }
 
             }

@@ -69,7 +69,7 @@ DebugImageView::DebugImageView(AutoRemovingFile file,
     :   QStackedWidget(parent),
         m_file(file),
         m_imageViewFactory(image_view_factory),
-        m_pPlaceholderWidget(new ProcessingIndicationWidget(this)),
+        m_pPlaceholderWidget(new ProcessingIndicationWidget(this, QRect(0,0,80,80))),
         m_isLive(false)
 {
     addWidget(m_pPlaceholderWidget);

@@ -22,17 +22,42 @@
 #include "BubbleAnimation.h"
 #include <QWidget>
 #include <QColor>
+#include <QTimer>
 
 class QRect;
 
+class QCommonProgressIndicator: public QObject
+{
+    Q_OBJECT
+public:
+    QCommonProgressIndicator(QObject* parent = nullptr);
+    bool start();
+    bool stop();
+    void resetAnimation();
+    void processingRestartedEffect();
+signals:
+    void timeout();
+private slots:
+    void triggered();
+private:
+    int m_ref;
+    QTimer m_timer;
+    double const distinction_increase;
+    double const distinction_decrease;
+    double m_distinctionDelta;
+public:
+    BubbleAnimation m_animation;
+    double m_distinction;
+};
+
 /**
- * \brief This widget is displayed in the central area od the main window
+ * \brief This widget is displayed in the central area of the main window
  *        when an image is being processed.
  */
 class ProcessingIndicationWidget : public QWidget
 {
 public:
-    ProcessingIndicationWidget(QWidget* parent = 0);
+    ProcessingIndicationWidget(QWidget* parent = nullptr, const QRect& indicator_size = QRect(0,0,20,20));
 
     /**
      * \brief Resets animation to the state it had just after
@@ -44,18 +69,17 @@ public:
      * \brief Launch the "processing restarted" effect.
      */
     void processingRestartedEffect();
-protected:
-    virtual void paintEvent(QPaintEvent* event);
 
-    virtual void timerEvent(QTimerEvent* event);
+    virtual QSize sizeHint() const override;
+
+    ~ProcessingIndicationWidget();
+protected:
+    virtual void paintEvent(QPaintEvent* event) override;
 private:
     QRect animationRect() const;
-
-    BubbleAnimation m_animation;
     QColor m_headColor;
     QColor m_tailColor;
-    double m_distinction;
-    double m_distinctionDelta;
+    QRect m_indicator_size;
     int m_timerId;
 };
 

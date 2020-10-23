@@ -40,7 +40,7 @@ BubbleAnimation::BubbleAnimation(int const num_bubbles)
 }
 
 bool
-BubbleAnimation::nextFrame(
+BubbleAnimation::paintNextFrame(
     QColor const& head_color, QColor const& tail_color,
     QPaintDevice* pd, QRectF rect)
 {
@@ -49,13 +49,13 @@ BubbleAnimation::nextFrame(
     }
 
     QPainter painter(pd);
-    return nextFrame(head_color, tail_color, &painter, rect);
+    paintFrame(head_color, tail_color, &painter, rect);
+    return nextFrame();
 }
 
-bool
-BubbleAnimation::nextFrame(
-    QColor const& head_color, QColor const& tail_color,
-    QPainter* painter, QRectF const rect)
+void
+BubbleAnimation::paintFrame(QColor const& head_color, QColor const& tail_color,
+                            QPainter* painter, QRectF const rect)
 {
     QPointF const center(rect.center());
     double const radius = std::min(
@@ -91,7 +91,11 @@ BubbleAnimation::nextFrame(
         painter->setBrush(colorInterpolation(head_color, tail_color, color_dist));
         painter->drawEllipse(r);
     }
+}
 
+bool
+BubbleAnimation::nextFrame()
+{
     if (m_curFrame + 1 < m_numBubbles) {
         ++m_curFrame;
         return true;
@@ -99,5 +103,15 @@ BubbleAnimation::nextFrame(
         m_curFrame = 0;
         return false;
     }
+}
+
+bool
+BubbleAnimation::paintNextFrame(
+    QColor const& head_color, QColor const& tail_color,
+    QPainter* painter, QRectF const rect)
+{
+
+    paintFrame(head_color, tail_color, painter, rect);
+    return nextFrame();
 }
 

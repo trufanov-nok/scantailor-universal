@@ -19,30 +19,123 @@
 #ifndef PUBLISH_SETTINGS_H_
 #define PUBLISH_SETTINGS_H_
 
+#include "IntrusivePtr.h"
 #include "RefCountable.h"
 #include "NonCopyable.h"
+#include "Params.h"
+#include "DjbzDispatcher.h"
+#include "DjVuBookmarkDispatcher.h"
+#include "DisplayPreferences.h"
 #include <QMutex>
+#include <map>
+#include <set>
 
 class AbstractRelinker;
 
 namespace publish
 {
 
-class Settings : public RefCountable
+class Settings : public QObject, public RefCountable
 {
+    Q_OBJECT
     DECLARE_NON_COPYABLE(Settings)
 public:
     Settings();
 
     virtual ~Settings();
 
+    void setPageParams(PageId const& page_id, Params const& params);
+
+    void clearPageParams(PageId const& page_id);
+
+    std::unique_ptr<Params> getPageParams(PageId const& page_id) const;
+
     void clear();
 
     void performRelinking(AbstractRelinker const& relinker);
 
+    void generateEncoderSettings(const QVector<PageId> &pages,  const ExportSuggestions& export_suggestions, QStringList& settings);
+
+    IntrusivePtr<DjbzDispatcher> djbzDispatcher();
+    void setDjbzDispatcher(DjbzDispatcher* value);
+    IntrusivePtr<DjVuBookmarkDispatcher> djVuBookmarkDispatcher();
+    void setDjVuBookmarkDispatcher(DjVuBookmarkDispatcher* value);
+
+    QMap<QString, QString> metadata() const { return m_metadata; }
+    const QMap<QString, QString>& metadataRef() const { return m_metadata; }
+    void setMetadata( const QMap<QString, QString>& metadata) { m_metadata = metadata; }
+
+    const DisplayPreferences& displayPreferences() const { return m_displayPreferences; }
+    void setDisplayPreferences(const DisplayPreferences& val) { m_displayPreferences = val; }
+
+    const QString& bundledDocFilename() const {return m_bundledDocFilename; }
+    void setBundledDocFilename(const QString& fname) {
+        m_bundledDocFilename = fname;
+        updateBundledDoc();
+        emit bundledDjVuFilenameChanged(m_bundledDocFilename);
+    }
+
+    void updateBundledDoc() {
+        if (!m_bundledDocFilename.isEmpty() &&
+                QFileInfo::exists(m_bundledDocFilename)) {
+            const QFileInfo fi(m_bundledDocFilename);
+            m_bundledDocFilesize = fi.size();
+            m_bundledDocModified = fi.lastModified();
+            emit bundledDocReady(true);
+        } else {
+            resetBundledDoc();
+        }
+    }
+
+    bool bundledDocNeedsUpdate() {
+        if (!m_bundledDocFilename.isEmpty() &&
+                QFileInfo::exists(m_bundledDocFilename)) {
+            const QFileInfo fi(m_bundledDocFilename);
+            if ( m_bundledDocFilesize == fi.size() &&
+                 m_bundledDocModified == fi.lastModified() ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void resetBundledDoc() {
+        m_bundledDocFilesize = 0;
+        m_bundledDocModified = QDateTime();
+        emit bundledDocReady(false);
+    }
+
+    uint bundledDocFilesize() const {return m_bundledDocFilesize; }
+    const QDateTime& bundledDocModified() const {return m_bundledDocModified; }
+
+    const QStringList& contents() const { return m_contents; }
+    void setContents(const QStringList val) { m_contents = val; }
+    bool checkPagesReady(const std::vector<PageId> &pages) const;
+
+    void setLastUsedTextColor(const QString& clr) { m_lastUsedTextColor = clr; }
+    const QString& lastUsedTextColor() const { return m_lastUsedTextColor; }
+
+Q_SIGNALS:
+    void bundledDocReady(bool);
+    void bundledDjVuFilenameChanged(const QString& filename);
 private:
+    typedef std::map<PageId, Params> PerPageParams;
 
     mutable QMutex m_mutex;
+    PerPageParams m_perPageParams;
+
+    IntrusivePtr<DjbzDispatcher> m_ptrDjbzDispatcher;
+    IntrusivePtr<DjVuBookmarkDispatcher> m_ptrDjVuBookmarkDispatcher;
+    QMap<QString, QString> m_metadata;
+    DisplayPreferences m_displayPreferences;
+
+    QString m_bundledDocFilename;
+    uint m_bundledDocFilesize;
+    QDateTime m_bundledDocModified;
+
+    QString m_lastUsedTextColor;
+
+    QStringList m_contents;
 };
 
 } // namespace publish
