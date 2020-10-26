@@ -47,10 +47,7 @@
 #include <QTranslator>
 //begin of modified by monday2000
 //Export_Subscans
-#include <QMessageBox>
-#include "stdint.h"
-#include "TiffWriter.h"
-#include "ImageLoader.h"
+#include "exporting/ExportThread.h"
 #include "ExportDialog.h"
 //end of modified by monday2000
 #include "AutoSaveTimer.h"
@@ -102,7 +99,6 @@ public:
     std::set<PageId> selectedPages() const;
 
     std::vector<PageRange> selectedRanges() const;
-    QImage m_orig_fore_subscan;
     QImage m_image_without_output_processing;
     bool eventFilter(QObject* obj, QEvent* ev);
     virtual void closeEvent(QCloseEvent* event);
@@ -127,9 +123,9 @@ public:
 public slots:
     void openProject(QString const& project_file);
 //Export_Subscans
-    void ExportOutput(ExportDialog::Settings settings);
-    void ExportStop();
+    void ExportOutput(exporting::ExportSettings settings);
     void SetStartExport();
+
     void settingsChanged();
     void changeLanguage(QString lang, bool dont_store = false);
 private:
@@ -226,8 +222,6 @@ private slots:
     void handleOutOfMemorySituation();
 
     void openExportDialog();
-
-    void exportDialogClosed(QObject*);
 
     void on_actionAbout_Qt_triggered();
 
@@ -417,20 +411,11 @@ private:
     bool m_beepOnBatchProcessingCompletion;
 //begin of modified by monday2000
 //Export_Subscans
-
-    struct ExportRec {
-        int page_no;
-        PageId page_id;
-        QString filename;
-    };
-
-    ExportDialog* m_p_export_dialog;
-    QVector<ExportRec> m_outpaths_vector;
-    int ExportNextFile();
-    int m_exportTimerId;
-    QString m_export_dir;
-    ExportDialog::Settings m_export_settings;
-    int m_pos_export;
+public Q_SLOTS:
+    void exportRequestedReprocessing(const PageId& page_id, QImage* fore_subscan);
+private:
+    exporting::ExportDialog* m_p_export_dialog;
+    exporting::ExportThread* m_p_export_thread;
 //Original_Foreground_Mixed
     std::unique_ptr<ThumbnailSequence> m_ptrThumbSequence_export;
 //Language

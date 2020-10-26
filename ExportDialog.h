@@ -23,53 +23,40 @@
 #define EXPORT_DIALOG_H_
 
 #include "ui_ExportDialog.h"
-#include "ExportModes.h"
+#include "exporting/ExportSettings.h"
 #include <QDialog>
 #include <QSettings>
+
+namespace exporting {
 
 class ExportDialog : public QDialog
 {
     Q_OBJECT
 public:
 
-    enum PageGenTweak {
-        NoTweaks = 0,
-        KeepOriginalColorIllumForeSubscans = 1,
-        IgnoreOutputProcessingStage = 2
-    };
-
-    Q_DECLARE_FLAGS(PageGenTweaks, PageGenTweak)
-
-    struct Settings {
-        ExportModes export_mode;
-        bool default_out_dir;
-        QString export_dir_path;
-        bool export_to_multipage;
-        bool generate_blank_back_subscans;
-        bool use_sep_suffix_for_pics;
-        PageGenTweaks page_gen_tweaks;
-        bool export_selected_pages_only;
-    };
-
     ExportDialog(QWidget* parent, const QString& defaultOutDir);
 
     virtual ~ExportDialog();
 
     void setCount(int count);
-    void StepProgress();
+
     void reset(void);
     void setExportLabel(void);
     void setStartExport(void);
 
-signals:
-    void ExportOutputSignal(Settings settings);
+Q_SIGNALS:
+    void ExportOutputSignal(ExportSettings settings);
     void ExportStopSignal();
     void SetStartExportSignal();
 
-public slots:
+public Q_SLOTS:
     void startExport(void);
+    void stepProgress();
+    void exportCanceled();
+    void exportCompleted();
+    void exportError(QString const&);
 
-private slots:
+private Q_SLOTS:
     void OnCheckDefaultOutputFolder(bool);
     void OnClickExport();
     void outExportDirBrowse();
@@ -112,5 +99,6 @@ private:
     QSettings m_settings;
 };
 
+}
 #endif
 //end of modified by monday2000

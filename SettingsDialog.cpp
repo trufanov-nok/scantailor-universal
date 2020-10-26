@@ -23,10 +23,11 @@
 #include "imageproc/Constants.h"
 #include <QVariant>
 #include <QDir>
-#include <MainWindow.h>
 #include <QDebug>
 #include <QResource>
 #include <QColorDialog>
+#include <QMessageBox>
+#include "MainWindow.h"
 #include "filters/output/DespeckleLevel.h"
 #include "filters/output/Params.h"
 #include "settings/globalstaticsettings.h"

@@ -407,6 +407,7 @@ ADD_SUBDIRECTORY(math)
 ADD_SUBDIRECTORY(imageproc)
 ADD_SUBDIRECTORY(interaction)
 ADD_SUBDIRECTORY(zones)
+ADD_SUBDIRECTORY(exporting)
 ADD_SUBDIRECTORY(tests)
 
 ADD_SUBDIRECTORY(filters/fix_orientation)
@@ -554,7 +555,6 @@ SET(
         SystemLoadWidget.cpp SystemLoadWidget.h
         MainWindow.cpp MainWindow.h
         main.cpp
-        ExportModes.h
         ExportDialog.cpp ExportDialog.h
         StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
         AutoSaveTimer.cpp AutoSaveTimer.h
@@ -624,13 +624,13 @@ ADD_EXECUTABLE(scantailor-universal-cli ${cli_only_sources} ${common_ui_sources}
 
 TARGET_LINK_LIBRARIES(
         scantailor-universal
-        fix_orientation page_split deskew select_content page_layout output stcore
-        dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
+	fix_orientation page_split deskew select_content page_layout output stcore
+        dewarping zones interaction imageproc math foundation exporting ${MAYBE_QTMAIN_LIBRARIES}
 )
 TARGET_LINK_LIBRARIES(
         scantailor-universal-cli
-        fix_orientation page_split deskew select_content page_layout output stcore
-        dewarping zones interaction imageproc math foundation ${MAYBE_QTMAIN_LIBRARIES}
+	fix_orientation page_split deskew select_content page_layout output stcore
+        dewarping zones interaction imageproc math foundation exporting ${MAYBE_QTMAIN_LIBRARIES}
 )
 
 QT5_USE_MODULES(scantailor-universal Widgets Xml ${MAYBE_QT_OPENGL_MODULE})

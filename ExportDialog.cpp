@@ -30,6 +30,8 @@
 #include <QMessageBox>
 #include <QTimer>
 
+namespace exporting {
+
 ExportDialog::ExportDialog(QWidget* parent, const QString& defaultOutDir)
     :   QDialog(parent), m_defaultOutDir(defaultOutDir)
 {
@@ -143,9 +145,7 @@ ExportDialog::OnClickExport()
 
     if (ui.ExportButton->text() != tr("Stop")) {
         emit SetStartExportSignal();
-    }
-
-    else {
+    } else {
         emit ExportStopSignal();
     }
 }
@@ -189,7 +189,7 @@ ExportDialog::setCount(int count)
 }
 
 void
-ExportDialog::StepProgress()
+ExportDialog::stepProgress()
 {
     if (ui.btnResetToDefault->isVisible()) {
         ui.btnResetToDefault->hide();
@@ -197,6 +197,28 @@ ExportDialog::StepProgress()
     const QString txt = tr("Processed pages %1 of %2");
     ui.labelFilesProcessed->setText(txt.arg(ui.progressBar->value() + 1).arg(m_count));
     ui.progressBar->setValue(ui.progressBar->value() + 1);
+}
+
+void
+ExportDialog::exportCanceled()
+{
+    QMessageBox::information(this, tr("Information"), tr("The files export is stopped by the user."));
+    reset();
+}
+
+void
+ExportDialog::exportCompleted()
+{
+    setExportLabel();
+    QMessageBox::information(this, tr("Information"), tr("The files export is finished."));
+    reset();
+}
+
+void
+ExportDialog::exportError(QString const& errorStr)
+{
+    QMessageBox::critical(this, tr("Error"), errorStr);
+    reset();
 }
 
 void
@@ -232,8 +254,8 @@ ExportDialog::startExport(void)
         return;
     }
 
-    Settings settings;
-    settings.export_mode = mode;
+    ExportSettings settings;
+    settings.mode = mode;
     settings.default_out_dir = ui.DefaultOutputFolder->isChecked();
     settings.export_dir_path = ui.outExportDirLine->text();
     settings.export_to_multipage = ui.cbMultipageOutput->isChecked();
@@ -372,4 +394,6 @@ void ExportDialog::on_btnResetToDefault_clicked()
     ui.UseSepSuffixForPics->setChecked(_key_export_use_sep_suffix_def);
     ui.KeepOriginalColorIllumForeSubscans->setChecked(_key_export_keep_original_color_def);
     ui.cbMultipageOutput->setChecked(_key_export_to_multipage_def);
+}
+
 }

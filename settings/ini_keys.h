@@ -22,7 +22,7 @@
 #include <QSettings> // propagate header
 
 #include "filters/output/DespeckleLevel.h"
-#include "ExportModes.h"
+#include "exporting/ExportModes.h"
 #include <QSize>
 
 /* App settings */
@@ -92,7 +92,9 @@ static const bool  _key_export_keep_original_color_def = false;
 static const char* _key_export_to_multipage = "settings/export_to_multipage";
 static const bool  _key_export_to_multipage_def = false;
 static const char* _key_export_split_mixed_settings = "settings/split_mixed_settings";
+namespace exporting {
 static const int _key_export_split_mixed_settings_def = (int) ExportModes(ExportMode::Foreground | ExportMode::Background);
+}
 
 /* insert image disalog */
 
