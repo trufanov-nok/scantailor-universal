@@ -18,15 +18,18 @@ MACRO(ST_SET_DEFAULT_GCC_FLAGS)
 			SET(gc_sections_ldflags_ "-Wl,--gc-sections")
 		ENDIF(gc_sections_supported_)
 
-		CHECK_CXX_ACCEPTS_FLAG("-fno-keep-inline-dllexport" no_inline_dllexport_supported_)
-		IF(no_inline_dllexport_supported_)
-			SET(no_inline_dllexport_cflags_ "-fno-keep-inline-dllexport")
-		ENDIF()
+		IF(WIN32)	# disable this chack on linux due this problem:
+					# https://askubuntu.com/questions/1288365/pbuilder-dist-fails-if-cmake-cant-find-non-mandatary-c-feature-support
+			CHECK_CXX_ACCEPTS_FLAG("-fno-keep-inline-dllexport" no_inline_dllexport_supported_)
+			IF(no_inline_dllexport_supported_)
+				SET(no_inline_dllexport_cflags_ "-fno-keep-inline-dllexport")
+			ENDIF()
+		ENDIF(WIN32)
 		
-                CHECK_CXX_ACCEPTS_FLAG("-Werror=return-type" werror_return_type_supported_)
-                                IF(werror_return_type_supported_)
-                                        SET(werror_return_type_cflags_ "-Werror=return-type")
-                                ENDIF()
+		CHECK_CXX_ACCEPTS_FLAG("-Werror=return-type" werror_return_type_supported_)
+		IF(werror_return_type_supported_)
+            SET(werror_return_type_cflags_ "-Werror=return-type")
+		ENDIF()
 
 		IF(MINGW)
 			CHECK_CXX_ACCEPTS_FLAG("-shared-libgcc -static-libstdc++" supported_)

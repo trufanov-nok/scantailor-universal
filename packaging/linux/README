@@ -1,0 +1,26 @@
+We switched on building deb packets for Linux according to Ubuntu instructions.
+In particular:
+https://packaging.ubuntu.com/html/getting-set-up.html
+https://packaging.ubuntu.com/html/packaging-new-software.html
+ 
+Deb packets are supposed to be published on launchpad: https://launchpad.net/~truf/+archive/ubuntu/scantailor-universal
+ 
+You can update your system with packages from this untrusted PPA by adding ppa:truf/scantailor-universal to your system's Software Sources:
+
+sudo add-apt-repository ppa:truf/scantailor-universal
+sudo apt-get update
+
+If you want to build deb packet by himself you may follow instructions.
+I'm leaving some key steps here just as a reminder for myself:
+
+bzr dh-make scantailor-universal 0.2.9 scantailor-universal-0.2.9.tar.gz
+cd scantailor-universal/debian/
+rm *.ex *.EX README.* *.docs
+cd ..
+bzr builddeb --  -us -uc 
+bzr builddeb -S
+cd ../build-area/
+pbuilder-dist bionic build scantailor-universal_0.2.9-0ubuntu1.dsc
+gpg --list-secret-keys
+debsign -k 2B79FA6A519BF20289519BBCA2F3EBCE5C719A67 scantailor-universal_0.2.9-0ubuntu1_source.changes
+dput  ppa:truf/scantailor-universal scantailor-universal_0.2.9-0ubuntu1_source.changes

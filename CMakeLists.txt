@@ -717,6 +717,11 @@ ADD_CUSTOM_TARGET(compile_translations ALL DEPENDS ${QM_FILES})
 
 INSTALL(FILES ${QM_FILES} DESTINATION "${TRANSLATIONS_DIR_REL}/")
 
+IF(NOT WIN32 AND NOT APPLE)
+        INSTALL(FILES debian/scantailor-universal.svg DESTINATION "/usr/share/pixmaps/")
+        INSTALL(FILES debian/scantailor-universal.desktop DESTINATION "/usr/share/applications/")
+ENDIF(NOT WIN32 AND NOT APPLE)
+
 # uninstall target
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
