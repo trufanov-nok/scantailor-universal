@@ -36,6 +36,7 @@
 #include <QImage>
 #include <QPointer>
 #include <QPainter>
+#include <QPainterPath>
 #include <QColor>
 #include <QBrush>
 #include <QPen>

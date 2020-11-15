@@ -31,6 +31,7 @@
 #include <QPixmap>
 #include <QIcon>
 #include <QPainter>
+#include <QPainterPath>
 #include <QTransform>
 #include <QSignalMapper>
 #include <QCursor>

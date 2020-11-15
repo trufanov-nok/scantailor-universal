@@ -33,6 +33,7 @@
 #include <QSize>
 #include <QString>
 #include <QPainter>
+#include <QPainterPath>
 #include <QBrush>
 #include <QPen>
 #include <QColor>

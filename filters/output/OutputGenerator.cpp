@@ -75,6 +75,7 @@
 #include <QPointF>
 #include <QPolygonF>
 #include <QPainter>
+#include <QPainterPath>
 #include <QColor>
 #include <QPen>
 #include <QBrush>
