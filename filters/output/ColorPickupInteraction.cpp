@@ -114,7 +114,7 @@ ColorPickupInteraction::takeColor()
     ScopedIncDec<int> const guard(m_dontDrawCircle);
 
     QRect const rect(targetBoundingRect());
-    QPixmap const pixmap(QPixmap::grabWidget(&m_rContext.imageView(), rect));
+    QPixmap const pixmap(m_rContext.imageView().grab(rect));
     if (pixmap.isNull()) {
         return;
     }
