@@ -31,6 +31,13 @@
 #include <boost/function.hpp>
 #endif
 
+#ifndef M_PI
+// Don't bother with tracking if first #include <math.h> is made with _USE_MATH_DEFINES defined
+// This caused problems wile building in Windows
+#define M_PI       3.14159265358979323846
+#define M_PI_2     1.57079632679489661923
+#endif
+
 class EditableEllipse;
 
 class SerializableEllipse
