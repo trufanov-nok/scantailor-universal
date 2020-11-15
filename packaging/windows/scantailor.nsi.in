@@ -82,12 +82,12 @@ Section
   # Create menu shortcuts.
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\Scan Tailor Universal"
-  CreateShortcut "$SMPROGRAMS\Scan Tailor Universal\Scan Tailor Universal.lnk" "$INSTDIR\scantailor.exe"
+  CreateShortcut "$SMPROGRAMS\Scan Tailor Universal\Scan Tailor Universal.lnk" "$INSTDIR\scantailor-universal.exe"
   CreateShortcut "$SMPROGRAMS\Scan Tailor Universal\Uninstall.lnk" "$INSTDIR\Uninstaller.exe"
 
   # Register the ".ScanTailor" file extension.
-  ${registerExtension} "$INSTDIR\scantailor.exe" ".ScanTailor" \
-  "Scan Tailor Universal Project" "$INSTDIR\scantailor.exe"
+  ${registerExtension} "$INSTDIR\scantailor-universal.exe" ".ScanTailor" \
+  "Scan Tailor Universal Project" "$INSTDIR\scantailor-universal.exe"
 SectionEnd
 
 
@@ -105,8 +105,8 @@ Section "Uninstall"
   ${unregisterExtension} ".ScanTailor" "Scan Tailor Universal Project"
   
   # Remove program files.
-  Delete "$INSTDIR\scantailor.exe"
-  Delete "$INSTDIR\scantailor-cli.exe"
+  Delete "$INSTDIR\scantailor-universal.exe"
+  Delete "$INSTDIR\scantailor-universal-cli.exe"
   Delete "$INSTDIR\mingwm10.dll"
   Delete "$INSTDIR\libgcc_*.dll"
   Delete "$INSTDIR\CrashReporter.exe"

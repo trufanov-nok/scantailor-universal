@@ -49,7 +49,7 @@ ENDIF()
 
 MATH(EXPR bits "${CMAKE_SIZEOF_VOID_P} * 8")
 SET(LICENSE_FILE "${CMAKE_SOURCE_DIR}/GPL3.txt")
-SET(INSTALLER_FILENAME "scantailor-${VERSION}-${bits}bit-install.exe")
+SET(INSTALLER_FILENAME "scantailor-universal-${VERSION}-${bits}bit-install.exe")
 SET(REGISTER_EXTENSION_NSH "${CMAKE_CURRENT_SOURCE_DIR}/registerExtension.nsh")
 
 SET(
@@ -79,8 +79,8 @@ ADD_CUSTOM_TARGET(
 	prepare_staging_dir
 	COMMAND "${CMAKE_COMMAND}" ARGS -DCFG=$<CONFIGURATION>
 	"-DCONF_BUILD_DIR=$<TARGET_FILE_DIR:scantailor>"
-	"-DSCANTAILOR_EXE=$<TARGET_FILE:scantailor>"
-	"-DSCANTAILOR_CLI_EXE=$<TARGET_FILE:scantailor-cli>"
+	"-DSCANTAILOR_EXE=$<TARGET_FILE:scantailor-universal>"
+	"-DSCANTAILOR_CLI_EXE=$<TARGET_FILE:scantailor-universal-cli>"
 	${MAYBE_CRASHREPORTER_EXE}
 	${MAYBE_CRT_REDIST_PATH}
 	-P "${CMAKE_BINARY_DIR}/prepare_staging_dir.cmake"
@@ -89,7 +89,7 @@ ADD_CUSTOM_TARGET(
 )
 ADD_DEPENDENCIES(
 	prepare_staging_dir
-	scantailor scantailor-cli compile_translations
+	scantailor-universal scantailor-universal-cli compile_translations
 )
 IF(ENABLE_CRASH_REPORTER)
 	ADD_DEPENDENCIES(prepare_staging_dir CrashReporter)
@@ -104,12 +104,12 @@ IF(ENABLE_CRASH_REPORTER)
 		DUMP_SYMBOLS_COMMANDS
 		COMMAND "${CMAKE_COMMAND}" ARGS -E echo "Dumping symbols..."
 		
-		COMMAND "${DUMP_SYMS_EXECUTABLE}" ARGS "$<TARGET_FILE:scantailor>"
+		COMMAND "${DUMP_SYMS_EXECUTABLE}" ARGS "$<TARGET_FILE:scantailor-universal>"
 		">" "${SYMBOLS_PATH}/temp.sym"
 		COMMAND "${CMAKE_COMMAND}" ARGS "-DSYMBOLS_PATH=${SYMBOLS_PATH}"
 		-P "${CMAKE_SOURCE_DIR}/cmake/move_sym_file.cmake"
 		
-		COMMAND "${DUMP_SYMS_EXECUTABLE}" ARGS "$<TARGET_FILE:scantailor-cli>"
+		COMMAND "${DUMP_SYMS_EXECUTABLE}" ARGS "$<TARGET_FILE:scantailor-universal-cli>"
 		">" "${SYMBOLS_PATH}/temp.sym"
 		COMMAND "${CMAKE_COMMAND}" ARGS "-DSYMBOLS_PATH=${SYMBOLS_PATH}"
 		-P "${CMAKE_SOURCE_DIR}/cmake/move_sym_file.cmake"
