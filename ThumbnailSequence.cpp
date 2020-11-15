@@ -1711,7 +1711,7 @@ ThumbnailSequence::Impl::selectItemNoModifiers(ItemsById::iterator const& id_it)
 
             QCheckBox cb(tr("Don't show this again."));
             msgbox.setCheckBox(&cb);
-            connect(&cb, &QAbstractButton::toggled, [this](bool checked) {
+            connect(&cb, &QAbstractButton::toggled, [](bool checked) {
                 GlobalStaticSettings::m_simulateSelectionModifierHintEnabled = !checked;
             });
 
@@ -1848,14 +1848,14 @@ ThumbnailSequence::Impl::getThumbnail(PageInfo const& page_info)
     std::unique_ptr<QGraphicsItem> thumb;
 
     if (m_ptrFactory.get()) {
-        thumb = std::move(m_ptrFactory->get(page_info));
+        thumb = m_ptrFactory->get(page_info);
     }
 
     if (!thumb.get()) {
         thumb.reset(new PlaceholderThumb(m_maxLogicalThumbSize));
     }
 
-    return std::move(thumb);
+    return thumb;
 }
 
 std::unique_ptr<ThumbnailSequence::LabelGroup>
@@ -1902,7 +1902,7 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
         pixmap_resource = ":/icons/right_page_thumb.png";
         break;
     default:
-        return std::move(std::unique_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item)));
+        return std::unique_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item));
     }
 
     QPixmap const pixmap(pixmap_resource);
@@ -1916,7 +1916,7 @@ ThumbnailSequence::Impl::getLabelGroup(PageInfo const& page_info)
     pixmap_box.moveLeft(bold_text_box.right() + label_pixmap_spacing);
     pixmap_item->setPos(pixmap_box.topLeft());
 
-    return std::move(std::unique_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item, pixmap_item)));
+    return std::unique_ptr<LabelGroup>(new LabelGroup(normal_text_item, bold_text_item, pixmap_item));
 }
 
 std::unique_ptr<ThumbnailSequence::LabelGroup>
@@ -1948,7 +1948,7 @@ ThumbnailSequence::Impl::getHintGroup(PageInfo const& page_info, PageOrderProvid
     italic_text_item->setPos(normal_text_box.topLeft());
     bold_text_item->setPos(bold_text_box.topLeft());
 
-    return std::move(std::unique_ptr<LabelGroup>(new LabelGroup(italic_text_item, bold_text_item)));
+    return std::unique_ptr<LabelGroup>(new LabelGroup(italic_text_item, bold_text_item));
 }
 
 std::unique_ptr<ThumbnailSequence::CompositeItem>
