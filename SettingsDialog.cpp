@@ -56,7 +56,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     initLanguageList(((MainWindow*)parent)->getLanguage());
 
     m_alignment = Alignment::load(&m_settings);
-    connect(ui.widgetAlignment, &AlignmentWidget::alignmentChanged, [this]() {
+    connect(ui.widgetAlignment, &AlignmentWidget::alignmentChanged, this, [this]() {
         QString txt = Alignment::getVerboseDescription(*ui.widgetAlignment->alignment());
         if (txt.isEmpty()) {
             txt = tr("Not applicable. Page size is equal to content zone with margins." \
@@ -746,7 +746,7 @@ QHotKeyInputDialog::QHotKeyInputDialog(const KeyType& editor_type, QWidget* pare
         m_edit = l.first();
         m_edit->setReadOnly(true);
         m_edit->installEventFilter(this);
-        connect(m_edit, &QLineEdit::textChanged, [this](const QString & val) {
+        connect(m_edit, &QLineEdit::textChanged, this, [this](const QString & val) {
             QList<QDialogButtonBox*> l = findChildren<QDialogButtonBox*>();
             if (!l.isEmpty()) {
                 l.first()->button(QDialogButtonBox::Ok)->setEnabled(!val.isEmpty());

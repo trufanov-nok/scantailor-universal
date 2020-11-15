@@ -85,7 +85,7 @@ ExportThread::run()
                 m_settings.page_gen_tweaks.testFlag(PageGenTweak::IgnoreOutputProcessingStage);
     }
 
-    for (const ExportRec& rec : m_outpaths_vector) {
+    for (const ExportRec& rec : qAsConst(m_outpaths_vector)) {
 
         if (isCancelRequested()) {
             return;

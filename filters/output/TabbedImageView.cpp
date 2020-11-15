@@ -49,7 +49,7 @@ TabbedImageView::addTab(QWidget* widget, QString const& label, ImageViewTab tab)
     m_registry[widget] = tab;
 
     if (DespeckleView* dw = qobject_cast<DespeckleView*>(widget)) {
-        connect(dw, &DespeckleView::imageViewCreated, [this](ImageViewBase * iv) {
+        connect(dw, &DespeckleView::imageViewCreated, this, [this](ImageViewBase * iv) {
             // this will be called once or twice when Despeckle view first opened
             // and create its image views
             if (!iv) {

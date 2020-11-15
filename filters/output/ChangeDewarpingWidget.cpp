@@ -46,10 +46,10 @@ ChangeDewarpingWidget::ChangeDewarpingWidget(QWidget* parent, DewarpingMode cons
     }
 
     // No, we don't leak memory here.
-    connect(ui.offRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::OFF; } );
-    connect(ui.autoRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::AUTO; } );
-    connect(ui.manualRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::MANUAL; } );
-    connect(ui.marginalRB, &QRadioButton::clicked, [=]() { m_mode = DewarpingMode::MARGINAL; } );
+    connect(ui.offRB, &QRadioButton::clicked, this, [=]() { m_mode = DewarpingMode::OFF; } );
+    connect(ui.autoRB, &QRadioButton::clicked, this, [=]() { m_mode = DewarpingMode::AUTO; } );
+    connect(ui.manualRB, &QRadioButton::clicked, this, [=]() { m_mode = DewarpingMode::MANUAL; } );
+    connect(ui.marginalRB, &QRadioButton::clicked, this, [=]() { m_mode = DewarpingMode::MARGINAL; } );
 }
 
 ChangeDewarpingWidget::~ChangeDewarpingWidget()

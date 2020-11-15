@@ -170,19 +170,19 @@ Alignment::getVerboseDescription(const Alignment& alignment)
     const QString plus = QObject::tr("%1 + %2");
 
     if (!auto_magnet.isEmpty()) {
-        txt = txt.isEmpty() ? auto_magnet : plus.arg(txt).arg(auto_magnet);
+        txt = txt.isEmpty() ? auto_magnet : plus.arg(txt, auto_magnet);
     }
 
     if (!original_proportions.isEmpty()) {
-        txt = txt.isEmpty() ? original_proportions : plus.arg(txt).arg(original_proportions);
+        txt = txt.isEmpty() ? original_proportions : plus.arg(txt, original_proportions);
     }
 
     if (!side.isEmpty()) {
-        txt = txt.isEmpty() ? side : plus.arg(txt).arg(side);
+        txt = txt.isEmpty() ? side : plus.arg(txt, side);
     }
 
     if (!center.isEmpty()) {
-        txt = txt.isEmpty() ? center : plus.arg(txt).arg(center);
+        txt = txt.isEmpty() ? center : plus.arg(txt, center);
     }
 
     return txt;
@@ -254,19 +254,19 @@ Alignment::getShortDescription(const Alignment& alignment)
     const QString plus = QObject::tr("%1 + %2");
 
     if (!auto_magnet.isEmpty()) {
-        txt = txt.isEmpty() ? auto_magnet : plus.arg(txt).arg(auto_magnet);
+        txt = txt.isEmpty() ? auto_magnet : plus.arg(txt, auto_magnet);
     }
 
     if (!original_proportions.isEmpty()) {
-        txt = txt.isEmpty() ? original_proportions : plus.arg(txt).arg(original_proportions);
+        txt = txt.isEmpty() ? original_proportions : plus.arg(txt, original_proportions);
     }
 
     if (!side.isEmpty()) {
-        txt = txt.isEmpty() ? side : plus.arg(txt).arg(side);
+        txt = txt.isEmpty() ? side : plus.arg(txt, side);
     }
 
     if (!center.isEmpty()) {
-        txt = txt.isEmpty() ? center : plus.arg(txt).arg(center);
+        txt = txt.isEmpty() ? center : plus.arg(txt, center);
     }
 
     return txt;

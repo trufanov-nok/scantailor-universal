@@ -476,7 +476,7 @@ void AlignmentComboBox::updContextMenu()
                 action->setIcon(itemIcon(i));
             } else {
                 QAction* action = m_menu.addAction(itemIcon(i), item_text);
-                connect(action, &QAction::triggered, [ = ]() {
+                connect(action, &QAction::triggered, this, [ = ]() {
                     setCurrentIndex(i);
                 });
             }

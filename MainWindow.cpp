@@ -162,7 +162,7 @@ MainWindow::MainWindow()
 
     sortOptionsWgt->setVisible(false);
     connect(sortOptions, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-    [this](int index) {
+    this, [this](int index) {
         resetSortingBtn->setVisible(index);
     });
 
@@ -206,23 +206,23 @@ MainWindow::MainWindow()
     connect(actionLastPage, SIGNAL(triggered(bool)), SLOT(goLastPage()));
     connect(actionPrevPage, SIGNAL(triggered(bool)), SLOT(goPrevPage()));
     connect(actionNextPage, SIGNAL(triggered(bool)), SLOT(goNextPage()));
-    connect(actionFirstSelectedPage, &QAction::triggered, [this]() {
+    connect(actionFirstSelectedPage, &QAction::triggered, this, [this]() {
         goFirstPage(true);
     });
-    connect(actionLastSelectedPage, &QAction::triggered, [this]() {
+    connect(actionLastSelectedPage, &QAction::triggered, this, [this]() {
         goLastPage(true);
     });
-    connect(actionPrevSelectedPage, &QAction::triggered, [this]() {
+    connect(actionPrevSelectedPage, &QAction::triggered, this, [this]() {
         goPrevPage(-1, true);
     });
-    connect(actionNextSelectedPage, &QAction::triggered, [this]() {
+    connect(actionNextSelectedPage, &QAction::triggered, this, [this]() {
         goNextPage(1, true);
     });
     connect(actionPrevPageQ, SIGNAL(triggered(bool)), this, SLOT(goPrevPage()));
     connect(actionNextPageW, SIGNAL(triggered(bool)), this, SLOT(goNextPage()));
     connect(actionAbout, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
 
-    connect(actionInsertEmptyPgBefore, &QAction::triggered, [this]() {
+    connect(actionInsertEmptyPgBefore, &QAction::triggered, this, [this]() {
         PageInfo page_info = m_ptrThumbSequence->selectionLeader();
         if (!page_info.imageId().filePath().isEmpty()) {
             showInsertEmptyPageDialog(BEFORE, page_info.id());
@@ -230,7 +230,7 @@ MainWindow::MainWindow()
     });
     addAction(actionInsertEmptyPgBefore);
 
-    connect(actionInsertEmptyPgAfter, &QAction::triggered, [this]() {
+    connect(actionInsertEmptyPgAfter, &QAction::triggered, this, [this]() {
         PageInfo page_info = m_ptrThumbSequence->selectionLeader();
         if (!page_info.imageId().filePath().isEmpty()) {
             showInsertEmptyPageDialog(AFTER, page_info.id());
@@ -408,13 +408,13 @@ MainWindow::settingsChanged()
     GlobalStaticSettings::updateSettings();
     GlobalStaticSettings::updateHotkeys();
     if (old_val != GlobalStaticSettings::m_picture_detection_sensitivity) {
-        emit invalidateAllThumbnails();
+        invalidateAllThumbnails();
     }
 
     emit settingsUpdateRequest();
     applyShortcutsSettings();
     updateMainArea(); // to invoke preUpdateUI in optionsWidget
-    emit invalidateAllThumbnails();
+    invalidateAllThumbnails();
 }
 
 PageSequence
@@ -651,7 +651,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* ev)
 
     if (obj == thumbView) {
         if (ev->type() == QEvent::Resize) {
-            emit invalidateAllThumbnails();
+            invalidateAllThumbnails();
         }
     }
 
@@ -1111,7 +1111,7 @@ MainWindow::showRelinkingDialog()
     m_ptrPages->listRelinkablePaths(dialog->pathCollector());
     dialog->pathCollector()(RelinkablePath(m_outFileNameGen.outDir(), RelinkablePath::Dir));
 
-    connect(dialog, &QDialog::accepted, [this, dialog]() {
+    connect(dialog, &QDialog::accepted, this, [this, dialog]() {
         this->performRelinking(dialog->relinker());
     });
 
@@ -1384,8 +1384,8 @@ MainWindow::pageContextMenuRequested(
         showRemovePagesDialog(m_ptrThumbSequence->selectedItems());
     } else if (regenerate_action_added && action == regenerate) {
         m_ptrStages->filterAt(m_curFilter)->invalidateSetting(page_info.id());
-        emit invalidateThumbnail(page_info.id());
-        emit reloadRequested();
+        invalidateThumbnail(page_info.id());
+        reloadRequested();
     }
 }
 
@@ -1444,7 +1444,7 @@ MainWindow::thumbViewScrolled()
     } else {
         focusButton->setChecked(false);
     }
-    emit invalidateAllThumbnails();
+    invalidateAllThumbnails();
 }
 
 void
@@ -2100,7 +2100,7 @@ MainWindow::ExportOutput(exporting::ExportSettings settings)
                                                     export_dir,
                                                     this);
 
-    connect(m_p_export_thread, &exporting::ExportThread::finished, [=](){
+    connect(m_p_export_thread, &exporting::ExportThread::finished, this, [=](){
         m_p_export_thread->deleteLater();
         m_p_export_thread = nullptr;
     });
@@ -2964,13 +2964,11 @@ MainWindow::createCompositeTask(
         page_split_task = m_ptrStages->pageSplitFilter()->createTask(
                               page, deskew_task, batch, debug
                           );
-        debug = false;
     }
     if (last_filter_idx >= m_ptrStages->fixOrientationFilterIdx()) {
         fix_orientation_task = m_ptrStages->fixOrientationFilter()->createTask(
                                    page.id(), page_split_task, batch
                                );
-        debug = false;
     }
     assert(fix_orientation_task);
 
@@ -3229,7 +3227,7 @@ MainWindow::setupStatusBar()
     sb->installEventFilter(this);
     sb->setMaximumHeight(statusBarPanel->height() + 6);
     sb->addPermanentWidget(statusBarPanel);
-    connect(m_ptrThumbSequence.get(), &ThumbnailSequence::newSelectionLeader,
+    connect(m_ptrThumbSequence.get(), &ThumbnailSequence::newSelectionLeader, this,
     [ = ](PageInfo const & page) {
         PageSequence ps = m_ptrThumbSequence->toPageSequence();
         if (ps.numPages() <= 0) {
@@ -3379,12 +3377,12 @@ MainWindow::applyShortcutsSettings()
     actionSwitchFilter6->setShortcut(GlobalStaticSettings::createShortcut(StageOutput));
 
     thumbView->setStatusTip(tr("Use %1, %2, %3 (or %4), %5 (or %6) to navigate between pages.")
-                            .arg(GlobalStaticSettings::getShortcutText(PageFirst))
-                            .arg(GlobalStaticSettings::getShortcutText(PageLast))
-                            .arg(GlobalStaticSettings::getShortcutText(PagePrev))
-                            .arg(GlobalStaticSettings::getShortcutText(PagePrev, 1))
-                            .arg(GlobalStaticSettings::getShortcutText(PageNext))
-                            .arg(GlobalStaticSettings::getShortcutText(PageNext, 1))
+                            .arg(GlobalStaticSettings::getShortcutText(PageFirst),
+                            GlobalStaticSettings::getShortcutText(PageLast),
+                            GlobalStaticSettings::getShortcutText(PagePrev),
+                            GlobalStaticSettings::getShortcutText(PagePrev, 1),
+                            GlobalStaticSettings::getShortcutText(PageNext),
+                            GlobalStaticSettings::getShortcutText(PageNext, 1))
                            );
 }
 

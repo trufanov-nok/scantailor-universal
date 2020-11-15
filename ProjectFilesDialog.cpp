@@ -447,7 +447,7 @@ ProjectFilesDialog::setInputDir(QString const& dir, bool const auto_add_files)
 
     typedef std::vector<Item> ItemList;
     ItemList items;
-    for (QFileInfo const& file : files) {
+    for (QFileInfo const& file : qAsConst(files)) {
         Qt::ItemFlags flags;
         if (m_supportedExtensions.contains(file.suffix().toLower())) {
             flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;

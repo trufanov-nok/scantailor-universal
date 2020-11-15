@@ -124,7 +124,6 @@ private:
     BinaryImage m_pictureMask;
     DespeckleState m_despeckleState;
     DespeckleVisualization m_despeckleVisualization;
-    DespeckleLevel m_despeckleLevel;
     bool m_batchProcessing;
     bool m_debug;
 };
@@ -748,7 +747,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
         );
 
         QObject::connect(qobject_cast<DespeckleView*>(despeckle_view.get()), &DespeckleView::imageViewCreated,
-        [ = ](ImageViewBase * ivb) {
+        [alt_image_ptr, alt_downscaled_pixmap_ptr](ImageViewBase * ivb) {
             if (ivb && alt_image_ptr) {
                 ivb->setAlternativeImage(alt_image_ptr, alt_downscaled_pixmap_ptr);
             }

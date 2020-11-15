@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(test_from_to_qimage)
     QImage qimg_mono_lsb(qimg_mono.convertToFormat(QImage::Format_MonoLSB));
     QImage qimg_rgb32(qimg_argb32.convertToFormat(QImage::Format_RGB32));
     QImage qimg_argb32_pm(qimg_argb32.convertToFormat(QImage::Format_ARGB32_Premultiplied));
-    QImage qimg_rgb16(qimg_rgb32.convertToFormat(QImage::Format_RGB16));
+//    QImage qimg_rgb16(qimg_rgb32.convertToFormat(QImage::Format_RGB16));
     QImage qimg_indexed8(qimg_rgb32.convertToFormat(QImage::Format_Indexed8));
 
     BOOST_REQUIRE(BinaryImage(qimg_mono).toQImage() == qimg_mono);

@@ -692,7 +692,7 @@ void output::OptionsWidget::on_dewarpingStatusLabel_linkActivated(const QString&
     ChangeDewarpingWidget* options = new ChangeDewarpingWidget(dialog, m_dewarpingMode);
     dialog->initNewTopSettingsPanel().addWidget(options);
     connect(
-        dialog, &ApplyToDialog::accepted,
+        dialog, &ApplyToDialog::accepted, this,
     [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());

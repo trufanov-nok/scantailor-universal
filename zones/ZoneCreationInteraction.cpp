@@ -409,9 +409,9 @@ ZoneCreationInteraction::updateStatusTip()
         }
     } else {
         tip = tr("Zones need to have at least 3 points. Hold %2 for rectangle, %3 for ellipse. %1 to cancel.")
-              .arg(GlobalStaticSettings::getShortcutText(ZoneCancel))
-              .arg(GlobalStaticSettings::getShortcutText(ZoneRectangle))
-              .arg(GlobalStaticSettings::getShortcutText(ZoneEllipse));
+              .arg(GlobalStaticSettings::getShortcutText(ZoneCancel),
+              GlobalStaticSettings::getShortcutText(ZoneRectangle),
+              GlobalStaticSettings::getShortcutText(ZoneEllipse));
     }
 
     m_interaction.setInteractionStatusTip(tip);

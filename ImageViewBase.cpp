@@ -240,7 +240,7 @@ ImageViewBase::ImageViewBase(
 
     StatusBarProvider::setPagePhysSize(m_virtualImageCropArea.boundingRect().size(), Dpi(Dpm(image)));
     m_cursorPosTimer.setSingleShot(true);
-    connect(&m_cursorPosTimer, &QTimer::timeout, [ = ]() {
+    connect(&m_cursorPosTimer, &QTimer::timeout, this, [ = ]() {
         QPointF pos;
         if (!m_lastCursorPos.isNull()) {
             pos = m_widgetToVirtual.map(m_lastCursorPos) - m_cursorPosAdjustment;

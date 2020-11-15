@@ -76,12 +76,12 @@ InteractiveXSpline::setSpline(XSpline const& spline)
         if (i == 0 || i == num_control_points - 1) {
             // Endpoints can't be deleted.
             new_control_points[i].handler.setProximityStatusTip(tr("This point can be dragged. Hold %1 or %2 to drag along axes.")
-                    .arg(GlobalStaticSettings::getShortcutText(DewarpingMoveHorizontally))
-                    .arg(GlobalStaticSettings::getShortcutText(DewarpingMoveVertically)));
+                    .arg(GlobalStaticSettings::getShortcutText(DewarpingMoveHorizontally),
+                    GlobalStaticSettings::getShortcutText(DewarpingMoveVertically)));
         } else {
             new_control_points[i].handler.setProximityStatusTip(tr("Drag this point or delete it by pressing %1 or %2.")
-                    .arg(GlobalStaticSettings::getShortcutText(DewarpingDeletePoint))
-                    .arg(GlobalStaticSettings::getShortcutText(DewarpingDeletePoint, 1)));
+                    .arg(GlobalStaticSettings::getShortcutText(DewarpingDeletePoint),
+                    GlobalStaticSettings::getShortcutText(DewarpingDeletePoint, 1)));
         }
         new_control_points[i].handler.setInteractionCursor(Qt::BlankCursor);
         new_control_points[i].handler.setObject(&new_control_points[i].point);

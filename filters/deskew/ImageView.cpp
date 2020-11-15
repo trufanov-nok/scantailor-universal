@@ -64,8 +64,8 @@ ImageView::ImageView(
 
     interactionState().setDefaultStatusTip(
         tr("Use %1+Wheel to rotate or %2+Wheel for finer rotation.")
-        .arg(GlobalStaticSettings::getShortcutText(DeskewChange))
-        .arg(GlobalStaticSettings::getShortcutText(DeskewChangePrec))
+        .arg(GlobalStaticSettings::getShortcutText(DeskewChange),
+        GlobalStaticSettings::getShortcutText(DeskewChangePrec))
     );
 
     QString const tip(tr("Drag this handle to rotate the image."));

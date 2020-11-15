@@ -64,9 +64,9 @@ ImageView::ImageView(
     );
 
     QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold %1 to move it, %2 to move along axes, %3 to shrink/stretch.")
-                           .arg(GlobalStaticSettings::getShortcutText(ContentMove))
-                           .arg(GlobalStaticSettings::getShortcutText(ContentMoveAxes))
-                           .arg(GlobalStaticSettings::getShortcutText(ContentStretch)));
+                           .arg(GlobalStaticSettings::getShortcutText(ContentMove),
+                           GlobalStaticSettings::getShortcutText(ContentMoveAxes),
+                           GlobalStaticSettings::getShortcutText(ContentStretch)));
 
     // Setup corner drag handlers.
     static int const masks_by_corner[] = { TOP | LEFT, TOP | RIGHT, BOTTOM | RIGHT, BOTTOM | LEFT };

@@ -111,7 +111,7 @@ DebugImageView::imageLoaded(QImage const& image)
 
         if (!m_file.get().isEmpty()) {
             QAction* save_as = new QAction(tr("Save image as..."), this);
-            connect(save_as, &QAction::triggered, [this]() {
+            connect(save_as, &QAction::triggered, this, [this]() {
                 QString new_filename = QFileDialog::getSaveFileName(this, tr("Save debug image"),
                                        QDir::currentPath(), tr("PNG images") + " (*.png)");
                 new_filename = new_filename.trimmed();
@@ -138,7 +138,7 @@ DebugImageView::imageLoaded(QImage const& image)
                     }
 
                     if (!QFile::copy(m_file.get(), new_filename)) {
-                        QMessageBox::critical(nullptr, tr("File saving error"), tr("Can't copy file %1 to %2").arg(m_file.get()).arg(new_filename));
+                        QMessageBox::critical(nullptr, tr("File saving error"), tr("Can't copy file %1 to %2").arg(m_file.get(), new_filename));
                         return;
                     }
                 }

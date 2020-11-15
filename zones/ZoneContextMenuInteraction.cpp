@@ -183,7 +183,7 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
     paste->setEnabled(LocalClipboard::getInstance()->copiedZoneType() == LocalClipboard::Spline);
 
     if (paste->isEnabled()) {
-        QObject::connect(paste, &QAction::triggered, [ = ]() {
+        QObject::connect(paste, &QAction::triggered, this, [ = ]() {
             if (LocalClipboard* clb = LocalClipboard::getInstance()) {
                 clb->pasteZone(m_rContext);
             }
