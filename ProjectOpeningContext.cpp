@@ -17,7 +17,7 @@
 */
 
 #include "ProjectOpeningContext.h"
-#include "ProjectOpeningContext.moc"
+
 #include "FixDpiDialog.h"
 #include "ProjectPages.h"
 #include <QString>

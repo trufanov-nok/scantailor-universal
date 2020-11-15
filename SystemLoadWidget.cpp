@@ -17,7 +17,7 @@
 */
 
 #include "SystemLoadWidget.h"
-#include "SystemLoadWidget.moc"
+
 #include "ThreadPriority.h"
 #include "settings/ini_keys.h"
 #include <QToolTip>

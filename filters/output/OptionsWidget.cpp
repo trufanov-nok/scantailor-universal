@@ -17,7 +17,7 @@
 */
 
 #include "OptionsWidget.h"
-#include "OptionsWidget.moc"
+
 #include "ChangeDpiWidget.h"
 #include "ChangeDewarpingWidget.h"
 #include "ApplyToDialog.h"

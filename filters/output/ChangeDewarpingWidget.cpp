@@ -17,7 +17,7 @@
 */
 
 #include "ChangeDewarpingWidget.h"
-#include "ChangeDewarpingWidget.moc"
+
 #include "PageSelectionAccessor.h"
 #include "QtSignalForwarder.h"
 

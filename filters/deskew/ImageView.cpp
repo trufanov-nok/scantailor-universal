@@ -17,7 +17,7 @@
 */
 
 #include "ImageView.h"
-#include "ImageView.moc"
+
 #include "ImageTransformation.h"
 #include "ImagePresentation.h"
 #include "InteractionState.h"

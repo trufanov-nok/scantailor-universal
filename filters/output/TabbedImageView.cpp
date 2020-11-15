@@ -17,7 +17,7 @@
 */
 
 #include "TabbedImageView.h"
-#include "TabbedImageView.moc"
+
 #include "ImageViewBase.h"
 #include "DespeckleView.h"
 #include <QScrollBar>

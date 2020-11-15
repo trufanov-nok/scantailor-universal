@@ -17,7 +17,7 @@
 */
 
 #include "OptionsWidget.h"
-#include "OptionsWidget.moc"
+
 #include "Settings.h"
 #include "../../Utils.h"
 #include "ScopedIncDec.h"

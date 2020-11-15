@@ -17,7 +17,7 @@
 */
 
 #include "ImageView.h"
-#include "ImageView.moc"
+
 #include "ImagePresentation.h"
 #include "OutputMargins.h"
 

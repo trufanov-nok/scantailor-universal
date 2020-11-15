@@ -17,7 +17,7 @@
 */
 
 #include "ChangeDpiWidget.h"
-#include "ChangeDpiWidget.moc"
+
 #include "PageSelectionAccessor.h"
 #include "Dpi.h"
 #include <QButtonGroup>

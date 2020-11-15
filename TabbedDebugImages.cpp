@@ -17,7 +17,7 @@
 */
 
 #include "TabbedDebugImages.h"
-#include "TabbedDebugImages.moc"
+
 #include "DebugImageView.h"
 
 TabbedDebugImages::TabbedDebugImages(QWidget* parent)

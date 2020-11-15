@@ -17,7 +17,7 @@
 */
 
 #include "NewOpenProjectPanel.h"
-#include "NewOpenProjectPanel.moc"
+
 #include "RecentProjects.h"
 #include "Utils.h"
 #include <QVBoxLayout>

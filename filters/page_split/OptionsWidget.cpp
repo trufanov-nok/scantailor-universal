@@ -17,7 +17,7 @@
 */
 
 #include "OptionsWidget.h"
-#include "OptionsWidget.moc"
+
 #include "Filter.h"
 #include "ApplyToDialog.h"
 #include "Settings.h"

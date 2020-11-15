@@ -17,7 +17,7 @@
 */
 
 #include "SplitModeWidget.h"
-#include "SplitModeWidget.moc"
+
 #include "PageSelectionAccessor.h"
 #include <QPixmap>
 #include <QButtonGroup>

@@ -18,7 +18,7 @@
 
 #include "CommandLine.h"
 #include "MainWindow.h"
-#include "MainWindow.moc"
+
 #include "NewOpenProjectPanel.h"
 #include "RecentProjects.h"
 #include "WorkerThread.h"

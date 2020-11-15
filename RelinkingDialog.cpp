@@ -17,7 +17,7 @@
 */
 
 #include "RelinkingDialog.h"
-#include "RelinkingDialog.moc"
+
 #include "RelinkingSortingModel.h"
 #include <QDir>
 #include <QFileDialog>

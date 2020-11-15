@@ -20,7 +20,7 @@
 // This file was added by monday2000
 
 #include "ExportDialog.h"
-#include "ExportDialog.moc"
+
 #include "OpenGLSupport.h"
 #include "config.h"
 #include "settings/ini_keys.h"

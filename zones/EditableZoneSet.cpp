@@ -18,7 +18,7 @@
 */
 
 #include "EditableZoneSet.h"
-#include "EditableZoneSet.moc"
+
 #include "ZoneSet.h"
 
 EditableZoneSet::EditableZoneSet()

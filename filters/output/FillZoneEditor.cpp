@@ -17,7 +17,7 @@
 */
 
 #include "FillZoneEditor.h"
-#include "FillZoneEditor.moc"
+
 #include "ZoneContextMenuInteraction.h"
 #include "ZoneContextMenuItem.h"
 #include "ColorPickupInteraction.h"

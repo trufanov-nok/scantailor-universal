@@ -17,7 +17,7 @@
 */
 
 #include "ApplySettingsWidget.h"
-#include "ApplySettingsWidget.moc"
+
 #include "PageSelectionAccessor.h"
 #include <QButtonGroup>
 #include "settings/ini_keys.h"

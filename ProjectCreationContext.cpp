@@ -17,7 +17,7 @@
 */
 
 #include "ProjectCreationContext.h"
-#include "ProjectCreationContext.moc"
+
 #include "ProjectFilesDialog.h"
 #include "FixDpiDialog.h"
 #include "ImageFileInfo.h"

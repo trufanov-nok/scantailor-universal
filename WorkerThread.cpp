@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WorkerThread.h"
-#include "WorkerThread.moc"
+
 #include "ThreadPriority.h"
 #include "OutOfMemoryHandler.h"
 #include <QCoreApplication>

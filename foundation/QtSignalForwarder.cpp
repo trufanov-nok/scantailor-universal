@@ -17,7 +17,7 @@
 */
 
 #include "QtSignalForwarder.h"
-#include "QtSignalForwarder.moc"
+
 
 QtSignalForwarder::QtSignalForwarder(
     QObject* emitter, char const* signal, boost::function<void()> const& slot)

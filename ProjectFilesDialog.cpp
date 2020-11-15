@@ -17,7 +17,7 @@
 */
 
 #include "ProjectFilesDialog.h"
-#include "ProjectFilesDialog.moc"
+
 #include "NonCopyable.h"
 #include "ImageMetadata.h"
 #include "ImageMetadataLoader.h"
