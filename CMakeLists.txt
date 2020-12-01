@@ -1,20 +1,17 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
-
-IF(POLICY CMP0003)
-	# Allow linking with full library path instead of -L/path -llibrary
-	CMAKE_POLICY(SET CMP0003 NEW)
-ENDIF()
-
-IF(POLICY CMP0020)
-	# Disable auto-linking to qtmain. This feature appeared in Qt 5.1, but
-	# we want to keep compatibility with Qt 5.0, so we link to qtmain manually.
-	CMAKE_POLICY(SET CMP0020 OLD)
-ENDIF()
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 
 IF(POLICY CMP0043)
-	# Don't ignore COMPILE_DEFINITIONS_{CONFIG} directives, as these are used
+        # Don't ignore COMPILE_DEFINITIONS_{CONFIG} directives, as these are used
 	# by Qt.
 	CMAKE_POLICY(SET CMP0043 OLD)
+ENDIF()
+
+IF (POLICY CMP0071)
+        CMAKE_POLICY(SET CMP0072 OLD)
+ENDIF()
+
+IF (POLICY CMP0072)
+        CMAKE_POLICY(SET CMP0072 OLD)
 ENDIF()
 
 SET(
@@ -72,10 +69,6 @@ STRING(
 IF("${VERSION_QUAD}" STREQUAL "${version_h_contents}")
         MESSAGE(FATAL_ERROR "Failed to extract VERSION_QUAD from version.h")
 ENDIF()
-
-# This has to go quite early on, as otherwise we risk picking
-# up an identically named header from a system include path.
-INCLUDE_DIRECTORIES(. foundation math interaction zones)
 
 # For config.h
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
@@ -168,18 +161,19 @@ IF(WIN32)
 ENDIF()
 
 SET(CMAKE_AUTOMOC ON)
-FIND_PACKAGE(Qt5Core REQUIRED)
-FIND_PACKAGE(Qt5Gui REQUIRED)
-FIND_PACKAGE(Qt5Widgets REQUIRED)
-FIND_PACKAGE(Qt5Xml REQUIRED)
-FIND_PACKAGE(Qt5Network REQUIRED)
-FIND_PACKAGE(Qt5LinguistTools REQUIRED)
+SET(Qt_MIN_VERSION 5.4.0)
+FIND_PACKAGE(Qt5Core ${Qt_MIN_VERSION} REQUIRED)
+FIND_PACKAGE(Qt5Gui ${Qt_MIN_VERSION} REQUIRED)
+FIND_PACKAGE(Qt5Widgets ${Qt_MIN_VERSION} REQUIRED)
+FIND_PACKAGE(Qt5Xml ${Qt_MIN_VERSION} REQUIRED)
+FIND_PACKAGE(Qt5Network ${Qt_MIN_VERSION} REQUIRED)
+FIND_PACKAGE(Qt5LinguistTools ${Qt_MIN_VERSION} REQUIRED)
 IF(ENABLE_OPENGL)
-        FIND_PACKAGE(Qt5OpenGL REQUIRED)
+        FIND_PACKAGE(Qt5OpenGL ${Qt_MIN_VERSION} REQUIRED)
 ENDIF()
 
 FIND_PATH(
-	JPEG_INCLUDE_DIR jpeglib.h
+        JPEG_INCLUDE_DIR jpeglib.h
 	PATHS /usr/local/include /usr/include
 	HINTS ${JPEG_DIR} # JPEG_DIR may come from export-vars.cmake
 	DOC "Path to libjpeg headers."
@@ -188,14 +182,14 @@ IF(NOT JPEG_INCLUDE_DIR)
         MESSAGE(
                 FATAL_ERROR
                 "Could not find jpeg headers.\n"
-                "You may need to install a package named libjpeg62-dev or similarly."
+		"You may need to install a package named libjpeg62-dev or similarly."
         )
 ENDIF()
 
 INCLUDE_DIRECTORIES("${JPEG_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-	JPEG_LIBRARY NAMES jpeg libjpeg.lib
+        JPEG_LIBRARY NAMES jpeg libjpeg.lib
 	PATHS /usr/local/lib /usr/lib
 	HINTS ${STAGING_LIBS_DIR}
 	DOC "Path to jpeg library."
@@ -210,7 +204,7 @@ ENDIF()
 
 
 FIND_PATH(
-	ZLIB_INCLUDE_DIR zlib.h
+        ZLIB_INCLUDE_DIR zlib.h
 	PATHS /usr/local/include /usr/include
 	HINTS ${ZLIB_DIR} # ZLIB_DIR may come from export-vars.cmake
 	DOC "Path to zlib headers."
@@ -226,7 +220,7 @@ ENDIF()
 INCLUDE_DIRECTORIES("${ZLIB_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-	ZLIB_LIBRARY NAMES z zdll.lib
+        ZLIB_LIBRARY NAMES z zdll.lib
 	PATHS /usr/local/lib /usr/lib
 	HINTS ${STAGING_LIBS_DIR}
 	DOC "Path to zlib library."
@@ -240,7 +234,7 @@ IF(NOT ZLIB_LIBRARY)
 ENDIF()
 
 FIND_PATH(
-	PNG_INCLUDE_DIR png.h
+        PNG_INCLUDE_DIR png.h
 	PATHS /usr/local/include /usr/include
 	HINTS ${PNG_DIR} # PNG_DIR may come from export-vars.cmake
 	DOC "Path to libpng headers."
@@ -256,7 +250,7 @@ ENDIF()
 INCLUDE_DIRECTORIES("${PNG_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-	PNG_LIBRARY NAMES png libpng.lib
+        PNG_LIBRARY NAMES png libpng.lib
 	PATHS /usr/local/lib /usr/lib
 	HINTS ${STAGING_LIBS_DIR}
 	DOC "Path to png library."
@@ -271,7 +265,7 @@ ENDIF()
 
 
 FIND_PATH(
-	TIFF_INCLUDE_DIR tiff.h
+        TIFF_INCLUDE_DIR tiff.h
 	PATHS /usr/local/include /usr/include
 	HINTS ${TIFF_DIR} # TIFF_DIR may come from export-vars.cmake
 	PATH_SUFFIXES libtiff
@@ -288,7 +282,7 @@ ENDIF()
 INCLUDE_DIRECTORIES("${TIFF_INCLUDE_DIR}")
 
 FIND_LIBRARY(
-	TIFF_LIBRARY tiff libtiff.lib
+        TIFF_LIBRARY tiff libtiff.lib
 	PATHS /usr/local/lib /usr/lib
 	HINTS ${STAGING_LIBS_DIR}
 	PATH_SUFFIXES libtiff
@@ -308,7 +302,7 @@ ENDIF()
 
 
 IF(WIN32)
-	SET(Boost_USE_STATIC_LIBS ON)
+        SET(Boost_USE_STATIC_LIBS ON)
 ELSE(WIN32)
         ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK)
 ENDIF(WIN32)
@@ -337,16 +331,16 @@ endif()
 SET(EXTRA_LIBS "")
 
 IF(UNIX)
-	FindPthreads()
+        FindPthreads()
 	IF(PTHREADS_FOUND)
-		ADD_DEFINITIONS(${PTHREADS_CFLAGS})
+	        ADD_DEFINITIONS(${PTHREADS_CFLAGS})
 		LINK_LIBRARIES(${PTHREADS_LIBS})
-	ELSE(PTHREADS_FOUND)
+		ELSE(PTHREADS_FOUND)
 		MESSAGE(
-			FATAL_ERROR
+		        FATAL_ERROR
 			"Could not detect threading flags.\n"
 			"Try specifying them manually in PTHREADS_CFLAGS and PTHREADS_LIBS."
-		)
+			)
 	ENDIF(PTHREADS_FOUND)
 ELSEIF(WIN32)
         ADD_DEFINITIONS(-DNOMINMAX)
@@ -361,15 +355,6 @@ ELSE(NOT HAVE_STDINT_H)
 ENDIF(NOT HAVE_STDINT_H)
 
 ADD_DEFINITIONS(-DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
-
-SET(MAYBE_QTMAIN_LIBRARIES "")
-IF(WIN32)
-        GET_TARGET_PROPERTY(winmaind Qt5::WinMain LOCATION_DEBUG)
-        GET_TARGET_PROPERTY(winmain Qt5::WinMain LOCATION_RELEASE)
-        SET(MAYBE_QTMAIN_LIBRARIES debug ${winmaind} optimized ${winmain})
-
-        LIST(APPEND EXTRA_LIBS winmm imm32 ws2_32 ole32 oleaut32 uuid gdi32 comdlg32 winspool)
-ENDIF()
 
 LIST(APPEND EXTRA_LIBS ${TIFF_LIBRARY} ${PNG_LIBRARY} ${ZLIB_LIBRARY} ${JPEG_LIBRARY})
 
@@ -386,6 +371,7 @@ IF(MSVC)
         OPTION(ENABLE_CRASH_REPORTER "Enable crash reporter (only for official builds)" OFF)
 ENDIF(MSVC)
 
+
 # Prepare config.h
 IF(WIN32)
         SET(TRANSLATIONS_DIR_REL "translations")
@@ -396,326 +382,9 @@ SET(TRANSLATIONS_DIR_ABS "${CMAKE_INSTALL_PREFIX}/${TRANSLATIONS_DIR_REL}")
 
 CONFIGURE_FILE(config.h.in ${CMAKE_BINARY_DIR}/config.h @ONLY)
 
-ADD_SUBDIRECTORY(ui)
-INCLUDE_DIRECTORIES("${toplevel_ui_sources_BINARY_DIR}")
 
-# crash_reporter is included unconditionally to collect translation sources from there.
-ADD_SUBDIRECTORY(crash_reporter)
-ADD_SUBDIRECTORY(dewarping)
-ADD_SUBDIRECTORY(foundation)
-ADD_SUBDIRECTORY(math)
-ADD_SUBDIRECTORY(imageproc)
-ADD_SUBDIRECTORY(interaction)
-ADD_SUBDIRECTORY(zones)
-ADD_SUBDIRECTORY(exporting)
-ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY(src)
 
-ADD_SUBDIRECTORY(filters/fix_orientation)
-ADD_SUBDIRECTORY(filters/page_split)
-ADD_SUBDIRECTORY(filters/deskew)
-ADD_SUBDIRECTORY(filters/select_content)
-ADD_SUBDIRECTORY(filters/page_layout)
-ADD_SUBDIRECTORY(filters/output)
-
-SET(resource_files resources/resources.qrc resources/icons/COPYING)
-IF(WIN32)
-        LIST(APPEND resource_files resources/win32/resources.rc)
-ENDIF()
-SOURCE_GROUP("Resources" FILES ${resource_files})
-
-QT5_ADD_RESOURCES(resource_sources resources/resources.qrc)
-SOURCE_GROUP("Generated" FILES ${resource_sources})
-
-SET(
-        settings_sources
-        settings/fancylineedit.cpp settings/fancylineedit.h
-        settings/execmenu.cpp settings/execmenu.h
-        settings/hotkeysmanager.cpp settings/hotkeysmanager.h
-        settings/ini_keys.h
-)
-
-SET(
-        common_sources
-        BackgroundExecutor.cpp BackgroundExecutor.h
-        OpenGLSupport.cpp OpenGLSupport.h
-        PixmapRenderer.cpp PixmapRenderer.h
-        BubbleAnimation.cpp BubbleAnimation.h
-        ProcessingIndicationWidget.cpp ProcessingIndicationWidget.h
-        NonOwningWidget.cpp NonOwningWidget.h
-        Dpi.cpp Dpi.h Dpm.cpp Dpm.h
-        SmartFilenameOrdering.cpp SmartFilenameOrdering.h
-        AbstractRelinker.h
-        RelinkablePath.cpp RelinkablePath.h
-        ImageInfo.cpp ImageInfo.h
-        ImageFileInfo.cpp ImageFileInfo.h
-        ImageMetadata.cpp ImageMetadata.h
-        RecentProjects.cpp RecentProjects.h
-        OutOfMemoryHandler.cpp OutOfMemoryHandler.h
-        CommandLine.cpp CommandLine.h
-        PageSelectionAccessor.cpp PageSelectionAccessor.h
-        PageSelectionProvider.h
-        ContentSpanFinder.cpp ContentSpanFinder.h
-        PhysicalTransformation.cpp PhysicalTransformation.h
-        ImageTransformation.cpp ImageTransformation.h
-        ImagePixmapUnion.h
-        ImageViewBase.cpp ImageViewBase.h
-        BasicImageView.cpp BasicImageView.h
-        DebugImageView.cpp DebugImageView.h
-        TabbedDebugImages.cpp TabbedDebugImages.h
-        ThumbnailLoadResult.h
-        ThumbnailPixmapCache.cpp ThumbnailPixmapCache.h
-        ThumbnailBase.cpp ThumbnailBase.h
-        ThumbnailFactory.cpp ThumbnailFactory.h
-        IncompleteThumbnail.cpp IncompleteThumbnail.h
-        ContentBoxPropagator.cpp ContentBoxPropagator.h
-        PageOrientationPropagator.cpp PageOrientationPropagator.h
-        DebugImages.cpp DebugImages.h
-        ImageId.cpp ImageId.h
-        PageId.cpp PageId.h
-        PageInfo.cpp PageInfo.h
-        BackgroundTask.cpp BackgroundTask.h
-        ProcessingTaskQueue.cpp ProcessingTaskQueue.h
-        PageSequence.cpp PageSequence.h
-        PageRangeSelectorWidget.cpp PageRangeSelectorWidget.h
-        ApplyToDialog.cpp ApplyToDialog.h
-        StageSequence.cpp StageSequence.h
-        ProjectPages.cpp ProjectPages.h
-        FilterData.cpp FilterData.h
-        ImageMetadataLoader.cpp ImageMetadataLoader.h
-        TiffReader.cpp TiffReader.h
-        TiffWriter.cpp TiffWriter.h
-        PngMetadataLoader.cpp PngMetadataLoader.h
-        TiffMetadataLoader.cpp TiffMetadataLoader.h
-        JpegMetadataLoader.cpp JpegMetadataLoader.h
-        GenericMetadataLoader.cpp GenericMetadataLoader.h
-        ImageLoader.cpp ImageLoader.h
-        ErrorWidget.cpp ErrorWidget.h
-        OrthogonalRotation.cpp OrthogonalRotation.h
-        WorkerThread.cpp WorkerThread.h
-        LoadFileTask.cpp LoadFileTask.h
-        FilterOptionsWidget.cpp FilterOptionsWidget.h
-        TaskStatus.h FilterUiInterface.h
-        ProjectReader.cpp ProjectReader.h
-        ProjectWriter.cpp ProjectWriter.h
-        XmlMarshaller.cpp XmlMarshaller.h
-        XmlUnmarshaller.cpp XmlUnmarshaller.h
-        AtomicFileOverwriter.cpp AtomicFileOverwriter.h
-        EstimateBackground.cpp EstimateBackground.h
-        Despeckle.cpp Despeckle.h
-        ThreadPriority.cpp ThreadPriority.h
-        FileNameDisambiguator.cpp FileNameDisambiguator.h
-        OutputFileNameGenerator.cpp OutputFileNameGenerator.h
-        PageRange.cpp PageRange.h
-        SelectedPage.cpp SelectedPage.h
-        Utils.cpp Utils.h
-        StatusBarProvider.cpp StatusBarProvider.h
-        PageView.h
-        AutoManualMode.h
-        AbstractCommand.h
-        AbstractFilter.h
-        BeforeOrAfter.h
-        FilterResult.h
-        CompositeCacheDrivenTask.h
-        Margins.h
-        ChangedStateItemDelegate.h
-        PageOrderProvider.h
-        PageOrderOption.h
-        PayloadEvent.h
-        RegenParams.h
-        filter_dc/AbstractFilterDataCollector.h
-        filter_dc/ThumbnailCollector.h
-        filter_dc/ContentBoxCollector.h
-        filter_dc/PageOrientationCollector.h
-        settings/globalstaticsettings.cpp settings/globalstaticsettings.h
-        version.h
-        config.h.in
-        ${common_ui_files}
-        ${settings_sources}
-)
-
-SET(
-        gui_only_sources
-        Application.cpp Application.h
-        SkinnedButton.cpp SkinnedButton.h
-        StageListView.cpp StageListView.h
-        RelinkablePathVisualization.cpp RelinkablePathVisualization.h
-        RelinkingModel.cpp RelinkingModel.h
-        RelinkingSortingModel.cpp RelinkingSortingModel.h
-        RelinkingListView.cpp RelinkingListView.h
-        RelinkingDialog.cpp RelinkingDialog.h
-        SettingsDialog.cpp SettingsDialog.h
-        FixDpiDialog.cpp FixDpiDialog.h
-        LoadFilesStatusDialog.cpp LoadFilesStatusDialog.h
-        ProjectCreationContext.cpp ProjectCreationContext.h
-        ProjectOpeningContext.cpp ProjectOpeningContext.h
-        OutOfMemoryDialog.cpp OutOfMemoryDialog.h
-        ThumbnailSequence.cpp ThumbnailSequence.h
-        ProjectFilesDialog.cpp ProjectFilesDialog.h
-        NewOpenProjectPanel.cpp NewOpenProjectPanel.h
-        SystemLoadWidget.cpp SystemLoadWidget.h
-        MainWindow.cpp MainWindow.h
-        main.cpp
-        ExportDialog.cpp ExportDialog.h
-        StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
-        AutoSaveTimer.cpp AutoSaveTimer.h
-        OpenWithMenuProvider.cpp OpenWithMenuProvider.h
-        #${settings_sources}
-)
-
-SET(
-        cli_only_sources
-        ConsoleBatch.cpp ConsoleBatch.h
-        main-cli.cpp
-)
-
-SOURCE_GROUP("Sources" FILES ${common_sources} ${gui_only_sources} ${cli_only_sources})
-SOURCE_GROUP("Special Headers" FILES version.h config.h.in)
-
-IF(CMAKE_COMPILER_IS_GNUCXX)
-        # There seems to be a bug in either gcc or boost that makes page sorting either crash
-        # or go into infinite loop.  It's reproducible on a very simple test case on at least
-        # gcc 4.4.3 and gcc 4.4.4.  It's not reproducible on gcc 4.5.1.
-        # Adding -fno-strict-aliasing seems to fix it.
-        SET_SOURCE_FILES_PROPERTIES(
-                ThumbnailSequence.cpp PROPERTIES
-                COMPILE_FLAGS "-fno-strict-aliasing"
-        )
-ENDIF()
-
-SET(win32_resource_file "")
-IF(WIN32)
-        SET(rc_file "${CMAKE_SOURCE_DIR}/resources/win32/resources.rc")
-        FILE(GLOB win32_resources resources/win32/*.ico)
-        SET_SOURCE_FILES_PROPERTIES(
-                "${rc_file}" PROPERTIES
-                OBJECT_DEPENDS ${win32_resources}
-        )
-        SET(win32_resource_file "${rc_file}")
-ENDIF(WIN32)
-
-ADD_LIBRARY(stcore STATIC ${common_sources} ${common_ui_sources})
-QT5_USE_MODULES(stcore Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
-ADD_DEPENDENCIES(stcore toplevel_ui_sources)
-
-IF (WIN32)
-        ADD_EXECUTABLE(
-	        scantailor-universal WIN32 ${gui_only_sources} ${resource_sources} ${win32_resource_file}
-        )
-ELSEIF(APPLE)
-
-        set( ICON_NAME "ScanTailorUniversal.icns" )
-        set( ICON_PATH "${PROJECT_SOURCE_DIR}/packaging/osx/${ICON_NAME}" )
-        set_source_files_properties( ${ICON_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
-
-        ADD_EXECUTABLE(
-	        scantailor-universal MACOSX_BUNDLE ${gui_only_sources} ${resource_sources} ${ICON_PATH}
-        )
-        set_target_properties(scantailor-universal PROPERTIES MACOSX_BUNDLE_INFO_PLIST
-                                  ${CMAKE_CURRENT_SOURCE_DIR}/packaging/osx/Info.plist.in)
-
-
-ELSE()
-        ADD_EXECUTABLE(
-	        scantailor-universal ${gui_only_sources} ${resource_sources} ${win32_resource_file}
-        )
-ENDIF()
-
-ADD_EXECUTABLE(scantailor-universal-cli ${cli_only_sources} ${common_ui_sources})
-
-TARGET_LINK_LIBRARIES(
-        scantailor-universal
-	fix_orientation page_split deskew select_content page_layout output stcore
-        dewarping zones interaction imageproc math foundation exporting ${MAYBE_QTMAIN_LIBRARIES}
-)
-TARGET_LINK_LIBRARIES(
-        scantailor-universal-cli
-	fix_orientation page_split deskew select_content page_layout output stcore
-        dewarping zones interaction imageproc math foundation exporting ${MAYBE_QTMAIN_LIBRARIES}
-)
-
-QT5_USE_MODULES(scantailor-universal Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
-
-# Widgets module is used statically but not at runtime.
-QT5_USE_MODULES(scantailor-universal-cli Widgets Xml)
-
-IF(EXTRA_LIBS)
-        TARGET_LINK_LIBRARIES(scantailor-universal ${EXTRA_LIBS})
-	TARGET_LINK_LIBRARIES(scantailor-universal-cli ${EXTRA_LIBS})
-ENDIF()
-
-IF(APPLE)
-        INSTALL(TARGETS scantailor-universal scantailor-universal-cli BUNDLE DESTINATION . RUNTIME DESTINATION bin)
-ELSE(APPLE)
-        INSTALL(TARGETS scantailor-universal scantailor-universal-cli RUNTIME DESTINATION bin)
-ENDIF(APPLE)
-
-IF(ENABLE_CRASH_REPORTER)
-        FIND_PATH(
-                SYMBOLS_PATH . PATHS "${build_outer_dir}/symbols"
-                "${source_outer_dir}/symbols" NO_DEFAULT_PATH
-                DOC "The directory to write symbol information into."
-        )
-        IF(NOT SYMBOLS_PATH)
-                MESSAGE(FATAL_ERROR "SYMBOLS_PATH directory is not set.")
-        ENDIF()
-
-        # We can't build it, because it requires ATL, which is not part
-        # of the Visual Studio Express Edition, so we rely on a pre-built
-        # version which can be found in the Mozilla repository.
-        FIND_PROGRAM(
-                DUMP_SYMS_EXECUTABLE dump_syms PATHS "${build_outer_dir}" "${source_outer_dir}"
-                DOC "Path to dump_syms.exe, which can be found in Mozilla repository."
-        )
-        IF(NOT DUMP_SYMS_EXECUTABLE)
-                MESSAGE(
-                        FATAL_ERROR "dump_syms.exe wasn't found.  Specify its location manually by setting the DUMP_SYMS_EXECUTABLE variable.  dump_syms.exe may be found in the Mozilla repository under /toolkit/crashreporter/tools/win32"
-                )
-        ENDIF()
-
-        INCLUDE_DIRECTORIES(crash_reporter crash_reporter/google-breakpad)
-        TARGET_LINK_LIBRARIES(scantailor crash_handler)
-ENDIF()
-
-# Translations
-TRANSLATION_SOURCES(
-        scantailor-universal
-        ${common_sources} ${gui_only_sources} ${cli_only_sources}
-)
-FILE(GLOB TRANSLATION_FILES translations/scantailor-universal_*.ts)
-FILE(GLOB CR_TRANSLATION_FILES translations/crashreporter_*.ts)
-
-FINALIZE_TRANSLATION_SET(scantailor-universal ${TRANSLATION_FILES})
-FINALIZE_TRANSLATION_SET(crashreporter ${CR_TRANSLATION_FILES})
-UPDATE_TRANSLATIONS_TARGET(update_translations scantailor-universal crashreporter)
-
-SET(ts_files ${TRANSLATION_FILES})
-IF(ENABLE_CRASH_REPORTER)
-        LIST(APPEND ts_files ${CR_TRANSLATION_FILES})
-ENDIF(ENABLE_CRASH_REPORTER)
-
-# Don't build *.qm files from *untranslated.ts
-SET(FILTERED_TRANSLATION_FILES)
-FOREACH(ts_file ${ts_files})
-        IF ("${ts_file}" MATCHES ".*untranslated.ts")
-                # Just skip it.
-        ELSE("${ts_file}" MATCHES ".*untranslated.ts")
-                LIST(APPEND FILTERED_TRANSLATION_FILES "${ts_file}")
-        ENDIF("${ts_file}" MATCHES ".*untranslated.ts")
-ENDFOREACH(ts_file)
-
-QT5_ADD_TRANSLATION(QM_FILES ${FILTERED_TRANSLATION_FILES})
-
-IF(WIN32 OR APPLE)
-        # Just copy already compiled qtbase*.qm from translations folder
-        # if any of them are present there
-        # to support localization of Qt own controls on Win machines
-        FILE(GLOB QTBASE_QM_FILES translations/qtbase*.qm)
-        LIST(APPEND QM_FILES ${QTBASE_QM_FILES})
-ENDIF(WIN32 OR APPLE)
-
-ADD_CUSTOM_TARGET(compile_translations ALL DEPENDS ${QM_FILES})
-
-INSTALL(FILES ${QM_FILES} DESTINATION "${TRANSLATIONS_DIR_REL}/")
 
 IF(NOT WIN32 AND NOT APPLE)
         INSTALL(FILES debian/scantailor-universal.svg DESTINATION "/usr/share/pixmaps/")
@@ -724,8 +393,8 @@ ENDIF(NOT WIN32 AND NOT APPLE)
 
 # uninstall target
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
 add_custom_target(uninstall
@@ -798,5 +467,5 @@ IF(WIN32)
         GENERATE_COPY_TO_BUILD_DIR_TARGET(copy_to_build_dir)
 
         # Installer for Windows.  Must go last.
-        ADD_SUBDIRECTORY(packaging/windows)
+        ADD_SUBDIRECTORY(src/packaging/windows)
 ENDIF(WIN32)
