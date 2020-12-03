@@ -27,53 +27,53 @@ LocalClipboard::m_instance = nullptr;
 void
 LocalClipboard::pasteZone(ZoneInteractionContext& context) const
 {
-    QTransform widget_to_virtual(context.imageView().widgetToImage());
+    QTransform virtual_to_image(context.imageView().virtualToImage());
     QTransform shift = QTransform().translate(100, 100);
 
     if (m_copiedZoneType == LocalClipboard::Spline) {
         QPolygonF new_spline = m_spline;
-        new_spline = widget_to_virtual.map(new_spline);
+        new_spline = virtual_to_image.map(new_spline);
 
         do {
-            bool found = false;
+            bool existing = false;
             for (const EditableZoneSet::Zone& zone : context.zones()) {
                 if (!zone.isEllipse()) {
                     const QPolygonF z = SerializableSpline(*zone.spline().get()).toPolygon();
                     if (new_spline == z) {
                         // we shouldn't mix SerializableSpline::toPolygon and EditableSpline::toPolygon
                         // as order of vertexes might be different.
-                        found = true;
+                        existing = true;
                         new_spline = shift.map(new_spline);
                         break;
                     }
                 }
             }
-            if (!found) {
+            if (!existing) {
                 context.zones().addSpline(EditableSpline::Ptr(new EditableSpline(SerializableSpline(new_spline))));
                 context.zones().commit();
                 break;
             }
         } while (true);
     } else if (m_copiedZoneType == LocalClipboard::Ellipse) {
-        SerializableEllipse new_ellipse = m_ellipse.transformed(widget_to_virtual);
+        SerializableEllipse new_ellipse = m_ellipse.transformed(virtual_to_image);
         do {
-            bool found = false;
+            bool existing = false;
             for (const EditableZoneSet::Zone& zone : context.zones()) {
                 if (zone.isEllipse()) {
-                    const EditableEllipse::Ptr& e = zone.ellipse();
-                    if (*e == new_ellipse) {
-                        found = true;
-                        new_ellipse = SerializableEllipse(shift.map(new_ellipse.center()),
-                                                          new_ellipse.rx(), new_ellipse.ry(),
-                                                          new_ellipse.angle());
+                    const SerializableEllipse e(*zone.ellipse());
+                    if (e == new_ellipse) {
+                        existing = true;
+                        EditableEllipse shifted(new_ellipse);
+                        shifted.setCenter(shift.map(new_ellipse.center()));
+                        new_ellipse = SerializableEllipse(shifted);
                         break;
                     }
                 }
-                if (!found) {
-                    context.zones().addEllipse(EditableEllipse::Ptr(new EditableEllipse(SerializableEllipse(new_ellipse))));
-                    context.zones().commit();
-                    break;
-                }
+            }
+            if (!existing) {
+                context.zones().addEllipse(EditableEllipse::Ptr(new EditableEllipse(new_ellipse)));
+                context.zones().commit();
+                break;
             }
         } while (true);
 

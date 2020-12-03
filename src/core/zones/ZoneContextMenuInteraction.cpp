@@ -180,10 +180,10 @@ ZoneContextMenuInteraction::ZoneContextMenuInteraction(
 
     QAction* paste = m_ptrMenu->addAction(tr("&Paste"));
     paste->setShortcut(GlobalStaticSettings::createShortcut(ZonePaste));
-    paste->setEnabled(LocalClipboard::getInstance()->copiedZoneType() == LocalClipboard::Spline);
+    paste->setEnabled(!LocalClipboard::getInstance()->isEmpty());
 
     if (paste->isEnabled()) {
-        QObject::connect(paste, &QAction::triggered, this, [ = ]() {
+        QObject::connect(paste, &QAction::triggered, this, [ this ]() {
             if (LocalClipboard* clb = LocalClipboard::getInstance()) {
                 clb->pasteZone(m_rContext);
             }
@@ -328,14 +328,13 @@ ZoneContextMenuInteraction::deleteFromRequest(EditableZoneSet::Zone const& zone)
 InteractionHandler*
 ZoneContextMenuInteraction::copyRequest(EditableZoneSet::Zone const& zone)
 {
-    QTransform const to_virtual(m_rContext.imageView().imageToWidget());
+    QTransform image_to_virtual(m_rContext.imageView().imageToVirtual());
     if (!zone.isEllipse()) {
-        LocalClipboard::getInstance()->setSpline(
-            SerializableSpline(*zone.spline())
-            .transformed(to_virtual).toPolygon());
+        LocalClipboard::getInstance()->setSplineInVirtualCoords(
+            SerializableSpline(*zone.spline()).transformed(image_to_virtual).toPolygon());
     } else {
-        const SerializableEllipse ellipse = SerializableEllipse(*zone.ellipse()).transformed(to_virtual);
-        LocalClipboard::getInstance()->setEllipse(ellipse);
+        const SerializableEllipse ellipse = SerializableEllipse(*zone.ellipse()).transformed(image_to_virtual);
+        LocalClipboard::getInstance()->setEllipseInVirtualCoords(ellipse);
     }
     return m_rContext.createDefaultInteraction();
 }

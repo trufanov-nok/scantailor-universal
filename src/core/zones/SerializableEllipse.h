@@ -47,7 +47,7 @@ public:
 
     SerializableEllipse(EditableEllipse const& ellipse);
 
-    SerializableEllipse(const QPointF& center, double rx = 10., double ry = 10., double angle = 0);
+    SerializableEllipse(const QPointF& center, const QPointF& diffVertX = QPointF(10,0), const QPointF& diffVertY = QPointF(0,10));
 
     explicit SerializableEllipse(QDomElement const& el);
 
@@ -61,10 +61,12 @@ public:
     bool isValid() const { return !m_center.isNull(); }
 
     const QPointF & center() const { return m_center; }
-    double angle() const { return 180./M_PI * m_angle; }
-    double angleRad() const { return m_angle; }
-    double rx() const { return m_rx; }
-    double ry() const { return m_ry; }
+    const QPointF & diffX() const { return m_diffVertX; }
+    const QPointF & diffY() const { return m_diffVertY; }
+    double angle() const { return 180./M_PI * angleRad(); }
+    double angleRad() const { return atan2(m_diffVertX.y(), m_diffVertX.x()); }
+    double rx() const { return distance(m_center, m_center + m_diffVertX); }
+    double ry() const { return distance(m_center, m_center + m_diffVertY); }
 
     static double distance(QPointF const& a, QPointF const& b) {
         const double dx = b.x() - a.x();
@@ -73,12 +75,12 @@ public:
     }
 
     bool operator !=(const SerializableEllipse &b) const;
+    bool operator ==(const SerializableEllipse &b) const;
 
 private:
     QPointF m_center;
-    double m_rx;
-    double m_ry;
-    double m_angle;
+    QPointF m_diffVertX;
+    QPointF m_diffVertY;
 };
 
 #endif // SERIALIZABLEELIPSE_H_

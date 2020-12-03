@@ -39,7 +39,7 @@ class EditableEllipse : public RefCountable
 public:
     typedef IntrusivePtr<EditableEllipse> Ptr;
 
-    EditableEllipse(): m_rx(10.), m_ry(10.), m_angle(0.) { m_points.resize(4); }
+    EditableEllipse() { m_points.resize(4); }
     EditableEllipse(SerializableEllipse const& ellipse);
     void copyFromSerializableEllipse(SerializableEllipse const& ellipse);
 
@@ -82,7 +82,6 @@ public:
 
     double area() const;
 
-    bool operator ==(const SerializableEllipse &b) const;
 private:
     void update_points() {
         const double c = cos(m_angle);

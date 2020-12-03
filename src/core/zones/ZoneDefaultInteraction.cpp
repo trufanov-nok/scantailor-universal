@@ -65,7 +65,7 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
     m_pasteAction = m_defaultMenu.addAction(tr("&Paste"));
     m_pasteAction->setShortcut(GlobalStaticSettings::createShortcut(ZonePaste));
 
-    QObject::connect(m_pasteAction, &QAction::triggered, [ = ]() {
+    QObject::connect(m_pasteAction, &QAction::triggered, [ this ]() {
         if (LocalClipboard* clb = LocalClipboard::getInstance()) {
             clb->pasteZone(m_rContext);
         }
@@ -395,7 +395,7 @@ ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, Interaction
         return;
     }
 
-    m_pasteAction->setEnabled(LocalClipboard::getInstance()->copiedZoneType() == LocalClipboard::Spline);
+    m_pasteAction->setEnabled(!LocalClipboard::getInstance()->isEmpty());
     m_defaultMenu.popup(event->globalPos());
 
 }

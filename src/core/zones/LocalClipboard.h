@@ -34,15 +34,15 @@ public:
     ZoneType copiedZoneType() const { return m_copiedZoneType; }
     bool isEmpty() const { return m_copiedZoneType == None; }
 
-    const QPolygonF& spline() const { return m_spline; }
-    void setSpline(QPolygonF const& spline)
+    const QPolygonF& splineInVirtualCoords() const { return m_spline; }
+    void setSplineInVirtualCoords(QPolygonF const& spline)
     {
         setCopiedZoneType(Spline);
         m_spline = spline;
     }
 
-    const SerializableEllipse& ellipse() const { return m_ellipse; }
-    void setEllipse(SerializableEllipse const & ellipse)
+    const SerializableEllipse& ellipseInVirtualCoords() const { return m_ellipse; }
+    void setEllipseInVirtualCoords(SerializableEllipse const & ellipse)
     {
         setCopiedZoneType(Ellipse);
         m_ellipse = ellipse;
@@ -62,6 +62,8 @@ public:
     bool lastZoneIsValid() const {
         return !m_lastZonePolygon.isEmpty() || m_lastZoneEllipse.isValid();
     }
+
+    // Last zones are expected in Image coords.
     const QPolygonF& lastZonePolygon() const { return m_lastZonePolygon; }
     void setLastZonePolygon(const QPolygonF& val) {
         setLastZoneType(Spline);

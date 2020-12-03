@@ -27,28 +27,26 @@
 #include <assert.h>
 #include <cmath>
 
-SerializableEllipse::SerializableEllipse(): m_angle(0.)
+SerializableEllipse::SerializableEllipse()
 {
 }
 
 SerializableEllipse::SerializableEllipse(EditableEllipse const& ellipse)
 {
     m_center = ellipse.center();
-    m_rx = ellipse.rx();
-    m_ry = ellipse.ry();
-    m_angle  = ellipse.angleRad();
+    m_diffVertX = ellipse.const_data()[0] - m_center;
+    m_diffVertY = ellipse.const_data()[1] - m_center;
 }
 
-SerializableEllipse::SerializableEllipse(const QPointF& center, double rx, double ry, double angle) :
-    m_center(center), m_rx(rx), m_ry(ry), m_angle(angle)
+SerializableEllipse::SerializableEllipse(const QPointF& center, const QPointF& diffVertX, const QPointF& diffVertY) :
+    m_center(center), m_diffVertX(diffVertX), m_diffVertY(diffVertY)
 {
 }
 
 SerializableEllipse::SerializableEllipse(QDomElement const& el) :
     m_center(XmlUnmarshaller::pointF(el.namedItem("center").toElement())),
-    m_rx(el.attribute("rx").toDouble()),
-    m_ry(el.attribute("ry").toDouble()),
-    m_angle(el.attribute("angle").toDouble())
+    m_diffVertX(XmlUnmarshaller::pointF(el.namedItem("dx").toElement())),
+    m_diffVertY(XmlUnmarshaller::pointF(el.namedItem("dy").toElement()))
 {
 }
 
@@ -58,49 +56,43 @@ SerializableEllipse::toXml(QDomDocument& doc, QString const& name) const
     QDomElement el(doc.createElement(name));
 
     XmlMarshaller marshaller(doc);
-    el.setAttribute("rx", m_rx);
-    el.setAttribute("ry", m_ry);
-    el.setAttribute("angle", m_angle);
     el.appendChild(marshaller.pointF(m_center, "center"));
+    el.appendChild(marshaller.pointF(m_diffVertX, "dx"));
+    el.appendChild(marshaller.pointF(m_diffVertY, "dy"));
     return el;
 }
 
 SerializableEllipse
 SerializableEllipse::transformed(QTransform const& xform) const
 {
-    QPointF new_center = xform.map(m_center);
-    const double c = cos(m_angle);
-    const double s = sin(m_angle);
-    const QPointF new_rx = xform.map(QPointF(m_rx*c, m_rx*s) + m_center);
-    const QPointF new_ry = xform.map(QPointF(m_ry*s, -m_ry*c) + m_center);
-    double rx = distance(new_center, new_rx);
-    double ry = distance(new_center, new_ry);
-    double new_angle = new_rx.x() ? atan(new_rx.y()/new_rx.x()) : 0.;
-    return SerializableEllipse(new_center, rx, ry, new_angle);
+    const QPointF new_center = xform.map(m_center);
+    // can't use just xform.map(m_diffVertX) as it'll be rotated against wrong point
+    const QPointF new_diffX = xform.map(m_center + m_diffVertX) - new_center;
+    const QPointF new_diffY = xform.map(m_center + m_diffVertY) - new_center;
+    return SerializableEllipse(new_center, new_diffX, new_diffY);
 }
 
 SerializableEllipse
 SerializableEllipse::transformed(
-    boost::function<QPointF(QPointF const&)> const& xform) const
+        boost::function<QPointF(QPointF const&)> const& xform) const
 {
-    QPointF new_center = xform(m_center);
-    const double c = cos(m_angle);
-    const double s = sin(m_angle);
-    const QPointF new_rx = xform(QPointF(m_rx*c, m_rx*s) + m_center);
-    const QPointF new_ry = xform(QPointF(m_ry*s, -m_ry*c) + m_center);
-    double rx = distance(new_center, new_rx);
-    double ry = distance(new_center, new_ry);
-    double new_angle = new_rx.x() ? atan(new_rx.y()/new_rx.x()) : 0.;
-    return SerializableEllipse(new_center, rx, ry, new_angle);
+    const QPointF new_center = xform(m_center);
+    // can't use just xform(m_diffVertX) as it'll be rotated against wrong point
+    const QPointF new_diffX = xform(m_center + m_diffVertX) - new_center;
+    const QPointF new_diffY = xform(m_center + m_diffVertY) - new_center;
+    return SerializableEllipse(new_center, new_diffX, new_diffY);
 }
 
 bool
 SerializableEllipse::operator !=(const SerializableEllipse &b) const
 {
-    if (m_center != b.center() ||
-            m_rx != b.rx() || m_ry != b.ry() ||
-            m_angle != b.angleRad()) {
-        return true;
-    }
-    return false;
+    return (m_center != b.center() ||
+            m_diffVertX != b.diffX() ||
+            m_diffVertY != b.diffY());
+}
+
+bool
+SerializableEllipse::operator ==(const SerializableEllipse &b) const
+{
+    return !(*this != b);
 }

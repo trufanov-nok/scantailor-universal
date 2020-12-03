@@ -69,26 +69,23 @@ EditableEllipse::copyFromSerializableEllipse(SerializableEllipse const& ellipse)
 bool
 EditableEllipse::contains(QPointF const & point, bool *exactly_on_border) const
 {
-    const double c = cos(m_angle);
-    const double s = sin(m_angle);
-    const double d1 = (c*(point.x() - m_center.x()) + s*(point.y() - m_center.y()))/ rx();
-    const double d2 = (s*(point.x() - m_center.x()) + c*(point.y() - m_center.y()))/ ry();
-    const double res = (d1*d1 + d2*d2);
-    if (exactly_on_border) {
-        *exactly_on_border = (res == 1.);
-    }
-    return res <= 1.;
-}
+    const qreal s = sin(-m_angle);
+    const qreal c = cos(-m_angle);
+    const qreal rx2 = m_rx*m_rx;
+    const qreal ry2 = m_ry*m_ry;
+    const qreal rx2ry2 = rx2*ry2;
 
-bool
-EditableEllipse::operator ==(const SerializableEllipse &b) const
-{
-    if (m_center == b.center() &&
-            m_rx == b.rx() && m_ry == b.ry() &&
-            m_angle == b.angleRad()) {
-        return true;
+    const qreal centered_p_x = (point.x() - m_center.x());
+    const qreal centered_p_y = (point.y() - m_center.y());
+    const qreal new_p_x = centered_p_x*c - centered_p_y*s;
+    const qreal new_p_y = centered_p_x*s + centered_p_y*c;
+
+    const qreal res = (new_p_x*new_p_x*ry2 +
+                        new_p_y*new_p_y*rx2);
+    if (exactly_on_border) {
+        *exactly_on_border = (res == rx2ry2);
     }
-    return false;
+    return res <= rx2ry2;
 }
 
 QTransform get_transform(double dx, double dy, double angle)
