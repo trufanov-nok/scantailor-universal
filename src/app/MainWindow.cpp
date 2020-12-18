@@ -1701,6 +1701,11 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
                 QSettings settings;
                 QString cmd = settings.value(_key_app_alert_cmd, _key_app_alert_cmd_def).toString();
                 if (cmd.isEmpty()) {
+#ifdef HAVE_CANBERRA
+                    if (m_canberraPlayer.isWorking())
+                        m_canberraPlayer.play();
+                    else
+#endif
                     QApplication::beep();
                 } else {
                     std::system(cmd.toStdString().c_str());

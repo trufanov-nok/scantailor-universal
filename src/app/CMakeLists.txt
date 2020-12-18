@@ -14,6 +14,10 @@ SOURCE_GROUP("Resources" FILES ${resource_files})
 QT5_ADD_RESOURCES(resource_sources resources/resources.qrc)
 SOURCE_GROUP("Generated" FILES ${resource_sources})
 
+IF(CANBERRA_FOUND)
+SET( canberra_sources CanberraSoundPlayer.cpp CanberraSoundPlayer.h)
+ENDIF()
+
 SET(
         gui_only_sources
         
@@ -44,7 +48,11 @@ SET(
         
         settings/fancylineedit.cpp settings/fancylineedit.h
         settings/execmenu.cpp settings/execmenu.h
+        ${canberra_sources}
 )
+
+
+
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
         # There seems to be a bug in either gcc or boost that makes page sorting either crash

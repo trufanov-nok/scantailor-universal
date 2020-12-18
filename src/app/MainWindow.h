@@ -54,6 +54,10 @@
 #include "PageSequence.h"
 #include "PageSelectionProvider.h"
 
+#ifdef HAVE_CANBERRA
+#include "CanberraSoundPlayer.h"
+#endif
+
 class AbstractFilter;
 class AbstractRelinker;
 class ThumbnailPixmapCache;
@@ -427,6 +431,10 @@ private:
     bool m_docking_enabled;
 
     QTimer* m_autosave_timer;
+
+#ifdef HAVE_CANBERRA
+    CanberraSoundPlayer m_canberraPlayer;
+#endif
 };
 
 class PageSelectionProviderImpl : public PageSelectionProvider

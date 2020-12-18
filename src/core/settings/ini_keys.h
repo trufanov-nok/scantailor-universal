@@ -35,13 +35,13 @@ static const char* _key_app_docking_enabled = "docking_panels/enabled";
 static const bool _key_app_docking_enabled_def = false;
 static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp";
 static const char* _key_app_alert_cmd = "main_window/external_alarm_cmd";
-#if (defined(Q_OS_UNIX) & (! defined(Q_OS_OSX)))
+#if (defined(Q_OS_UNIX) & (! defined(Q_OS_OSX)) & (!HAVE_CANBERRA))
 static const char* _key_app_alert_cmd_def = "play /usr/share/sounds/freedesktop/stereo/bell.oga";
 #else
 static const char* _key_app_alert_cmd_def = "";
 #endif
 
-// following are not intendent to be edited externally
+// following are not intended to be edited externally
 static const char* _key_app_settings_tree_state = "main_window/settings_tree_state";
 static const char* _key_app_geometry = "main_window/non_maximized_geometry";
 static const char* _key_app_state = "main_window/state";
