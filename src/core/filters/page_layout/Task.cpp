@@ -188,7 +188,9 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
     // This function is executed from the GUI thread.
 
     OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
-    opt_widget->postUpdateUI();
+    if (!m_batchProcessing) {
+        opt_widget->postUpdateUI();
+    }
     ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 
     if (m_aggSizeChanged) {

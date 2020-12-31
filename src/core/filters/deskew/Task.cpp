@@ -316,7 +316,9 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
     // This function is executed from the GUI thread.
 
     OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
-    opt_widget->postUpdateUI(m_uiData);
+    if (!m_batchProcessing) {
+        opt_widget->postUpdateUI(m_uiData);
+    }
     ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 
     ui->invalidateThumbnail(m_pageId);
