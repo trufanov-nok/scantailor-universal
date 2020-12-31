@@ -43,7 +43,7 @@ public:
 
     void preUpdateUI(PageId const& page_id, OrthogonalRotation rotation);
 
-    void postUpdateUI(OrthogonalRotation rotation);
+    void postUpdateUI();
 signals:
     void rotated(OrthogonalRotation rotation);
 private slots:

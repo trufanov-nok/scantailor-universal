@@ -58,9 +58,9 @@ OptionsWidget::preUpdateUI(
 }
 
 void
-OptionsWidget::postUpdateUI(OrthogonalRotation const rotation)
+OptionsWidget::postUpdateUI()
 {
-    setRotation(rotation);
+    setRotation(m_rotation);
 }
 
 void
