@@ -159,7 +159,12 @@ TiffWriter::writeImage(QString const& file_path, QImage const& image, bool multi
     }
 
     QFile file(file_path);
-    if (!file.open(QFile::ReadWrite)) {
+    QIODevice::OpenMode open_mode = QFile::ReadWrite;
+    if (!multipage || page_no == 0) {
+        // libtiff don't truncate existing file even in "wBm" mode
+        open_mode.setFlag(QFile::Truncate);
+    }
+    if (!file.open(open_mode)) {
         return false;
     }
 
@@ -476,7 +481,7 @@ TiffWriter::writeBinaryLinesAsIs(
     int const height = image.height();
 
     // TIFFWriteScanline() can actually modify the data you pass it,
-    // so we have to use a temporary buffer even when no coversion
+    // so we have to use a temporary buffer even when no conversion
     // is required.
     int const bpl = (width + 7) / 8;
     std::vector<uint8_t> tmp_line(bpl, 0);

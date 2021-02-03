@@ -39,7 +39,7 @@ public:
      * \return True on success, false on failure.
      */
     static bool writeImage(QString const& file_path, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
-
+private:
     /**
      * \brief Writes a QImage in TIFF format to an IO device.
      *
@@ -49,7 +49,7 @@ public:
      * \return True on success, false on failure.
      */
     static bool writeImage(QIODevice& device, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
-private:
+
     class TiffHandle;
 
     static void setDpm(TiffHandle const& tif, Dpm const& dpm);
