@@ -310,7 +310,7 @@ TiffWriter::writeBitonalOrIndexed8Image(
     TIFFSetField(tif.handle(), TIFFTAG_COMPRESSION, uint16(compression));
     TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, bits_per_sample);
     TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, photometric);
-    TIFFSetField(tif.handle(), TIFFTAG_FILLORDER, FILLORDER_LSB2MSB);
+    TIFFSetField(tif.handle(), TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
 
     if (GlobalStaticSettings::m_use_horizontal_predictor && bits_per_sample == 8) {
         TIFFSetField(tif.handle(), TIFFTAG_PREDICTOR, PREDICTOR_HORIZONTAL);
