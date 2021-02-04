@@ -396,8 +396,8 @@ ADD_SUBDIRECTORY(src)
 
 
 IF(NOT WIN32 AND NOT APPLE)
-        INSTALL(FILES debian/scantailor-universal.svg DESTINATION "/usr/share/pixmaps/")
-        INSTALL(FILES debian/scantailor-universal.desktop DESTINATION "/usr/share/applications/")
+        INSTALL(FILES debian/scantailor-universal.svg DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pixmaps/")
+        INSTALL(FILES debian/scantailor-universal.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications/")
 ENDIF(NOT WIN32 AND NOT APPLE)
 
 # uninstall target
