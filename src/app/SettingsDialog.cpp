@@ -30,6 +30,7 @@
 #include "MainWindow.h"
 #include "filters/output/DespeckleLevel.h"
 #include "filters/output/Params.h"
+#include "settings/TiffCompressionInfo.h"
 #include "settings/globalstaticsettings.h"
 
 SettingsDialog::SettingsDialog(QWidget* parent)
@@ -436,37 +437,64 @@ void SettingsDialog::on_cbApplyCutDefault_clicked(bool checked)
 
 void SettingsDialog::loadTiffList()
 {
-    bool filtered_only = !m_settings.value(_key_tiff_compr_show_all, _key_tiff_compr_show_all_def).toBool();
+    const bool filtered_only = !m_settings.value(_key_tiff_compr_show_all, _key_tiff_compr_show_all_def).toBool();
+
     ui.cbTiffFilter->blockSignals(true);
     ui.cbTiffFilter->setChecked(filtered_only);
     ui.cbTiffFilter->blockSignals(false);
 
-    const QResource tiff_data(":/TiffCompressionMethods.tsv");
-    QStringList tiff_list = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
-    if (filtered_only) {
-        tiff_list = tiff_list.filter(QRegularExpression(".*\t0$"));
-    }
+    const QString old_val_bw = m_settings.value(_key_tiff_compr_method_bw, _key_tiff_compr_method_bw_def).toString();
+    const QString old_val_color = m_settings.value(_key_tiff_compr_method_color, _key_tiff_compr_method_color_def).toString();
 
-    QString old_val = m_settings.value(_key_tiff_compr_method, _key_tiff_compr_method_def).toString();
+    ui.cbTiffCompressionBW->clear();
+    ui.cbTiffCompressionColor->clear();
 
-    ui.cbTiffCompression->clear();
+    ui.cbTiffCompressionBW->blockSignals(true);
+    ui.cbTiffCompressionColor->blockSignals(true);
 
-    ui.cbTiffCompression->blockSignals(true);
-    for (QString const& s : qAsConst(tiff_list)) {
-        if (!s.trimmed().isEmpty()) {
-            const QStringList sl = s.split('\t');
-            ui.cbTiffCompression->addItem(sl[0], sl[2]);
+    for (auto it = TiffCompressions::constBegin(); it != TiffCompressions::constEnd(); it++) {
+        if (!it.key().isEmpty()) {
+            const TiffCompressionInfo & info = it.value();
+            if (!filtered_only || info.always_shown) {
+                ui.cbTiffCompressionBW->addItem(info.name, info.description);
+                if (!info.for_bw_only) {
+                    ui.cbTiffCompressionColor->addItem(info.name, info.description);
+                }
+            }
         }
-    }
-    ui.cbTiffCompression->blockSignals(false);
 
-    int idx = ui.cbTiffCompression->findText(old_val);
-    if (idx != -1 || ui.cbTiffCompression->count() > 0) {
+    }
+
+
+    ui.cbTiffCompressionBW->blockSignals(false);
+    ui.cbTiffCompressionColor->blockSignals(false);
+
+    if (ui.cbTiffCompressionBW->count()) {
+        int idx = ui.cbTiffCompressionBW->findText(old_val_bw);
         if (idx < 0) {
-            idx = 0;
+            idx = ui.cbTiffCompressionBW->findText("LZW");
+            if (idx < 0) {
+                idx = 0;
+            }
         }
-        ui.cbTiffCompression->setCurrentIndex(idx);
-//        on_cbTiffCompression_currentIndexChanged(idx); // not triggered in one case
+        ui.cbTiffCompressionBW->setCurrentIndex(idx);
+        if (idx == 0) {
+            on_cbTiffCompressionBW_currentIndexChanged(0);
+        }
+    }
+
+    if (ui.cbTiffCompressionColor->count()) {
+        int idx = ui.cbTiffCompressionColor->findText(old_val_color);
+        if (idx < 0) {
+            idx = ui.cbTiffCompressionColor->findText("LZW");
+            if (idx < 0) {
+                idx = 0;
+            }
+        }
+        ui.cbTiffCompressionColor->setCurrentIndex(idx);
+        if (idx == 0) {
+            on_cbTiffCompressionColor_currentIndexChanged(0);
+        }
     }
 }
 
@@ -587,11 +615,18 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
 
 }
 
-void SettingsDialog::on_cbTiffCompression_currentIndexChanged(int index)
+void SettingsDialog::on_cbTiffCompressionBW_currentIndexChanged(int index)
 {
-    ui.lblTiffDetails->setText(ui.cbTiffCompression->itemData(index).toString());
-    m_settings.setValue(_key_tiff_compr_method, ui.cbTiffCompression->currentText());
+    ui.lblTiffDetailsBW->setText(ui.cbTiffCompressionBW->itemData(index).toString());
+    m_settings.setValue(_key_tiff_compr_method_bw, ui.cbTiffCompressionBW->currentText());
 }
+
+void SettingsDialog::on_cbTiffCompressionColor_currentIndexChanged(int index)
+{
+    ui.lblTiffDetailsColor->setText(ui.cbTiffCompressionColor->itemData(index).toString());
+    m_settings.setValue(_key_tiff_compr_method_color, ui.cbTiffCompressionColor->currentText());
+}
+
 
 void SettingsDialog::on_cbTiffFilter_clicked(bool checked)
 {

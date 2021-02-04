@@ -48,7 +48,8 @@ private slots:
     void on_cbApplyCutDefault_clicked(bool checked);
     void on_stackedWidget_currentChanged(int arg1);
 
-    void on_cbTiffCompression_currentIndexChanged(int index);
+    void on_cbTiffCompressionBW_currentIndexChanged(int index);
+    void on_cbTiffCompressionColor_currentIndexChanged(int index);
 
     void on_cbTiffFilter_clicked(bool checked);
 

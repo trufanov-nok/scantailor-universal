@@ -114,12 +114,16 @@ SET(
         
         settings/globalstaticsettings.cpp settings/globalstaticsettings.h
         settings/hotkeysmanager.cpp settings/hotkeysmanager.h
+        settings/TiffCompressionInfo.cpp settings/TiffCompressionInfo.h
         settings/ini_keys.h
 )
 
 
 SOURCE_GROUP("Sources" FILES ${common_sources} ${core_ui_sources})
 
-ADD_LIBRARY(stcore STATIC ${common_sources} ${core_ui_sources})
+QT5_ADD_RESOURCES(core_resource_sources resources/core_resources.qrc)
+SOURCE_GROUP("Generated" FILES ${core_resource_sources})
+
+ADD_LIBRARY(stcore STATIC ${core_resource_sources} ${common_sources} ${core_ui_sources})
 QT5_USE_MODULES(stcore Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
 ADD_DEPENDENCIES(stcore core_ui_sources) 

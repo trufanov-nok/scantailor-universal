@@ -29,7 +29,7 @@
 
 int main(int argc, char** argv)
 {
-    Q_INIT_RESOURCE(output_filter_resources);
+    Q_INIT_RESOURCE(core_resources);
     QCoreApplication app(argc, argv);
 
 #ifdef _WIN32

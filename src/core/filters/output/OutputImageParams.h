@@ -48,7 +48,9 @@ public:
                       Dpi const& dpi, ColorParams const& color_params,
                       DewarpingMode const& dewarping_mode,
                       dewarping::DistortionModel const& distortion_model,
-                      DepthPerception const& depth_perception, DespeckleLevel despeckle_level);
+                      DepthPerception const& depth_perception,
+                      DespeckleLevel despeckle_level,
+                      QString const& TiffCompression);
 
     explicit OutputImageParams(QDomElement const& el);
 
@@ -75,6 +77,16 @@ public:
     DespeckleLevel despeckleLevel() const
     {
         return m_despeckleLevel;
+    }
+
+    QString const& TiffCompression() const
+    {
+        return m_TiffCompression;
+    }
+
+    void setTiffCompression(QString const& compression)
+    {
+        m_TiffCompression = compression;
     }
 
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
@@ -140,6 +152,9 @@ private:
 
     /** Despeckle level of the output image. */
     DespeckleLevel m_despeckleLevel;
+
+    /** Tiff compression method of the output image. */
+    QString m_TiffCompression;
 };
 
 } // namespace output

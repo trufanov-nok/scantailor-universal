@@ -152,7 +152,7 @@ static void deviceUnmap(thandle_t, tdata_t, toff_t)
 }
 
 bool
-TiffWriter::writeImage(QString const& file_path, QImage const& image, bool multipage, int page_no, int compression)
+TiffWriter::writeImage(QString const& file_path, QImage const& image, bool multipage, int page_no, QString* compression_used)
 {
     if (image.isNull()) {
         return false;
@@ -168,7 +168,7 @@ TiffWriter::writeImage(QString const& file_path, QImage const& image, bool multi
         return false;
     }
 
-    if (!writeImage(file, image, multipage, page_no, compression)) {
+    if (!writeImage(file, image, multipage, page_no, compression_used)) {
         file.remove();
         return false;
     }
@@ -177,7 +177,7 @@ TiffWriter::writeImage(QString const& file_path, QImage const& image, bool multi
 }
 
 bool
-TiffWriter::writeImage(QIODevice& device, QImage const& image, bool multipage, int page_no, int compression)
+TiffWriter::writeImage(QIODevice& device, QImage const& image, bool multipage, int page_no, QString* compression_used)
 {
     if (image.isNull()) {
         return false;
@@ -217,15 +217,27 @@ TiffWriter::writeImage(QIODevice& device, QImage const& image, bool multipage, i
 
     CommandLine const& cli = CommandLine::get();
 
+    int compression = GlobalStaticSettings::m_tiff_compression_color_id;
+    if (compression_used) {
+        *compression_used = GlobalStaticSettings::m_tiff_compr_method_color;
+    }
+
     if (! cli.hasTiffForceRGB()) {
         if (cli.hasTiffForceGrayscale()) {
             return writeBitonalOrIndexed8Image(tif, imageproc::toGrayscale(image), multipage, compression);
         }
         switch (image.format()) {
         case QImage::Format_Mono:
-        case QImage::Format_MonoLSB:
-        case QImage::Format_Indexed8:
+        case QImage::Format_MonoLSB: {
+            compression = GlobalStaticSettings::m_tiff_compression_bw_id;
+            if (compression_used) {
+                *compression_used = GlobalStaticSettings::m_tiff_compr_method_bw;
+            }
             return writeBitonalOrIndexed8Image(tif, image, multipage, compression);
+        }
+        case QImage::Format_Indexed8: {
+            return writeBitonalOrIndexed8Image(tif, image, multipage, compression);
+        }
         default:;
         }
     }
@@ -290,9 +302,6 @@ TiffWriter::writeBitonalOrIndexed8Image(
     switch (image.format()) {
     case QImage::Format_Mono:
     case QImage::Format_MonoLSB:
-        // Don't use CCITTFAX4 compression, as Photoshop
-        // has problems with it.
-        //compression = COMPRESSION_CCITTFAX4;
         bits_per_sample = 1;
         if (image.colorCount() < 2) {
             photometric = PHOTOMETRIC_MINISWHITE;

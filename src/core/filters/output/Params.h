@@ -104,6 +104,16 @@ public:
         m_despeckleLevel = level;
     }
 
+//    QString const & TiffCompression() const
+//    {
+//        return m_TiffCompression;
+//    }
+
+//    void setTiffCompression(QString const& compression)
+//    {
+//        m_TiffCompression = compression;
+//    }
+
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
     static ColorParams::ColorMode parseColorMode(QString const& str);
@@ -117,6 +127,7 @@ private:
     DepthPerception m_depthPerception;
     DewarpingMode m_dewarpingMode;
     DespeckleLevel m_despeckleLevel;
+//    QString m_TiffCompression;
 };
 
 } // namespace output

@@ -494,10 +494,15 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
             params.setDepthPerception(cli.getDepthPerception());
         }
 
+        if (cli.hasTiffCompressionBW()) {
+            GlobalStaticSettings::setTiffCompressionBW(cli.getTiffCompressionBW());
+        }
+
+        if (cli.hasTiffCompressionColor()) {
+            GlobalStaticSettings::setTiffCompressionColor(cli.getTiffCompressionColor());
+        }
+
         output->getSettings()->setParams(page, params);
     }
 
-    if (cli.hasTiffCompression()) {
-        output->getSettings()->setTiffCompression(cli.getTiffCompression());
-    }
 }

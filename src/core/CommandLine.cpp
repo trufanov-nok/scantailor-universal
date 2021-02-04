@@ -283,7 +283,8 @@ CommandLine::setup()
     m_endFilterIdx = fetchEndFilterIdx();
     m_matchLayoutTolerance = fetchMatchLayoutTolerance();
     m_dewarpingMode = fetchDewarpingMode();
-    m_compression = fetchCompression();
+    m_compressionBW = fetchCompressionBW();
+    m_compressionColor = fetchCompressionColor();
     m_language = fetchLanguage();
     m_windowTitle = fetchWindowTitle();
     m_pageDetectionBox = fetchPageDetectionBox();
@@ -852,12 +853,21 @@ bool CommandLine::hasLanguage() const
     return m_options.contains("language");
 }
 
-QString CommandLine::fetchCompression() const
+QString CommandLine::fetchCompressionBW() const
 {
     if (!m_options.contains("tiff-compression")) {
         return QString("LZW");
     } else {
         return m_options["tiff-compression"].toUpper();
+    }
+}
+
+QString CommandLine::fetchCompressionColor() const
+{
+    if (!m_options.contains("tiff-compression-non-bw")) {
+        return QString("LZW");
+    } else {
+        return m_options["tiff-compression-non-bw"].toUpper();
     }
 }
 

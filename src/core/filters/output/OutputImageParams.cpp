@@ -29,14 +29,14 @@
 namespace output
 {
 
-OutputImageParams::OutputImageParams(
-    QSize const& out_image_size, QRect const& content_rect,
+OutputImageParams::OutputImageParams(QSize const& out_image_size, QRect const& content_rect,
     ImageTransformation xform,
     Dpi const& dpi, ColorParams const& color_params,
     DewarpingMode const& dewarping_mode,
     dewarping::DistortionModel const& distortion_model,
     DepthPerception const& depth_perception,
-    DespeckleLevel const despeckle_level)
+    DespeckleLevel const despeckle_level,
+    QString const&TiffCompression)
     :   m_size(out_image_size),
         m_contentRect(content_rect),
         m_dpi(dpi),
@@ -44,7 +44,8 @@ OutputImageParams::OutputImageParams(
         m_distortionModel(distortion_model),
         m_depthPerception(depth_perception),
         m_dewarpingMode(dewarping_mode),
-        m_despeckleLevel(despeckle_level)
+        m_despeckleLevel(despeckle_level),
+        m_TiffCompression(TiffCompression)
 {
     // For historical reasons, we disregard post-cropping and post-scaling here.
     xform.setPostCropArea(QPolygonF()); // Resets post-scale as well.
@@ -59,7 +60,8 @@ OutputImageParams::OutputImageParams(QDomElement const& el)
         m_distortionModel(el.namedItem("distortion-model").toElement()),
         m_depthPerception(el.attribute("depthPerception")),
         m_dewarpingMode(el.attribute("dewarpingMode")),
-        m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
+        m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel"))),
+        m_TiffCompression(el.attribute("tiff-compression"))
 {
 }
 
@@ -78,6 +80,7 @@ OutputImageParams::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("depthPerception", m_depthPerception.toString());
     el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
     el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
+    el.setAttribute("tiff-compression", m_TiffCompression);
 
     return el;
 }
@@ -98,6 +101,10 @@ OutputImageParams::matches(OutputImageParams const& other) const
     }
 
     if (m_dpi != other.m_dpi) {
+        return false;
+    }
+
+    if (m_TiffCompression != other.m_TiffCompression || other.m_TiffCompression.isEmpty()) {
         return false;
     }
 

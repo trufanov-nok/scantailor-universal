@@ -45,6 +45,7 @@ Params::Params(QDomElement const& el)
         m_depthPerception(el.attribute("depthPerception")),
         m_dewarpingMode(el.attribute("dewarpingMode")),
         m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
+//        m_TiffCompression(el.attribute("tiff-compression"))
 
 {
     QDomElement const cp(el.namedItem("color-params").toElement());
@@ -69,6 +70,7 @@ Params::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("depthPerception", m_depthPerception.toString());
     el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
     el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
+//    el.setAttribute("tiff-compression", m_TiffCompression);
     el.appendChild(marshaller.dpi(m_dpi, "dpi"));
 
     QDomElement cp(doc.createElement("color-params"));

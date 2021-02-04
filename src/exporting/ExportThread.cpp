@@ -160,7 +160,7 @@ ExportThread::run()
         if (m_settings.mode.testFlag(ExportMode::WholeImage)) {
             TiffWriter::writeImage(out_file_path_no_split,
                                    m_settings.page_gen_tweaks.testFlag(PageGenTweak::IgnoreOutputProcessingStage) ? m_orig_fore_subscan : out_img,
-                                   m_settings.export_to_multipage, page_no, GlobalStaticSettings::m_tiff_compression_id);
+                                   m_settings.export_to_multipage, page_no);
             if (m_settings.export_to_multipage) {
                 page_no++;
             }
@@ -171,8 +171,7 @@ ExportThread::run()
             TiffWriter::writeImage(m_settings.export_to_multipage ? out_file_path_no_split : out_filepath_foreground,
                                    *img_foreground,
                                    m_settings.export_to_multipage,
-                                   page_no++,
-                                   GlobalStaticSettings::m_tiff_compression_id
+                                   page_no++
                                    );
         }
         if (img_background && (!only_bw || m_settings.generate_blank_back_subscans)) {
@@ -181,8 +180,7 @@ ExportThread::run()
             TiffWriter::writeImage(m_settings.export_to_multipage ? out_file_path_no_split : out_filepath_background,
                                    *img_background,
                                    m_settings.export_to_multipage,
-                                   page_no++,
-                                   GlobalStaticSettings::m_tiff_compression_id);
+                                   page_no++);
         }
 
         if (m_settings.mode.testFlag(ExportMode::AutoMask)) {
@@ -194,8 +192,7 @@ ExportThread::run()
             TiffWriter::writeImage(m_settings.export_to_multipage ? out_file_path_no_split : out_filepath_mask,
                                    automask_img,
                                    m_settings.export_to_multipage,
-                                   page_no,
-                                   GlobalStaticSettings::m_tiff_compression_id);
+                                   page_no);
             if (m_settings.export_to_multipage) {
                 page_no++;
             }
@@ -206,8 +203,7 @@ ExportThread::run()
             TiffWriter::writeImage(m_settings.export_to_multipage ? out_file_path_no_split : out_filepath_mask,
                                    *img_mask,
                                    m_settings.export_to_multipage,
-                                   page_no++,
-                                   GlobalStaticSettings::m_tiff_compression_id);
+                                   page_no++);
         }
 
         emit imageProcessed();

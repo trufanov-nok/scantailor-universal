@@ -168,7 +168,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>10</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="pageEmpty">
        <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -224,8 +224,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>115</width>
-                <height>1057</height>
+                <width>103</width>
+                <height>1089</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_70">
@@ -595,8 +595,8 @@ This option allows to increase page view panel size to almost a whole applicatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>112</width>
-                <height>2377</height>
+                <width>99</width>
+                <height>2504</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_83">
@@ -1094,8 +1094,8 @@ If project was never saved before this will create UnnamedAutoSave.Scantailor fi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>104</width>
-                <height>922</height>
+                <width>419</width>
+                <height>225</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_57">
@@ -1148,14 +1148,14 @@ Horizontal differencing predictor - a preprocessing step applied to image data t
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_58">
            <item>
-            <widget class="QLabel" name="label_2">
+            <widget class="QLabel" name="lblTifCompressionBw">
              <property name="text">
-              <string>TIFF compression:</string>
+              <string>TIFF compression (b/w):</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="cbTiffCompression">
+            <widget class="QComboBox" name="cbTiffCompressionBW">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1165,7 +1165,54 @@ Horizontal differencing predictor - a preprocessing step applied to image data t
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="lblTiffDetails">
+            <widget class="QLabel" name="lblTiffDetailsBW">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <italic>true</italic>
+              </font>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string notr="true"/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblTifCompressionColor">
+             <property name="text">
+              <string>TIFF compression (non b/w):</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="cbTiffCompressionColor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblTiffDetailsColor">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1340,8 +1387,8 @@ Use &quot;Apply To...&quot; dialog to apply changes to a specified range of page
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>105</width>
-                <height>1232</height>
+                <width>91</width>
+                <height>1334</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_60">
@@ -1569,8 +1616,8 @@ The dividing line can also be determined/moved automatically or specified manual
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>441</width>
-                <height>404</height>
+                <width>433</width>
+                <height>405</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_96">
@@ -1787,8 +1834,8 @@ The Deviant page on this stage is defined as a page which absolute deskew angle 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>94</width>
-                <height>1503</height>
+                <width>83</width>
+                <height>1615</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_63">
@@ -2020,8 +2067,8 @@ The Deviant page on this stage is defined as a page which content zone square di
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>109</width>
-                <height>1470</height>
+                <width>96</width>
+                <height>1541</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_41">
@@ -2296,8 +2343,8 @@ Everything outside page area is highlighted with yellow in page view panel.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1286</height>
+                <width>88</width>
+                <height>1348</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_68">
@@ -2452,8 +2499,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>106</width>
-                <height>1182</height>
+                <width>95</width>
+                <height>1191</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_90">
@@ -2739,8 +2786,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>103</width>
-                <height>4266</height>
+                <width>93</width>
+                <height>4389</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_89">
@@ -2932,8 +2979,8 @@ The Deviant page on this stage is defined as a page which has no alignment.</str
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>111</width>
-                <height>813</height>
+                <width>99</width>
+                <height>831</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_69">
@@ -3206,8 +3253,8 @@ Unlike the other stages, the &quot;Output&quot; stage becomes available only aft
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1006</height>
+                <width>89</width>
+                <height>1070</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_74">
@@ -3319,8 +3366,8 @@ Making black and white image from grayscale or color source requires binarizatio
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>90</width>
-                <height>558</height>
+                <width>80</width>
+                <height>575</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_76">
@@ -3425,8 +3472,8 @@ Equalize illumination option normalizes the background color, bringing it to whi
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>109</width>
-                <height>828</height>
+                <width>95</width>
+                <height>879</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_77">
@@ -3531,8 +3578,8 @@ Automatic picture zones detection works well enough, but if the picture merges s
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>648</height>
+                <width>88</width>
+                <height>703</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_79">
@@ -3629,8 +3676,8 @@ This mask can't be changed directly but only switched on/off. User could also cr
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1743</height>
+                <width>88</width>
+                <height>1855</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_81">
@@ -3776,8 +3823,8 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>93</width>
-                <height>1702</height>
+                <width>83</width>
+                <height>1793</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_73">
@@ -3959,8 +4006,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>101</width>
-                <height>1436</height>
+                <width>88</width>
+                <height>1540</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_92">
@@ -4170,8 +4217,8 @@ As Foreground layer is using binarization to separate content from background it
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>116</width>
-                <height>1314</height>
+                <width>103</width>
+                <height>1394</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_59">

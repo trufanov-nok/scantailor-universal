@@ -236,8 +236,10 @@ static const bool _key_select_content_deviant_enabled_def = false;
 static const char* _key_margins_deviant_enabled = "margins_deviant/enabled";
 static const bool _key_margins_deviant_enabled_def = false;
 
-static const char* _key_tiff_compr_method = "tiff_compression/method";
-static const char* _key_tiff_compr_method_def = "LZW";
+static const char* _key_tiff_compr_method_bw = "tiff_compression/method";
+static const char* _key_tiff_compr_method_bw_def = "LZW";
+static const char* _key_tiff_compr_method_color = "tiff_compression/method_color";
+static const char* _key_tiff_compr_method_color_def = "LZW";
 static const char* _key_tiff_compr_horiz_pred = "tiff_compression/use_horizontal_predictor";
 static const bool _key_tiff_compr_horiz_pred_def = false;
 static const char* _key_tiff_compr_show_all = "tiff_compression/show_all";

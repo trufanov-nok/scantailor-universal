@@ -36,19 +36,31 @@ public:
      *
      * \param file_path The full path to the file.
      * \param image The image to write.  Writing a null image will fail.
+     * \param multipage Is this a multipage tiff and new page should be
+     *        appended to it.
+     * \param page_no Number of page in multipage tiff.
+     * \param compression_used Pointer to a string that'll return compression
+     *        name that was actually used to save the image.
      * \return True on success, false on failure.
      */
-    static bool writeImage(QString const& file_path, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
-private:
+
+    static bool writeImage(QString const& file_path, QImage const& image, bool multipage = false, int page_no = 0, QString* compression_used = nullptr);
     /**
      * \brief Writes a QImage in TIFF format to an IO device.
      *
      * \param device The device to write to.  This device must be
      *        opened for writing and seekable.
      * \param image The image to write.  Writing a null image will fail.
+     * \param multipage Is this a multipage tiff and new page should be
+     *        appended to it.
+     * \param page_no Number of page in multipage tiff.
+     * \param compression_used Pointer to a string that'll return compression
+     *        name that was actually used to save the image.
      * \return True on success, false on failure.
      */
-    static bool writeImage(QIODevice& device, QImage const& image, bool multipage = false, int page_no = 0, int compression = COMPRESSION_LZW);
+
+private:
+    static bool writeImage(QIODevice& device, QImage const& image, bool multipage = false, int page_no = 0, QString* compression_used = nullptr);
 
     class TiffHandle;
 

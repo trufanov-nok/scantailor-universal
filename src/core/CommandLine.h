@@ -242,9 +242,11 @@ public:
     {
         return contains("depth-perception") && !m_options["depth-perception"].isEmpty();
     }
-    bool hasTiffCompression() const
-    {
+    bool hasTiffCompressionBW() const {
         return contains("tiff-compression") && !m_options["tiff-compression"].isEmpty();
+    }
+    bool hasTiffCompressionColor() const {
+        return contains("tiff-compression-non-bw") && !m_options["tiff-compression-non-bw"].isEmpty();
     }
     bool hasTiffForceRGB() const
     {
@@ -388,9 +390,11 @@ public:
     {
         return m_matchLayoutTolerance;
     }
-    QString getTiffCompression() const
-    {
-        return m_compression;
+    QString getTiffCompressionBW() const {
+        return m_compressionBW;
+    }
+    QString getTiffCompressionColor() const {
+        return m_compressionColor;
     }
     QString getLanguage() const
     {
@@ -454,7 +458,8 @@ private:
     std::vector<QFileInfo> m_files;
     std::vector<ImageFileInfo> m_images;
     QString m_outputDirectory;
-    QString m_compression;
+    QString m_compressionBW;
+    QString m_compressionColor;
 
     page_split::LayoutType m_layoutType;
     Qt::LayoutDirection m_layoutDirection;
@@ -525,7 +530,8 @@ private:
     output::DespeckleLevel fetchDespeckleLevel();
     output::DepthPerception fetchDepthPerception();
     float fetchMatchLayoutTolerance();
-    QString fetchCompression() const;
+    QString fetchCompressionBW() const;
+    QString fetchCompressionColor() const;
     QString fetchLanguage() const;
     QString fetchWindowTitle() const;
     QSizeF fetchPageDetectionBox() const;

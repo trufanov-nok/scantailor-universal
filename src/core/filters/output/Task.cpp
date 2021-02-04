@@ -250,7 +250,10 @@ Task::process(
         generator.outputImageSize(), generator.outputContentRect(),
         new_xform, params.outputDpi(), params.colorParams(),
         params.dewarpingMode(), params.distortionModel(),
-        params.depthPerception(), params.despeckleLevel());
+        params.depthPerception(), params.despeckleLevel(),
+        params.colorParams().colorMode() == ColorParams::BLACK_AND_WHITE ?
+                    GlobalStaticSettings::m_tiff_compr_method_bw :
+                    GlobalStaticSettings::m_tiff_compr_method_color);
 
 //begin of modified by monday2000
 //Quadro_Zoner
@@ -462,29 +465,38 @@ Task::process(
 
         bool invalidate_params = false;
 
-        if (!TiffWriter::writeImage(out_file_path, out_img, false, 0, m_ptrSettings->getTiffCompression())) {
+        QString TiffCompressionUsed;
+
+        if (!TiffWriter::writeImage(out_file_path, out_img, false, 0, &TiffCompressionUsed)) {
             invalidate_params = true;
         } else {
             deleteMutuallyExclusiveOutputFiles();
+            if (TiffCompressionUsed != new_output_image_params.TiffCompression()) {
+                new_output_image_params.setTiffCompression(TiffCompressionUsed);
+            }
+//            if (TiffCompressionUsed != params.TiffCompression()) {
+//                params.setTiffCompression(TiffCompressionUsed);
+//                m_ptrSettings->setParams(m_pageId, params);
+//            }
         }
 
         if (write_automask) {
             // Note that QDir::mkdir() will fail if the parent directory,
-            // that is $OUT/cache doesn't exist. We want that behaviour,
+            // that is $OUT/cache doesn't exist. We want that behavior,
             // as otherwise when loading a project from a different machine,
             // a whole bunch of bogus directories would be created.
             QDir().mkdir(automask_dir);
             // Also note that QDir::mkdir() will fail if the directory already exists,
             // so we ignore its return value here.
 
-            if (!TiffWriter::writeImage(automask_file_path, automask_img.toQImage(), false, 0, m_ptrSettings->getCompressionVal("LZW"))) {
+            if (!TiffWriter::writeImage(automask_file_path, automask_img.toQImage(), false, 0)) {
                 invalidate_params = true;
             }
         }
         if (write_speckles_file) {
             if (!QDir().mkpath(speckles_dir)) {
                 invalidate_params = true;
-            } else if (!TiffWriter::writeImage(speckles_file_path, speckles_img.toQImage(), false, 0, m_ptrSettings->getCompressionVal("LZW"))) {
+            } else if (!TiffWriter::writeImage(speckles_file_path, speckles_img.toQImage(), false, 0)) {
                 invalidate_params = true;
             }
         }
