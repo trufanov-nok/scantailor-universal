@@ -80,13 +80,13 @@ latest stable version.
 3. Install Visual Studio, ActivePerl and CMake.
 
 4. Create two more subdirectories there:
-     | scantailor-build
-     | scantailor-deps-build
+     | scantailor-universal-build
+     | scantailor-universal-deps-build
 
 5. Launch CMake and specify the following:
 
-   Where is the source code: C:\build\scantailor-0.10.0\packaging\windows\build-deps
-   Where to build the binaries: C:\build\scantailor-deps-build
+   Where is the source code: C:\build\scantailor-universal\src\packaging\windows\build-deps
+   Where to build the binaries: C:\build\scantailor-universal-deps-build
 
    Click "Configure". Select the project type "Visual Studio 12" or
    "Visual Studio 12 Win64" for 64-bit builds. Keep in mind that 64-bit
@@ -102,7 +102,7 @@ latest stable version.
    once.  When building newer versions of Scan Tailor, you won't need to
    redo this step.
 
-   Go to C:\build\scantailor-deps-build and open file
+   Go to C:\build\scantailor-universal-deps-build and open file
    "Scan Tailor Dependencies.sln".  It will open in Visual Studio.
    IMPORTANT: Set the build type to RelWithDebInfo. If you leave Debug
    (which is the default), your builds won't run on other computers.
@@ -118,16 +118,20 @@ latest stable version.
 
 7. Launch CMake again and specify following:
 
-   Where is the source code: C:\build\scantailor-0.10.0
-   Where to build the binaries: C:\build\scantailor-build
+   Where is the source code: C:\build\scantailor-universal
+   Where to build the binaries: C:\build\scantailor-universal-build
 
    Click "Configure", then "Generate", just like on step 5.
+
+   Alternatively from command line (mingw):
+   cmake -A x64 -S /c/build/scantailor-universal -B /c/build/scantailor-universal-build
+   or cmake -A win32 -S /c/build/scantailor-universal -B /c/build/scantailor-universal-build
 
 8. Now we are going to build Scan Tailor itself.  On subsequent build of the
    same (possiblity modified) version, you can start right from this step.
    For building a different version, start from step 7.
 
-   Go to C:\build\scantailor-build and open file "Scan Tailor.sln".
+   Go to C:\build\scantailor-universal-build and open file "Scan Tailor.sln".
    It will open in Visual Studio. Select the desired build type. Debug builds
    won't work on other computers.
 
@@ -136,8 +140,8 @@ latest stable version.
    Make sure the building process finishes without errors. Warnings may
    be ignored.
 
-   If everything went right, the installer named scantailor-VERSION-install.exe
-   will appear in C:\build\scantailor-build. The VERSION part of the name will
+   If everything went right, the installer named scantailor-universal-VERSION-install.exe
+   will appear in C:\build\scantailor-universal-build. The VERSION part of the name will
    be replaced by the actual version, taken from the version.h file in the root
    of the source directory.
 
@@ -173,7 +177,7 @@ tiff_4.0.10-6.debian.tar.gz).  Download both and follow the instructions:
 
 4. Launch CMake and specify the following:
 
-   Where is the source code:    C:\build\scantailor-0.10.0\packaging\windows\patch_libtiff
+   Where is the source code:    C:\build\scantailor-universal\src\packaging\windows\patch_libtiff
    Where to build the binaries: C:\build\tiff-patch-dir
 
    Click "Configure" then "Generate", just like in previous section, step 5.

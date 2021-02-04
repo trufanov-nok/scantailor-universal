@@ -123,6 +123,7 @@ SOURCE_GROUP("Sources" FILES ${common_sources} ${core_ui_sources})
 
 QT5_ADD_RESOURCES(core_resource_sources resources/core_resources.qrc)
 SOURCE_GROUP("Generated" FILES ${core_resource_sources})
+SOURCE_GROUP("Resources" FILES ${core_resource_sources})
 
 ADD_LIBRARY(stcore STATIC ${core_resource_sources} ${common_sources} ${core_ui_sources})
 QT5_USE_MODULES(stcore Widgets Xml ${MAYBE_QT_OPENGL_MODULE})

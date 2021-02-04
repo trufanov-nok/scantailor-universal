@@ -2,27 +2,27 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
 
 SET(
 	CMAKE_USER_MAKE_RULES_OVERRIDE
-	"${CMAKE_SOURCE_DIR}/../../../cmake/default_cflags.cmake"
+        "${CMAKE_SOURCE_DIR}/../../../../cmake/default_cflags.cmake"
 )
 SET(
 	CMAKE_USER_MAKE_RULES_OVERRIDE_CXX
-	"${CMAKE_SOURCE_DIR}/../../../cmake/default_cxxflags.cmake"
+        "${CMAKE_SOURCE_DIR}/../../../../cmake/default_cxxflags.cmake"
 )
 
 PROJECT("Scan Tailor Dependencies")
 
 
-INCLUDE(../../../cmake/SetDefaultBuildType.cmake)
-INCLUDE(../../../cmake/SetDefaultGccFlags.cmake)
-INCLUDE(../../../cmake/ToNativePath.cmake)
-INCLUDE(../../../cmake/PatchFile.cmake)
+INCLUDE(../../../../cmake/SetDefaultBuildType.cmake)
+INCLUDE(../../../../cmake/SetDefaultGccFlags.cmake)
+INCLUDE(../../../../cmake/ToNativePath.cmake)
+INCLUDE(../../../../cmake/PatchFile.cmake)
 INCLUDE(TestCXXAcceptsFlag)
 
 ST_SET_DEFAULT_BUILD_TYPE(Release)
 ST_SET_DEFAULT_GCC_FLAGS()
 
-GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
-GET_FILENAME_COMPONENT(build_outer_dir "${PROJECT_BINARY_DIR}/.." ABSOLUTE)
+GET_FILENAME_COMPONENT(source_outer_dir "${PROJECT_SOURCE_DIR}/../../../../.." ABSOLUTE)
+GET_FILENAME_COMPONENT(build_outer_dir "${PROJECT_BINARY_DIR}/../.." ABSOLUTE)
 
 FILE(GLOB jpeg_dirs1 "${build_outer_dir}/jpeg-[0-9]*")
 FILE(GLOB jpeg_dirs2 "${source_outer_dir}/jpeg-[0-9]*")

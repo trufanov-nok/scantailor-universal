@@ -106,11 +106,10 @@ IF(OPENGL_FOUND AND QT_QTOPENGL_FOUND)
 ENDIF()
 OPTION(ENABLE_OPENGL "OpenGL may be used for UI acceleration" ${use_opengl})
 
-
 IF(WIN32)
         FIND_PATH(
                 DEPS_BUILD_DIR build-qt.bat
-                HINTS "${build_outer_dir}/scantailor-deps-build"
+                HINTS "${build_outer_dir}/scantailor-universal-deps-build"
                 DOC "Build directory for Scan Tailor dependencies."
         )
         IF(NOT DEPS_BUILD_DIR)

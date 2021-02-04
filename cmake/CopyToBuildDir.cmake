@@ -65,7 +65,7 @@ MACRO(GENERATE_COPY_TO_BUILD_DIR_TARGET target_name_)
 	# Copy DLLs and other stuff to ${CMAKE_BINARY_DIR}/<configuration>
 	ADD_CUSTOM_TARGET(
 		"${target_name_}" ALL
-		COMMAND "${CMAKE_COMMAND}" "-DTARGET_DIR=$<TARGET_FILE_DIR:scantailor>"
+                COMMAND "${CMAKE_COMMAND}" "-DTARGET_DIR=$<TARGET_FILE_DIR:scantailor-universal>"
 		"-DCFG=$<CONFIGURATION>" -P "${script_}"
 		DEPENDS "${script_}" ${deps_}
     )

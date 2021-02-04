@@ -78,7 +78,7 @@ ENDIF()
 ADD_CUSTOM_TARGET(
 	prepare_staging_dir
 	COMMAND "${CMAKE_COMMAND}" ARGS -DCFG=$<CONFIGURATION>
-	"-DCONF_BUILD_DIR=$<TARGET_FILE_DIR:scantailor>"
+        "-DCONF_BUILD_DIR=$<TARGET_FILE_DIR:scantailor-universal>"
 	"-DSCANTAILOR_EXE=$<TARGET_FILE:scantailor-universal>"
 	"-DSCANTAILOR_CLI_EXE=$<TARGET_FILE:scantailor-universal-cli>"
 	${MAYBE_CRASHREPORTER_EXE}

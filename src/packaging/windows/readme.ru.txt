@@ -86,13 +86,13 @@ This file is in UTF-8 encoding.
 3. Установить Visual Studio, ActivePerl и CMake.
 
 4. Создать там еще пару директорий:
-     | scantailor-build
-     | scantailor-deps-build
+     | scantailor-universal-build
+     | scantailor-universal-deps-build
 
 5. Запустить CMake и указать следующее:
 
-   Where is the source code: C:\build\scantailor-0.10.0\packaging\windows\build-deps
-   Where to build the binaries: C:\build\scantailor-deps-build
+   Where is the source code: C:\build\scantailor-universal\src\packaging\windows\build-deps
+   Where to build the binaries: C:\build\scantailor-universal-deps-build
 
    Жмем "Configure".  Выбираем тип проекта "Visual Studio 12" или
    "Visual Studio 12 Win64" для 64-битной сборки. Имейте в виду, что 64-битную
@@ -108,7 +108,7 @@ This file is in UTF-8 encoding.
    то есть вам не придется переделывать этот шаг для сборки других версий
    Scan Tailor'а.
 
-   дем в C:\build\scantailor-deps-build и открываем файл
+   Идем в C:\build\scantailor-universal-deps-build и открываем файл
    "Scan Tailor Dependencies.sln". Он откроется в Visual Studio.
    ВАЖНО: Установите тип сборки в RelWithDebInfo. Если оставите Debug
    (выбор по умолчанию), ваши сборки не будут запускаться на других
@@ -124,8 +124,8 @@ This file is in UTF-8 encoding.
 
 7. Опять запускаем CMake и указываем следующее:
 
-   Where is the source code: C:\build\scantailor-0.10.0
-   Where to build the binaries: C:\build\scantailor-build
+   Where is the source code: C:\build\scantailor-universal
+   Where to build the binaries: C:\build\scantailor-universal-build
 
    Жмем "Configure", потом "Generate" - так же, как на шаге 5.
 
@@ -133,14 +133,14 @@ This file is in UTF-8 encoding.
    (возможно измененной), начинать можно сразу с этот шага (он же и последний).
    Для сборки другой версии, начинаем с шага 7.
 
-   Идем в C:\build\scantailor-build и открываем файл "Scan Tailor.sln".
+   Идем в C:\build\scantailor-universal-build и открываем файл "Scan Tailor.sln".
    Он откроется в Visual Studio. Выбераем желаемый тип сборки. Сборки типа
    Debug не будут запускаться на других компьютерах.
 
    Теперь делаем Build -> Build Solution
 
-   Если все прошло как надо, в директории C:\build\scantailor-build появится
-   готовый файл инсталлятора, под именем scantailor-VERSION-install.exe, где
+   Если все прошло как надо, в директории C:\build\scantailor-universal-build появится
+   готовый файл инсталлятора, под именем scantailor-universal-VERSION-install.exe, где
    вместо VERSION будет версия сборки, которая берется из файла version.h
    в корне дерева исходников.
 
@@ -176,7 +176,7 @@ tiff_4.0.2-6.debian.tar.gz). Скачайте оба и следуйте инс�
 
 4. Запустить CMake и указать следующее:
 
-   Where is the source code: C:\build\scantailor-0.10.0\packaging\windows\patch_libtiff
+   Where is the source code: C:\build\scantailor-universal\src\packaging\windows\patch_libtiff
    Where to build the binaries: C:\build\tiff-patch-dir
 
    Жмем "Configure", затем "Generate", как описано в предыдущей секции, пункт 5.

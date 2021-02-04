@@ -34,7 +34,7 @@ FOREACH(file ${COPY_TO_BUILD_DIR_${CFG}})
 	SET(INSTALL_EXTRA_BINARIES "${INSTALL_EXTRA_BINARIES}\n  File \"${file}\"")
 ENDFOREACH()
 
-SET(REGISTER_EXTENSION_NSH "@CMAKE_SOURCE_DIR@/packaging/windows/registerExtension.nsh")
+SET(REGISTER_EXTENSION_NSH "@CMAKE_SOURCE_DIR@/src/packaging/windows/registerExtension.nsh")
 TO_NATIVE_PATH("${REGISTER_EXTENSION_NSH}" REGISTER_EXTENSION_NSH)
 
 SET(LICENSE_FILE "@LICENSE_FILE@")
@@ -59,6 +59,6 @@ TO_NATIVE_PATH("${STAGING_DIR}" STAGING_DIR)
 SET(SIZEOF_VOID_PTR "@CMAKE_SIZEOF_VOID_P@")
 
 CONFIGURE_FILE(
-	"@CMAKE_SOURCE_DIR@/packaging/windows/scantailor.nsi.in"
+        "@CMAKE_SOURCE_DIR@/src/packaging/windows/scantailor.nsi.in"
 	"@CMAKE_BINARY_DIR@/scantailor.nsi" @ONLY
 )

@@ -5,6 +5,8 @@
 QMap<QString, TiffCompressionInfo>
 init_data()
 {
+    Q_INIT_RESOURCE(core_resources);
+
     QMap<QString, TiffCompressionInfo> data;
     const QResource tiff_data(":/TiffCompressionMethods.tsv");
     const QStringList sl = QString::fromUtf8((char const*)tiff_data.data(), tiff_data.size()).split('\n');
