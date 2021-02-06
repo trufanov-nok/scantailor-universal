@@ -1,3 +1,11 @@
+scantailor-universal (0.2.10-0ubuntu1) bionic; urgency=medium
+
+  * Multiple bugfixes
+  * Separate settings for b/w and color tiff compression methods
+  * Use libcanberra to play beep sound on bulk processing completion [Linux]
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Sat, 6 Feb 2021 10:00:00 +0300
+
 scantailor-universal (0.2.9-0ubuntu1) bionic; urgency=medium
 
   * Ellipse zones in Output processing stage
