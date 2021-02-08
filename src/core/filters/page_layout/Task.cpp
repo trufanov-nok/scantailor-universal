@@ -101,7 +101,7 @@ Task::process(
     );
 
     MarginsWithAuto marginsHndl;
-    if (const Params* prm = m_ptrSettings->getPageParams(m_pageId).get()) {
+    if (std::unique_ptr<Params> prm = m_ptrSettings->getPageParams(m_pageId)) {
         marginsHndl = prm->hardMarginsMM();
     }
     if (marginsHndl.isAutoMarginsEnabled()) {

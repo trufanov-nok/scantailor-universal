@@ -76,7 +76,8 @@ QMenu* OpenWithMenuProvider::getOpenWithMenu(const QString& mime_type)
 
                     }
 
-                    QAction* act = res->addAction(QIcon(icons.first()), title);
+                    QAction* act = !icons.isEmpty() ? res->addAction(QIcon(icons.first()), title)
+                                                    : res->addAction(title);
                     act->setData(exec);
                 }
 
