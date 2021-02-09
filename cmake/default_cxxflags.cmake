@@ -1,7 +1,6 @@
 IF(MSVC)
 	# If we want reliable stack traces, we need /Oy-
-	# We do it only for RelWithDebInfo, because configuration is used with
-	# the built-in crash reporter.
+        # We do it only for RelWithDebInfo
 	SET(_common "/FS /wd4267 /std=c++0x")
 	SET(CMAKE_CXX_FLAGS_RELEASE_INIT "/MD /O2 /Ob2 /D NDEBUG ${_common}")
 	SET(CMAKE_CXX_FLAGS_DEBUG_INIT "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1 ${_common}")

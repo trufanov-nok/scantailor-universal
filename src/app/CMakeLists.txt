@@ -109,10 +109,6 @@ ADD_DEPENDENCIES(scantailor-universal fix_orientation page_split deskew select_c
         dewarping zones interaction imageproc math foundation)
 
 
-IF(ENABLE_CRASH_REPORTER)
-        TARGET_LINK_LIBRARIES(scantailor crash_handler)
-ENDIF()
-
 QT5_USE_MODULES(scantailor-universal Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
 
 IF(EXTRA_LIBS)

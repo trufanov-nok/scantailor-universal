@@ -223,8 +223,6 @@ private slots:
 
     void showAboutDialog();
 
-    void handleOutOfMemorySituation();
-
     void openExportDialog();
 
     void on_actionAbout_Qt_triggered();
@@ -406,7 +404,6 @@ private:
     SelectedPage m_selectedPage;
     QObjectCleanupHandler m_optionsWidgetCleanup;
     QObjectCleanupHandler m_imageWidgetCleanup;
-    std::unique_ptr<OutOfMemoryDialog> m_ptrOutOfMemoryDialog;
     int m_curFilter;
     int m_ignoreSelectionChanges;
     int m_ignorePageOrderingChanges;

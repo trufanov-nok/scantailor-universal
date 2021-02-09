@@ -372,14 +372,6 @@ IF(ENABLE_OPENGL)
         SET(MAYBE_QT_OPENGL_MODULE OpenGL)
 ENDIF()
 
-# Crash reporter, only Windows + MSVC supported for now.
-# Must go before generating config.h, as ENABLE_CRASH_REPORTER
-# goes in there.
-IF(MSVC)
-        OPTION(ENABLE_CRASH_REPORTER "Enable crash reporter (only for official builds)" OFF)
-ENDIF(MSVC)
-
-
 # Prepare config.h
 IF(WIN32)
         SET(TRANSLATIONS_DIR_REL "translations")

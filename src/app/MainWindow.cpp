@@ -144,7 +144,6 @@ MainWindow::MainWindow()
         m_ptrStages(new StageSequence(m_ptrPages, newPageSelectionAccessor())),
         m_ptrWorkerThread(new WorkerThread),
         m_ptrInteractiveQueue(new ProcessingTaskQueue(ProcessingTaskQueue::RANDOM_ORDER)),
-        m_ptrOutOfMemoryDialog(new OutOfMemoryDialog),
         m_curFilter(0),
         m_ignoreSelectionChanges(0),
         m_ignorePageOrderingChanges(0),
@@ -237,11 +236,6 @@ MainWindow::MainWindow()
         }
     });
     addAction(actionInsertEmptyPgAfter);
-
-    connect(
-        &OutOfMemoryHandler::instance(),
-        SIGNAL(outOfMemory()), SLOT(handleOutOfMemorySituation())
-    );
 
     connect(actionSwitchFilter1, SIGNAL(triggered(bool)), SLOT(switchFilter1()));
     connect(actionSwitchFilter2, SIGNAL(triggered(bool)), SLOT(switchFilter2()));
@@ -2213,24 +2207,6 @@ MainWindow::showAboutDialog()
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowModality(Qt::WindowModal);
     dialog->show();
-}
-
-/**
- * This function is called asynchronously, always from the main thread.
- */
-void
-MainWindow::handleOutOfMemorySituation()
-{
-    deleteLater();
-
-    m_ptrOutOfMemoryDialog->setParams(
-        m_projectFile, m_ptrStages, m_ptrPages, m_selectedPage, m_outFileNameGen
-    );
-
-    closeProjectWithoutSaving();
-
-    m_ptrOutOfMemoryDialog->setAttribute(Qt::WA_DeleteOnClose);
-    m_ptrOutOfMemoryDialog.release()->show();
 }
 
 /**

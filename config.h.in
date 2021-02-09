@@ -9,7 +9,6 @@
 #define ORGANIZATION_NAME APPLICATION_NAME
 #define ORGANIZATION_DOMAIN "github.com/trufanov-nok/scantailor-universal"
 
-#cmakedefine ENABLE_CRASH_REPORTER
 #cmakedefine ENABLE_OPENGL
 
 #endif

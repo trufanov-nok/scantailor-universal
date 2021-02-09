@@ -3,10 +3,7 @@
 INCLUDE_DIRECTORIES(. foundation math core/interaction core/zones)
 
 FILE(GLOB TRANSLATION_FILES translations/scantailor-universal_*.ts)
-FILE(GLOB CR_TRANSLATION_FILES translations/crashreporter_*.ts)
 
-# crash_reporter is included unconditionally to collect translation sources from there.
-ADD_SUBDIRECTORY(crash_reporter)
 ADD_SUBDIRECTORY(dewarping)
 ADD_SUBDIRECTORY(foundation)
 ADD_SUBDIRECTORY(imageproc)
@@ -17,9 +14,6 @@ ADD_SUBDIRECTORY(app_cli)
 ADD_SUBDIRECTORY(app)
 
 SET(ts_files ${TRANSLATION_FILES})
-IF(ENABLE_CRASH_REPORTER)
-        LIST(APPEND ts_files ${CR_TRANSLATION_FILES})
-ENDIF(ENABLE_CRASH_REPORTER)
 
 # Don't build *.qm files from *untranslated.ts
 SET(FILTERED_TRANSLATION_FILES)
