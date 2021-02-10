@@ -37,6 +37,8 @@
 #include <math.h>
 #include <assert.h>
 
+#include "version.h"
+
 /**
  * m_reverseBitsLUT[byte] gives the same byte, but with bit order reversed.
  */
@@ -213,6 +215,7 @@ TiffWriter::writeImage(QIODevice& device, QImage const& image, bool multipage, i
     TIFFSetField(tif.handle(), TIFFTAG_IMAGELENGTH, uint32(image.height()));
     TIFFSetField(tif.handle(), TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
     TIFFSetField(tif.handle(), TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(tif.handle(), TIFFTAG_SOFTWARE, "Scan Tailor \"Universal\" " VERSION);
     setDpm(tif, Dpm(image));
 
     CommandLine const& cli = CommandLine::get();
