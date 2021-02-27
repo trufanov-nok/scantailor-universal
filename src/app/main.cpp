@@ -22,6 +22,9 @@
 #include "PngMetadataLoader.h"
 #include "TiffMetadataLoader.h"
 #include "JpegMetadataLoader.h"
+#ifdef ENABLE_OPENJPEG
+#include "Jp2MetadataLoader.h"
+#endif
 #include "GenericMetadataLoader.h"
 #include "settings/ini_keys.h"
 #include <QMetaType>
@@ -72,6 +75,9 @@ int main(int argc, char** argv)
     PngMetadataLoader::registerMyself();
     TiffMetadataLoader::registerMyself();
     JpegMetadataLoader::registerMyself();
+#ifdef ENABLE_OPENJPEG
+    Jp2MetadataLoader::registerMyself();
+#endif
     // should be the last one as the most dumb and loads whole image into mem
     GenericMetadataLoader::registerMyself();
 

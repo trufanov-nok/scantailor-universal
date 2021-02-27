@@ -118,6 +118,13 @@ SET(
         settings/ini_keys.h
 )
 
+IF (ENABLE_OPENJPEG)
+LIST(APPEND common_sources
+        Jp2Reader.cpp Jp2Reader.h
+        Jp2MetadataLoader.cpp Jp2MetadataLoader.h
+    )
+ENDIF(ENABLE_OPENJPEG)
+
 
 SOURCE_GROUP("Sources" FILES ${common_sources} ${core_ui_sources})
 

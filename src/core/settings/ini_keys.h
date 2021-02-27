@@ -19,6 +19,7 @@
 #ifndef INI_KEYS_H
 #define INI_KEYS_H
 
+#include "config.h"
 #include <QSettings> // propagate header
 
 #include "../filters/output/DespeckleLevel.h"
@@ -33,7 +34,11 @@ static const char* _key_app_language = "main_window/language";
 static const char* _key_app_open_filetype_filter = "main_window/filetype_filter";
 static const char* _key_app_docking_enabled = "docking_panels/enabled";
 static const bool _key_app_docking_enabled_def = false;
+#ifndef ENABLE_OPENJPEG
 static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp";
+#else
+static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp *.jp2";
+#endif
 static const char* _key_app_alert_cmd = "main_window/external_alarm_cmd";
 #if (defined(Q_OS_UNIX) & (! defined(Q_OS_OSX)) & (!HAVE_CANBERRA))
 static const char* _key_app_alert_cmd_def = "play /usr/share/sounds/freedesktop/stereo/bell.oga";
