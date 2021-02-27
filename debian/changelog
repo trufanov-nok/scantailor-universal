@@ -1,3 +1,11 @@
+scantailor-universal (0.2.11-0ubuntu1) bionic; urgency=medium
+
+  * Fix a bug
+  * Experimental support of importing JPEG 2000 (*.jp2) images via libopenjp2
+  * Mention STU version in software tiff tag in output file
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Sat, 27 Feb 2021 13:15:00 +0300
+
 scantailor-universal (0.2.10-0ubuntu1) bionic; urgency=medium
 
   * Multiple bugfixes
