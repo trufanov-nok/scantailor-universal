@@ -16,8 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "config.h"
 #include "ImageLoader.h"
 #include "TiffReader.h"
+#ifdef ENABLE_OPENJPEG
+#include "Jp2Reader.h"
+#endif
 #include "ImageId.h"
 #include <QImageReader>
 #include <QImage>
@@ -58,6 +62,12 @@ ImageLoader::load(QIODevice& io_dev, int const page_num)
         // Qt can only load the first page of multi-page images.
         return QImage();
     }
+
+#ifdef ENABLE_OPENJPEG
+    if (Jp2Reader::canRead(io_dev)) {
+        return Jp2Reader::readImage(io_dev);
+    }
+#endif
 
     QImage image;
     QImageReader(&io_dev).read(&image);

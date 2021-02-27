@@ -10,5 +10,6 @@
 #define ORGANIZATION_DOMAIN "github.com/trufanov-nok/scantailor-universal"
 
 #cmakedefine ENABLE_OPENGL
+#cmakedefine ENABLE_OPENJPEG
 
 #endif
