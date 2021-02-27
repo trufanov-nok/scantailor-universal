@@ -923,8 +923,8 @@ ThumbnailSequence::Impl::invalidateAllThumbnails()
     // Sort pages in m_itemsInOrder using m_ptrOrderProvider.
     if (const PageOrderProvider* order = orderProvider()) {
         m_itemsInOrder.sort(
-                    [this](Item const& lhs, Item const& rhs) {
-                        return m_ptrOrderProvider->precedes(
+                    [order](Item const& lhs, Item const& rhs) {
+                        return order->precedes(
                             lhs.pageId(), lhs.incompleteThumbnail,
                             rhs.pageId(), rhs.incompleteThumbnail
                         );
