@@ -998,7 +998,7 @@
            <string notr="true">...</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../resources/resources.qrc">
+           <iconset resource="../../../../app/resources/resources.qrc">
             <normaloff>:/icons/despeckle-cautious.png.png</normaloff>:/icons/despeckle-cautious.png.png</iconset>
           </property>
           <property name="iconSize">
@@ -1024,7 +1024,7 @@
            <string notr="true">...</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../resources/resources.qrc">
+           <iconset resource="../../../../app/resources/resources.qrc">
             <normaloff>:/icons/despeckle-normal.png.png</normaloff>:/icons/despeckle-normal.png.png</iconset>
           </property>
           <property name="iconSize">
@@ -1050,7 +1050,7 @@
            <string notr="true">...</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../resources/resources.qrc">
+           <iconset resource="../../../../app/resources/resources.qrc">
             <normaloff>:/icons/despeckle-aggressive.png.png</normaloff>:/icons/despeckle-aggressive.png.png</iconset>
           </property>
           <property name="iconSize">
@@ -1225,8 +1225,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../../../resources/resources.qrc"/>
-  <include location="../../../resources/resources.qrc"/>
+  <include location="../../../../app/resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

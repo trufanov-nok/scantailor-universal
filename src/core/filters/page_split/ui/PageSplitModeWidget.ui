@@ -56,7 +56,7 @@
         <string notr="true"/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../../resources/resources.qrc">:/icons/layout_type_auto.png</pixmap>
+        <pixmap resource="../../../../app/resources/resources.qrc">:/icons/layout_type_auto.png</pixmap>
        </property>
       </widget>
      </item>
@@ -137,8 +137,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../resources/resources.qrc"/>
-  <include location="../../../resources/resources.qrc"/>
+  <include location="../../../../app/resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

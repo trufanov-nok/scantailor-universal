@@ -47,7 +47,7 @@
         <item>
          <widget class="QToolButton" name="singlePageUncutBtn">
           <property name="icon">
-           <iconset resource="../../../resources/resources.qrc">
+           <iconset resource="../../../../app/resources/resources.qrc">
             <normaloff>:/icons/single_page_uncut.png</normaloff>
             <normalon>:/icons/single_page_uncut_selected.png</normalon>:/icons/single_page_uncut.png</iconset>
           </property>
@@ -71,7 +71,7 @@
         <item>
          <widget class="QToolButton" name="pagePlusOffcutBtn">
           <property name="icon">
-           <iconset resource="../../../resources/resources.qrc">
+           <iconset resource="../../../../app/resources/resources.qrc">
             <normaloff>:/icons/right_page_plus_offcut.png</normaloff>
             <normalon>:/icons/right_page_plus_offcut_selected.png</normalon>:/icons/right_page_plus_offcut.png</iconset>
           </property>
@@ -95,7 +95,7 @@
         <item>
          <widget class="QToolButton" name="twoPagesBtn">
           <property name="icon">
-           <iconset resource="../../../resources/resources.qrc">
+           <iconset resource="../../../../app/resources/resources.qrc">
             <normaloff>:/icons/two_pages.png</normaloff>
             <normalon>:/icons/two_pages_selected.png</normalon>:/icons/two_pages.png</iconset>
           </property>
@@ -271,8 +271,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../resources/resources.qrc"/>
-  <include location="../../../resources/resources.qrc"/>
+  <include location="../../../../app/resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
