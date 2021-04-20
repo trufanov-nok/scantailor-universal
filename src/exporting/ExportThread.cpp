@@ -101,8 +101,9 @@ ExportThread::run()
 
 #pragma omp parallel
 #pragma omp for schedule(dynamic)
-    for (const ExportRec& rec : qAsConst(m_outpaths_vector)) {
-
+    for (int i = 0; i < m_outpaths_vector.count(); i++) {
+        const ExportRec& rec = m_outpaths_vector[i];
+        
         if (!isCancelRequested()) {
             if (need_reprocess) {
                 m_paused.lock();
