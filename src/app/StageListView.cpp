@@ -136,6 +136,8 @@ StageListView::StageListView(QWidget* parent)
         verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
         this, SLOT(ensureSelectedRowVisible()), Qt::QueuedConnection
     );
+
+    connect(SettingsChangesSignaller::self(), &SettingsChangesSignaller::StyleChanged, this, &StageListView::readjustSizeConstraints);
 }
 
 StageListView::~StageListView()
@@ -171,6 +173,12 @@ StageListView::setStages(IntrusivePtr<StageSequence> const& stages)
 
     updateRowSpans();
 
+    readjustSizeConstraints();
+}
+
+void
+StageListView::readjustSizeConstraints()
+{
     // Limit the vertical size to make it just enough to get
     // rid of the scrollbars, but not more.
     int height = verticalHeader()->length();
@@ -180,6 +188,7 @@ StageListView::setStages(IntrusivePtr<StageSequence> const& stages)
     sp.setVerticalStretch(1);
     setSizePolicy(sp);
     updateGeometry();
+
 }
 
 void
@@ -390,13 +399,13 @@ StageListView::Model::disableBatchProcessingAnimation()
 }
 
 int
-StageListView::Model::columnCount(QModelIndex const& parent) const
+StageListView::Model::columnCount(QModelIndex const& /*parent*/) const
 {
     return 2;
 }
 
 int
-StageListView::Model::rowCount(QModelIndex const& parent) const
+StageListView::Model::rowCount(QModelIndex const& /*parent*/) const
 {
     return m_ptrStages->count();
 }

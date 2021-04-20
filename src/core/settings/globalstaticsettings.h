@@ -25,9 +25,19 @@
 #include <QResource>
 #include <QRegularExpression>
 
+class SettingsChangesSignaller: public QObject
+{
+    Q_OBJECT
+signals:
+    void StyleChanged();
+public:
+    static SettingsChangesSignaller* self();
+};
+
 class GlobalStaticSettings
 {
 public:
+
     inline static bool doDrawDeviants()
     {
         return m_drawDeviants;
@@ -38,6 +48,7 @@ public:
     static void setDrawMarginDeviants(bool val);
     static void stageChanged(int i);
 
+    static void applyAppStyle(const QSettings& settings);
     static void updateSettings();
 
     static void updateHotkeys();
@@ -50,9 +61,9 @@ public:
     static void setTiffCompressionColor(QString const& compression_name);
 
 private:
-    inline static void updateParams();
-
     GlobalStaticSettings() {}
+
+    inline static void updateParams();
 
     static bool m_drawDeviants;
     static bool m_drawDeskewDeviants;

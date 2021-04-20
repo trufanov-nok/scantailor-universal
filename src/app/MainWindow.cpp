@@ -625,7 +625,7 @@ MainWindow::setupThumbView()
     int const delta_x = thumbView->size().width() - inner_width;
     thumbView->setMinimumWidth((int)ceil(m_maxLogicalThumbSize.width() + delta_x));
 
-    thumbView->setBackgroundBrush(palette().color(QPalette::Window));
+//    thumbView->setBackgroundBrush(palette().color(QPalette::Window));
     m_ptrThumbSequence->attachView(thumbView);
 
     thumbView->removeEventFilter(this); // make sure installed once

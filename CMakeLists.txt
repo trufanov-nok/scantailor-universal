@@ -394,10 +394,15 @@ ENDIF()
 # Prepare config.h
 IF(WIN32)
         SET(TRANSLATIONS_DIR_REL "translations")
+        SET(STYLESHEETS_DIR_REL "stylesheets")
 ELSE(WIN32)
         SET(TRANSLATIONS_DIR_REL "share/scantailor-universal/translations")
+        SET(STYLESHEETS_DIR_REL "share/scantailor-universal/stylesheets")
+        SET(PIXMAPS_DIR_ABS "${CMAKE_INSTALL_PREFIX}/share/pixmaps/scantailor-universal/stylesheets")
 ENDIF(WIN32)
 SET(TRANSLATIONS_DIR_ABS "${CMAKE_INSTALL_PREFIX}/${TRANSLATIONS_DIR_REL}")
+SET(STYLESHEETS_DIR_ABS "${CMAKE_INSTALL_PREFIX}/${STYLESHEETS_DIR_REL}")
+
 
 CONFIGURE_FILE(config.h.in ${CMAKE_BINARY_DIR}/config.h @ONLY)
 

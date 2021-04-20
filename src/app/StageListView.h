@@ -52,6 +52,7 @@ protected slots:
         QItemSelection const& deselected);
 private slots:
     void ensureSelectedRowVisible();
+    void readjustSizeConstraints();
 protected:
     virtual void timerEvent(QTimerEvent* event);
 private:

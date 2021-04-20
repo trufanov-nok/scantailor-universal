@@ -27,6 +27,7 @@
 #include <QResource>
 #include <QColorDialog>
 #include <QMessageBox>
+#include <QStyleFactory>
 #include "MainWindow.h"
 #include "filters/output/DespeckleLevel.h"
 #include "filters/output/Params.h"
@@ -128,7 +129,6 @@ void SettingsDialog::restoreSettings()
 
 SettingsDialog::~SettingsDialog()
 {
-
     if (!m_accepted) {
         restoreSettings();
         storeSettingsTreeState(ui.treeWidget);
@@ -137,6 +137,8 @@ SettingsDialog::~SettingsDialog()
         storeSettingsTreeState(ui.treeWidget);
         emit settingsChanged();
     }
+
+    GlobalStaticSettings::applyAppStyle(m_settings);
 }
 
 void
@@ -538,6 +540,47 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     } else if (currentPage == ui.pagePictureZonesLayer) {
         ui.rectangularAreasSensitivityValue->setValue(m_settings.value(_key_picture_zones_layer_sensitivity, _key_picture_zones_layer_sensitivity_def).toInt());
     } else if (currentPage == ui.pageGeneral) {
+
+        ui.cbStyle->blockSignals(true);
+        ui.cbStyle->clear();
+        const QString defaultStyleName = m_settings.value(_key_app_style, _key_app_style_def).toString();
+        const QStringList styleNames = QStyleFactory::keys();
+        ui.cbStyle->addItems(styleNames);
+        int idx = styleNames.indexOf(defaultStyleName);
+        if (idx != -1) {
+            ui.cbStyle->setCurrentIndex(idx);
+        }
+        ui.cbStyle->blockSignals(false);
+
+#ifndef _WIN32
+        QDir dir(m_settings.value(_key_app_stylsheet_dir, _key_app_stylsheet_dir_def).toString());
+#else
+        QDir dir(QCoreApplication::applicationDirPath() + "/" +
+                 m_settings.value(_key_app_stylsheet_dir, _key_app_stylsheet_dir_def).toString());
+#endif
+        QFileInfoList fl = dir.entryInfoList(QStringList("*.qss"), QDir::Files | QDir::Readable);
+        ui.cbStyleSheet->blockSignals(true);
+        ui.cbStyleSheet->clear();
+        ui.cbStyleSheet->addItem(tr("Standart"), true);
+        ui.cbStyleSheet->addItem(tr("None"), false);
+
+        const QString qss_name = m_settings.value(_key_app_stylsheet_file, "").toString();
+        const bool empty_palette = m_settings.value(_key_app_empty_palette, _key_app_empty_palette_def).toBool();
+        idx = -1;
+        for (const QFileInfo & fi: qAsConst(fl)) {
+            QString fname = fi.filePath();
+            if (fname == qss_name) {
+                idx = ui.cbStyleSheet->count();
+            }
+            ui.cbStyleSheet->addItem(fi.baseName(), fname);
+        }
+
+        if (idx == -1) {
+            idx = empty_palette? 1: 0;
+        }
+        ui.cbStyleSheet->setCurrentIndex(idx);
+        ui.cbStyleSheet->blockSignals(false);
+
         bool val = m_settings.value(_key_batch_dialog_start_from_current, _key_batch_dialog_start_from_current_def).toBool();
         ui.startBatchProcessingDlgAllPages->setChecked(
             !val);
@@ -1118,4 +1161,23 @@ void SettingsDialog::on_btnColorDeskewReset_released()
     m_settings.setValue(_key_deskew_controls_color, _key_deskew_controls_color_def);
     QString s("QToolButton {background: %1};");
     ui.btnColorDeskew->setStyleSheet(s.arg(_key_deskew_controls_color_def));
+}
+
+void SettingsDialog::on_cbStyle_currentIndexChanged(const QString &arg1)
+{
+    m_settings.setValue(_key_app_style, arg1);
+    GlobalStaticSettings::applyAppStyle(m_settings);
+}
+
+void SettingsDialog::on_cbStyleSheet_currentIndexChanged(int index)
+{
+    QVariant val = ui.cbStyleSheet->itemData(index);
+    if (val.type() == QVariant::Type::Bool) {
+        m_settings.setValue(_key_app_empty_palette, val.toBool());
+        m_settings.setValue(_key_app_stylsheet_file, "");
+    } else {
+        m_settings.setValue(_key_app_empty_palette, false);
+        m_settings.setValue(_key_app_stylsheet_file, val.toString());
+    }
+    GlobalStaticSettings::applyAppStyle(m_settings);
 }

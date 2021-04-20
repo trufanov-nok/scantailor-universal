@@ -34,6 +34,7 @@
 #include <QString>
 #include <QStringList>
 #include <QTranslator>
+#include "settings/globalstaticsettings.h"
 #include <Qt>
 #include <string.h>
 
@@ -71,6 +72,7 @@ int main(int argc, char** argv)
     }
 
     QSettings settings;
+    GlobalStaticSettings::applyAppStyle(settings);
 
     PngMetadataLoader::registerMyself();
     TiffMetadataLoader::registerMyself();

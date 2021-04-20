@@ -159,6 +159,10 @@ private slots:
 
     void on_btnColorDeskewReset_released();
 
+    void on_cbStyle_currentIndexChanged(const QString &arg1);
+
+    void on_cbStyleSheet_currentIndexChanged(int index);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

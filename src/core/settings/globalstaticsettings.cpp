@@ -18,8 +18,13 @@
 
 #include "globalstaticsettings.h"
 
+#include <QApplication>
+#include <QStyleFactory>
+#include <QStyle>
+#include <QPalette>
+#include <QFileInfo>
 #include "TiffCompressionInfo.h"
-
+#include "config.h"
 
 QString GlobalStaticSettings::m_tiff_compr_method_bw;
 QString GlobalStaticSettings::m_tiff_compr_method_color;
@@ -61,6 +66,12 @@ bool GlobalStaticSettings::m_inversePageOrder = false;
 bool GlobalStaticSettings::m_DontUseNativeDialog = true;
 
 
+SettingsChangesSignaller _instance; // we need one instance just to be able to send signals
+
+SettingsChangesSignaller* SettingsChangesSignaller::self()
+{
+    return &_instance;
+}
 
 void GlobalStaticSettings::setDrawDeskewDeviants(bool val)
 {
@@ -94,9 +105,78 @@ void GlobalStaticSettings::stageChanged(int i)
     }
 }
 
+void GlobalStaticSettings::applyAppStyle(const QSettings& settings)
+{
+    if (qApp) {
+        const QString style = settings.value(_key_app_style, _key_app_style_def).toString().toLower();
+        bool style_changed = false;
+        if (!qApp->style() || style != qApp->style()->objectName().toLower()) {
+            qApp->setStyleSheet(""); // is a must!
+            QApplication::setStyle(QStyleFactory::create(style));
+            style_changed = true;
+        }
+
+
+        const QString qss_fname = settings.value(_key_app_stylsheet_file, "").toString();
+        if (qss_fname.isEmpty()) {
+            if (!qApp->styleSheet().isEmpty()) {
+                qApp->setStyleSheet("");
+                style_changed = true;
+            }
+        } else {
+            QFile f(qss_fname);
+            if (f.open(QIODevice::ReadOnly)) {
+                QString new_qss(f.readAll());
+
+                int idx = new_qss.indexOf("@path_to_pics@");
+                if (idx != -1) {
+#ifdef _WIN
+                    QFileInfo fi(qss_fname);
+                    const QString path_to_pix = fi.absolutePath();
+#else
+                    const QString path_to_pix(PIXMAPS_DIR_ABS);
+#endif
+                    new_qss = new_qss.replace("@path_to_pics@", path_to_pix);
+                }
+
+                if (new_qss != qApp->styleSheet()) {
+                    qApp->setStyleSheet(""); // must be here
+                    qApp->setStyleSheet(new_qss);
+                    style_changed = true;
+                }
+                f.close();
+            } else {
+                qApp->setStyleSheet("");
+                style_changed = true;
+            }
+        }
+
+        const bool empty_palette = settings.value(_key_app_empty_palette, _key_app_empty_palette_def).toBool();
+        if (empty_palette) {
+            const QPalette empty_palette;
+            QApplication::setPalette(empty_palette);
+        } else {
+            const QPalette std_palette = QApplication::style()->standardPalette();
+            QApplication::setPalette(std_palette);
+        }
+
+        QStyle* s = qApp->style();
+        if (s) {
+            s->setObjectName(style);
+        }
+
+        if (style_changed) {
+            emit SettingsChangesSignaller::self()->StyleChanged();
+        }
+    }
+}
+
 void GlobalStaticSettings::updateSettings()
 {
     QSettings settings;
+
+    applyAppStyle(settings);
+
     setDrawDeskewDeviants(settings.value(_key_deskew_deviant_enabled, _key_deskew_deviant_enabled_def).toBool());
     setDrawContentDeviants(settings.value(_key_select_content_deviant_enabled, _key_select_content_deviant_enabled_def).toBool());
     setDrawMarginDeviants(settings.value(_key_margins_deviant_enabled, _key_margins_deviant_enabled_def).toBool());

@@ -31,6 +31,18 @@
 static const char* _key_app_maximized = "main_window/maximized";
 static const bool _key_app_maximized_def = false;
 static const char* _key_app_language = "main_window/language";
+static const char* _key_app_style = "main_window/style";
+static const char* _key_app_stylsheet_dir = "main_window/qss_dir";
+#ifdef _WIN32
+static const char* _key_app_style_def = "windows";
+static const char* _key_app_stylsheet_dir_def = STYLESHEETS_DIR_REL;
+#else
+static const char* _key_app_style_def = "fusion";
+static const char* _key_app_stylsheet_dir_def = STYLESHEETS_DIR_ABS;
+#endif
+static const char* _key_app_stylsheet_file = "main_window/qss_file";
+static const char* _key_app_empty_palette = "main_window/palette";
+static const bool _key_app_empty_palette_def = false;
 static const char* _key_app_open_filetype_filter = "main_window/filetype_filter";
 static const char* _key_app_docking_enabled = "docking_panels/enabled";
 static const bool _key_app_docking_enabled_def = false;
