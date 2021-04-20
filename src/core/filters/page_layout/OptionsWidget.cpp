@@ -253,6 +253,7 @@ OptionsWidget::topBottomLinkClicked()
     m_topBottomLinked = !m_topBottomLinked;
     QSettings().setValue(_key_margins_linked_ver, m_topBottomLinked);
     updateLinkDisplay(topBottomLink, m_topBottomLinked);
+    emit this->topBottomLinkToggled(m_topBottomLinked);
 }
 
 void
@@ -261,6 +262,7 @@ OptionsWidget::leftRightLinkClicked()
     m_leftRightLinked = !m_leftRightLinked;
     QSettings().setValue(_key_margins_linked_hor, m_leftRightLinked);
     updateLinkDisplay(leftRightLink, m_leftRightLinked);
+    emit this->leftRightLinkToggled(m_leftRightLinked);
 }
 
 void

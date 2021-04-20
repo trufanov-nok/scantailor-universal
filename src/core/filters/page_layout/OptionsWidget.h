@@ -81,6 +81,8 @@ signals:
     void alignmentChanged(Alignment const& alignment);
     void marginsSetLocally(Margins const& margins_mm);
     void aggregateHardSizeChanged();
+    void topBottomLinkToggled(bool);
+    void leftRightLinkToggled(bool);
 
 public slots:
     void marginsSetExternally(const Margins& margins_mm, bool keep_auto_margins = false);
