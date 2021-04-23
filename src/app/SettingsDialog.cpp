@@ -558,11 +558,12 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         QDir dir(QCoreApplication::applicationDirPath() + "/" +
                  m_settings.value(_key_app_stylsheet_dir, _key_app_stylsheet_dir_def).toString());
 #endif
+
         QFileInfoList fl = dir.entryInfoList(QStringList("*.qss"), QDir::Files | QDir::Readable);
         ui.cbStyleSheet->blockSignals(true);
         ui.cbStyleSheet->clear();
-        ui.cbStyleSheet->addItem(tr("Standart"), true);
-        ui.cbStyleSheet->addItem(tr("None"), false);
+        ui.cbStyleSheet->addItem(tr("Standart", "stylesheet"), true);
+        ui.cbStyleSheet->addItem(tr("None", "stylesheet"), false);
 
         const QString qss_name = m_settings.value(_key_app_stylsheet_file, "").toString();
         const bool empty_palette = m_settings.value(_key_app_empty_palette, _key_app_empty_palette_def).toBool();

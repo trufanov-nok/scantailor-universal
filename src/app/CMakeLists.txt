@@ -102,14 +102,14 @@ ENDIF()
 TARGET_LINK_LIBRARIES(
         scantailor-universal
         fix_orientation page_split deskew select_content page_layout output stcore
-	dewarping zones interaction imageproc math foundation exporting
+        dewarping zones interaction imageproc math foundation exporting
 )
 
 ADD_DEPENDENCIES(scantailor-universal fix_orientation page_split deskew select_content page_layout output stcore
         dewarping zones interaction imageproc math foundation)
 
 
-QT5_USE_MODULES(scantailor-universal Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
+QT5_USE_MODULES(scantailor-universal Widgets Xml Svg ${MAYBE_QT_OPENGL_MODULE})
 
 IF(EXTRA_LIBS)
         TARGET_LINK_LIBRARIES(scantailor-universal ${EXTRA_LIBS})

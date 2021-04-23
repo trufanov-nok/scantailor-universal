@@ -169,6 +169,7 @@ FIND_PACKAGE(Qt5Gui ${Qt_MIN_VERSION} REQUIRED)
 FIND_PACKAGE(Qt5Widgets ${Qt_MIN_VERSION} REQUIRED)
 FIND_PACKAGE(Qt5Xml ${Qt_MIN_VERSION} REQUIRED)
 FIND_PACKAGE(Qt5Network ${Qt_MIN_VERSION} REQUIRED)
+FIND_PACKAGE(Qt5Svg ${Qt_MIN_VERSION} REQUIRED)
 FIND_PACKAGE(Qt5LinguistTools ${Qt_MIN_VERSION} REQUIRED)
 IF(ENABLE_OPENGL)
         FIND_PACKAGE(Qt5OpenGL ${Qt_MIN_VERSION} REQUIRED)
@@ -208,7 +209,42 @@ SET (use_openjpeg ON)
 OPTION(ENABLE_OPENJPEG "OpenJPEG library may be used to suppoet JPEG 2000 (.jp2) images." ${use_openjpeg})
 
 IF (ENABLE_OPENJPEG)
+
+IF(NOT WIN32)
 FIND_PACKAGE(OpenJPEG QUIET)
+ELSE(NOT WIN32)
+
+FIND_PATH(
+        OPENJPEG_INCLUDE_DIRS openjpeg.h
+        PATHS /usr/local/include /usr/include
+        HINTS ${JPEG2000_DIR} # JPEG2000_DIR may come from export-vars.cmake
+        PATH_SUFFIXES src/lib/openjp2
+        DOC "Path to openjpeg headers."
+)
+IF(NOT OPENJPEG_INCLUDE_DIRS)
+        MESSAGE(
+                "Could not find openjpeg headers.\n"
+                "You may need to install a package openjpeg."
+        )
+ENDIF()
+
+INCLUDE_DIRECTORIES("${OPENJPEG_INCLUDE_DIRS}")
+
+FIND_LIBRARY(
+        OPENJPEG_LIBRARIES openjp2 openjp2.lib
+        PATHS /usr/local/lib /usr/lib
+        HINTS ${STAGING_LIBS_DIR}
+        PATH_SUFFIXES openjp2
+        DOC "Path to openjpeg library."
+)
+
+IF(OPENJPEG_LIBRARIES AND OPENJPEG_INCLUDE_DIRS)
+SET (OpenJPEG_FOUND YES)
+SET (OPENJPEG_MAJOR_VERSION 2)
+ENDIF(OPENJPEG_LIBRARIES AND OPENJPEG_INCLUDE_DIRS)
+
+ENDIF(NOT WIN32)
+
 IF(NOT OpenJPEG_FOUND OR OPENJPEG_MAJOR_VERSION VERSION_LESS 2)
     message("warning: OpenJPEG library isn't found.\n"
         "The JPEG 2000 (*.jp2) images support will be disabled.\n"
@@ -384,6 +420,10 @@ IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
    LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARIES})
 ENDIF()
 
+IF(WIN32)
+   LIST(APPEND EXTRA_LIBS "ws2_32.lib")
+ENDIF(WIN32)
+
 
 SET(MAYBE_QT_OPENGL_MODULE "")
 IF(ENABLE_OPENGL)
@@ -447,7 +487,7 @@ IF(WIN32)
         SET(
                 qt5_libs
                 ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES}
-                ${Qt5Core_LIBRARIES} ${Qt5Xml_LIBRARIES}
+                ${Qt5Core_LIBRARIES} ${Qt5Xml_LIBRARIES}  ${Qt5Svg_LIBRARIES}
         )
         IF(ENABLE_OPENGL)
                 LIST(APPEND qt5_libs ${Qt5OpenGL_LIBRARIES})
@@ -465,6 +505,10 @@ IF(WIN32)
                 "${DLL_DIR}/libtiff.dll" "${DLL_DIR}/zdll.dll"
         )
 
+IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
+        COPY_TO_BUILD_DIR( "${DLL_DIR}/openjp2.dll" )
+ENDIF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
+
         # Qt's plugins.
         SET(PLUGINS_DIR "${QT_SRC_DIR}/qtbase/plugins")
         COPY_TO_BUILD_DIR(
@@ -475,6 +519,31 @@ IF(WIN32)
                 "${PLUGINS_DIR}/platforms/qwindowsd.dll" SUBDIR platforms
                 CONFIGURATIONS Debug
         )
+        # required to display images in stylesheets
+        COPY_TO_BUILD_DIR(
+                "${PLUGINS_DIR}/imageformats/qico.dll" SUBDIR imageformats
+                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
+        )
+        COPY_TO_BUILD_DIR(
+                "${PLUGINS_DIR}/imageformats/qicod.dll" SUBDIR imageformats
+                CONFIGURATIONS Debug
+        )
+        COPY_TO_BUILD_DIR(
+                "${PLUGINS_DIR}/imageformats/qsvg.dll" SUBDIR imageformats
+                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
+        )
+        COPY_TO_BUILD_DIR(
+                "${PLUGINS_DIR}/imageformats/qsvgd.dll" SUBDIR imageformats
+                CONFIGURATIONS Debug
+        )
+#        COPY_TO_BUILD_DIR(
+#                "${PLUGINS_DIR}/iconengines/qsvgicon.dll" SUBDIR iconengines
+#                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
+#        )
+#        COPY_TO_BUILD_DIR(
+#                "${PLUGINS_DIR}/iconengines/qsvgicond.dll" SUBDIR iconengines
+#                CONFIGURATIONS Debug
+#        )
 
     if (Qt5Widgets_VERSION VERSION_LESS 5.4.0)
         COPY_TO_BUILD_DIR(

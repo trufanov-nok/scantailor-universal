@@ -4,13 +4,13 @@ OURDIR=`dirname $0`
 OURDIR=`cd $OURDIR; pwd`
 STSRC=`cd $OURDIR/../..; pwd`
 STHOME=`cd $OURDIR/../../..; pwd`
-echo -e "Building ScanTailor - Base Directory: $STHOME\n\n"
+echo -e "Building ScanTailor Universal - Base Directory: $STHOME\n\n"
 
 # I’ve hardcoded path to SDK [truf]
 PATH_TO_SDK=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
 
-export BUILDDIR=$STHOME/scantailor-deps-build
-export STBUILDDIR=$STHOME/scantailor-build
+export BUILDDIR=$STHOME/scantailor-universal-deps-build
+export STBUILDDIR=$STHOME/scantailor-universal-build
 export CMAKE_PREFIX_PATH=$BUILDDIR
 export CMAKE_INCLUDE_PATH=$BUILDDIR
 export CMAKE_LIBRARY_PATH=$BUILDDIR

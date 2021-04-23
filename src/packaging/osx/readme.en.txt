@@ -51,12 +51,12 @@ latest stable version.
      | boost_1_43_0
      | jpeg-8b
      | libpng-1.4.3
-     | scantailor-0.9.9
+     | scantailor-universal-0.9.9
      | tiff-3.9.4
 
 3. Two more subdirectories will be created there:
-     | scantailor-build
-     | scantailor-deps-build
+     | scantailor-universal-build
+     | scantailor-universal-deps-build
 
 4. Install Qt
 
@@ -74,7 +74,7 @@ latest stable version.
    Make sure the building process finishes without errors.  Warnings may
    be ignored.
    
-   If everything went right, the application exists in the scantailor-build
+   If everything went right, the application exists in the scantailor-universal-build
    folder named ScanTailor.app with a distributable disk image in the same
    folder named ScanTailor-VERSION.dmg. The VERSION part of the name will
    be replaced by the actual version, taken from a file called "VERSION" in

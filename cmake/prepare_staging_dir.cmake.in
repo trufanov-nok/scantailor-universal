@@ -12,12 +12,31 @@ GET_FILENAME_COMPONENT(fname "${file}" NAME)
 CONFIGURE_FILE("${file}" "${STAGING_DIR}/translations/${fname}" COPYONLY)
 ENDFOREACH()
 
-# Imageformat plugins for Qt
-#FILE(GLOB imageformat_plugins "${CONF_BUILD_DIR}/imageformats/*.dll")
-#FOREACH(file ${imageformat_plugins})
-#	GET_FILENAME_COMPONENT(fname "${file}" NAME)
-#	CONFIGURE_FILE("${file}" "${STAGING_DIR}/imageformats/${fname}" COPYONLY)
+# Imageformat plugins for Qt (required for stylesheets)
+FILE(GLOB imageformat_plugins "${CONF_BUILD_DIR}/imageformats/*.dll")
+FOREACH(file ${imageformat_plugins})
+        GET_FILENAME_COMPONENT(fname "${file}" NAME)
+        CONFIGURE_FILE("${file}" "${STAGING_DIR}/imageformats/${fname}" COPYONLY)
+ENDFOREACH()
+
+#FILE(GLOB iconengines_plugins "${CONF_BUILD_DIR}/iconengines/*.dll")
+#FOREACH(file ${iconengines_plugins})
+#        GET_FILENAME_COMPONENT(fname "${file}" NAME)
+#        CONFIGURE_FILE("${file}" "${STAGING_DIR}/iconengines/${fname}" COPYONLY)
 #ENDFOREACH()
+
+# Stylesheets
+SET(QSS_FILES "@QSS_FILES@")
+FOREACH(file ${QSS_FILES})
+GET_FILENAME_COMPONENT(fname "${file}" NAME)
+CONFIGURE_FILE("${file}" "${STAGING_DIR}/stylesheets/${fname}" COPYONLY)
+ENDFOREACH()
+
+SET(STYLESHEET_PIXMAP_DIRS "@STYLESHEET_PIXMAP_DIRS@")
+FOREACH(dir ${STYLESHEET_PIXMAP_DIRS})
+file(COPY "${dir}" DESTINATION "${STAGING_DIR}/stylesheets/")
+ENDFOREACH()
+
 
 # Platform plugins for Qt
 FILE(GLOB platforms_plugins "${CONF_BUILD_DIR}/platforms/*.dll")

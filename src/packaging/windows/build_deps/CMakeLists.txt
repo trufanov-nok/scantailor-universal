@@ -41,6 +41,8 @@ FILE(GLOB qt_dirs4 "${source_outer_dir}/qt-everywhere-*-5.[0-9]*")
 FILE(GLOB qt_dirs5 "C:/Qt/Qt5.*/*/Src")
 FILE(GLOB boost_dirs1 "${build_outer_dir}/boost_1_[0-9]*_[0-9]*")
 FILE(GLOB boost_dirs2 "${source_outer_dir}/boost_1_[0-9]*_[0-9]*")
+FILE(GLOB jpeg2000_dirs1 "${build_outer_dir}/openjpeg-[0-9]*.[0-9]*.[0-9]*")
+FILE(GLOB jpeg2000_dirs2 "${source_outer_dir}/openjpeg-[0-9]*.[0-9]*.[0-9]*")
 
 FIND_PATH(
 	JPEG_DIR jpeglib.h HINTS ${jpeg_dirs1} ${jpeg_dirs2}
@@ -67,19 +69,25 @@ FIND_PATH(
 	BOOST_DIR boost/foreach.hpp HINTS ${boost_dirs1} ${boost_dirs2}
 	DOC "Path to top-level Boost source directory."
 )
+FIND_PATH(
+        JPEG2000_DIR src/lib/openjp2/openjpeg.h HINTS ${jpeg2000_dirs1} ${jpeg2000_dirs2}
+        DOC "Path to OpenJPEG source directory."
+)
 
 IF(NOT JPEG_DIR)
-	MESSAGE(FATAL_ERROR "JPEG source directory not found. You may specify it manually.")
+        MESSAGE(FATAL_ERROR "JPEG source directory not found. You may specify it manually.")
 ELSEIF(NOT ZLIB_DIR)
-	MESSAGE(FATAL_ERROR "ZLIB source directory not found. You may specify it manually.")
+        MESSAGE(FATAL_ERROR "ZLIB source directory not found. You may specify it manually.")
 ELSEIF(NOT PNG_DIR)
-	MESSAGE(FATAL_ERROR "LibPNG source directory not found. You may specify it manually.")
+        MESSAGE(FATAL_ERROR "LibPNG source directory not found. You may specify it manually.")
 ELSEIF(NOT TIFF_DIR)
-	MESSAGE(FATAL_ERROR "TIFF source directory not found. You may specify it manually.")
+        MESSAGE(FATAL_ERROR "TIFF source directory not found. You may specify it manually.")
+ELSEIF(NOT JPEG2000_DIR)
+        MESSAGE(FATAL_ERROR "OpenJPEG source directory not found. You may specify it manually.")
 ELSEIF(NOT QT_SRC_DIR)
         MESSAGE(FATAL_ERROR "Qt5 source directory not found. You may specify it manually. If you installed a binary version, it will be something like C:\\Qt\\Qt5.0.2\\5.0.2\\Src")
 ELSEIF(NOT BOOST_DIR)
-	MESSAGE(FATAL_ERROR "Boost source directory not found. You may specify it manually.")
+        MESSAGE(FATAL_ERROR "Boost source directory not found. You may specify it manually.")
 ENDIF()
 
 SET(QTBASE_DIR "${QT_SRC_DIR}/qtbase")
@@ -94,6 +102,7 @@ SET(ZLIB_LIBRARY_NAME zdll)
 SET(PNG_LIBRARY_NAME libpng)
 SET(JPEG_LIBRARY_NAME libjpeg)
 SET(TIFF_LIBRARY_NAME libtiff)
+SET(JPEG2000_LIBRARY_NAME openjp2)
 
 MACRO(LIST_ITEMS_PREPEND LIST PREFIX)
 	SET(tmp_list_)
@@ -188,7 +197,7 @@ IF(NOT EXISTS "${PNG_DIR}/pnglibconf.h")
 	IF(EXISTS "${PNG_DIR}/scripts/pnglibconf.h.prebuilt")
 		CONFIGURE_FILE(
 			"${PNG_DIR}/scripts/pnglibconf.h.prebuilt"
-			"${PNG_DIR}/pnglibconf.h" @COPYONLY
+                        "${PNG_DIR}/pnglibconf.h" COPYONLY
 		)
 	ENDIF()
 ENDIF()
@@ -242,12 +251,12 @@ IF(EXISTS "${TIFF_DIR}/libtiff/tif_config.h.vc")
 	SET(tiff_vc_config "${TIFF_DIR}/libtiff/tif_config.h.vc")
 ENDIF(EXISTS "${TIFF_DIR}/libtiff/tif_config.h.vc")
 CONFIGURE_FILE(
-	"${tiff_vc_config}" "${TIFF_DIR}/libtiff/tif_config.h" @COPYONLY
+        "${tiff_vc_config}" "${TIFF_DIR}/libtiff/tif_config.h" COPYONLY
 )
 IF(EXISTS "${TIFF_DIR}/libtiff/tiffconf.vc.h")
 	CONFIGURE_FILE(
 		"${TIFF_DIR}/libtiff/tiffconf.vc.h"
-		"${TIFF_DIR}/libtiff/tiffconf.h" @COPYONLY
+                "${TIFF_DIR}/libtiff/tiffconf.h" COPYONLY
 	)
 ENDIF(EXISTS "${TIFF_DIR}/libtiff/tiffconf.vc.h")
 
@@ -287,9 +296,51 @@ target_compile_definitions(${TIFF_LIBRARY_NAME} PRIVATE CCITT_SUPPORT=1
                                                         OJPEG_SUPPORT=1
                                                         #JBIG_SUPPORT=1
                                                         #LZMA_SUPPORT=1
-														)
+)
 
+#=================================== OpenJPEG ===================================#
 
+SET(
+    jpeg2000_sources
+    thread.c bio.c cio.c dwt.c event.c image.c invert.c j2k.c
+    jp2.c mct.c mqc.c openjpeg.c opj_clock.c pi.c t1.c t2.c
+    tcd.c tgt.c function_list.c opj_malloc.c sparse_array.c
+    )
+
+LIST_ITEMS_PREPEND(jpeg2000_sources "${JPEG2000_DIR}/src/lib/openjp2/")
+
+ADD_LIBRARY(${JPEG2000_LIBRARY_NAME} SHARED ${jpeg2000_sources})
+TARGET_LINK_LIBRARIES( ${JPEG2000_LIBRARY_NAME}
+        ${TIFF_LIBRARY_NAME} ${PNG_LIBRARY_NAME} ${ZLIB_LIBRARY_NAME}
+)
+SET_TARGET_PROPERTIES(
+    ${JPEG2000_LIBRARY_NAME} PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/staging/libs"
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/staging/libs"
+    ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/staging/libs"
+    ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/staging/libs"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${QTBASE_DIR}/bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${QTBASE_DIR}/bin"
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${QTBASE_DIR}/bin"
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${QTBASE_DIR}/bin"
+)
+set(OPENJPEG_VERSION_MAJOR 2)
+set(OPENJPEG_VERSION_MINOR 4)
+set(OPENJPEG_VERSION_BUILD 0)
+CONFIGURE_FILE(${JPEG2000_DIR}/src/lib/openjp2/opj_config.h.cmake.in "${JPEG2000_DIR}/src/lib/openjp2/opj_config.h" @ONLY)
+set(PACKAGE_VERSION
+  "${OPENJPEG_VERSION_MAJOR}.${OPENJPEG_VERSION_MINOR}.${OPENJPEG_VERSION_BUILD}")
+set(OPJ_HAVE_INTTYPES_H YES)
+
+# x86 vs x64
+IF(CMAKE_GENERATOR_TOOLSET EQUAL "x86")
+set(_FILE_OFFSET_BITS 32)
+ELSE()
+set(_FILE_OFFSET_BITS 64)
+ENDIF()
+
+set(OPJ_HAVE_FSEEKO YES)
+CONFIGURE_FILE(${JPEG2000_DIR}/src/lib/openjp2/opj_config_private.h.cmake.in "${JPEG2000_DIR}/src/lib/openjp2/opj_config_private.h" @ONLY)
 
 #================================= Boost ================================#
 
@@ -401,23 +452,24 @@ IF(QT_PREBUILT_DIR)
         SET(maybe_skip_building_tools "goto exit")
 ENDIF()
 
+
 ADD_CUSTOM_COMMAND(
 	OUTPUT "${qt_build_script}"
 	COMMAND "${CMAKE_COMMAND}"
-	"-DPROJECT_ROOT=${CMAKE_SOURCE_DIR}/../../.."
-	"-DTARGET_FILE=${qt_build_script}"
-	"-DPLATFORM=${platform}"
+        "-DPROJECT_ROOT=${CMAKE_SOURCE_DIR}/../../../.."
+        "-DTARGET_FILE=${qt_build_script}"
+        "-DPLATFORM=${platform}"
         "-DMAYBE_SKIP_BUILDING_TOOLS=${maybe_skip_building_tools}"
-	"-DMAKE_COMMAND=${make_command}"
-	"-DJPEG_INCLUDE_DIR=${JPEG_INCLUDE_DIR}"
-	"-DZLIB_INCLUDE_DIR=${ZLIB_INCLUDE_DIR}"
-	"-DPNG_INCLUDE_DIR=${PNG_INCLUDE_DIR}"
-	"-DJPEG_LINK_DIR=$<TARGET_LINKER_FILE_DIR:${JPEG_LIBRARY_NAME}>"
-	"-DZLIB_LINK_DIR=$<TARGET_LINKER_FILE_DIR:${ZLIB_LIBRARY_NAME}>"
-	"-DPNG_LINK_DIR=$<TARGET_LINKER_FILE_DIR:${PNG_LIBRARY_NAME}>"
-	-P "${CMAKE_CURRENT_SOURCE_DIR}/generate_qt_build_script.cmake"
-	DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/generate_qt_build_script.cmake"
-	VERBATIM
+        "-DMAKE_COMMAND=${make_command}"
+        "-DJPEG_INCLUDE_DIR=${JPEG_INCLUDE_DIR}"
+        "-DZLIB_INCLUDE_DIR=${ZLIB_INCLUDE_DIR}"
+        "-DPNG_INCLUDE_DIR=${PNG_INCLUDE_DIR}"
+        "-DJPEG_LINK_DIR=$<TARGET_LINKER_FILE_DIR:${JPEG_LIBRARY_NAME}>"
+        "-DZLIB_LINK_DIR=$<TARGET_LINKER_FILE_DIR:${ZLIB_LIBRARY_NAME}>"
+        "-DPNG_LINK_DIR=$<TARGET_LINKER_FILE_DIR:${PNG_LIBRARY_NAME}>"
+        -P "${CMAKE_SOURCE_DIR}/generate_qt_build_script.cmake"
+        DEPENDS "generate_qt_build_script.cmake"
+        VERBATIM
 )
 	
 ADD_CUSTOM_TARGET(
@@ -476,9 +528,9 @@ IF(DUMP_DLL_SYMBOLS)
 		dump_dll_symbols ALL
 		COMMAND "${CMAKE_COMMAND}" "-DSYMBOLS_PATH=${SYMBOLS_PATH}"
 		"-DDUMP_SYMS_EXECUTABLE=${DUMP_SYMS_EXECUTABLE}"
-		"-DMOVE_SYMBOLS_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/move_sym_file.cmake"
-		-P "${CMAKE_CURRENT_SOURCE_DIR}/dump_dll_syms.cmake"
-		DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/dump_dll_syms.cmake"
+                "-DMOVE_SYMBOLS_SCRIPT=../../../../cmake/move_sym_file.cmake"
+                -P "dump_dll_syms.cmake"
+                DEPENDS "dump_dll_syms.cmake"
                 WORKING_DIRECTORY "${QTBASE_DIR}/bin"
 		VERBATIM
 	)
