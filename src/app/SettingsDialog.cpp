@@ -545,8 +545,12 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         ui.cbStyle->clear();
         const QString defaultStyleName = m_settings.value(_key_app_style, _key_app_style_def).toString();
         const QStringList styleNames = QStyleFactory::keys();
-        ui.cbStyle->addItems(styleNames);
-        int idx = styleNames.indexOf(defaultStyleName);
+        QStringList styleNames_l;
+        for (const QString& s: styleNames) {
+            styleNames_l.append(s.toLower());
+        }
+        ui.cbStyle->addItems(styleNames_l);
+        int idx = styleNames_l.indexOf(defaultStyleName);
         if (idx != -1) {
             ui.cbStyle->setCurrentIndex(idx);
         }
