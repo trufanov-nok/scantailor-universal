@@ -59,10 +59,10 @@ Jp2Reader::canRead(QIODevice& device)
         return false;
     }
 
-    if (memcmp(header, JP2_RFC3745_MAGIC, sizeof(JP2_RFC3745_MAGIC)) == 0 ||
-            memcmp(header, JP2_MAGIC, sizeof(JP2_MAGIC)) == 0) {
+    if (memcmp(header, JP2_RFC3745_MAGIC, 12) == 0 ||
+            memcmp(header, JP2_MAGIC, 4) == 0) {
         return true;
-    } else if (memcmp(header, J2K_CODESTREAM_MAGIC, sizeof(J2K_CODESTREAM_MAGIC)) == 0) {
+    } else if (memcmp(header, J2K_CODESTREAM_MAGIC, 4) == 0) {
         return true;
     }
 
@@ -153,8 +153,8 @@ ImageMetadataLoader::Status prepareMetadata(
         return ImageMetadataLoader::GENERIC_ERROR;
     }
 
-    unsigned char header[12];
-    static int const header_size = sizeof(header);
+    static int const header_size = 12;
+    unsigned char header[header_size];
 
     if (device.peek((char*)header, header_size) != header_size) {
         return ImageMetadataLoader::GENERIC_ERROR;
@@ -162,10 +162,10 @@ ImageMetadataLoader::Status prepareMetadata(
 
     OPJ_CODEC_FORMAT format = OPJ_CODEC_UNKNOWN;
 
-    if (memcmp(header, JP2_RFC3745_MAGIC, sizeof(JP2_RFC3745_MAGIC)) == 0 ||
-            memcmp(header, JP2_MAGIC, sizeof(JP2_MAGIC)) == 0) {
+    if (memcmp(header, JP2_RFC3745_MAGIC, 12) == 0 ||
+            memcmp(header, JP2_MAGIC, 4) == 0) {
         format = OPJ_CODEC_JP2;
-    } else if (memcmp(header, J2K_CODESTREAM_MAGIC, sizeof(J2K_CODESTREAM_MAGIC)) == 0) {
+    } else if (memcmp(header, J2K_CODESTREAM_MAGIC, 4) == 0) {
         format = OPJ_CODEC_J2K;
     }
 
