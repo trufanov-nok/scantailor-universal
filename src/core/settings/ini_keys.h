@@ -36,6 +36,9 @@ static const char* _key_app_stylsheet_dir = "main_window/qss_dir";
 #ifdef _WIN32
 static const char* _key_app_style_def = "windows";
 static const char* _key_app_stylsheet_dir_def = STYLESHEETS_DIR_REL;
+#elif defined(Q_OS_OSX)
+static const char* _key_app_style_def = "macintosh";
+static const char* _key_app_stylsheet_dir_def = STYLESHEETS_DIR_REL;
 #else
 static const char* _key_app_style_def = "fusion";
 static const char* _key_app_stylsheet_dir_def = STYLESHEETS_DIR_ABS;

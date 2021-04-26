@@ -84,6 +84,10 @@ void SettingsDialog::initLanguageList(QString cur_lang)
             fileNames = QDir(QString::fromUtf8(TRANSLATIONS_DIR_ABS)).entryList(language_file_filter);
             if (fileNames.isEmpty()) {
                 fileNames = QDir(QString::fromUtf8(TRANSLATIONS_DIR_REL)).entryList(language_file_filter);
+                if (fileNames.isEmpty()) {
+                    fileNames = QDir(QApplication::applicationDirPath() + "/" +
+                                     QString::fromUtf8(TRANSLATIONS_DIR_REL)).entryList(language_file_filter);
+                }
             }
         }
     }
@@ -556,11 +560,11 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         }
         ui.cbStyle->blockSignals(false);
 
-#ifndef _WIN32
-        QDir dir(m_settings.value(_key_app_stylsheet_dir, _key_app_stylsheet_dir_def).toString());
-#else
+#if defined(_WIN32) || defined(Q_OS_MAC)
         QDir dir(QCoreApplication::applicationDirPath() + "/" +
                  m_settings.value(_key_app_stylsheet_dir, _key_app_stylsheet_dir_def).toString());
+#else
+        QDir dir(m_settings.value(_key_app_stylsheet_dir, _key_app_stylsheet_dir_def).toString());
 #endif
 
         QFileInfoList fl = dir.entryInfoList(QStringList("*.qss"), QDir::Files | QDir::Readable);

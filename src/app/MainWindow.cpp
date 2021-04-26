@@ -3083,6 +3083,10 @@ MainWindow::changeLanguage(QString lang, bool dont_store)
             loaded = loadLanguage(QString::fromUtf8(TRANSLATIONS_DIR_ABS) + "/", lang);
             if (!loaded) {
                 loaded = loadLanguage(QString::fromUtf8(TRANSLATIONS_DIR_REL) + "/", lang);
+                if (!loaded) {
+                    loaded = loadLanguage(QApplication::applicationDirPath() + "/" +
+                                          QString::fromUtf8(TRANSLATIONS_DIR_REL) + "/", lang);
+                }
             }
         }
     }

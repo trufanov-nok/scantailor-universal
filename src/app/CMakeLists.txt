@@ -90,7 +90,7 @@ ELSEIF(APPLE)
                 scantailor-universal MACOSX_BUNDLE ${gui_only_sources} ${resource_sources} ${ICON_PATH}
         )
         set_target_properties(scantailor-universal PROPERTIES MACOSX_BUNDLE_INFO_PLIST
-                                  ${CMAKE_CURRENT_SOURCE_DIR}/src/packaging/osx/Info.plist.in)
+                                  ${PROJECT_SOURCE_DIR}/src/packaging/osx/Info.plist.in)
 
 
 ELSE()

@@ -15,7 +15,10 @@ DESTDIR=$1
 SRCDIR=$2
 BUILDDIR=$3
 
-export APP=$DESTDIR/ScanTailor.app
+# I’ve hardcoded path to macdeployqt [truf]
+MACDEPLOYQT=$DESTDIR"/../Qt/5.8/clang_64/bin/"
+
+export APP=$DESTDIR/ScanTailorUniversal.app
 export APPC=$APP/Contents
 export APPM=$APPC/MacOS
 export APPR=$APPC/Resources
@@ -27,13 +30,22 @@ mkdir -p $APPM
 mkdir -p $APPR
 mkdir -p $APPF
 
-cp $SRCDIR/packaging/osx/ScanTailorUniversal.icns $APPR/ScanTailorUniversal.icns
-cp $SRCDIR/scantailor-universal_*.qm $APPR
-cp $SRCDIR/translations/qtbase_*.qm $APPR
-cp $SRCDIR/scantailor.app/Contents/MacOS/scantailor $APPM/ScanTailorUniversal
+cp $SRCDIR/src/packaging/osx/ScanTailorUniversal.icns $APPR/ScanTailorUniversal.icns
+cp $SRCDIR/src/app/scantailor-universal.app/Contents/MacOS/scantailor-universal $APPM/ScanTailorUniversal
+
+
+mkdir $APPR/translations/
+cp $SRCDIR/src/scantailor-universal_*.qm $APPR/translations/
+cp $SRCDIR/src/translations/qtbase_*.qm $APPR/translations/
+
+mkdir $APPR/stylesheets/
+cp $SRCDIR/src/stylesheets/*.qss $APPR/stylesheets/
+cp $SRCDIR/src/stylesheets/BreezeStyleSheets/*.qss $APPR/stylesheets/
+cp -R $SRCDIR/src/stylesheets/BreezeStyleSheets/Breeze $APPR/stylesheets/
+cp -R $SRCDIR/src/stylesheets/BreezeStyleSheets/BreezeDark $APPR/stylesheets/
 
 stver=`cat $SRCDIR/version.h | grep 'VERSION "' | cut -d ' ' -f 3 | tr -d '"'`
-cat $SRCDIR/packaging/osx/Info.plist.in | sed "s/@VERSION@/$stver/" >  $APPC/Info.plist
+cat $SRCDIR/src/packaging/osx/Info.plist.in | sed "s/@VERSION@/$stver/" >  $APPC/Info.plist
 
 otool -L $APPM/ScanTailorUniversal | tail -n +2 | tr -d '\t' | cut -f 1 -d ' ' | while read line; do
   case $line in
@@ -46,9 +58,9 @@ otool -L $APPM/ScanTailorUniversal | tail -n +2 | tr -d '\t' | cut -f 1 -d ' ' |
     esac
 done
 
-rm -rf ScanTailor.dmg $DESTDIR/ScanTailorUniversal-$stver.dmg
+rm -rf ScanTailorUniversal.dmg $DESTDIR/ScanTailorUniversal-$stver.dmg
 cd $DESTDIR
-# I’ve hardcoded macdeployqt [truf]
-$DESTDIR/../Qt/5.5/clang_64/bin/macdeployqt $DESTDIR/ScanTailor.app -dmg >/dev/null 2>&1
-mv ScanTailor.dmg $DESTDIR/ScanTailorUniversal-$stver.dmg
+
+$MACDEPLOYQT/macdeployqt $DESTDIR/ScanTailorUniversal.app -dmg >/dev/null 2>&1
+mv ScanTailorUniversal.dmg $DESTDIR/ScanTailorUniversal-$stver.dmg
 

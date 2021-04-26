@@ -130,7 +130,7 @@ void GlobalStaticSettings::applyAppStyle(const QSettings& settings)
 
                 int idx = new_qss.indexOf("@path_to_pics@");
                 if (idx != -1) {
-#ifdef _WIN32
+#if defined(_WIN32) or defined(Q_OS_MAC)
                     QFileInfo fi(qss_fname);
                     const QString path_to_pix = fi.absolutePath();
 
