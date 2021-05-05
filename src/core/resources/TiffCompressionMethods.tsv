@@ -1,6 +1,7 @@
 #NAME	ID	DESCRIPTION	NOT FILTERED	B/W ONLY
 LZW	5	Lempel-Ziv & Welch	1	0
-DEFLATE	32946	Deflate compression	1	0
+ADOBEDEFLATE	8	Deflate compression (as recognized by Adobe)	1	0
+DEFLATE	32946	Deflate compression (legacy libtiff)	0	0
 DCS	32947	Kodak DCS encoding	0	0
 JBIG	34661	ISO JBIG	0	0
 SGILOG	34676	SGI Log	0	0
