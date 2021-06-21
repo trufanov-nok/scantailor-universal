@@ -1928,8 +1928,10 @@ OutputGenerator::detectPictures(
     status.throwIfCancelled();
 
     seedFillGrayInPlace(marker, gray_gradient, CONN8);
+    gray_gradient = GrayImage(); // Save memory.
     GrayImage reconstructed(marker);
-    marker = GrayImage();
+    marker = GrayImage(); // Save memory.
+
     if (dbg) {
         dbg->add(reconstructed, "reconstructed");
     }
