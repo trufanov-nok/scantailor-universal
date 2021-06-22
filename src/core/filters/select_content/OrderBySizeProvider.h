@@ -33,9 +33,10 @@ public:
 
     virtual bool precedes(
         PageId const& lhs_page, bool lhs_incomplete,
-        PageId const& rhs_page, bool rhs_incomplete) const;
+        PageId const& rhs_page, bool rhs_incomplete) const override;
 
-    virtual QString hint(PageId const& page) const;
+    virtual QString hint(PageId const& page) const override;
+    virtual bool hintIsUnitsDependant() const override { return m_isLogical; }
 private:
     qreal adjustByDpi(qreal val, std::unique_ptr<Params> const& params,
                       StatusLabelPhysSizeDisplayMode mode = StatusLabelPhysSizeDisplayMode::Inch,

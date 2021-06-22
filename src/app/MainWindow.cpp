@@ -691,20 +691,10 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* ev)
     if (obj == statusLabelPhysSize && ev->type() == QEvent::MouseButtonRelease) {
         if (statusLabelPhysSize->selectedText().isEmpty()) {
             StatusBarProvider::toggleStatusLabelPhysSizeDisplayMode();
-            // check if we need update units in page hints
-            // this is required only on Content Selection stage + logical sortings chosen
-            if (m_curFilter == m_ptrStages->selectContentFilterIdx() &&
-                    // px and inches are displayed in inches and inches follow px so no need to invalidate if it was switched from px to inches
-                    StatusBarProvider::statusLabelPhysSizeDisplayMode != StatusLabelPhysSizeDisplayMode::Inch) {
-                FilterPtr const& filter =  m_ptrStages->filterAt(m_curFilter);
-                if (filter->selectedPageOrder() >= filter->pageOrderOptions().size() - 2) {
-                    invalidateAllThumbnails();
-                }
-            } else if (m_curFilter == m_ptrStages->pageSplitFilterIdx()) {
-                FilterPtr const& filter =  m_ptrStages->filterAt(m_curFilter);
-                if (filter->selectedPageOrder() == filter->pageOrderOptions().size() - 1) {
-                    invalidateAllThumbnails();
-                }
+
+            // check if we need to update units in page hints
+            if (currentPageOrderProvider() && currentPageOrderProvider()->hintIsUnitsDependant()) {
+                invalidateAllThumbnails();
             }
         }
         displayStatusBarPageSize();

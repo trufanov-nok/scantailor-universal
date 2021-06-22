@@ -40,6 +40,13 @@ public:
         PageId const& rhs_page, bool rhs_incomplete) const = 0;
 
     virtual QString hint(PageId const& page) const = 0;
+
+    /**
+     * Returns true if page hint is measurement units dependant.
+     * Application is supposed to invalidate page thumbnail on
+     * units change in this case to refresh the text of hint.
+     */
+    virtual bool hintIsUnitsDependant() const { return false; }
 };
 
 class OrderByReadiness : public PageOrderProvider
