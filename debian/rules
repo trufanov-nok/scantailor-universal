@@ -2,6 +2,8 @@
 
 export DH_VERBOSE=1
 
+DEB_CMAKE_EXTRA_FLAGS := -DCMAKE_BUILD_TYPE=Release
+
 %:
 	dh $@
 
