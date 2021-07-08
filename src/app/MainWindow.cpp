@@ -2617,7 +2617,7 @@ MainWindow::showInsertFileDialog(BeforeOrAfter before_or_after, ImageId const& e
 
     // Actually insert the new pages.
     for (ImageFileInfo const& file : new_files) {
-        int image_num = -1; // Zero-based image number in a multi-page TIFF.
+        int image_num = file.imageInfo().size() <= 1 ? -1 : 0; // multipage TIFF images should have m_page > 0, see ImageId::isMultiPageFile() and ImageId::zeroBasedPage()
 
         for (ImageMetadata const& metadata : file.imageInfo()) {
             ++image_num;
