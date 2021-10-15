@@ -6,4 +6,4 @@ SOURCE_GROUP("UI Files" FILES ${ui_files})
 QT5_WRAP_UI(ui_sources ${ui_files})
 ADD_CUSTOM_TARGET(toplevel_ui_sources SOURCES ${ui_sources})
 
-TRANSLATION_SOURCES(scantailor ${ui_files})
+TRANSLATION_SOURCES(scantailor-universal ${ui_files})

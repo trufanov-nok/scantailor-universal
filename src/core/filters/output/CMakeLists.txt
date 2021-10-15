@@ -61,4 +61,4 @@ ADD_LIBRARY(output STATIC ${sources} ${ui_sources})
 QT5_USE_MODULES(output Widgets Xml)
 ADD_DEPENDENCIES(output toplevel_ui_sources)
 
-TRANSLATION_SOURCES(scantailor ${sources} ${ui_files})
+TRANSLATION_SOURCES(scantailor-universal ${sources} ${ui_files})

@@ -1699,7 +1699,7 @@ Images can be rotated by dragging the round handles at the edges. You can also e
               <item>
                <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>Grid and lines color: </string>
+                 <string>Grid and lines color:</string>
                 </property>
                </widget>
               </item>
@@ -1932,7 +1932,7 @@ If areas are identified incorrectly, you can tweak individual pages manually by 
               <item>
                <widget class="QLabel" name="label_10">
                 <property name="text">
-                 <string>Content zone highlight color: </string>
+                 <string>Content zone highlight color:</string>
                 </property>
                </widget>
               </item>

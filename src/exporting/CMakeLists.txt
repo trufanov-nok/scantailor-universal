@@ -13,4 +13,4 @@ SOURCE_GROUP("Sources" FILES ${sources})
 
 ADD_LIBRARY(exporting STATIC ${sources})
 QT5_USE_MODULES(exporting Widgets)
-TRANSLATION_SOURCES(scantailor ${sources})
+TRANSLATION_SOURCES(scantailor-universal ${sources})

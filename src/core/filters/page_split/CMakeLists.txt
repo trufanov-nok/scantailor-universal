@@ -31,4 +31,4 @@ QT5_WRAP_UI(ui_sources ${ui_files})
 
 ADD_LIBRARY(page_split STATIC ${sources} ${ui_sources})
 QT5_USE_MODULES(page_split Widgets Xml)
-TRANSLATION_SOURCES(scantailor ${sources} ${ui_files})
+TRANSLATION_SOURCES(scantailor-universal ${sources} ${ui_files})

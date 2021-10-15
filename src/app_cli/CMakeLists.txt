@@ -27,3 +27,8 @@ IF(APPLE)
 ELSE(APPLE)
         INSTALL(TARGETS scantailor-universal-cli RUNTIME DESTINATION bin)
 ENDIF(APPLE)
+
+TRANSLATION_SOURCES(
+        scantailor-universal
+        ${cli_only_sources}
+)

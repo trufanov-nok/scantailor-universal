@@ -570,7 +570,7 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
         QFileInfoList fl = dir.entryInfoList(QStringList("*.qss"), QDir::Files | QDir::Readable);
         ui.cbStyleSheet->blockSignals(true);
         ui.cbStyleSheet->clear();
-        ui.cbStyleSheet->addItem(tr("Standart", "stylesheet"), true);
+        ui.cbStyleSheet->addItem(tr("Standard", "stylesheet"), true);
         ui.cbStyleSheet->addItem(tr("None", "stylesheet"), false);
 
         const QString qss_name = m_settings.value(_key_app_stylsheet_file, "").toString();

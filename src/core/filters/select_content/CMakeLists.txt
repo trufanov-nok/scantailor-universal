@@ -26,4 +26,4 @@ QT5_WRAP_UI(ui_sources ${ui_files})
 
 ADD_LIBRARY(select_content STATIC ${sources} ${ui_sources})
 QT5_USE_MODULES(select_content Widgets Xml)
-TRANSLATION_SOURCES(scantailor ${sources} ${ui_files})
+TRANSLATION_SOURCES(scantailor-universal ${sources} ${ui_files})

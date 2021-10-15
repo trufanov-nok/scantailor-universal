@@ -135,3 +135,8 @@ SOURCE_GROUP("Resources" FILES ${core_resource_sources})
 ADD_LIBRARY(stcore STATIC ${core_resource_sources} ${common_sources} ${core_ui_sources})
 QT5_USE_MODULES(stcore Widgets Xml ${MAYBE_QT_OPENGL_MODULE})
 ADD_DEPENDENCIES(stcore core_ui_sources) 
+
+TRANSLATION_SOURCES(
+        scantailor-universal
+        ${common_sources} ${core_ui_sources}
+)
