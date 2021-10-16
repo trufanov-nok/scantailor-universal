@@ -130,7 +130,7 @@ ZoneDefaultInteraction::onPaint(QPainter& painter, InteractionState const& inter
         const QPointF p = to_screen.map(m_ptrNearestEllipse->const_data()[m_nearestEllipseVertexId]);
         m_visualizer.drawVertex(painter, p, m_visualizer.highlightBrightColor());
     } else
-    if (interaction.proximityLeader(m_vertexProximity)) {
+    if (interaction.proximityLeader(m_vertexProximity) && m_ptrNearestVertex) {
         // Draw the two adjacent edges in gradient red-to-orange.
         QLinearGradient gradient; // From inactive to active point.
         gradient.setColorAt(0.0, m_visualizer.solidColor());
@@ -159,7 +159,7 @@ ZoneDefaultInteraction::onPaint(QPainter& painter, InteractionState const& inter
     } else if (interaction.proximityLeader(m_segmentProximity)) {
         QLineF const line(to_screen.map(m_nearestSegment.toLine()));
 
-        // Draw the highglighed edge in orange.
+        // Draw the highlighted edge in orange.
         QPen pen(painter.pen());
         pen.setColor(m_visualizer.highlightDarkColor());
         painter.setPen(pen);
@@ -199,79 +199,75 @@ ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionS
     m_mouse_over_zone = false;
 
     for (EditableZoneSet::Zone const& zone : m_rContext.zones()) {
-        if (!m_mouse_over_zone) {
-            if (!zone.isEllipse()) {
-                QPainterPath path;
-                path.setFillRule(Qt::WindingFill);
-                path.addPolygon(zone.spline()->toPolygon());
-                if (path.contains(image_mouse_pos)) {
-                    m_ptrNearestZone = zone;
-                    m_mouse_over_zone = true;
-                }
-
-                EditableSpline::Ptr const& spline = zone.spline();
-
-                // Process vertices.
-                for (SplineVertex::Ptr vert(spline->firstVertex());
-                        vert; vert = vert->next(SplineVertex::NO_LOOP)) {
-
-                    Proximity const proximity(mouse_pos, to_screen.map(vert->point()));
-                    if (proximity < best_vertex_proximity) {
-                        m_ptrNearestVertex = vert;
-                        m_ptrNearestVertexSpline = spline;
-                        best_vertex_proximity = proximity;
-                    }
-                }
-
-                // Process segments.
-                for (EditableSpline::SegmentIterator it(*spline); it.hasNext();) {
-                    SplineSegment const segment(it.next());
-                    QLineF const line(to_screen.map(segment.toLine()));
-                    QPointF point_on_segment;
-                    Proximity const proximity(Proximity::pointAndLineSegment(mouse_pos, line, &point_on_segment));
-                    if (proximity < best_segment_proximity) {
-                        m_nearestSegment = segment;
-                        m_ptrNearestSegmentSpline = spline;
-                        best_segment_proximity = proximity;
-                        m_screenPointOnSegment = point_on_segment;
-                    }
-                }
-
-                interaction.updateProximity(m_vertexProximity, best_vertex_proximity, 1);
-                interaction.updateProximity(m_segmentProximity, best_segment_proximity, 0);
-            } else {
-                bool exactly_on_border;
-                Proximity proximity;
-                best_segment_proximity = proximity; // max dist
-                const EditableEllipse::Ptr& ellipse = zone.ellipse();
-                if (ellipse->contains(image_mouse_pos, &exactly_on_border)) {
-                    m_ptrNearestZone = zone;
-                    m_ptrNearestEllipse = zone.ellipse();
-                    m_mouse_over_zone = true;
-                }
-
-                m_nearestEllipseVertexId = 5;
-                int i = 0;
-                for (QPointF const & p : ellipse->const_data()) {
-                    Proximity const proximity(mouse_pos, to_screen.map(p));
-                    if (proximity < best_vertex_proximity) {
-                        m_nearestEllipseVertexId = i;
-                        m_ptrNearestEllipse = zone.ellipse();
-                        best_vertex_proximity = proximity;
-                    }
-                    i++;
-                }
-                interaction.updateProximity(m_ellipseCoVertexProximity, best_vertex_proximity, 1);
-                proximity = Proximity(mouse_pos, to_screen.map(ellipse->center()));
-                if (proximity < best_vertex_proximity) {
-                    m_nearestEllipseVertexId = 5;
-                    m_ptrNearestEllipse = zone.ellipse();
-                }
-                best_vertex_proximity = std::min(proximity, best_vertex_proximity);
-                interaction.updateProximity(m_ellipseCenterProximity, proximity, 2);
+        if (!zone.isEllipse()) {
+            QPainterPath path;
+            path.setFillRule(Qt::WindingFill);
+            path.addPolygon(zone.spline()->toPolygon());
+            if (!m_mouse_over_zone && path.contains(image_mouse_pos)) {
+                m_ptrNearestZone = zone;
+                m_mouse_over_zone = true;
             }
-        }
 
+            EditableSpline::Ptr const& spline = zone.spline();
+
+            // Process vertices.
+            for (SplineVertex::Ptr vert(spline->firstVertex());
+                 vert; vert = vert->next(SplineVertex::NO_LOOP)) {
+
+                Proximity const proximity(mouse_pos, to_screen.map(vert->point()));
+                if (proximity < best_vertex_proximity) {
+                    m_ptrNearestVertex = vert;
+                    m_ptrNearestVertexSpline = spline;
+                    best_vertex_proximity = proximity;
+                }
+            }
+
+            // Process segments.
+            for (EditableSpline::SegmentIterator it(*spline); it.hasNext();) {
+                SplineSegment const segment(it.next());
+                QLineF const line(to_screen.map(segment.toLine()));
+                QPointF point_on_segment;
+                Proximity const proximity(Proximity::pointAndLineSegment(mouse_pos, line, &point_on_segment));
+                if (proximity < best_segment_proximity) {
+                    m_nearestSegment = segment;
+                    m_ptrNearestSegmentSpline = spline;
+                    best_segment_proximity = proximity;
+                    m_screenPointOnSegment = point_on_segment;
+                }
+            }
+
+            interaction.updateProximity(m_vertexProximity, best_vertex_proximity, 1);
+            interaction.updateProximity(m_segmentProximity, best_segment_proximity, 0);
+        } else {
+            bool exactly_on_border;
+            Proximity proximity;
+            best_segment_proximity = proximity; // max dist
+            const EditableEllipse::Ptr& ellipse = zone.ellipse();
+            if (!m_mouse_over_zone && ellipse->contains(image_mouse_pos, &exactly_on_border)) {
+                m_ptrNearestZone = zone;
+                m_ptrNearestEllipse = zone.ellipse();
+                m_mouse_over_zone = true;
+            }
+
+            int i = 0;
+            for (QPointF const & p : ellipse->const_data()) {
+                Proximity const proximity(mouse_pos, to_screen.map(p));
+                if (proximity < best_vertex_proximity) {
+                    m_nearestEllipseVertexId = i;
+                    m_ptrNearestEllipse = zone.ellipse();
+                    best_vertex_proximity = proximity;
+                }
+                i++;
+            }
+            interaction.updateProximity(m_ellipseCoVertexProximity, best_vertex_proximity, 1);
+            proximity = Proximity(mouse_pos, to_screen.map(ellipse->center()));
+            if (proximity < best_vertex_proximity) {
+                m_nearestEllipseVertexId = 5;
+                m_ptrNearestEllipse = zone.ellipse();
+            }
+            best_vertex_proximity = std::min(proximity, best_vertex_proximity);
+            interaction.updateProximity(m_ellipseCenterProximity, proximity, 2);
+        }
 
     }
 
@@ -305,12 +301,19 @@ ZoneDefaultInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& 
         if (GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) ||
                 GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
                 GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask)) {
+
+            // as ZoneMoveHorizontally matches ZoneEllipse by default
+            // we could get here with m_ptrNearestVertex == null
+            // if ellipse is created in ellipse in rect
+            QPointF vertex = m_ptrNearestZone.isEllipse() ? m_ptrNearestZone.ellipse()->center() :
+                                                            m_ptrNearestVertex? m_ptrNearestVertex->point() :
+                                                                                m_ptrNearestZone.spline()->firstVertex()->point();
             makePeerPreceeder(
-                *m_rContext.createDragInteraction(
-                    interaction, m_ptrNearestZone,
-                            m_ptrNearestZone.isEllipse() ? m_ptrNearestZone.ellipse()->center() : m_ptrNearestVertex->point()
-                )
-            );
+                        *m_rContext.createDragInteraction(
+                            interaction, m_ptrNearestZone,
+                            vertex
+                            )
+                        );
             delete this;
             event->accept();
         }
