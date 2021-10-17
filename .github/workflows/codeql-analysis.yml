@@ -65,7 +65,7 @@ jobs:
 
     - run: |
        sudo -n apt-get update
-       sudo -n apt-get install -y qt5-default libqt5svg5-dev qttools5-dev libtiff5-dev libjpeg-dev libpng-dev libboost-all-dev libcanberra-dev libopenjp2-7-dev
+       sudo -n apt-get install -y qt5-default libqt5svg5-dev qttools5-dev libtiff5-dev libjpeg-dev libpng-dev libboost-all-dev libcanberra-dev libopenjp2-7-dev libexiv2-dev
        mkdir build
        cd build
        cmake ..
