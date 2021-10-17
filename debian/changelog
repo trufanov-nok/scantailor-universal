@@ -1,3 +1,12 @@
+scantailor-universal (0.2.13-0ubuntu1) bionic; urgency=medium
+
+  * Settings: keep ICC profile of original image
+    (off by default, req Ubuntu 19.04+, libexiv2-dev >= 0.26)
+  * Update russian translation
+  * Some bugfixes
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Sun, 17 Oct 2021 17:00:00 +0300
+
 scantailor-universal (0.2.12-0ubuntu1) bionic; urgency=medium
 
   * Basic support for app styling

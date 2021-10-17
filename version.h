@@ -72,7 +72,7 @@
 #define BUILD_MONTH ((BUILD_DATE_IS_BAD) ? 00 : COMPUTE_BUILD_MONTH)
 #define BUILD_DAY   ((BUILD_DATE_IS_BAD) ? 00 : COMPUTE_BUILD_DAY)
 
-#define VERSION "0.2.12"
-#define VERSION_QUAD "0.2.12.0"
+#define VERSION "0.2.13"
+#define VERSION_QUAD "0.2.13.0"
 
 #endif
