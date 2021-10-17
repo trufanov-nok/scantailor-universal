@@ -85,6 +85,7 @@ public:
     static QColor m_deskew_controls_color_thumb;
     static QColor m_content_sel_content_color;
     static QColor m_content_sel_content_color_pen;
+    static bool m_output_copy_icc_metadata;
     static QHotKeys m_hotKeyManager;
     static int m_highlightColorAdjustment;
 

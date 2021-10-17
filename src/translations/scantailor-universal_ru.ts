@@ -1152,11 +1152,6 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
 <context>
     <name>OrientationOptionsWidget</name>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OrientationOptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/fix_orientation/ui/OrientationOptionsWidget.ui" line="20"/>
         <source>Rotate</source>
         <translation>Поворот</translation>
@@ -1325,11 +1320,6 @@ To determine it, run batch processing at &quot;Select Content&quot; or &quot;Pag
         <location filename="../core/filters/output/ui/OutputOptionsWidget.ui" line="31"/>
         <source>Output Resolution:</source>
         <translation>Разрешение результата:</translation>
-    </message>
-    <message>
-        <location filename="../core/filters/output/ui/OutputOptionsWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../core/filters/output/ui/OutputOptionsWidget.ui" line="120"/>
@@ -1835,19 +1825,19 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QHotKeyInputDialog</name>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="825"/>
+        <location filename="../app/SettingsDialog.cpp" line="828"/>
         <source>Edit key sequence</source>
         <translation>Редактирование комбинации клавиш</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="827"/>
+        <location filename="../app/SettingsDialog.cpp" line="830"/>
         <source>Hold the modification keys (Ctrl, Shift, Alt, Meta)
 and press [Enter] to edit the shortcut:</source>
         <translation>Удерживая клавиши-модификаторы (Ctrl, Shift, Alt, Meta) или ничего,
 нажмите Enter для изменения комбинации клавиш:</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="829"/>
+        <location filename="../app/SettingsDialog.cpp" line="832"/>
         <source>Hold the keys and press [Enter] to edit the shortcut:</source>
         <translation>Удерживая клавиши нажмите Enter для изменения комбинации:</translation>
     </message>
@@ -2774,7 +2764,8 @@ and press [Enter] to edit the shortcut:</source>
         <location filename="../app/ui/SettingsDialog.ui" line="3942"/>
         <location filename="../app/ui/SettingsDialog.ui" line="4009"/>
         <location filename="../app/ui/SettingsDialog.ui" line="4125"/>
-        <location filename="../app/ui/SettingsDialog.ui" line="4220"/>
+        <location filename="../app/ui/SettingsDialog.ui" line="4205"/>
+        <location filename="../app/ui/SettingsDialog.ui" line="4280"/>
         <source>Description</source>
         <translation>Описание</translation>
     </message>
@@ -2796,6 +2787,7 @@ and press [Enter] to edit the shortcut:</source>
         <location filename="../app/ui/SettingsDialog.ui" line="3982"/>
         <location filename="../app/ui/SettingsDialog.ui" line="4083"/>
         <location filename="../app/ui/SettingsDialog.ui" line="4165"/>
+        <location filename="../app/ui/SettingsDialog.ui" line="4245"/>
         <source>Options</source>
         <translation type="unfinished">Настройки</translation>
     </message>
@@ -2852,12 +2844,12 @@ and press [Enter] to edit the shortcut:</source>
     <message>
         <location filename="../app/ui/SettingsDialog.ui" line="1702"/>
         <source>Grid and lines color:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Цвет линий и координатной сетки:</translation>
     </message>
     <message>
         <location filename="../app/ui/SettingsDialog.ui" line="1935"/>
         <source>Content zone highlight color:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Цвет подсветки зоны контента:</translation>
     </message>
     <message>
         <location filename="../app/ui/SettingsDialog.ui" line="2843"/>
@@ -2915,7 +2907,12 @@ In case sensitivity parameter is 100% the picture detection algorithm looks for 
         <translation type="unfinished">Дополнительное исправление наклона после распрямления строк, при необходимости</translation>
     </message>
     <message>
-        <location filename="../app/ui/SettingsDialog.ui" line="4274"/>
+        <location filename="../app/ui/SettingsDialog.ui" line="4251"/>
+        <source>Copy ICC profile from source image</source>
+        <translation type="unfinished">Копировать цветовой профиль ICC из исходного изображения</translation>
+    </message>
+    <message>
+        <location filename="../app/ui/SettingsDialog.ui" line="4334"/>
         <source>Most of the processing stages require multiple steps of image transformation, cropping, scaling, changing colors, applying filters etc. to calculate resulting image with specified parameters. These transformations could be displayed to user for debugging purposes.
 If debugging enabled you may find a new tabs on top of page view panel. Each tab contain one debugging image representing processing one step described in its title.
 
@@ -3271,7 +3268,7 @@ Everything outside page area is highlighted with yellow in page view panel.</sou
         <translation>Снизу</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="534"/>
+        <location filename="../app/SettingsDialog.cpp" line="535"/>
         <source>None</source>
         <translation>Не удалять пятна</translation>
     </message>
@@ -3401,12 +3398,17 @@ As Foreground layer is using binarization to separate content from background it
         <translation>Режим по умолчанию:</translation>
     </message>
     <message>
-        <location filename="../app/ui/SettingsDialog.ui" line="4324"/>
+        <location filename="../app/ui/SettingsDialog.ui" line="4226"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Various image formats allow to specify additional data in files. &lt;/p&gt;&lt;p&gt;In some cases you may want to copy such information from the source image files to the resulting image files after image processing.&lt;/p&gt;&lt;p&gt;These settings let you control metadata propagation.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copy ICC profile from source image &lt;/span&gt;- if enabled the embedded Color Profile data will be copied from source to resulting image. Some color profiles are not compatible with all possible color spaces thus this setting turns off some color space optimizations (e.g. RGB image won&apos;t be converted to grayscale color space even if all pixels in it are the shades of gray). The resulting image will keep the color space of the original unless it&apos;s converted to b/w.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Различные форматы изображений позволяют хранить дополнительные данные в файлах. &lt;/p&gt;&lt;p&gt;В некоторых случаях может иметь смысл копировать эту информацию из файла исходного изображения в файл результата обработки.&lt;/p&gt;&lt;p&gt;Эти настройки позволяют контролировать копирование таких метаданных.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Копировать цветовой профиль ICC из исходного изображения &lt;/span&gt;- если включено, встроенные данные цветового профиля будут продублированы в изображении-результате. Некоторые цветовые профили не совместимы с частью цветовых пространств, поэтому данная опция отключает часть оптимизаций файла изображения (в частности RGB изображение не будет переводиться в формат grayscale, даже если все пиксели в нем являются оттенками серого). Изображение результат сохранит то же цветовое пространство, что и оригинал, за исключением режима, в котором оно конвертируется в ч/б формат.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../app/ui/SettingsDialog.ui" line="4384"/>
         <source>Expand all</source>
         <translation>Развернуть все</translation>
     </message>
     <message>
-        <location filename="../app/ui/SettingsDialog.ui" line="4329"/>
+        <location filename="../app/ui/SettingsDialog.ui" line="4389"/>
         <source>Collapse all</source>
         <translation>Свернуть все</translation>
     </message>
@@ -3422,7 +3424,7 @@ As Foreground layer is using binarization to separate content from background it
     </message>
     <message>
         <location filename="../app/SettingsDialog.cpp" line="152"/>
-        <location filename="../app/SettingsDialog.cpp" line="1087"/>
+        <location filename="../app/SettingsDialog.cpp" line="1090"/>
         <source>Restore defaults</source>
         <translation>Сброс настроек</translation>
     </message>
@@ -3519,35 +3521,40 @@ As Foreground layer is using binarization to separate content from background it
         <translation>Выравнивание</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="535"/>
+        <location filename="../app/SettingsDialog.cpp" line="262"/>
+        <source>Image metadata</source>
+        <translation type="unfinished">Метаданные изображения</translation>
+    </message>
+    <message>
+        <location filename="../app/SettingsDialog.cpp" line="536"/>
         <source>Cautious</source>
         <translation type="unfinished">Осторожное</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="537"/>
+        <location filename="../app/SettingsDialog.cpp" line="538"/>
         <source>Aggressive</source>
         <translation type="unfinished">Агрессивный</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="573"/>
+        <location filename="../app/SettingsDialog.cpp" line="574"/>
         <source>Standard</source>
         <comment>stylesheet</comment>
         <translation type="unfinished">Стандартная</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="574"/>
+        <location filename="../app/SettingsDialog.cpp" line="575"/>
         <source>None</source>
         <comment>stylesheet</comment>
         <translation type="unfinished">Нет</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="1088"/>
+        <location filename="../app/SettingsDialog.cpp" line="1091"/>
         <source>Thumbnails view settings will be reseted to their defaults. Continue?</source>
         <translation type="unfinished">Настройки ленты предпросмотра страниц будут сброшены на значения по умолчанию. Продолжить?</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="1141"/>
-        <location filename="../app/SettingsDialog.cpp" line="1160"/>
+        <location filename="../app/SettingsDialog.cpp" line="1144"/>
+        <location filename="../app/SettingsDialog.cpp" line="1163"/>
         <source>Color selection</source>
         <translation type="unfinished">Выбор цвета</translation>
     </message>
@@ -3607,7 +3614,7 @@ As Foreground layer is using binarization to separate content from background it
         <translation type="unfinished">Удаление мусора</translation>
     </message>
     <message>
-        <location filename="../app/SettingsDialog.cpp" line="536"/>
+        <location filename="../app/SettingsDialog.cpp" line="537"/>
         <source>Normal</source>
         <translation>Обычный</translation>
     </message>
@@ -3650,11 +3657,6 @@ As Foreground layer is using binarization to separate content from background it
 </context>
 <context>
     <name>SystemLoadWidget</name>
-    <message>
-        <location filename="../app/ui/SystemLoadWidget.ui" line="14"/>
-        <source>Form</source>
-        <translation></translation>
-    </message>
     <message>
         <location filename="../app/ui/SystemLoadWidget.ui" line="23"/>
         <source>System load</source>
@@ -4161,37 +4163,37 @@ of a non grey color in the source files</source>
 <context>
     <name>output::Task::UiUpdater</name>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="682"/>
+        <location filename="../core/filters/output/Task.cpp" line="690"/>
         <source>Picture zones are only available in Mixed mode.</source>
         <translation>Зоны картинок доступны только в режиме &quot;Смешанный&quot;.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="754"/>
+        <location filename="../core/filters/output/Task.cpp" line="762"/>
         <source>Despeckling can&apos;t be done in Color / Grayscale mode.</source>
         <translation type="unfinished">Удаление мусора не роизводится в режиме &quot;Цветной / Оттенки серого&quot;.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="779"/>
+        <location filename="../core/filters/output/Task.cpp" line="787"/>
         <source>Output</source>
         <translation>Вывод</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="780"/>
+        <location filename="../core/filters/output/Task.cpp" line="788"/>
         <source>Layers</source>
         <translation>Слои</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="781"/>
+        <location filename="../core/filters/output/Task.cpp" line="789"/>
         <source>Fill Zones</source>
         <translation>Зоны заливки</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="782"/>
+        <location filename="../core/filters/output/Task.cpp" line="790"/>
         <source>Dewarping</source>
         <translation>Распрямление строк</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/Task.cpp" line="783"/>
+        <location filename="../core/filters/output/Task.cpp" line="791"/>
         <source>Despeckling</source>
         <translation type="unfinished">Удаление мусора</translation>
     </message>

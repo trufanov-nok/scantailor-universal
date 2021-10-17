@@ -214,6 +214,10 @@ static const bool _key_output_foreground_layer_enabled_def = true;
 static const char* _key_output_picture_layer_enabled = "picture_zones_layer/enabled";
 static const bool _key_output_picture_layer_enabled_def = true;
 
+
+static const char* _key_output_metadata_copy_icc = "metadata/copy_icc";
+static const bool _key_output_metadata_copy_icc_def = false;
+
 /* Dewarping */
 
 static const char* _key_dewarp_auto_vert_half_correction = "dewarp/auto_vert_half_correction";

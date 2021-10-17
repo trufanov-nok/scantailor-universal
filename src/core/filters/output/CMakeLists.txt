@@ -2,6 +2,11 @@ PROJECT("Output Filter")
 
 INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
 
+IF(EXIV2_FOUND)
+        SET( exiv2_sources
+            ImageMetadataCopier.cpp ImageMetadataCopier.h)
+ENDIF()
+
 SET(
         sources
         ChangeDpiWidget.cpp ChangeDpiWidget.h
@@ -47,6 +52,7 @@ SET(
         DepthPerception.cpp DepthPerception.h
         OrderByModeProvider.cpp OrderByModeProvider.h
         OrderBySourceColor.cpp OrderBySourceColor.h
+        ${exiv2_sources}
 )
 SOURCE_GROUP("Sources" FILES ${sources})
 FILE(GLOB ui_files "ui/*.ui")

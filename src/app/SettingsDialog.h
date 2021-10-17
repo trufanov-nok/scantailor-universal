@@ -163,6 +163,8 @@ private slots:
 
     void on_cbStyleSheet_currentIndexChanged(int index);
 
+    void on_cbCopyICCProfile_toggled(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

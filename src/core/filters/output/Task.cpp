@@ -74,6 +74,9 @@
 #include <QFileInfo>
 #include <QTabWidget>
 #include <QCoreApplication>
+#ifdef HAVE_EXIV2
+#include "ImageMetadataCopier.h"
+#endif
 #include <QDebug>
 
 #include "CommandLine.h"
@@ -471,6 +474,11 @@ Task::process(
             invalidate_params = true;
         } else {
             deleteMutuallyExclusiveOutputFiles();
+#ifdef HAVE_EXIV2
+            if (GlobalStaticSettings::m_output_copy_icc_metadata) {
+                ImageMetadataCopier::copyMetadata(m_pageId.imageId().filePath(), out_file_path);
+            }
+#endif
             if (TiffCompressionUsed != new_output_image_params.TiffCompression()) {
                 new_output_image_params.setTiffCompression(TiffCompressionUsed);
             }

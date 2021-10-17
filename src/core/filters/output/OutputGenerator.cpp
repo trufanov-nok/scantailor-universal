@@ -63,6 +63,9 @@
 #include "imageproc/InfluenceMap.h"
 #include "config.h"
 #include "settings/globalstaticsettings.h"
+#ifdef HAVE_EXIV2
+#include "ImageMetadataCopier.h"
+#endif
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -613,7 +616,12 @@ OutputGenerator::processAsIs(
     QImage out;
     CommandLine const& cli = CommandLine::get();
 
-    if (input.origImage().allGray() && !cli.hasTiffForceKeepColorSpace()) {
+    if (input.origImage().allGray() && !cli.hasTiffForceKeepColorSpace()
+        #ifdef HAVE_EXIV2
+            && !( GlobalStaticSettings::m_output_copy_icc_metadata &&
+                  ImageMetadataCopier::iccProfileDefined(input.origImageFilename()) )
+        #endif
+            ) {
         if (m_outRect.isEmpty()) {
             QImage image(1, 1, QImage::Format_Indexed8);
             image.setColorTable(createGrayscalePalette());
@@ -863,7 +871,12 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
         // in case of mixedOutput we normalized image for picture detection and now should
         // restoren non-normalized image if it has !normalizeIllumination()
         QImage tmp;
-        if (!input.origImage().allGray()) {
+        if (!input.origImage().allGray()
+#ifdef HAVE_EXIV2
+                || ( GlobalStaticSettings::m_output_copy_icc_metadata &&
+                 ImageMetadataCopier::iccProfileDefined(input.origImageFilename()) )
+#endif
+                ) {
             assert(maybe_normalized.format() == QImage::Format_Indexed8);
             tmp = (
                       transform(
@@ -1109,7 +1122,12 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
     QPolygonF normalize_illumination_crop_area(m_xform.resultingPreCropArea());
     normalize_illumination_crop_area.translate(-normalize_illumination_rect.topLeft());
 
-    bool const color_original = !input.origImage().allGray();
+    bool const color_original = !input.origImage().allGray()
+#ifdef HAVE_EXIV2
+            || ( GlobalStaticSettings::m_output_copy_icc_metadata &&
+                 ImageMetadataCopier::iccProfileDefined(input.origImageFilename()) )
+#endif
+            ;
 
     // Original image, but:
     // 1. In a format we can handle, that is grayscale, RGB32, ARGB32
