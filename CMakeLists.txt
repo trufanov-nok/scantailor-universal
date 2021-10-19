@@ -522,6 +522,10 @@ IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
         COPY_TO_BUILD_DIR( "${DLL_DIR}/openjp2.dll" )
 ENDIF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
 
+IF(EXIV2_FOUND)
+        COPY_TO_BUILD_DIR( "${DLL_DIR}/exiv2.dll" )
+ENDIF(EXIV2_FOUND)
+
         # Qt's plugins.
         SET(PLUGINS_DIR "${QT_SRC_DIR}/qtbase/plugins")
         COPY_TO_BUILD_DIR(

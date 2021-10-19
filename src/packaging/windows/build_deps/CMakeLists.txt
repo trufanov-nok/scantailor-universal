@@ -43,6 +43,8 @@ FILE(GLOB boost_dirs1 "${build_outer_dir}/boost_1_[0-9]*_[0-9]*")
 FILE(GLOB boost_dirs2 "${source_outer_dir}/boost_1_[0-9]*_[0-9]*")
 FILE(GLOB jpeg2000_dirs1 "${build_outer_dir}/openjpeg-[0-9]*.[0-9]*.[0-9]*")
 FILE(GLOB jpeg2000_dirs2 "${source_outer_dir}/openjpeg-[0-9]*.[0-9]*.[0-9]*")
+FILE(GLOB exiv2_dirs1 "${build_outer_dir}/exiv2-[0-9]*.[0-9]*")
+FILE(GLOB exiv2_dirs2 "${source_outer_dir}/exiv2-[0-9]*.[0-9]*")
 
 FIND_PATH(
 	JPEG_DIR jpeglib.h HINTS ${jpeg_dirs1} ${jpeg_dirs2}
@@ -73,6 +75,10 @@ FIND_PATH(
         JPEG2000_DIR src/lib/openjp2/openjpeg.h HINTS ${jpeg2000_dirs1} ${jpeg2000_dirs2}
         DOC "Path to OpenJPEG source directory."
 )
+FIND_PATH(
+        EXIV2_DIR /include/exiv2/exiv2.hpp HINTS ${exiv2_dirs1} ${exiv2_dirs2}
+        DOC "Path to exiv2 source directory."
+)
 
 IF(NOT JPEG_DIR)
         MESSAGE(FATAL_ERROR "JPEG source directory not found. You may specify it manually.")
@@ -84,6 +90,8 @@ ELSEIF(NOT TIFF_DIR)
         MESSAGE(FATAL_ERROR "TIFF source directory not found. You may specify it manually.")
 ELSEIF(NOT JPEG2000_DIR)
         MESSAGE(FATAL_ERROR "OpenJPEG source directory not found. You may specify it manually.")
+ELSEIF(NOT EXIV2_DIR)
+        MESSAGE(WARNING     "Exiv2 source directory not found. You may specify it manually.")
 ELSEIF(NOT QT_SRC_DIR)
         MESSAGE(FATAL_ERROR "Qt5 source directory not found. You may specify it manually. If you installed a binary version, it will be something like C:\\Qt\\Qt5.0.2\\5.0.2\\Src")
 ELSEIF(NOT BOOST_DIR)
@@ -103,6 +111,7 @@ SET(PNG_LIBRARY_NAME libpng)
 SET(JPEG_LIBRARY_NAME libjpeg)
 SET(TIFF_LIBRARY_NAME libtiff)
 SET(JPEG2000_LIBRARY_NAME openjp2)
+SET(EXIV2_LIBRARY_NAME exiv2)
 
 MACRO(LIST_ITEMS_PREPEND LIST PREFIX)
 	SET(tmp_list_)
@@ -341,6 +350,100 @@ ENDIF()
 
 set(OPJ_HAVE_FSEEKO YES)
 CONFIGURE_FILE(${JPEG2000_DIR}/src/lib/openjp2/opj_config_private.h.cmake.in "${JPEG2000_DIR}/src/lib/openjp2/opj_config_private.h" @ONLY)
+
+
+#=================================== EXIV2 ===================================#
+
+SET(
+        exiv2_cpp_sources
+        actions.cpp           i18n.h               rw2image.cpp
+        actions.hpp           image.cpp            rw2image_int.cpp
+        asfvideo.cpp          image_int.cpp        rw2image_int.hpp
+        basicio.cpp           image_int.hpp        safe_op.hpp
+        bmffimage.cpp         ini.cpp              samsungmn_int.cpp
+        bmpimage.cpp          iptc.cpp             samsungmn_int.hpp
+        canonmn_int.cpp       jp2image.cpp         sigmamn_int.cpp
+        canonmn_int.hpp       jpgimage.cpp         sigmamn_int.hpp
+        casiomn_int.cpp       makernote_int.cpp    sonymn_int.cpp
+        casiomn_int.hpp       makernote_int.hpp    sonymn_int.hpp
+                              matroskavideo.cpp    ssh.cpp
+        convert.cpp           metadatum.cpp        tags.cpp
+        cr2header_int.cpp     minoltamn_int.cpp    tags_int.cpp
+        cr2header_int.hpp     minoltamn_int.hpp    tags_int.hpp
+        cr2image.cpp          mrwimage.cpp         tgaimage.cpp
+        crwimage.cpp          nikonmn_int.cpp      tiffcomposite_int.cpp
+        crwimage_int.cpp      nikonmn_int.hpp      tiffcomposite_int.hpp
+        crwimage_int.hpp      olympusmn_int.cpp    tifffwd_int.hpp
+        datasets.cpp          olympusmn_int.hpp    tiffimage.cpp
+                              orfimage.cpp         tiffimage_int.cpp
+        easyaccess.cpp        orfimage_int.cpp     tiffimage_int.hpp
+        enforce.hpp           orfimage_int.hpp     tiffvisitor_int.cpp
+        epsimage.cpp          panasonicmn_int.cpp  tiffvisitor_int.hpp
+        error.cpp             panasonicmn_int.hpp  timegm.h
+        exif.cpp              pentaxmn_int.cpp
+        exiv2.cpp             pentaxmn_int.hpp     types.cpp
+        exiv2app.hpp          pgfimage.cpp         tzfile.h
+        fff.h                 pngchunk_int.cpp     unused.h
+        fujimn_int.cpp        pngchunk_int.hpp     utils.cpp
+        fujimn_int.hpp        pngimage.cpp         utils.hpp
+        futils.cpp            preview.cpp          utilsvideo.cpp
+        getopt.cpp            private.h            value.cpp
+        getopt.hpp            properties.cpp       version.cpp
+        gifimage.cpp          psdimage.cpp         webpimage.cpp
+        helper_functions.cpp  quicktimevideo.cpp   xmp.cpp
+        helper_functions.hpp  rafimage.cpp         xmpsidecar.cpp
+        http.cpp              riffvideo.cpp
+)
+
+LIST_ITEMS_PREPEND(exiv2_cpp_sources "${EXIV2_DIR}/src/")
+
+SET(
+        exiv2_incl_sources
+
+        asfvideo.hpp    exif.hpp           orfimage.hpp        tags.hpp
+        basicio.hpp     exiv2.hpp          pgfimage.hpp        tgaimage.hpp
+        bmffimage.hpp   futils.hpp         pngimage.hpp        tiffimage.hpp
+        bmpimage.hpp    gifimage.hpp       preview.hpp         types.hpp
+                        http.hpp           properties.hpp      utilsvideo.hpp
+        config.h        image.hpp          psdimage.hpp        value.hpp
+        convert.hpp     ini.hpp            quicktimevideo.hpp  version.hpp
+        cr2image.hpp    iptc.hpp           rafimage.hpp        webpimage.hpp
+        crwimage.hpp    jp2image.hpp       riffvideo.hpp       xmp_exiv2.hpp
+        datasets.hpp    jpgimage.hpp       rw2image.hpp        xmpsidecar.hpp
+        easyaccess.hpp  matroskavideo.hpp  rwlock.hpp
+        epsimage.hpp    metadatum.hpp      slice.hpp
+        error.hpp       mrwimage.hpp       ssh.hpp
+
+
+)
+
+LIST_ITEMS_PREPEND(exiv2_incl_sources "${EXIV2_DIR}/include/exiv2/")
+
+INCLUDE_DIRECTORIES("${EXIV2_DIR}/include/")
+INCLUDE_DIRECTORIES("${EXIV2_DIR}/include/exiv2/")
+INCLUDE_DIRECTORIES("${EXIV2_DIR}/contrib/vs2019/solution/")
+
+SET (exiv2_sources  ${exiv2_cpp_sources}  ${exiv2_incl_sources})
+
+ADD_LIBRARY(${EXIV2_LIBRARY_NAME} SHARED ${exiv2_sources})
+SET_TARGET_PROPERTIES(
+        ${EXIV2_LIBRARY_NAME} PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/staging/libs"
+        ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/staging/libs"
+        ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/staging/libs"
+        ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/staging/libs"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${QTBASE_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${QTBASE_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${QTBASE_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${QTBASE_DIR}/bin"
+)
+
+TARGET_LINK_LIBRARIES(
+        ${EXIV2_LIBRARY_NAME} ${ZLIB_LIBRARY_NAME} "psapi.lib" "ws2_32.lib"
+)
+
+target_compile_definitions(${EXIV2_LIBRARY_NAME} PRIVATE  _WINDOWS NOMINMAX WIN32_LEAN_AND_MEAN PSAPI_VERSION=1
+    BUILD_SHARED_LIBS=1 EXIV2_ENABLE_DYNAMIC_RUNTIME=1 exiv2lib_EXPORTS)
 
 #================================= Boost ================================#
 
