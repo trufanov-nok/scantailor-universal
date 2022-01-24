@@ -25,6 +25,7 @@
 #include "DraggableObject.h"
 #include <QPointF>
 #include <QPointF>
+#include <set>
 
 class QPainter;
 class QCursor;
@@ -54,24 +55,34 @@ public:
     bool proximityLeader(InteractionState const& interaction) const;
 
     void forceEnterDragState(InteractionState& interaction, QPoint widget_mouse_pos);
+
+    void setKeyboardModifiers(const std::set<Qt::KeyboardModifiers>& modifiersSet);
 protected:
     virtual void onPaint(
-        QPainter& painter, InteractionState const& interaction);
+        QPainter& painter, InteractionState const& interaction) override;
 
     virtual void onProximityUpdate(
-        QPointF const& screen_mouse_pos, InteractionState& interaction);
+        QPointF const& screen_mouse_pos, InteractionState& interaction) override;
 
     virtual void onMousePressEvent(
-        QMouseEvent* event, InteractionState& interaction);
+        QMouseEvent* event, InteractionState& interaction) override;
 
     virtual void onMouseReleaseEvent(
-        QMouseEvent* event, InteractionState& interaction);
+        QMouseEvent* event, InteractionState& interaction) override;
 
     virtual void onMouseMoveEvent(
-        QMouseEvent* event, InteractionState& interaction);
+        QMouseEvent* event, InteractionState& interaction) override;
+
+    virtual void onKeyPressEvent(
+            QKeyEvent* event, InteractionState& interaction) override;
+
+    virtual void onKeyReleaseEvent(
+            QKeyEvent* event, InteractionState& interaction) override;
 private:
     DraggableObject* m_pObj;
     InteractionState::Captor m_interaction;
+    std::set<Qt::KeyboardModifiers> m_keyboardModifiersSet;
+    Qt::KeyboardModifiers m_activeKeyboardModifiers;
 };
 
 #endif

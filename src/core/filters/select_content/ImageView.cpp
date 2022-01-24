@@ -108,6 +108,26 @@ ImageView::ImageView(
         makeLastFollower(m_edgeHandlers[i]);
     }
 
+    m_contentRectArea.setProximityPriority(2);
+    // Setup rectangle drag interaction
+    m_contentRectArea.setPositionCallback(boost::bind(&ImageView::contentRectPosition, this));
+    m_contentRectArea.setMoveRequestCallback(boost::bind(&ImageView::contentRectMoveRequest, this, _1));
+    m_contentRectArea.setDragFinishedCallback(boost::bind(&ImageView::contentRectDragFinished, this));
+    m_contentRectAreaHandler.setObject(&m_contentRectArea);
+    m_contentRectAreaHandler.setProximityStatusTip(tr("Hold left mouse button to drag the content box."));
+    m_contentRectAreaHandler.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));
+    if (const HotKeyInfo* hk = GlobalStaticSettings::m_hotKeyManager.get(ContentMove)) {
+        if (!hk->sequences().isEmpty()) {
+            m_contentRectAreaHandler.setKeyboardModifiers({hk->sequences()[0].m_modifierSequence});
+        }
+    }
+    m_contentRectAreaHandler.setProximityCursor(Qt::DragMoveCursor);
+    m_contentRectAreaHandler.setInteractionCursor(Qt::DragMoveCursor);
+
+    if (m_contentRect.isValid()) {
+        makeLastFollower(m_contentRectAreaHandler);
+    }
+
     rootInteractionHandler().makeLastFollower(*this);
     rootInteractionHandler().makeLastFollower(m_dragHandler);
     rootInteractionHandler().makeLastFollower(m_zoomHandler);
@@ -311,7 +331,7 @@ ImageView::keyPressEvent(QKeyEvent* event)
     QRectF r(virtualToWidget().mapRect(m_contentRect));
     if (dx || dy) {
         r.translate(dx, dy);
-        forceInsideImage(r, TOP | BOTTOM | LEFT | RIGHT);
+        forceInsideImage(r);
     }
 
     m_contentRect = widgetToVirtual().mapRect(r);
@@ -350,7 +370,7 @@ ImageView::cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModi
             r.translate(diff.x(), diff.y());
         }
         m_moveStart = pos;
-        forceInsideImage(r, TOP | LEFT | RIGHT | BOTTOM);
+        forceInsideImage(r);
     } else {
         m_moveStart = QPointF();
 
@@ -421,8 +441,47 @@ ImageView::dragFinished()
     emit manualContentRectSet(m_contentRect);
 }
 
+
+QRectF ImageView::contentRectPosition() const {
+  return virtualToWidget().mapRect(m_contentRect);
+}
+
+void ImageView::contentRectMoveRequest(const QPolygonF& polyMoved) {
+  QRectF contentRectInWidget(polyMoved.boundingRect());
+
+  const QRectF imageRect(virtualToWidget().mapRect(virtualDisplayRect()));
+  if (contentRectInWidget.left() < imageRect.left()) {
+    contentRectInWidget.translate(imageRect.left() - contentRectInWidget.left(), 0);
+  }
+  if (contentRectInWidget.right() > imageRect.right()) {
+    contentRectInWidget.translate(imageRect.right() - contentRectInWidget.right(), 0);
+  }
+  if (contentRectInWidget.top() < imageRect.top()) {
+    contentRectInWidget.translate(0, imageRect.top() - contentRectInWidget.top());
+  }
+  if (contentRectInWidget.bottom() > imageRect.bottom()) {
+    contentRectInWidget.translate(0, imageRect.bottom() - contentRectInWidget.bottom());
+  }
+
+  m_contentRect = widgetToVirtual().mapRect(contentRectInWidget);
+
+  update();
+
+  if (m_contentRect.isValid()) {
+      StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+      setCursorPosAdjustment(m_contentRect.topLeft());
+  }
+
+  update();
+}
+
+void ImageView::contentRectDragFinished()
+{
+  emit manualContentRectSet(m_contentRect);
+}
+
 void
-ImageView::forceInsideImage(QRectF& widget_rect, int const edge_mask) const
+ImageView::forceInsideImage(QRectF& widget_rect, int edge_mask) const
 {
     qreal const minw = m_minBoxSize.width();
     qreal const minh = m_minBoxSize.height();

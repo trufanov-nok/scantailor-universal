@@ -24,6 +24,7 @@
 #include "ZoomHandler.h"
 #include "DraggablePoint.h"
 #include "DraggableLineSegment.h"
+#include "DraggablePolygon.h"
 #include "ObjectDragHandler.h"
 #include <QRectF>
 #include <QSizeF>
@@ -61,7 +62,13 @@ private slots:
 
     void removeContentBox();
 private:
-    enum Edge { LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8 };
+    enum Edge {
+        LEFT   = 1,
+        RIGHT  = 2,
+        TOP    = 4,
+        BOTTOM = 8,
+        ALL = LEFT | RIGHT | TOP | BOTTOM
+    };
 
     virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 
@@ -71,14 +78,20 @@ private:
 
     void cornerMoveRequest(int edge_mask, QPointF const& pos, Qt::KeyboardModifiers mask);
 
+    QRectF contentRectPosition() const;
+    void contentRectMoveRequest(const QPolygonF& polyMoved);
+    void contentRectDragFinished();
+
     QLineF edgePosition(int edge) const;
 
     void edgeMoveRequest(int edge, QLineF const& line, Qt::KeyboardModifiers mask);
 
     void dragFinished();
 
-    void forceInsideImage(QRectF& widget_rect, int edge_mask) const;
+    void forceInsideImage(QRectF& widget_rect, int edge_mask = Edge::ALL) const;
 
+    DraggablePolygon m_contentRectArea;
+    ObjectDragHandler m_contentRectAreaHandler;
     DraggablePoint m_corners[4];
     ObjectDragHandler m_cornerHandlers[4];
 

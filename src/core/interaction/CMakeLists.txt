@@ -7,6 +7,7 @@ SET(
         DraggableObject.h
         DraggablePoint.cpp DraggablePoint.h
         DraggableLineSegment.cpp DraggableLineSegment.h
+        DraggablePolygon.cpp DraggablePolygon.h
         ObjectDragHandler.cpp ObjectDragHandler.h
         InteractionHandler.cpp InteractionHandler.h
         InteractionState.cpp InteractionState.h

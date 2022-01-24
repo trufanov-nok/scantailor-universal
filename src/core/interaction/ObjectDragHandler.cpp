@@ -22,7 +22,7 @@
 #include <Qt>
 
 ObjectDragHandler::ObjectDragHandler(DraggableObject* obj)
-    :   m_pObj(obj)
+    :   m_pObj(obj), m_keyboardModifiersSet({Qt::NoModifier}), m_activeKeyboardModifiers(Qt::NoModifier)
 {
     setProximityCursor(Qt::OpenHandCursor);
     setInteractionCursor(Qt::ClosedHandCursor);
@@ -84,6 +84,10 @@ void
 ObjectDragHandler::onProximityUpdate(
     QPointF const& screen_mouse_pos, InteractionState& interaction)
 {
+    if (m_keyboardModifiersSet.find(m_activeKeyboardModifiers) == m_keyboardModifiersSet.end()) {
+       return;
+     }
+
     interaction.updateProximity(
         m_interaction, m_pObj->proximity(screen_mouse_pos),
         m_pObj->proximityPriority(), m_pObj->proximityThreshold(interaction)
@@ -94,7 +98,8 @@ void
 ObjectDragHandler::onMousePressEvent(
     QMouseEvent* event, InteractionState& interaction)
 {
-    if (interaction.captured() || event->button() != Qt::LeftButton) {
+    if (interaction.captured() || event->button() != Qt::LeftButton
+            || (m_keyboardModifiersSet.find(m_activeKeyboardModifiers) == m_keyboardModifiersSet.end())) {
         return;
     }
 
@@ -125,4 +130,16 @@ ObjectDragHandler::onMouseMoveEvent(
         m_pObj->dragContinuation(QPointF(0.5, 0.5) + event->pos(), event->modifiers());
 //end of modified by monday2000
     }
+}
+
+void ObjectDragHandler::setKeyboardModifiers(const std::set<Qt::KeyboardModifiers>& modifiersSet) {
+  m_keyboardModifiersSet = modifiersSet;
+}
+
+void ObjectDragHandler::onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) {
+  m_activeKeyboardModifiers = event->modifiers();
+}
+
+void ObjectDragHandler::onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) {
+  m_activeKeyboardModifiers = event->modifiers();
 }
