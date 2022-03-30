@@ -52,6 +52,7 @@ SET(
         DepthPerception.cpp DepthPerception.h
         OrderByModeProvider.cpp OrderByModeProvider.h
         OrderBySourceColor.cpp OrderBySourceColor.h
+        OrderByDewarpingModeProvider.cpp OrderByDewarpingModeProvider.h
         ${exiv2_sources}
 )
 SOURCE_GROUP("Sources" FILES ${sources})

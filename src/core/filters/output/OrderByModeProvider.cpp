@@ -83,4 +83,4 @@ OrderByModeProvider::hint(PageId const& page) const
     return /*res.arg(*/colorMode2String(param.colorMode())/*)*/;
 }
 
-} // namespace page_split
+} // namespace output

@@ -1,7 +1,7 @@
 /*
     Scan Tailor - Interactive post-processing tool for scanned pages.
     Copyright (C)  Joseph Artsimovich <joseph.artsimovich@gmail.com>
-    Copyright (C)  Vadim Kuznetsov ()DikBSD <dikbsd@gmail.com>
+    Copyright (C)  Alexander Trufanov <trufanovan@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OUTPUT_ORDER_BY_MODE_PROVIDER_H_
-#define OUTPUT_ORDER_BY_MODE_PROVIDER_H_
+#ifndef ORDER_BY_DEWARPING_MODE_PROVIDER_H_
+#define ORDER_BY_DEWARPING_MODE_PROVIDER_H_
 
 #include "Settings.h"
 #include "IntrusivePtr.h"
@@ -27,10 +27,10 @@
 namespace output
 {
 
-class OrderByModeProvider : public PageOrderProvider
+class OrderByDewarpingModeProvider : public PageOrderProvider
 {
 public:
-    OrderByModeProvider(IntrusivePtr<Settings> const& settings);
+    OrderByDewarpingModeProvider(IntrusivePtr<Settings> const& settings);
 
     virtual bool precedes(
         PageId const& lhs_page, bool lhs_incomplete,
@@ -43,4 +43,4 @@ private:
 
 } // namespace output
 
-#endif //OUTPUT_ORDER_BY_MODE_PROVIDER_H_
+#endif //ORDER_BY_DEWARPING_MODE_PROVIDER_H_

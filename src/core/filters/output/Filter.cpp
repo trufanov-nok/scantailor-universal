@@ -39,6 +39,7 @@
 #include "ImageViewTab.h"
 #include "OrderByModeProvider.h"
 #include "OrderBySourceColor.h"
+#include "OrderByDewarpingModeProvider.h"
 #include "version.h"
 #include "FillColorProperty.h"
 
@@ -60,9 +61,11 @@ Filter::Filter(
     ProviderPtr const default_order;
     ProviderPtr const order_by_mode(new OrderByModeProvider(m_ptrSettings));
     ProviderPtr const order_by_source_color(new OrderBySourceColor(m_ptrSettings, pages));
+    ProviderPtr const order_by_dewarping_mode(new OrderByDewarpingModeProvider(m_ptrSettings));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Natural order"), default_order));
     m_pageOrderOptions.push_back(PageOrderOption(QObject::tr("Processed then unprocessed"), ProviderPtr(new OrderByReadiness())));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Order by mode"), order_by_mode));
+    m_pageOrderOptions.push_back(PageOrderOption(tr("Order by dewarping mode"), order_by_dewarping_mode));
     m_pageOrderOptions.push_back(PageOrderOption(tr("Grayscale sources on top"), order_by_source_color,
                                  tr("Groups the pages by presence\nof a non grey color in the source files")));
 }
