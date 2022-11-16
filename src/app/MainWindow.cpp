@@ -1852,6 +1852,7 @@ MainWindow::newProjectCreated(ProjectCreationContext* context)
     );
     switchToNewProject(pages, context->outDir());
     setAutoSaveInputDir(context->inputDir());
+    resumeAutoSaveTimer();
 }
 
 void
@@ -1934,6 +1935,7 @@ MainWindow::projectOpened(ProjectOpeningContext* context)
     );
 
     setAutoSaveInputDir(context->projectReader()->inputDirectory());
+    resumeAutoSaveTimer();
 }
 
 void
