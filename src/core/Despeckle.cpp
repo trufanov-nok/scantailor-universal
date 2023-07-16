@@ -762,7 +762,7 @@ Despeckle::despeckleInPlace(
         }
         #pragma omp critical
         {
-            for (int i = 0; i < components_l.size(); ++i) {
+            for (size_t i = 0; i < components_l.size(); ++i) {
                 components[i].num_pixels += components_l[i].num_pixels;
                 bounding_boxes[i].extend(bounding_boxes_l[i]);
             }
