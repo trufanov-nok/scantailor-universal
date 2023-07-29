@@ -63,6 +63,14 @@ OptionsWidget::OptionsWidget(
 {
     setupUi(this);
 
+    thresholdMethodSelector->addItem(tr("Otsu"), OTSU);
+    thresholdMethodSelector->addItem(tr("Sauvola"), SAUVOLA);
+    thresholdMethodSelector->addItem(tr("Wolf"), WOLF);
+    thresholdMethodSelector->addItem(tr("Bradley"), BRADLEY);
+    thresholdMethodSelector->addItem(tr("EdgePlus"), EDGEPLUS);
+    thresholdMethodSelector->addItem(tr("BlurDiv"), BLURDIV);
+    thresholdMethodSelector->addItem(tr("EdgeDiv"), EDGEDIV);
+
     setDespeckleLevel(DESPECKLE_NORMAL);
 
     depthPerceptionSlider->setMinimum(qRound(DepthPerception::minValue() * 10));
@@ -119,6 +127,11 @@ OptionsWidget::OptionsWidget(
     );
 
     connect(
+        thresholdMethodSelector, SIGNAL(currentIndexChanged(int)),
+        this, SLOT(thresholdMethodChanged(int))
+    );
+
+    connect(
         thresholdSlider, &QSlider::sliderReleased,
         this, &OptionsWidget::on_thresholdSlider_valueChanged
     );
@@ -126,6 +139,15 @@ OptionsWidget::OptionsWidget(
     connect(
         thresholdForegroundSlider, &QSlider::sliderReleased,
         this, &OptionsWidget::on_thresholdForegroundSlider_valueChanged
+    );
+
+   connect(
+        thresholdWindowSize, SIGNAL(valueChanged(int)),
+        this, SLOT(thresholdWindowSizeChanged(int))
+    );
+    connect(
+        thresholdCoef, SIGNAL(valueChanged(double)),
+        this, SLOT(thresholdCoefChanged(double))
     );
 
     addAction(actionactionDespeckleOff);
@@ -240,6 +262,36 @@ OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
     foregroundLayerCB->setChecked(false);
     updateColorsDisplay();
     updateLayersDisplay();
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::thresholdMethodChanged(int idx)
+{
+    ThresholdFilter const method = (ThresholdFilter) thresholdMethodSelector->itemData(idx).toInt();
+    BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
+    blackWhiteOptions.setThresholdMethod(method);
+    m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::thresholdWindowSizeChanged(int value) {
+    BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
+    blackWhiteOptions.setThresholdWindowSize(value);
+    m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams);
+    if (blackWhiteOptions.thresholdMethod() != OTSU)
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::thresholdCoefChanged(double value) {
+    BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
+    blackWhiteOptions.setThresholdCoef(value);
+    m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams);
     emit reloadRequested();
 }
 
@@ -575,7 +627,22 @@ OptionsWidget::updateColorsDisplay()
 
     if (bw_options_visible) {
         ScopedIncDec<int> const guard(m_ignoreThresholdChanges);
-        thresholdSlider->setValue(m_colorParams.blackWhiteOptions().thresholdAdjustment());
+
+        BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
+        thresholdMethodSelector->setCurrentIndex((int) blackWhiteOptions.thresholdMethod());
+        thresholdSlider->setValue(blackWhiteOptions.thresholdAdjustment());
+        thresholdWindowSize->setValue(blackWhiteOptions.thresholdWindowSize());
+        thresholdCoef->setValue(blackWhiteOptions.thresholdCoef());
+        if (blackWhiteOptions.thresholdMethod() == OTSU)
+        {
+            thresholdWindowSize->setEnabled( false );
+            thresholdCoef->setEnabled( false );
+        }
+        else
+        {
+            thresholdWindowSize->setEnabled( true );
+            thresholdCoef->setEnabled( true );
+        }
     }
 
     if (despeckle_controls_enbled) {

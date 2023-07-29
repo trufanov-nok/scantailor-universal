@@ -118,7 +118,14 @@ private slots:
     void on_despeckleSlider_valueChanged(int value);
 
     void on_thresholdSlider_valueChanged();
+
     void on_thresholdForegroundSlider_valueChanged();
+
+    void thresholdMethodChanged(int idx);
+
+    void thresholdWindowSizeChanged(int value);
+
+    void thresholdCoefChanged(double value);
 
     void on_dpiValue_linkActivated(const QString&);
 

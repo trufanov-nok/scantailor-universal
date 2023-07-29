@@ -34,7 +34,7 @@ class BinaryImage;
  * N. Otsu (1979). "A threshold selection method from gray-level histograms".
  * http://en.wikipedia.org/wiki/Otsu%27s_method
  */
-BinaryImage binarizeOtsu(QImage const& src);
+BinaryImage binarizeOtsu(QImage const& src, int delta = 0);
 
 /**
  * \brief Image binarization using Mokji's global thresholding method.
@@ -59,7 +59,9 @@ BinaryImage binarizeMokji(
  * Sauvola, J. and M. Pietikainen. 2000. "Adaptive document image binarization".
  * http://www.mediateam.oulu.fi/publications/pdf/24.pdf
  */
-BinaryImage binarizeSauvola(QImage const& src, QSize window_size);
+BinaryImage binarizeSauvola(
+    QImage const& src, QSize window_size,
+    double k = 0.34, int delta = 0);
 
 /**
  * \brief Image binarization using Wolf's local thresholding method.
@@ -75,7 +77,27 @@ BinaryImage binarizeSauvola(QImage const& src, QSize window_size);
  */
 BinaryImage binarizeWolf(
     QImage const& src, QSize window_size,
-    unsigned char lower_bound = 1, unsigned char upper_bound = 254);
+    unsigned char lower_bound = 1, unsigned char upper_bound = 254,
+    double k = 0.30, int delta = 0);
+
+/**
+ * \brief Image binarization using Bradley's adaptive thresholding method.
+ *
+ * Derek Bradley, Gerhard Roth. 2005. "Adaptive Thresholding Using the Integral Image".
+ * http://www.scs.carleton.ca/~roth/iit-publications-iti/docs/gerh-50002.pdf
+ */
+BinaryImage binarizeBradley(
+    QImage const& src, QSize window_size,
+    double k = 0.75, int delta = 0);
+
+/**
+ * \brief Image binarization using EdgeDiv (EdgePlus & BlurDiv) local/global thresholding method.
+ *
+ * EdgeDiv, zvezdochiot 2023. "Adaptive/global document image binarization".
+ */
+BinaryImage binarizeEdgeDiv(
+    QImage const& src, QSize window_size,
+    double kep = 0.5, double kdb = 0.5, int delta = 0);
 
 BinaryImage peakThreshold(QImage const& image);
 } // namespace imageproc
