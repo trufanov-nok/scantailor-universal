@@ -26,6 +26,8 @@ class QDomElement;
 namespace output
 {
 
+enum ThresholdFilter { OTSU, SAUVOLA, WOLF, BRADLEY, EDGEPLUS, BLURDIV, EDGEDIV };
+
 class BlackWhiteOptions
 {
 public:
@@ -55,12 +57,49 @@ public:
         m_thresholdForegroundAdjustment = val;
     }
 
+    ThresholdFilter thresholdMethod() const
+    {
+        return m_thresholdMethod;
+    }
+
+    int thresholdWindowSize() const
+    {
+        return m_thresholdWindowSize;
+    }
+
+    double thresholdCoef() const
+    {
+        return m_thresholdCoef;
+    }
+
+    void setThresholdMethod(ThresholdFilter val)
+    {
+        m_thresholdMethod = val;
+    }
+
+    void setThresholdWindowSize(int val)
+    {
+        m_thresholdWindowSize = val;
+    }
+
+    void setThresholdCoef(float val)
+    {
+        m_thresholdCoef = val;
+    }
+
     bool operator==(BlackWhiteOptions const& other) const;
 
     bool operator!=(BlackWhiteOptions const& other) const;
 private:
     int m_thresholdAdjustment;
     int m_thresholdForegroundAdjustment;
+    ThresholdFilter m_thresholdMethod;
+    int m_thresholdWindowSize;
+    double m_thresholdCoef;
+
+    static ThresholdFilter parseThresholdMethod(QString const& str);
+
+    static QString formatThresholdMethod(ThresholdFilter type);
 };
 
 } // namespace output

@@ -311,13 +311,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>84</height>
+       <height>164</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>84</height>
+       <height>164</height>
       </size>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -354,6 +354,9 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
+         <item>
+          <widget class="QComboBox" name="thresholdMethodSelector"/>
+         </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
            <item>
@@ -439,6 +442,53 @@
              </property>
              <property name="tickInterval">
               <number>3</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="thresholdWindowSizeLabel">
+             <property name="text">
+              <string>Window size:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="thresholdWindowSize">
+             <property name="toolTip">
+              <string>The dimensions of a pixel neighborhood to consider.</string>
+             </property>
+             <property name="minimum">
+              <number>3</number>
+             </property>
+             <property name="maximum">
+              <number>9999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="thresholdCoefLabel">
+             <property name="text">
+              <string>Coef:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="thresholdCoef">
+             <property name="toolTip">
+              <string>Default value is 0.34.</string>
+             </property>
+             <property name="minimum">
+              <double>0.01</double>
+             </property>
+             <property name="maximum">
+              <double>9.99</double>
+             </property>
+             <property name="singleStep">
+              <double>0.01</double>
              </property>
             </widget>
            </item>

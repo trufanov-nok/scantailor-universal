@@ -2043,9 +2043,62 @@ OutputGenerator::calcBinarizationThreshold(
 BinaryImage
 OutputGenerator::binarize(QImage const& image, BinaryImage const& mask, const int* adjustment) const
 {
-    GrayscaleHistogram hist(image, mask);
-    BinaryThreshold const bw_thresh(BinaryThreshold::otsuThreshold(hist));
-    BinaryImage binarized(image, adjustThreshold(bw_thresh, adjustment));
+    BlackWhiteOptions const& black_white_options = m_colorParams.blackWhiteOptions();
+    ThresholdFilter const thresholdMethod = black_white_options.thresholdMethod();
+
+    int const threshold_delta = black_white_options.thresholdAdjustment();
+    QSize const window_size = QSize(black_white_options.thresholdWindowSize(), black_white_options.thresholdWindowSize());
+    double const threshold_coef = black_white_options.thresholdCoef();
+
+    BinaryImage binarized;
+    if ((image.format() == QImage::Format_Mono) || (image.format() == QImage::Format_MonoLSB))
+    {
+        binarized = BinaryImage(image);
+    }
+    else
+    {
+        switch (thresholdMethod)
+        {
+        case OTSU:
+        {
+            GrayscaleHistogram hist(image, mask);
+            BinaryThreshold const bw_thresh(BinaryThreshold::otsuThreshold(hist));
+            binarized = BinaryImage(image, adjustThreshold(bw_thresh, adjustment));
+            break;
+        }
+        case SAUVOLA:
+        {
+            binarized = binarizeSauvola(image, window_size, threshold_coef, threshold_delta);
+            break;
+        }
+        case WOLF:
+        {
+            binarized = binarizeWolf(image, window_size, 1, 254, threshold_coef, threshold_delta);
+            break;
+        }
+        case BRADLEY:
+        {
+            binarized = binarizeBradley(image, window_size, threshold_coef, threshold_delta);
+            break;
+        }
+        case EDGEPLUS:
+        {
+            binarized = binarizeEdgeDiv(image, window_size, threshold_coef, 0.0, threshold_delta);
+            break;
+        }
+        case BLURDIV:
+        {
+            binarized = binarizeEdgeDiv(image, window_size, 0.0, threshold_coef, threshold_delta);
+            break;
+        }
+        case EDGEDIV:
+        {
+            binarized = binarizeEdgeDiv(image, window_size, threshold_coef, threshold_coef, threshold_delta);
+            break;
+        }
+        }
+
+    }
 
     // Fill masked out areas with white.
     rasterOp<RopAnd<RopSrc, RopDst> >(binarized, mask);
