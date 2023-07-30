@@ -144,16 +144,13 @@ Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& 
     break;
 
     case CopyAllThresholds: {
-        BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
-        opt.setThresholdAdjustment(params.blackWhiteOptions().thresholdAdjustment());
-        opt.setThresholdForegroundAdjustment(params.blackWhiteOptions().thresholdForegroundAdjustment());
-        m_colorParams.setBlackWhiteOptions(opt);
+        m_colorParams.setBlackWhiteOptions(params.blackWhiteOptions());
     }
     break;
 
     case CopyThreshold: {
-        BlackWhiteOptions opt = m_colorParams.blackWhiteOptions();
-        opt.setThresholdAdjustment(params.blackWhiteOptions().thresholdAdjustment());
+        BlackWhiteOptions opt = params.blackWhiteOptions();
+        opt.setThresholdForegroundAdjustment(m_colorParams.blackWhiteOptions().thresholdForegroundAdjustment());
         m_colorParams.setBlackWhiteOptions(opt);
     }
     break;
