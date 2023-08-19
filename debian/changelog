@@ -1,4 +1,12 @@
-scantailor-universal (0.2.13-0ubuntu1) bionic; urgency=medium
+scantailor-universal (0.2.14-0ubuntu1) bionic; urgency=medium
+
+  * New thresholds at output stage
+  * Order by dewarping mode at output stage
+  * 1200 dpi in the list of default values
+  * Adapt content selection moving approach from STA
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Sat, 18 Aug 2023 16:00:00 +0300
+
 
   * Settings: keep ICC profile of original image
     (off by default, req Ubuntu 19.04+, libexiv2-dev >= 0.26)
@@ -39,7 +47,7 @@ scantailor-universal (0.2.9-0ubuntu1) bionic; urgency=medium
   * Bugfixes
 
  -- Alexander Trufanov <trufanovan@gmail.com>  Fri, 14 Nov 2020 22:50:00 +0300
- 
+
 scantailor-universal (0.2.8-0ubuntu1) bionic; urgency=medium
 
   * First release on launchpad
