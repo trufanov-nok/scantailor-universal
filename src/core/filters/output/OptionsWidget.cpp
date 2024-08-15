@@ -63,13 +63,14 @@ OptionsWidget::OptionsWidget(
 {
     setupUi(this);
 
-    thresholdMethodSelector->addItem(tr("Otsu"), OTSU);
-    thresholdMethodSelector->addItem(tr("Sauvola"), SAUVOLA);
-    thresholdMethodSelector->addItem(tr("Wolf"), WOLF);
-    thresholdMethodSelector->addItem(tr("Bradley"), BRADLEY);
-    thresholdMethodSelector->addItem(tr("EdgePlus"), EDGEPLUS);
-    thresholdMethodSelector->addItem(tr("BlurDiv"), BLURDIV);
-    thresholdMethodSelector->addItem(tr("EdgeDiv"), EDGEDIV);
+    thresholdMethodSelector->addItem(tr("Otsu"), T_OTSU);
+    thresholdMethodSelector->addItem(tr("Sauvola"), T_SAUVOLA);
+    thresholdMethodSelector->addItem(tr("Wolf"), T_WOLF);
+    thresholdMethodSelector->addItem(tr("Bradley"), T_BRADLEY);
+    thresholdMethodSelector->addItem(tr("Grad"), T_GRAD);
+    thresholdMethodSelector->addItem(tr("EdgePlus"), T_EDGEPLUS);
+    thresholdMethodSelector->addItem(tr("BlurDiv"), T_BLURDIV);
+    thresholdMethodSelector->addItem(tr("EdgeDiv"), T_EDGEDIV);
 
     setDespeckleLevel(DESPECKLE_NORMAL);
 
@@ -282,8 +283,8 @@ OptionsWidget::thresholdWindowSizeChanged(int value) {
     blackWhiteOptions.setThresholdWindowSize(value);
     m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams);
-    if (blackWhiteOptions.thresholdMethod() != OTSU)
-    emit reloadRequested();
+    if (blackWhiteOptions.thresholdMethod() != T_OTSU)
+        emit reloadRequested();
 }
 
 void
@@ -633,7 +634,7 @@ OptionsWidget::updateColorsDisplay()
         thresholdSlider->setValue(blackWhiteOptions.thresholdAdjustment());
         thresholdWindowSize->setValue(blackWhiteOptions.thresholdWindowSize());
         thresholdCoef->setValue(blackWhiteOptions.thresholdCoef());
-        if (blackWhiteOptions.thresholdMethod() == OTSU)
+        if (blackWhiteOptions.thresholdMethod() == T_OTSU)
         {
             thresholdWindowSize->setEnabled( false );
             thresholdCoef->setEnabled( false );

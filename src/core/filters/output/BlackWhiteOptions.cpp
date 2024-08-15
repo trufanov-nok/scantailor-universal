@@ -29,7 +29,7 @@ namespace output
 BlackWhiteOptions::BlackWhiteOptions():
     m_thresholdAdjustment(GlobalStaticSettings::m_binrization_threshold_control_default),
     m_thresholdForegroundAdjustment(m_thresholdAdjustment),
-    m_thresholdMethod(OTSU),
+    m_thresholdMethod(T_OTSU),
     m_thresholdWindowSize(200),
     m_thresholdCoef(0.3)
 {
@@ -101,31 +101,35 @@ BlackWhiteOptions::parseThresholdMethod(QString const& str)
 {
     if (str == "sauvola")
     {
-        return SAUVOLA;
+        return T_SAUVOLA;
     }
     else if (str == "wolf")
     {
-        return WOLF;
+        return T_WOLF;
     }
     else if (str == "bradley")
     {
-        return BRADLEY;
+        return T_BRADLEY;
+    }
+    else if (str == "grad")
+    {
+        return T_GRAD;
     }
     else if (str == "edgeplus")
     {
-        return EDGEPLUS;
+        return T_EDGEPLUS;
     }
     else if (str == "blurdiv")
     {
-        return BLURDIV;
+        return T_BLURDIV;
     }
     else if (str == "edgediv")
     {
-        return EDGEDIV;
+        return T_EDGEDIV;
     }
     else
     {
-        return OTSU;
+        return T_OTSU;
     }
 }
 
@@ -135,25 +139,28 @@ BlackWhiteOptions::formatThresholdMethod(ThresholdFilter type)
     QString str = "";
     switch (type)
     {
-    case OTSU:
+    case T_OTSU:
         str = "otsu";
         break;
-    case SAUVOLA:
+    case T_SAUVOLA:
         str = "sauvola";
         break;
-    case WOLF:
+    case T_WOLF:
         str = "wolf";
         break;
-    case BRADLEY:
+    case T_BRADLEY:
         str = "bradley";
         break;
-    case EDGEPLUS:
+    case T_GRAD:
+        str = "grad";
+        break;
+    case T_EDGEPLUS:
         str = "edgeplus";
         break;
-    case BLURDIV:
+    case T_BLURDIV:
         str = "blurdiv";
         break;
-    case EDGEDIV:
+    case T_EDGEDIV:
         str = "edgediv";
         break;
     }
