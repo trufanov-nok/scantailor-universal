@@ -91,6 +91,15 @@ BinaryImage binarizeBradley(
     double k = 0.75, int delta = 0);
 
 /**
+ * \brief Image binarization using Grad local/global thresholding method.
+ *
+ * Grad (aka "Gradient snip"), zvezdochiot 2024. "Adaptive/global document image binarization".
+ */
+BinaryImage binarizeGrad(
+    QImage const& src, QSize window_size,
+    double k = 0.75, int delta = 0);
+
+/**
  * \brief Image binarization using EdgeDiv (EdgePlus & BlurDiv) local/global thresholding method.
  *
  * EdgeDiv, zvezdochiot 2023. "Adaptive/global document image binarization".

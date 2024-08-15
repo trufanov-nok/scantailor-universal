@@ -2059,39 +2059,44 @@ OutputGenerator::binarize(QImage const& image, BinaryImage const& mask, const in
     {
         switch (thresholdMethod)
         {
-        case OTSU:
+        case T_OTSU:
         {
             GrayscaleHistogram hist(image, mask);
             BinaryThreshold const bw_thresh(BinaryThreshold::otsuThreshold(hist));
             binarized = BinaryImage(image, adjustThreshold(bw_thresh, adjustment));
             break;
         }
-        case SAUVOLA:
+        case T_SAUVOLA:
         {
             binarized = binarizeSauvola(image, window_size, threshold_coef, threshold_delta);
             break;
         }
-        case WOLF:
+        case T_WOLF:
         {
             binarized = binarizeWolf(image, window_size, 1, 254, threshold_coef, threshold_delta);
             break;
         }
-        case BRADLEY:
+        case T_BRADLEY:
         {
             binarized = binarizeBradley(image, window_size, threshold_coef, threshold_delta);
             break;
         }
-        case EDGEPLUS:
+        case T_GRAD:
+        {
+            binarized = binarizeGrad(image, window_size, threshold_coef, threshold_delta);
+            break;
+        }
+        case T_EDGEPLUS:
         {
             binarized = binarizeEdgeDiv(image, window_size, threshold_coef, 0.0, threshold_delta);
             break;
         }
-        case BLURDIV:
+        case T_BLURDIV:
         {
             binarized = binarizeEdgeDiv(image, window_size, 0.0, threshold_coef, threshold_delta);
             break;
         }
-        case EDGEDIV:
+        case T_EDGEDIV:
         {
             binarized = binarizeEdgeDiv(image, window_size, threshold_coef, threshold_coef, threshold_delta);
             break;
