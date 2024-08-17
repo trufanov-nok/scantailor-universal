@@ -10,7 +10,7 @@
 
 #define PIXMAPS_DIR_ABS "@PIXMAPS_DIR_ABS@"
 #define APPLICATION_NAME "Scan Tailor Universal"
-#define ORGANIZATION_NAME APPLICATION_NAME
+#define ORGANIZATION_NAME "Scan Tailor"
 #define ORGANIZATION_DOMAIN "github.com/trufanov-nok/scantailor-universal"
 
 #cmakedefine ENABLE_OPENGL
