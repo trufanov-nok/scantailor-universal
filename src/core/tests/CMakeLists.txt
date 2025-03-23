@@ -18,7 +18,7 @@ SET(
 )
 
 ADD_EXECUTABLE(generic_tests ${sources})
-QT5_USE_MODULES(generic_tests Widgets)
+TARGET_LINK_LIBRARIES(generic_tests Qt5::Widgets)
 TARGET_LINK_LIBRARIES(generic_tests ${libs})
 
 # We want the executable located where we copy all the DLLs.

@@ -109,7 +109,7 @@ ADD_DEPENDENCIES(scantailor-universal fix_orientation page_split deskew select_c
         dewarping zones interaction imageproc math foundation)
 
 
-QT5_USE_MODULES(scantailor-universal Widgets Xml Svg ${MAYBE_QT_OPENGL_MODULE})
+TARGET_LINK_LIBRARIES(scantailor-universal Qt5::Widgets Qt5::Xml Qt5::Svg ${MAYBE_QT_OPENGL_MODULE})
 
 IF(EXTRA_LIBS)
         TARGET_LINK_LIBRARIES(scantailor-universal ${EXTRA_LIBS})

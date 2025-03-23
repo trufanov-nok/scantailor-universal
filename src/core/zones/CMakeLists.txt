@@ -28,5 +28,5 @@ SET(
 SOURCE_GROUP(Sources FILES ${sources})
 
 ADD_LIBRARY(zones STATIC ${sources})
-QT5_USE_MODULES(zones Widgets Xml)
+TARGET_LINK_LIBRARIES(zones Qt5::Widgets Qt5::Xml)
 TRANSLATION_SOURCES(scantailor-universal ${sources})

@@ -27,5 +27,5 @@ SOURCE_GROUP("UI Files" FILES ${ui_files})
 QT5_WRAP_UI(ui_sources ${ui_files})
 
 ADD_LIBRARY(page_layout STATIC ${sources} ${ui_sources})
-QT5_USE_MODULES(page_layout Widgets Xml)
+TARGET_LINK_LIBRARIES(page_layout Qt5::Widgets Qt5::Xml)
 TRANSLATION_SOURCES(scantailor-universal ${sources} ${ui_files})
