@@ -16,7 +16,7 @@ TARGET_LINK_LIBRARIES(
 )
 
 # Widgets module is used statically but not at runtime.
-QT5_USE_MODULES(scantailor-universal-cli Widgets Xml)
+TARGET_LINK_LIBRARIES(scantailor-universal-cli Qt5::Widgets Qt5::Xml)
 
 IF(EXTRA_LIBS)
         TARGET_LINK_LIBRARIES(scantailor-universal-cli ${EXTRA_LIBS})

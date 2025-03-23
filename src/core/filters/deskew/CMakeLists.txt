@@ -22,6 +22,6 @@ SOURCE_GROUP("UI Files" FILES ${ui_files})
 QT5_WRAP_UI(ui_sources ${ui_files})
 
 ADD_LIBRARY(deskew STATIC ${sources} ${ui_sources})
-QT5_USE_MODULES(deskew Widgets Xml)
+TARGET_LINK_LIBRARIES(deskew Qt5::Widgets Qt5::Xml)
 
 TRANSLATION_SOURCES(scantailor-universal ${sources} ${ui_files})

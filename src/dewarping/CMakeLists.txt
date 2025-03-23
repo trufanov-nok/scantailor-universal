@@ -19,5 +19,5 @@ SET(
 SOURCE_GROUP("Sources" FILES ${sources})
 
 ADD_LIBRARY(dewarping STATIC ${sources})
-QT5_USE_MODULES(dewarping Widgets Xml)
+TARGET_LINK_LIBRARIES(dewarping Qt5::Widgets Qt5::Xml)
 

@@ -32,4 +32,4 @@ SET(
 SOURCE_GROUP("Sources" FILES ${sources})
 
 ADD_LIBRARY(foundation STATIC ${sources})
-QT5_USE_MODULES(foundation Core Xml)
+TARGET_LINK_LIBRARIES(foundation Qt5::Core Qt5::Xml)
