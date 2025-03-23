@@ -358,7 +358,11 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 SET(Boost_USE_MULTITHREADED ON)
-FIND_PACKAGE(Boost 1.35.0 COMPONENTS unit_test_framework prg_exec_monitor)
+if (POLICY CMP0167)
+    find_package(Boost 1.70.0 CONFIG COMPONENTS unit_test_framework prg_exec_monitor)
+else()
+    find_package(Boost 1.35.0 COMPONENTS unit_test_framework prg_exec_monitor)
+endif()
 IF(NOT Boost_FOUND)
         MESSAGE(
                 FATAL_ERROR
