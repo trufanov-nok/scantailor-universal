@@ -291,7 +291,7 @@ CommandLine::setup()
     m_pageDetectionTolerance = fetchPageDetectionTolerance();
     m_defaultNull = fetchDefaultNull();
 
-    QRegularExpression exp("^.*(tif|tiff|jpg|jpeg|bmp|gif|png|pbm|pgm|ppm|xbm|xpm)$", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpression exp("^.*(tif|tiff|jpg|jpeg|bmp|gif|png|pbm|pgm|ppm|xbm|xpm|pdf)$", QRegularExpression::CaseInsensitiveOption);
     // setup images
     for (int i = 0; i < (int)m_files.size(); ++i) {
         QRegularExpressionMatch match = exp.match(m_files[i].filePath());
