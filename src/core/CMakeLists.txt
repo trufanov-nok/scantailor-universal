@@ -75,6 +75,8 @@ SET(
         JpegMetadataLoader.cpp JpegMetadataLoader.h
         GenericMetadataLoader.cpp GenericMetadataLoader.h
         ImageLoader.cpp ImageLoader.h
+        PdfReader.cpp PdfReader.h
+        PdfMetadataLoader.cpp PdfMetadataLoader.h
         OrthogonalRotation.cpp OrthogonalRotation.h
         WorkerThread.cpp WorkerThread.h
         LoadFileTask.cpp LoadFileTask.h
@@ -133,8 +135,8 @@ SOURCE_GROUP("Generated" FILES ${core_resource_sources})
 SOURCE_GROUP("Resources" FILES ${core_resource_sources})
 
 ADD_LIBRARY(stcore STATIC ${core_resource_sources} ${common_sources} ${core_ui_sources})
-TARGET_LINK_LIBRARIES(stcore Qt5::Widgets Qt5::Xml ${MAYBE_QT_OPENGL_MODULE})
-ADD_DEPENDENCIES(stcore core_ui_sources) 
+TARGET_LINK_LIBRARIES(stcore Qt5::Core Qt5::Widgets Qt5::Xml ${MAYBE_QT_OPENGL_MODULE} MuPDF::MuPDF)
+ADD_DEPENDENCIES(stcore core_ui_sources)
 
 TRANSLATION_SOURCES(
         scantailor-universal
