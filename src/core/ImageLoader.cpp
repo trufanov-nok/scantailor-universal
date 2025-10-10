@@ -19,6 +19,7 @@
 #include "config.h"
 #include "ImageLoader.h"
 #include "TiffReader.h"
+#include "PdfReader.h"
 #ifdef ENABLE_OPENJPEG
 #include "Jp2Reader.h"
 #endif
@@ -54,6 +55,10 @@ ImageLoader::load(QString const& file_path, int const page_num)
 QImage
 ImageLoader::load(QIODevice& io_dev, int const page_num)
 {
+    if (PdfReader::canRead(io_dev)) {
+        return PdfReader::readImage(io_dev, page_num);
+    }
+
     if (TiffReader::canRead(io_dev)) {
         return TiffReader::readImage(io_dev, page_num);
     }
