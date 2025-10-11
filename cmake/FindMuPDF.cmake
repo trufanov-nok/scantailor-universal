@@ -59,15 +59,8 @@ if(MuPDF_FOUND)
 
     if(MuPDF_LDFLAGS)
         # Use full link flags from pkg-config, which include all dependencies
-        # Parse LDFLAGS to list, filter to -l libs for clean linking
-        separate_arguments(MuPDF_LIBS_PARSE UNIX_COMMAND "${MuPDF_LDFLAGS}")
-        set(MuPDF_LINKLIBS)
-        foreach(item IN LISTS MuPDF_LIBS_PARSE)
-            if(item MATCHES "^-l" )
-                list(APPEND MuPDF_LINKLIBS ${item})
-            endif()
-        endforeach()
-        set(MuPDF_LIBRARIES ${MuPDF_LINKLIBS})
+        separate_arguments(MuPDF_LIBS_LIST UNIX_COMMAND "${MuPDF_LDFLAGS}")
+        set(MuPDF_LIBRARIES ${MuPDF_LIBS_LIST})
         set(MuPDF_INCLUDE_DIRS ${MuPDF_INCLUDE_DIRS})
     else()
         # Fallback if no pkg-config
