@@ -38,6 +38,16 @@ find_library(MuPDF_LIBRARY
         ${CMAKE_INSTALL_PREFIX}/lib
 )
 
+# Extract version from header if not found via pkg-config
+if(NOT MuPDF_VERSION AND MuPDF_INCLUDE_DIR)
+    if(EXISTS "${MuPDF_INCLUDE_DIR}/mupdf/fitz/version.h")
+        file(STRINGS "${MuPDF_INCLUDE_DIR}/mupdf/fitz/version.h" VERSION_LINE REGEX "#define FZ_VERSION ")
+        if(VERSION_LINE)
+            string(REGEX REPLACE ".*#define FZ_VERSION \"([^\"]*)\".*" "\\1" MuPDF_VERSION "${VERSION_LINE}")
+        endif()
+    endif()
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MuPDF
     REQUIRED_VARS MuPDF_LIBRARY MuPDF_INCLUDE_DIR
