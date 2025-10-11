@@ -38,6 +38,16 @@ find_library(MuPDF_LIBRARY
         ${CMAKE_INSTALL_PREFIX}/lib
 )
 
+# Extract version from header if not found via pkg-config
+if(NOT MuPDF_VERSION AND MuPDF_INCLUDE_DIR)
+    if(EXISTS "${MuPDF_INCLUDE_DIR}/mupdf/fitz/version.h")
+        file(STRINGS "${MuPDF_INCLUDE_DIR}/mupdf/fitz/version.h" VERSION_LINE REGEX "#define FZ_VERSION ")
+        if(VERSION_LINE)
+            string(REGEX REPLACE ".*#define FZ_VERSION \"([^\"]*)\".*" "\\1" MuPDF_VERSION "${VERSION_LINE}")
+        endif()
+    endif()
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MuPDF
     REQUIRED_VARS MuPDF_LIBRARY MuPDF_INCLUDE_DIR
@@ -45,16 +55,33 @@ find_package_handle_standard_args(MuPDF
 )
 
 if(MuPDF_FOUND)
-    set(MuPDF_INCLUDE_DIRS ${MuPDF_INCLUDE_DIR})
-    set(MuPDF_LIBRARIES ${MuPDF_LIBRARY})
     set(MuPDF_DEFINITIONS ${MuPDF_CFLAGS_OTHER})
+
+    if(MuPDF_LDFLAGS)
+        # Use full link flags from pkg-config, which include all dependencies
+        separate_arguments(MuPDF_LIBS_LIST UNIX_COMMAND "${MuPDF_LDFLAGS}")
+        set(MuPDF_LIBRARIES ${MuPDF_LIBS_LIST})
+        set(MuPDF_INCLUDE_DIRS ${MuPDF_INCLUDE_DIRS})
+    else()
+        # Fallback if no pkg-config
+        set(MuPDF_LIBRARIES ${MuPDF_LIBRARY})
+        set(MuPDF_INCLUDE_DIRS ${MuPDF_INCLUDE_DIR})
+
+        # Find JPEG as dependency
+        find_package(JPEG REQUIRED)
+        if(JPEG_FOUND)
+            list(APPEND MuPDF_LIBRARIES ${JPEG_LIBRARY})
+            list(APPEND MuPDF_INCLUDE_DIRS ${JPEG_INCLUDE_DIR})
+        endif()
+    endif()
 
     if(NOT TARGET MuPDF::MuPDF)
         add_library(MuPDF::MuPDF UNKNOWN IMPORTED)
         set_target_properties(MuPDF::MuPDF PROPERTIES
             IMPORTED_LOCATION "${MuPDF_LIBRARY}"
-            INTERFACE_INCLUDE_DIRECTORIES "${MuPDF_INCLUDE_DIR}"
+            INTERFACE_INCLUDE_DIRECTORIES "${MuPDF_INCLUDE_DIRS}"
             INTERFACE_COMPILE_OPTIONS "${MuPDF_CFLAGS_OTHER}"
+            INTERFACE_LINK_LIBRARIES "${MuPDF_LIBRARIES}"
         )
     endif()
 endif()
