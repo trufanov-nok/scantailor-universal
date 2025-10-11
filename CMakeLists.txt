@@ -221,15 +221,11 @@ OPTION(ENABLE_OPENJPEG "OpenJPEG library may be used to suppoet JPEG 2000 (.jp2)
 
 IF (ENABLE_OPENJPEG)
 
-IF(NOT WIN32)
-FIND_PACKAGE(OpenJPEG QUIET)
-ELSE(NOT WIN32)
-
 FIND_PATH(
         OPENJPEG_INCLUDE_DIRS openjpeg.h
         PATHS /usr/local/include /usr/include
         HINTS ${JPEG2000_DIR} # JPEG2000_DIR may come from export-vars.cmake
-        PATH_SUFFIXES src/lib/openjp2
+        PATH_SUFFIXES src/lib/openjp2 openjpeg-2.5 openjpeg-2.4 openjpeg-2.3 openjpeg-2.2 openjpeg-2.1
         DOC "Path to openjpeg headers."
 )
 IF(NOT OPENJPEG_INCLUDE_DIRS)
@@ -237,13 +233,20 @@ IF(NOT OPENJPEG_INCLUDE_DIRS)
                 "Could not find openjpeg headers.\n"
                 "You may need to install a package openjpeg."
         )
+ELSE()
+        # Try to extract version from header path
+        IF(OPENJPEG_INCLUDE_DIRS MATCHES "openjpeg-([0-9]+\\.[0-9]+)")
+                STRING(REGEX REPLACE ".*openjpeg-([0-9]+)\\..*" "\\1" OPENJPEG_MAJOR_VERSION "${OPENJPEG_INCLUDE_DIRS}")
+        ELSE()
+                SET(OPENJPEG_MAJOR_VERSION 2)  # Default to version 2
+        ENDIF()
 ENDIF()
 
 INCLUDE_DIRECTORIES("${OPENJPEG_INCLUDE_DIRS}")
 
 FIND_LIBRARY(
         OPENJPEG_LIBRARIES openjp2 openjp2.lib
-        PATHS /usr/local/lib /usr/lib
+        PATHS /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu
         HINTS ${STAGING_LIBS_DIR}
         PATH_SUFFIXES openjp2
         DOC "Path to openjpeg library."
@@ -251,10 +254,9 @@ FIND_LIBRARY(
 
 IF(OPENJPEG_LIBRARIES AND OPENJPEG_INCLUDE_DIRS)
 SET (OpenJPEG_FOUND YES)
-SET (OPENJPEG_MAJOR_VERSION 2)
+ELSE()
+SET (OpenJPEG_FOUND NO)
 ENDIF(OPENJPEG_LIBRARIES AND OPENJPEG_INCLUDE_DIRS)
-
-ENDIF(NOT WIN32)
 
 IF(NOT OpenJPEG_FOUND OR OPENJPEG_MAJOR_VERSION VERSION_LESS 2)
     message("warning: OpenJPEG library isn't found.\n"
