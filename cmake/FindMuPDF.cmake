@@ -55,16 +55,31 @@ find_package_handle_standard_args(MuPDF
 )
 
 if(MuPDF_FOUND)
-    set(MuPDF_INCLUDE_DIRS ${MuPDF_INCLUDE_DIR})
-    set(MuPDF_LIBRARIES ${MuPDF_LIBRARY})
     set(MuPDF_DEFINITIONS ${MuPDF_CFLAGS_OTHER})
 
-    # MuPDF depends on JPEG
-    find_package(JPEG REQUIRED)
+    if(MuPDF_LDFLAGS)
+        # Use full link flags from pkg-config, which include all dependencies
+        # Parse LDFLAGS to list, filter to -l libs for clean linking
+        separate_arguments(MuPDF_LIBS_PARSE UNIX_COMMAND "${MuPDF_LDFLAGS}")
+        set(MuPDF_LINKLIBS)
+        foreach(item IN LISTS MuPDF_LIBS_PARSE)
+            if(item MATCHES "^-l" )
+                list(APPEND MuPDF_LINKLIBS ${item})
+            endif()
+        endforeach()
+        set(MuPDF_LIBRARIES ${MuPDF_LINKLIBS})
+        set(MuPDF_INCLUDE_DIRS ${MuPDF_INCLUDE_DIRS})
+    else()
+        # Fallback if no pkg-config
+        set(MuPDF_LIBRARIES ${MuPDF_LIBRARY})
+        set(MuPDF_INCLUDE_DIRS ${MuPDF_INCLUDE_DIR})
 
-    if(JPEG_FOUND)
-        list(APPEND MuPDF_LIBRARIES ${JPEG_LIBRARY})
-        list(APPEND MuPDF_INCLUDE_DIRS ${JPEG_INCLUDE_DIR})
+        # Find JPEG as dependency
+        find_package(JPEG REQUIRED)
+        if(JPEG_FOUND)
+            list(APPEND MuPDF_LIBRARIES ${JPEG_LIBRARY})
+            list(APPEND MuPDF_INCLUDE_DIRS ${JPEG_INCLUDE_DIR})
+        endif()
     endif()
 
     if(NOT TARGET MuPDF::MuPDF)
@@ -73,7 +88,7 @@ if(MuPDF_FOUND)
             IMPORTED_LOCATION "${MuPDF_LIBRARY}"
             INTERFACE_INCLUDE_DIRECTORIES "${MuPDF_INCLUDE_DIRS}"
             INTERFACE_COMPILE_OPTIONS "${MuPDF_CFLAGS_OTHER}"
-            INTERFACE_LINK_LIBRARIES "${JPEG_LIBRARY}"
+            INTERFACE_LINK_LIBRARIES "${MuPDF_LIBRARIES}"
         )
     endif()
 endif()
