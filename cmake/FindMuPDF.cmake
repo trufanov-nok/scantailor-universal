@@ -59,12 +59,21 @@ if(MuPDF_FOUND)
     set(MuPDF_LIBRARIES ${MuPDF_LIBRARY})
     set(MuPDF_DEFINITIONS ${MuPDF_CFLAGS_OTHER})
 
+    # MuPDF depends on JPEG
+    find_package(JPEG REQUIRED)
+
+    if(JPEG_FOUND)
+        list(APPEND MuPDF_LIBRARIES ${JPEG_LIBRARY})
+        list(APPEND MuPDF_INCLUDE_DIRS ${JPEG_INCLUDE_DIR})
+    endif()
+
     if(NOT TARGET MuPDF::MuPDF)
         add_library(MuPDF::MuPDF UNKNOWN IMPORTED)
         set_target_properties(MuPDF::MuPDF PROPERTIES
             IMPORTED_LOCATION "${MuPDF_LIBRARY}"
-            INTERFACE_INCLUDE_DIRECTORIES "${MuPDF_INCLUDE_DIR}"
+            INTERFACE_INCLUDE_DIRECTORIES "${MuPDF_INCLUDE_DIRS}"
             INTERFACE_COMPILE_OPTIONS "${MuPDF_CFLAGS_OTHER}"
+            INTERFACE_LINK_LIBRARIES "${JPEG_LIBRARY}"
         )
     endif()
 endif()
