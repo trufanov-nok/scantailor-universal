@@ -447,6 +447,27 @@ IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
    LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARIES})
 ENDIF()
 
+# Add MuPDF dependencies in the correct order (dependent libraries first)
+IF(MuPDF_FOUND)
+    # MuPDF static library needs its dependencies explicitly linked
+    # Order: freetype, jbig2dec, jpeg, openjpeg, zlib, math
+    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
+    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
+    LIST(APPEND EXTRA_LIBS ${MuPDF_LIBRARIES})
+    IF(FREETYPE_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${FREETYPE_LIBRARY})
+    ENDIF()
+    IF(JBIG2DEC_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${JBIG2DEC_LIBRARY})
+    ENDIF()
+    # jpeg, openjpeg, zlib, math are already in EXTRA_LIBS through MuPDF_LIBRARIES
+    # Add math library if not present
+    FIND_LIBRARY(MATH_LIBRARY names m)
+    IF(MATH_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${MATH_LIBRARY})
+    ENDIF()
+ENDIF()
+
 IF(WIN32)
    LIST(APPEND EXTRA_LIBS "ws2_32.lib")
 ENDIF(WIN32)
