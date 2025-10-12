@@ -12,6 +12,9 @@
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
     pkg_check_modules(MuPDF QUIET mupdf)
+    if(MuPDF_FOUND)
+        list(APPEND MuPDF_LIBRARIES ${MuPDF_LDFLAGS_OTHER})
+    endif()
 endif()
 
 find_path(MuPDF_INCLUDE_DIR
