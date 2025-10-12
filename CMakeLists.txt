@@ -454,6 +454,7 @@ IF(MuPDF_FOUND)
     FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
     FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
     FIND_LIBRARY(MATH_LIBRARY NAMES m)
+    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz)
 
     # For Ubuntu static builds, we need explicit dependencies
     IF(UNIX AND NOT APPLE)
@@ -463,6 +464,10 @@ IF(MuPDF_FOUND)
         ENDIF()
         # Ensure zlib is linked (required by libtiff via MuPDF)
         LIST(APPEND EXTRA_LIBS ${ZLIB_LIBRARY})
+        # Add HarfBuzz for text rendering
+        IF(HARFBUZZ_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${HARFBUZZ_LIBRARY})
+        ENDIF()
     ENDIF()
 
     LIST(APPEND EXTRA_LIBS ${MuPDF_LIBRARIES})

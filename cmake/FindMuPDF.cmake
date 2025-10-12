@@ -12,7 +12,13 @@
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
     pkg_check_modules(MuPDF QUIET mupdf)
+    pkg_check_modules(HarfBuzz QUIET harfbuzz)
     if(MuPDF_FOUND)
+        # Add HarfBuzz dependencies explicitly for Ubuntu builds
+        if(HarfBuzz_FOUND)
+            list(APPEND MuPDF_LIBRARIES ${HarfBuzz_LDFLAGS})
+            list(APPEND MuPDF_CFLAGS_OTHER ${HarfBuzz_CFLAGS_OTHER})
+        endif()
         list(APPEND MuPDF_LIBRARIES ${MuPDF_LDFLAGS_OTHER})
     endif()
 endif()
