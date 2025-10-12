@@ -62,6 +62,17 @@ if(MuPDF_FOUND)
     set(MuPDF_LIBRARIES ${MuPDF_LIBRARY})
     set(MuPDF_DEFINITIONS ${MuPDF_CFLAGS_OTHER})
 
+    # If pkg-config was found, it may have additional library dependencies
+    if(PKG_CONFIG_FOUND AND MuPDF_FOUND)
+        foreach(extra_lib ${MuPDF_STATIC_LIBRARIES})
+            if (NOT "${extra_lib}" STREQUAL "mupdf") # Avoid duplicating the main lib
+                list(APPEND MuPDF_LIBRARIES ${extra_lib})
+            endif()
+        endforeach()
+        # Also include LDFLAGS_OTHER which contains additional linking requirements
+        list(APPEND MuPDF_LIBRARIES ${MuPDF_LDFLAGS_OTHER})
+    endif()
+
     if(NOT TARGET MuPDF::MuPDF)
         add_library(MuPDF::MuPDF UNKNOWN IMPORTED)
         set_target_properties(MuPDF::MuPDF PROPERTIES
