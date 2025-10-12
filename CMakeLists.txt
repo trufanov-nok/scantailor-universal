@@ -447,6 +447,45 @@ IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
    LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARIES})
 ENDIF()
 
+# Add MuPDF dependencies in the correct order (dependent libraries first)
+IF(MuPDF_FOUND)
+    # MuPDF static library needs its dependencies explicitly linked
+    # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math
+    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
+    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
+    FIND_LIBRARY(MATH_LIBRARY NAMES m)
+    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz)
+
+    # For Ubuntu static builds, we need explicit dependencies
+    IF(UNIX AND NOT APPLE)
+        # Ensure math library is linked first
+        IF(MATH_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${MATH_LIBRARY})
+        ENDIF()
+        # Ensure zlib is linked (required by libtiff via MuPDF)
+        LIST(APPEND EXTRA_LIBS ${ZLIB_LIBRARY})
+        # Add HarfBuzz for text rendering
+        IF(HARFBUZZ_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${HARFBUZZ_LIBRARY})
+        ENDIF()
+    ENDIF()
+
+    LIST(APPEND EXTRA_LIBS ${MuPDF_LIBRARIES})
+
+    IF(FREETYPE_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${FREETYPE_LIBRARY})
+    ENDIF()
+    IF(JBIG2DEC_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${JBIG2DEC_LIBRARY})
+    ENDIF()
+    # jpeg, openjpeg, zlib, math are handled above or in pkg-config
+
+    # For Ubuntu static builds, ensure JPEG dependency is met
+    IF(UNIX AND NOT APPLE)
+        LIST(APPEND EXTRA_LIBS ${JPEG_LIBRARY})
+    ENDIF()
+ENDIF()
+
 IF(WIN32)
    LIST(APPEND EXTRA_LIBS "ws2_32.lib")
 ENDIF(WIN32)

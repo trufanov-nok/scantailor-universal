@@ -39,11 +39,11 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -65,11 +65,11 @@ jobs:
 
     - run: |
        sudo -n apt-get update
-       sudo -n apt-get install -y qtbase5-dev libqt5svg5-dev qttools5-dev libtiff5-dev libjpeg-dev libpng-dev libboost-all-dev libcanberra-dev libopenjp2-7-dev libexiv2-dev libmupdf-dev
+       sudo -n apt-get install -y qtbase5-dev libqt5svg5-dev qttools5-dev libtiff5-dev libjpeg-dev libpng-dev zlib1g-dev libboost-all-dev libcanberra-dev libopenjp2-7-dev libexiv2-dev libmupdf-dev libharfbuzz-dev libjbig2dec-dev libmujs-dev libgumbo-dev
        mkdir build
        cd build
        cmake ..
        make -j4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v3
