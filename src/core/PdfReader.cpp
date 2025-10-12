@@ -33,9 +33,11 @@
 #include <QList>
 #include <QDebug>
 #include <QFile>
-
-#include <mupdf/fitz.h>
-#include <mupdf/pdf.h>
+extern "C"
+{
+    #include <mupdf/fitz.h>
+    #include <mupdf/pdf.h>
+}
 #include <QBuffer>
 
 namespace {
