@@ -450,21 +450,34 @@ ENDIF()
 # Add MuPDF dependencies in the correct order (dependent libraries first)
 IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
-    # Order: freetype, jbig2dec, jpeg, openjpeg, zlib, math
+    # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math
     FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
     FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
+    FIND_LIBRARY(MATH_LIBRARY NAMES m)
+
+    # For Ubuntu static builds, we need explicit dependencies
+    IF(UNIX AND NOT APPLE)
+        # Ensure math library is linked first
+        IF(MATH_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${MATH_LIBRARY})
+        ENDIF()
+        # Ensure zlib is linked (required by libtiff via MuPDF)
+        LIST(APPEND EXTRA_LIBS ${ZLIB_LIBRARY})
+    ENDIF()
+
     LIST(APPEND EXTRA_LIBS ${MuPDF_LIBRARIES})
+
     IF(FREETYPE_LIBRARY)
         LIST(APPEND EXTRA_LIBS ${FREETYPE_LIBRARY})
     ENDIF()
     IF(JBIG2DEC_LIBRARY)
         LIST(APPEND EXTRA_LIBS ${JBIG2DEC_LIBRARY})
     ENDIF()
-    # jpeg, openjpeg, zlib, math are already in EXTRA_LIBS through MuPDF_LIBRARIES
-    # Add math library if not present
-    FIND_LIBRARY(MATH_LIBRARY names m)
-    IF(MATH_LIBRARY)
-        LIST(APPEND EXTRA_LIBS ${MATH_LIBRARY})
+    # jpeg, openjpeg, zlib, math are handled above or in pkg-config
+
+    # For Ubuntu static builds, ensure JPEG dependency is met
+    IF(UNIX AND NOT APPLE)
+        LIST(APPEND EXTRA_LIBS ${JPEG_LIBRARY})
     ENDIF()
 ENDIF()
 
