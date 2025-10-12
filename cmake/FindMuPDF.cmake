@@ -29,8 +29,21 @@ find_path(MuPDF_INCLUDE_DIR
         ${CMAKE_INSTALL_PREFIX}/include
 )
 
-find_library(MuPDF_LIBRARY
+find_library(MuPDF_SHARED_LIBRARY
     NAMES mupdf
+    HINTS ${MuPDF_LIBRARY_DIRS}
+    PATHS
+        /usr/lib/x86_64-linux-gnu
+        /usr/lib
+        /usr/local/lib
+        /opt/local/lib
+        /opt/homebrew/lib
+        /opt/homebrew/Cellar/mupdf/*/lib
+        ${CMAKE_INSTALL_PREFIX}/lib
+)
+
+find_library(MuPDF_STATIC_LIBRARY
+    NAMES mupdf mupdf.a
     HINTS ${MuPDF_LIBRARY_DIRS}
     PATHS
         /usr/lib
@@ -40,6 +53,15 @@ find_library(MuPDF_LIBRARY
         /opt/homebrew/Cellar/mupdf/*/lib
         ${CMAKE_INSTALL_PREFIX}/lib
 )
+
+# Prefer shared library over static
+if(MuPDF_SHARED_LIBRARY AND NOT "${MuPDF_SHARED_LIBRARY}" MATCHES "\\.a$")
+    set(MuPDF_LIBRARY ${MuPDF_SHARED_LIBRARY})
+elseif(MuPDF_STATIC_LIBRARY)
+    set(MuPDF_LIBRARY ${MuPDF_STATIC_LIBRARY})
+elseif(MuPDFFIND_STATIC_LIBRARY)
+    set(MuPDF_LIBRARY ${MuPDF_STATIC_LIBRARY})
+endif()
 
 # Extract version from header if not found via pkg-config
 if(NOT MuPDF_VERSION AND MuPDF_INCLUDE_DIR)
