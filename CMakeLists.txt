@@ -450,11 +450,13 @@ ENDIF()
 # Add MuPDF dependencies in the correct order (dependent libraries first)
 IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
-    # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math
+    # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
     FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
     FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
     FIND_LIBRARY(MATH_LIBRARY NAMES m)
     FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz)
+    FIND_LIBRARY(MUJS_LIBRARY NAMES mujs)
+    FIND_LIBRARY(GUMBO_LIBRARY NAMES gumbo)
 
     # For Ubuntu static builds, we need explicit dependencies
     IF(UNIX AND NOT APPLE)
@@ -467,6 +469,14 @@ IF(MuPDF_FOUND)
         # Add HarfBuzz for text rendering
         IF(HARFBUZZ_LIBRARY)
             LIST(APPEND EXTRA_LIBS ${HARFBUZZ_LIBRARY})
+        ENDIF()
+        # Add MuJS for JavaScript support in MuPDF
+        IF(MUJS_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${MUJS_LIBRARY})
+        ENDIF()
+        # Add Gumbo for HTML parsing in MuPDF
+        IF(GUMBO_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${GUMBO_LIBRARY})
         ENDIF()
     ENDIF()
 
