@@ -29,7 +29,10 @@
 #include <QIODevice>
 
 // MuPDF headers
-#include <mupdf/fitz.h>
+extern "C"
+{
+    #include <mupdf/fitz.h>
+}
 
 void
 PdfMetadataLoader::registerMyself()

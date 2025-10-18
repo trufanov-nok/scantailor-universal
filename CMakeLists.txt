@@ -75,7 +75,6 @@ IF(UNIX AND NOT APPLE)
 INCLUDE(cmake/FindCanberra.cmake)
 ENDIF(UNIX AND NOT APPLE)
 INCLUDE(cmake/FindEXIV2.cmake)
-INCLUDE(cmake/FindMuPDF.cmake)
 INCLUDE(cmake/SetDefaultBuildType.cmake)
 INCLUDE(cmake/SetDefaultGccFlags.cmake)
 INCLUDE(cmake/ToNativePath.cmake)
@@ -179,9 +178,18 @@ FIND_PACKAGE(Qt5Network ${Qt_MIN_VERSION} REQUIRED)
 FIND_PACKAGE(Qt5Svg ${Qt_MIN_VERSION} REQUIRED)
 FIND_PACKAGE(Qt5LinguistTools ${Qt_MIN_VERSION} REQUIRED)
 
-# Find MuPDF for PDF support
+option(ENABLE_MUPDF "Enable pdf files as image source support" on)
+IF (ENABLE_MUPDF)
+# Find MuPDF for PDF support (minimum 1.18.0 required for compatibility with newer API changes)
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-FIND_PACKAGE(MuPDF)
+FIND_PACKAGE(MuPDF 1.18.0)
+    IF (MuPDF_FOUND)
+        add_definitions(-DENABLE_MUPDF)
+    ELSE()
+        set(ENABLE_MUPDF off)
+    ENDIF()
+ENDIF()
+
 IF(ENABLE_OPENGL)
         FIND_PACKAGE(Qt5OpenGL ${Qt_MIN_VERSION} REQUIRED)
 ENDIF()
@@ -445,6 +453,55 @@ ENDIF(EXIV2_FOUND)
 IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
    INCLUDE_DIRECTORIES(${OPENJPEG_INCLUDE_DIRS})
    LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARIES})
+ENDIF()
+
+# Add MuPDF dependencies in the correct order (dependent libraries first)
+IF(MuPDF_FOUND)
+    # MuPDF static library needs its dependencies explicitly linked
+    # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
+    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
+    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
+    FIND_LIBRARY(MATH_LIBRARY NAMES m)
+    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz)
+    FIND_LIBRARY(MUJS_LIBRARY NAMES mujs)
+    FIND_LIBRARY(GUMBO_LIBRARY NAMES gumbo)
+
+    # For Ubuntu static builds, we need explicit dependencies
+    IF(UNIX AND NOT APPLE)
+        # Ensure math library is linked first
+        IF(MATH_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${MATH_LIBRARY})
+        ENDIF()
+        # Ensure zlib is linked (required by libtiff via MuPDF)
+        LIST(APPEND EXTRA_LIBS ${ZLIB_LIBRARY})
+        # Add HarfBuzz for text rendering
+        IF(HARFBUZZ_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${HARFBUZZ_LIBRARY})
+        ENDIF()
+        # Add MuJS for JavaScript support in MuPDF
+        IF(MUJS_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${MUJS_LIBRARY})
+        ENDIF()
+        # Add Gumbo for HTML parsing in MuPDF
+        IF(GUMBO_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${GUMBO_LIBRARY})
+        ENDIF()
+    ENDIF()
+
+    LIST(APPEND EXTRA_LIBS ${MuPDF_LIBRARIES})
+
+    IF(FREETYPE_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${FREETYPE_LIBRARY})
+    ENDIF()
+    IF(JBIG2DEC_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${JBIG2DEC_LIBRARY})
+    ENDIF()
+    # jpeg, openjpeg, zlib, math are handled above or in pkg-config
+
+    # For Ubuntu static builds, ensure JPEG dependency is met
+    IF(UNIX AND NOT APPLE)
+        LIST(APPEND EXTRA_LIBS ${JPEG_LIBRARY})
+    ENDIF()
 ENDIF()
 
 IF(WIN32)

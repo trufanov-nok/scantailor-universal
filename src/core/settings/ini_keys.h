@@ -49,10 +49,17 @@ static const bool _key_app_empty_palette_def = false;
 static const char* _key_app_open_filetype_filter = "main_window/filetype_filter";
 static const char* _key_app_docking_enabled = "docking_panels/enabled";
 static const bool _key_app_docking_enabled_def = false;
-#ifndef ENABLE_OPENJPEG
-static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp *.pdf";
+
+#ifdef ENABLE_MUPDF
+#define MUPDF_EXT " *.pdf"
 #else
-static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp *.jp2 *.pdf";
+#define MUPDF_EXT ""
+#endif
+
+#ifndef ENABLE_OPENJPEG
+static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp" MUPDF_EXT;
+#else
+static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp *.jp2" MUPDF_EXT;
 #endif
 static const char* _key_app_alert_cmd = "main_window/external_alarm_cmd";
 #if (defined(Q_OS_UNIX) & (! defined(Q_OS_OSX)) & (!HAVE_CANBERRA))

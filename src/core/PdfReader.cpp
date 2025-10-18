@@ -33,9 +33,11 @@
 #include <QList>
 #include <QDebug>
 #include <QFile>
-
-#include <mupdf/fitz.h>
-#include <mupdf/pdf.h>
+extern "C"
+{
+    #include <mupdf/fitz.h>
+    #include <mupdf/pdf.h>
+}
 #include <QBuffer>
 
 namespace {
@@ -99,7 +101,7 @@ static bool pageHasAnnotations(fz_context* ctx, fz_document* doc, int page_num) 
         pdf_annot* annot = pdf_first_annot(ctx, pdf_page);
         bool hasAnnotations = (annot != NULL);
 
-        pdf_drop_page(ctx, pdf_page);
+        fz_drop_page(ctx, (fz_page*)pdf_page);
         return hasAnnotations;
     } catch (...) {
         return false;
@@ -571,7 +573,7 @@ PdfReader::extractEmbeddedImages(QIODevice& device, int page_num)
 #ifdef DEBUG
             qDebug() << "No resources found on page" << page_num;
 #endif
-            pdf_drop_page(ctx, pdf_page);
+            fz_drop_page(ctx, (fz_page*)pdf_page);
             fz_drop_document(ctx, doc);
             fz_drop_stream(ctx, stream);
             fz_drop_context(ctx);
@@ -584,7 +586,7 @@ PdfReader::extractEmbeddedImages(QIODevice& device, int page_num)
 #ifdef DEBUG
             qDebug() << "No XObject dictionary found on page" << page_num;
 #endif
-            pdf_drop_page(ctx, pdf_page);
+            fz_drop_page(ctx, (fz_page*)pdf_page);
             fz_drop_document(ctx, doc);
             fz_drop_stream(ctx, stream);
             fz_drop_context(ctx);
@@ -660,7 +662,7 @@ PdfReader::extractEmbeddedImages(QIODevice& device, int page_num)
         qDebug() << "Total embedded images found:" << images.size();
 #endif
 
-        pdf_drop_page(ctx, pdf_page);
+        fz_drop_page(ctx, (fz_page*)pdf_page);
         fz_drop_document(ctx, doc);
         fz_drop_stream(ctx, stream);
         fz_drop_context(ctx);
