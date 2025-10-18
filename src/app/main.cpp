@@ -26,7 +26,9 @@
 #include "Jp2MetadataLoader.h"
 #endif
 #include "GenericMetadataLoader.h"
+#ifdef ENABLE_MUPDF
 #include "PdfMetadataLoader.h"
+#endif
 #include "settings/ini_keys.h"
 #include <QMetaType>
 #include <QtPlugin>
@@ -81,7 +83,9 @@ int main(int argc, char** argv)
 #ifdef ENABLE_OPENJPEG
     Jp2MetadataLoader::registerMyself();
 #endif
+#ifdef ENABLE_MUPDF
     PdfMetadataLoader::registerMyself();
+#endif
     // should be the last one as the most dumb and loads whole image into mem
     GenericMetadataLoader::registerMyself();
 

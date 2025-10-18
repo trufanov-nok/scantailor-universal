@@ -19,6 +19,17 @@ ADD_SUBDIRECTORY(filters/select_content)
 ADD_SUBDIRECTORY(filters/page_layout)
 ADD_SUBDIRECTORY(filters/output)
 
+
+IF(ENABLE_MUPDF)
+        set(pdf_sources
+                PdfReader.cpp PdfReader.h
+                PdfMetadataLoader.cpp PdfMetadataLoader.h)
+        set(MAYBE_MUPDF MuPDF::MuPDF)
+# ELSE()
+#         set(pdf_sources )
+ENDIF()
+
+
 SET(
         common_sources
         BackgroundExecutor.cpp BackgroundExecutor.h
@@ -75,8 +86,7 @@ SET(
         JpegMetadataLoader.cpp JpegMetadataLoader.h
         GenericMetadataLoader.cpp GenericMetadataLoader.h
         ImageLoader.cpp ImageLoader.h
-        PdfReader.cpp PdfReader.h
-        PdfMetadataLoader.cpp PdfMetadataLoader.h
+        ${pdf_sources}
         OrthogonalRotation.cpp OrthogonalRotation.h
         WorkerThread.cpp WorkerThread.h
         LoadFileTask.cpp LoadFileTask.h
@@ -135,7 +145,7 @@ SOURCE_GROUP("Generated" FILES ${core_resource_sources})
 SOURCE_GROUP("Resources" FILES ${core_resource_sources})
 
 ADD_LIBRARY(stcore STATIC ${core_resource_sources} ${common_sources} ${core_ui_sources})
-TARGET_LINK_LIBRARIES(stcore Qt5::Core Qt5::Widgets Qt5::Xml ${MAYBE_QT_OPENGL_MODULE} MuPDF::MuPDF)
+TARGET_LINK_LIBRARIES(stcore Qt5::Core Qt5::Widgets Qt5::Xml ${MAYBE_QT_OPENGL_MODULE} ${MAYBE_MUPDF})
 ADD_DEPENDENCIES(stcore core_ui_sources)
 
 TRANSLATION_SOURCES(

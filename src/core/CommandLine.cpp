@@ -291,7 +291,12 @@ CommandLine::setup()
     m_pageDetectionTolerance = fetchPageDetectionTolerance();
     m_defaultNull = fetchDefaultNull();
 
-    QRegularExpression exp("^.*(tif|tiff|jpg|jpeg|bmp|gif|png|pbm|pgm|ppm|xbm|xpm|pdf)$", QRegularExpression::CaseInsensitiveOption);
+#ifdef ENABLE_MUPDF
+#define MUPDF_MASK "|pdf"
+#else
+#define MUPDF_MASK ""
+#endif
+    QRegularExpression exp("^.*(tif|tiff|jpg|jpeg|bmp|gif|png|pbm|pgm|ppm|xbm|xpm" MUPDF_MASK ")$", QRegularExpression::CaseInsensitiveOption);
     // setup images
     for (int i = 0; i < (int)m_files.size(); ++i) {
         QRegularExpressionMatch match = exp.match(m_files[i].filePath());
