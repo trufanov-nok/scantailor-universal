@@ -15,7 +15,7 @@ Build-Depends:
  qttools5-dev (>=5.4),
  libboost-dev (>=1.35.0),
  libboost-test-dev (>=1.35.0),
- cmake (>=2.8.9),
+ cmake (>=3.18.4),
  libcanberra-dev(>=0.30),
  pkg-config,
  libopenjp2-7-dev (>=2.3),
