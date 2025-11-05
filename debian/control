@@ -3,7 +3,7 @@ Section: graphics
 Priority: optional
 Maintainer: Alexander Trufanov <trufanovan@gmail.com>
 Build-Depends:
- debhelper-compat (= 9),
+ debhelper-compat (= 11),
  qtbase5-dev (>=5.4),
  libqt5svg5-dev (>=5.4),
  libtiff5-dev (>=4.0.3),
