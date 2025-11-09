@@ -1,0 +1,42 @@
+name: freebsd 14.2 Qt5
+
+on:
+  push:
+    branches:
+      - main
+      - CI
+  pull_request: {}
+
+jobs:
+
+  freebsd_14_2-Qt5:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Run in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "14.2"
+          usesh: true
+          prepare: |
+            pkg install -y git cmake qt5-core qt5-widgets qt5-svg qt5-xml qt5-linguisttools qt5-opengl qt5-printsupport qt5-qmake qt5-buildtools tiff libjpeg-turbo png boost-all libcanberra openjpeg exiv2
+
+          run: |
+            echo '#### System information'
+            whoami
+            env
+            freebsd-version
+            c++ --version || :
+            gcc --version || :
+            clang++ --version || :
+            pkg info
+
+            echo '#### Building'
+            export CMAKE_BUILD_PARALLEL_LEVEL=8
+            .build/build.sh -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_CXX_STANDARD=11 -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+
+            export QT_QPA_PLATFORM='offscreen'
+            echo '#### Testing
+            .build/test.sh'

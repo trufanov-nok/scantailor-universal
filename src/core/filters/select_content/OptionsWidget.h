@@ -19,7 +19,7 @@
 #ifndef SELECT_CONTENT_OPTIONSWIDGET_H_
 #define SELECT_CONTENT_OPTIONSWIDGET_H_
 
-#include "ui_SelectContentOptionsWidget.h"
+#include "ui/ui_SelectContentOptionsWidget.h"
 #include "FilterOptionsWidget.h"
 #include "IntrusivePtr.h"
 #include "AutoManualMode.h"

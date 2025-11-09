@@ -17,7 +17,7 @@
 */
 
 #include "alignmentwidget.h"
-#include "ui_alignmentwidget.h"
+#include "ui/ui_alignmentwidget.h"
 #include "../Utils.h"
 #include <QStandardItemModel>
 #include <QPainter>

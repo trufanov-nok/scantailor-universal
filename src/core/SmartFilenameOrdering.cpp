@@ -47,10 +47,18 @@ SmartFilenameOrdering::operator()(QFileInfo const& lhs, QFileInfo const& rhs) co
         QRegularExpressionMatch match_left = match_left_it.next();
         QRegularExpressionMatch match_right = match_right_it.next();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         fn1 += left_filename.midRef(pos1, match_left.capturedStart() - pos1);
+#else
+        fn1 += left_filename.mid(pos1, match_left.capturedStart() - pos1);
+#endif
         pos1 =  match_left.capturedEnd();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         fn2 += right_filename.midRef(pos2, match_right.capturedStart() - pos2);
+#else
+        fn2 += right_filename.mid(pos2, match_right.capturedStart() - pos2);
+#endif
         pos2 =  match_right.capturedEnd();
 
         QString left_num = match_left.captured();
@@ -67,10 +75,18 @@ SmartFilenameOrdering::operator()(QFileInfo const& lhs, QFileInfo const& rhs) co
         fn2 += right_num;
     }
     if (pos1 < left_filename.size() - 1) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         fn1 += left_filename.rightRef(left_filename.size() - pos1);
+#else
+        fn1 += left_filename.right(left_filename.size() - pos1);
+#endif
     }
     if (pos2 < right_filename.size() - 1) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         fn2 += right_filename.rightRef(right_filename.size() - pos2);
+#else
+        fn2 += right_filename.right(right_filename.size() - pos2);
+#endif
     }
 
     if (int comp = fn1.compare(fn2)) {
@@ -78,4 +94,10 @@ SmartFilenameOrdering::operator()(QFileInfo const& lhs, QFileInfo const& rhs) co
     }
 
     return left_filename < right_filename;
+}
+
+bool
+SmartFilenameOrdering::operator()(QString const& lhs, QString const& rhs) const
+{
+    return operator()(QFileInfo(lhs), QFileInfo(rhs));
 }

@@ -11,11 +11,10 @@ SOURCE_GROUP("Sources" FILES ${sources})
 SET(
         libs
         math ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-        ${Boost_PRG_EXECUTION_MONITOR_LIBRARY} ${EXTRA_LIBS}
+         ${EXTRA_LIBS}
 )
 
 ADD_EXECUTABLE(spfit_tests ${sources})
-TARGET_LINK_LIBRARIES(spfit_tests Qt5::Core)
 TARGET_LINK_LIBRARIES(spfit_tests ${libs})
 
 # We want the executable located where we copy all the DLLs.

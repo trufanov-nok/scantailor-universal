@@ -123,6 +123,7 @@ SET(
         ThumbnailCollector.h
         ContentBoxCollector.h
         PageOrientationCollector.h
+        MultipleTargetsSupport.h
         
         settings/globalstaticsettings.cpp settings/globalstaticsettings.h
         settings/hotkeysmanager.cpp settings/hotkeysmanager.h
@@ -130,22 +131,34 @@ SET(
         settings/ini_keys.h
 )
 
+IF(APPLE)
+    set(core_libs Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Xml Qt${QT_VERSION_MAJOR}::PrintSupport ${MAYBE_QT_OPENGL_MODULE})
+ELSE()
+    set(core_libs Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Xml ${MAYBE_QT_OPENGL_MODULE})
+ENDIF()
+
 IF (ENABLE_OPENJPEG)
 LIST(APPEND common_sources
         Jp2Reader.cpp Jp2Reader.h
         Jp2MetadataLoader.cpp Jp2MetadataLoader.h
     )
+LIST(APPEND core_libs ${OPENJPEG_LIBRARY})
 ENDIF(ENABLE_OPENJPEG)
 
 
 SOURCE_GROUP("Sources" FILES ${common_sources} ${core_ui_sources})
 
-QT5_ADD_RESOURCES(core_resource_sources resources/core_resources.qrc)
+if (${QT_VERSION_MAJOR} VERSION_LESS 6.0.0)
+        QT5_ADD_RESOURCES(core_resource_sources resources/core_resources.qrc)
+else()
+        QT_ADD_RESOURCES(core_resource_sources resources/core_resources.qrc)
+endif()
+
 SOURCE_GROUP("Generated" FILES ${core_resource_sources})
 SOURCE_GROUP("Resources" FILES ${core_resource_sources})
 
 ADD_LIBRARY(stcore STATIC ${core_resource_sources} ${common_sources} ${core_ui_sources})
-TARGET_LINK_LIBRARIES(stcore Qt5::Core Qt5::Widgets Qt5::Xml ${MAYBE_QT_OPENGL_MODULE} ${MAYBE_MUPDF})
+TARGET_LINK_LIBRARIES(stcore ${core_libs})
 ADD_DEPENDENCIES(stcore core_ui_sources)
 
 TRANSLATION_SOURCES(

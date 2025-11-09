@@ -17,7 +17,7 @@
 */
 
 #include "PageRangeSelectorWidget.h"
-#include "ui_PageRangeSelectorWidget.h"
+#include "ui/ui_PageRangeSelectorWidget.h"
 #include "PageInfo.h"
 
 PageRangeSelectorSignalsPropagator* PageRangeSelectorSignalsPropagator::m_obj = nullptr;

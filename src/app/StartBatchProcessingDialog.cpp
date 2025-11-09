@@ -1,6 +1,6 @@
 #include "StartBatchProcessingDialog.h"
 
-#include "ui_StartBatchProcessingDialog.h"
+#include "ui/ui_StartBatchProcessingDialog.h"
 
 #include "settings/ini_keys.h"
 

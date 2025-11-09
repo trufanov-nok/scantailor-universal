@@ -19,7 +19,7 @@
 #ifndef DESKEW_OPTIONSWIDGET_H_
 #define DESKEW_OPTIONSWIDGET_H_
 
-#include "ui_DeskewOptionsWidget.h"
+#include "ui/ui_DeskewOptionsWidget.h"
 #include "FilterOptionsWidget.h"
 #include "IntrusivePtr.h"
 #include "PageId.h"

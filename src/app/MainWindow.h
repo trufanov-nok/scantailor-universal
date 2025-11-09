@@ -19,7 +19,7 @@
 #ifndef MAINWINDOW_H_
 #define MAINWINDOW_H_
 
-#include "ui_MainWindow.h"
+#include "ui/ui_MainWindow.h"
 #include "FilterUiInterface.h"
 #include "NonCopyable.h"
 #include "AbstractCommand.h"

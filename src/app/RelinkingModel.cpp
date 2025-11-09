@@ -164,7 +164,11 @@ RelinkingModel::data(QModelIndex const& index, int role) const
         }
     case Qt::DecorationRole:
         return (item.type == RelinkablePath::Dir) ? m_folderIcon : m_fileIcon;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     case Qt::BackgroundColorRole:
+#else
+    case Qt::BackgroundRole:
+#endif
         return QColor(Qt::transparent);
     }
 

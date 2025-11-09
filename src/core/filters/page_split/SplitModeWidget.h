@@ -19,7 +19,7 @@
 #ifndef PAGE_SPLIT_SPLITMODEWIDGET_H_
 #define PAGE_SPLIT_SPLITMODEWIDGET_H_
 
-#include "ui_PageSplitModeWidget.h"
+#include "ui/ui_PageSplitModeWidget.h"
 #include "LayoutType.h"
 #include "PageLayout.h"
 #include "PageId.h"

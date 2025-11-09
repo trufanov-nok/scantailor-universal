@@ -106,77 +106,49 @@ IF(OPENGL_FOUND AND QT_QTOPENGL_FOUND)
 ENDIF()
 OPTION(ENABLE_OPENGL "OpenGL may be used for UI acceleration" ${use_opengl})
 
-IF(WIN32)
-        FIND_PATH(
-                DEPS_BUILD_DIR build-qt.bat
-                HINTS "${build_outer_dir}/scantailor-universal-deps-build"
-                DOC "Build directory for Scan Tailor dependencies."
-        )
-        IF(NOT DEPS_BUILD_DIR)
-                MESSAGE(
-                        FATAL_ERROR "The build directory for Scan Tailor dependencies could not be found! "
-                        "You can specify it manually in DEPS_BUILD_DIR variable. Make sure you build the dependencies first!"
-                )
-        ENDIF()
-        SET(STAGING_LIBS_DIR "${DEPS_BUILD_DIR}/staging/libs")
-        INCLUDE("${DEPS_BUILD_DIR}/export-vars.cmake")
-
-        IF (NOT QT_SRC_DIR OR NOT EXISTS "${QT_SRC_DIR}")
-                FILE(GLOB qt_dirs1 "${build_outer_dir}/qt-win-*-5.[0-9]*")
-                FILE(GLOB qt_dirs2 "${build_outer_dir}/qt-everywhere-*-5.[0-9]*")
-                FILE(GLOB qt_dirs3 "${source_outer_dir}/qt-win-*-5.[0-9]*")
-                FILE(GLOB qt_dirs4 "${source_outer_dir}/qt-everywhere-*-5.[0-9]*")
-                FILE(GLOB qt_dirs5 "C:/Qt/Qt5.*/*/Src")
-                FIND_PATH(
-                        QT_SRC_DIR qtbase/qtbase.pro
-                        HINTS ${qt_dirs1} ${qt_dirs2} ${qt_dirs3}
-                        ${qt_dirs4} ${qt_dirs5} dummy_dir
-                        DOC "Path to top-level Qt5 source directory. If you installed a binary version, it will be something like C:\\Qt\\Qt5.0.2\\5.0.2\\Src"
-                )
-        ENDIF()
-
-        IF(NOT QT_SRC_DIR OR NOT EXISTS "${QT_SRC_DIR}")
-                MESSAGE(
-                        FATAL_ERROR "Qt5 could not be found. "
-                        "If it's installed in a non-standard location, specify it QT_SRC_DIR variable."
-                )
-        ENDIF()
-
-        FILE(GLOB qt_possible_prebuilt_dirs "${QT_SRC_DIR}/../*")
-        FIND_PATH(
-                QT_PREBUILT_DIR bin/qmake.exe HINTS ${qt_possible_prebuilt_dirs}
-                DOC "[optional] Installation path of a pre-built version of Qt5. If you installed a binary version, it will be something like C:\\Qt\\Qt5.0.2\\5.0.2\\msvc2012"
-        )
-
-
-        SET(Qt5Core_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Core")
-        SET(Qt5Gui_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Gui")
-        SET(Qt5Widgets_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Widgets")
-        SET(Qt5Xml_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Xml")
-        SET(Qt5Network_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5Network")
-        SET(Qt5OpenGL_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5OpenGL")
-        IF(QT_PREBUILT_DIR)
-                SET(Qt5LinguistTools_DIR "${QT_PREBUILT_DIR}/lib/cmake/Qt5LinguistTools")
-        ELSE()
-                SET(Qt5LinguistTools_DIR "${QT_SRC_DIR}/qtbase/lib/cmake/Qt5LinguistTools")
-        ENDIF()
-ENDIF()
 
 SET(CMAKE_AUTOMOC ON)
-SET(Qt_MIN_VERSION 5.7.0)
+SET(CMAKE_AUTOUIC ON)
+SET(CMAKE_AUTORCC ON)
+
+if(NOT DEFINED QtPkgList)
+    set(QtPkgList "Qt5;Qt6")
+endif()
+
+foreach(QtPkg ${QtPkgList})
+  if(ENABLE_OPENGL)
+        find_package(QT NAMES ${QtPkg} HINTS "${QT_ROOT_DIR}" CONFIG REQUIRED COMPONENTS Core Widgets Gui Xml Network Svg LinguistTools OpenGL)
+  else()
+        find_package(QT NAMES ${QtPkg} HINTS "${QT_ROOT_DIR}" CONFIG REQUIRED COMPONENTS Core Widgets Gui Xml Network Svg LinguistTools)
+  endif()
+
+  if(QT_FOUND)
+        break()
+  endif()
+endforeach()
+
+if(ENABLE_OPENGL)
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets Gui Xml Network Svg LinguistTools OpenGL REQUIRED)
+else()
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets Gui Xml Network Svg LinguistTools REQUIRED)
+endif()
+
+SET(QT_MIN_VERSION 5.7.0)
+if (QT_VERSION VERSION_LESS ${QT_MIN_VERSION})
+        message(FATAL_ERROR "Minimum supported Qt version is ${QT_MIN_VERSION}!")
+endif()
+
+
 IF(APPLE)
+   # Not used but required for loading cocoa plugin
+   FIND_PACKAGE(Qt${QT_VERSION_MAJOR} COMPONENTS PrintSupport REQUIRED)
    # hardcoded path to Qt5CoreConfig.cmake etc. [truf]
    # Also set Homebrew Qt5 path if available
    LIST(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/Cellar/qt@5/5.15.17/lib/cmake")
    LIST(APPEND CMAKE_PREFIX_PATH "/Users/robert/build/Qt/5.8/clang_64/")
 ENDIF(APPLE)
-FIND_PACKAGE(Qt5Core ${Qt_MIN_VERSION} REQUIRED)
-FIND_PACKAGE(Qt5Gui ${Qt_MIN_VERSION} REQUIRED)
-FIND_PACKAGE(Qt5Widgets ${Qt_MIN_VERSION} REQUIRED)
-FIND_PACKAGE(Qt5Xml ${Qt_MIN_VERSION} REQUIRED)
-FIND_PACKAGE(Qt5Network ${Qt_MIN_VERSION} REQUIRED)
-FIND_PACKAGE(Qt5Svg ${Qt_MIN_VERSION} REQUIRED)
-FIND_PACKAGE(Qt5LinguistTools ${Qt_MIN_VERSION} REQUIRED)
+
+find_package(PkgConfig REQUIRED) #used in FindMuPDF.cmake
 
 option(ENABLE_MUPDF "Enable pdf files as image source support" on)
 IF (ENABLE_MUPDF)
@@ -194,107 +166,20 @@ IF(ENABLE_OPENGL)
         FIND_PACKAGE(Qt5OpenGL ${Qt_MIN_VERSION} REQUIRED)
 ENDIF()
 
-FIND_PATH(
-        JPEG_INCLUDE_DIR jpeglib.h
-	PATHS /usr/local/include /usr/include
-	HINTS ${JPEG_DIR} # JPEG_DIR may come from export-vars.cmake
-	DOC "Path to libjpeg headers."
-)
-IF(NOT JPEG_INCLUDE_DIR)
-        MESSAGE(
-                FATAL_ERROR
-                "Could not find jpeg headers.\n"
-		"You may need to install a package named libjpeg62-dev or similarly."
-        )
-ENDIF()
+FIND_PACKAGE(JPEG REQUIRED)
+INCLUDE_DIRECTORIES("${JPEG_INCLUDE_DIRS}")
+LIST(APPEND EXTRA_LIBS ${JPEG_LIBRARIES})
 
-INCLUDE_DIRECTORIES("${JPEG_INCLUDE_DIR}")
-
-FIND_LIBRARY(
-        JPEG_LIBRARY NAMES jpeg libjpeg.lib
-	PATHS /usr/local/lib /usr/lib
-	HINTS ${STAGING_LIBS_DIR}
-	DOC "Path to jpeg library."
-)
-IF(NOT JPEG_LIBRARY)
-        MESSAGE(
-                FATAL_ERROR
-                "Could not find jpeg library.\n"
-                "You may need to install a package named libjpeg62-dev or similarly."
-        )
-ENDIF()
-
-SET (use_openjpeg ON)
-OPTION(ENABLE_OPENJPEG "OpenJPEG library may be used to suppoet JPEG 2000 (.jp2) images." ${use_openjpeg})
-
+OPTION(ENABLE_OPENJPEG "OpenJPEG library may be used to support JPEG 2000 (.jp2) images." ON)
 IF (ENABLE_OPENJPEG)
+        find_package(OPENJPEG REQUIRED)
+        INCLUDE_DIRECTORIES("${OPENJPEG_INCLUDE_DIR}")
 
-IF(NOT WIN32)
-FIND_PACKAGE(OpenJPEG QUIET)
-ELSE(NOT WIN32)
-
-FIND_PATH(
-        OPENJPEG_INCLUDE_DIRS openjpeg.h
-        PATHS /usr/local/include /usr/include
-        HINTS ${JPEG2000_DIR} # JPEG2000_DIR may come from export-vars.cmake
-        PATH_SUFFIXES src/lib/openjp2
-        DOC "Path to openjpeg headers."
-)
-IF(NOT OPENJPEG_INCLUDE_DIRS)
-        MESSAGE(
-                "Could not find openjpeg headers.\n"
-                "You may need to install a package openjpeg."
-        )
-ENDIF()
-
-INCLUDE_DIRECTORIES("${OPENJPEG_INCLUDE_DIRS}")
-
-FIND_LIBRARY(
-        OPENJPEG_LIBRARIES openjp2 openjp2.lib
-        PATHS /usr/local/lib /usr/lib
-        HINTS ${STAGING_LIBS_DIR}
-        PATH_SUFFIXES openjp2
-        DOC "Path to openjpeg library."
-)
-
-IF(OPENJPEG_LIBRARIES AND OPENJPEG_INCLUDE_DIRS)
-SET (OpenJPEG_FOUND YES)
-SET (OPENJPEG_MAJOR_VERSION 2)
-ENDIF(OPENJPEG_LIBRARIES AND OPENJPEG_INCLUDE_DIRS)
-
-ENDIF(NOT WIN32)
-
-IF(NOT OpenJPEG_FOUND OR OPENJPEG_MAJOR_VERSION VERSION_LESS 2)
-    message("warning: OpenJPEG library isn't found.\n"
-        "The JPEG 2000 (*.jp2) images support will be disabled.\n"
-        "You may install libopenjp2-7-dev to fix this.\n"
-        "Or disable this massege with -DENABLE_OPENJPEG=OFF")
-    SET(ENABLE_OPENJPEG OFF)
-ENDIF()
+        LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARY})
 ENDIF(ENABLE_OPENJPEG)
 
-FIND_PATH(
-        ZLIB_INCLUDE_DIR zlib.h
-	PATHS /usr/local/include /usr/include
-	HINTS ${ZLIB_DIR} # ZLIB_DIR may come from export-vars.cmake
-	DOC "Path to zlib headers."
-)
-IF(NOT ZLIB_INCLUDE_DIR)
-        MESSAGE(
-                FATAL_ERROR
-                "Could not find zlib headers.\n"
-                "You may need to install a package named zlib1g-dev or similarly."
-        )
-ENDIF()
 
-INCLUDE_DIRECTORIES("${ZLIB_INCLUDE_DIR}")
-
-FIND_LIBRARY(
-        ZLIB_LIBRARY NAMES z zdll.lib
-	PATHS /usr/local/lib /usr/lib
-	HINTS ${STAGING_LIBS_DIR}
-	DOC "Path to zlib library."
-)
+find_package(ZLIB REQUIRED)
 IF(NOT ZLIB_LIBRARY)
         MESSAGE(
                 FATAL_ERROR
@@ -302,29 +187,9 @@ IF(NOT ZLIB_LIBRARY)
                 "You may need to install a package named zlib1g-dev or similarly."
         )
 ENDIF()
+INCLUDE_DIRECTORIES("${ZLIB_INCLUDE_DIR}")
 
-FIND_PATH(
-        PNG_INCLUDE_DIR png.h
-	PATHS /usr/local/include /usr/include
-	HINTS ${PNG_DIR} # PNG_DIR may come from export-vars.cmake
-	DOC "Path to libpng headers."
-)
-IF(NOT PNG_INCLUDE_DIR)
-        MESSAGE(
-                FATAL_ERROR
-                "Could not find libpng headers.\n"
-                "You may need to install a package named libpng12-dev or similarly."
-        )
-ENDIF()
-
-INCLUDE_DIRECTORIES("${PNG_INCLUDE_DIR}")
-
-FIND_LIBRARY(
-        PNG_LIBRARY NAMES png libpng.lib
-	PATHS /usr/local/lib /usr/lib
-	HINTS ${STAGING_LIBS_DIR}
-	DOC "Path to png library."
-)
+find_package(PNG REQUIRED)
 IF(NOT PNG_LIBRARY)
         MESSAGE(
                 FATAL_ERROR
@@ -332,7 +197,7 @@ IF(NOT PNG_LIBRARY)
                 "You may need to install a package named libpng12-dev or similarly."
         )
 ENDIF()
-
+INCLUDE_DIRECTORIES("${PNG_INCLUDE_DIR}")
 
 FIND_PATH(
         TIFF_INCLUDE_DIR tiff.h
@@ -377,12 +242,24 @@ ELSE(WIN32)
         ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK)
 ENDIF(WIN32)
 
+ADD_DEFINITIONS(-DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+ADD_DEFINITIONS(-DBOOST_BIND_GLOBAL_PLACEHOLDERS)
+
 SET(Boost_USE_MULTITHREADED ON)
-if (POLICY CMP0167)
-    find_package(Boost 1.70.0 CONFIG COMPONENTS unit_test_framework prg_exec_monitor)
-else()
-    find_package(Boost 1.35.0 COMPONENTS unit_test_framework prg_exec_monitor)
-endif()
+IF(ENABLE_TESTS)
+        IF(POLICY CMP0167)
+                FIND_PACKAGE(Boost 1.70.0 COMPONENTS unit_test_framework REQUIRED CONFIG)
+        ELSE()
+                FIND_PACKAGE(Boost 1.35.0 COMPONENTS unit_test_framework REQUIRED)
+        ENDIF()
+ELSE()
+        IF(POLICY CMP0167)
+                FIND_PACKAGE(Boost 1.70.0 REQUIRED CONFIG)
+        ELSE()
+                FIND_PACKAGE(Boost 1.35.0 REQUIRED)
+        ENDIF()
+ENDIF()
+
 IF(NOT Boost_FOUND)
         MESSAGE(
                 FATAL_ERROR
@@ -439,8 +316,6 @@ ELSE(NOT HAVE_STDINT_H)
         FILE(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/stdint.h")
 ENDIF(NOT HAVE_STDINT_H)
 
-ADD_DEFINITIONS(-DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
-
 LIST(APPEND EXTRA_LIBS ${TIFF_LIBRARY} ${PNG_LIBRARY} ${ZLIB_LIBRARY} ${JPEG_LIBRARY})
 IF(CANBERRA_FOUND)
 	LIST(APPEND EXTRA_LIBS ${CANBERRA_LIBRARIES})
@@ -451,20 +326,33 @@ IF (EXIV2_FOUND)
 ENDIF(EXIV2_FOUND)
 
 IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
-   INCLUDE_DIRECTORIES(${OPENJPEG_INCLUDE_DIRS})
-   LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARIES})
+   INCLUDE_DIRECTORIES(${OPENJPEG_INCLUDE_DIR})
+   LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARY})
 ENDIF()
 
 # Add MuPDF dependencies in the correct order (dependent libraries first)
 IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
     # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
-    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
-    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
-    FIND_LIBRARY(MATH_LIBRARY NAMES m)
-    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz)
-    FIND_LIBRARY(MUJS_LIBRARY NAMES mujs)
-    FIND_LIBRARY(GUMBO_LIBRARY NAMES gumbo)
+    IF(WIN32)
+        find_package(Freetype REQUIRED)
+
+        find_path(JBIG2DEC_INCLUDE_DIR NAMES jbig2.h REQUIRED)
+        find_library(JBIG2DEC_LIBRARY NAMES jbig2decd jbig2dec NAMES_PER_DIR REQUIRED)
+        find_package(HARFBUZZ NAMES harfbuzz REQUIRED)
+    else()
+        pkg_check_modules(FREETYPE REQUIRED freetype2)
+        pkg_check_modules(JBIG2DEC REQUIRED jbig2dec)
+        pkg_check_modules(HARFBUZZ REQUIRED harfbuzz)
+        set(HARFBUZZ_LIBRARY ${HARFBUZZ_LINK_LIBRARIES})
+    endif()
+
+    pkg_check_modules(GUMBO REQUIRED gumbo)
+    set(GUMBO_LIBRARY ${GUMBO_LINK_LIBRARIES})
+
+    # FIND_LIBRARY(MATH_LIBRARY NAMES m PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+
+    pkg_check_modules(MUJS REQUIRED IMPORTED_TARGET mujs)
 
     # For Ubuntu static builds, we need explicit dependencies
     IF(UNIX AND NOT APPLE)
@@ -474,18 +362,21 @@ IF(MuPDF_FOUND)
         ENDIF()
         # Ensure zlib is linked (required by libtiff via MuPDF)
         LIST(APPEND EXTRA_LIBS ${ZLIB_LIBRARY})
-        # Add HarfBuzz for text rendering
-        IF(HARFBUZZ_LIBRARY)
-            LIST(APPEND EXTRA_LIBS ${HARFBUZZ_LIBRARY})
-        ENDIF()
-        # Add MuJS for JavaScript support in MuPDF
-        IF(MUJS_LIBRARY)
-            LIST(APPEND EXTRA_LIBS ${MUJS_LIBRARY})
-        ENDIF()
-        # Add Gumbo for HTML parsing in MuPDF
-        IF(GUMBO_LIBRARY)
-            LIST(APPEND EXTRA_LIBS ${GUMBO_LIBRARY})
-        ENDIF()
+    ENDIF()
+
+    IF(NOT APPLE)
+      # Add MuJS for JavaScript support in MuPDF
+      IF(MUJS_LIBRARY)
+          LIST(APPEND EXTRA_LIBS ${MUJS_LIBRARY})
+      ENDIF()
+      # Add Gumbo for HTML parsing in MuPDF
+      IF(GUMBO_LIBRARY)
+          LIST(APPEND EXTRA_LIBS ${GUMBO_LIBRARY})
+      ENDIF()
+      # Add HarfBuzz for text rendering
+      IF(HARFBUZZ_LIBRARY)
+        LIST(APPEND EXTRA_LIBS ${HARFBUZZ_LIBRARY})
+      ENDIF()
     ENDIF()
 
     LIST(APPEND EXTRA_LIBS ${MuPDF_LIBRARIES})
@@ -512,7 +403,7 @@ ENDIF(WIN32)
 SET(MAYBE_QT_OPENGL_MODULE "")
 IF(ENABLE_OPENGL)
         LIST(APPEND EXTRA_LIBS ${OPENGL_LIBRARIES})
-        SET(MAYBE_QT_OPENGL_MODULE Qt5::OpenGL)
+        SET(MAYBE_QT_OPENGL_MODULE Qt${QT_VERSION_MAJOR}::OpenGL)
 ENDIF()
 
 # Prepare config.h
@@ -537,11 +428,6 @@ CONFIGURE_FILE(config.h.in ${CMAKE_BINARY_DIR}/config.h @ONLY)
 ADD_SUBDIRECTORY(src)
 
 
-IF(NOT WIN32 AND NOT APPLE)
-        INSTALL(FILES debian/scantailor-universal.svg DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pixmaps/")
-        INSTALL(FILES debian/scantailor-universal.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications/")
-ENDIF(NOT WIN32 AND NOT APPLE)
-
 # uninstall target
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
@@ -551,105 +437,4 @@ configure_file(
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-# Source code packaging
-SET(CPACK_CMAKE_GENERATOR "")
-SET(CPACK_SOURCE_GENERATOR "TGZ")
-SET(CPACK_SOURCE_PACKAGE_FILE_NAME "scantailor-universal-${VERSION}")
-SET(
-        CPACK_SOURCE_IGNORE_FILES
-        "/\\\\.svn/"
-        "/\\\\.git/"
-        "~$"
-        "\\\\.pcs$"
-        "TODO.txt"
-        "CMakeLists.txt.user"
-        "/doxygen/"
-        "${CMAKE_BINARY_DIR}"
-)
-INCLUDE(CPack)
-
-IF(WIN32)
-        # Copy some DLLs to the staging dir.
-
-        SET(
-                qt5_libs
-                ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES}
-                ${Qt5Core_LIBRARIES} ${Qt5Xml_LIBRARIES}  ${Qt5Svg_LIBRARIES}
-        )
-        IF(ENABLE_OPENGL)
-                LIST(APPEND qt5_libs ${Qt5OpenGL_LIBRARIES})
-        ENDIF()
-        FOREACH(target ${qt5_libs})
-                GET_TARGET_PROPERTY(debug_loc "${target}" LOCATION_DEBUG)
-                GET_TARGET_PROPERTY(release_loc "${target}" LOCATION_RELEASE)
-                COPY_TO_BUILD_DIR("${debug_loc}" CONFIGURATIONS Debug)
-                COPY_TO_BUILD_DIR("${release_loc}" CONFIGURATIONS Release MinSizeRel RelWithDebInfo)
-        ENDFOREACH()
-
-        SET(DLL_DIR "${QT_SRC_DIR}/qtbase/bin")
-        COPY_TO_BUILD_DIR(
-                "${DLL_DIR}/libpng.dll" "${DLL_DIR}/libjpeg.dll"
-                "${DLL_DIR}/libtiff.dll" "${DLL_DIR}/zdll.dll"
-        )
-
-IF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
-        COPY_TO_BUILD_DIR( "${DLL_DIR}/openjp2.dll" )
-ENDIF(ENABLE_OPENJPEG AND OpenJPEG_FOUND)
-
-IF(EXIV2_FOUND)
-        COPY_TO_BUILD_DIR( "${DLL_DIR}/exiv2.dll" )
-ENDIF(EXIV2_FOUND)
-
-        # Qt's plugins.
-        SET(PLUGINS_DIR "${QT_SRC_DIR}/qtbase/plugins")
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/platforms/qwindows.dll" SUBDIR platforms
-                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-        )
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/platforms/qwindowsd.dll" SUBDIR platforms
-                CONFIGURATIONS Debug
-        )
-        # required to display images in stylesheets
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/imageformats/qico.dll" SUBDIR imageformats
-                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-        )
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/imageformats/qicod.dll" SUBDIR imageformats
-                CONFIGURATIONS Debug
-        )
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/imageformats/qsvg.dll" SUBDIR imageformats
-                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-        )
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/imageformats/qsvgd.dll" SUBDIR imageformats
-                CONFIGURATIONS Debug
-        )
-#        COPY_TO_BUILD_DIR(
-#                "${PLUGINS_DIR}/iconengines/qsvgicon.dll" SUBDIR iconengines
-#                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-#        )
-#        COPY_TO_BUILD_DIR(
-#                "${PLUGINS_DIR}/iconengines/qsvgicond.dll" SUBDIR iconengines
-#                CONFIGURATIONS Debug
-#        )
-
-    if (Qt5Widgets_VERSION VERSION_LESS 5.4.0)
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/accessible/qtaccessiblewidgets.dll" SUBDIR accessible
-                CONFIGURATIONS Release MinSizeRel RelWithDebInfo
-        )
-        COPY_TO_BUILD_DIR(
-                "${PLUGINS_DIR}/accessible/qtaccessiblewidgetsd.dll" SUBDIR accessible
-                CONFIGURATIONS Debug
-        )
-    endif()
-
-        # Generate the target that will actually do the copying.
-        GENERATE_COPY_TO_BUILD_DIR_TARGET(copy_to_build_dir)
-
-        # Installer for Windows.  Must go last.
-        ADD_SUBDIRECTORY(src/packaging/windows)
-ENDIF(WIN32)
+ADD_SUBDIRECTORY(packaging)

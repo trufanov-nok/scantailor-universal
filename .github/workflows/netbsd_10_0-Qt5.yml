@@ -1,0 +1,47 @@
+name: netbsd 10.0 Qt5
+
+on:
+  push:
+    branches:
+      - main
+      - CI
+  pull_request: {}
+
+jobs:
+
+  netbsd_10_0-Qt5:
+    runs-on: ubuntu-latest
+    # Doesn't use clang, has gcc:
+    # c++ (nb3 20231008) 10.5.0
+    # Copyright (C) 2020 Free Software Foundation, Inc.
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Run in NetBSD
+        uses: cross-platform-actions/action@v0.29.0
+        with:
+          operating_system: netbsd
+          version: '10.0'
+          run: |
+            set -x
+            echo '#### System information'
+            uname -a
+            echo "$SHELL"
+            pwd
+            ls -la
+            whoami
+            env | sort
+            c++ --version
+            gcc --version
+
+            sudo pkgin update
+            sudo pkgin -y -V install cmake MesaLib x11-links libepoxy qt5-qtbase qt5-qtsvg qt5-qttools tiff jpeg png boost libcanberra openjpeg exiv2
+
+            echo '#### Building'
+            export CMAKE_BUILD_PARALLEL_LEVEL=8
+            .build/build.sh -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_CXX_STANDARD=11 -DENABLE_OPENGL=off -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+
+            export QT_QPA_PLATFORM='offscreen'
+            echo '#### Testing
+            .build/test.sh'

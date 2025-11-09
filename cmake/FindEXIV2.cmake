@@ -6,29 +6,41 @@
 # and following variables are set:
 #    EXIV2_INCLUDE_DIR
 #    EXIV2_LIBRARY
-#
 
-# A copy of https://github.com/qgis/QGIS/blob/master/cmake/FindEXIV2.cmake
-# Under GPL-2.0 License 
-IF(WIN32)
-GET_FILENAME_COMPONENT(build_outer_dir "${PROJECT_BINARY_DIR}/.." ABSOLUTE)
 FIND_PATH(
-    DEPS_BUILD_DIR build-qt.bat
-    HINTS "${build_outer_dir}/scantailor-universal-deps-build"
-    DOC "Build directory for Scan Tailor dependencies."
-    )
-SET(STAGING_LIBS_DIR "${DEPS_BUILD_DIR}/staging/libs")
-INCLUDE("${DEPS_BUILD_DIR}/export-vars.cmake")
-ENDIF(WIN32)
+    EXIV2_INCLUDE_DIR
+    NAMES exiv2/exiv2.hpp
+    PATHS "${EXIV2_DIR}/include" $ENV{EXIV2_DIR}/include /usr/local/include /usr/include
+)
 
-FIND_PATH(EXIV2_INCLUDE_DIR exiv2/exiv2.hpp $ENV{LIB_DIR}/include /usr/local/include /usr/include "${EXIV2_DIR}/include")
-FIND_LIBRARY(EXIV2_LIBRARY NAMES exiv2 PATHS $ENV{LIB_DIR}/lib /usr/local/lib /usr/lib HINTS ${STAGING_LIBS_DIR})
+FIND_LIBRARY(
+    EXIV2_LIBRARY
+    NAMES exiv2
+    PATHS "${EXIV2_DIR}/lib" $ENV{LIB_DIR}/lib /usr/local/lib /usr/lib
+)
 
-IF (EXIV2_INCLUDE_DIR AND EXIV2_LIBRARY)
-    SET(EXIV2_FOUND TRUE)
-    MESSAGE(STATUS "Found exiv2: ${EXIV2_LIBRARY}")
-ELSE (EXIV2_INCLUDE_DIR AND EXIV2_LIBRARY)
-    MESSAGE(EXIV2_INCLUDE_DIR=${EXIV2_INCLUDE_DIR})
-    MESSAGE(EXIV2_LIBRARY=${EXIV2_LIBRARY})
-    MESSAGE(WARNING "Could not find exiv2")
-ENDIF (EXIV2_INCLUDE_DIR AND EXIV2_LIBRARY)
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(
+    EXIV2
+    DEFAULT_MSG
+    EXIV2_LIBRARY
+    EXIV2_INCLUDE_DIR
+)
+
+IF(EXIV2_FOUND)
+    SET(EXIV2_INCLUDE_DIRS ${EXIV2_INCLUDE_DIR})
+
+    IF(NOT EXIV2_LIBRARIES)
+      SET(EXIV2_LIBRARIES ${EXIV2_LIBRARY})
+    ENDIF()
+
+    MARK_AS_ADVANCED(
+        EXIV2_INCLUDE_DIRS
+        EXIV2_LIBRARIES
+     )
+ENDIF()
+
+MARK_AS_ADVANCED(
+   EXIV2_INCLUDE_DIR
+   EXIV2_LIBRARY
+)

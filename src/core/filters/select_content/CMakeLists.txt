@@ -22,8 +22,6 @@ SOURCE_GROUP("Sources" FILES ${sources})
 FILE(GLOB ui_files "ui/*.ui")
 SOURCE_GROUP("UI Files" FILES ${ui_files})
 
-QT5_WRAP_UI(ui_sources ${ui_files})
-
 ADD_LIBRARY(select_content STATIC ${sources} ${ui_sources})
-TARGET_LINK_LIBRARIES(select_content Qt5::Widgets Qt5::Xml)
+TARGET_LINK_LIBRARIES(select_content Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Xml)
 TRANSLATION_SOURCES(scantailor-universal ${sources} ${ui_files})

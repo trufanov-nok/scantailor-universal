@@ -19,7 +19,7 @@
 #ifndef OUTPUT_OPTIONSWIDGET_H_
 #define OUTPUT_OPTIONSWIDGET_H_
 
-#include "ui_OutputOptionsWidget.h"
+#include "ui/ui_OutputOptionsWidget.h"
 #include "FilterOptionsWidget.h"
 #include "IntrusivePtr.h"
 #include "PageId.h"

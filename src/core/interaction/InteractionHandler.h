@@ -24,6 +24,10 @@
 #include "IntrusivePtr.h"
 #include <boost/intrusive/list.hpp>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtPreprocessorSupport> // for Q_UNUSED
+#endif
+
 class InteractionState;
 class QPainter;
 class QKeyEvent;

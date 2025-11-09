@@ -19,7 +19,7 @@
 #ifndef SETTINGS_DIALOG_H_
 #define SETTINGS_DIALOG_H_
 
-#include "ui_SettingsDialog.h"
+#include "ui/ui_SettingsDialog.h"
 #include "settings/hotkeysmanager.h"
 #include "filters/page_layout/Alignment.h"
 #include "settings/ini_keys.h"
@@ -197,7 +197,11 @@ public:
     }
     const QList<Qt::Key> keys() const
     {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
         return m_keysPressed.toList();
+#else
+        return QList<Qt::Key>(m_keysPressed.begin(), m_keysPressed.end());
+#endif
     }
 protected:
     bool eventFilter(QObject* obj, QEvent* event) override;
