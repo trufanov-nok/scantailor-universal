@@ -19,7 +19,7 @@
 #ifndef PAGE_SPLIT_OPTIONSWIDGET_H_
 #define PAGE_SPLIT_OPTIONSWIDGET_H_
 
-#include "ui_PageSplitOptionsWidget.h"
+#include "ui/ui_PageSplitOptionsWidget.h"
 #include "FilterOptionsWidget.h"
 #include "IntrusivePtr.h"
 #include "LayoutType.h"

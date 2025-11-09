@@ -19,7 +19,7 @@
 #ifndef RELINKING_DIALOG_H_
 #define RELINKING_DIALOG_H_
 
-#include "ui_RelinkingDialog.h"
+#include "ui/ui_RelinkingDialog.h"
 #include "RelinkingModel.h"
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"

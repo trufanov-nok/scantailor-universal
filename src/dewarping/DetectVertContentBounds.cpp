@@ -18,8 +18,8 @@
 
 #include "DetectVertContentBounds.h"
 #include "DebugImages.h"
+#include "LegacySupport.h"
 #include "VecNT.h"
-#include "SidesOfLine.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/Constants.h"
 #include <QImage>
@@ -37,6 +37,10 @@
 #include <algorithm>
 #include <math.h>
 #include <assert.h>
+
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
+#include <QtCore/QRandomGenerator>
+#endif
 
 using namespace imageproc;
 
@@ -300,7 +304,11 @@ SequentialColumnProcessor::approximateWithLine(std::vector<Segment>* dbg_segment
     // Run RANSAC on the segments.
 
     RansacAlgo ransac(segments);
+#if QT_VERSION < QT_VERSION_CHECK( 5, 10, 0 )
     qsrand(0); // Repeatablity is important.
+#else
+    QRandomGenerator::global()->seed(0);
+#endif
 
     // We want to make sure we do pick a few segments closest
     // to the edge, so let's sort segments appropriately
@@ -317,7 +325,11 @@ SequentialColumnProcessor::approximateWithLine(std::vector<Segment>* dbg_segment
     // Continue with random samples.
     int const ransac_iterations = segments.empty() ? 0 : 200;
     for (int i = 0; i < ransac_iterations; ++i) {
+#if QT_VERSION < QT_VERSION_CHECK( 5, 10, 0 )
         ransac.buildAndAssessModel(segments[qrand() % segments.size()]);
+#else
+        ransac.buildAndAssessModel(segments[QRandomGenerator::global()->generate() % segments.size()]);
+#endif
     }
 
     if (ransac.bestModel().segments.empty()) {
@@ -352,7 +364,7 @@ SequentialColumnProcessor::interpolateSegments(std::vector<Segment> const& segme
     assert(accum_weight != 0);
     accum_vec /= accum_weight;
 
-    QLineF line(m_path.front(), m_path.front() + accum_vec);
+    QLineF line(m_path.front(), m_path.front() + (QPointF) accum_vec);
     Vec2d normal(-accum_vec[1], accum_vec[0]);
     if ((m_leftOrRight == RIGHT) != (normal[0] < 0)) {
         normal = -normal;
@@ -363,7 +375,7 @@ SequentialColumnProcessor::interpolateSegments(std::vector<Segment> const& segme
     for (QPoint const& pt : m_path) {
         if (normal.dot(pt - line.p1()) < 0) {
             line.setP1(pt);
-            line.setP2(line.p1() + accum_vec);
+            line.setP2(line.p1() + (QPointF) accum_vec);
         }
     }
 
@@ -462,8 +474,8 @@ QLineF extendLine(QLineF const& line, int height)
     QLineF const top_line(QPointF(0, 0), QPointF(1, 0));
     QLineF const bottom_line(QPointF(0, height), QPointF(1, height));
 
-    line.intersect(top_line, &top_intersection);
-    line.intersect(bottom_line, &bottom_intersection);
+    QLineIntersect(line, top_line, &top_intersection);
+    QLineIntersect(line, bottom_line, &bottom_intersection);
 
     return QLineF(top_intersection, bottom_intersection);
 }

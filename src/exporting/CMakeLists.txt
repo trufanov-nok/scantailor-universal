@@ -12,5 +12,8 @@ SET(
 SOURCE_GROUP("Sources" FILES ${sources})
 
 ADD_LIBRARY(exporting STATIC ${sources})
-TARGET_LINK_LIBRARIES(exporting Qt5::Widgets)
-TRANSLATION_SOURCES(scantailor-universal ${sources})
+TARGET_LINK_LIBRARIES(exporting Qt${QT_VERSION_MAJOR}::Widgets)
+if (${QT_VERSION_MAJOR} VERSION_LESS 6.0.0)
+        TRANSLATION_SOURCES(scantailor-universal ${sources})
+else()
+endif()

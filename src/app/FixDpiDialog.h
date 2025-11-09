@@ -19,7 +19,7 @@
 #ifndef FIXDPIDIALOG_H_
 #define FIXDPIDIALOG_H_
 
-#include "ui_FixDpiDialog.h"
+#include "ui/ui_FixDpiDialog.h"
 #include "ImageFileInfo.h"
 #include "ImageMetadata.h"
 #include "Dpi.h"

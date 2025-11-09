@@ -19,7 +19,7 @@
 #ifndef LOAD_FILES_STATUS_DIALOG_H_
 #define LOAD_FILES_STATUS_DIALOG_H_
 
-#include "ui_LoadFilesStatusDialog.h"
+#include "ui/ui_LoadFilesStatusDialog.h"
 #include <QString>
 #include <vector>
 

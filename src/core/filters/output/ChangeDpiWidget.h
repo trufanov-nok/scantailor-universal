@@ -19,7 +19,7 @@
 #ifndef OUTPUT_CHANGEDPIWIDGET_H_
 #define OUTPUT_CHANGEDPIWIDGET_H_
 
-#include "ui_OutputChangeDpiWidget.h"
+#include "ui/ui_OutputChangeDpiWidget.h"
 #include "PageId.h"
 #include "PageSequence.h"
 #include "IntrusivePtr.h"

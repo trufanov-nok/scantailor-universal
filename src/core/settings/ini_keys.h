@@ -36,7 +36,7 @@ static const char* _key_app_stylsheet_dir = "main_window/qss_dir";
 #ifdef _WIN32
 static const char* _key_app_style_def = "windows";
 static const char* _key_app_stylsheet_dir_def = STYLESHEETS_DIR_REL;
-#elif defined(Q_OS_OSX)
+#elif defined(Q_OS_MACOS)
 static const char* _key_app_style_def = "macintosh";
 static const char* _key_app_stylsheet_dir_def = STYLESHEETS_DIR_REL;
 #else
@@ -62,7 +62,7 @@ static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpe
 static const char* _key_app_open_filetype_filter_def = "*.png *.tiff *.tif *.jpeg *.jpg *.bmp *.jp2" MUPDF_EXT;
 #endif
 static const char* _key_app_alert_cmd = "main_window/external_alarm_cmd";
-#if (defined(Q_OS_UNIX) & (! defined(Q_OS_OSX)) & (!HAVE_CANBERRA))
+#if (defined(Q_OS_UNIX) & (! defined(Q_OS_MACOS)) & (!HAVE_CANBERRA))
 static const char* _key_app_alert_cmd_def = "play /usr/share/sounds/freedesktop/stereo/bell.oga";
 #else
 static const char* _key_app_alert_cmd_def = "";

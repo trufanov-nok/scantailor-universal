@@ -19,7 +19,7 @@
 #ifndef OUTPUT_CHANGE_DEWARPING_WIDGET_H_
 #define OUTPUT_CHANGE_DEWARPING_WIDGET_H_
 
-#include "ui_OutputChangeDewarpingWidget.h"
+#include "ui/ui_OutputChangeDewarpingWidget.h"
 #include "DewarpingMode.h"
 #include "PageId.h"
 #include "PageSequence.h"

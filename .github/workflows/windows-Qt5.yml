@@ -1,0 +1,49 @@
+name: windows 2022 Qt5
+
+on:
+  push:
+    branches:
+      - main
+      - CI
+  pull_request: {}
+
+jobs:
+
+  windows-Qt5:
+    runs-on: windows-latest
+    # NB: see https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md for what's available in this image
+    steps:
+      - name: Install Qt5
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          install-deps: 'true'
+      - name: restore
+        run: |
+          C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+          C:\vcpkg\vcpkg install --triplet x64-windows zlib tiff libpng openjpeg libjpeg-turbo boost-core boost-bind boost-multi-index boost-mpl boost-test:x64-windows-static boost-iterator boost-intrusive boost-random boost-range boost-type-traits exiv2 opengl libmupdf
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: build
+        env:
+          QT_VER: 'Qt5'
+          # must be Debug, must be passed in cmd line
+          CMAKE_BUILD_TYPE: Debug
+          CMAKE_BUILD_PARALLEL_LEVEL: 8
+          QT_ROOT_DIR: '${{ github.workspace }}\Qt\5.15.2\msvc2019_64'
+          CMAKE_PREFIX_PATH: '${{ github.workspace }}\Qt\5.15.2\msvc2019_64\'
+          CMAKE_TOOLCHAIN_FILE: 'C:\vcpkg\scripts\buildsystems\vcpkg.cmake'
+          VCPKG_TARGET_TRIPLET: 'x64-windows'
+        run: |
+          .build\build.ps1 -DPath C:\vcpkg\installed\x64-windows -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" -DCMAKE_CXX_STANDARD=11 -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF -DQtPkgList="${{ env.QT_VER }}" -DCMAKE_BUILD_TYPE="${{ env.CMAKE_BUILD_TYPE }}" -DVCPKG_TARGET_TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}" -verbose
+        shell: powershell
+      - name: Run autotests
+        env:
+          QT_QPA_PLATFORM: 'offscreen'
+        run: .build\test.ps1
+        shell: powershell
+

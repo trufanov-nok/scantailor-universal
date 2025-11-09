@@ -19,6 +19,7 @@
 #include "DewarpingView.h"
 
 #include "ImagePresentation.h"
+#include "MultipleTargetsSupport.h"
 #include "dewarping/Curve.h"
 #include "VecNT.h"
 #include "MatrixCalc.h"
@@ -287,8 +288,8 @@ DewarpingView::onPaint(QPainter& painter, InteractionState const& interaction)
         dewarping::Curve const& bottom_curve = m_distortionModel.bottomCurve();
         painter.drawLine(top_curve.polyline().front(), bottom_curve.polyline().front());
         painter.drawLine(top_curve.polyline().back(), bottom_curve.polyline().back());
-        painter.drawPolyline(QVector<QPointF>::fromStdVector(top_curve.polyline()));
-        painter.drawPolyline(QVector<QPointF>::fromStdVector(bottom_curve.polyline()));
+        painter.drawPolyline(QVectorFromStdVector(top_curve.polyline()));
+        painter.drawPolyline(QVectorFromStdVector(bottom_curve.polyline()));
     }
 
     paintXSpline(painter, interaction, m_topSpline);

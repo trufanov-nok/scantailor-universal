@@ -19,7 +19,7 @@
 #ifndef FIX_ORIENTATION_OPTIONSWIDGET_H_
 #define FIX_ORIENTATION_OPTIONSWIDGET_H_
 
-#include "ui_OrientationOptionsWidget.h"
+#include "ui/ui_OrientationOptionsWidget.h"
 #include "FilterOptionsWidget.h"
 #include "OrthogonalRotation.h"
 #include "PageId.h"

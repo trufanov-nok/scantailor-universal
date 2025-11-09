@@ -19,7 +19,7 @@
 #ifndef PAGE_LAYOUT_OPTIONSWIDGET_H_
 #define PAGE_LAYOUT_OPTIONSWIDGET_H_
 
-#include "ui_PageLayoutOptionsWidget.h"
+#include "ui/ui_PageLayoutOptionsWidget.h"
 #include "FilterOptionsWidget.h"
 #include "PageSelectionAccessor.h"
 #include "IntrusivePtr.h"

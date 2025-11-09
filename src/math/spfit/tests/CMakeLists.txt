@@ -15,7 +15,6 @@ SET(
 )
 
 ADD_EXECUTABLE(spfit_tests ${sources})
-TARGET_LINK_LIBRARIES(spfit_tests Qt5::Core)
 TARGET_LINK_LIBRARIES(spfit_tests ${libs})
 
 # We want the executable located where we copy all the DLLs.

@@ -19,7 +19,7 @@
 #ifndef SYSTEM_LOAD_WIDGET_H_
 #define SYSTEM_LOAD_WIDGET_H_
 
-#include "ui_SystemLoadWidget.h"
+#include "ui/ui_SystemLoadWidget.h"
 #include <QWidget>
 
 class SystemLoadWidget : public QWidget

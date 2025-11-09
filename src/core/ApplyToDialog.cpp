@@ -1,5 +1,5 @@
 #include "ApplyToDialog.h"
-#include "ui_ApplyToDialog.h"
+#include "ui/ui_ApplyToDialog.h"
 
 ApplyToDialog::ApplyToDialog(QWidget* parent, const PageId& cur_page, const PageSelectionAccessor& page_selection_accessor, const PageView viewType) :
     QDialog(parent),

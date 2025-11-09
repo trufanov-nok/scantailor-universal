@@ -20,5 +20,5 @@ SET(
 SOURCE_GROUP(Sources FILES ${sources})
 
 ADD_LIBRARY(interaction STATIC ${sources})
-TARGET_LINK_LIBRARIES(interaction Qt5::Widgets)
+TARGET_LINK_LIBRARIES(interaction Qt${QT_VERSION_MAJOR}::Widgets)
 TRANSLATION_SOURCES(scantailor-universal ${sources})

@@ -20,6 +20,7 @@
 #define SMARTFILENAMEORDERING_H_
 
 class QFileInfo;
+class QString;
 
 class SmartFilenameOrdering
 {
@@ -37,6 +38,8 @@ public:
      * \return true if \p lhs should go before \p rhs.
      */
     bool operator()(QFileInfo const& lhs, QFileInfo const& rhs) const;
+
+    bool operator()(QString const& lhs, QString const& rhs) const;
 };
 
 #endif

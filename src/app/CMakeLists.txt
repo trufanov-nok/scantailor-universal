@@ -11,7 +11,12 @@ IF(WIN32)
 ENDIF()
 SOURCE_GROUP("Resources" FILES ${resource_files})
 
-QT5_ADD_RESOURCES(resource_sources resources/resources.qrc)
+if (${QT_VERSION_MAJOR} VERSION_LESS 6.0.0)
+        QT5_ADD_RESOURCES(resource_sources resources/resources.qrc)
+else()
+        QT_ADD_RESOURCES(resource_sources resources/resources.qrc)
+endif()
+
 SOURCE_GROUP("Generated" FILES ${resource_sources})
 
 IF(CANBERRA_FOUND)
@@ -109,7 +114,7 @@ ADD_DEPENDENCIES(scantailor-universal fix_orientation page_split deskew select_c
         dewarping zones interaction imageproc math foundation)
 
 
-TARGET_LINK_LIBRARIES(scantailor-universal Qt5::Widgets Qt5::Xml Qt5::Svg ${MAYBE_QT_OPENGL_MODULE})
+TARGET_LINK_LIBRARIES(scantailor-universal Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Xml Qt${QT_VERSION_MAJOR}::Svg ${MAYBE_QT_OPENGL_MODULE})
 
 IF(EXTRA_LIBS)
         TARGET_LINK_LIBRARIES(scantailor-universal ${EXTRA_LIBS})

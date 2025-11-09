@@ -118,7 +118,7 @@ ExportThread::run()
 
             const QString out_file_path = rec.filename;
             QString st_num = QString::number(rec.page_no);
-            const QString name = QString().fill('0', std::max(0, 4 - st_num.length())) + st_num;
+            const QString name = QString().fill('0', std::max(0, (int)(4 - st_num.length()))) + st_num;
 
             if (!QFile().exists(out_file_path)) {
                 emit error(tr("The file") + " \"" + out_file_path + "\" " + tr("is not found") + ".");

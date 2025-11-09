@@ -17,6 +17,7 @@
 */
 
 #include "Proximity.h"
+#include "LegacySupport.h"
 #include <QPointF>
 #include <QLineF>
 #include <algorithm>
@@ -48,7 +49,7 @@ Proximity::pointAndLineSegment(
 
     // Calculate intersection.
     QPointF intersection;
-    segment.intersect(perpendicular, &intersection);
+    QLineIntersect(segment, perpendicular, &intersection);
 
     double const dx1 = segment.p1().x() - intersection.x();
     double const dy1 = segment.p1().y() - intersection.y();

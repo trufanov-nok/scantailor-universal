@@ -19,6 +19,7 @@
 #ifndef PROPERTY_H_
 #define PROPERTY_H_
 
+#include <QString>
 #include "RefCountable.h"
 #include "IntrusivePtr.h"
 

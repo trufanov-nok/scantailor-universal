@@ -1,4 +1,5 @@
 #include "OpenWithMenuProvider.h"
+#include "MultipleTargetsSupport.h"
 #include <QFile>
 #include <QDirIterator>
 #include <QStringList>
@@ -21,7 +22,7 @@ QMenu* OpenWithMenuProvider::getOpenWithMenu(const QString& mime_type)
             while (!mc.atEnd()) {
                 QString s = mc.readLine().trimmed();
                 if (s.startsWith(mime_type + "=")) {
-                    apps = get_val(s).split(';', QString::SkipEmptyParts);
+                    apps = get_val(s).split(';', QStringSkipEmptyParts);
                     break;
                 }
             }

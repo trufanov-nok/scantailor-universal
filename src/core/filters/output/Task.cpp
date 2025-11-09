@@ -19,6 +19,7 @@
 #include "CommandLine.h"
 #include "Task.h"
 #include "Filter.h"
+#include "MultipleTargetsSupport.h"
 #include "OptionsWidget.h"
 #include "Params.h"
 #include "Settings.h"
@@ -666,7 +667,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
         new DewarpingView(
             m_origImage, m_downscaledOrigImage, m_xform.transform(),
             PolygonUtils::convexHull(
-                (m_xform.resultingPreCropArea() + m_xform.resultingPostCropArea()).toStdVector()
+                StdVectorFromQVector( (QVector<QPointF>) (m_xform.resultingPreCropArea() + m_xform.resultingPostCropArea()))
             ),
             m_virtContentRect, m_pageId, m_params.dewarpingMode(),
             m_params.distortionModel(), opt_widget->depthPerception()

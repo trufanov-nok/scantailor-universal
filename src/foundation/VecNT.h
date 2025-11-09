@@ -141,6 +141,8 @@ public:
 
     VecNT& operator/=(T scalar);
 
+    VecNT operator/(T scalar) const;
+
     T const* data() const
     {
         return m_data;
@@ -360,6 +362,14 @@ VecNT<N, T>&
 VecNT<N, T>::operator/=(T scalar)
 {
     return (*this *= (T(1) / scalar));
+}
+
+
+template<size_t N, typename T>
+VecNT<N, T>
+VecNT<N, T>::operator/(T scalar) const
+{
+    return (*this * (T(1) / scalar));
 }
 
 template<size_t N, typename T>

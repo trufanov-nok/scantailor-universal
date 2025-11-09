@@ -23,6 +23,7 @@
 #include "InteractionState.h"
 #include "imageproc/Constants.h"
 #include "settings/globalstaticsettings.h"
+#include "MultipleTargetsSupport.h"
 #include <QAction>
 #include <QRect>
 #include <QSizeF>
@@ -227,7 +228,7 @@ ImageView::onWheelEvent(QWheelEvent* event, InteractionState& interaction)
     }
 
     event->accept();
-    double const delta = degree_fraction * event->delta() / 120;
+    double const delta = degree_fraction * QWheelEventDelta(event) / 120;
     double angle_deg = m_xform.postRotation() - delta;
     angle_deg = qBound(-m_maxRotationDeg, angle_deg, m_maxRotationDeg);
     if (angle_deg == m_xform.postRotation()) {

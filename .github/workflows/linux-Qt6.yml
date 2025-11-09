@@ -1,0 +1,54 @@
+name: ubuntu 24.04 Qt6
+
+on:
+  push:
+    branches:
+      - main
+      - CI
+  pull_request: {}
+
+jobs:
+
+  linux-Qt6:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Update package lists
+        run: sudo apt-get update
+      - name: Install packages
+        run: sudo apt-get install -y qt6-base-dev libqt6svg6-dev qt6-tools-dev libtiff5-dev libjpeg-dev libpng-dev libboost-all-dev libcanberra-dev libopenjp2-7-dev libexiv2-dev
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build
+        env:
+          QT_VER: 'Qt6'
+          CMAKE_BUILD_TYPE: Release
+          CPP_STANDARD: 17
+          CMAKE_BUILD_PARALLEL_LEVEL: 8
+        run: |
+          .build/build.sh -DQtPkgList="$QT_VER" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" -DCMAKE_CXX_STANDARD="$CPP_STANDARD" -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+      - name: Run autotests
+        env:
+          QT_QPA_PLATFORM: 'offscreen'
+        run: .build/test.sh
+
+      - name: Make Package
+        run: .build/package.sh
+      - name: Test deb package
+        run: |
+          sudo apt install -y lintian
+          DEB_FILE=`ls ./build/ | grep .deb | head -1`
+          lintian build/$DEB_FILE
+      - name: Install package
+        run: |
+          sudo apt install -y libomp5
+          DEB_FILE=`ls ./build/ | grep .deb | head -1`
+          sudo dpkg -i build/$DEB_FILE
+      - name: Archive deb package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scantailor-universal-linux-qt6
+          path: build/scantailor-universal-*.deb

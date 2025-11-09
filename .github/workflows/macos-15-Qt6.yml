@@ -1,0 +1,35 @@
+name: mac 15 Qt6
+
+on:
+  push:
+    branches:
+      - main
+      - CI
+  pull_request: {}
+
+jobs:
+
+  macos-15-Qt6:
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install packages
+        run: brew install jpeg libpng boost libcanberra openjpeg exiv2
+      - name: Install Qt
+        run: brew install qt@6
+      - name: Build
+        env:
+          QT_VER: 'Qt6'
+          CPP_STANDARD: 17
+          CMAKE_BUILD_TYPE: Release
+          CMAKE_BUILD_PARALLEL_LEVEL: 8
+        run: |
+          .build/build.sh -DQtPkgList="$QT_VER" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" -DCMAKE_CXX_STANDARD="$CPP_STANDARD" -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+      - name: Run autotests
+        env:
+          QT_QPA_PLATFORM: 'offscreen'
+        run: .build/test.sh
