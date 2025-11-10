@@ -334,12 +334,12 @@ ENDIF()
 IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
     # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
-    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype)
-    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec)
+    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype REQURED)
+    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec REQURED)
     FIND_LIBRARY(MATH_LIBRARY NAMES m)
-    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz)
+    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz REQURED)
     FIND_LIBRARY(MUJS_LIBRARY NAMES mujs)
-    FIND_LIBRARY(GUMBO_LIBRARY NAMES gumbo)
+    FIND_LIBRARY(GUMBO_LIBRARY NAMES gumbo REQURED)
 
     # For Ubuntu static builds, we need explicit dependencies
     IF(UNIX AND NOT APPLE)
