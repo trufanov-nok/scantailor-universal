@@ -335,11 +335,11 @@ IF(MuPDF_FOUND)
     # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
     find_package(Freetype REQUIRED)
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(jbig2dec REQUIRED jbig2dec)
+
     if(WIN32)
         find_library(JBIG2DEC_LIBRARY NAMES jbig2dec PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
     else()
-        find_library(JBIG2DEC_LIBRARY NAMES jbig2dec)
+        pkg_check_modules(jbig2dec REQUIRED jbig2dec)
     endif()
     find_package(harfbuzz REQUIRED)
     pkg_check_modules(mujs REQUIRED mujs)
