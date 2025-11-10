@@ -21,7 +21,12 @@ jobs:
           target: 'desktop'
           arch: 'win64_msvc2019_64'
           install-deps: 'true'
-      - name: restore
+      - uses: actions/checkout@v4 # must be before access to ${{ github.workspace }}
+        with:
+          submodules: recursive
+      - name: build deps
+        env:
+          VCPKG_BUILD_TYPE: Release
         run: |
           C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
           C:\vcpkg\vcpkg install zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl libmupdf --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
@@ -30,10 +35,7 @@ jobs:
           VCPKG_BUILD_TYPE: Release
         run: |
           C:\vcpkg\vcpkg install boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: build
+      - name: build project
         env:
           QT_VER: 'Qt5'
           # must be Debug, must be passed in cmd line
