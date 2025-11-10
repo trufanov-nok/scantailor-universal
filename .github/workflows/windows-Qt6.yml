@@ -26,12 +26,12 @@ jobs:
           VCPKG_BUILD_TYPE: Release
         run: |
           C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
-          C:\vcpkg\vcpkg install --triplet x64-windows zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl libmupdf
+          C:\vcpkg\vcpkg install zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl libmupdf --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
       - name: Install boost
         env:
           VCPKG_BUILD_TYPE: Release
         run: |
-          C:\vcpkg\vcpkg install --triplet x64-windows-static boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits
+          C:\vcpkg\vcpkg install boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
       - uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -44,9 +44,10 @@ jobs:
           QT_ROOT_DIR: '${{ github.workspace }}\Qt\6.9.0\msvc2022_64\'
           CMAKE_PREFIX_PATH: '${{ github.workspace }}\Qt\6.9.0\msvc2022_64\'
           CMAKE_TOOLCHAIN_FILE: 'C:\vcpkg\scripts\buildsystems\vcpkg.cmake'
-          VCPKG_TARGET_TRIPLET: 'x64-windows'
+          VCPKG_OVERLAY_TRIPLETS: '${{ github.workspace }}\.build\st-vcpkg-triplets' # https://github.com/microsoft/vcpkg/discussions/33256#discussioncomment-6761851
+          VCPKG_TARGET_TRIPLET: 'x64-windows-dynamic-boost-static'
         run: |
-          .build\build.ps1 -DPath C:\vcpkg\installed\x64-windows -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" -DCMAKE_CXX_STANDARD=11 -DENABLE_TESTS=off -DVCPKG_TARGET_TRIPLET=x86-windows -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF -DQtPkgList="${{ env.QT_VER }}" -DCMAKE_BUILD_TYPE="${{ env.CMAKE_BUILD_TYPE }}" -DVCPKG_TARGET_TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}" -verbose
+          .build\build.ps1 -DPath "C:\vcpkg\installed\${{ env.VCPKG_TARGET_TRIPLET }}" -DCMAKE_CXX_STANDARD=11 -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF -DQtPkgList="${{ env.QT_VER }}" -DCMAKE_BUILD_TYPE="${{ env.CMAKE_BUILD_TYPE }}" -DVCPKG_TARGET_TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}" -verbose
         shell: powershell
       - name: Run autotests
         env:
