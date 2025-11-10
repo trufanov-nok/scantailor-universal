@@ -24,7 +24,12 @@ jobs:
       - name: restore
         run: |
           C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
-          C:\vcpkg\vcpkg install --triplet x64-windows zlib tiff libpng openjpeg libjpeg-turbo boost-core boost-bind boost-multi-index boost-mpl boost-test:x64-windows-static boost-iterator boost-intrusive boost-random boost-range boost-type-traits exiv2 opengl libmupdf
+          C:\vcpkg\vcpkg install --triplet x64-windows zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl libmupdf
+      - name: Install boost
+        env:
+          VCPKG_BUILD_TYPE: Release
+        run: |
+          C:\vcpkg\vcpkg install --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits
       - uses: actions/checkout@v4
         with:
           submodules: recursive

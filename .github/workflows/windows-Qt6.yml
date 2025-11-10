@@ -22,17 +22,24 @@ jobs:
           arch: 'win64_msvc2022_64'
           install-deps: 'true'
       - name: restore
+        env:
+          VCPKG_BUILD_TYPE: Release
         run: |
           C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
-          C:\vcpkg\vcpkg install --triplet x64-windows zlib tiff libpng openjpeg libjpeg-turbo boost-core boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits exiv2 opengl libmupdf
+          C:\vcpkg\vcpkg install --triplet x64-windows zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl libmupdf
+      - name: Install boost
+        env:
+          VCPKG_BUILD_TYPE: Release
+        run: |
+          C:\vcpkg\vcpkg install --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits
       - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: build
         env:
           QT_VER: 'Qt6'
-          # must be Debug, must be passed in cmd line
-          CMAKE_BUILD_TYPE: Debug
+          # must be passed in cmd line
+          CMAKE_BUILD_TYPE: Release
           CMAKE_BUILD_PARALLEL_LEVEL: 8
           QT_ROOT_DIR: '${{ github.workspace }}\Qt\6.9.0\msvc2022_64\'
           CMAKE_PREFIX_PATH: '${{ github.workspace }}\Qt\6.9.0\msvc2022_64\'
