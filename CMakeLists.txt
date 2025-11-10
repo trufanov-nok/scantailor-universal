@@ -175,6 +175,7 @@ IF (ENABLE_OPENJPEG)
         INCLUDE_DIRECTORIES("${OPENJPEG_INCLUDE_DIR}")
 
         LIST(APPEND EXTRA_LIBS ${OPENJPEG_LIBRARY})
+        message("OPENJPEG_LIBRARY ${EXTRA_LIBS}")
 ENDIF(ENABLE_OPENJPEG)
 
 
@@ -333,20 +334,19 @@ ENDIF()
 IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
     # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
-    find_package(Freetype REQUIRED)
-    find_package(PkgConfig REQUIRED)
-
-    if(WIN32)
-        find_library(JBIG2DEC_LIBRARY NAMES jbig2dec PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
-    else()
-        pkg_check_modules(jbig2dec REQUIRED jbig2dec)
-    endif()
-    find_package(harfbuzz REQUIRED)
-    pkg_check_modules(mujs REQUIRED mujs)
-    pkg_check_modules(gumbo REQUIRED gumbo)
+    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQURED)
+    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQURED)
+    FIND_LIBRARY(MATH_LIBRARY NAMES m PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQURED)
+    FIND_LIBRARY(MUJS_LIBRARY NAMES mujs PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+    FIND_LIBRARY(GUMBO_LIBRARY NAMES gumbo PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQURED)
 
     # For Ubuntu static builds, we need explicit dependencies
     IF(UNIX AND NOT APPLE)
+        # Ensure math library is linked first
+        IF(MATH_LIBRARY)
+            LIST(APPEND EXTRA_LIBS ${MATH_LIBRARY})
+        ENDIF()
         # Ensure zlib is linked (required by libtiff via MuPDF)
         LIST(APPEND EXTRA_LIBS ${ZLIB_LIBRARY})
         # Add HarfBuzz for text rendering
@@ -361,7 +361,6 @@ IF(MuPDF_FOUND)
         IF(GUMBO_LIBRARY)
             LIST(APPEND EXTRA_LIBS ${GUMBO_LIBRARY})
         ENDIF()
-        # MESSAGE(${EXTRA_LIBS})
     ENDIF()
 
     LIST(APPEND EXTRA_LIBS ${MuPDF_LIBRARIES})
