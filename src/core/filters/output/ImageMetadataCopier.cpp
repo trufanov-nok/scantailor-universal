@@ -12,7 +12,7 @@ typedef Exiv2::Image::AutoPtr ExivUniquePtr;
 bool
 ImageMetadataCopier::iccProfileDefined(const QString& filename)
 {
-#ifdef _WIN32
+#ifdef EXV_UNICODE_PATH
     const ExivUniquePtr src_image = Exiv2::ImageFactory::open(filename.toStdWString());
 #else
     const ExivUniquePtr src_image = Exiv2::ImageFactory::open(filename.toStdString());
@@ -30,10 +30,10 @@ ImageMetadataCopier::copyMetadata(const QString& src_img,
 {
     try
     {
-#ifdef _WIN32
-		const ExivUniquePtr src_image = Exiv2::ImageFactory::open(src_img.toStdWString());
+#ifdef EXV_UNICODE_PATH
+        const ExivUniquePtr src_image = Exiv2::ImageFactory::open(src_img.toStdWString());
 #else
-		const ExivUniquePtr src_image = Exiv2::ImageFactory::open(src_img.toStdString());
+        const ExivUniquePtr src_image = Exiv2::ImageFactory::open(src_img.toStdString());
 #endif
 
         if (src_image.get()) {
@@ -41,10 +41,10 @@ ImageMetadataCopier::copyMetadata(const QString& src_img,
 
             if (src_image->iccProfileDefined()) {
                 src_image->iccProfile();
-#ifdef _WIN32
-				const ExivUniquePtr dst_image = Exiv2::ImageFactory::open(dst_img.toStdWString());
+#ifdef EXV_UNICODE_PATH
+                const ExivUniquePtr dst_image = Exiv2::ImageFactory::open(dst_img.toStdWString());
 #else
-				const ExivUniquePtr dst_image = Exiv2::ImageFactory::open(dst_img.toStdString());
+                const ExivUniquePtr dst_image = Exiv2::ImageFactory::open(dst_img.toStdString());
 #endif
                 dst_image->readMetadata();
 #if EXIV2_TEST_VERSION(0,28,0)

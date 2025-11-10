@@ -21,7 +21,7 @@ jobs:
           target: 'desktop'
           arch: 'win64_msvc2019_64'
           install-deps: 'true'
-      - uses: actions/checkout@v4 # must be before access to ${{ github.workspace }}
+      - uses: actions/checkout@v4 # must be before access to "${{ github.workspace }}\.build\st-vcpkg-triplets"
         with:
           submodules: recursive
       - name: build deps
