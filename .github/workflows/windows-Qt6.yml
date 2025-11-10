@@ -31,7 +31,7 @@ jobs:
         env:
           VCPKG_BUILD_TYPE: Release
         run: |
-          C:\vcpkg\vcpkg install --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits
+          C:\vcpkg\vcpkg install --triplets x64-windows-static boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits
       - uses: actions/checkout@v4
         with:
           submodules: recursive
