@@ -148,6 +148,7 @@ IF(APPLE)
    LIST(APPEND CMAKE_PREFIX_PATH "/Users/robert/build/Qt/5.8/clang_64/")
 ENDIF(APPLE)
 
+find_package(PkgConfig REQUIRED) #used in FindMuPDF.cmake
 
 option(ENABLE_MUPDF "Enable pdf files as image source support" on)
 IF (ENABLE_MUPDF)
@@ -335,7 +336,7 @@ IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
     # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
     FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQURED)
-    FIND_LIBRARY(JBIG2DEC_LIBRARY NAMES jbig2dec PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQURED)
+    pkg_check_modules(jbig2dec REQURED)
     FIND_LIBRARY(MATH_LIBRARY NAMES m PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
     FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQURED)
     FIND_LIBRARY(MUJS_LIBRARY NAMES mujs PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")

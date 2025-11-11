@@ -29,7 +29,7 @@ jobs:
           VCPKG_BUILD_TYPE: Release
         run: |
           C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
-          C:\vcpkg\vcpkg install zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl libmupdf harfbuzz gumbo freetype jbig2dec --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
+          C:\vcpkg\vcpkg install zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl pkgconf libmupdf harfbuzz gumbo freetype jbig2dec --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
       - name: Install boost
         env:
           VCPKG_BUILD_TYPE: Release
@@ -47,7 +47,7 @@ jobs:
           VCPKG_OVERLAY_TRIPLETS: '${{ github.workspace }}\.build\st-vcpkg-triplets' # https://github.com/microsoft/vcpkg/discussions/33256#discussioncomment-6761851
           VCPKG_TARGET_TRIPLET: 'x64-windows-dynamic-boost-static'
         run: |
-          .build\build.ps1 -DPath "C:\vcpkg\installed\${{ env.VCPKG_TARGET_TRIPLET }}" -DCMAKE_CXX_STANDARD=11 -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF -DQtPkgList="${{ env.QT_VER }}" -DCMAKE_BUILD_TYPE="${{ env.CMAKE_BUILD_TYPE }}" -DVCPKG_TARGET_TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}" -verbose
+          .build\build.ps1 -DPath "C:\vcpkg\installed\${{ env.VCPKG_TARGET_TRIPLET }}" -DCMAKE_CXX_STANDARD=11 -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF -DQtPkgList="${{ env.QT_VER }}" -DCMAKE_BUILD_TYPE="${{ env.CMAKE_BUILD_TYPE }}" -DVCPKG_INSTALLED_DIR="C:\vcpkg\installed\" -DVCPKG_TARGET_TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}" -verbose
         shell: powershell
       - name: Run autotests
         env:
