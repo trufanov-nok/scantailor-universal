@@ -335,7 +335,7 @@ ENDIF()
 IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
     # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
-    pkg_check_modules(freetype2 PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQUIRED)
+    pkg_check_modules(freetype2 REQUIRED)
     find_package(jbig2dec REQUIRED)
     # FIND_LIBRARY(MATH_LIBRARY NAMES m PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
     find_package(harfbuzz REQUIRED)
