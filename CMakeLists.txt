@@ -335,12 +335,12 @@ ENDIF()
 IF(MuPDF_FOUND)
     # MuPDF static library needs its dependencies explicitly linked
     # Order: mupdf, freetype, jbig2dec, jpeg, openjpeg, zlib, math, harfbuzz, mujs, gumbo
-    FIND_LIBRARY(FREETYPE_LIBRARY NAMES freetype PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQUIRED)
-    pkg_check_modules(jbig2dec REQUIRED)
-    FIND_LIBRARY(MATH_LIBRARY NAMES m PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
-    FIND_LIBRARY(HARFBUZZ_LIBRARY NAMES harfbuzz PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQUIRED)
-    FIND_LIBRARY(MUJS_LIBRARY NAMES mujs PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
-    FIND_LIBRARY(GUMBO_LIBRARY NAMES gumbo PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQUIRED)
+    pkg_check_modules(freetype2 PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib" REQUIRED)
+    find_package(jbig2dec REQUIRED)
+    # FIND_LIBRARY(MATH_LIBRARY NAMES m PATHS "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+    find_package(harfbuzz REQUIRED)
+    find_package(mujs)
+    find_package(gumbo REQUIRED)
 
     # For Ubuntu static builds, we need explicit dependencies
     IF(UNIX AND NOT APPLE)
