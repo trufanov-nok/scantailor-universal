@@ -19,7 +19,7 @@
 #ifndef PROJECTFILESDIALOG_H_
 #define PROJECTFILESDIALOG_H_
 
-#include "ui_ProjectFilesDialog.h"
+#include "ui/ui_ProjectFilesDialog.h"
 #include "ImageFileInfo.h"
 #include <QDialog>
 #include <QString>

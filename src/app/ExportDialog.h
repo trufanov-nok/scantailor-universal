@@ -22,7 +22,7 @@
 #ifndef EXPORT_DIALOG_H_
 #define EXPORT_DIALOG_H_
 
-#include "ui_ExportDialog.h"
+#include "ui/ui_ExportDialog.h"
 #include "exporting/ExportSettings.h"
 #include <QDialog>
 #include <QSettings>

@@ -20,6 +20,7 @@
 
 #include "ImageTransformation.h"
 #include "ImagePresentation.h"
+#include "LegacySupport.h"
 #include "Proximity.h"
 #include "PageId.h"
 #include "ProjectPages.h"
@@ -268,8 +269,8 @@ ImageView::customInscribedCutterLine(QLineF const& line, QRectF const& rect)
     QPointF top_pt;
     QPointF bottom_pt;
 
-    line.intersect(QLineF(rect.topLeft(), rect.topRight()), &top_pt);
-    line.intersect(QLineF(rect.bottomLeft(), rect.bottomRight()), &bottom_pt);
+    QLineIntersect(line, QLineF(rect.topLeft(), rect.topRight()), &top_pt);
+    QLineIntersect(line, QLineF(rect.bottomLeft(), rect.bottomRight()), &bottom_pt);
 
     double const top_x = qBound(rect.left(), top_pt.x(), rect.right());
     double const bottom_x = qBound(rect.left(), bottom_pt.x(), rect.right());
@@ -316,8 +317,8 @@ ImageView::lineMoveRequest(int line_idx, QLineF line)
     QPointF p_top;
     QPointF p_bottom;
     QRectF const valid_area(getOccupiedWidgetRect());
-    line.intersect(QLineF(valid_area.topLeft(), valid_area.topRight()), &p_top);
-    line.intersect(QLineF(valid_area.bottomLeft(), valid_area.bottomRight()), &p_bottom);
+    QLineIntersect(line, QLineF(valid_area.topLeft(), valid_area.topRight()), &p_top);
+    QLineIntersect(line, QLineF(valid_area.bottomLeft(), valid_area.bottomRight()), &p_bottom);
 
     // Limit movement.
     double const min_x = qMin(p_top.x(), p_bottom.x());

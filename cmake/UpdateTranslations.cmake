@@ -88,7 +88,12 @@ ENDMACRO()
 #
 MACRO(UPDATE_TRANSLATIONS_TARGET _target) #, _sets
 	SET(_commands "")
-        get_target_property(LUPDATE_LOC ${Qt5_LUPDATE_EXECUTABLE} IMPORTED_LOCATION)
+	if (${QT_VERSION_MAJOR} VERSION_LESS 6.0.0)
+		get_target_property(LUPDATE_LOC ${Qt5_LUPDATE_EXECUTABLE} IMPORTED_LOCATION)
+	else()
+		set(Qt6_LUPDATE_EXECUTABLE Qt6::lupdate)
+		get_target_property(LUPDATE_LOC ${Qt6_LUPDATE_EXECUTABLE} IMPORTED_LOCATION)
+	endif()
         FOREACH(_set ${ARGN})
 		LIST(
                         APPEND _commands COMMAND "${LUPDATE_LOC}" -locations absolute #-no-obsolete

@@ -20,6 +20,7 @@
 #include "DistortionModel.h"
 #include "CylindricalSurfaceDewarper.h"
 #include "LineBoundedByRect.h"
+#include "LegacySupport.h"
 #include "ToLineProjector.h"
 #include "SidesOfLine.h"
 #include "XSpline.h"
@@ -45,6 +46,10 @@
 #include <limits>
 #include <math.h>
 #include <assert.h>
+
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
+#include <QtCore/QRandomGenerator>
+#endif
 
 using namespace imageproc;
 
@@ -214,11 +219,21 @@ DistortionModelBuilder::tryBuildModel(DebugImages* dbg, QImage const* dbg_backgr
     }
 
     // Continue by throwing in some random pairs of lines.
+#if QT_VERSION < QT_VERSION_CHECK( 5, 10, 0 )
     qsrand(0); // Repeatablity is important.
+#else
+    QRandomGenerator::global()->seed(0);
+#endif
+
     int random_pairs_remaining = 10;
     while (random_pairs_remaining-- > 0) {
+#if QT_VERSION < QT_VERSION_CHECK( 5, 10, 0 )
         int i = qrand() % num_curves;
         int j = qrand() % num_curves;
+#else
+        int i = QRandomGenerator::global()->generate() % num_curves;
+        int j = QRandomGenerator::global()->generate() % num_curves;
+#endif
         if (i > j) {
             std::swap(i, j);
         }
@@ -358,7 +373,7 @@ DistortionModelBuilder::intersectFront(
 
     QLineF const front_segment(polyline.front(), polyline[1]);
     QPointF intersection;
-    if (bound.intersect(front_segment, &intersection) != QLineF::NoIntersection) {
+    if (QLineIntersect(bound, front_segment, &intersection) != QLineF::NoIntersection) {
         polyline.front() = intersection;
     }
 }
@@ -371,7 +386,7 @@ DistortionModelBuilder::intersectBack(
 
     QLineF const back_segment(polyline[polyline.size() - 2], polyline.back());
     QPointF intersection;
-    if (bound.intersect(back_segment, &intersection) != QLineF::NoIntersection) {
+    if (QLineIntersect(bound, back_segment, &intersection) != QLineF::NoIntersection) {
         polyline.back() = intersection;
     }
 }

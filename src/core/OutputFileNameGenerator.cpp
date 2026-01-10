@@ -96,7 +96,11 @@ void get_empty_page_suffix(QString const& name, QString& base_name, int& order_n
     int idx = name.lastIndexOf(QLatin1String("&ep"));
     if (idx != -1) {
         base_name = name.left(idx);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         order_num = name.rightRef(name.size() - idx - 3).toInt();
+#else
+        order_num = name.right(name.size() - idx - 3).toInt();
+#endif
     } else {
         base_name = name;
     }

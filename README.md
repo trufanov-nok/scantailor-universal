@@ -1,9 +1,11 @@
 # Scan Tailor - [scantailor.org](http://scantailor.org/)
-Linux: [![Build status](https://ci.appveyor.com/api/projects/status/u8dhgvxaelid2acb?svg=true)](https://ci.appveyor.com/project/Truf/scantailor-universal-ubuntu)
-
-
-
 ![ScanTailor logo from scantailor.org](https://scantailor.org/wp-content/uploads/2021/05/1200px-Scan_Tailor_-_Logo.svg_-300x288.png)
+
+[![build: ubuntu 24.04, Qt6](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/linux-Qt6.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/linux-Qt6.yml) [![build: ubuntu 24.04, Qt5](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/linux-Qt5.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/linux-Qt5.yml)
+[![build: windows server 2022, Qt6](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/windows-Qt6.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/windows-Qt6.yml) [![build: windows server 2022, Qt5](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/windows-Qt5.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/windows-Qt5.yml)
+[![build: mac 15, Qt6](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/macos-15-Qt6.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/macos-15-Qt6.yml) [![build: mac 26, Qt6](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/macos-26-Qt6.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/macos-26-Qt6.yml)
+[![build: freebsd 14.2, Qt5](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/freebsd_14_2-Qt5.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/freebsd_14_2-Qt5.yml) [![build: netbsd 10.0, Qt5](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/netbsd_10_0-Qt5.yml/badge.svg?branch=master)](https://github.com/trufanov-nok/scantailor-universal/actions/workflows/netbsd_10_0-Qt5.yml)
+[![Appveyor: linux](https://ci.appveyor.com/api/projects/status/u8dhgvxaelid2acb/branch/master?svg=true)](https://ci.appveyor.com/project/Truf/scantailor-universal-ubuntu/branch/master)
 
 
 ## About ##

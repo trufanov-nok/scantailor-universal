@@ -1,0 +1,39 @@
+name: mac 14 Qt5
+
+on:
+  push:
+    branches:
+      - master
+      - CI
+  pull_request: {}
+
+jobs:
+
+  macos-14-Qt5:
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install packages
+        run: brew install jpeg libpng boost libcanberra openjpeg exiv2
+      - name: Install Qt
+        run: brew install qt@5 && brew link qt@5 --force
+      - name: Build
+        env:
+          QT_VER: 'Qt5'
+          CPP_STANDARD: 17
+          CMAKE_BUILD_TYPE: Release
+          CMAKE_BUILD_PARALLEL_LEVEL: 8
+        run: |
+          export PATH="/usr/local/opt/qt@5/bin:$PATH"
+          export LDFLAGS="-L/usr/local/opt/qt@5/lib"
+          export CPPFLAGS="-I/usr/local/opt/qt@5/include"
+          export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig"
+          .build/build.sh -DQtPkgList="$QT_VER" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" -DCMAKE_CXX_STANDARD="$CPP_STANDARD" -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+      - name: Run autotests
+        env:
+          QT_QPA_PLATFORM: 'offscreen'
+        run: .build/test.sh

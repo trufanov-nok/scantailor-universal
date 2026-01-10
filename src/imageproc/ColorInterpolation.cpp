@@ -26,14 +26,19 @@ QColor colorInterpolation(QColor const& from, QColor const& to, double dist)
 {
     dist = qBound(0.0, dist, 1.0);
 
-    qreal r1, g1, b1, a1, r2, g2, b2, a2;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    typedef qreal color_qreal; // usually double
+#else
+    typedef float color_qreal;
+#endif
+    color_qreal r1, g1, b1, a1, r2, g2, b2, a2;
     from.getRgbF(&r1, &g1, &b1, &a1);
     to.getRgbF(&r2, &g2, &b2, &a2);
 
-    qreal const r = r1 + (r2 - r1) * dist;
-    qreal const g = g1 + (g2 - g1) * dist;
-    qreal const b = b1 + (b2 - b1) * dist;
-    qreal const a = a1 + (a2 - a1) * dist;
+    color_qreal const r = r1 + (r2 - r1) * dist;
+    color_qreal const g = g1 + (g2 - g1) * dist;
+    color_qreal const b = b1 + (b2 - b1) * dist;
+    color_qreal const a = a1 + (a2 - a1) * dist;
 
     return QColor::fromRgbF(r, g, b, a);
 }

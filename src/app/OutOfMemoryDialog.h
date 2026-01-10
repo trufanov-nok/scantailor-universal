@@ -19,7 +19,7 @@
 #ifndef OUT_OF_MEMORY_DIALOG_H_
 #define OUT_OF_MEMORY_DIALOG_H_
 
-#include "ui_OutOfMemoryDialog.h"
+#include "ui/ui_OutOfMemoryDialog.h"
 #include "OutputFileNameGenerator.h"
 #include "IntrusivePtr.h"
 #include "StageSequence.h"

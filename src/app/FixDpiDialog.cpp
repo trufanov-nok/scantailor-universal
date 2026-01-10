@@ -31,9 +31,9 @@
 #include <Qt>
 #include <QDebug>
 #include <vector>
-#include <algorithm>
 #include <assert.h>
 #include "settings/ini_keys.h"
+#include "MultipleTargetsSupport.h"
 
 // To be able to use it in QVariant
 Q_DECLARE_METATYPE(ImageMetadata)
@@ -246,7 +246,8 @@ FixDpiDialog::FixDpiDialog(std::vector<ImageFileInfo> const& files, QWidget* par
     m_errorPalette = m_normalPalette;
     m_errorPalette.setColor(QPalette::Text, Qt::red);
 
-    const QStringList sl = QSettings().value(_key_dpi_predefined_list, _key_dpi_predefined_list_def).toString().split(',', QString::KeepEmptyParts);
+    const QStringList sl = QSettings().value(_key_dpi_predefined_list, _key_dpi_predefined_list_def).toString().split(',', QStringSkipEmptyParts);
+
     for (QString const& s : sl) {
         const QStringList nums = s.split('x');
         bool ok = nums.count() >= 2;

@@ -19,7 +19,7 @@
 #ifndef PAGE_LAYOUT_APPLYSETTINGSWIDGET_H_
 #define PAGE_LAYOUT_APPLYSETTINGSWIDGET_H_
 
-#include "ui_PageLayoutApplyWidget.h"
+#include "ui/ui_PageLayoutApplyWidget.h"
 #include "PageId.h"
 #include "PageRange.h"
 #include "PageSequence.h"

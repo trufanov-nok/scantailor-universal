@@ -17,7 +17,7 @@
 */
 
 #include "ErrorWidget.h"
-#include "ui_ErrorWidget.h"
+#include "ui/ui_ErrorWidget.h"
 
 #include <QStyle>
 #include <QIcon>

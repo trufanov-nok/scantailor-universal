@@ -262,7 +262,7 @@ ExportDialog::startExport(void)
     settings.generate_blank_back_subscans = ui.GenerateBlankBackSubscans->isChecked();
     settings.use_sep_suffix_for_pics = ui.UseSepSuffixForPics->isChecked();
     settings.page_gen_tweaks = PageGenTweak::NoTweaks;
-#ifdef TARGET_OS_MAC
+#ifdef Q_OS_MACOS
     // for compatibility with Qt 5.5
     if (ui.KeepOriginalColorIllumForeSubscans->isChecked()) {
         settings.page_gen_tweaks |= PageGenTweak::KeepOriginalColorIllumForeSubscans;
@@ -334,7 +334,7 @@ void
 ExportDialog::saveExportMode(ExportMode val, bool on)
 {
     ExportModes mode = (ExportModes) m_settings.value(_key_export_split_mixed_settings, ExportMode::Foreground | ExportMode::Background).toInt();
-#ifdef TARGET_OS_MAC
+#ifdef Q_OS_MACOS
     // for compatibility with Qt 5.5
     if (on) {
         mode |= val;

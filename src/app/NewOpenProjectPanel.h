@@ -19,7 +19,7 @@
 #ifndef NEW_OPEN_PROJECT_PANEL_H_
 #define NEW_OPEN_PROJECT_PANEL_H_
 
-#include "ui_NewOpenProjectPanel.h"
+#include "ui/ui_NewOpenProjectPanel.h"
 #include <QWidget>
 
 class QString;

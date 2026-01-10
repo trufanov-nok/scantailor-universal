@@ -25,6 +25,7 @@ SET(
         VecT.h
         MatMNT.h
         MatT.h
+        LegacySupport.h
         PriorityQueue.h
         Grid.h
         ValueConv.h
@@ -32,4 +33,4 @@ SET(
 SOURCE_GROUP("Sources" FILES ${sources})
 
 ADD_LIBRARY(foundation STATIC ${sources})
-TARGET_LINK_LIBRARIES(foundation Qt5::Core Qt5::Xml)
+TARGET_LINK_LIBRARIES(foundation Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Xml)

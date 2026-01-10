@@ -24,6 +24,7 @@
 #include <QDataStream>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QIODevice>
 #include <QString>
 #include <algorithm>
 

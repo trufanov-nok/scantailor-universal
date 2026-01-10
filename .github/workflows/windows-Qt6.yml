@@ -1,0 +1,58 @@
+name: windows 2022 Qt6
+
+on:
+  push:
+    branches:
+      - master
+      - CI
+  pull_request: {}
+
+jobs:
+
+  windows-Qt6:
+    runs-on: windows-latest
+    # NB: see https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md for what's available in this image
+    steps:
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.9.0'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          install-deps: 'true'
+      - uses: actions/checkout@v4 # must be before access to "${{ github.workspace }}\.build\st-vcpkg-triplets"
+        with:
+          submodules: recursive
+      - name: build deps
+        env:
+          VCPKG_BUILD_TYPE: Release
+        run: |
+          C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+          C:\vcpkg\vcpkg install zlib tiff libpng openjpeg libjpeg-turbo exiv2 opengl pkgconf libmupdf mujs harfbuzz[freetype] gumbo freetype jbig2dec --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
+      - name: Install boost
+        env:
+          VCPKG_BUILD_TYPE: Release
+        run: |
+          C:\vcpkg\vcpkg install boost-core boost-foreach boost-bind boost-multi-index boost-mpl boost-test boost-iterator boost-intrusive boost-random boost-range boost-type-traits --overlay-triplets "${{ github.workspace }}\.build\st-vcpkg-triplets" --triplet x64-windows-dynamic-boost-static
+      - name: build project
+        env:
+          QT_VER: 'Qt6'
+          # must be passed in cmd line
+          CMAKE_BUILD_TYPE: Release
+          CMAKE_BUILD_PARALLEL_LEVEL: 8
+          QT_ROOT_DIR: '${{ github.workspace }}\Qt\6.9.0\msvc2022_64\'
+          CMAKE_PREFIX_PATH: '${{ github.workspace }}\Qt\6.9.0\msvc2022_64\'
+          CMAKE_TOOLCHAIN_FILE: 'C:\vcpkg\scripts\buildsystems\vcpkg.cmake'
+          VCPKG_OVERLAY_TRIPLETS: '${{ github.workspace }}\.build\st-vcpkg-triplets' # https://github.com/microsoft/vcpkg/discussions/33256#discussioncomment-6761851
+          VCPKG_TARGET_TRIPLET: 'x64-windows-dynamic-boost-static'
+        run: |
+          .build\build.ps1 -DPath "C:\vcpkg\installed\${{ env.VCPKG_TARGET_TRIPLET }}" -ReleaseType "${{ env.CMAKE_BUILD_TYPE }}" -DCMAKE_CXX_STANDARD=11 -DENABLE_TESTS=on -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF -DQtPkgList="${{ env.QT_VER }}"  -DVCPKG_TARGET_TRIPLET="${{ env.VCPKG_TARGET_TRIPLET }}" -verbose
+        shell: powershell
+      - name: Run autotests
+        env:
+          QT_QPA_PLATFORM: 'offscreen'
+          CMAKE_BUILD_TYPE: Release
+        run: .build\test.ps1 -ReleaseType "${{ env.CMAKE_BUILD_TYPE }}"
+        shell: powershell
+
