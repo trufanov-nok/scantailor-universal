@@ -81,6 +81,24 @@ BinaryImage binarizeWolf(
     double k = 0.30, int delta = 0);
 
 /**
+ * \brief Image binarization using Dynamic Window based thresholding method.
+ *
+ * Bataineh, B., Abdullah, S. N. H. S., & Omar, K. (2011).
+ * An adaptive local binarization method for document images based
+ * on a novel thresholding method and  dynamic windows.
+ * Pattern Recognition Letters, 32(14), 1805–1813.
+ *
+ * \param src The image to binarize.
+ * \param window_size The dimensions of a pixel neighborhood to consider.
+ * \param lower_bound The minimum possible gray level that can be made white.
+ * \param upper_bound The maximum possible gray level that can be made black.
+ */
+BinaryImage binarizeWindow(
+    QImage const& src, QSize window_size,
+    unsigned char lower_bound = 1, unsigned char upper_bound = 254,
+    double k = 0.33, int delta = 0);
+
+/**
  * \brief Image binarization using Bradley's adaptive thresholding method.
  *
  * Derek Bradley, Gerhard Roth. 2005. "Adaptive Thresholding Using the Integral Image".
