@@ -7,7 +7,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleExecutable</key>
-	<string>ScanTailorUniversal</string>
+	<string>scantailor-universal</string>
 	<key>CFBundleName</key>
 	<string>ScanTailorUniversal</string>
 	<key>CFBundlePackageType</key>
