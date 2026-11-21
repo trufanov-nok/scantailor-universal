@@ -81,6 +81,33 @@ BOOST_AUTO_TEST_CASE(test_argb32_to_grayscale)
     BOOST_CHECK(toGrayscale(argb32) == gray);
 }
 
+BOOST_AUTO_TEST_CASE(test_histogram_does_not_depend_on_threads)
+{
+    int const w = 1001;
+    int const h = 1500;
+    QImage gray(w, h, QImage::Format_Indexed8);
+    gray.setColorTable(createGrayscalePalette());
+
+    int expected[256] = {0};
+    for (int y = 0; y < h; ++y) {
+        uint8_t* line = gray.scanLine(y);
+        for (int x = 0; x < w; ++x) {
+            // Few values give many concurrent increments of the same bin, which shows a race fast.
+            line[x] = static_cast<uint8_t>(rand() & 3);
+            ++expected[line[x]];
+        }
+    }
+
+    OmpThreadsGuard threads;
+    threads.set(8);
+    for (int run = 0; run < 10; ++run) {
+        GrayscaleHistogram const hist(gray);
+        for (int i = 0; i < 256; ++i) {
+            BOOST_REQUIRE_EQUAL(hist[i], expected[i]);
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
 } // namespace tests
