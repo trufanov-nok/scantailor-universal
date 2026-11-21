@@ -35,7 +35,7 @@ class ZoneDragInteraction : public InteractionHandler
     Q_DECLARE_TR_FUNCTIONS(ZoneDragInteraction)
 public:
     ZoneDragInteraction(ZoneInteractionContext& context, InteractionState& interaction,
-        EditableZoneSet::Zone const& zone, const QPointF &vertex);
+        EditableZoneSet::Zone const& zone, const QPointF &vertex, bool copy = false);
 protected:
     virtual void onPaint(QPainter& painter, InteractionState const& interaction) override;
     virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) override;
@@ -44,6 +44,8 @@ protected:
     virtual void onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) override;
 private:
     void checkProximity(InteractionState const& interaction);
+
+    void removeCopy();
 
     ZoneInteractionContext& m_rContext;
     EditableZoneSet::Zone m_Zone;
@@ -54,6 +56,8 @@ private:
     BasicSplineVisualizer m_visualizer;
     QPointF m_dragOffset;
     QPointF m_moveStart;
+    bool m_copy;
+    bool m_moved;
 };
 
 #endif

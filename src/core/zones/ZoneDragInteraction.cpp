@@ -30,10 +30,12 @@
 #include <QLineF>
 
 ZoneDragInteraction::ZoneDragInteraction(ZoneInteractionContext& context, InteractionState& interaction,
-    const EditableZoneSet::Zone &zone, QPointF const& vertex)
+    const EditableZoneSet::Zone &zone, QPointF const& vertex, bool copy)
     :   m_rContext(context),
         m_Zone(zone),
-        m_Vertex(vertex)
+        m_Vertex(vertex),
+        m_copy(copy),
+        m_moved(false)
 {
     if (!zone.isEllipse()) {
         m_savedSpline = *zone.spline();
@@ -46,8 +48,12 @@ ZoneDragInteraction::ZoneDragInteraction(ZoneInteractionContext& context, Intera
     );
     QTransform const to_screen(m_rContext.imageView().imageToWidget());
     m_dragOffset = to_screen.map(m_Vertex) - screen_mouse_pos;
+    if (m_copy) {
+        // The copy follows the mouse from the press point, so the first move also counts.
+        m_moveStart = to_screen.map(m_Vertex);
+    }
 
-    m_interaction.setInteractionCursor(QCursor(Qt::DragMoveCursor));
+    m_interaction.setInteractionCursor(QCursor(m_copy ? Qt::DragCopyCursor : Qt::DragMoveCursor));
     m_interaction.setInteractionStatusTip(tr("Press %1 to cancel")
                                           .arg(GlobalStaticSettings::getShortcutText(ZoneCancel)));
     interaction.capture(m_interaction);
@@ -93,7 +99,10 @@ ZoneDragInteraction::onMouseReleaseEvent(
     QMouseEvent* event, InteractionState& /*interaction*/)
 {
     if (event->button() == Qt::LeftButton) {
-        if (!m_Zone.isEllipse()) {
+        if (m_copy && !m_moved) {
+            // A copy at the same position adds nothing that the user can see.
+            removeCopy();
+        } else if (!m_Zone.isEllipse()) {
             m_Zone.spline()->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
         }
         m_rContext.zones().commit();
@@ -103,12 +112,24 @@ ZoneDragInteraction::onMouseReleaseEvent(
 }
 
 void
+ZoneDragInteraction::removeCopy()
+{
+    if (m_Zone.isEllipse()) {
+        EditableEllipse::Ptr const ellipse(m_Zone.ellipse());
+        m_rContext.zones().removeEllipse(ellipse);
+    } else {
+        EditableSpline::Ptr const spline(m_Zone.spline());
+        m_rContext.zones().removeSpline(spline);
+    }
+}
+
+void
 ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction)
 {
     QTransform const from_screen(m_rContext.imageView().widgetToImage());
     const Qt::KeyboardModifiers mask = event->modifiers();
 
-    const bool move = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) || m_Zone.isEllipse();
+    const bool move = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) || m_Zone.isEllipse() || m_copy;
     const bool nove_hor = GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask);
     const bool nove_vert = GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
 
@@ -122,6 +143,9 @@ ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& inte
                 diff.setX(0);
             } else if (nove_vert) {
                 diff.setY(0);
+            }
+            if (!diff.isNull()) {
+                m_moved = true;
             }
 
             if (!m_Zone.isEllipse()) {
@@ -157,7 +181,10 @@ void
 ZoneDragInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& /*interaction*/)
 {
     if (GlobalStaticSettings::checkKeysMatch(ZoneCancel, event->modifiers(), (Qt::Key) event->key())) {
-        if (!m_Zone.isEllipse()) {
+        if (m_copy) {
+            // The copy did not exist before the drag, so cancel removes it.
+            removeCopy();
+        } else if (!m_Zone.isEllipse()) {
             m_Zone.spline()->copyFromSerializableSpline(m_savedSpline);
         } else {
             m_Zone.ellipse()->copyFromSerializableEllipse(m_savedEllipse);
@@ -171,6 +198,10 @@ ZoneDragInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& /*inter
 void
 ZoneDragInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& /*interaction*/)
 {
+    if (m_copy) {
+        return;
+    }
+
     const Qt::KeyboardModifiers mask = event->modifiers();
     if (!GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) &&
             !GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) &&

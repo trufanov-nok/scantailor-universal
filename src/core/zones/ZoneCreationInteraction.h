@@ -27,11 +27,10 @@
 #include "BasicSplineVisualizer.h"
 #include "EditableSpline.h"
 #include "EditableEllipse.h"
+#include "ZoneInteractionContext.h"
 #include <QPointF>
 #include <QDateTime>
 #include <QCoreApplication>
-
-class ZoneInteractionContext;
 
 class ZoneCreationInteraction : public InteractionHandler
 {
@@ -45,7 +44,7 @@ public:
     };
 
     ZoneCreationInteraction(
-        ZoneInteractionContext& context, InteractionState& interaction);
+        ZoneInteractionContext& context, InteractionState& interaction, bool lasso_started = false);
 protected:
     ZoneInteractionContext& context()
     {
@@ -56,6 +55,8 @@ protected:
 
     virtual void onKeyPressEvent(QKeyEvent* event, InteractionState& interaction) override;
 
+    virtual void onMousePressEvent(QMouseEvent* event, InteractionState& interaction) override;
+
     virtual void onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction) override;
 
     virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
@@ -63,6 +64,15 @@ protected:
     virtual void onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) override;
 private:
     void updateStatusTip();
+
+    ZoneInteractionContext::ZoneCreationMode currentZoneCreationMode() const;
+
+    bool isLassoDrawing() const;
+
+    bool isDragHandlerPermitted() const;
+
+    // The caller must return at once, because this call deletes the object.
+    void finishSpline();
 
     ZoneInteractionContext& m_rContext;
 
@@ -99,6 +109,10 @@ private:
     QPointF m_nextVertexImagePos_mid1;
     QPointF m_nextVertexImagePos_mid2;
 //end of modified by monday2000
+    ZoneInteractionContext::ZoneCreationMode m_initialZoneCreationMode;
+    bool m_leftMouseButtonPressed;
+    Qt::KeyboardModifiers m_mouseButtonModifiers;
+    int m_lassoStrokeVertices;
 };
 
 #endif
