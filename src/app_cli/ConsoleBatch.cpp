@@ -197,9 +197,9 @@ QImage renderPreview(
     QPainter painter(&preview);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-    QPolygonF const image_area(xform.transform().map(QPolygonF(QRectF(image.rect()))));
+    // Clip to the crop area only, because QPolygonF::intersected() with the image area gives an empty polygon for some deskewed pages.
     QPainterPath clip_path;
-    clip_path.addPolygon(image_area.intersected(crop_area));
+    clip_path.addPolygon(crop_area);
     painter.setWorldTransform(virtual_to_preview);
     painter.setClipPath(clip_path);
 
