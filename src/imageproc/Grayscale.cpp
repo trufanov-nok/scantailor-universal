@@ -171,16 +171,20 @@ static QImage anyToGrayscale(QImage const& src)
     return dst;
 }
 
-static QVector<QRgb> staticGrayscalePalette;
+static QVector<QRgb> makeGrayscalePalette()
+{
+    QVector<QRgb> palette(256);
+    for (int i = 0; i < 256; ++i) {
+        palette[i] = qRgb(i, i, i);
+    }
+    return palette;
+}
+
 QVector<QRgb> createGrayscalePalette()
 {
-    if (staticGrayscalePalette.isEmpty()) {
-        staticGrayscalePalette.resize(256);
-        for (int i = 0; i < 256; ++i) {
-            staticGrayscalePalette[i] = qRgb(i, i, i);
-        }
-    }
-    return staticGrayscalePalette;
+    // C++11 makes the initialization of a local static thread-safe, and batch threads call this function at the same time.
+    static QVector<QRgb> const palette(makeGrayscalePalette());
+    return palette;
 }
 
 QImage toGrayscale(QImage const& src)

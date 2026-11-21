@@ -27,6 +27,8 @@ class SystemLoadWidget : public QWidget
     Q_OBJECT
 public:
     SystemLoadWidget(QWidget* parent = 0);
+signals:
+    void threadCountChanged();
 private slots:
     void sliderPressed();
 
@@ -37,6 +39,8 @@ private slots:
     void decreasePriority();
 
     void increasePriority();
+
+    void threadCountEdited(int threads);
 private:
     void showHideToolTip(int prio);
 

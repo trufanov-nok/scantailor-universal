@@ -1,6 +1,8 @@
 #include "ImageMetadataCopier.h"
 
 #include <exiv2/exiv2.hpp>
+#include <QMutex>
+#include <QMutexLocker>
 #include <iostream>
 
 #if EXIV2_TEST_VERSION(0,28,0)
@@ -9,17 +11,28 @@ typedef Exiv2::Image::UniquePtr ExivUniquePtr;
 typedef Exiv2::Image::AutoPtr ExivUniquePtr;
 #endif
 
+// The lazy XMP parser initialization in Exiv2 is not thread-safe, and batch threads read metadata at the same time.
+static QMutex exiv2Mutex;
+
 bool
 ImageMetadataCopier::iccProfileDefined(const QString& filename)
 {
+    QMutexLocker const locker(&exiv2Mutex);
+    // An exception must not leave a batch thread, because it stops the application.
+    try
+    {
 #ifdef EXV_UNICODE_PATH
-    const ExivUniquePtr src_image = Exiv2::ImageFactory::open(filename.toStdWString());
+        const ExivUniquePtr src_image = Exiv2::ImageFactory::open(filename.toStdWString());
 #else
-    const ExivUniquePtr src_image = Exiv2::ImageFactory::open(filename.toStdString());
+        const ExivUniquePtr src_image = Exiv2::ImageFactory::open(filename.toStdString());
 #endif
-    if (src_image.get()) {
-        src_image->readMetadata();
-        return src_image->iccProfileDefined();
+        if (src_image.get()) {
+            src_image->readMetadata();
+            return src_image->iccProfileDefined();
+        }
+    }
+    catch (Exiv2::Error& e) {
+        std::cout << "Caught Exiv2 exception '" << e.what() << "'\n";
     }
     return false;
 }
@@ -28,6 +41,7 @@ bool
 ImageMetadataCopier::copyMetadata(const QString& src_img,
                                   const QString& dst_img)
 {
+    QMutexLocker const locker(&exiv2Mutex);
     try
     {
 #ifdef EXV_UNICODE_PATH

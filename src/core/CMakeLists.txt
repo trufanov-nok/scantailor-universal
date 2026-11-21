@@ -89,6 +89,7 @@ SET(
         ${pdf_sources}
         OrthogonalRotation.cpp OrthogonalRotation.h
         WorkerThread.cpp WorkerThread.h
+        WorkerThreadPool.cpp WorkerThreadPool.h
         LoadFileTask.cpp LoadFileTask.h
         FilterOptionsWidget.cpp FilterOptionsWidget.h
         TaskStatus.h FilterUiInterface.h

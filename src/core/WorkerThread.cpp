@@ -121,7 +121,8 @@ private:
 
 WorkerThread::WorkerThread(QObject* parent)
     :   QObject(parent),
-        m_ptrImpl(new Impl(*this))
+        m_ptrImpl(new Impl(*this)),
+        m_numPendingTasks(0)
 {
 }
 
@@ -135,10 +136,17 @@ WorkerThread::shutdown()
     m_ptrImpl.reset();
 }
 
+bool
+WorkerThread::isIdle() const
+{
+    return m_numPendingTasks == 0;
+}
+
 void
 WorkerThread::performTask(BackgroundTaskPtr const& task)
 {
     if (m_ptrImpl.get()) {
+        ++m_numPendingTasks;
         m_ptrImpl->performTask(task);
     }
 }
@@ -147,7 +155,11 @@ void
 WorkerThread::emitTaskResult(
     BackgroundTaskPtr const& task, FilterResultPtr const& result)
 {
-    emit taskResult(task, result);
+    --m_numPendingTasks;
+    if (result) {
+        emit taskResult(task, result);
+    }
+    emit taskFinished();
 }
 
 /*======================== WorkerThread::Dispatcher ========================*/
@@ -238,20 +250,17 @@ WorkerThread::Dispatcher::customEvent(QEvent* event)
 void
 WorkerThread::Dispatcher::processTask(BackgroundTaskPtr const& task)
 {
-    if (task->isCancelled()) {
-        return;
+    FilterResultPtr result;
+    if (!task->isCancelled()) {
+        try {
+            result = (*task)();
+        } catch (std::bad_alloc const&) {
+            OutOfMemoryHandler::instance().handleOutOfMemorySituation();
+        }
     }
 
-    try {
-        FilterResultPtr const result((*task)());
-        if (result) {
-            QCoreApplication::postEvent(
-                &m_rOwner, new TaskResultEvent(task, result)
-            );
-        }
-    } catch (std::bad_alloc const&) {
-        OutOfMemoryHandler::instance().handleOutOfMemorySituation();
-    }
+    // The main thread counts the tasks in progress, thus each task must send an event, also without a result.
+    QCoreApplication::postEvent(&m_rOwner, new TaskResultEvent(task, result));
 }
 
 /*========================== WorkerThread::Impl ============================*/

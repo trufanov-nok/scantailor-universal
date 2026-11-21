@@ -19,8 +19,10 @@
 #include "SystemLoadWidget.h"
 
 #include "ThreadPriority.h"
+#include "WorkerThreadPool.h"
 #include "settings/ini_keys.h"
 #include <QToolTip>
+#include <QSettings>
 
 SystemLoadWidget::SystemLoadWidget(QWidget* parent)
     :   QWidget(parent)
@@ -36,6 +38,25 @@ SystemLoadWidget::SystemLoadWidget(QWidget* parent)
     connect(ui.slider, SIGNAL(valueChanged(int)), SLOT(valueChanged(int)));
     connect(ui.minusBtn, SIGNAL(clicked()), SLOT(decreasePriority()));
     connect(ui.plusBtn, SIGNAL(clicked()), SLOT(increasePriority()));
+
+    QString const threads_tooltip(
+        tr("Number of pages that batch processing handles at the same time.\n"
+           "Each page needs its own memory. With large images, more than one thread\n"
+           "can use all of the memory and stop the processing.")
+    );
+    ui.threadsLabel->setToolTip(threads_tooltip);
+    ui.threadsSpinBox->setToolTip(threads_tooltip);
+    ui.threadsSpinBox->setRange(1, WorkerThreadPool::maxThreadCount());
+    ui.threadsSpinBox->setValue(WorkerThreadPool::threadCountSetting());
+    connect(ui.threadsSpinBox, SIGNAL(valueChanged(int)), SLOT(threadCountEdited(int)));
+}
+
+void
+SystemLoadWidget::threadCountEdited(int threads)
+{
+    QSettings settings;
+    settings.setValue(_key_batch_processing_threads, threads);
+    emit threadCountChanged();
 }
 
 void

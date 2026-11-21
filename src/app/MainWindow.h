@@ -71,6 +71,7 @@ class ImageInfo;
 class PageInfo;
 class QStackedLayout;
 class WorkerThread;
+class WorkerThreadPool;
 class ProjectReader;
 class DebugImages;
 class ContentBoxPropagator;
@@ -188,6 +189,12 @@ private slots:
     void startBatchProcessing();
 
     void stopBatchProcessing(MainAreaAction main_area = UPDATE_MAIN_AREA);
+
+    void submitBatchTasks();
+
+    void startInteractiveTask();
+
+    void workerTaskFinished();
 
     void invalidateThumbnail(PageId const& page_id);
 
@@ -389,6 +396,7 @@ private:
     IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
     std::unique_ptr<ThumbnailSequence> m_ptrThumbSequence;
     std::unique_ptr<WorkerThread> m_ptrWorkerThread;
+    std::unique_ptr<WorkerThreadPool> m_ptrBatchThreadPool;
     std::unique_ptr<ProcessingTaskQueue> m_ptrBatchQueue;
     std::unique_ptr<ProcessingTaskQueue> m_ptrInteractiveQueue;
     QStackedLayout* m_pImageFrameLayout;
