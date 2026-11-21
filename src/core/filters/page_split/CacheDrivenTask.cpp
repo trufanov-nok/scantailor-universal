@@ -20,12 +20,14 @@
 #include "Thumbnail.h"
 #include "IncompleteThumbnail.h"
 #include "Settings.h"
+#include "PageLayoutAdapter.h"
 #include "ProjectPages.h"
 #include "PageInfo.h"
 #include "ImageTransformation.h"
 #include "AbstractFilterDataCollector.h"
 #include "ThumbnailCollector.h"
 #include "filters/deskew/CacheDrivenTask.h"
+#include <memory>
 
 namespace page_split
 {
@@ -72,18 +74,28 @@ CacheDrivenTask::process(
     );
 
     Params const* params = record.params();
+    std::unique_ptr<Params> fixed_params;
 
     bool compatibleWith = true;
     if (!params || !(compatibleWith = deps.compatibleWith(*params))) {
         if (!compatibleWith) {
-            Params new_params = *params;
+            fixed_params.reset(new Params(*params));
+            Params& new_params = *fixed_params;
+            Settings::UpdateAction update_params;
 
-            compatibleWith = deps.fixCompatibility(new_params);
+            if (PageLayoutAdapter::adaptParams(new_params, deps, xform.resultingRect())) {
+                compatibleWith = true;
+                if (new_params.dependencies().layoutType() != deps.layoutType()) {
+                    update_params.setLayoutType(new_params.dependencies().layoutType());
+                }
+            } else {
+                compatibleWith = deps.fixCompatibility(new_params);
+            }
 
             if (compatibleWith) {
-                Settings::UpdateAction update_params;
                 update_params.setParams(new_params);
                 m_ptrSettings->updatePage(page_info.imageId(), update_params);
+                params = fixed_params.get();
             }
         }
 
@@ -122,6 +134,9 @@ CacheDrivenTask::process(
     if (layout.uncutOutline().isEmpty()) {
         // Backwards compatibility with versions < 0.9.9
         layout.setUncutOutline(xform.resultingRect());
+    }
+    if (params->splitLineMode() == MODE_MANUAL) {
+        PageLayoutAdapter::correctPageLayoutType(&layout);
     }
 
     // m_projectPages controls number of pages displayed in thumbnail list
