@@ -67,7 +67,8 @@ LoadFileTask::LoadFileTask(
         m_imageId(page.imageId()),
         m_imageMetadata(page.metadata()),
         m_ptrPages(pages),
-        m_ptrNextTask(next_task)
+        m_ptrNextTask(next_task),
+        m_loadFailed(false)
 {
     assert(m_ptrNextTask);
 }
@@ -85,6 +86,7 @@ LoadFileTask::operator()()
         throwIfCancelled();
 
         if (image.isNull()) {
+            m_loadFailed = true;
             return FilterResultPtr(new ErrorResult(m_imageId.filePath()));
         } else {
 
