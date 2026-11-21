@@ -20,6 +20,9 @@
 #define IMAGEPROC_TESTS_UTILS_H_
 
 #include <memory>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 class QApplication;
 class QImage;
@@ -55,6 +58,29 @@ void dumpBinaryImage(BinaryImage const& img, char const* name = 0);
 void dumpGrayImage(QImage const& img, char const* name = 0);
 
 bool surroundingsIntact(QImage const& img1, QImage const& img2, QRect const& rect);
+
+// Sets the OpenMP thread count and restores the old count also when a failed check ends a test early.
+class OmpThreadsGuard
+{
+public:
+#ifdef _OPENMP
+    OmpThreadsGuard() : m_oldThreads(omp_get_max_threads()) {}
+
+    ~OmpThreadsGuard()
+    {
+        omp_set_num_threads(m_oldThreads);
+    }
+
+    void set(int threads)
+    {
+        omp_set_num_threads(threads);
+    }
+private:
+    int m_oldThreads;
+#else
+    void set(int) {}
+#endif
+};
 
 } // namespace utils
 

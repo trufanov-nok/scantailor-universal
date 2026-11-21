@@ -6,7 +6,7 @@ SET(
         TestBinaryImage.cpp TestReduceThreshold.cpp
         TestSlicedHistogram.cpp
         TestConnCompEraser.cpp TestConnCompEraserExt.cpp
-        TestGrayscale.cpp
+        TestGrayscale.cpp TestSavGolFilter.cpp
         TestRasterOp.cpp TestShear.cpp
         TestOrthogonalRotation.cpp
         TestSkewFinder.cpp

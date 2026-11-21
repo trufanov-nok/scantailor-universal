@@ -130,10 +130,11 @@ QImage savGolFilterGrayToGray(
     uint8_t* const dst_data = dst.bits();
     int const dst_bpl = dst.bytesPerLine();
 
+    // The border loops stay serial, because all their iterations change the same kernel and k_origin.
+
     // Top-left corner.
     uint8_t const* src_line = src_data;
     Kernel kernel(window_size, QPoint(0, 0), hor_degree, vert_degree);
-    #pragma omp parallel for schedule(static)
     for (int y = 0; y < k_top; ++y) {
         uint8_t* dst_line = dst_data + y * dst_bpl;
         k_origin.setY(y);
@@ -147,7 +148,6 @@ QImage savGolFilterGrayToGray(
     // Top area between two corners.
     k_origin.setX(k_center.x());
     src_line = src_data - k_left;
-    #pragma omp parallel for schedule(static)
     for (int y = 0; y < k_top; ++y) {
         uint8_t* dst_line = dst_data + y * dst_bpl;
         k_origin.setY(y);
@@ -160,7 +160,6 @@ QImage savGolFilterGrayToGray(
     // Top-right corner.
     k_origin.setY(0);
     src_line = src_data + width - kw;
-    #pragma omp parallel for schedule(static)
     for (int y = 0; y < k_top; ++y) {
         uint8_t* dst_line = dst_data + y * dst_bpl;
         k_origin.setY(y);
@@ -243,7 +242,6 @@ QImage savGolFilterGrayToGray(
 
     // Left area between two corners.
     k_origin.setY(k_center.y() + 1);
-    #pragma omp parallel for schedule(static)
     for (int x = 0; x < k_left; ++x) {
         k_origin.setX(x);
         uint8_t const* src_line = src_data;
@@ -259,7 +257,6 @@ QImage savGolFilterGrayToGray(
 
     // Right area between two corners.
     k_origin.setY(k_center.y());
-    #pragma omp parallel for schedule(static)
     for (int x = width - k_right; x < width; ++x) {
         k_origin.setX(k_center.x() + x - (width - k_right - 1));
         uint8_t const* src_line = src_data + width - kw;
@@ -276,7 +273,6 @@ QImage savGolFilterGrayToGray(
     // Bottom-left corner.
 //  k_origin.setY(k_center.y() + 1);
     src_line = src_data + src_bpl * (height - kh);
-    #pragma omp parallel for schedule(static)
     for (int y = height - k_bottom; y < height; ++y) {
         k_origin.setY(k_center.y() + y - (height - k_bottom - 1));
         uint8_t* dst_line = dst_data + dst_bpl * (height - k_bottom) + (y - height + k_bottom) * dst_bpl;
@@ -290,7 +286,6 @@ QImage savGolFilterGrayToGray(
     // Bottom area between two corners.
     k_origin.setX(k_center.x());
     src_line = src_data + src_bpl * (height - kh) - k_left;
-    #pragma omp parallel for schedule(static)
     for (int y = height - k_bottom; y < height; ++y) {
         k_origin.setY(k_center.y() + y - (height - k_bottom - 1));
         uint8_t* dst_line = dst_data + dst_bpl * (height - k_bottom) + (y - height + k_bottom) * dst_bpl;
@@ -302,7 +297,6 @@ QImage savGolFilterGrayToGray(
 
     // Bottom-right corner.
     src_line = src_data + src_bpl * (height - kh) + (width - kw);
-    #pragma omp parallel for schedule(static)
     for (int y = height - k_bottom; y < height; ++y) {
         k_origin.setY(k_center.y() + y - (height - k_bottom - 1));
         uint8_t* dst_line = dst_data + dst_bpl * (height - k_bottom) + (y - height + k_bottom) * dst_bpl;
