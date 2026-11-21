@@ -1,8 +1,7 @@
 INCLUDE(TestCXXAcceptsFlag)
 
 MACRO(ST_SET_DEFAULT_GCC_FLAGS)
-	IF(CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX
-	   AND CMAKE_C_FLAGS MATCHES "\\s*" AND CMAKE_CXX_FLAGS MATCHES "\\s*")
+	IF(CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
 		SET(dead_strip_ldflags_ "")
 		SET(gc_sections_cflags_ "")
 		SET(gc_sections_ldflags_ "")
@@ -60,14 +59,17 @@ MACRO(ST_SET_DEFAULT_GCC_FLAGS)
 		
 		IF(NOT COMPILER_FLAGS_OVERRIDDEN)
 			SET(default_flags_ "-Wall -Wno-unused -ffast-math ${no_inline_dllexport_cflags_}")
-			# Flags common for all build configurations.
+			# Keep the flags of the user from the first run, because the defaults below replace the cached values.
+			SET(user_c_flags_ "${CMAKE_C_FLAGS}")
+			STRING(REPLACE "-std=c++0x" "" user_cxx_flags_ "${CMAKE_CXX_FLAGS}")
+			SET(common_c_flags_ "-Wall -Wno-unused ${werror_return_type_cflags_} -ffast-math ${no_inline_dllexport_cflags_}")
 			SET(
-                                CMAKE_C_FLAGS "-Wall -Wno-unused ${werror_return_type_cflags_} -ffast-math ${no_inline_dllexport_cflags_}"
+				CMAKE_C_FLAGS "${common_c_flags_} ${user_c_flags_}"
 				CACHE STRING "Common C flags for all build configurations." FORCE
 			)
 			SET(
 				CMAKE_CXX_FLAGS
-                                "${CMAKE_C_FLAGS} ${stdlibs_shared_static_} -std=c++11 -Wno-deprecated-declarations"
+				"${common_c_flags_} ${stdlibs_shared_static_} -std=c++11 -Wno-deprecated-declarations ${user_cxx_flags_}"
 				CACHE STRING "Common C++ flags for all build configurations." FORCE
 			)
 		
@@ -139,6 +141,5 @@ MACRO(ST_SET_DEFAULT_GCC_FLAGS)
 		
 		ENDIF(NOT COMPILER_FLAGS_OVERRIDDEN)
 		
-	ENDIF(CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX
-	      AND CMAKE_C_FLAGS MATCHES "\\s*" AND CMAKE_CXX_FLAGS MATCHES "\\s*")
+	ENDIF(CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
 ENDMACRO(ST_SET_DEFAULT_GCC_FLAGS)
