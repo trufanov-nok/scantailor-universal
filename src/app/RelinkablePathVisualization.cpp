@@ -25,6 +25,7 @@
 #include <QLayoutItem>
 #include <QStringList>
 #include <QPushButton>
+#include <QDir>
 #include <QPaintEvent>
 #include <QCursor>
 #include <QPalette>
@@ -141,6 +142,10 @@ RelinkablePathVisualization::setPath(RelinkablePath const& path, bool clickable)
         btn->setEnabled(clickable);
         if (clickable) {
             btn->setCursor(QCursor(Qt::PointingHandCursor));
+            btn->setToolTip(
+                tr("Click to choose a new location for \"%1\"; every path under it follows.")
+                .arg(QDir::toNativeSeparators(path_component.prefixPath))
+            );
         }
         stylePathComponentButton(btn, path_component.exists);
 

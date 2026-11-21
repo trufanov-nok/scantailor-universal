@@ -91,6 +91,18 @@ public:
     void rollbackChanges();
 
     void requestStatusUpdate(QModelIndex const& index);
+
+    struct FolderSearchResult {
+        int relinked;
+        int ambiguous;
+        int notFound;
+        FolderSearchResult() : relinked(0), ambiguous(0), notFound(0) {}
+    };
+
+    // A name with more than one match counts as ambiguous, because a wrong relink is worse than a missing file.
+    FolderSearchResult relinkMissingFromFolder(QString const& folder);
+
+    int countWithStatus(Status status) const;
 protected:
     virtual void customEvent(QEvent* event);
 private:

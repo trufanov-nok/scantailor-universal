@@ -28,6 +28,9 @@
 
 class RelinkingSortingModel;
 class QAbstractButton;
+class QCheckBox;
+class QLabel;
+class QPushButton;
 class QItemSelection;
 class QString;
 
@@ -63,12 +66,22 @@ private slots:
 
     void undoButtonClicked();
 
+    void findInFolderClicked();
+
+    void onlyMissingToggled(bool checked);
+
+    void updateSummary();
+
     void commitChanges();
 private:
     Ui::RelinkingDialog ui;
     RelinkingModel m_model;
     RelinkingSortingModel* m_pSortingModel;
     QString m_projectFileDir;
+    QLabel* m_pSummaryLabel;
+    QLabel* m_pResultLabel; // errorLabel shows merge errors only, because selectionChanged() reads it as an error flag.
+    QCheckBox* m_pOnlyMissing;
+    QPushButton* m_pFindButton;
 };
 
 #endif

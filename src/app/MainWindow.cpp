@@ -60,6 +60,8 @@
 #include "LoadFilesStatusDialog.h"
 #include "SettingsDialog.h"
 #include "AbstractRelinker.h"
+#include "RelinkablePath.h"
+#include "VirtualFunction.h"
 #include "RelinkingDialog.h"
 #include "OutOfMemoryHandler.h"
 #include "OutOfMemoryDialog.h"
@@ -133,6 +135,7 @@
 #include <QDate>
 #include <algorithm>
 #include <vector>
+#include <set>
 #include <stddef.h>
 #include <math.h>
 #include <assert.h>
@@ -528,9 +531,46 @@ MainWindow::switchToNewProject(
     updateWindowTitle();
     updateMainArea();
 
-    if (!QDir(out_dir).exists()) {
+    if (!QDir(out_dir).exists() || haveMissingImages()) {
         showRelinkingDialog();
     }
+}
+
+bool
+MainWindow::haveMissingImages() const
+{
+    // Open the Relinking dialog at once, because empty thumbnails do not tell the user why scans are missing.
+    class Checker : public VirtualFunction1<void, RelinkablePath const&>
+    {
+    public:
+        std::vector<QString> files;
+        virtual void operator()(RelinkablePath const& path)
+        {
+            files.push_back(path.normalizedPath());
+        }
+    };
+    if (!m_ptrPages) {
+        return false;
+    }
+    Checker checker;
+    m_ptrPages->listRelinkablePaths(checker);
+
+    // Check the folders first, because an offline folder makes each file check slow.
+    std::set<QString> dirs;
+    for (QString const& f : checker.files) {
+        dirs.insert(QFileInfo(f).path());
+    }
+    for (QString const& d : dirs) {
+        if (!QFileInfo::exists(d)) {
+            return true;
+        }
+    }
+    for (QString const& f : checker.files) {
+        if (!QFileInfo::exists(f)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void
