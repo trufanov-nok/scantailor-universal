@@ -66,16 +66,30 @@ Utils::maybeCreateCacheDir(QString const& output_dir)
 }
 
 QString
-Utils::outputDirToThumbDir(QString const& output_dir)
+Utils::outputDirToThumbDir(QString const& output_dir, QSize const& max_thumb_size)
 {
-    return output_dir + QLatin1String("/cache/thumbs");
+    QString thumb_dir = output_dir + QLatin1String("/cache/thumbs");
+    // The default quality keeps the old directory, so existing thumbnail caches stay valid.
+    if (max_thumb_size != _key_thumbnails_max_cache_pixmap_size_def) {
+        thumb_dir += QLatin1String("_q") + QString::number(max_thumb_size.width());
+        if (max_thumb_size.height() != max_thumb_size.width()) {
+            thumb_dir += QChar('x') + QString::number(max_thumb_size.height());
+        }
+    }
+    return thumb_dir;
+}
+
+QSize
+Utils::thumbnailMaxSize()
+{
+    return QSettings().value(_key_thumbnails_max_cache_pixmap_size, _key_thumbnails_max_cache_pixmap_size_def).toSize();
 }
 
 IntrusivePtr<ThumbnailPixmapCache>
 Utils::createThumbnailCache(QString const& output_dir)
 {
-    QSize const max_pixmap_size = QSettings().value(_key_thumbnails_max_cache_pixmap_size, _key_thumbnails_max_cache_pixmap_size_def).toSize();
-    QString const thumbs_cache_path(outputDirToThumbDir(output_dir));
+    QSize const max_pixmap_size = thumbnailMaxSize();
+    QString const thumbs_cache_path(outputDirToThumbDir(output_dir, max_pixmap_size));
 
     return IntrusivePtr<ThumbnailPixmapCache>(
                new ThumbnailPixmapCache(thumbs_cache_path, max_pixmap_size, 40, 5)

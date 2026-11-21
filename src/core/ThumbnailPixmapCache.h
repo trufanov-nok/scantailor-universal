@@ -72,6 +72,11 @@ public:
 
     void setThumbDir(QString const& thumb_dir);
 
+    // Change both values in one step, so the background thread never mixes a new size with the old directory.
+    void setThumbDirAndMaxSize(QString const& thumb_dir, QSize const& max_size);
+
+    QSize maxThumbSize() const;
+
     /**
      * \brief Take the pixmap from cache, if it's there.
      *

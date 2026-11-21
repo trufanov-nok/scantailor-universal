@@ -117,6 +117,10 @@ public:
 
     void setThumbDir(QString const& thumb_dir);
 
+    void setThumbDirAndMaxSize(QString const& thumb_dir, QSize const& max_size);
+
+    QSize maxThumbSize() const;
+
     Status request(
         ImageId const& image_id, QPixmap& pixmap, bool load_now = false,
         boost::weak_ptr<CompletionHandler> const* completion_handler = 0);
@@ -125,6 +129,8 @@ public:
 
     void recreateThumbnail(ImageId const& image_id, QImage const& image);
 protected:
+    static void removeThumbOfOtherQualities(QString const& thumb_file_path);
+
     virtual void run();
 
     virtual void customEvent(QEvent* e);
@@ -173,7 +179,8 @@ private:
 
     void postLoadResult(
         LoadQueue::iterator const& lq_it, QImage const& image,
-        ThumbnailLoadResult::Status status);
+        ThumbnailLoadResult::Status status,
+        QSize const& max_thumb_size = QSize());
 
     void processLoadResult(LoadResultEvent* result);
 
@@ -240,7 +247,8 @@ class ThumbnailPixmapCache::Impl::LoadResultEvent : public QEvent
 {
 public:
     LoadResultEvent(Impl::LoadQueue::iterator const& lq_t,
-                    QImage const& image, ThumbnailLoadResult::Status status);
+                    QImage const& image, ThumbnailLoadResult::Status status,
+                    QSize const& max_thumb_size);
 
     virtual ~LoadResultEvent();
 
@@ -263,10 +271,16 @@ public:
     {
         return m_status;
     }
+
+    QSize const& maxThumbSize() const
+    {
+        return m_maxThumbSize;
+    }
 private:
     Impl::LoadQueue::iterator m_lqIter;
     QImage m_image;
     ThumbnailLoadResult::Status m_status;
+    QSize m_maxThumbSize;
 };
 
 /*========================== ThumbnailPixmapCache ===========================*/
@@ -291,6 +305,18 @@ void
 ThumbnailPixmapCache::setThumbDir(QString const& thumb_dir)
 {
     m_ptrImpl->setThumbDir(RelinkablePath::normalize(thumb_dir));
+}
+
+void
+ThumbnailPixmapCache::setThumbDirAndMaxSize(QString const& thumb_dir, QSize const& max_size)
+{
+    m_ptrImpl->setThumbDirAndMaxSize(RelinkablePath::normalize(thumb_dir), max_size);
+}
+
+QSize
+ThumbnailPixmapCache::maxThumbSize() const
+{
+    return m_ptrImpl->maxThumbSize();
 }
 
 ThumbnailPixmapCache::Status
@@ -383,6 +409,7 @@ ThumbnailPixmapCache::Impl::setThumbDir(QString const& thumb_dir)
     }
 
     m_thumbDir = thumb_dir;
+    QDir().mkdir(m_thumbDir);
 
     for (Item const& item : m_loadQueue) {
         // This trick will make all queued tasks to expire.
@@ -391,6 +418,50 @@ ThumbnailPixmapCache::Impl::setThumbDir(QString const& thumb_dir)
                                   item.precedingLoadAttempts + m_expirationThreshold + 1
                               );
     }
+}
+
+void
+ThumbnailPixmapCache::Impl::setThumbDirAndMaxSize(
+    QString const& thumb_dir, QSize const& max_size)
+{
+    QMutexLocker locker(&m_mutex);
+
+    if (thumb_dir == m_thumbDir && max_size == m_maxThumbSize) {
+        return;
+    }
+
+    QDir().mkdir(thumb_dir);
+
+    if (max_size != m_maxThumbSize) {
+        // Pixmaps in memory have the old size, thus remove the loaded items at the start of the remove queue.
+        RemoveQueue::iterator it(m_removeQueue.begin());
+        while (it != m_endOfLoadedItems) {
+            if (it->status == Item::LOADED) {
+                it = m_removeQueue.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        m_numLoadedItems = 0;
+        m_maxThumbSize = max_size;
+    }
+
+    m_thumbDir = thumb_dir;
+
+    for (Item const& item : m_loadQueue) {
+        // Queued tasks use the old values, thus make them expire.
+        m_totalLoadAttempts = std::max(
+                                  m_totalLoadAttempts,
+                                  item.precedingLoadAttempts + m_expirationThreshold + 1
+                              );
+    }
+}
+
+QSize
+ThumbnailPixmapCache::Impl::maxThumbSize() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_maxThumbSize;
 }
 
 ThumbnailPixmapCache::Status
@@ -558,6 +629,8 @@ ThumbnailPixmapCache::Impl::recreateThumbnail(
         overwriter.abort();
     }
 
+    removeThumbOfOtherQualities(thumb_file_path);
+
     if (!thumb_written) {
         return;
     }
@@ -667,7 +740,7 @@ ThumbnailPixmapCache::Impl::backgroundProcessing()
             ThumbnailLoadResult::Status const status = image.isNull()
                     ? ThumbnailLoadResult::LOAD_FAILED
                     : ThumbnailLoadResult::LOADED;
-            postLoadResult(lq_it, image, status);
+            postLoadResult(lq_it, image, status, max_thumb_size);
         } catch (std::bad_alloc const&) {
             OutOfMemoryHandler::instance().handleOutOfMemorySituation();
         }
@@ -682,7 +755,9 @@ ThumbnailPixmapCache::Impl::loadSaveThumbnail(
     QString const thumb_file_path(getThumbFilePath(image_id, thumb_dir));
 
     QImage image(ImageLoader::load(thumb_file_path, 0));
-    if (!image.isNull()) {
+    // Older versions put all qualities in one directory, thus make a new thumbnail if the file is too large.
+    if (!image.isNull() && image.width() <= max_thumb_size.width()
+            && image.height() <= max_thumb_size.height()) {
         return image;
     }
 
@@ -769,11 +844,28 @@ ThumbnailPixmapCache::Impl::queuedToInProgress(LoadQueue::iterator const& lq_it)
 }
 
 void
+ThumbnailPixmapCache::Impl::removeThumbOfOtherQualities(QString const& thumb_file_path)
+{
+    // The thumbnails of other qualities show the old image, thus remove them.
+    QFileInfo const thumb_file(thumb_file_path);
+    QString const thumb_dir_name(thumb_file.dir().dirName());
+    QDir const cache_dir(QFileInfo(thumb_file.path()).path());
+    QStringList const dirs(
+        cache_dir.entryList(QStringList(QLatin1String("thumbs*")), QDir::Dirs | QDir::NoDotAndDotDot)
+    );
+    for (QString const& dir : dirs) {
+        if (dir != thumb_dir_name) {
+            QFile::remove(cache_dir.filePath(dir) + QChar('/') + thumb_file.fileName());
+        }
+    }
+}
+
+void
 ThumbnailPixmapCache::Impl::postLoadResult(
     LoadQueue::iterator const& lq_it, QImage const& image,
-    ThumbnailLoadResult::Status const status)
+    ThumbnailLoadResult::Status const status, QSize const& max_thumb_size)
 {
-    LoadResultEvent* e = new LoadResultEvent(lq_it, image, status);
+    LoadResultEvent* e = new LoadResultEvent(lq_it, image, status, max_thumb_size);
     QCoreApplication::postEvent(this, e);
 }
 
@@ -786,12 +878,20 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
     result->releaseImage();
 
     std::vector<boost::weak_ptr<CompletionHandler> > completion_handlers;
+    ThumbnailLoadResult::Status status = result->status();
 
     {
         QMutexLocker const locker(&m_mutex);
 
         if (m_shuttingDown) {
             return;
+        }
+
+        if (status == ThumbnailLoadResult::LOADED && result->maxThumbSize().isValid()
+                && result->maxThumbSize() != m_maxThumbSize) {
+            // The quality setting changed while the load was in progress, thus the receiver must request the thumbnail again.
+            status = ThumbnailLoadResult::REQUEST_EXPIRED;
+            pixmap = QPixmap();
         }
 
         LoadQueue::iterator const lq_it(result->lqIter());
@@ -801,7 +901,7 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
 
         Item const& item = *lq_it;
 
-        if (result->status() == ThumbnailLoadResult::LOADED
+        if (status == ThumbnailLoadResult::LOADED
                 && pixmap.isNull()) {
             // That's a special case caused by cachePixmapLocked().
             assert(!item.pixmap.isNull());
@@ -810,7 +910,7 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
         }
         item.completionHandlers.swap(completion_handlers);
 
-        if (result->status() == ThumbnailLoadResult::LOADED) {
+        if (status == ThumbnailLoadResult::LOADED) {
             // Maybe remove an older item.
             removeExcessLocked();
 
@@ -823,7 +923,7 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
 
             // Move to the end of load queue.
             m_loadQueue.relocate(m_loadQueue.end(), lq_it);
-        } else if (result->status() == ThumbnailLoadResult::LOAD_FAILED) {
+        } else if (status == ThumbnailLoadResult::LOAD_FAILED) {
             // We keep items that failed to load, as they are cheap
             // to keep and helps us avoid trying to load them
             // again and again.
@@ -833,7 +933,7 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
             // Move to the end of load queue.
             m_loadQueue.relocate(m_loadQueue.end(), lq_it);
         } else {
-            assert(result->status() == ThumbnailLoadResult::REQUEST_EXPIRED);
+            assert(status == ThumbnailLoadResult::REQUEST_EXPIRED);
 
             // Just remove it.
             removeItemLocked(rq_it);
@@ -841,7 +941,7 @@ ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result)
     } // mutex scope
 
     // Notify listeners.
-    ThumbnailLoadResult const load_result(result->status(), pixmap);
+    ThumbnailLoadResult const load_result(status, pixmap);
     typedef boost::weak_ptr<CompletionHandler> WeakHandler;
     for (WeakHandler const& wh : completion_handlers) {
         boost::shared_ptr<CompletionHandler> const sh(wh.lock());
@@ -998,11 +1098,12 @@ ThumbnailPixmapCache::Item::Item(Item const& other)
 
 ThumbnailPixmapCache::Impl::LoadResultEvent::LoadResultEvent(
     Impl::LoadQueue::iterator const& lq_it, QImage const& image,
-    ThumbnailLoadResult::Status const status)
+    ThumbnailLoadResult::Status const status, QSize const& max_thumb_size)
     :   QEvent(QEvent::User),
         m_lqIter(lq_it),
         m_image(image),
-        m_status(status)
+        m_status(status),
+        m_maxThumbSize(max_thumb_size)
 {
 }
 
