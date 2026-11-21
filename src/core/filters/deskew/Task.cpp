@@ -31,6 +31,8 @@
 #include "Dpi.h"
 #include "Dpm.h"
 #include "ImageTransformation.h"
+#include "BlackOnWhiteEstimator.h"
+#include "settings/globalstaticsettings.h"
 #include "imageproc/BinaryImage.h"
 #include "imageproc/BWColor.h"
 #include "imageproc/OrthogonalRotation.h"
@@ -119,6 +121,21 @@ Task::process(TaskStatus const& status, FilterData const& data)
     CommandLine const& cli = CommandLine::get();
 
     std::unique_ptr<Params> params(m_ptrSettings->getPageParams(m_pageId));
+
+    bool black_on_white = true;
+    if (GlobalStaticSettings::m_blackOnWhiteDetection) {
+        bool const deps_changed = !params.get() || !deps.matches(params->dependencies());
+        if (deps_changed || !m_ptrSettings->getBlackOnWhite(m_pageId, &black_on_white)) {
+            black_on_white = BlackOnWhiteEstimator::isBlackOnWhite(
+                                 data.grayImage(), data.xform(), status, m_ptrDbg.get()
+                             );
+            m_ptrSettings->setBlackOnWhite(m_pageId, black_on_white);
+        }
+    }
+
+    FilterData next_data(data, data.xform());
+    next_data.setBlackOnWhite(black_on_white);
+
     if (params.get()) {
         bool not_match = !deps.matches(params->dependencies());
         if (not_match) {
@@ -170,8 +187,8 @@ Task::process(TaskStatus const& status, FilterData const& data)
             BinaryImage rotated_image(
                 orthogonalRotation(
                     BinaryImage(
-                        data.grayImage(), bounded_image_area,
-                        data.bwThreshold()
+                        next_data.grayImageBlackOnWhite(), bounded_image_area,
+                        next_data.bwThresholdBlackOnWhite()
                     ),
                     data.xform().preRotation().toDegrees()
                 )
@@ -219,7 +236,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
     new_xform.setPostRotation(ui_data.effectiveDeskewAngle());
 
     if (m_ptrNextTask) {
-        return m_ptrNextTask->process(status, FilterData(data, new_xform));
+        return m_ptrNextTask->process(status, FilterData(next_data, new_xform));
     } else {
         return FilterResultPtr(
                    new UiUpdater(

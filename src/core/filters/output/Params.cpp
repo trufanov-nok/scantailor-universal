@@ -32,7 +32,8 @@ namespace output
 {
 
 Params::Params()
-    :  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi())
+    :  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi()),
+       m_blackOnWhite(true), m_blackOnWhiteSetManually(false)
 {
     QSettings s;
     m_despeckleLevel = (DespeckleLevel) s.value(_key_output_despeckling_default_lvl, _key_output_despeckling_default_lvl_def).toUInt();
@@ -44,7 +45,9 @@ Params::Params(QDomElement const& el)
         m_distortionModel(el.namedItem("distortion-model").toElement()),
         m_depthPerception(el.attribute("depthPerception")),
         m_dewarpingMode(el.attribute("dewarpingMode")),
-        m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
+        m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel"))),
+        m_blackOnWhite(el.attribute("blackOnWhite", "1") == "1"),
+        m_blackOnWhiteSetManually(el.attribute("blackOnWhiteSetManually") == "1")
 //        m_TiffCompression(el.attribute("tiff-compression"))
 
 {
@@ -70,6 +73,13 @@ Params::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("depthPerception", m_depthPerception.toString());
     el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
     el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
+    // Write the new attributes only when they differ from the defaults, so that normal projects stay the same.
+    if (!m_blackOnWhite) {
+        el.setAttribute("blackOnWhite", "0");
+    }
+    if (m_blackOnWhiteSetManually) {
+        el.setAttribute("blackOnWhiteSetManually", "1");
+    }
 //    el.setAttribute("tiff-compression", m_TiffCompression);
     el.appendChild(marshaller.dpi(m_dpi, "dpi"));
 

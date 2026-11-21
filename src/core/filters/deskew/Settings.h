@@ -55,6 +55,11 @@ public:
 
     void setDegress(std::set<PageId> const& pages, Params const& params);
 
+    void setBlackOnWhite(PageId const& page_id, bool black_on_white);
+
+    // The return value is false for a page without a result, because such a page needs a new detection.
+    bool getBlackOnWhite(PageId const& page_id, bool* black_on_white) const;
+
     double maxDeviation() const
     {
         return m_maxDeviation;
@@ -87,6 +92,7 @@ private:
 
     mutable QMutex m_mutex;
     PerPageParams m_perPageParams;
+    std::map<PageId, bool> m_perPageBlackOnWhite;
     double m_avg;
     double m_sigma;
     double m_maxDeviation;

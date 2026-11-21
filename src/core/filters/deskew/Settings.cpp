@@ -44,6 +44,7 @@ Settings::clear()
 {
     QMutexLocker locker(&m_mutex);
     m_perPageParams.clear();
+    m_perPageBlackOnWhite.clear();
 }
 
 void
@@ -60,6 +61,15 @@ Settings::performRelinking(AbstractRelinker const& relinker)
     }
 
     m_perPageParams.swap(new_params);
+
+    std::map<PageId, bool> new_black_on_white;
+    for (std::map<PageId, bool>::value_type const& kv : m_perPageBlackOnWhite) {
+        RelinkablePath const old_path(kv.first.imageId().filePath(), RelinkablePath::File);
+        PageId new_page_id(kv.first);
+        new_page_id.imageId().setFilePath(relinker.substitutionPathFor(old_path));
+        new_black_on_white.insert(std::map<PageId, bool>::value_type(new_page_id, kv.second));
+    }
+    m_perPageBlackOnWhite.swap(new_black_on_white);
 }
 
 void Settings::updateDeviation()
@@ -120,6 +130,25 @@ Settings::setDegress(std::set<PageId> const& pages, Params const& params)
     for (PageId const& page : pages) {
         Utils::mapSetValue(m_perPageParams, page, params);
     }
+}
+
+void
+Settings::setBlackOnWhite(PageId const& page_id, bool const black_on_white)
+{
+    QMutexLocker const locker(&m_mutex);
+    m_perPageBlackOnWhite[page_id] = black_on_white;
+}
+
+bool
+Settings::getBlackOnWhite(PageId const& page_id, bool* black_on_white) const
+{
+    QMutexLocker const locker(&m_mutex);
+    std::map<PageId, bool>::const_iterator const it(m_perPageBlackOnWhite.find(page_id));
+    if (it == m_perPageBlackOnWhite.end()) {
+        return false;
+    }
+    *black_on_white = it->second;
+    return true;
 }
 
 } // namespace deskew

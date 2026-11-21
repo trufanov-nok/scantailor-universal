@@ -91,7 +91,7 @@ CacheDrivenTask::process(
                 params.outputDpi(), params.colorParams(), params.despeckleLevel(),
                 new_xform, content_rect_phys
             );
-            OutputImageParams const new_output_image_params(
+            OutputImageParams new_output_image_params(
                 generator.outputImageSize(), generator.outputContentRect(),
                 new_xform, params.outputDpi(), params.colorParams(),
                 params.dewarpingMode(), params.distortionModel(),
@@ -100,6 +100,7 @@ CacheDrivenTask::process(
                             GlobalStaticSettings::m_tiff_compr_method_bw :
                             GlobalStaticSettings::m_tiff_compr_method_color
             );
+            new_output_image_params.setBlackOnWhite(params.isBlackOnWhite());
 
             if (!stored_output_params->outputImageParams().matches(new_output_image_params)) {
                 need_reprocess = true;

@@ -28,7 +28,8 @@ FilterData::FilterData(QString const& filename, QImage const& image)
         m_origImage(image),
         m_grayImage(toGrayscale(m_origImage)),
         m_xform(image.rect(), Dpm(image)),
-        m_bwThreshold(BinaryThreshold::otsuThreshold(m_grayImage))
+        m_bwThreshold(BinaryThreshold::otsuThreshold(m_grayImage)),
+        m_blackOnWhite(true)
 {
 }
 
@@ -37,6 +38,56 @@ FilterData::FilterData(FilterData const& other, ImageTransformation const& xform
         m_origImage(other.m_origImage),
         m_grayImage(other.m_grayImage),
         m_xform(xform),
-        m_bwThreshold(other.m_bwThreshold)
+        m_bwThreshold(other.m_bwThreshold),
+        m_blackOnWhite(other.m_blackOnWhite)
 {
+}
+
+static GrayImage invertGray(GrayImage const& src)
+{
+    GrayImage dst(src);
+    int const width = dst.width();
+    int const height = dst.height();
+    int const stride = dst.stride();
+    uint8_t* line = dst.data();
+    for (int y = 0; y < height; ++y, line += stride) {
+        for (int x = 0; x < width; ++x) {
+            line[x] = static_cast<uint8_t>(255 - line[x]);
+        }
+    }
+    return dst;
+}
+
+static QImage invertImage(QImage const& src)
+{
+    QImage dst(src);
+    if (dst.format() == QImage::Format_Indexed8 && dst.colorTable() != createGrayscalePalette()) {
+        // Inversion of the palette indices is correct only for the standard grayscale palette.
+        dst = dst.convertToFormat(dst.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
+    }
+    dst.invertPixels();
+    return dst;
+}
+
+BinaryThreshold
+FilterData::bwThresholdBlackOnWhite() const
+{
+    return m_blackOnWhite ? m_bwThreshold : BinaryThreshold(256 - int(m_bwThreshold));
+}
+
+GrayImage
+FilterData::grayImageBlackOnWhite() const
+{
+    return m_blackOnWhite ? m_grayImage : invertGray(m_grayImage);
+}
+
+FilterData
+FilterData::inverted() const
+{
+    FilterData data(*this);
+    data.m_origImage = invertImage(m_origImage);
+    data.m_grayImage = invertGray(m_grayImage);
+    data.m_bwThreshold = BinaryThreshold(256 - int(m_bwThreshold));
+    data.m_blackOnWhite = !m_blackOnWhite;
+    return data;
 }

@@ -222,6 +222,23 @@ Settings::setDespeckleLevel(PageId const& page_id, DespeckleLevel level)
     }
 }
 
+void
+Settings::setBlackOnWhite(PageId const& page_id, bool const black_on_white, bool const set_manually)
+{
+    QMutexLocker const locker(&m_mutex);
+
+    PerPageParams::iterator const it(m_perPageParams.lower_bound(page_id));
+    if (it == m_perPageParams.end() || m_perPageParams.key_comp()(page_id, it->first)) {
+        Params params;
+        params.setBlackOnWhite(black_on_white);
+        params.setBlackOnWhiteSetManually(set_manually);
+        m_perPageParams.insert(it, PerPageParams::value_type(page_id, params));
+    } else {
+        it->second.setBlackOnWhite(black_on_white);
+        it->second.setBlackOnWhiteSetManually(set_manually);
+    }
+}
+
 std::unique_ptr<OutputParams>
 Settings::getOutputParams(PageId const& page_id) const
 {

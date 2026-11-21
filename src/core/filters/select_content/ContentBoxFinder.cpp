@@ -122,12 +122,13 @@ ContentBoxFinder::findContentBox(
         return QRectF();
     }
 
-    uint8_t const darkest_gray_level = darkestGrayLevel(data.grayImage());
+    GrayImage const data_gray_image(data.grayImageBlackOnWhite());
+    uint8_t const darkest_gray_level = darkestGrayLevel(data_gray_image);
     QColor const outside_color(darkest_gray_level, darkest_gray_level, darkest_gray_level);
 
     QImage gray150(
         transformToGray(
-            data.grayImage(), xform_150dpi.transform(),
+            data_gray_image, xform_150dpi.transform(),
             xform_150dpi.resultingRect().toRect(),
             OutsidePixels::assumeColor(outside_color)
         )

@@ -197,6 +197,15 @@ Task::process(
     Params params(m_ptrSettings->getParams(m_pageId));
     CommandLine const& cli = CommandLine::get();
 
+    if (!params.isBlackOnWhiteSetManually()) {
+        // Without the detection, a value that the user did not set must go back to the default.
+        bool const auto_black_on_white = !GlobalStaticSettings::m_blackOnWhiteDetectionAtOutput || data.isBlackOnWhite();
+        if (params.isBlackOnWhite() != auto_black_on_white) {
+            params.setBlackOnWhite(auto_black_on_white);
+            m_ptrSettings->setBlackOnWhite(m_pageId, auto_black_on_white, false);
+        }
+    }
+
     if (cli.hasTiffForceKeepColorSpace()) {
         ColorParams colorParams = params.colorParams();
         switch (data.origImage().format()) {
@@ -247,7 +256,7 @@ Task::process(
 
     OutputGenerator const generator(
         params.outputDpi(), params.colorParams(), params.despeckleLevel(),
-        new_xform, content_rect_phys
+        new_xform, content_rect_phys, params.isBlackOnWhite()
     );
 
     OutputImageParams new_output_image_params(
@@ -258,6 +267,7 @@ Task::process(
         params.colorParams().colorMode() == ColorParams::BLACK_AND_WHITE ?
                     GlobalStaticSettings::m_tiff_compr_method_bw :
                     GlobalStaticSettings::m_tiff_compr_method_color);
+    new_output_image_params.setBlackOnWhite(params.isBlackOnWhite());
 
 //begin of modified by monday2000
 //Quadro_Zoner
@@ -456,7 +466,8 @@ Task::process(
             // A new distortion model was generated.
             // We need to save it to be able to modify it manually.
             params.setDistortionModel(distortion_model);
-            m_ptrSettings->setParams(m_pageId, params);
+            // Write only the model, because the user can change other parameters while the task runs.
+            m_ptrSettings->setDistortionModel(m_pageId, distortion_model);
             new_output_image_params.setDistortionModel(distortion_model);
         }
 
@@ -531,8 +542,13 @@ Task::process(
         m_ptrThumbnailCache->recreateThumbnail(ImageId(out_file_path), out_img);
     }
 
+    QImage despeckle_src(out_img);
+    if (!params.isBlackOnWhite()) {
+        // The speckles are dark pixels, so show the page with dark content on a light background.
+        despeckle_src.invertPixels();
+    }
     DespeckleState const despeckle_state(
-        out_img, speckles_img, params.despeckleLevel(), params.outputDpi()
+        despeckle_src, speckles_img, params.despeckleLevel(), params.outputDpi()
     );
 
     DespeckleVisualization despeckle_visualization;

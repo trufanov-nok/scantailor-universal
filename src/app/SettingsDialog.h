@@ -165,6 +165,8 @@ private slots:
 
     void on_cbCopyICCProfile_toggled(bool checked);
 
+    void on_cbBlackOnWhiteAtOutput_clicked(bool checked);
+
 private:
     void initLanguageList(QString cur_lang);
     void loadTiffList();

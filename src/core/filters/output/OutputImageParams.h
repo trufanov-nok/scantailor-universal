@@ -89,6 +89,16 @@ public:
         m_TiffCompression = compression;
     }
 
+    bool isBlackOnWhite() const
+    {
+        return m_blackOnWhite;
+    }
+
+    void setBlackOnWhite(bool black_on_white)
+    {
+        m_blackOnWhite = black_on_white;
+    }
+
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
     /**
@@ -155,6 +165,8 @@ private:
 
     /** Tiff compression method of the output image. */
     QString m_TiffCompression;
+
+    bool m_blackOnWhite;
 };
 
 } // namespace output

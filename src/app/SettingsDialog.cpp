@@ -236,7 +236,8 @@ SettingsDialog::populateTreeWidget(QTreeWidget* treeWidget)
                                             <<        tr("Thumbnails panel")
                                             <<        tr("Auto-save project")
                                             <<        tr("Tiff compression")
-                                            <<        tr("Debug mode"))
+                                            <<        tr("Debug mode")
+                                            <<        tr("Black on white detection"))
                                            << tr("Fix Orientation")
                                            << tr("Split pages")
                                            <<        tr("Apply cut")
@@ -685,6 +686,8 @@ void SettingsDialog::on_stackedWidget_currentChanged(int /*arg1*/)
     } else if (currentPage == ui.pageDewarping) {
         ui.cbTryVertHalfCorrection->setChecked(m_settings.value(_key_dewarp_auto_vert_half_correction, _key_dewarp_auto_vert_half_correction_def).toBool());
         ui.cbTryDeskewAfterDewarp->setChecked(m_settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool());
+    } else if (currentPage == ui.pageBlackOnWhiteDetection) {
+        ui.cbBlackOnWhiteAtOutput->setChecked(m_settings.value(_key_black_on_white_detection_at_output, _key_black_on_white_detection_at_output_def).toBool());
     } else if (currentPage == ui.pageOutputMetadata) {
         ui.cbCopyICCProfile->setChecked(m_settings.value(_key_output_metadata_copy_icc, _key_output_metadata_copy_icc_def).toBool());
     }
@@ -1217,6 +1220,11 @@ void SettingsDialog::on_cbStyleSheet_currentIndexChanged(int index)
         m_settings.setValue(_key_app_stylsheet_file, val.toString());
     }
     GlobalStaticSettings::applyAppStyle(m_settings);
+}
+
+void SettingsDialog::on_cbBlackOnWhiteAtOutput_clicked(bool checked)
+{
+    m_settings.setValue(_key_black_on_white_detection_at_output, checked);
 }
 
 void SettingsDialog::on_cbCopyICCProfile_toggled(bool checked)

@@ -89,6 +89,8 @@ private slots:
 
     void equalizeIlluminationToggled(bool checked);
 
+    void blackOnWhiteToggled(bool checked);
+
     void despeckleOffSelected();
 
     void despeckleCautiousSelected();

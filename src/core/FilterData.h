@@ -56,12 +56,30 @@ public:
     {
         return m_grayImage;
     }
+
+    bool isBlackOnWhite() const
+    {
+        return m_blackOnWhite;
+    }
+
+    void setBlackOnWhite(bool black_on_white)
+    {
+        m_blackOnWhite = black_on_white;
+    }
+
+    imageproc::BinaryThreshold bwThresholdBlackOnWhite() const;
+
+    imageproc::GrayImage grayImageBlackOnWhite() const;
+
+    // Returns a copy with inverted images, so that light content on a dark background becomes dark content on a light background.
+    FilterData inverted() const;
 private:
     QString m_origImageFilename;
     QImage m_origImage;
     imageproc::GrayImage m_grayImage;
     ImageTransformation m_xform;
     imageproc::BinaryThreshold m_bwThreshold;
+    bool m_blackOnWhite;
 };
 
 #endif

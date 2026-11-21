@@ -109,6 +109,10 @@ OptionsWidget::OptionsWidget(
         equalizeIlluminationCB, SIGNAL(clicked(bool)),
         this, SLOT(equalizeIlluminationToggled(bool))
     );
+    connect(
+        blackOnWhiteCB, SIGNAL(clicked(bool)),
+        this, SLOT(blackOnWhiteToggled(bool))
+    );
 
     despeckleSliderPanel->setVisible(false);
     connect(
@@ -206,6 +210,7 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
     m_dewarpingMode = params.dewarpingMode();
     m_depthPerception = params.depthPerception();
     setDespeckleLevel(params.despeckleLevel());
+    blackOnWhiteCB->setChecked(params.isBlackOnWhite());
     updateDpiDisplay();
     updateColorsDisplay();
     updateLayersDisplay();
@@ -215,6 +220,8 @@ OptionsWidget::preUpdateUI(PageId const& page_id)
 void
 OptionsWidget::postUpdateUI()
 {
+    // The output task can change this value with the automatic detection.
+    blackOnWhiteCB->setChecked(m_ptrSettings->getParams(m_pageId).isBlackOnWhite());
 }
 
 void
@@ -309,6 +316,15 @@ OptionsWidget::whiteMarginsToggled(bool const checked)
     m_colorParams.setColorGrayscaleOptions(opt);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     equalizeIlluminationCB->setEnabled(checked);
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::blackOnWhiteToggled(bool const checked)
+{
+    // Mark the value as manual, so that the automatic detection does not change it.
+    m_ptrSettings->setBlackOnWhite(m_pageId, checked, true);
+    emit invalidateThumbnail(m_pageId);
     emit reloadRequested();
 }
 

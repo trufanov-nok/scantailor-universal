@@ -64,7 +64,8 @@ CacheDrivenTask::process(
         }
     }
 
-    Dependencies const deps(xform.resultingPreCropArea());
+    // This task has no image data, so it keeps the stored black on white value.
+    Dependencies const deps(xform.resultingPreCropArea(), params.get() ? params->dependencies().isBlackOnWhite() : true);
     if (need_reprocess || (!params->dependencies().matches(deps) && (params->mode() == MODE_AUTO || !params->isContentDetectionEnabled()))) {
 
         if (ThumbnailCollector* thumb_col = dynamic_cast<ThumbnailCollector*>(collector)) {
