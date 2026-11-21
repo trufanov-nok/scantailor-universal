@@ -24,6 +24,7 @@
 
 RelinkingSortingModel::RelinkingSortingModel(QObject* parent)
     :   QSortFilterProxyModel(parent)
+    ,   m_onlyMissing(false)
 {
     setDynamicSortFilter(true);
     sort(0);
@@ -63,4 +64,23 @@ RelinkingSortingModel::lessThan(QModelIndex const& left, QModelIndex const& righ
 
     // The last resort is lexicographical ordering.
     return left_path < right_path;
+}
+
+void
+RelinkingSortingModel::setOnlyMissing(bool const only_missing)
+{
+    if (m_onlyMissing != only_missing) {
+        m_onlyMissing = only_missing;
+        invalidateFilter();
+    }
+}
+
+bool
+RelinkingSortingModel::filterAcceptsRow(int const source_row, QModelIndex const& source_parent) const
+{
+    if (!m_onlyMissing) {
+        return true;
+    }
+    QModelIndex const idx(sourceModel()->index(source_row, 0, source_parent));
+    return idx.data(RelinkingModel::UncommittedStatusRole).toInt() != RelinkingModel::Exists;
 }

@@ -197,6 +197,8 @@ private slots:
 
     void showRelinkingDialog();
 
+    bool haveMissingImages() const;
+
     void filterResult(
         BackgroundTaskPtr const& task,
         FilterResultPtr const& result);
