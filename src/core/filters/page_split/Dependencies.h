@@ -58,6 +58,16 @@ public:
         return m_rotation;
     }
 
+    QSize const& imageSize() const
+    {
+        return m_imageSize;
+    }
+
+    LayoutType layoutType() const
+    {
+        return m_layoutType;
+    }
+
     bool compatibleWith(Params const& params) const;
 
     bool fixCompatibility(Params& params) const;

@@ -72,6 +72,9 @@ private:
 
     void lineMoveRequest(int line_idx, QLineF line);
 
+    void cutterLimits(int line_idx, QRectF const& valid_area,
+                      double* min_top, double* max_top, double* min_bottom, double* max_bottom) const;
+
     void dragFinished();
 
     QPointF leftPageCenter() const;

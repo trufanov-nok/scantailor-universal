@@ -289,7 +289,10 @@ void
 ImageView::handleMoveRequest(int line_idx, int handle_idx, QPointF const& pos)
 {
     QRectF const valid_area(getOccupiedWidgetRect());
-    double const x = qBound(valid_area.left(), pos.x(), valid_area.right());
+    double min_top, max_top, min_bottom, max_bottom;
+    cutterLimits(line_idx, valid_area, &min_top, &max_top, &min_bottom, &max_bottom);
+    double const x = handle_idx == 0 ? qBound(min_top, pos.x(), max_top)
+                     : qBound(min_bottom, pos.x(), max_bottom);
     QPointF const wpt(x, handle_idx == 0 ? valid_area.top() : valid_area.bottom());
     QPointF const vpt(widgetToVirtual().map(wpt));
 
@@ -302,6 +305,49 @@ ImageView::handleMoveRequest(int line_idx, int handle_idx, QPointF const& pos)
 
     m_virtLayout.setCutterLine(line_idx, virt_line);
     update();
+}
+
+void
+ImageView::cutterLimits(int const line_idx, QRectF const& valid_area,
+                        double* min_top, double* max_top, double* min_bottom, double* max_bottom) const
+{
+    *min_top = valid_area.left();
+    *max_top = valid_area.right();
+    *min_bottom = valid_area.left();
+    *max_bottom = valid_area.right();
+
+    QLineF const top_edge(valid_area.topLeft(), valid_area.topRight());
+    QLineF const bottom_edge(valid_area.bottomLeft(), valid_area.bottomRight());
+
+    QPointF this_top;
+    QPointF this_bottom;
+    QLineF const this_line(virtualToWidget().map(m_virtLayout.cutterLine(line_idx)));
+    QLineIntersect(this_line, top_edge, &this_top);
+    QLineIntersect(this_line, bottom_edge, &this_bottom);
+
+    int const num_cutters = m_virtLayout.numCutters();
+    for (int i = 0; i < num_cutters; ++i) {
+        if (i == line_idx) {
+            continue;
+        }
+
+        QPointF other_top;
+        QPointF other_bottom;
+        QLineF const other_line(virtualToWidget().map(m_virtLayout.cutterLine(i)));
+        QLineIntersect(other_line, top_edge, &other_top);
+        QLineIntersect(other_line, bottom_edge, &other_bottom);
+        other_top.setX(qBound(valid_area.left(), other_top.x(), valid_area.right()));
+        other_bottom.setX(qBound(valid_area.left(), other_bottom.x(), valid_area.right()));
+
+        // Cutters have no fixed order, so the current positions tell on which side the other cutter is.
+        if (other_top.x() + other_bottom.x() < this_top.x() + this_bottom.x()) {
+            *min_top = other_top.x();
+            *min_bottom = other_bottom.x();
+        } else {
+            *max_top = other_top.x();
+            *max_bottom = other_bottom.x();
+        }
+    }
 }
 
 QLineF
@@ -320,11 +366,16 @@ ImageView::lineMoveRequest(int line_idx, QLineF line)
     QLineIntersect(line, QLineF(valid_area.topLeft(), valid_area.topRight()), &p_top);
     QLineIntersect(line, QLineF(valid_area.bottomLeft(), valid_area.bottomRight()), &p_bottom);
 
+    double min_top, max_top, min_bottom, max_bottom;
+    cutterLimits(line_idx, valid_area, &min_top, &max_top, &min_bottom, &max_bottom);
+
     // Limit movement.
-    double const min_x = qMin(p_top.x(), p_bottom.x());
-    double const max_x = qMax(p_top.x(), p_bottom.x());
-    double const left = valid_area.left() - min_x;
-    double const right = max_x - valid_area.right();
+    double const left = qMax(min_top - p_top.x(), min_bottom - p_bottom.x());
+    double const right = qMax(p_top.x() - max_top, p_bottom.x() - max_bottom);
+    if (left > 0.0 && right > 0.0) {
+        // The line does not fit between the limits, so a move to either side gives crossed cutters.
+        return;
+    }
     if (left > right && left > 0.0) {
         line.translate(left, 0.0);
     } else if (right > 0.0) {

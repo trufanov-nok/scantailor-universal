@@ -26,6 +26,7 @@
 #include "PageInfo.h"
 #include "PageId.h"
 #include "PageLayoutEstimator.h"
+#include "PageLayoutAdapter.h"
 #include "PageLayout.h"
 #include "Dependencies.h"
 #include "Params.h"
@@ -136,8 +137,20 @@ Task::process(TaskStatus const& status, FilterData const& data)
         Params const* const params = record.params();
 
         PageLayout new_layout;
+        Dependencies new_deps(deps);
+        AutoManualMode split_line_mode = MODE_AUTO;
+        bool adapted = false;
 
         bool need_reprocess(!params || !deps.compatibleWith(*params));
+        if (params && need_reprocess) {
+            Params adapted_params(*params);
+            adapted = PageLayoutAdapter::adaptParams(adapted_params, deps, data.xform().resultingRect());
+            if (adapted) {
+                new_layout = adapted_params.pageLayout();
+                new_deps = adapted_params.dependencies();
+                split_line_mode = adapted_params.splitLineMode();
+            }
+        }
         bool regeneration_enforced = false;
         if (!need_reprocess) {
             Params p(*params);
@@ -161,7 +174,9 @@ Task::process(TaskStatus const& status, FilterData const& data)
             }
         }
 
-        if (need_reprocess) {
+        if (adapted) {
+            // The adapter moved a cut from a page of a different size, so the estimator must not replace it.
+        } else if (need_reprocess) {
             new_layout = PageLayoutEstimator::estimatePageLayout(
                              record.combinedLayoutType(),
                              data.grayImage(), data.xform(),
@@ -172,6 +187,16 @@ Task::process(TaskStatus const& status, FilterData const& data)
             // Backwards compatibility with versions < 0.9.9
             new_layout = params->pageLayout();
             new_layout.setUncutOutline(data.xform().resultingRect());
+        } else if (params->splitLineMode() == MODE_MANUAL) {
+            new_layout = params->pageLayout();
+            PageLayoutAdapter::correctPageLayoutType(&new_layout);
+            if (new_layout.type() == params->pageLayout().type()) {
+                break;
+            }
+            if (deps.layoutType() != AUTO_LAYOUT_TYPE) {
+                new_deps.setLayoutType(new_layout.toLayoutType());
+            }
+            split_line_mode = MODE_MANUAL;
         } else {
             break;
         }
@@ -180,9 +205,12 @@ Task::process(TaskStatus const& status, FilterData const& data)
             break;
         }
 
-        Params const new_params(new_layout, deps, MODE_AUTO, data.xform().origDpi());
+        Params const new_params(new_layout, new_deps, split_line_mode, data.xform().origDpi());
         Settings::UpdateAction update;
         update.setParams(new_params);
+        if (new_deps.layoutType() != deps.layoutType()) {
+            update.setLayoutType(new_deps.layoutType());
+        }
 
 #ifndef NDEBUG
         {
@@ -212,6 +240,9 @@ Task::process(TaskStatus const& status, FilterData const& data)
             continue;
         }
 
+        if (!conflict) {
+            ui_data.setDependencies(new_deps);
+        }
         break;
     }
 
