@@ -162,6 +162,27 @@ public:
     {
         return contains("end-filter") && !m_options["end-filter"].isEmpty();
     }
+    // The option without a value, or with an empty value, is an error that main() reports.
+    bool renderPreviewGiven() const
+    {
+        return contains("render-preview");
+    }
+    bool hasRenderPreview() const
+    {
+        return contains("render-preview") && !m_options["render-preview"].isEmpty();
+    }
+    QString getRenderPreviewDirectory() const
+    {
+        return m_options.value("render-preview");
+    }
+    bool hasRenderPreviewSize() const
+    {
+        return contains("render-preview-size");
+    }
+    int getRenderPreviewSize() const
+    {
+        return hasRenderPreviewSize() ? m_options.value("render-preview-size").toInt() : 1200;
+    }
     bool hasOrientation() const
     {
         return contains("orientation") && !m_options["orientation"].isEmpty();

@@ -51,6 +51,7 @@ public:
 
     void process();
     void saveProject(QString const project_file);
+    int renderPreviews(QString const& directory, int max_size);
 private:
     bool batch;
     bool debug;

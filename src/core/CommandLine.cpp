@@ -109,6 +109,8 @@ CommandLine::parseCli(QStringList const& argv)
     opts << "start-filter";
     opts << "end-filter";
     opts << "output-project";
+    opts << "render-preview";
+    opts << "render-preview-size";
     opts << "tiff-compression";
     opts << "picture-shape";
     opts << "language";
@@ -403,6 +405,9 @@ CommandLine::printHelp()
     std::cout << "\t--start-filter=<1...6>\t\t\t-- default: 4" << std::endl;
     std::cout << "\t--end-filter=<1...6>\t\t\t-- default: 6" << std::endl;
     std::cout << "\t--output-project=, -o=<project_name>" << std::endl;
+    std::cout << "\t--render-preview=<directory>\t\t-- after the last filter, write a PNG for each page to the directory:" << std::endl;
+    std::cout << "\t\t\t\t\t\t   the image after filters 1-3 with the page box and the content box of filter 4" << std::endl;
+    std::cout << "\t\t--render-preview-size=<pixels>\t-- maximum length of the long side of a preview; default: 1200" << std::endl;
     std::cout << "\t--tiff-compression=<lzw|deflate|packbits|jpeg|none>\t-- default: lzw" << std::endl;
     std::cout << "\t--tiff-force-rgb\t\t\t-- all output tiffs will be rgb" << std::endl;
     std::cout << "\t--tiff-force-grayscale\t\t\t-- all output tiffs will be grayscale" << std::endl;
