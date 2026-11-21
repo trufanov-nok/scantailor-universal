@@ -273,6 +273,14 @@ public:
     {
         return contains("page-detection-tolerance") && !m_options["page-detection-tolerance"].isEmpty();
     }
+    bool hasPages() const
+    {
+        return contains("pages");
+    }
+    QString pages() const
+    {
+        return m_options.value("pages");
+    }
     bool hasDisableCheckOutput() const
     {
         return contains("disable-check-output");
