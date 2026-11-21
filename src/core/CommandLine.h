@@ -178,6 +178,11 @@ public:
     {
         return contains("skew-deviation") && !m_options["skew-deviation"].isEmpty();
     }
+    // Any of these options forces one DPI for all images.
+    bool hasDpi() const
+    {
+        return contains("dpi") || contains("dpi-x") || contains("dpi-y");
+    }
     bool hasContentRect() const
     {
         return contains("content-box") && !m_options["content-box"].isEmpty();

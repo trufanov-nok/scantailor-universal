@@ -24,6 +24,16 @@
 #include <iostream>
 
 #include "CommandLine.h"
+#include "PngMetadataLoader.h"
+#include "TiffMetadataLoader.h"
+#include "JpegMetadataLoader.h"
+#ifdef ENABLE_OPENJPEG
+#include "Jp2MetadataLoader.h"
+#endif
+#ifdef ENABLE_MUPDF
+#include "PdfMetadataLoader.h"
+#endif
+#include "GenericMetadataLoader.h"
 #include "ConsoleBatch.h"
 #include "config.h"
 
@@ -42,6 +52,19 @@ int main(int argc, char** argv)
     app.setOrganizationName(ORGANIZATION_NAME);
     app.setOrganizationDomain(ORGANIZATION_DOMAIN);
     QSettings::setDefaultFormat(QSettings::IniFormat);
+
+    // image metadata (DPI, size, pages) for images given on the command line, as in the GUI
+    PngMetadataLoader::registerMyself();
+    TiffMetadataLoader::registerMyself();
+    JpegMetadataLoader::registerMyself();
+#ifdef ENABLE_OPENJPEG
+    Jp2MetadataLoader::registerMyself();
+#endif
+#ifdef ENABLE_MUPDF
+    PdfMetadataLoader::registerMyself();
+#endif
+    // the last one: it loads the whole image
+    GenericMetadataLoader::registerMyself();
 
     // parse command line arguments
     CommandLine cli(app.arguments(), false);
