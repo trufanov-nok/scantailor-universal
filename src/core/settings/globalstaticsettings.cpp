@@ -26,8 +26,9 @@
 #include "TiffCompressionInfo.h"
 #include "config.h"
 
-QString GlobalStaticSettings::m_tiff_compr_method_bw;
-QString GlobalStaticSettings::m_tiff_compr_method_color;
+// The names must agree with the default ids, because the CLI does not read the settings and the output check compares these names.
+QString GlobalStaticSettings::m_tiff_compr_method_bw = QString::fromLatin1(_key_tiff_compr_method_bw_def);
+QString GlobalStaticSettings::m_tiff_compr_method_color = QString::fromLatin1(_key_tiff_compr_method_color_def);
 int GlobalStaticSettings::m_tiff_compression_bw_id = 5;
 int GlobalStaticSettings::m_tiff_compression_color_id = 5;
 bool GlobalStaticSettings::m_drawDeskewDeviants = false;
