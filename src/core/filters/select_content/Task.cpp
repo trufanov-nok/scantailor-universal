@@ -33,6 +33,10 @@
 #include "OrthogonalRotation.h"
 #include "ImageTransformation.h"
 #include "PhysSizeCalc.h"
+#include "ContentMask.h"
+#include "CommandLine.h"
+#include <QFileInfo>
+#include <QDir>
 #include "filters/page_layout/Task.h"
 #include <QObject>
 #include <QTransform>
@@ -50,6 +54,7 @@ public:
               PageId const& page_id,
               std::unique_ptr<DebugImages> const& dbg,
               QImage const& image,
+              ContentMask const& content_mask,
               ImageTransformation const& xform,
               OptionsWidget::UiData const& ui_data, bool batch);
 
@@ -65,6 +70,7 @@ private:
     std::unique_ptr<DebugImages> const& m_ptrDbg;
     QImage m_image;
     QImage m_downscaledImage;
+    ContentMask m_contentMask;
     ImageTransformation m_xform;
     OptionsWidget::UiData m_uiData;
     bool m_batchProcessing;
@@ -158,6 +164,43 @@ Task::process(TaskStatus const& status, FilterData const& data)
         if (!regeneration_enforced) {
             new_params.setPageRect(page_rect);
             new_params.setContentRect(content_rect);
+        }
+    }
+
+    // --content-snap: the GUI double-click adjustment, driven from the command line
+    if (CommandLine::get().hasContentSnap() && !new_params.contentRect().isEmpty()) {
+        QString const file_path(QDir::fromNativeSeparators(m_pageId.imageId().filePath()));
+        QString const file_name(QFileInfo(file_path).fileName());
+        QChar const side = m_pageId.subPage() == PageId::LEFT_PAGE ? QChar('L')
+                           : m_pageId.subPage() == PageId::RIGHT_PAGE ? QChar('R') : QChar();
+        QVector<ContentSnapRequest> reqs;
+        for (ContentSnapRequest const& r : parseContentSnap(CommandLine::get().contentSnap())) {
+            // A path tells apart scans with the same name in different folders.
+            QString const want(QDir::fromNativeSeparators(r.fileName));
+            bool const same_file = want.contains('/')
+                                   ? (file_path == want || file_path.endsWith(QChar('/') + want))
+                                   : want == file_name;
+            if (same_file && (r.side.isNull() || r.side == side)) {
+                reqs.append(r);
+            }
+        }
+        if (!reqs.isEmpty()) {
+            ContentMask const mask(data.grayImage(), data.xform(), status);
+            QRectF const bounds(data.xform().resultingPreCropArea().boundingRect());
+            QRectF rect(new_params.contentRect());
+            for (ContentSnapRequest const& r : reqs) {
+                bool const ok = mask.snapContentRect(rect, r.pos, r.mode, bounds);
+                if (CommandLine::get().isVerbose()) {
+                    std::cout << "content-snap " << file_name.toStdString()
+                              << (side.isNull() ? "" : (side == 'L' ? ":L" : ":R"))
+                              << " @" << r.pos.x() << "," << r.pos.y()
+                              << (ok ? " -> " : " no ink near point; box ")
+                              << rect.x() << "," << rect.y() << " " << rect.width() << "x" << rect.height()
+                              << std::endl;
+                }
+            }
+            new_params.setContentRect(rect);
+            new_params.setMode(MODE_MANUAL);
         }
     }
 
@@ -266,9 +309,13 @@ Task::process(TaskStatus const& status, FilterData const& data)
                    ui_data.pageRect(), ui_data.contentRect()
                );
     } else {
+        // Only the interactive view uses the mask, so batch runs do not make it.
+        ContentMask const content_mask = m_batchProcessing
+                                         ? ContentMask() : ContentMask(data.grayImage(), data.xform(), status);
+        status.throwIfCancelled();
         return FilterResultPtr(
                    new UiUpdater(
-                       m_ptrFilter, m_pageId, m_ptrDbg, data.origImage(),
+                       m_ptrFilter, m_pageId, m_ptrDbg, data.origImage(), content_mask,
                        data.xform(), ui_data, m_batchProcessing
                    )
                );
@@ -280,6 +327,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 Task::UiUpdater::UiUpdater(
     IntrusivePtr<Filter> const& filter, PageId const& page_id,
     std::unique_ptr<DebugImages> const& dbg, QImage const& image,
+    ContentMask const& content_mask,
     ImageTransformation const& xform, OptionsWidget::UiData const& ui_data,
     bool const batch)
     :   m_ptrFilter(filter),
@@ -287,6 +335,7 @@ Task::UiUpdater::UiUpdater(
         m_ptrDbg(dbg),
         m_image(image),
         m_downscaledImage(ImageView::createDownscaledImage(image)),
+        m_contentMask(content_mask),
         m_xform(xform),
         m_uiData(ui_data),
         m_batchProcessing(batch)
@@ -312,7 +361,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
     }
 
     ImageView* view = new ImageView(
-        m_image, m_downscaledImage,
+        m_image, m_downscaledImage, m_contentMask,
         m_xform, m_uiData.contentRect(), m_uiData.pageRect()
     );
     ui->setImageWidget(view, ui->TRANSFER_OWNERSHIP, m_ptrDbg.get());

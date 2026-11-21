@@ -178,6 +178,14 @@ public:
     {
         return contains("skew-deviation") && !m_options["skew-deviation"].isEmpty();
     }
+    bool hasContentSnap() const
+    {
+        return contains("content-snap") && !m_options["content-snap"].isEmpty();
+    }
+    QString contentSnap() const
+    {
+        return m_options.value("content-snap");
+    }
     bool hasContentRect() const
     {
         return contains("content-box") && !m_options["content-box"].isEmpty();

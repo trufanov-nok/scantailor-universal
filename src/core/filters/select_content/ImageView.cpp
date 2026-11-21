@@ -44,6 +44,7 @@ namespace select_content
 
 ImageView::ImageView(
     QImage const& image, QImage const& downscaled_image,
+    ContentMask const& content_mask,
     ImageTransformation const& xform, QRectF const& content_rect, QRectF const& page_rect)
     :   ImageViewBase(
             image, downscaled_image,
@@ -55,12 +56,16 @@ ImageView::ImageView(
         m_pHaveContentMenu(new QMenu(this)),
         m_contentRect(content_rect),
         m_pageRect(page_rect),
-        m_minBoxSize(10.0, 10.0)
+        m_minBoxSize(10.0, 10.0),
+        m_contentMask(content_mask)
 {
     setMouseTracking(true);
 
     interactionState().setDefaultStatusTip(
-        tr("Use the context menu to enable / disable the content box.")
+        tr("Use the context menu to enable / disable the content box. "
+           "Double-click on content to snap the nearest box edge to it "
+           "(Shift: left/right only, Ctrl: top/bottom only, Ctrl+Shift: corner); "
+           "double-click outside the box to include that content.")
     );
 
     QString const drag_tip(tr("Drag lines or corners to resize the content box. Hold %1 to move it, %2 to move along axes, %3 to shrink/stretch.")
@@ -264,6 +269,49 @@ ImageView::onContextMenuEvent(QContextMenuEvent* event, InteractionState& intera
     } else {
         m_pHaveContentMenu->popup(event->globalPos());
     }
+}
+
+void
+ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction)
+{
+    if (interaction.captured()) {
+        return;
+    }
+    if (event->button() == Qt::LeftButton) {
+        if (!m_contentRect.isEmpty() && !m_contentMask.isNull()) {
+            correctContentBox(QPointF(0.5, 0.5) + event->pos(), event->modifiers());
+            event->accept();
+        }
+    }
+}
+
+void
+ImageView::correctContentBox(QPointF const& pos, Qt::KeyboardModifiers const mask)
+{
+    Qt::KeyboardModifiers const mods = mask & (Qt::ShiftModifier | Qt::ControlModifier);
+    ContentMask::SnapMode const mode =
+        mods == Qt::ShiftModifier ? ContentMask::SNAP_HORIZONTAL
+        : mods == Qt::ControlModifier ? ContentMask::SNAP_VERTICAL
+        : mods == (Qt::ShiftModifier | Qt::ControlModifier) ? ContentMask::SNAP_CORNER
+        : ContentMask::SNAP_NEAREST;
+
+    QRectF rect(m_contentRect);
+    // Use the same minimum size as a drag, and convert it from widget pixels.
+    double const min_size = std::max(
+        widgetToVirtual().mapRect(QRectF(QPointF(0, 0), m_minBoxSize)).width(), 1.0);
+    if (!m_contentMask.snapContentRect(rect, widgetToVirtual().map(pos), mode, virtualDisplayRect(), min_size)) {
+        return;
+    }
+    m_contentRect = rect;
+
+    update();
+
+    if (m_contentRect.isValid()) {
+        StatusBarProvider::setPagePhysSize(m_contentRect.size(), StatusBarProvider::getOriginalDpi());
+        setCursorPosAdjustment(m_contentRect.topLeft());
+    }
+
+    emit manualContentRectSet(m_contentRect);
 }
 
 QPointF
