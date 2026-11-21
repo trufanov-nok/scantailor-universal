@@ -20,6 +20,7 @@
 #define UTILS_H_
 
 #include <QString>
+#include <QSize>
 #include "ThumbnailPixmapCache.h"
 #include "StatusBarProvider.h"
 
@@ -38,7 +39,10 @@ public:
      */
     static void maybeCreateCacheDir(QString const& output_dir);
 
-    static QString outputDirToThumbDir(QString const& output_dir);
+    // Each thumbnail quality has its own directory, so that a change of quality does not use thumbnails of a different size.
+    static QString outputDirToThumbDir(QString const& output_dir, QSize const& max_thumb_size);
+
+    static QSize thumbnailMaxSize();
 
     static IntrusivePtr<ThumbnailPixmapCache> createThumbnailCache(QString const& output_dir);
 

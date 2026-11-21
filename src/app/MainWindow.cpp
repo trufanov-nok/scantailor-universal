@@ -373,6 +373,14 @@ MainWindow::settingsChanged()
         }
     }
 
+    if (m_ptrThumbnailCache.get()) {
+        QSize const max_thumb_size = Utils::thumbnailMaxSize();
+        if (m_ptrThumbnailCache->maxThumbSize() != max_thumb_size) {
+            m_ptrThumbnailCache->setThumbDirAndMaxSize(
+                Utils::outputDirToThumbDir(m_outFileNameGen.outDir(), max_thumb_size), max_thumb_size);
+        }
+    }
+
     m_maxLogicalThumbSize = settings.value(_key_thumbnails_max_thumb_size, _key_thumbnails_max_thumb_size_def).toSizeF();
     if (m_ptrThumbSequence.get()) {
         if (m_ptrThumbSequence->maxLogicalThumbSize() != m_maxLogicalThumbSize) {
@@ -1117,7 +1125,8 @@ MainWindow::performRelinking(IntrusivePtr<AbstractRelinker> const& relinker)
 
     Utils::maybeCreateCacheDir(m_outFileNameGen.outDir());
 
-    m_ptrThumbnailCache->setThumbDir(Utils::outputDirToThumbDir(m_outFileNameGen.outDir()));
+    m_ptrThumbnailCache->setThumbDir(
+        Utils::outputDirToThumbDir(m_outFileNameGen.outDir(), m_ptrThumbnailCache->maxThumbSize()));
     resetThumbSequence(currentPageOrderProvider());
     m_selectedPage.set(m_ptrThumbSequence->selectionLeader().id(), getCurrentView());
 
