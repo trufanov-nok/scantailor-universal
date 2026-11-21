@@ -39,6 +39,8 @@
 #include "PageSelectionAccessor.h"
 #include "ProjectReader.h"
 
+class LoadFileTask;
+
 class ConsoleBatch
 {
     // Member-wise copying is OK.
@@ -69,7 +71,9 @@ private:
     void setupPageLayout(std::set<PageId> allPages);
     void setupOutput(std::set<PageId> allPages);
 
-    BackgroundTaskPtr createCompositeTask(
+    void checkImageFiles() const;
+
+    IntrusivePtr<LoadFileTask> createCompositeTask(
         PageInfo const& page,
         int const last_filter_idx
     );

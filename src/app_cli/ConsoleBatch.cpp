@@ -19,6 +19,9 @@
 */
 
 #include <vector>
+#include <set>
+#include <string>
+#include <stdexcept>
 #include <iostream>
 #include <assert.h>
 
@@ -68,6 +71,8 @@
 #include "filters/output/CacheDrivenTask.h"
 
 #include <QMap>
+#include <QDir>
+#include <QFileInfo>
 #include <QImage>
 #include <QDomDocument>
 
@@ -122,7 +127,7 @@ ConsoleBatch::ConsoleBatch(QString const project_file)
     m_outFileNameGen = OutputFileNameGenerator(m_ptrDisambiguator, output_directory, m_ptrPages->layoutDirection());
 }
 
-BackgroundTaskPtr
+IntrusivePtr<LoadFileTask>
 ConsoleBatch::createCompositeTask(
     PageInfo const& page,
     int const last_filter_idx)
@@ -176,7 +181,7 @@ ConsoleBatch::createCompositeTask(
     }
     assert(fix_orientation_task);
 
-    return BackgroundTaskPtr(
+    return IntrusivePtr<LoadFileTask>(
                new LoadFileTask(
                    BackgroundTask::BATCH,
                    page, m_ptrThumbnailCache, m_ptrPages, fix_orientation_task
@@ -184,11 +189,52 @@ ConsoleBatch::createCompositeTask(
            );
 }
 
+// The GUI uses a Qt resource image for empty pages, and the CLI cannot load it, so the CLI skips these pages as before.
+static bool
+isResourcePath(QString const& path)
+{
+    return path.startsWith(QLatin1Char(':'));
+}
+
+void
+ConsoleBatch::checkImageFiles() const
+{
+    std::set<QString> checked;
+    int bad_files = 0;
+    PageSequence const images = m_ptrPages->toPageSequence(IMAGE_VIEW);
+    for (PageInfo const& page : images) {
+        QString const path = page.imageId().filePath();
+        if (isResourcePath(path) || !checked.insert(path).second) {
+            continue;
+        }
+        QFileInfo const file(path);
+        QString const native_path = QDir::toNativeSeparators(file.absoluteFilePath());
+        if (!file.exists()) {
+            std::cerr << "Error: The image file does not exist: "
+                      << native_path.toLocal8Bit().constData() << std::endl;
+            ++bad_files;
+        } else if (!file.isFile() || !file.isReadable()) {
+            std::cerr << "Error: The image file cannot be read: "
+                      << native_path.toLocal8Bit().constData() << std::endl;
+            ++bad_files;
+        }
+    }
+
+    if (bad_files > 0) {
+        throw std::runtime_error(
+            "Error: " + std::to_string(bad_files) + " image file(s) are missing or cannot be read. No page was processed."
+        );
+    }
+}
+
 // process the image vector **images** and save output to **output_dir**
 void
 ConsoleBatch::process()
 {
     CommandLine const& cli = CommandLine::get();
+
+    // Stop before the filters write output or change settings, because these images will fail later.
+    checkImageFiles();
 
     // get first filter id
     int startFilterIdx = m_ptrStages->fixOrientationFilterIdx();
@@ -219,12 +265,27 @@ ConsoleBatch::process()
         // process pages
         PageSequence page_sequence = m_ptrPages->toPageSequence(PAGE_VIEW);
         setupFilter(j, page_sequence.asPageIdSet());
+        int failed_pages = 0;
         for (const PageInfo& page : page_sequence) {
             if (cli.isVerbose()) {
                 std::cout << "\tProcessing: " << page.imageId().filePath().toLocal8Bit().constData() << "\n";
             }
-            BackgroundTaskPtr bgTask = createCompositeTask(page, j);
+            IntrusivePtr<LoadFileTask> bgTask = createCompositeTask(page, j);
             (*bgTask)();
+            if (bgTask->loadFailed() && !isResourcePath(page.imageId().filePath())) {
+                std::cerr << "Error: The image cannot be loaded: "
+                          << QDir::toNativeSeparators(QFileInfo(page.imageId().filePath()).absoluteFilePath()).toLocal8Bit().constData();
+                if (page.imageId().isMultiPageFile()) {
+                    std::cerr << " (page " << page.imageId().page() << ")";
+                }
+                std::cerr << std::endl;
+                ++failed_pages;
+            }
+        }
+        if (failed_pages > 0) {
+            throw std::runtime_error(
+                "Error: " + std::to_string(failed_pages) + " page(s) failed because their images cannot be loaded."
+            );
         }
     }
 

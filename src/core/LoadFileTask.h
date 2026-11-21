@@ -48,6 +48,12 @@ public:
     virtual ~LoadFileTask();
 
     virtual FilterResultPtr operator()();
+
+    // The console batch reads this flag, because it does not show the error result.
+    bool loadFailed() const
+    {
+        return m_loadFailed;
+    }
 private:
     class ErrorResult;
 
@@ -60,6 +66,7 @@ private:
     ImageMetadata m_imageMetadata;
     IntrusivePtr<ProjectPages> const m_ptrPages;
     IntrusivePtr<fix_orientation::Task> const m_ptrNextTask;
+    bool m_loadFailed;
 };
 
 #endif
