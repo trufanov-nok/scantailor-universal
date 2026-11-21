@@ -42,7 +42,8 @@ class ProjectReader
 public:
     typedef IntrusivePtr<AbstractFilter> FilterPtr;
 
-    ProjectReader(QDomDocument const& doc);
+    // Relative paths start at the folder of project_file, so that a project can move together with its scans.
+    ProjectReader(QDomDocument const& doc, QString const& project_file = QString());
 
     ~ProjectReader();
 
@@ -97,6 +98,8 @@ private:
     typedef std::map<int, ImageInfo> ImageMap;
     typedef std::map<int, PageId> PageMap;
 
+    QString resolvePath(QString const& path) const;
+
     void processDirectories(QDomElement const& dirs_el);
 
     void processFiles(QDomElement const& files_el);
@@ -118,6 +121,7 @@ private:
 
     QDomDocument m_doc;
     QString m_outDir;
+    QString m_projectDir;
     QString m_inputDir;
     DirMap m_dirMap;
     FileMap m_fileMap;

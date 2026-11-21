@@ -30,6 +30,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QFileInfo>
+#include <QDir>
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #endif
@@ -89,7 +90,8 @@ ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& fil
     QDomDocument doc;
     QDomElement root_el(doc.createElement("project"));
     doc.appendChild(root_el);
-    root_el.setAttribute("outputDirectory", m_outFileNameGen.outDir());
+    QString const project_dir(QFileInfo(file_path).absolutePath());
+    root_el.setAttribute("outputDirectory", packDirPath(m_outFileNameGen.outDir(), project_dir));
     root_el.setAttribute(
         "layoutDirection",
         m_layoutDirection == Qt::LeftToRight ? "LTR" : "RTL"
@@ -100,7 +102,7 @@ ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& fil
     st_el.setAttribute("ver", VERSION);
     root_el.appendChild(st_el);
 
-    root_el.appendChild(processDirectories(doc));
+    root_el.appendChild(processDirectories(doc, project_dir));
     root_el.appendChild(processFiles(doc));
     root_el.appendChild(processImages(doc));
     root_el.appendChild(processPages(doc));
@@ -133,15 +135,34 @@ ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& fil
     return false;
 }
 
+QString
+ProjectWriter::packDirPath(QString const& path, QString const& project_dir)
+{
+    if (path.isEmpty() || project_dir.isEmpty() || path.startsWith(':')) {
+        return path;
+    }
+    // A relative path in memory, for example a CLI argument, starts at the current directory.
+    QString const abs(QDir::cleanPath(QFileInfo(path).absoluteFilePath()));
+    QString const rel(QDir(project_dir).relativeFilePath(abs));
+    if (rel.isEmpty() || rel == ".") {
+        return ".";
+    }
+    // outside the project folder (or on another drive): absolute
+    if (QDir::isAbsolutePath(rel) || rel == ".." || rel.startsWith("../")) {
+        return QDir::isAbsolutePath(path) ? path : abs;
+    }
+    return rel;
+}
+
 QDomElement
-ProjectWriter::processDirectories(QDomDocument& doc) const
+ProjectWriter::processDirectories(QDomDocument& doc, QString const& project_dir) const
 {
     QDomElement dirs_el(doc.createElement("directories"));
 
     for (Directory const& dir : m_dirs.get<Sequenced>()) {
         QDomElement dir_el(doc.createElement("directory"));
         dir_el.setAttribute("id", dir.numericId);
-        dir_el.setAttribute("path", dir.path);
+        dir_el.setAttribute("path", packDirPath(dir.path, project_dir));
         dirs_el.appendChild(dir_el);
     }
 

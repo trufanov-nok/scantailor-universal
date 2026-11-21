@@ -102,7 +102,7 @@ ConsoleBatch::ConsoleBatch(QString const project_file)
 
     file.close();
 
-    m_ptrReader.reset(new ProjectReader(doc));
+    m_ptrReader.reset(new ProjectReader(doc, project_file));
     m_ptrPages = m_ptrReader->pages();
 
     PageSelectionAccessor const accessor((IntrusivePtr<PageSelectionProvider>())); // Won't be used anyway.
