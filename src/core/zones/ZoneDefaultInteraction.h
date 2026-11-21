@@ -64,6 +64,14 @@ protected:
     virtual void onKeyReleaseEvent(QKeyEvent* event, InteractionState& interaction) override;
 private:
     void onProximityUpdate(QPointF const& mouse_pos, InteractionState& interaction, ShiftState forseShiftHold);
+
+    void updateDefaultStatusTip();
+
+    void startDragCopy(QMouseEvent* event, InteractionState& interaction);
+
+    bool deleteUnderMouse(InteractionState& interaction);
+
+    static bool isDragCopyModifiers(Qt::KeyboardModifiers modifiers);
 private:
     ZoneInteractionContext& m_rContext;
     BasicSplineVisualizer m_visualizer;
@@ -100,6 +108,7 @@ private:
     EditableSpline::Ptr m_ptrNearestSegmentSpline;
     QPointF m_screenPointOnSegment;
     ShiftState m_lastMovingState;
+    bool m_dragCopyModifiersHeld;
     QMenu m_defaultMenu;
     QAction* m_pasteAction;
 

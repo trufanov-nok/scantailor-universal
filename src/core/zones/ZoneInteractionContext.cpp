@@ -24,6 +24,9 @@
 #include "ZoneDragInteraction.h"
 #include "ZoneContextMenuInteraction.h"
 #include "ImageViewBase.h"
+#include "settings/ini_keys.h"
+#include <QKeyEvent>
+#include <QSettings>
 #ifndef Q_MOC_RUN
 #include <boost/bind.hpp>
 #endif
@@ -36,7 +39,7 @@ ZoneInteractionContext::ZoneInteractionContext(
             boost::bind(&ZoneInteractionContext::createStdDefaultInteraction, this)
         ),
         m_zoneCreationInteractionCreator(
-            boost::bind(&ZoneInteractionContext::createStdZoneCreationInteraction, this, _1)
+            boost::bind(&ZoneInteractionContext::createStdZoneCreationInteraction, this, _1, _2)
         ),
         m_vertexDragInteractionCreator(
             boost::bind(&ZoneInteractionContext::createStdVertexDragInteraction, this, _1, _2, _3)
@@ -45,7 +48,7 @@ ZoneInteractionContext::ZoneInteractionContext(
             boost::bind(&ZoneInteractionContext::createStdEllipseVertexDragInteraction, this, _1, _2, _3)
         ),
         m_dragInteractionCreator(
-            boost::bind(&ZoneInteractionContext::createStdDragInteraction, this, _1, _2, _3)
+            boost::bind(&ZoneInteractionContext::createStdDragInteraction, this, _1, _2, _3, _4)
         ),
         m_contextMenuInteractionCreator(
             boost::bind(&ZoneInteractionContext::createStdContextMenuInteraction, this, _1)
@@ -65,9 +68,10 @@ ZoneInteractionContext::createStdDefaultInteraction()
 }
 
 InteractionHandler*
-ZoneInteractionContext::createStdZoneCreationInteraction(InteractionState& interaction)
+ZoneInteractionContext::createStdZoneCreationInteraction(
+    InteractionState& interaction, bool lasso_started)
 {
-    return new ZoneCreationInteraction(*this, interaction);
+    return new ZoneCreationInteraction(*this, interaction, lasso_started);
 }
 
 InteractionHandler*
@@ -89,15 +93,57 @@ ZoneInteractionContext::createStdEllipseVertexDragInteraction(
 InteractionHandler*
 ZoneInteractionContext::createStdDragInteraction(
     InteractionState& interaction, EditableZoneSet::Zone const& zone,
-    QPointF const& vertex)
+    QPointF const& vertex, bool copy)
 {
-    return new ZoneDragInteraction(*this, interaction, zone, vertex);
+    return new ZoneDragInteraction(*this, interaction, zone, vertex, copy);
 }
 
 InteractionHandler*
 ZoneInteractionContext::createStdContextMenuInteraction(InteractionState& interaction)
 {
     return ZoneContextMenuInteraction::create(*this, interaction);
+}
+
+static int s_zoneCreationMode = -1;
+
+ZoneInteractionContext::ZoneCreationMode
+ZoneInteractionContext::zoneCreationMode()
+{
+    if (s_zoneCreationMode < 0) {
+        int const mode = QSettings().value(
+                             _key_zone_editor_creation_mode, _key_zone_editor_creation_mode_def).toInt();
+        s_zoneCreationMode = (mode == LASSO || mode == RECTANGULAR) ? mode : POLYGONAL;
+    }
+    return static_cast<ZoneCreationMode>(s_zoneCreationMode);
+}
+
+void
+ZoneInteractionContext::setZoneCreationMode(ZoneCreationMode mode)
+{
+    s_zoneCreationMode = mode;
+    QSettings().setValue(_key_zone_editor_creation_mode, static_cast<int>(mode));
+}
+
+bool
+ZoneInteractionContext::processZoneCreationModeKey(QKeyEvent const* event)
+{
+    if (event->modifiers() != Qt::NoModifier || event->isAutoRepeat()) {
+        return false;
+    }
+
+    switch (event->key()) {
+    case Qt::Key_P:
+        setZoneCreationMode(POLYGONAL);
+        return true;
+    case Qt::Key_L:
+        setZoneCreationMode(LASSO);
+        return true;
+    case Qt::Key_R:
+        setZoneCreationMode(RECTANGULAR);
+        return true;
+    default:
+        return false;
+    }
 }
 
 void

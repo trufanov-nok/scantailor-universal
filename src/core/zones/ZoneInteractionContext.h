@@ -29,6 +29,7 @@
 
 class InteractionHandler;
 class InteractionState;
+class QKeyEvent;
 class ImageViewBase;
 class EditableZoneSet;
 
@@ -39,8 +40,15 @@ public:
     InteractionHandler* ()
     > DefaultInteractionCreator;
 
+    // The settings keep these values, so do not change them.
+    enum ZoneCreationMode {
+        POLYGONAL = 0,
+        LASSO = 1,
+        RECTANGULAR = 2
+    };
+
     typedef boost::function <
-    InteractionHandler* (InteractionState& interaction)
+    InteractionHandler* (InteractionState& interaction, bool lasso_started)
     > ZoneCreationInteractionCreator;
 
     typedef boost::function <
@@ -60,7 +68,7 @@ public:
     typedef boost::function <
     InteractionHandler* (
         InteractionState& interaction,
-        EditableZoneSet::Zone const& zone, QPointF const& vertex
+        EditableZoneSet::Zone const& zone, QPointF const& vertex, bool copy
     )
     > DragInteractionCreator;
 
@@ -96,9 +104,10 @@ public:
         m_defaultInteractionCreator = creator;
     }
 
-    virtual InteractionHandler* createZoneCreationInteraction(InteractionState& interaction)
+    virtual InteractionHandler* createZoneCreationInteraction(
+        InteractionState& interaction, bool lasso_started = false)
     {
-        return m_zoneCreationInteractionCreator(interaction);
+        return m_zoneCreationInteractionCreator(interaction, lasso_started);
     }
 
     void setZoneCreationInteractionCreator(ZoneCreationInteractionCreator const& creator)
@@ -132,9 +141,9 @@ public:
 
     virtual InteractionHandler* createDragInteraction(
         InteractionState& interaction, EditableZoneSet::Zone const& zone,
-        QPointF const& vertex)
+        QPointF const& vertex, bool copy = false)
     {
-        return m_dragInteractionCreator(interaction, zone, vertex);
+        return m_dragInteractionCreator(interaction, zone, vertex, copy);
     }
 
     void setDragInteractionCreator(DragInteractionCreator const& creator)
@@ -165,6 +174,13 @@ public:
         m_showPropertiesCommand = command;
     }
 
+    // The editors share one mode, so a change in one editor applies to the others.
+    static ZoneCreationMode zoneCreationMode();
+
+    static void setZoneCreationMode(ZoneCreationMode mode);
+
+    static bool processZoneCreationModeKey(QKeyEvent const* event);
+
     void copyToDialogRequested(const ::Zone* zone);
     void deleteFromDialogRequested(const ::Zone* zone);
 private:
@@ -176,7 +192,7 @@ private:
     /**
      * Creates an instance of ZoneCreationInteraction.
      */
-    InteractionHandler* createStdZoneCreationInteraction(InteractionState& interaction);
+    InteractionHandler* createStdZoneCreationInteraction(InteractionState& interaction, bool lasso_started);
 
     /**
      * Creates an instance of ZoneVertexDragInteraction.
@@ -196,7 +212,7 @@ private:
      * Creates an instance of ZoneDragInteraction.
      */
     InteractionHandler* createStdDragInteraction(InteractionState& interaction, EditableZoneSet::Zone const& zone,
-        const QPointF &vertex);
+        const QPointF &vertex, bool copy);
 
     /**
      * Creates an instance of ZoneContextMenuInteraction.  May return null.

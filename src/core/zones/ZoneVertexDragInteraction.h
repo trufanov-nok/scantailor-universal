@@ -35,6 +35,8 @@ public:
     ZoneVertexDragInteraction(
         ZoneInteractionContext& context, InteractionState& interaction,
         EditableSpline::Ptr const& spline, SplineVertex::Ptr const& vertex);
+
+    static bool alignNeighbours(QPointF const& current, QPointF& prev, QPointF& next);
 protected:
     virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 
@@ -43,6 +45,8 @@ protected:
     virtual void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction);
 private:
     void checkProximity(InteractionState const& interaction);
+
+    void makeRightAngle();
 
     ZoneInteractionContext& m_rContext;
     EditableSpline::Ptr m_ptrSpline;

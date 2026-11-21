@@ -22,6 +22,8 @@
 #include "ImageViewBase.h"
 #include "InteractionState.h"
 #include "LocalClipboard.h"
+#include "SerializableSpline.h"
+#include "SerializableEllipse.h"
 #include "settings/globalstaticsettings.h"
 #include <QTransform>
 #include <QPolygon>
@@ -42,25 +44,25 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
     :   m_rContext(context),
         m_dragHandler(context.imageView()),
         m_dragWatcher(m_dragHandler),
-        m_mouse_over_zone(false)
+        m_mouse_over_zone(false),
+        m_lastMovingState(ShiftStateUnknown),
+        m_dragCopyModifiersHeld(false)
 {
     makeLastFollower(m_dragHandler);
     m_dragHandler.makeFirstFollower(m_dragWatcher);
 
-    m_vertexProximity.setProximityStatusTip(tr("Drag the vertex."));
+    m_vertexProximity.setProximityStatusTip(tr("Drag the vertex. Hold %1 to make a right angle. Press %2 to delete the vertex.")
+                                            .arg(GlobalStaticSettings::getShortcutText(ZoneRectangle),
+                                                 GlobalStaticSettings::getShortcutText(ZoneDelete)));
     m_segmentProximity.setProximityStatusTip(tr("Click to create a new vertex here."));
     m_ellipseCenterProximity.setProximityStatusTip(tr("Hold to move the ellipse."));
     m_ellipseCenterProximity.setProximityCursor(QCursor(Qt::DragMoveCursor));
     m_ellipseCoVertexProximity.setProximityStatusTip(tr("Hold to change ellipse size or angle."));
-    m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties. Hold %1 to move.")
-            .arg(GlobalStaticSettings::getShortcutText(ZoneMove)));
-    QString status_tip(tr("Click to start creating a new zone."));
-
-    if (LocalClipboard::getInstance()->lastZoneIsValid()) {
-        status_tip.append(" ").append(tr("%1 + double click to repeat the last zone.")
-                                      .arg(GlobalStaticSettings::getShortcutText(ZoneClone)));
-    }
-    m_rContext.imageView().interactionState().setDefaultStatusTip(status_tip);
+    m_zoneAreaProximity.setProximityStatusTip(tr("Right click to edit zone properties. Hold %1 to move, %2 to copy. Press %3 to delete the zone.")
+            .arg(GlobalStaticSettings::getShortcutText(ZoneMove),
+                 QHotKeys::modifiersToString(Qt::ControlModifier | Qt::AltModifier),
+                 GlobalStaticSettings::getShortcutText(ZoneDelete)));
+    updateDefaultStatusTip();
 
     m_pasteAction = m_defaultMenu.addAction(tr("&Paste"));
     m_pasteAction->setShortcut(GlobalStaticSettings::createShortcut(ZonePaste));
@@ -70,6 +72,36 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
             clb->pasteZone(m_rContext);
         }
     });
+}
+
+void
+ZoneDefaultInteraction::updateDefaultStatusTip()
+{
+    QString status_tip;
+    switch (m_rContext.zoneCreationMode()) {
+    case ZoneInteractionContext::LASSO:
+        status_tip = tr("Hold the left mouse button and move the mouse to draw a new zone.");
+        break;
+    case ZoneInteractionContext::RECTANGULAR:
+        status_tip = tr("Click to start creating a new rectangular zone.");
+        break;
+    default:
+        status_tip = tr("Click to start creating a new zone.");
+        break;
+    }
+    status_tip.append(" ").append(tr("Press P, L or R for polygonal, lasso or rectangular mode."));
+
+    if (LocalClipboard::getInstance()->lastZoneIsValid()) {
+        status_tip.append(" ").append(tr("%1 + double click to repeat the last zone.")
+                                      .arg(GlobalStaticSettings::getShortcutText(ZoneClone)));
+    }
+    m_rContext.imageView().interactionState().setDefaultStatusTip(status_tip);
+}
+
+bool
+ZoneDefaultInteraction::isDragCopyModifiers(Qt::KeyboardModifiers modifiers)
+{
+    return modifiers == (Qt::ControlModifier | Qt::AltModifier);
 }
 
 void
@@ -277,6 +309,8 @@ ZoneDefaultInteraction::onProximityUpdate(QPointF const& mouse_pos, InteractionS
         if (shiftState == ShiftStatePressed ||
                 (shiftState == ShiftStateUnknown && m_lastMovingState == ShiftStatePressed)) {
             m_zoneAreaProximity.setProximityCursor(QCursor(Qt::DragMoveCursor));
+        } else if (m_dragCopyModifiersHeld) {
+            m_zoneAreaProximity.setProximityCursor(QCursor(Qt::DragCopyCursor));
         } else {
             m_zoneAreaProximity.setProximityCursor(QCursor());
         }
@@ -316,6 +350,12 @@ ZoneDefaultInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& 
                         );
             delete this;
             event->accept();
+            return;
+        }
+
+        if (event->button() == Qt::LeftButton && isDragCopyModifiers(mask)) {
+            startDragCopy(event, interaction);
+            return;
         }
     }
 
@@ -350,6 +390,37 @@ ZoneDefaultInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& 
                     );
         delete this;
         event->accept();
+    } else if (m_rContext.zoneCreationMode() == ZoneInteractionContext::LASSO &&
+               event->modifiers() == Qt::NoModifier) {
+        makePeerPreceeder(*m_rContext.createZoneCreationInteraction(interaction, true));
+        delete this;
+        event->accept();
+    }
+}
+
+void
+ZoneDefaultInteraction::startDragCopy(QMouseEvent* event, InteractionState& interaction)
+{
+    EditableZoneSet& zones = m_rContext.zones();
+    EditableSpline::Ptr new_spline;
+    EditableEllipse::Ptr new_ellipse;
+    if (m_ptrNearestZone.isEllipse()) {
+        new_ellipse.reset(new EditableEllipse(SerializableEllipse(*m_ptrNearestZone.ellipse())));
+        zones.addEllipse(new_ellipse, *m_ptrNearestZone.properties());
+    } else {
+        new_spline.reset(new EditableSpline(SerializableSpline(*m_ptrNearestZone.spline())));
+        zones.addSpline(new_spline, *m_ptrNearestZone.properties());
+    }
+
+    for (EditableZoneSet::Zone const& zone : zones) {
+        if ((new_spline && zone.spline() == new_spline) ||
+                (new_ellipse && zone.ellipse() == new_ellipse)) {
+            QPointF const vertex = new_ellipse ? new_ellipse->center() : new_spline->firstVertex()->point();
+            makePeerPreceeder(*m_rContext.createDragInteraction(interaction, zone, vertex, true));
+            delete this;
+            event->accept();
+            return;
+        }
     }
 }
 
@@ -384,6 +455,7 @@ ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& /
                        GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
                        GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
     m_lastMovingState = moved ? ShiftStatePressed : ShiftStateUnpressed;
+    m_dragCopyModifiersHeld = isDragCopyModifiers(mask);
 }
 
 void
@@ -410,9 +482,61 @@ ZoneDefaultInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& inte
     const bool moved = GlobalStaticSettings::checkModifiersMatch(ZoneMove, mask) ||
                        GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
                        GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
-    if (moved) {
-        onProximityUpdate(m_screenMousePos, interaction, ShiftStatePressed);
+    bool const copy_held = isDragCopyModifiers(mask);
+    if (moved || copy_held != m_dragCopyModifiersHeld) {
+        m_dragCopyModifiersHeld = copy_held;
+        onProximityUpdate(m_screenMousePos, interaction, moved ? ShiftStatePressed : ShiftStateUnpressed);
     }
+
+    if (GlobalStaticSettings::checkKeysMatch(ZoneDelete, mask, (Qt::Key) event->key())) {
+        if (deleteUnderMouse(interaction)) {
+            event->accept();
+        }
+    } else if (m_rContext.processZoneCreationModeKey(event)) {
+        updateDefaultStatusTip();
+        event->accept();
+    }
+}
+
+bool
+ZoneDefaultInteraction::deleteUnderMouse(InteractionState& interaction)
+{
+    EditableZoneSet& zones = m_rContext.zones();
+    if (interaction.proximityLeader(m_vertexProximity)) {
+        // A zone must keep at least 3 vertices.
+        if (!m_ptrNearestVertex || !m_ptrNearestVertexSpline ||
+                !m_ptrNearestVertexSpline->hasAtLeastSegments(4)) {
+            return false;
+        }
+        m_ptrNearestVertex->remove();
+        LocalClipboard::getInstance()->setLastZonePolygon(m_ptrNearestVertexSpline->toPolygon());
+    } else if (m_mouse_over_zone) {
+        if (m_ptrNearestZone.isEllipse()) {
+            EditableEllipse::Ptr const ellipse(m_ptrNearestZone.ellipse());
+            zones.removeEllipse(ellipse);
+        } else {
+            EditableSpline::Ptr const spline(m_ptrNearestZone.spline());
+            zones.removeSpline(spline);
+        }
+    } else {
+        return false;
+    }
+
+    bool const zone_deleted = !interaction.proximityLeader(m_vertexProximity);
+    m_ptrNearestVertex.reset();
+    m_ptrNearestVertexSpline.reset();
+    m_ptrNearestEllipse.reset();
+    m_nearestSegment = SplineSegment();
+    m_ptrNearestSegmentSpline.reset();
+    m_mouse_over_zone = false;
+    interaction.resetProximity();
+
+    zones.commit();
+    if (zone_deleted) {
+        emit zones.manuallyDeleted();
+    }
+    m_rContext.imageView().update();
+    return true;
 }
 
 void
@@ -423,7 +547,9 @@ ZoneDefaultInteraction::onKeyReleaseEvent(QKeyEvent* event, InteractionState& in
                        GlobalStaticSettings::checkModifiersMatch(ZoneMoveHorizontally, mask) ||
                        GlobalStaticSettings::checkModifiersMatch(ZoneMoveVertically, mask);
 
-    if (moved) {
+    bool const copy_held = isDragCopyModifiers(mask);
+    if (moved || copy_held != m_dragCopyModifiersHeld) {
+        m_dragCopyModifiersHeld = copy_held;
         onProximityUpdate(m_screenMousePos, interaction, ShiftStateUnpressed);
     }
 

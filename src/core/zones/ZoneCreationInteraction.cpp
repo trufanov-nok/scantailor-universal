@@ -36,13 +36,17 @@
 #include <QDebug>
 
 ZoneCreationInteraction::ZoneCreationInteraction(
-    ZoneInteractionContext& context, InteractionState& interaction)
+    ZoneInteractionContext& context, InteractionState& interaction, bool lasso_started)
     :   m_rContext(context),
-        m_dragHandler(context.imageView(), [](InteractionState const&) { return true; }),
+        m_dragHandler(context.imageView(), [this](InteractionState const&) { return isDragHandlerPermitted(); }),
         m_dragWatcher(m_dragHandler),
         m_zoomHandler(context.imageView(), [](InteractionState const&) { return true; }),
         m_ptrSpline(new EditableSpline),
-        m_ptrEllipse(new EditableEllipse)
+        m_ptrEllipse(new EditableEllipse),
+        m_initialZoneCreationMode(context.zoneCreationMode()),
+        m_leftMouseButtonPressed(lasso_started),
+        m_mouseButtonModifiers(Qt::NoModifier),
+        m_lassoStrokeVertices(0)
 {
     QPointF const screen_mouse_pos(
         m_rContext.imageView().mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5)
@@ -230,13 +234,37 @@ ZoneCreationInteraction::onKeyPressEvent(QKeyEvent* event, InteractionState& /*i
         m_rContext.imageView().update();
         delete this;
         event->accept();
+    } else if (!m_leftMouseButtonPressed && m_rContext.processZoneCreationModeKey(event)) {
+        updateStatusTip();
+        m_rContext.imageView().update();
+        event->accept();
     }
+}
+
+void
+ZoneCreationInteraction::onMousePressEvent(QMouseEvent* event, InteractionState&)
+{
+    if (event->button() != Qt::LeftButton) {
+        return;
+    }
+
+    m_leftMouseButtonPressed = true;
+    m_mouseButtonModifiers = event->modifiers();
+    m_lassoStrokeVertices = 0;
 }
 
 void
 ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& interaction)
 {
     if (event->button() != Qt::LeftButton) {
+        return;
+    }
+
+    bool const lasso_stroke_done = isLassoDrawing() && m_lassoStrokeVertices > 0;
+    m_leftMouseButtonPressed = false;
+    if (lasso_stroke_done) {
+        // The user continues the zone with clicks or with a new lasso stroke.
+        event->accept();
         return;
     }
 
@@ -268,7 +296,9 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
 //added:
 
     if (m_nextVertexImagePos != m_nextVertexImagePos_mid1 &&
-            m_nextVertexImagePos != m_nextVertexImagePos_mid2 && (m_zoneMode == Rectangle)) {
+            m_nextVertexImagePos != m_nextVertexImagePos_mid2 && (m_zoneMode == Rectangle) &&
+            m_ptrSpline->segmentsCount() == 0 &&
+            m_nextVertexImagePos != m_ptrSpline->firstVertex()->point()) {
         m_ptrSpline->appendVertex(m_nextVertexImagePos_mid1);
         m_ptrSpline->appendVertex(image_mouse_pos);
         m_ptrSpline->appendVertex(m_nextVertexImagePos_mid2);
@@ -288,19 +318,17 @@ ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionStat
     } else {
 //end of modified by monday2000
 
+        if (currentZoneCreationMode() == ZoneInteractionContext::RECTANGULAR &&
+                m_nextVertexImagePos != m_ptrSpline->firstVertex()->point()) {
+            // A rectangle with zero width or height is not valid, so wait for the next click.
+            event->accept();
+            return;
+        }
+
         if (m_ptrSpline->hasAtLeastSegments(2) &&
                 m_nextVertexImagePos == m_ptrSpline->firstVertex()->point()) {
-            // Finishing the spline.  Bridging the first and the last points
-            // will create another segment.
-            m_ptrSpline->setBridged(true);
-            m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
-            m_rContext.zones().addSpline(m_ptrSpline);
-            LocalClipboard::getInstance()->setLastZonePolygon(m_ptrSpline->toPolygon());
-            m_rContext.zones().commit();
-
-            makePeerPreceeder(*m_rContext.createDefaultInteraction());
-            m_rContext.imageView().update();
-            delete this;
+            finishSpline();
+            return;
         } else if (m_nextVertexImagePos == m_ptrSpline->lastVertex()->point()) {
             // Removing the last vertex.
             m_ptrSpline->lastVertex()->remove();
@@ -345,7 +373,8 @@ ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& 
 //begin of modified by monday2000
 //Square_Picture_Zones
 
-        if (GlobalStaticSettings::checkModifiersMatch(ZoneRectangle, event->modifiers())) {
+        if (GlobalStaticSettings::checkModifiersMatch(ZoneRectangle, event->modifiers()) ||
+                currentZoneCreationMode() == ZoneInteractionContext::RECTANGULAR) {
             if (m_ptrSpline->segmentsCount() == 0) {
                 m_zoneMode = Rectangle;
 
@@ -380,6 +409,21 @@ ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& 
                 updateStatusTip();
             }
         }
+
+        if (isLassoDrawing()) {
+            QPointF const first(to_screen.map(m_ptrSpline->firstVertex()->point()));
+            Proximity const min_distance(interaction.proximityThreshold());
+            if (Proximity(last, screen_mouse_pos) > min_distance &&
+                    Proximity(first, screen_mouse_pos) > min_distance) {
+                m_ptrSpline->appendVertex(m_nextVertexImagePos);
+                ++m_lassoStrokeVertices;
+                updateStatusTip();
+            } else if (m_ptrSpline->hasAtLeastSegments(2) &&
+                       m_nextVertexImagePos == m_ptrSpline->firstVertex()->point()) {
+                finishSpline();
+                return;
+            }
+        }
     }
 
     m_rContext.imageView().update();
@@ -399,7 +443,10 @@ ZoneCreationInteraction::updateStatusTip()
 {
     QString tip;
 
-    if (m_ptrSpline->hasAtLeastSegments(2)) {
+    if (currentZoneCreationMode() == ZoneInteractionContext::RECTANGULAR) {
+        tip = tr("Click to finish this rectangular zone. %1 to cancel.")
+              .arg(GlobalStaticSettings::getShortcutText(ZoneCancel));
+    } else if (m_ptrSpline->hasAtLeastSegments(2)) {
         if (m_nextVertexImagePos == m_ptrSpline->firstVertex()->point()) {
             tip = tr("Click to finish this zone. %1 to cancel.")
                   .arg(GlobalStaticSettings::getShortcutText(ZoneCancel));
@@ -407,12 +454,60 @@ ZoneCreationInteraction::updateStatusTip()
             tip = tr("Connect first and last points to finish this zone. %1 to cancel.")
                   .arg(GlobalStaticSettings::getShortcutText(ZoneCancel));
         }
+    } else if (currentZoneCreationMode() == ZoneInteractionContext::LASSO) {
+        tip = tr("Hold the left mouse button and move the mouse to draw the zone. "
+                 "Press P for polygonal mode. %1 to cancel.")
+              .arg(GlobalStaticSettings::getShortcutText(ZoneCancel));
     } else {
         tip = tr("Zones need to have at least 3 points. Hold %2 for rectangle, %3 for ellipse. %1 to cancel.")
               .arg(GlobalStaticSettings::getShortcutText(ZoneCancel),
               GlobalStaticSettings::getShortcutText(ZoneRectangle),
               GlobalStaticSettings::getShortcutText(ZoneEllipse));
+        if (m_initialZoneCreationMode != ZoneInteractionContext::RECTANGULAR) {
+            tip.append(" ").append(tr("Press L for lasso mode."));
+        }
     }
 
     m_interaction.setInteractionStatusTip(tip);
+}
+
+ZoneInteractionContext::ZoneCreationMode
+ZoneCreationInteraction::currentZoneCreationMode() const
+{
+    // A zone that started as a rectangle stays a rectangle, but the other modes can change.
+    if (m_initialZoneCreationMode == ZoneInteractionContext::RECTANGULAR) {
+        return ZoneInteractionContext::RECTANGULAR;
+    }
+    if (m_rContext.zoneCreationMode() == ZoneInteractionContext::LASSO) {
+        return ZoneInteractionContext::LASSO;
+    }
+    return ZoneInteractionContext::POLYGONAL;
+}
+
+bool
+ZoneCreationInteraction::isLassoDrawing() const
+{
+    return currentZoneCreationMode() == ZoneInteractionContext::LASSO &&
+           m_leftMouseButtonPressed && m_mouseButtonModifiers == Qt::NoModifier;
+}
+
+bool
+ZoneCreationInteraction::isDragHandlerPermitted() const
+{
+    return !isLassoDrawing();
+}
+
+void
+ZoneCreationInteraction::finishSpline()
+{
+    // A bridge between the first and the last points creates another segment.
+    m_ptrSpline->setBridged(true);
+    m_ptrSpline->simplify(GlobalStaticSettings::m_zone_editor_min_angle);
+    m_rContext.zones().addSpline(m_ptrSpline);
+    LocalClipboard::getInstance()->setLastZonePolygon(m_ptrSpline->toPolygon());
+    m_rContext.zones().commit();
+
+    makePeerPreceeder(*m_rContext.createDefaultInteraction());
+    m_rContext.imageView().update();
+    delete this;
 }

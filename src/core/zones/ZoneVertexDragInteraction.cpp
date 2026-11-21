@@ -29,6 +29,7 @@
 #include <QLinearGradient>
 #include <Qt>
 #include <QLineF>
+#include <cmath>
 
 ZoneVertexDragInteraction::ZoneVertexDragInteraction(
     ZoneInteractionContext& context, InteractionState& interaction,
@@ -148,6 +149,8 @@ ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState
 
             m_ptrVertex->prev(SplineVertex::LOOP)->setPoint(from_screen.map(prev));
             m_ptrVertex->next(SplineVertex::LOOP)->setPoint(from_screen.map(next));
+        } else if (m_ptrVertex->hasAtLeastSiblings(2)) {
+            makeRightAngle();
         }
     } else {
         // No modifiers
@@ -156,6 +159,57 @@ ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState
 
     checkProximity(interaction);
     m_rContext.imageView().update();
+}
+
+void
+ZoneVertexDragInteraction::makeRightAngle()
+{
+    QTransform const to_screen(m_rContext.imageView().imageToWidget());
+    QTransform const from_screen(m_rContext.imageView().widgetToImage());
+    SplineVertex::Ptr const prev_vertex(m_ptrVertex->prev(SplineVertex::LOOP));
+    SplineVertex::Ptr const next_vertex(m_ptrVertex->next(SplineVertex::LOOP));
+
+    QPointF const current(to_screen.map(m_ptrVertex->point()));
+    QPointF prev(to_screen.map(prev_vertex->point()));
+    QPointF next(to_screen.map(next_vertex->point()));
+
+    if (!ZoneVertexDragInteraction::alignNeighbours(current, prev, next)) {
+        return;
+    }
+
+    prev_vertex->setPoint(from_screen.map(prev));
+    next_vertex->setPoint(from_screen.map(next));
+}
+
+bool
+ZoneVertexDragInteraction::alignNeighbours(QPointF const& current, QPointF& prev, QPointF& next)
+{
+    QPointF const to_prev(prev - current);
+    QPointF const to_next(next - current);
+    qreal const prev_len = std::hypot(to_prev.x(), to_prev.y());
+    qreal const next_len = std::hypot(to_next.x(), to_next.y());
+    if (prev_len == 0 && next_len == 0) {
+        return false;
+    }
+
+    // The edge that is nearer to vertical becomes vertical, and the other edge becomes horizontal.
+    qreal const diagonal_cos = 1.0 / std::sqrt(2.0);
+    qreal prev_cos = prev_len > 0 ? std::abs(to_prev.x()) / prev_len : 0.0;
+    qreal next_cos = next_len > 0 ? std::abs(to_next.x()) / next_len : 0.0;
+    // An edge of zero length takes the direction that the other edge does not take.
+    if (prev_len == 0) {
+        prev_cos = next_cos > diagonal_cos ? 0.0 : 1.0;
+    } else if (next_len == 0) {
+        next_cos = prev_cos > diagonal_cos ? 0.0 : 1.0;
+    }
+    if (prev_cos < next_cos) {
+        prev.setX(current.x());
+        next.setY(current.y());
+    } else {
+        next.setX(current.x());
+        prev.setY(current.y());
+    }
+    return true;
 }
 
 void
