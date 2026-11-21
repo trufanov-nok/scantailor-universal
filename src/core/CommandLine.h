@@ -162,6 +162,11 @@ public:
     {
         return contains("end-filter") && !m_options["end-filter"].isEmpty();
     }
+    // The option without a value, or with an empty value, is an error that main() reports.
+    bool renderPreviewGiven() const
+    {
+        return contains("render-preview");
+    }
     bool hasRenderPreview() const
     {
         return contains("render-preview") && !m_options["render-preview"].isEmpty();

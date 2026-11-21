@@ -420,8 +420,23 @@ ConsoleBatch::renderPreviews(QString const& directory, int const max_size)
             QFileInfo(m_outFileNameGen.fileNameFor(page.id())).completeBaseName() + ".png"
         );
 
+        // A page marked for a new thumbnail still has a valid content box, so clear the mark for this pass and restore it.
+        select_content::Settings* const sc_settings = m_ptrStages->selectContentFilter()->getSettings();
+        std::unique_ptr<select_content::Params> const sc_params(sc_settings->getPageParams(page.id()));
+        bool const thumbnail_mark = sc_params.get()
+                                    && (sc_params->getForceReprocess() & select_content::Params::RegenerateThumbnail);
+        if (thumbnail_mark) {
+            select_content::Params cleared(*sc_params);
+            cleared.setForceReprocess(select_content::Params::Regenerate(
+                cleared.getForceReprocess() & ~select_content::Params::RegenerateThumbnail));
+            sc_settings->setPageParams(page.id(), cleared);
+        }
+
         PreviewCollector collector;
         task->process(page, &collector);
+        if (thumbnail_mark) {
+            sc_settings->setPageParams(page.id(), *sc_params);
+        }
         if (!collector.collected()) {
             std::cerr << "No preview for " << file_name.toLocal8Bit().constData()
                       << ": filters 1-4 are not complete for this page." << std::endl;
