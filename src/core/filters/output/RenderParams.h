@@ -72,6 +72,21 @@ public:
         return (m_mask & FOREGROUND_LAYER) != 0;
     }
 
+    bool fillOffcut() const
+    {
+        return (m_mask & FILL_OFFCUT) != 0;
+    }
+
+    bool fillWhite() const
+    {
+        return (m_mask & WHITE_FILLING) != 0;
+    }
+
+    bool fillBlack() const
+    {
+        return (m_mask & BLACK_FILLING) != 0;
+    }
+
     bool anyLayer() const
     {
         return autoLayer() || pictureZonesLayer() || foregroundLayer();
@@ -85,7 +100,10 @@ private:
         MIXED_OUTPUT = 8,
         AUTO_LAYER = 16,
         PICTURE_ZONES_LAYER = 32,
-        FOREGROUND_LAYER = 64
+        FOREGROUND_LAYER = 64,
+        FILL_OFFCUT = 128,
+        WHITE_FILLING = 256,
+        BLACK_FILLING = 512
     };
 
     int m_mask;

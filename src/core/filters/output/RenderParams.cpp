@@ -63,6 +63,15 @@ RenderParams::RenderParams(ColorParams const& cp)
                 m_mask |= NORMALIZE_ILLUMINATION;
             }
         }
+        // White margins already fill the offcut, so the option has no effect there.
+        if (opt.fillOffcut() && !opt.whiteMargins()) {
+            m_mask |= FILL_OFFCUT;
+        }
+        if (opt.fillingColor() == FILL_WHITE) {
+            m_mask |= WHITE_FILLING;
+        } else if (opt.fillingColor() == FILL_BLACK) {
+            m_mask |= BLACK_FILLING;
+        }
         break;
     }
 

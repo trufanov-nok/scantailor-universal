@@ -475,6 +475,18 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
             colorParams.setColorGrayscaleOptions(cgo);
         }
 
+        // Start from the page options, so that the fill flags alone do not reset the other options.
+        if (cli.hasFillOffcut() || cli.hasFillingColor()) {
+            output::ColorGrayscaleOptions cgo(colorParams.colorGrayscaleOptions());
+            if (cli.hasFillOffcut()) {
+                cgo.setFillOffcut(true);
+            }
+            if (cli.hasFillingColor()) {
+                cgo.setFillingColor(cli.getFillingColor());
+            }
+            colorParams.setColorGrayscaleOptions(cgo);
+        }
+
         if (cli.hasThreshold()) {
             output::BlackWhiteOptions bwo;
             bwo.setThresholdAdjustment(cli.getThreshold());

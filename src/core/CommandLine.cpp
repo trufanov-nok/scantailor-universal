@@ -102,6 +102,8 @@ CommandLine::parseCli(QStringList const& argv)
     opts << "color-mode";
     opts << "white-margins";
     opts << "normalize-illumination";
+    opts << "fill-offcut";
+    opts << "filling-color";
     opts << "threshold";
     opts << "despeckle";
     opts << "dewarping";
@@ -396,6 +398,8 @@ CommandLine::printHelp()
     std::cout << "\t--picture-shape=<free|rectangular>\n\t\t\t\t\t\t-- default: free" << std::endl;
     std::cout << "\t--white-margins\t\t\t\t-- default: false" << std::endl;
     std::cout << "\t--normalize-illumination\t\t-- default: false" << std::endl;
+    std::cout << "\t--fill-offcut\t\t\t\t-- color and mixed modes only; default: false" << std::endl;
+    std::cout << "\t--filling-color=<background|white|black>\t-- color and mixed modes only; default: background" << std::endl;
     std::cout << "\t--threshold=<n>\t\t\t\t-- n<0 thinner, n>0 thicker; default: 0" << std::endl;
     std::cout << "\t--despeckle=<off|cautious|normal|aggressive>\n\t\t\t\t\t\t-- default: normal" << std::endl;
     std::cout << "\t--dewarping=<off|auto>\t\t\t-- default: off" << std::endl;

@@ -73,6 +73,10 @@ OptionsWidget::OptionsWidget(
     thresholdMethodSelector->addItem(tr("BlurDiv"), T_BLURDIV);
     thresholdMethodSelector->addItem(tr("EdgeDiv"), T_EDGEDIV);
 
+    fillingColorSelector->addItem(tr("Background"), FILL_BACKGROUND);
+    fillingColorSelector->addItem(tr("White"), FILL_WHITE);
+    fillingColorSelector->addItem(tr("Black"), FILL_BLACK);
+
     setDespeckleLevel(DESPECKLE_NORMAL);
 
     depthPerceptionSlider->setMinimum(qRound(DepthPerception::minValue() * 10));
@@ -108,6 +112,14 @@ OptionsWidget::OptionsWidget(
     connect(
         equalizeIlluminationCB, SIGNAL(clicked(bool)),
         this, SLOT(equalizeIlluminationToggled(bool))
+    );
+    connect(
+        fillOffcutCB, SIGNAL(clicked(bool)),
+        this, SLOT(fillOffcutToggled(bool))
+    );
+    connect(
+        fillingColorSelector, SIGNAL(activated(int)),
+        this, SLOT(fillingColorChanged(int))
     );
 
     despeckleSliderPanel->setVisible(false);
@@ -309,6 +321,7 @@ OptionsWidget::whiteMarginsToggled(bool const checked)
     m_colorParams.setColorGrayscaleOptions(opt);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     equalizeIlluminationCB->setEnabled(checked);
+    fillOffcutCB->setEnabled(!checked);
     emit reloadRequested();
 }
 
@@ -317,6 +330,26 @@ OptionsWidget::equalizeIlluminationToggled(bool const checked)
 {
     ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
     opt.setNormalizeIllumination(checked);
+    m_colorParams.setColorGrayscaleOptions(opt);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::fillOffcutToggled(bool const checked)
+{
+    ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
+    opt.setFillOffcut(checked);
+    m_colorParams.setColorGrayscaleOptions(opt);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::fillingColorChanged(int const idx)
+{
+    ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
+    opt.setFillingColor(static_cast<FillingColor>(fillingColorSelector->itemData(idx).toInt()));
     m_colorParams.setColorGrayscaleOptions(opt);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     emit reloadRequested();
@@ -620,6 +653,10 @@ OptionsWidget::updateColorsDisplay()
         whiteMarginsCB->setEnabled(m_currentMode != ColorParams::MIXED); // Mixed must have margins
         equalizeIlluminationCB->setChecked(opt.normalizeIllumination());
         equalizeIlluminationCB->setEnabled(opt.whiteMargins());
+        fillOffcutCB->setChecked(opt.fillOffcut());
+        // White margins already fill the offcut, so the option has no effect there.
+        fillOffcutCB->setEnabled(!opt.whiteMargins());
+        fillingColorSelector->setCurrentIndex(fillingColorSelector->findData(opt.fillingColor()));
     }
 
     modePanel->setVisible(m_lastTab != TAB_DEWARPING);

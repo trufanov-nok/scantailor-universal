@@ -187,6 +187,27 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QCheckBox" name="fillOffcutCB">
+           <property name="text">
+            <string>Fill offcut</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="fillingColorLayout">
+           <item>
+            <widget class="QLabel" name="fillingColorLabel">
+             <property name="text">
+              <string>Filling color:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="fillingColorSelector"/>
+           </item>
+          </layout>
+         </item>
         </layout>
        </widget>
       </item>

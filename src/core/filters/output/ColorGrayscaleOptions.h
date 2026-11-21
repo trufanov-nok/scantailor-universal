@@ -26,6 +26,8 @@ class QDomElement;
 namespace output
 {
 
+enum FillingColor { FILL_BACKGROUND, FILL_WHITE, FILL_BLACK };
+
 class ColorGrayscaleOptions
 {
 public:
@@ -33,7 +35,8 @@ public:
                           bool autoLayer = true, bool pictureZonesLayer = false, bool foregroundLayer = false)
         : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination),
           m_autoLayerEnabled(autoLayer), m_pictureZonesLayerEnabled(pictureZonesLayer),
-          m_foregroundLayerEnabled(foregroundLayer) {}
+          m_foregroundLayerEnabled(foregroundLayer),
+          m_fillOffcut(false), m_fillingColor(FILL_BACKGROUND) {}
 
     ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode);
 
@@ -89,6 +92,30 @@ public:
         m_foregroundLayerEnabled = enabled;
     }
 
+    bool fillOffcut() const
+    {
+        return m_fillOffcut;
+    }
+
+    void setFillOffcut(bool val)
+    {
+        m_fillOffcut = val;
+    }
+
+    FillingColor fillingColor() const
+    {
+        return m_fillingColor;
+    }
+
+    void setFillingColor(FillingColor color)
+    {
+        m_fillingColor = color;
+    }
+
+    static FillingColor parseFillingColor(QString const& str);
+
+    static QString formatFillingColor(FillingColor color);
+
     bool operator==(ColorGrayscaleOptions const& other) const;
 
     bool operator!=(ColorGrayscaleOptions const& other) const;
@@ -98,6 +125,8 @@ private:
     bool m_autoLayerEnabled;
     bool m_pictureZonesLayerEnabled;
     bool m_foregroundLayerEnabled;
+    bool m_fillOffcut;
+    FillingColor m_fillingColor;
 };
 
 } // namespace output

@@ -32,6 +32,8 @@ ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_m
     m_autoLayerEnabled = el.attribute("autoLayer", default_value) == "1";
     m_pictureZonesLayerEnabled = el.attribute("pictureZonesLayer", "0") == "1";
     m_foregroundLayerEnabled = el.attribute("foregroundLayer", "0") == "1";
+    m_fillOffcut = el.attribute("fillOffcut", "0") == "1";
+    m_fillingColor = parseFillingColor(el.attribute("fillingColor"));
 }
 
 QDomElement
@@ -43,7 +45,34 @@ ColorGrayscaleOptions::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("autoLayer", m_autoLayerEnabled ? "1" : "0");
     el.setAttribute("pictureZonesLayer", m_pictureZonesLayerEnabled ? "1" : "0");
     el.setAttribute("foregroundLayer", m_foregroundLayerEnabled ? "1" : "0");
+    el.setAttribute("fillOffcut", m_fillOffcut ? "1" : "0");
+    el.setAttribute("fillingColor", formatFillingColor(m_fillingColor));
     return el;
+}
+
+FillingColor
+ColorGrayscaleOptions::parseFillingColor(QString const& str)
+{
+    if (str == "white") {
+        return FILL_WHITE;
+    } else if (str == "black") {
+        return FILL_BLACK;
+    }
+    return FILL_BACKGROUND;
+}
+
+QString
+ColorGrayscaleOptions::formatFillingColor(FillingColor const color)
+{
+    switch (color) {
+    case FILL_WHITE:
+        return QStringLiteral("white");
+    case FILL_BLACK:
+        return QStringLiteral("black");
+    case FILL_BACKGROUND:
+        break;
+    }
+    return QStringLiteral("background");
 }
 
 bool
@@ -66,6 +95,14 @@ ColorGrayscaleOptions::operator==(ColorGrayscaleOptions const& other) const
     }
 
     if (m_foregroundLayerEnabled != other.m_foregroundLayerEnabled) {
+        return false;
+    }
+
+    if (m_fillOffcut != other.m_fillOffcut) {
+        return false;
+    }
+
+    if (m_fillingColor != other.m_fillingColor) {
         return false;
     }
 
