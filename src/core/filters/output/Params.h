@@ -114,6 +114,26 @@ public:
 //        m_TiffCompression = compression;
 //    }
 
+    bool isBlackOnWhite() const
+    {
+        return m_blackOnWhite;
+    }
+
+    void setBlackOnWhite(bool black_on_white)
+    {
+        m_blackOnWhite = black_on_white;
+    }
+
+    bool isBlackOnWhiteSetManually() const
+    {
+        return m_blackOnWhiteSetManually;
+    }
+
+    void setBlackOnWhiteSetManually(bool set_manually)
+    {
+        m_blackOnWhiteSetManually = set_manually;
+    }
+
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
     static ColorParams::ColorMode parseColorMode(QString const& str);
@@ -127,6 +147,8 @@ private:
     DepthPerception m_depthPerception;
     DewarpingMode m_dewarpingMode;
     DespeckleLevel m_despeckleLevel;
+    bool m_blackOnWhite;
+    bool m_blackOnWhiteSetManually;
 //    QString m_TiffCompression;
 };
 

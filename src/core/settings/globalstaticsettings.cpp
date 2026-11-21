@@ -46,6 +46,8 @@ QColor GlobalStaticSettings::m_deskew_controls_color_thumb;
 QColor GlobalStaticSettings::m_content_sel_content_color;
 QColor GlobalStaticSettings::m_content_sel_content_color_pen;
 bool GlobalStaticSettings::m_output_copy_icc_metadata;
+bool GlobalStaticSettings::m_blackOnWhiteDetection = false;
+bool GlobalStaticSettings::m_blackOnWhiteDetectionAtOutput = false;
 QHotKeys GlobalStaticSettings::m_hotKeyManager = QHotKeys();
 int  GlobalStaticSettings::m_highlightColorAdjustment = 140;
 
@@ -201,6 +203,8 @@ void GlobalStaticSettings::updateSettings()
         m_deskew_controls_color_thumb.setAlpha(70);
     }
     m_output_copy_icc_metadata = settings.value(_key_output_metadata_copy_icc, _key_output_metadata_copy_icc_def).toBool();
+    m_blackOnWhiteDetection = settings.value(_key_black_on_white_detection, _key_black_on_white_detection_def).toBool();
+    m_blackOnWhiteDetectionAtOutput = settings.value(_key_black_on_white_detection_at_output, _key_black_on_white_detection_at_output_def).toBool();
 
     m_highlightColorAdjustment = 100 + settings.value(_key_thumbnails_non_focused_selection_highlight_color_adj, _key_thumbnails_non_focused_selection_highlight_color_adj_def).toInt();
 

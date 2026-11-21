@@ -160,6 +160,11 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
             continue;
         }
 
+        QDomElement const image_params_el(el.namedItem("image-params").toElement());
+        if (!image_params_el.isNull() && image_params_el.hasAttribute("blackOnWhite")) {
+            m_ptrSettings->setBlackOnWhite(page_id, image_params_el.attribute("blackOnWhite") == "1");
+        }
+
         QDomElement const params_el(el.namedItem("params").toElement());
         if (params_el.isNull()) {
             continue;
@@ -176,13 +181,22 @@ Filter::writePageSettings(
     PageId const& page_id, int const numeric_id) const
 {
     std::unique_ptr<Params> const params(m_ptrSettings->getPageParams(page_id));
-    if (!params.get()) {
+    bool black_on_white = true;
+    bool const has_black_on_white = m_ptrSettings->getBlackOnWhite(page_id, &black_on_white);
+    if (!params.get() && !has_black_on_white) {
         return;
     }
 
     QDomElement page_el(doc.createElement("page"));
     page_el.setAttribute("id", numeric_id);
-    page_el.appendChild(params->toXml(doc, "params"));
+    if (params.get()) {
+        page_el.appendChild(params->toXml(doc, "params"));
+    }
+    if (has_black_on_white) {
+        QDomElement image_params_el(doc.createElement("image-params"));
+        image_params_el.setAttribute("blackOnWhite", black_on_white ? "1" : "0");
+        page_el.appendChild(image_params_el);
+    }
 
     filter_el.appendChild(page_el);
 }

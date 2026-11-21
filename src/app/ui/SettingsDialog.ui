@@ -4257,6 +4257,67 @@ As Foreground layer is using binarization to separate content from background it
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageBlackOnWhiteDetection">
+       <layout class="QVBoxLayout" name="layoutBlackOnWhite">
+        <item>
+         <widget class="QGroupBox" name="groupBlackOnWhiteDescr">
+          <property name="title">
+           <string>Description</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutBlackOnWhiteDescr">
+           <item>
+            <widget class="QLabel" name="lblBlackOnWhiteDescr">
+             <property name="text">
+              <string>If enabled, the program finds the pages with light content on a dark background. The Deskew, Select Content and Output stages then process these pages as inverted pages, so that their automatic algorithms work correctly. The program does this detection one time for each page and keeps the result in the project. You can change the result for a page at the Output stage with the "Black on white mode" option.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBlackOnWhiteOptions">
+          <property name="title">
+           <string>Options</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutBlackOnWhiteOptions">
+           <item>
+            <widget class="QCheckBox" name="cbBlackOnWhiteAtOutput">
+             <property name="toolTip">
+              <string>Set the "Black on white mode" option at the Output stage from the detection result. A manual change of this option for a page has priority.</string>
+             </property>
+             <property name="text">
+              <string>Use the detection result at the Output stage</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacerBlackOnWhite">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="pageDebugMode">
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <property name="spacing">

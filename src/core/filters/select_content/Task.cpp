@@ -94,7 +94,7 @@ Task::process(TaskStatus const& status, FilterData const& data)
 {
     status.throwIfCancelled();
 
-    Dependencies const deps(data.xform().resultingPreCropArea());
+    Dependencies const deps(data.xform().resultingPreCropArea(), data.isBlackOnWhite());
 
     OptionsWidget::UiData ui_data;
     ui_data.setSizeCalc(PhysSizeCalc(data.xform()));

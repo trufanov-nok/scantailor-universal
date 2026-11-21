@@ -5,6 +5,7 @@ pageGeneral
 	pageAutoSaveProject	auto-save_project/enabled	0
 	pageTiffCompression
 	pageDebugMode	debug_mode/enabled	0
+	pageBlackOnWhiteDetection	black_on_white_detection/enabled	0
 pageFixOrientation
 pageSplitPages
 	pageApplyCut	apply_cut/enabled

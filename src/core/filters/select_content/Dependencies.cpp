@@ -29,11 +29,13 @@ namespace select_content
 {
 
 Dependencies::Dependencies()
+    :   m_blackOnWhite(true)
 {
 }
 
-Dependencies::Dependencies(QPolygonF const& rotated_page_outline)
-    :   m_rotatedPageOutline(rotated_page_outline)
+Dependencies::Dependencies(QPolygonF const& rotated_page_outline, bool const black_on_white)
+    :   m_rotatedPageOutline(rotated_page_outline),
+        m_blackOnWhite(black_on_white)
 {
 }
 
@@ -42,7 +44,8 @@ Dependencies::Dependencies(QDomElement const& deps_el)
             XmlUnmarshaller::polygonF(
                 deps_el.namedItem("rotated-page-outline").toElement()
             )
-        )
+        ),
+        m_blackOnWhite(deps_el.attribute("blackOnWhite", "1") == "1")
 {
 }
 
@@ -53,7 +56,8 @@ Dependencies::~Dependencies()
 bool
 Dependencies::matches(Dependencies const& other) const
 {
-    return PolygonUtils::fuzzyCompare(
+    return m_blackOnWhite == other.m_blackOnWhite
+           && PolygonUtils::fuzzyCompare(
                m_rotatedPageOutline, other.m_rotatedPageOutline
            );
 }
@@ -69,6 +73,9 @@ Dependencies::toXml(QDomDocument& doc, QString const& name) const
             m_rotatedPageOutline, "rotated-page-outline"
         )
     );
+    if (!m_blackOnWhite) {
+        el.setAttribute("blackOnWhite", "0");
+    }
 
     return el;
 }

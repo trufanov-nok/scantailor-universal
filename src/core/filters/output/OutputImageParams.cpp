@@ -45,7 +45,8 @@ OutputImageParams::OutputImageParams(QSize const& out_image_size, QRect const& c
         m_depthPerception(depth_perception),
         m_dewarpingMode(dewarping_mode),
         m_despeckleLevel(despeckle_level),
-        m_TiffCompression(TiffCompression)
+        m_TiffCompression(TiffCompression),
+        m_blackOnWhite(true)
 {
     // For historical reasons, we disregard post-cropping and post-scaling here.
     xform.setPostCropArea(QPolygonF()); // Resets post-scale as well.
@@ -61,7 +62,8 @@ OutputImageParams::OutputImageParams(QDomElement const& el)
         m_depthPerception(el.attribute("depthPerception")),
         m_dewarpingMode(el.attribute("dewarpingMode")),
         m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel"))),
-        m_TiffCompression(el.attribute("tiff-compression"))
+        m_TiffCompression(el.attribute("tiff-compression")),
+        m_blackOnWhite(el.attribute("blackOnWhite", "1") == "1")
 {
 }
 
@@ -81,6 +83,9 @@ OutputImageParams::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
     el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
     el.setAttribute("tiff-compression", m_TiffCompression);
+    if (!m_blackOnWhite) {
+        el.setAttribute("blackOnWhite", "0");
+    }
 
     return el;
 }
@@ -105,6 +110,10 @@ OutputImageParams::matches(OutputImageParams const& other) const
     }
 
     if (m_TiffCompression != other.m_TiffCompression || other.m_TiffCompression.isEmpty()) {
+        return false;
+    }
+
+    if (m_blackOnWhite != other.m_blackOnWhite) {
         return false;
     }
 

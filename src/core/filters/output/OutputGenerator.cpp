@@ -249,13 +249,15 @@ OutputGenerator::OutputGenerator(
     Dpi const& dpi, ColorParams const& color_params,
     DespeckleLevel const despeckle_level,
     ImageTransformation const& xform,
-    QPolygonF const& content_rect_phys)
+    QPolygonF const& content_rect_phys,
+    bool const black_on_white)
     :   m_dpi(dpi),
         m_colorParams(color_params),
         m_xform(xform),
         m_outRect(xform.resultingRect().toAlignedRect()),
         m_contentRect(xform.transform().map(content_rect_phys).boundingRect().toAlignedRect()),
-        m_despeckleLevel(despeckle_level)
+        m_despeckleLevel(despeckle_level),
+        m_blackOnWhite(black_on_white)
 {
     /*
     std::cout << "m_outRect.left(): " << m_outRect.left() << " right(): " << m_outRect.right() << " top: " << m_outRect.top() << " bottom: " << m_outRect.bottom() << std::endl;
@@ -306,15 +308,26 @@ OutputGenerator::process(
     IntrusivePtr<Settings>* p_settings
 ) const
 {
-    QImage image(
-        processImpl(
-            status, input, picture_zones, fill_zones,
-            dewarping_mode, distortion_model, depth_perception,
-            keep_orig_fore_subscan,
-            auto_layer_mask, speckles_image, dbg,
-            p_pageId, p_settings
-        )
-    );
+    QImage image;
+    if (m_blackOnWhite) {
+        image = processImpl(
+                    status, input, picture_zones, fill_zones,
+                    dewarping_mode, distortion_model, depth_perception,
+                    keep_orig_fore_subscan,
+                    auto_layer_mask, speckles_image, dbg,
+                    p_pageId, p_settings
+                );
+    } else {
+        // Process an inverted page and invert the result again, because the algorithms work only with dark content on a light background.
+        image = processImpl(
+                    status, input.inverted(), picture_zones, fill_zones,
+                    dewarping_mode, distortion_model, depth_perception,
+                    keep_orig_fore_subscan,
+                    auto_layer_mask, speckles_image, dbg,
+                    p_pageId, p_settings
+                );
+        image.invertPixels();
+    }
     assert(!image.isNull());
 
     // Set the correct DPI.
@@ -2411,6 +2424,17 @@ OutputGenerator::calcDominantBackgroundGrayLevel(QImage const& img)
     return 0;
 }
 
+QColor
+OutputGenerator::fillZoneColor(Zone const& zone) const
+{
+    QColor const color(zone.properties().locateOrDefault<FillColorProperty>()->color());
+    if (m_blackOnWhite) {
+        return color;
+    }
+    // The final inversion of the output image gives the fill zone its correct color again.
+    return QColor(255 - color.red(), 255 - color.green(), 255 - color.blue());
+}
+
 void
 OutputGenerator::applyFillZonesInPlace(
     QImage& img, ZoneSet const& zones,
@@ -2428,7 +2452,7 @@ OutputGenerator::applyFillZonesInPlace(
         painter.setPen(Qt::NoPen);
 
         for (Zone const& zone : zones) {
-            QColor const color(zone.properties().locateOrDefault<FillColorProperty>()->color());
+            QColor const color(fillZoneColor(zone));
             painter.setBrush(color);
             if (zone.type() == Zone::SplineType) {
                 QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());
@@ -2477,7 +2501,7 @@ OutputGenerator::applyFillZonesInPlace(
     }
 
     for (Zone const& zone : zones) {
-        QColor const color(zone.properties().locateOrDefault<FillColorProperty>()->color());
+        QColor const color(fillZoneColor(zone));
         BWColor const bw_color = qGray(color.rgb()) < 128 ? BLACK : WHITE;
         if (zone.type() == Zone::SplineType) {
             QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());

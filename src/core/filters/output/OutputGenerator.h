@@ -59,6 +59,7 @@ class TaskStatus;
 class DebugImages;
 class FilterData;
 class ZoneSet;
+class Zone;
 class QSize;
 class QImage;
 
@@ -94,7 +95,8 @@ public:
         Dpi const& dpi, ColorParams const& color_params,
         DespeckleLevel despeckle_level,
         ImageTransformation const& xform,
-        QPolygonF const& content_rect_phys);
+        QPolygonF const& content_rect_phys,
+        bool black_on_white = true);
 
     /**
      * \brief Produce the output image.
@@ -287,6 +289,8 @@ private:
         QImage const& gray_input, DebugImages* dbg,
         QImage const* morph_background = 0) const;
 
+    QColor fillZoneColor(Zone const& zone) const;
+
     void applyFillZonesInPlace(QImage& img, ZoneSet const& zones,
                                boost::function<QPointF(QPointF const&)> const& orig_to_output) const;
 
@@ -317,6 +321,7 @@ private:
     QRect m_contentRect;
 
     DespeckleLevel m_despeckleLevel;
+    bool m_blackOnWhite;
 };
 
 } // namespace output

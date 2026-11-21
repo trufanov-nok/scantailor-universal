@@ -266,6 +266,10 @@ static const char* _key_select_content_deviant_enabled = "select_content_deviant
 static const bool _key_select_content_deviant_enabled_def = false;
 static const char* _key_margins_deviant_enabled = "margins_deviant/enabled";
 static const bool _key_margins_deviant_enabled_def = false;
+static const char* _key_black_on_white_detection = "black_on_white_detection/enabled";
+static const bool _key_black_on_white_detection_def = false;
+static const char* _key_black_on_white_detection_at_output = "black_on_white_detection/at_output";
+static const bool _key_black_on_white_detection_at_output_def = true;
 
 static const char* _key_tiff_compr_method_bw = "tiff_compression/method";
 static const char* _key_tiff_compr_method_bw_def = "LZW";

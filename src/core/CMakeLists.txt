@@ -99,6 +99,7 @@ SET(
         AtomicFileOverwriter.cpp AtomicFileOverwriter.h
         EstimateBackground.cpp EstimateBackground.h
         Despeckle.cpp Despeckle.h
+        BlackOnWhiteEstimator.cpp BlackOnWhiteEstimator.h
         ThreadPriority.cpp ThreadPriority.h
         FileNameDisambiguator.cpp FileNameDisambiguator.h
         OutputFileNameGenerator.cpp OutputFileNameGenerator.h

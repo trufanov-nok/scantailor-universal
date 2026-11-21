@@ -40,7 +40,7 @@ public:
 
     Dependencies();
 
-    Dependencies(QPolygonF const& rotated_page_outline);
+    Dependencies(QPolygonF const& rotated_page_outline, bool black_on_white = true);
 
     Dependencies(QDomElement const& deps_el);
 
@@ -51,11 +51,17 @@ public:
         return m_rotatedPageOutline;
     }
 
+    bool isBlackOnWhite() const
+    {
+        return m_blackOnWhite;
+    }
+
     bool matches(Dependencies const& other) const;
 
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
     QPolygonF m_rotatedPageOutline;
+    bool m_blackOnWhite;
 };
 
 } // namespace select_content

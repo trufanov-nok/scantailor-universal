@@ -307,6 +307,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="blackOnWhiteCB">
+     <property name="toolTip">
+      <string>Enable this option for a page with dark content on a light background. Disable it for a page with light content on a dark background.</string>
+     </property>
+     <property name="text">
+      <string>Black on white mode</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="widget" native="true">
      <property name="minimumSize">
       <size>
