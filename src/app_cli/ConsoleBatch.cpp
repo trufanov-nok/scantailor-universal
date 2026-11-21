@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <iostream>
+#include <cmath>
 #include <assert.h>
 
 #include "Utils.h"
@@ -40,6 +41,10 @@
 #include "ProjectReader.h"
 #include "OrthogonalRotation.h"
 #include "SelectedPage.h"
+#include "ImageLoader.h"
+#include "ImageTransformation.h"
+#include "ContentBoxCollector.h"
+#include "settings/ini_keys.h"
 
 #include "filters/fix_orientation/Settings.h"
 #include "filters/fix_orientation/Filter.h"
@@ -69,10 +74,147 @@
 
 #include <QMap>
 #include <QImage>
+#include <QPainter>
+#include <QPainterPath>
+#include <QDir>
+#include <QFileInfo>
 #include <QDomDocument>
 
 #include "ConsoleBatch.h"
 #include "CommandLine.h"
+
+namespace
+{
+
+class PreviewCollector : public ContentBoxCollector
+{
+public:
+    PreviewCollector()
+        :   m_xform(QRectF(0, 0, 1, 1), Dpi(300, 300)),
+            m_collected(false)
+    {
+    }
+
+    virtual void process(ImageTransformation const& xform, QRectF const& content_rect)
+    {
+        m_xform = xform;
+        m_contentRect = content_rect;
+        m_collected = true;
+    }
+
+    bool collected() const
+    {
+        return m_collected;
+    }
+
+    ImageTransformation const& xform() const
+    {
+        return m_xform;
+    }
+
+    QRectF const& contentRect() const
+    {
+        return m_contentRect;
+    }
+private:
+    ImageTransformation m_xform;
+    QRectF m_contentRect;
+    bool m_collected;
+};
+
+// Draws the boxes as select_content::ImageView::onPaint() does, to show the page as the GUI shows it.
+void drawPreviewBoxes(
+    QPainter& painter, QRectF const& display_rect,
+    QRectF const& page_rect, QRectF const& content_rect, QColor const& content_color)
+{
+    if (content_rect.isNull()) {
+        return;
+    }
+
+    if (!page_rect.isNull() && page_rect != display_rect) {
+        QPen pen(QColor(0xee, 0xee, 0x00, 0xcc));
+        pen.setWidth(1);
+        pen.setCosmetic(true);
+        painter.setPen(pen);
+        painter.setBrush(QColor(0xee, 0xee, 0x00, 0xcc));
+
+        QRectF const& r = display_rect;
+        painter.drawRect(QRectF(QPointF(page_rect.left(), r.top()), QPointF(page_rect.right(), page_rect.top())));
+        painter.drawRect(QRectF(QPointF(r.left(), r.top()), QPointF(page_rect.left(), r.bottom())));
+        painter.drawRect(QRectF(QPointF(page_rect.left(), page_rect.bottom()), QPointF(page_rect.right(), r.bottom())));
+        painter.drawRect(QRectF(QPointF(page_rect.right(), r.top()), QPointF(r.right(), r.bottom())));
+    }
+
+    painter.setRenderHints(QPainter::Antialiasing, true);
+
+    QColor pen_color(content_color);
+    pen_color.setAlpha(255);
+    QPen pen(pen_color);
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter.setPen(pen);
+    painter.setBrush(content_color);
+    painter.drawRect(content_rect);
+}
+
+QImage renderPreview(
+    QImage const& image, ImageTransformation const& xform,
+    QRectF const& page_rect, QRectF const& content_rect,
+    QColor const& content_color, int const max_size)
+{
+    QPolygonF const crop_area(xform.resultingPreCropArea());
+    QRectF const display_rect(crop_area.boundingRect());
+    double const long_side = std::max(display_rect.width(), display_rect.height());
+    double const scale = long_side > max_size ? max_size / long_side : 1.0;
+
+    QImage preview(
+        std::max(1, qRound(display_rect.width() * scale)),
+        std::max(1, qRound(display_rect.height() * scale)),
+        QImage::Format_RGB32
+    );
+    preview.fill(QColor(0xef, 0xef, 0xef));
+
+    QTransform virtual_to_preview;
+    virtual_to_preview.scale(scale, scale);
+    virtual_to_preview.translate(-display_rect.left(), -display_rect.top());
+
+    // Scale the image smoothly first, because a direct transform of a large scan gives jagged lines.
+    QTransform const& t = xform.transform();
+    double const scale_x = std::min(1.0, scale * std::hypot(t.m11(), t.m12()));
+    double const scale_y = std::min(1.0, scale * std::hypot(t.m21(), t.m22()));
+    QImage const small_image(
+        (scale_x < 1.0 || scale_y < 1.0) ? image.scaled(
+            std::max(1, qRound(image.width() * scale_x)),
+            std::max(1, qRound(image.height() * scale_y)),
+            Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+        ) : image
+    );
+    QTransform const pixmap_to_image(QTransform::fromScale(
+        double(image.width()) / small_image.width(),
+        double(image.height()) / small_image.height()
+    ));
+
+    QPainter painter(&preview);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+    QPolygonF const image_area(xform.transform().map(QPolygonF(QRectF(image.rect()))));
+    QPainterPath clip_path;
+    clip_path.addPolygon(image_area.intersected(crop_area));
+    painter.setWorldTransform(virtual_to_preview);
+    painter.setClipPath(clip_path);
+
+    painter.setWorldTransform(pixmap_to_image * xform.transform() * virtual_to_preview);
+    painter.drawImage(QPointF(0, 0), small_image);
+
+    painter.setClipping(false);
+    painter.setWorldTransform(virtual_to_preview);
+    drawPreviewBoxes(painter, display_rect, page_rect, content_rect, content_color);
+    painter.end();
+
+    return preview;
+}
+
+} // namespace
 
 ConsoleBatch::ConsoleBatch(std::vector<ImageFileInfo> const& images, QString const& output_directory, Qt::LayoutDirection const layout)
     :   batch(true), debug(true),
@@ -238,6 +380,87 @@ ConsoleBatch::process()
     for (int j = 0; j <= endFilterIdx; j++) {
         m_ptrStages->filterAt(j)->updateStatistics();
     }
+}
+
+int
+ConsoleBatch::renderPreviews(QString const& directory, int const max_size)
+{
+    CommandLine const& cli = CommandLine::get();
+    QDir const dir(directory);
+    if (!dir.mkpath(".")) {
+        throw std::runtime_error("Unable to create the preview directory.");
+    }
+
+    // Use the GUI cache tasks, and give select_content a next task, because without it the task changes the thumbnail flags.
+    IntrusivePtr<select_content::CacheDrivenTask> const select_content_task(
+        m_ptrStages->selectContentFilter()->createCacheDrivenTask(
+            m_ptrStages->pageLayoutFilter()->createCacheDrivenTask(
+                IntrusivePtr<output::CacheDrivenTask>()
+            )
+        )
+    );
+    IntrusivePtr<fix_orientation::CacheDrivenTask> const task(
+        m_ptrStages->fixOrientationFilter()->createCacheDrivenTask(
+            m_ptrStages->pageSplitFilter()->createCacheDrivenTask(
+                m_ptrStages->deskewFilter()->createCacheDrivenTask(select_content_task)
+            )
+        )
+    );
+
+    QSettings const settings;
+    QColor const content_color(
+        settings.value(_key_content_sel_content_color, _key_content_sel_content_color_def).toString()
+    );
+
+    int failures = 0;
+    ImageId loaded_image_id;
+    QImage image;
+    for (PageInfo const& page : m_ptrPages->toPageSequence(PAGE_VIEW)) {
+        QString const file_name(
+            QFileInfo(m_outFileNameGen.fileNameFor(page.id())).completeBaseName() + ".png"
+        );
+
+        PreviewCollector collector;
+        task->process(page, &collector);
+        if (!collector.collected()) {
+            std::cerr << "No preview for " << file_name.toLocal8Bit().constData()
+                      << ": filters 1-4 are not complete for this page." << std::endl;
+            ++failures;
+            continue;
+        }
+
+        QRectF page_rect;
+        std::unique_ptr<select_content::Params> const params(
+            m_ptrStages->selectContentFilter()->getSettings()->getPageParams(page.id())
+        );
+        if (params.get()) {
+            page_rect = params->pageRect();
+        }
+
+        // The two pages of a split image use the same image, thus load it one time only.
+        if (!(loaded_image_id == page.imageId())) {
+            image = ImageLoader::load(page.imageId());
+            loaded_image_id = page.imageId();
+        }
+        if (image.isNull()) {
+            std::cerr << "Unable to load " << page.imageId().filePath().toLocal8Bit().constData() << std::endl;
+            ++failures;
+            continue;
+        }
+
+        QImage const preview(
+            renderPreview(image, collector.xform(), page_rect, collector.contentRect(), content_color, max_size)
+        );
+        QString const path(dir.filePath(file_name));
+        if (!preview.save(path, "PNG")) {
+            std::cerr << "Unable to write " << path.toLocal8Bit().constData() << std::endl;
+            ++failures;
+        } else if (cli.isVerbose()) {
+            std::cout << "Preview: " << path.toLocal8Bit().constData() << "\n";
+        }
+    }
+
+    return failures;
 }
 
 void

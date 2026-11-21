@@ -57,6 +57,16 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    // The parser gives "true" for an option without a value, and that is not a directory.
+    if (cli.hasRenderPreview() && cli.getRenderPreviewDirectory() == "true") {
+        std::cerr << "Use --render-preview=<directory>." << std::endl;
+        return 1;
+    }
+    if (cli.hasRenderPreviewSize() && cli.getRenderPreviewSize() <= 0) {
+        std::cerr << "Use --render-preview-size=<pixels> with a positive number." << std::endl;
+        return 1;
+    }
+
     std::unique_ptr<ConsoleBatch> cbatch;
 
     try {
@@ -73,5 +83,17 @@ int main(int argc, char** argv)
 
     if (cli.hasOutputProject()) {
         cbatch->saveProject(cli.outputProjectFile());
+    }
+
+    // Write the previews after the project, because a preview error must not prevent the project save.
+    if (cli.hasRenderPreview()) {
+        try {
+            if (cbatch->renderPreviews(cli.getRenderPreviewDirectory(), cli.getRenderPreviewSize()) > 0) {
+                return 1;
+            }
+        } catch (std::exception const& e) {
+            std::cerr << e.what() << std::endl;
+            return 1;
+        }
     }
 }
