@@ -67,9 +67,14 @@
 #include "filters/output/Task.h"
 #include "filters/output/CacheDrivenTask.h"
 
+#include <QDir>
 #include <QMap>
 #include <QImage>
 #include <QDomDocument>
+#include <QRegularExpression>
+#include <stdexcept>
+
+#include "MultipleTargetsSupport.h"
 
 #include "ConsoleBatch.h"
 #include "CommandLine.h"
@@ -77,7 +82,8 @@
 ConsoleBatch::ConsoleBatch(std::vector<ImageFileInfo> const& images, QString const& output_directory, Qt::LayoutDirection const layout)
     :   batch(true), debug(true),
         m_ptrDisambiguator(new FileNameDisambiguator),
-        m_ptrPages(new ProjectPages(images, ProjectPages::AUTO_PAGES, layout))
+        m_ptrPages(new ProjectPages(images, ProjectPages::AUTO_PAGES, layout)),
+        m_hasPageFilter(false)
 {
     PageSelectionAccessor const accessor((IntrusivePtr<PageSelectionProvider>())); // Won't really be used anyway.
     m_ptrStages = IntrusivePtr<StageSequence>(new StageSequence(m_ptrPages, accessor));
@@ -88,7 +94,7 @@ ConsoleBatch::ConsoleBatch(std::vector<ImageFileInfo> const& images, QString con
 }
 
 ConsoleBatch::ConsoleBatch(QString const project_file)
-    :   batch(true), debug(true)
+    :   batch(true), debug(true), m_hasPageFilter(false)
 {
     QFile file(project_file);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -210,26 +216,47 @@ ConsoleBatch::process()
         endFilterIdx = ef;
     }
 
+    if (cli.hasPages()) {
+        parsePageFilter(cli.pages());
+    }
+
     // run filters
     for (int j = startFilterIdx; j <= endFilterIdx; j++) {
         if (cli.isVerbose()) {
             std::cout << "Filter: " << (j + 1) << "\n";
         }
 
+        // Pages outside --pages still count in the aggregate size, as in a GUI batch from the current page.
+        bool const check_agg_size = m_hasPageFilter && j == m_ptrStages->pageLayoutFilterIdx();
+        QSizeF const agg_size_before = check_agg_size
+                                       ? m_ptrStages->pageLayoutFilter()->getSettings()->getAggregateHardSizeMM()
+                                       : QSizeF();
+
         // process pages
         PageSequence page_sequence = m_ptrPages->toPageSequence(PAGE_VIEW);
-        setupFilter(j, page_sequence.asPageIdSet());
+        std::set<PageId> const selection = selectedPages(page_sequence);
+        setupFilter(j, selection);
         for (const PageInfo& page : page_sequence) {
+            if (selection.count(page.id()) == 0) {
+                continue;
+            }
             if (cli.isVerbose()) {
                 std::cout << "\tProcessing: " << page.imageId().filePath().toLocal8Bit().constData() << "\n";
             }
             BackgroundTaskPtr bgTask = createCompositeTask(page, j);
             (*bgTask)();
         }
+
+        if (check_agg_size &&
+                agg_size_before != m_ptrStages->pageLayoutFilter()->getSettings()->getAggregateHardSizeMM()) {
+            std::cerr << "Warning: the aggregate page size changed. The pages that are not in --pages"
+                      << " keep their old output size. Run stages 5-6 on all pages to make the sizes equal again."
+                      << std::endl;
+        }
     }
 
     // setup rest filters with params from cli
-    const std::set<PageId> select_all = m_ptrPages->toPageSequence(PAGE_VIEW).asPageIdSet();
+    const std::set<PageId> select_all = selectedPages(m_ptrPages->toPageSequence(PAGE_VIEW));
     for (int j = endFilterIdx + 1; j <= m_ptrStages->count(); j++) {
         setupFilter(j, select_all);
     }
@@ -238,6 +265,134 @@ ConsoleBatch::process()
     for (int j = 0; j <= endFilterIdx; j++) {
         m_ptrStages->filterAt(j)->updateStatistics();
     }
+}
+
+void
+ConsoleBatch::parsePageFilter(QString const& value)
+{
+    static QRegularExpression const index_rx("^#?(\\d+)(?:-(\\d+))?$");
+    static QRegularExpression const file_rx("^(.+?)(?::([LRlr]))?$");
+#ifdef _WIN32
+    Qt::CaseSensitivity const cs = Qt::CaseInsensitive;
+#else
+    Qt::CaseSensitivity const cs = Qt::CaseSensitive;
+#endif
+
+    PageSequence const pages = m_ptrPages->toPageSequence(PAGE_VIEW);
+    QStringList unknown;
+    QStringList ambiguous;
+    for (QString const& raw : value.split(';', QStringSkipEmptyParts)) {
+        QString const item(raw.trimmed());
+        if (item.isEmpty()) {
+            continue;
+        }
+        bool found = false;
+        QRegularExpressionMatch const index_m(index_rx.match(item));
+        if (index_m.hasMatch()) {
+            if (!item.startsWith('#')) {
+                // A bare number that is also an image name without extension is probably a file, not an index.
+                for (PageInfo const& page : pages) {
+                    if (QFileInfo(page.imageId().filePath()).completeBaseName().compare(item, cs) == 0) {
+                        ambiguous.append(item);
+                        break;
+                    }
+                }
+            }
+            bool first_ok = false;
+            bool last_ok = true;
+            qulonglong const first = index_m.captured(1).toULongLong(&first_ok);
+            qulonglong const last = index_m.captured(2).isEmpty()
+                                    ? first : index_m.captured(2).toULongLong(&last_ok);
+            if (first_ok && last_ok && first <= last && last < pages.numPages()) {
+                for (qulonglong i = first; i <= last; ++i) {
+                    PageId const& id = pages.pageAt(size_t(i)).id();
+                    // Select the image, so that both halves stay selected if page_split cuts it in two later.
+                    if (id.subPage() == PageId::SINGLE_PAGE) {
+                        m_filterImages.insert(id.imageId());
+                    } else {
+                        m_filterPages.insert(id);
+                    }
+                }
+                found = true;
+            }
+        } else {
+            QRegularExpressionMatch const file_m(file_rx.match(item));
+            QString want(QDir::cleanPath(QDir::fromNativeSeparators(file_m.captured(1))));
+            while (want.startsWith("../")) {
+                want.remove(0, 3);
+            }
+            QChar const side = file_m.captured(2).isEmpty() ? QChar() : file_m.captured(2).toUpper().at(0);
+            std::set<ImageId> matched_images;
+            for (PageInfo const& page : pages) {
+                // Compare the path to tell apart two scans with the same name in different folders.
+                QString const file_path(QDir::fromNativeSeparators(page.imageId().filePath()));
+                bool const same_file = want.contains('/')
+                                       ? (file_path.compare(want, cs) == 0 ||
+                                          file_path.endsWith(QChar('/') + want, cs))
+                                       : want.compare(QFileInfo(file_path).fileName(), cs) == 0;
+                if (!same_file) {
+                    continue;
+                }
+                matched_images.insert(page.imageId());
+                PageId::SubPage const sub_page = page.id().subPage();
+                if (side.isNull()) {
+                    m_filterImages.insert(page.imageId());
+                    found = true;
+                } else if ((side == 'L' && sub_page == PageId::LEFT_PAGE) ||
+                           (side == 'R' && sub_page == PageId::RIGHT_PAGE)) {
+                    m_filterPages.insert(page.id());
+                    found = true;
+                }
+            }
+            if (matched_images.size() > 1) {
+                ambiguous.append(item);
+            }
+        }
+        if (!found) {
+            unknown.append(item);
+        }
+    }
+
+    if (!unknown.isEmpty()) {
+        throw std::runtime_error(
+            ("Error: --pages: no page matches \"" + unknown.join("\", \"") + "\"").toLocal8Bit().constData()
+        );
+    }
+    if (!ambiguous.isEmpty()) {
+        throw std::runtime_error(
+            ("Error: --pages: more than one image matches \"" + ambiguous.join("\", \"")
+             + "\"; give a longer path, or #<index> for a page index").toLocal8Bit().constData()
+        );
+    }
+    if (m_filterPages.empty() && m_filterImages.empty()) {
+        throw std::runtime_error("Error: --pages: the list is empty");
+    }
+    m_hasPageFilter = true;
+}
+
+std::set<PageId>
+ConsoleBatch::selectedPages(PageSequence const& pages) const
+{
+    std::set<PageId> const current = pages.asPageIdSet();
+    if (!m_hasPageFilter) {
+        return current;
+    }
+
+    // A half that this run removed with a new split must not drop its image from the selection.
+    std::set<ImageId> images(m_filterImages);
+    for (PageId const& id : m_filterPages) {
+        if (current.count(id) == 0) {
+            images.insert(id.imageId());
+        }
+    }
+
+    std::set<PageId> selection;
+    for (PageId const& id : current) {
+        if (m_filterPages.count(id) != 0 || images.count(id.imageId()) != 0) {
+            selection.insert(id);
+        }
+    }
+    return selection;
 }
 
 void
@@ -305,7 +460,20 @@ ConsoleBatch::setupPageSplit(std::set<PageId> allPages)
 
     // PAGE SPLIT
     if (cli.hasLayout()) {
-        page_split->getSettings()->setLayoutTypeForAllPages(cli.getLayout());
+        if (!m_hasPageFilter) {
+            page_split->getSettings()->setLayoutTypeForAllPages(cli.getLayout());
+        } else {
+            // Same per-image update as the GUI "apply to" dialog, because pages outside --pages must keep their layout.
+            page_split::Settings::UpdateAction update;
+            // Set the type explicitly, because the project default layout can be a fixed type and not auto.
+            update.setLayoutType(cli.getLayout());
+            if (cli.getLayout() == page_split::AUTO_LAYOUT_TYPE) {
+                update.clearParams();
+            }
+            for (PageId const& page : allPages) {
+                page_split->getSettings()->updatePage(page.imageId(), update);
+            }
+        }
     }
 }
 
@@ -388,6 +556,8 @@ ConsoleBatch::setupPageLayout(std::set<PageId> allPages)
     IntrusivePtr<page_layout::Filter> page_layout = m_ptrStages->pageLayoutFilter();
     CommandLine const& cli = CommandLine::get();
     QMap<QString, float> img_cache;
+    // The tolerance check compares each page with every project page, also the pages outside --pages.
+    std::set<PageId> const projectPages = m_ptrPages->toPageSequence(PAGE_VIEW).asPageIdSet();
 
     for (PageId const& page : allPages) {
         // PAGE LAYOUT FILTER
@@ -401,7 +571,7 @@ ConsoleBatch::setupPageLayout(std::set<PageId> allPages)
             float imgAspectRatio = img_cache[path];
             float tolerance = cli.getMatchLayoutTolerance();
             std::vector<float> diffs;
-            for (PageId const& page : allPages) {
+            for (PageId const& page : projectPages) {
                 ImageId pimageId = page.imageId();
                 QString ppath = pimageId.filePath();
                 if (!img_cache.contains(ppath)) {

@@ -22,6 +22,7 @@
 #define CONSOLEBATCH_H_
 
 #include <QString>
+#include <set>
 #include <vector>
 
 #include "IntrusivePtr.h"
@@ -30,6 +31,7 @@
 #include "OutputFileNameGenerator.h"
 #include "PageId.h"
 #include "PageInfo.h"
+#include "PageSequence.h"
 #include "PageView.h"
 #include "ProjectPages.h"
 #include "ImageFileInfo.h"
@@ -60,6 +62,12 @@ private:
     OutputFileNameGenerator m_outFileNameGen;
     IntrusivePtr<ThumbnailPixmapCache> m_ptrThumbnailCache;
     std::unique_ptr<ProjectReader> m_ptrReader;
+    bool m_hasPageFilter;
+    std::set<PageId> m_filterPages;
+    std::set<ImageId> m_filterImages;
+
+    void parsePageFilter(QString const& value);
+    std::set<PageId> selectedPages(PageSequence const& pages) const;
 
     void setupFilter(int idx, std::set<PageId> allPages);
     void setupFixOrientation(std::set<PageId> allPages);
