@@ -38,6 +38,7 @@
 #include "filters/page_layout/Settings.h"
 #include "Margins.h"
 #include "Despeckle.h"
+#include "ImageMetadataLoader.h"
 
 CommandLine CommandLine::m_globalInstance;
 
@@ -307,11 +308,27 @@ CommandLine::setup()
             continue;
         }
         // create ImageFileInfo and push to images
-        ImageId const image_id(m_files[i].filePath());
-        ImageMetadata metadata;
-        metadata.setDpi(m_dpi);
         std::vector<ImageMetadata> vMetadata;
-        vMetadata.push_back(metadata);
+        if (!m_gui) {
+            // The CLI reads DPI, size and pages from the file, as the GUI does.
+            ImageMetadataLoader::load(
+                m_files[i].absoluteFilePath(), [&](ImageMetadata const& m) { vMetadata.push_back(m); }
+            );
+            bool const forced = hasDpi();
+            for (ImageMetadata& m : vMetadata) {
+                Dpi const d(m.dpi());
+                // 72 / 96 are what cameras and screen tools write when they know no DPI
+                bool const placeholder = d.horizontal() == 72 || d.horizontal() == 96;
+                if (forced || d.isNull() || d.horizontal() <= 1 || d.vertical() <= 1 || placeholder) {
+                    m.setDpi(m_dpi);
+                }
+            }
+        }
+        if (vMetadata.empty()) {
+            ImageMetadata metadata;
+            metadata.setDpi(m_dpi);
+            vMetadata.push_back(metadata);
+        }
         ImageFileInfo image_info(m_files[i], vMetadata);
         m_images.push_back(image_info);
     }
@@ -383,7 +400,7 @@ CommandLine::printHelp()
     std::cout << "\t\t--alignment-vertical=<top|center|bottom|original>" << std::endl;
     std::cout << "\t\t--alignment-horizontal=<left|center|right|original>" << std::endl;
     std::cout << "\t--alignment-tolerance=<float>\t\t-- sets tolerance for auto alignment" << std::endl;
-    std::cout << "\t--dpi=<number>\t\t\t\t-- sets x and y dpi. default: 600" << std::endl;
+    std::cout << "\t--dpi=<number>\t\t\t\t-- sets x and y dpi of the input images (overrides the DPI in the files).\n\t\t\t\t\t\t   default: the DPI in each file; 600 when a file has none (or 72/96)" << std::endl;
     std::cout << "\t\t--dpi-x=<number>" << std::endl;
     std::cout << "\t\t--dpi-y=<number>" << std::endl;
     std::cout << "\t--output-dpi=<number>\t\t\t-- sets x and y output dpi. default: 600" << std::endl;
