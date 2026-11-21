@@ -75,6 +75,10 @@ public:
     {
         return contains("verbose");
     }
+    bool isJsonProgress() const
+    {
+        return contains("json-progress");
+    }
     bool isError() const
     {
         return m_error;
