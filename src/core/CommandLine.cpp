@@ -74,6 +74,7 @@ CommandLine::parseCli(QStringList const& argv)
     opts << "force-disable-page-detection";
     opts << "content-detection";
     opts << "content-box";
+    opts << "content-snap";
     opts << "content-deviation";
     opts << "enable-auto-margins";
     opts << "margins";
@@ -365,6 +366,14 @@ CommandLine::printHelp()
     std::cout << "\t--content-box=<<left_offset>x<top_offset>:<width>x<height>>" << std::endl;
     std::cout << "\t\t\t\t\t\t-- if set the content detection is se to manual mode" << std::endl;
     std::cout << "\t\t\t\t\t\t   example: --content-box=100x100:1500x2500" << std::endl;
+    std::cout << "\t--content-snap=<file>[:L|R]@<x>,<y>[:nearest|h|v|hv|left|right|top|bottom][;...]" << std::endl;
+    std::cout << "\t\t\t\t\t\t-- like a double-click on the content box in the GUI (Select Content);" << std::endl;
+    std::cout << "\t\t\t\t\t\t   <file>: name, or path (relative to the project) when names repeat:" << std::endl;
+    std::cout << "\t\t\t\t\t\t   the nearest box edge snaps to the ink around page point x,y" << std::endl;
+    std::cout << "\t\t\t\t\t\t   (h: left/right edge only, v: top/bottom only, hv: corner," << std::endl;
+    std::cout << "\t\t\t\t\t\t   left|right|top|bottom: that edge, wherever the point is);" << std::endl;
+    std::cout << "\t\t\t\t\t\t   a point outside the box adds that ink to the box. Sets manual mode." << std::endl;
+    std::cout << "\t\t\t\t\t\t   example: --content-snap=\"0100.jpg:L@1830,420:h;0101.jpg:R@95,2400\"" << std::endl;
     std::cout << "\t--enable-auto-margins\t\t\t-- sets the margins to original ones (based on detected page or image size)" << std::endl;
     std::cout << "\t--margins=<number>\t\t\t-- sets left, top, right and bottom margins to same number." << std::endl;
     std::cout << "\t\t--margins-left=<number>" << std::endl;

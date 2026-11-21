@@ -26,6 +26,7 @@
 #include "DraggableLineSegment.h"
 #include "DraggablePolygon.h"
 #include "ObjectDragHandler.h"
+#include "ContentMask.h"
 #include <QRectF>
 #include <QSizeF>
 #include <QString>
@@ -47,6 +48,7 @@ public:
      */
     ImageView(
         QImage const& image, QImage const& downscaled_image,
+        ContentMask const& content_mask,
         ImageTransformation const& xform,
         QRectF const& content_rect, QRectF const& page_rect);
 
@@ -73,6 +75,11 @@ private:
     virtual void onPaint(QPainter& painter, InteractionState const& interaction);
 
     void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction);
+
+    virtual void onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction);
+
+    // This is the double-click adjustment from ScanTailor Advanced.
+    void correctContentBox(QPointF const& pos, Qt::KeyboardModifiers mask);
 
     QPointF cornerPosition(int edge_mask) const;
 
@@ -120,6 +127,9 @@ private:
     QSizeF m_minBoxSize;
 
     QPointF m_moveStart;
+
+    // The mask is null in batch mode, because only the interactive view uses it.
+    ContentMask m_contentMask;
 };
 
 } // namespace select_content
