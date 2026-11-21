@@ -62,6 +62,7 @@ CommandLine::parseCli(QStringList const& argv)
     QList<QString> opts;
     opts << "help";
     opts << "verbose";
+    opts << "json-progress";
     opts << "layout";
     opts << "layout-direction";
     opts << "orientation";
@@ -344,6 +345,8 @@ CommandLine::printHelp()
     std::cout << "Options:" << std::endl;
     std::cout << "\t--help, -h" << std::endl;
     std::cout << "\t--verbose, -v" << std::endl;
+    std::cout << "\t--json-progress\t\t\t\t-- print one JSON object per line on stdout for each stage and page;" << std::endl;
+    std::cout << "\t\t\t\t\t\t   all other text (also --verbose text) goes to stderr" << std::endl;
     std::cout << "\t--language=<cs|de|...>\t-- default: language in settings file or system language if it's missing" << std::endl;
     std::cout << "\t--layout=, -l=<0|1|1.5|2>\t\t-- default: 0" << std::endl;
     std::cout << "\t\t\t  0: auto detect" << std::endl;

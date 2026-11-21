@@ -21,11 +21,23 @@
 #include "settings/ini_keys.h"
 #include <QString>
 #include <QStringList>
+#include <QFileInfo>
+#include <QJsonObject>
 #include <iostream>
 
 #include "CommandLine.h"
 #include "ConsoleBatch.h"
 #include "config.h"
+
+static void
+printRunError(QString const& message)
+{
+    QJsonObject ev;
+    ev["event"] = QStringLiteral("run_end");
+    ev["status"] = QStringLiteral("error");
+    ev["error"] = message;
+    ConsoleBatch::printJsonLine(ev);
+}
 
 int main(int argc, char** argv)
 {
@@ -43,17 +55,29 @@ int main(int argc, char** argv)
     app.setOrganizationDomain(ORGANIZATION_DOMAIN);
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
+    // The parser can write text, thus send that text to stderr before parsing when stdout must carry only JSON lines.
+    bool const json = app.arguments().contains(QStringLiteral("--json-progress"));
+    if (json) {
+        std::cout.rdbuf(std::cerr.rdbuf());
+    }
+
     // parse command line arguments
     CommandLine cli(app.arguments(), false);
     CommandLine::set(cli);
 
     if (cli.isError()) {
         cli.printHelp();
+        if (json) {
+            printRunError(QStringLiteral("invalid command line"));
+        }
         return 1;
     }
 
     if (cli.hasHelp() || cli.outputDirectory().isEmpty() || (cli.images().size() == 0 && cli.projectFile().isEmpty())) {
         cli.printHelp();
+        if (json && !cli.hasHelp()) {
+            printRunError(QStringLiteral("no input images or no output directory"));
+        }
         return 0;
     }
 
@@ -66,12 +90,27 @@ int main(int argc, char** argv)
             cbatch.reset(new ConsoleBatch(cli.images(), cli.outputDirectory(), cli.getLayoutDirection()));
         }
         cbatch->process();
+        if (cli.hasOutputProject() && !cbatch->saveProject(cli.outputProjectFile()) && json) {
+            printRunError(QStringLiteral("cannot write the project file"));
+            return 1;
+        }
     } catch (std::exception const& e) {
         std::cerr << e.what() << std::endl;
+        if (json) {
+            printRunError(QString::fromLocal8Bit(e.what()));
+        }
         exit(1);
     }
 
-    if (cli.hasOutputProject()) {
-        cbatch->saveProject(cli.outputProjectFile());
+    if (json) {
+        QJsonObject ev;
+        ev["event"] = QStringLiteral("run_end");
+        ev["status"] = QStringLiteral("ok");
+        ev["pages"] = cbatch->pageCount();
+        ev["page_errors"] = cbatch->pageErrorCount();
+        if (cli.hasOutputProject()) {
+            ev["project"] = QFileInfo(cli.outputProjectFile()).absoluteFilePath();
+        }
+        ConsoleBatch::printJsonLine(ev);
     }
 }

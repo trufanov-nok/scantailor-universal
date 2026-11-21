@@ -22,6 +22,7 @@
 #define CONSOLEBATCH_H_
 
 #include <QString>
+#include <QJsonObject>
 #include <vector>
 
 #include "IntrusivePtr.h"
@@ -50,10 +51,18 @@ public:
     ConsoleBatch(QString const project_file);
 
     void process();
-    void saveProject(QString const project_file);
+    bool saveProject(QString const project_file);
+    int pageCount() const;
+    int pageErrorCount() const
+    {
+        return m_pageErrors;
+    }
+
+    static void printJsonLine(QJsonObject const& obj);
 private:
     bool batch;
     bool debug;
+    int m_pageErrors;
     IntrusivePtr<FileNameDisambiguator> m_ptrDisambiguator;
     IntrusivePtr<ProjectPages> m_ptrPages;
     IntrusivePtr<StageSequence> m_ptrStages;
@@ -68,6 +77,9 @@ private:
     void setupSelectContent(std::set<PageId> allPages);
     void setupPageLayout(std::set<PageId> allPages);
     void setupOutput(std::set<PageId> allPages);
+
+    QString stageName(int idx) const;
+    QJsonObject pageResult(int idx, PageId const& page_id) const;
 
     BackgroundTaskPtr createCompositeTask(
         PageInfo const& page,

@@ -70,12 +70,17 @@
 #include <QMap>
 #include <QImage>
 #include <QDomDocument>
+#include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <cstdio>
 
 #include "ConsoleBatch.h"
 #include "CommandLine.h"
 
 ConsoleBatch::ConsoleBatch(std::vector<ImageFileInfo> const& images, QString const& output_directory, Qt::LayoutDirection const layout)
-    :   batch(true), debug(true),
+    :   batch(true), debug(true), m_pageErrors(0),
         m_ptrDisambiguator(new FileNameDisambiguator),
         m_ptrPages(new ProjectPages(images, ProjectPages::AUTO_PAGES, layout))
 {
@@ -88,7 +93,7 @@ ConsoleBatch::ConsoleBatch(std::vector<ImageFileInfo> const& images, QString con
 }
 
 ConsoleBatch::ConsoleBatch(QString const project_file)
-    :   batch(true), debug(true)
+    :   batch(true), debug(true), m_pageErrors(0)
 {
     QFile file(project_file);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -210,6 +215,8 @@ ConsoleBatch::process()
         endFilterIdx = ef;
     }
 
+    bool const json = cli.isJsonProgress();
+
     // run filters
     for (int j = startFilterIdx; j <= endFilterIdx; j++) {
         if (cli.isVerbose()) {
@@ -219,12 +226,70 @@ ConsoleBatch::process()
         // process pages
         PageSequence page_sequence = m_ptrPages->toPageSequence(PAGE_VIEW);
         setupFilter(j, page_sequence.asPageIdSet());
+
+        int const num_pages = int(page_sequence.numPages());
+        if (json) {
+            QJsonObject ev;
+            ev["event"] = QStringLiteral("stage_start");
+            ev["stage"] = j + 1;
+            ev["name"] = stageName(j);
+            ev["pages"] = num_pages;
+            printJsonLine(ev);
+        }
+
+        int page_index = 0;
         for (const PageInfo& page : page_sequence) {
             if (cli.isVerbose()) {
                 std::cout << "\tProcessing: " << page.imageId().filePath().toLocal8Bit().constData() << "\n";
             }
+
+            QJsonObject ev;
+            if (json) {
+                ev["stage"] = j + 1;
+                ev["name"] = stageName(j);
+                ev["index"] = page_index;
+                ev["pages"] = num_pages;
+                ev["image"] = QFileInfo(page.imageId().filePath()).fileName();
+                if (page.imageId().isMultiPageFile()) {
+                    ev["image_page"] = page.imageId().page();
+                }
+                ev["side"] = page.id().subPageAsString();
+            }
+            ++page_index;
+
             BackgroundTaskPtr bgTask = createCompositeTask(page, j);
-            (*bgTask)();
+            FilterResultPtr result;
+            try {
+                result = (*bgTask)();
+            } catch (std::exception const& e) {
+                ++m_pageErrors;
+                if (json) {
+                    ev["event"] = QStringLiteral("page_error");
+                    ev["error"] = QString::fromLocal8Bit(e.what());
+                    printJsonLine(ev);
+                }
+                throw;
+            }
+
+            // LoadFileTask returns a result without a filter when the image does not load, thus count a page error.
+            bool const load_error = result && !result->filter();
+            if (load_error) {
+                ++m_pageErrors;
+            }
+            if (!json) {
+                continue;
+            }
+            if (load_error) {
+                ev["event"] = QStringLiteral("page_error");
+                ev["error"] = QStringLiteral("cannot load the image");
+            } else {
+                ev["event"] = QStringLiteral("page_done");
+                QJsonObject const res(pageResult(j, page.id()));
+                for (QJsonObject::const_iterator it = res.constBegin(); it != res.constEnd(); ++it) {
+                    ev.insert(it.key(), it.value());
+                }
+            }
+            printJsonLine(ev);
         }
     }
 
@@ -240,13 +305,158 @@ ConsoleBatch::process()
     }
 }
 
-void
+bool
 ConsoleBatch::saveProject(QString const project_file)
 {
     PageInfo fpage = m_ptrPages->toPageSequence(PAGE_VIEW).pageAt(0);
     SelectedPage sPage(fpage.id(), IMAGE_VIEW);
     ProjectWriter writer(m_ptrPages, sPage, m_outFileNameGen);
-    writer.write(project_file, m_ptrStages->filters());
+    return writer.write(project_file, m_ptrStages->filters());
+}
+
+int
+ConsoleBatch::pageCount() const
+{
+    return int(m_ptrPages->toPageSequence(PAGE_VIEW).numPages());
+}
+
+void
+ConsoleBatch::printJsonLine(QJsonObject const& obj)
+{
+    // The JSON goes to the C stdout stream because the CLI sends std::cout text to stderr in this mode.
+    QByteArray const line(QJsonDocument(obj).toJson(QJsonDocument::Compact));
+    std::fwrite(line.constData(), 1, size_t(line.size()), stdout);
+    std::fputc('\n', stdout);
+    std::fflush(stdout);
+}
+
+QString
+ConsoleBatch::stageName(int idx) const
+{
+    if (idx == m_ptrStages->fixOrientationFilterIdx()) {
+        return QStringLiteral("fix_orientation");
+    } else if (idx == m_ptrStages->pageSplitFilterIdx()) {
+        return QStringLiteral("page_split");
+    } else if (idx == m_ptrStages->deskewFilterIdx()) {
+        return QStringLiteral("deskew");
+    } else if (idx == m_ptrStages->selectContentFilterIdx()) {
+        return QStringLiteral("select_content");
+    } else if (idx == m_ptrStages->pageLayoutFilterIdx()) {
+        return QStringLiteral("page_layout");
+    } else if (idx == m_ptrStages->outputFilterIdx()) {
+        return QStringLiteral("output");
+    }
+    return QString();
+}
+
+static QJsonObject
+rectToJson(QRectF const& rect)
+{
+    QJsonObject obj;
+    obj["x"] = rect.x();
+    obj["y"] = rect.y();
+    obj["width"] = rect.width();
+    obj["height"] = rect.height();
+    return obj;
+}
+
+static QJsonObject
+lineToJson(QLineF const& line)
+{
+    QJsonObject obj;
+    obj["x1"] = line.x1();
+    obj["y1"] = line.y1();
+    obj["x2"] = line.x2();
+    obj["y2"] = line.y2();
+    return obj;
+}
+
+static QJsonObject
+marginsToJson(Margins const& margins)
+{
+    QJsonObject obj;
+    obj["left"] = margins.left();
+    obj["top"] = margins.top();
+    obj["right"] = margins.right();
+    obj["bottom"] = margins.bottom();
+    return obj;
+}
+
+static QString
+modeToString(AutoManualMode mode)
+{
+    return mode == MODE_MANUAL ? QStringLiteral("manual") : QStringLiteral("auto");
+}
+
+QJsonObject
+ConsoleBatch::pageResult(int idx, PageId const& page_id) const
+{
+    QJsonObject res;
+    if (idx == m_ptrStages->fixOrientationFilterIdx()) {
+        res["rotation"] = m_ptrStages->fixOrientationFilter()->getSettings()
+                          ->getRotationFor(page_id.imageId()).toDegrees();
+    } else if (idx == m_ptrStages->pageSplitFilterIdx()) {
+        page_split::Settings::Record const record(
+            m_ptrStages->pageSplitFilter()->getSettings()->getPageRecord(page_id.imageId()));
+        page_split::Params const* params = record.params();
+        if (params) {
+            page_split::PageLayout const& layout = params->pageLayout();
+            res["layout"] = page_split::layoutTypeToString(layout.toLayoutType());
+            res["split_mode"] = modeToString(params->splitLineMode());
+            res["sub_pages"] = layout.numSubPages();
+            QJsonArray cutters;
+            for (int i = 0; i < layout.numCutters(); ++i) {
+                cutters.append(lineToJson(layout.cutterLine(i)));
+            }
+            res["cutters"] = cutters;
+        } else {
+            res["layout"] = page_split::layoutTypeToString(record.combinedLayoutType());
+        }
+    } else if (idx == m_ptrStages->deskewFilterIdx()) {
+        std::unique_ptr<deskew::Params> const params(
+            m_ptrStages->deskewFilter()->getSettings()->getPageParams(page_id));
+        if (params) {
+            res["angle"] = params->deskewAngle();
+            res["mode"] = modeToString(params->mode());
+        }
+    } else if (idx == m_ptrStages->selectContentFilterIdx()) {
+        std::unique_ptr<select_content::Params> const params(
+            m_ptrStages->selectContentFilter()->getSettings()->getPageParams(page_id));
+        if (params) {
+            res["content_rect"] = rectToJson(params->contentRect());
+            res["page_rect"] = rectToJson(params->pageRect());
+            res["mode"] = modeToString(params->mode());
+        }
+    } else if (idx == m_ptrStages->pageLayoutFilterIdx()) {
+        page_layout::Settings const* settings = m_ptrStages->pageLayoutFilter()->getSettings();
+        page_layout::Alignment const alignment(settings->getPageAlignment(page_id));
+        MarginsWithAuto const margins(settings->getHardMarginsMM(page_id));
+        QJsonObject margins_json(marginsToJson(margins));
+        margins_json["auto"] = margins.isAutoMarginsEnabled();
+        res["margins_mm"] = margins_json;
+        QJsonObject align;
+        align["vert"] = page_layout::Alignment::verticalToStr(alignment.vertical());
+        align["hor"] = page_layout::Alignment::horizontalToStr(alignment.horizontal());
+        align["null"] = alignment.isNull();
+        res["alignment"] = align;
+    } else if (idx == m_ptrStages->outputFilterIdx()) {
+        output::Params const params(m_ptrStages->outputFilter()->getSettings()->getParams(page_id));
+        QString const out_path(m_outFileNameGen.filePathFor(page_id));
+        res["output_file"] = out_path;
+        res["dpi"] = params.outputDpi().horizontal();
+        switch (params.colorParams().colorMode()) {
+        case output::ColorParams::BLACK_AND_WHITE:
+            res["color_mode"] = QStringLiteral("bw");
+            break;
+        case output::ColorParams::COLOR_GRAYSCALE:
+            res["color_mode"] = QStringLiteral("colorOrGray");
+            break;
+        case output::ColorParams::MIXED:
+            res["color_mode"] = QStringLiteral("mixed");
+            break;
+        }
+    }
+    return res;
 }
 
 void
