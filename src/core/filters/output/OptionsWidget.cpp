@@ -250,18 +250,17 @@ void
 OptionsWidget::changeColorMode(ColorParams::ColorMode const mode)
 {
     setModeValue(mode);
+    // The color parameters keep the last options of each mode, so the layer choices come back with the mode.
     m_colorParams.setColorMode((ColorParams::ColorMode)mode);
-
-    ColorGrayscaleOptions opt = m_colorParams.colorGrayscaleOptions();
-    if (opt.foregroundLayerEnabled()) {
+    if (mode == ColorParams::MIXED) {
+        // A page that leaves Mixed mode loses its automatic picture zones, so these two layers must start again from off.
+        ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
+        opt.setPictureZonesLayerEnabled(false);
         opt.setForegroundLayerEnabled(false);
         m_colorParams.setColorGrayscaleOptions(opt);
     }
 
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
-    autoLayerCB->setChecked(true);
-    pictureZonesLayerCB->setChecked(false);
-    foregroundLayerCB->setChecked(false);
     updateColorsDisplay();
     updateLayersDisplay();
     emit reloadRequested();

@@ -116,10 +116,6 @@ public:
 
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
-    static ColorParams::ColorMode parseColorMode(QString const& str);
-
-    static QString formatColorMode(ColorParams::ColorMode mode);
-
     ColorParams m_colorParams;
 
     Dpi m_dpi;

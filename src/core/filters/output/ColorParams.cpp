@@ -22,21 +22,96 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
+#include <algorithm>
 
 namespace output
 {
 
 ColorParams::ColorParams()
-    : m_colorMode(DefaultColorMode())
+    :   m_colorMode(DefaultColorMode()),
+        m_optionsMode(m_colorMode == MIXED ? MIXED : COLOR_GRAYSCALE),
+        m_hasOtherOptions(false),
+        m_keepOptions(false)
 {
 }
 
 ColorParams::ColorParams(QDomElement const& el)
-    :   m_colorMode(parseColorMode(el.attribute("colorMode")))
+    :   m_colorMode(parseColorMode(el.attribute("colorMode"))),
+        m_hasOtherOptions(false),
+        m_keepOptions(true)
 {
-    m_colorGrayscaleOptions = ColorGrayscaleOptions(el.namedItem("color-or-grayscale").toElement(),
-                              colorMode() == MIXED);
+    QDomElement const options_el(el.namedItem("color-or-grayscale").toElement());
+    m_optionsMode = m_colorMode;
+    if (m_optionsMode == BLACK_AND_WHITE) {
+        m_optionsMode = options_el.attribute("mode") == "mixed" ? MIXED : COLOR_GRAYSCALE;
+        // An older version wrote no mode, so the options of a B/W page can belong to either color mode.
+        if (!options_el.hasAttribute("mode") && el.namedItem("other-color-or-grayscale").isNull()) {
+            m_keepOptions = false;
+        }
+    }
+    m_colorGrayscaleOptions = ColorGrayscaleOptions(options_el, m_optionsMode == MIXED);
+
+    QDomElement const other_el(el.namedItem("other-color-or-grayscale").toElement());
+    if (!other_el.isNull()) {
+        m_otherOptions = ColorGrayscaleOptions(other_el, m_optionsMode != MIXED);
+        m_hasOtherOptions = true;
+    }
     m_bwOptions = BlackWhiteOptions(el.namedItem("bw").toElement());
+}
+
+void
+ColorParams::setColorMode(ColorMode const mode)
+{
+    // B/W mode keeps the color options, and the next change to a color mode finds them again.
+    if (mode == BLACK_AND_WHITE || mode == m_colorMode) {
+        m_colorMode = mode;
+        return;
+    }
+    if (!m_keepOptions) {
+        if (mode != m_optionsMode && m_hasOtherOptions) {
+            m_colorGrayscaleOptions = m_otherOptions;
+            m_hasOtherOptions = false;
+        } else {
+            bool const defaults = (mode == MIXED);
+            m_colorGrayscaleOptions = ColorGrayscaleOptions(defaults, defaults);
+        }
+    } else if (mode != m_optionsMode) {
+        if (m_hasOtherOptions) {
+            std::swap(m_colorGrayscaleOptions, m_otherOptions);
+        } else {
+            m_otherOptions = m_colorGrayscaleOptions;
+            m_hasOtherOptions = true;
+            bool const defaults = (mode == MIXED);
+            m_colorGrayscaleOptions = ColorGrayscaleOptions(defaults, defaults);
+        }
+    }
+    m_optionsMode = mode;
+    m_keepOptions = true;
+    m_colorMode = mode;
+}
+
+void
+ColorParams::setColorModeWithDefaults(ColorMode const mode)
+{
+    if (mode != BLACK_AND_WHITE && mode != m_colorMode) {
+        bool const defaults = (mode == MIXED);
+        m_colorGrayscaleOptions = ColorGrayscaleOptions(defaults, defaults);
+        if (mode != m_optionsMode) {
+            m_hasOtherOptions = false;
+        }
+        m_optionsMode = mode;
+        m_keepOptions = true;
+    }
+    m_colorMode = mode;
+}
+
+void
+ColorParams::copyModeAndOptions(ColorParams const& other)
+{
+    // The target pages get the options of both color modes, so that they stay equal to the source after a later mode change.
+    BlackWhiteOptions const bw_options(m_bwOptions);
+    *this = other;
+    m_bwOptions = bw_options;
 }
 
 ColorParams::ColorMode
@@ -50,7 +125,14 @@ ColorParams::toXml(QDomDocument& doc, QString const& name) const
 {
     QDomElement el(doc.createElement(name));
     el.setAttribute("colorMode", formatColorMode(m_colorMode));
-    el.appendChild(m_colorGrayscaleOptions.toXml(doc, "color-or-grayscale"));
+    QDomElement options_el(m_colorGrayscaleOptions.toXml(doc, "color-or-grayscale"));
+    if (m_colorMode == BLACK_AND_WHITE && m_optionsMode == MIXED) {
+        options_el.setAttribute("mode", "mixed");
+    }
+    el.appendChild(options_el);
+    if (m_hasOtherOptions) {
+        el.appendChild(m_otherOptions.toXml(doc, "other-color-or-grayscale"));
+    }
     el.appendChild(m_bwOptions.toXml(doc, "bw"));
     return el;
 }
