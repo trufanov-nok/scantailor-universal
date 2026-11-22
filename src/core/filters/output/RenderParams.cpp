@@ -63,6 +63,22 @@ RenderParams::RenderParams(ColorParams const& cp)
                 m_mask |= NORMALIZE_ILLUMINATION;
             }
         }
+        // White margins already fill the offcut, so the option has no effect there.
+        if (opt.fillOffcut() && !opt.whiteMargins()) {
+            m_mask |= FILL_OFFCUT;
+        }
+        // White margins already fill the margins, so the option has no effect there.
+        if (opt.fillMargins() && !opt.whiteMargins()) {
+            m_mask |= FILL_MARGINS;
+        }
+        // The GUI hides the filling color in Mixed mode, so a value from Color mode must not act there.
+        if (cp.colorMode() == ColorParams::COLOR_GRAYSCALE) {
+            if (opt.fillingColor() == FILL_WHITE) {
+                m_mask |= WHITE_FILLING;
+            } else if (opt.fillingColor() == FILL_BLACK) {
+                m_mask |= BLACK_FILLING;
+            }
+        }
         break;
     }
 

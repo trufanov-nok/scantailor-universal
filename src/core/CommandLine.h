@@ -222,6 +222,22 @@ public:
     {
         return contains("normalize-illumination");
     }
+    bool hasFillOffcut() const
+    {
+        return contains("fill-offcut");
+    }
+    bool hasFillMargins() const
+    {
+        return contains("fill-margins");
+    }
+    bool hasFillingColor() const
+    {
+        return contains("filling-color") && !m_options["filling-color"].isEmpty();
+    }
+    output::FillingColor getFillingColor() const
+    {
+        return output::ColorGrayscaleOptions::parseFillingColor(m_options["filling-color"].toLower());
+    }
     bool hasThreshold() const
     {
         return contains("threshold") && !m_options["threshold"].isEmpty();

@@ -243,6 +243,24 @@ void combineMixed(
     }
 }
 
+// Text uses pure black and white, so the estimated color must not use them.
+QColor reserveBlackAndWhiteColor(QColor const& color)
+{
+    return QColor(reserveBlackAndWhite<uint32_t>(color.rgb()));
+}
+
+// The "Background" choice keeps the color that each output path used before this option existed.
+QColor selectFillingColor(RenderParams const& render_params, QColor const& background)
+{
+    if (render_params.fillWhite()) {
+        return Qt::white;
+    }
+    if (render_params.fillBlack()) {
+        return Qt::black;
+    }
+    return background;
+}
+
 } // anonymous namespace
 
 OutputGenerator::OutputGenerator(
@@ -605,13 +623,19 @@ OutputGenerator::processAsIs(
     DepthPerception const& depth_perception,
     DebugImages* const dbg) const
 {
-    uint8_t const dominant_gray = reserveBlackAndWhite<uint8_t>(
-                                      calcDominantBackgroundGrayLevel(input.grayImage())
-                                  );
+    RenderParams const render_params(m_colorParams);
+    QColor bg_color(selectFillingColor(render_params, QColor()));
+    if (!bg_color.isValid() && (render_params.fillMargins() || render_params.fillOffcut())) {
+        bg_color = reserveBlackAndWhiteColor(estimateBackgroundColor(input));
+    }
+    if (!bg_color.isValid()) {
+        uint8_t const dominant_gray = reserveBlackAndWhite<uint8_t>(
+                                          calcDominantBackgroundGrayLevel(input.grayImage())
+                                      );
+        bg_color = QColor(dominant_gray, dominant_gray, dominant_gray);
+    }
 
     status.throwIfCancelled();
-
-    QColor const bg_color(dominant_gray, dominant_gray, dominant_gray);
 
     QImage out;
     CommandLine const& cli = CommandLine::get();
@@ -628,7 +652,7 @@ OutputGenerator::processAsIs(
             if (image.isNull()) {
                 throw std::bad_alloc();
             }
-            image.fill(dominant_gray);
+            image.fill(reserveBlackAndWhite<uint8_t>(static_cast<uint8_t>(qGray(bg_color.rgb()))));
             return image;
         }
 
@@ -639,7 +663,7 @@ OutputGenerator::processAsIs(
     } else {
         if (m_outRect.isEmpty()) {
             QImage image(1, 1, QImage::Format_RGB32);
-            image.fill(bg_color.rgb());
+            image.fill(reserveBlackAndWhite<uint32_t>(bg_color.rgb()));
             return image;
         }
 
@@ -647,6 +671,18 @@ OutputGenerator::processAsIs(
                   input.origImage(), m_xform.transform(), m_outRect,
                   OutsidePixels::assumeColor(bg_color)
               );
+    }
+
+    if (render_params.fillOffcut()) {
+        QPolygonF crop_area(m_xform.resultingPreCropArea());
+        crop_area.translate(-m_outRect.topLeft());
+        fillMarginsInPlace(out, crop_area, bg_color);
+    }
+
+    // Without a content box, the fill would erase the whole page.
+    if (render_params.fillMargins() && !m_contentRect.isEmpty()) {
+        QRectF const content_area(QRectF(m_contentRect).translated(-m_outRect.topLeft()));
+        fillMarginsInPlace(out, QPolygonF(content_area), bg_color);
     }
 
     applyFillZonesInPlace(out, fill_zones);
@@ -667,6 +703,7 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
     RenderParams const render_params(m_colorParams);
     const bool suppress_smoothing = GlobalStaticSettings::m_disable_bw_smoothing &&
                                     (m_colorParams.colorMode() == ColorParams::BLACK_AND_WHITE);
+    QColor const fill_color(selectFillingColor(render_params, Qt::white));
 
     // The whole image minus the part cut off by the split line.
     QRect const big_margins_rect(
@@ -725,7 +762,7 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
     } else {
         maybe_normalized = transform(
                                input.origImage(), m_xform.transform(),
-                               normalize_illumination_rect, OutsidePixels::assumeColor(Qt::white)
+                               normalize_illumination_rect, OutsidePixels::assumeColor(fill_color)
                            );
     }
 
@@ -882,7 +919,7 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
                       transform(
                           input.origImage(), m_xform.transform(),
                           normalize_illumination_rect,
-                          OutsidePixels::assumeColor(Qt::white)
+                          OutsidePixels::assumeColor(fill_color)
                       )
                   );
 
@@ -896,7 +933,7 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
                       transform(
                           input.grayImage(), m_xform.transform(),
                           normalize_illumination_rect,
-                          OutsidePixels::assumeColor(Qt::white)
+                          OutsidePixels::assumeColor(fill_color)
                       )
                   );
             status.throwIfCancelled();
@@ -1030,13 +1067,13 @@ OutputGenerator::processWithoutDewarping(TaskStatus const& status, FilterData co
 
     if (maybe_normalized.format() == QImage::Format_Indexed8) {
         dst.setColorTable(createGrayscalePalette());
-        // White.  0xff is reserved if in "Color / Grayscale" mode.
-        uint8_t const color = render_params.mixedOutput() ? 0xff : 0xfe;
-        dst.fill(color);
+        // Outside Mixed mode, keep the fill away from pure black and white, because text uses them.
+        uint8_t const color = static_cast<uint8_t>(qGray(fill_color.rgb()));
+        dst.fill(render_params.mixedOutput() ? color : reserveBlackAndWhite<uint8_t>(color));
     } else {
-        // White.  0x[ff]ffffff is reserved if in "Color / Grayscale" mode.
-        uint32_t const color = render_params.mixedOutput() ? 0xffffffff : 0xfffefefe;
-        dst.fill(color);
+        // Outside Mixed mode, keep the fill away from pure black and white, because text uses them.
+        uint32_t const color = fill_color.rgb();
+        dst.fill(render_params.mixedOutput() ? color : reserveBlackAndWhite<uint32_t>(color));
     }
 
     if (dst.isNull()) {
@@ -1543,24 +1580,32 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
 
     warped_gray_output = GrayImage(); // Save memory.
 
+    QColor bg_color(selectFillingColor(render_params, Qt::white));
+    if (!render_params.whiteMargins() && !render_params.fillWhite() && !render_params.fillBlack()) {
+        if (render_params.fillMargins() || render_params.fillOffcut()) {
+            bg_color = reserveBlackAndWhiteColor(estimateBackgroundColor(input));
+        } else {
+            uint8_t const dominant_gray = reserveBlackAndWhite<uint8_t>(
+                                              calcDominantBackgroundGrayLevel(input.grayImage())
+                                          );
+            bg_color = QColor(dominant_gray, dominant_gray, dominant_gray);
+        }
+    }
+
     if (render_params.whiteMargins()) {
         // Fill everything except the content area in normalized_original to white.
         QPolygonF const orig_content_poly(m_xform.transformBack().map(QRectF(m_contentRect)));
-        fillMarginsInPlace(normalized_original, orig_content_poly, Qt::white);
+        fillMarginsInPlace(normalized_original, orig_content_poly, bg_color);
         if (dbg) {
             dbg->add(normalized_original, "white margins");
+        }
+    } else {
+        if (render_params.fillOffcut()) {
+            fillMarginsInPlace(normalized_original, orig_image_crop_area, bg_color);
         }
     }
 
     status.throwIfCancelled();
-
-    QColor bg_color(Qt::white);
-    if (!render_params.whiteMargins()) {
-        uint8_t const dominant_gray = reserveBlackAndWhite<uint8_t>(
-                                          calcDominantBackgroundGrayLevel(input.grayImage())
-                                      );
-        bg_color = QColor(dominant_gray, dominant_gray, dominant_gray);
-    }
 
     QImage dewarped;
     try {
@@ -1577,6 +1622,11 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
                    );
     }
     normalized_original = QImage(); // Save memory.
+    // Fill after the dewarp, because the inverse linear transform does not follow the curved text lines.
+    if (render_params.fillMargins() && !m_contentRect.isEmpty()) {
+        QRectF const content_area(QRectF(m_contentRect).translated(-m_outRect.topLeft()));
+        fillMarginsInPlace(dewarped, QPolygonF(content_area), bg_color);
+    }
     if (dbg) {
         dbg->add(dewarped, "dewarped");
     }
@@ -2409,6 +2459,99 @@ OutputGenerator::calcDominantBackgroundGrayLevel(QImage const& img)
 
     assert(!"Unreachable");
     return 0;
+}
+
+QColor
+OutputGenerator::estimateBackgroundColor(FilterData const& input) const
+{
+    // The same area as in Advanced: the part of the page inside the output rectangle, in original coordinates.
+    QPolygonF const crop_area(
+        m_xform.transformBack().map(m_xform.resultingPreCropArea().intersected(QRectF(m_outRect)))
+    );
+    return calcDominantBackgroundColor(input.origImage(), crop_area);
+}
+
+// Ported from BackgroundColorCalculator of ScanTailor Advanced: the peak of a 10-level window in the histogram.
+unsigned char
+OutputGenerator::calcDominantLevel(int const* hist)
+{
+    int integral_hist[256];
+    integral_hist[0] = hist[0];
+    for (int i = 1; i < 256; ++i) {
+        integral_hist[i] = hist[i] + integral_hist[i - 1];
+    }
+
+    int const num_colors = 256;
+    int const window_size = 10;
+
+    int best_pos = 0;
+    int best_sum = integral_hist[window_size - 1];
+    for (int i = 1; i <= num_colors - window_size; ++i) {
+        int const sum = integral_hist[i + window_size - 1] - integral_hist[i - 1];
+        if (sum > best_sum) {
+            best_sum = sum;
+            best_pos = i;
+        }
+    }
+
+    int half_sum = 0;
+    for (int i = best_pos; i < best_pos + window_size; ++i) {
+        half_sum += hist[i];
+        if (half_sum >= best_sum / 2) {
+            return static_cast<unsigned char>(i);
+        }
+    }
+    return static_cast<unsigned char>(best_pos);
+}
+
+QColor
+OutputGenerator::calcDominantBackgroundColor(QImage const& img, QPolygonF const& crop_area)
+{
+    QImage const gray(toGrayscale(img));
+
+    // Only the page area counts, so that a dark scanner background does not give the color.
+    BinaryImage area_mask(gray.size(), BLACK);
+    PolygonRasterizer::fillExcept(area_mask, WHITE, crop_area, Qt::WindingFill);
+    if (area_mask.countBlackPixels() == 0) {
+        area_mask.fill(BLACK);
+    }
+
+    BinaryImage background(gray, BinaryThreshold::otsuThreshold(GrayscaleHistogram(gray, area_mask)));
+    background.invert();
+    rasterOp<RopAnd<RopSrc, RopDst> >(background, area_mask);
+
+    int red[256] = {0};
+    int green[256] = {0};
+    int blue[256] = {0};
+
+    bool const is_gray = img.allGray();
+    QImage const rgb(is_gray ? QImage() : img.convertToFormat(QImage::Format_RGB32));
+    uint32_t const* mask_line = background.data();
+    int const mask_stride = background.wordsPerLine();
+    uint32_t const msb = uint32_t(1) << 31;
+    for (int y = 0; y < gray.height(); ++y) {
+        uint8_t const* gray_line = gray.constScanLine(y);
+        uint32_t const* rgb_line = is_gray ? 0 : reinterpret_cast<uint32_t const*>(rgb.constScanLine(y));
+        for (int x = 0; x < gray.width(); ++x) {
+            if (!(mask_line[x >> 5] & (msb >> (x & 31)))) {
+                continue;
+            }
+            if (is_gray) {
+                ++red[gray_line[x]];
+            } else {
+                ++red[(rgb_line[x] >> 16) & 0xff];
+                ++green[(rgb_line[x] >> 8) & 0xff];
+                ++blue[rgb_line[x] & 0xff];
+            }
+        }
+        mask_line += mask_stride;
+    }
+
+    if (is_gray) {
+        unsigned char const level = calcDominantLevel(red);
+        return QColor(level, level, level);
+    }
+    return QColor(calcDominantLevel(red), calcDominantLevel(green), calcDominantLevel(blue));
 }
 
 void

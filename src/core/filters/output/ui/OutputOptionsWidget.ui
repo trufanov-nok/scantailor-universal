@@ -73,22 +73,10 @@
    <item>
     <widget class="QWidget" name="modePanel" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>168</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>168</height>
-      </size>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <property name="spacing">
@@ -187,6 +175,37 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QCheckBox" name="fillOffcutCB">
+           <property name="text">
+            <string>Fill offcut</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="fillMarginsCB">
+           <property name="toolTip">
+            <string>Fill the margins around the content with the filling color. White margins already fill them.</string>
+           </property>
+           <property name="text">
+            <string>Fill margins</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="fillingColorLayout">
+           <item>
+            <widget class="QLabel" name="fillingColorLabel">
+             <property name="text">
+              <string>Filling color:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="fillingColorSelector"/>
+           </item>
+          </layout>
+         </item>
         </layout>
        </widget>
       </item>
@@ -243,7 +262,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>40</height>
+          <height>0</height>
          </size>
         </property>
        </spacer>

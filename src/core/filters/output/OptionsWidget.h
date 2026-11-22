@@ -89,6 +89,12 @@ private slots:
 
     void equalizeIlluminationToggled(bool checked);
 
+    void fillOffcutToggled(bool checked);
+
+    void fillMarginsToggled(bool checked);
+
+    void fillingColorChanged(int idx);
+
     void despeckleOffSelected();
 
     void despeckleCautiousSelected();
