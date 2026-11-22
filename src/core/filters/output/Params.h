@@ -114,6 +114,19 @@ public:
 //        m_TiffCompression = compression;
 //    }
 
+    // A sideways table needs an upright output file, but stages 1-5 must keep the book orientation.
+    int outputRotation() const
+    {
+        return m_outputRotation;
+    }
+
+    void setOutputRotation(int degrees)
+    {
+        m_outputRotation = normalizeOutputRotation(degrees);
+    }
+
+    static int normalizeOutputRotation(int degrees);
+
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 private:
     static ColorParams::ColorMode parseColorMode(QString const& str);
@@ -127,6 +140,7 @@ private:
     DepthPerception m_depthPerception;
     DewarpingMode m_dewarpingMode;
     DespeckleLevel m_despeckleLevel;
+    int m_outputRotation;
 //    QString m_TiffCompression;
 };
 

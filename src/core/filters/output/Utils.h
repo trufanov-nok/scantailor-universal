@@ -20,6 +20,7 @@
 #define OUTPUT_UTILS_H_
 
 class Dpi;
+class QImage;
 class QString;
 class QTransform;
 
@@ -36,6 +37,9 @@ public:
     static QString specklesDir(QString const& out_dir);
 
     static QTransform scaleFromToDpi(Dpi const& from, Dpi const& to);
+
+    // The DPI values swap with the axes, so that the TIFF header stays correct for a non-square DPI.
+    static QImage rotateImage(QImage const& image, int degrees);
 };
 
 } // namespace output

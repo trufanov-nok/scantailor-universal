@@ -18,6 +18,7 @@
 
 #include "Utils.h"
 #include "Dpi.h"
+#include <QImage>
 #include <QString>
 #include <QTransform>
 #include <QDir>
@@ -52,6 +53,24 @@ Utils::scaleFromToDpi(Dpi const& from, Dpi const& to)
         (double)to.vertical() / from.vertical()
     );
     return xform;
+}
+
+QImage
+Utils::rotateImage(QImage const& image, int const degrees)
+{
+    if (degrees == 0 || image.isNull()) {
+        return image;
+    }
+
+    QImage rotated(image.transformed(QTransform().rotate(degrees)));
+    if (degrees == 90 || degrees == 270) {
+        rotated.setDotsPerMeterX(image.dotsPerMeterY());
+        rotated.setDotsPerMeterY(image.dotsPerMeterX());
+    } else {
+        rotated.setDotsPerMeterX(image.dotsPerMeterX());
+        rotated.setDotsPerMeterY(image.dotsPerMeterY());
+    }
+    return rotated;
 }
 
 } // namespace output

@@ -38,6 +38,8 @@ public:
         PageId page_id;
         QString filename;
         QStringList zones_info;
+        // The output file has this clockwise rotation, but the automask file does not.
+        int output_rotation = 0;
     };
 
     ExportThread(const ExportSettings& settings, const QVector<ExportRec>& outpaths,

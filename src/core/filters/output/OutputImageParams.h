@@ -89,6 +89,16 @@ public:
         m_TiffCompression = compression;
     }
 
+    int outputRotation() const
+    {
+        return m_outputRotation;
+    }
+
+    void setOutputRotation(int degrees)
+    {
+        m_outputRotation = degrees;
+    }
+
     QDomElement toXml(QDomDocument& doc, QString const& name) const;
 
     /**
@@ -155,6 +165,9 @@ private:
 
     /** Tiff compression method of the output image. */
     QString m_TiffCompression;
+
+    // The size and the content box above stay in the unrotated output geometry.
+    int m_outputRotation;
 };
 
 } // namespace output

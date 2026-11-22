@@ -32,7 +32,7 @@ namespace output
 {
 
 Params::Params()
-    :  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi())
+    :  RegenParams(), m_dpi(CommandLine::get().getDefaultOutputDpi()), m_outputRotation(0)
 {
     QSettings s;
     m_despeckleLevel = (DespeckleLevel) s.value(_key_output_despeckling_default_lvl, _key_output_despeckling_default_lvl_def).toUInt();
@@ -44,7 +44,8 @@ Params::Params(QDomElement const& el)
         m_distortionModel(el.namedItem("distortion-model").toElement()),
         m_depthPerception(el.attribute("depthPerception")),
         m_dewarpingMode(el.attribute("dewarpingMode")),
-        m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel")))
+        m_despeckleLevel(despeckleLevelFromString(el.attribute("despeckleLevel"))),
+        m_outputRotation(normalizeOutputRotation(el.attribute("outputRotation").toInt()))
 //        m_TiffCompression(el.attribute("tiff-compression"))
 
 {
@@ -70,6 +71,10 @@ Params::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("depthPerception", m_depthPerception.toString());
     el.setAttribute("dewarpingMode", m_dewarpingMode.toString());
     el.setAttribute("despeckleLevel", despeckleLevelToString(m_despeckleLevel));
+    // Write the attribute only when it is not 0, so that normal projects stay the same.
+    if (m_outputRotation != 0) {
+        el.setAttribute("outputRotation", m_outputRotation);
+    }
 //    el.setAttribute("tiff-compression", m_TiffCompression);
     el.appendChild(marshaller.dpi(m_dpi, "dpi"));
 
@@ -89,6 +94,14 @@ Params::toXml(QDomDocument& doc, QString const& name) const
     el.appendChild(cp);
 
     return el;
+}
+
+int
+Params::normalizeOutputRotation(int const degrees)
+{
+    // Only quarter turns keep the pixels exact, so any other value counts as no rotation.
+    int const d = ((degrees % 360) + 360) % 360;
+    return (d % 90 == 0) ? d : 0;
 }
 
 ColorParams::ColorMode

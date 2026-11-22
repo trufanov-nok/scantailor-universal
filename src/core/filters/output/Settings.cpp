@@ -208,6 +208,21 @@ Settings::setDepthPerception(PageId const& page_id, DepthPerception const& depth
 }
 
 void
+Settings::setOutputRotation(PageId const& page_id, int const degrees)
+{
+    QMutexLocker const locker(&m_mutex);
+
+    PerPageParams::iterator const it(m_perPageParams.lower_bound(page_id));
+    if (it == m_perPageParams.end() || m_perPageParams.key_comp()(page_id, it->first)) {
+        Params params;
+        params.setOutputRotation(degrees);
+        m_perPageParams.insert(it, PerPageParams::value_type(page_id, params));
+    } else {
+        it->second.setOutputRotation(degrees);
+    }
+}
+
+void
 Settings::setDespeckleLevel(PageId const& page_id, DespeckleLevel level)
 {
     QMutexLocker const locker(&m_mutex);

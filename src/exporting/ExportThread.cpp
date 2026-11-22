@@ -21,6 +21,7 @@
 #include "ImageLoader.h"
 #include "ImageSplitOps.h"
 #include "TiffWriter.h"
+#include "filters/output/Utils.h"
 #include "settings/globalstaticsettings.h"
 #ifdef _OPENMP
 #include <omp.h>
@@ -201,6 +202,9 @@ ExportThread::run()
                 QString filepath_automask = fi.path() + "/cache/automask/" + fi.fileName();
                 QImage automask_img = (QFile::exists(filepath_automask)) ? ImageLoader::load(filepath_automask) :
                                                                            ImageSplitOps::GenerateBlankImage(out_img, out_img.format(), 0x00000000);
+                if (QFile::exists(filepath_automask)) {
+                    automask_img = output::Utils::rotateImage(automask_img, rec.output_rotation);
+                }
                 QString out_filepath_mask = mask_dir + QDir::separator() + name + ".auto.tif";
                 TiffWriter::writeImage(m_settings.export_to_multipage ? out_file_path_no_split : out_filepath_mask,
                                        automask_img,

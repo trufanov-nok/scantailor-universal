@@ -151,6 +151,14 @@ private slots:
 
     void on_actionactionDespeckleAggressive_triggered();
 
+    void outputRotateLeft();
+
+    void outputRotateRight();
+
+    void outputRotationReset();
+
+    void on_outputRotationApplyButton_linkActivated(const QString&);
+
 private:
 
     void dpiChanged(std::set<PageId> const& pages, Dpi const& dpi);
@@ -185,6 +193,12 @@ private:
 
     void updateDespeckleValueText();
 
+    void setOutputRotation(int degrees);
+
+    void updateOutputRotationDisplay();
+
+    void applyOutputRotationConfirmed(std::set<PageId> const& pages);
+
     void setModeValue(ColorParams::ColorMode v)
     {
         m_currentMode = v;
@@ -215,6 +229,7 @@ private:
     QMenu m_menuMode;
     ColorParams::ColorMode m_currentMode;
     bool m_ignore_system_wheel_settings;
+    int m_outputRotation;
 };
 
 } // namespace output
