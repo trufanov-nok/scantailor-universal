@@ -41,10 +41,14 @@ public:
      * useful to prematuraly stop task processing.
      */
     void shutdown();
+
+    bool isIdle() const;
 public slots:
     void performTask(BackgroundTaskPtr const& task);
 signals:
     void taskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
+
+    void taskFinished();
 private:
     void emitTaskResult(BackgroundTaskPtr const& task, FilterResultPtr const& result);
 
@@ -54,6 +58,7 @@ private:
     class TaskResultEvent;
 
     std::unique_ptr<Impl> m_ptrImpl;
+    int m_numPendingTasks;
 };
 
 #endif

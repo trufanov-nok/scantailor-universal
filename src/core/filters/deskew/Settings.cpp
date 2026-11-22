@@ -64,11 +64,15 @@ Settings::performRelinking(AbstractRelinker const& relinker)
 
 void Settings::updateDeviation()
 {
-    m_avg = 0.0;
+    // Batch threads can change the page parameters while the main thread calculates the statistics.
+    QMutexLocker locker(&m_mutex);
+
+    // A task can read the average at any time, so it must never see a partial sum.
+    double avg = 0.0;
     for (PerPageParams::value_type const& kv : m_perPageParams) {
-        m_avg += kv.second.deskewAngle();
+        avg += kv.second.deskewAngle();
     }
-    m_avg = m_avg / m_perPageParams.size();
+    m_avg = avg / m_perPageParams.size();
 #ifdef DEBUG
     std::cout << "avg skew = " << m_avg << std::endl;
 #endif

@@ -22,6 +22,7 @@
 #include "NewOpenProjectPanel.h"
 #include "RecentProjects.h"
 #include "WorkerThread.h"
+#include "WorkerThreadPool.h"
 #include "ProjectPages.h"
 #include "PageSelectionAccessor.h"
 #include "StageSequence.h"
@@ -143,6 +144,7 @@ MainWindow::MainWindow()
     :   m_ptrPages(new ProjectPages),
         m_ptrStages(new StageSequence(m_ptrPages, newPageSelectionAccessor())),
         m_ptrWorkerThread(new WorkerThread),
+        m_ptrBatchThreadPool(new WorkerThreadPool),
         m_ptrInteractiveQueue(new ProcessingTaskQueue(ProcessingTaskQueue::RANDOM_ORDER)),
         m_curFilter(0),
         m_ignoreSelectionChanges(0),
@@ -259,6 +261,19 @@ MainWindow::MainWindow()
         SIGNAL(taskResult(BackgroundTaskPtr,FilterResultPtr)),
         this, SLOT(filterResult(BackgroundTaskPtr,FilterResultPtr))
     );
+    connect(
+        m_ptrBatchThreadPool.get(),
+        SIGNAL(taskResult(BackgroundTaskPtr,FilterResultPtr)),
+        this, SLOT(filterResult(BackgroundTaskPtr,FilterResultPtr))
+    );
+    connect(
+        m_ptrWorkerThread.get(), SIGNAL(taskFinished()),
+        this, SLOT(workerTaskFinished())
+    );
+    connect(
+        m_ptrBatchThreadPool.get(), SIGNAL(taskFinished()),
+        this, SLOT(workerTaskFinished())
+    );
 
     connect(
         m_ptrThumbSequence.get(),
@@ -356,6 +371,7 @@ MainWindow::~MainWindow()
         m_ptrBatchQueue->cancelAndClear();
     }
     m_ptrWorkerThread->shutdown();
+    m_ptrBatchThreadPool->shutdown();
 
     removeWidgetsFromLayout(m_pImageFrameLayout);
     removeWidgetsFromLayout(m_pOptionsFrameLayout);
@@ -602,6 +618,10 @@ MainWindow::createBatchProcessingWidget()
     m_checkBeepWhenFinished = [lower_panel]() {
         return lower_panel->ui.beepWhenFinished->isChecked();
     };
+    connect(
+        lower_panel->ui.systemLoadWidget, SIGNAL(threadCountChanged()),
+        this, SLOT(submitBatchTasks())
+    );
 
     int row = 0; // Row 0 is reserved.
     layout->addWidget(stop_btn, ++row, 1, Qt::AlignCenter);
@@ -1596,11 +1616,10 @@ MainWindow::startBatchProcessing()
     filterList->setBatchProcessingInProgress(true);
     filterList->setEnabled(false);
 
-    BackgroundTaskPtr const task(m_ptrBatchQueue->takeForProcessing());
-    if (task) {
-        m_ptrWorkerThread->performTask(task);
-    } else {
+    if (m_ptrBatchQueue->allProcessed()) {
         stopBatchProcessing();
+    } else {
+        submitBatchTasks();
     }
 
     page = m_ptrBatchQueue->selectedPage();
@@ -1641,6 +1660,47 @@ MainWindow::stopBatchProcessing(MainAreaAction main_area)
 
     m_ptrStages->filterAt(m_curFilter)->updateStatistics();
     resetThumbSequence(currentPageOrderProvider());
+}
+
+void
+MainWindow::submitBatchTasks()
+{
+    // A batch task must not run together with an interactive task, because both can write the same page.
+    if (!isBatchProcessingInProgress() || !m_ptrWorkerThread->isIdle()) {
+        return;
+    }
+
+    while (m_ptrBatchThreadPool->hasSpareCapacity()) {
+        BackgroundTaskPtr const task(m_ptrBatchQueue->takeForProcessing());
+        if (!task) {
+            break;
+        }
+        m_ptrBatchThreadPool->submitTask(task);
+    }
+}
+
+void
+MainWindow::startInteractiveTask()
+{
+    // Cancelled batch tasks can continue for some time, and they can write the same page as the interactive task.
+    if (!m_ptrBatchThreadPool->isIdle()) {
+        return;
+    }
+
+    BackgroundTaskPtr const task(m_ptrInteractiveQueue->takeForProcessing());
+    if (task) {
+        m_ptrWorkerThread->performTask(task);
+    }
+}
+
+void
+MainWindow::workerTaskFinished()
+{
+    if (isBatchProcessingInProgress()) {
+        submitBatchTasks();
+    } else {
+        startInteractiveTask();
+    }
 }
 
 void
@@ -1702,11 +1762,6 @@ MainWindow::filterResult(BackgroundTaskPtr const& task, FilterResultPtr const& r
             }
 
             return;
-        }
-
-        BackgroundTaskPtr const task(m_ptrBatchQueue->takeForProcessing());
-        if (task) {
-            m_ptrWorkerThread->performTask(task);
         }
 
         PageInfo const page(m_ptrBatchQueue->selectedPage());
@@ -2364,7 +2419,7 @@ MainWindow::loadPageInteractive(PageInfo const& page)
     m_ptrInteractiveQueue->addProcessingTask(
         page, createCompositeTask(page, m_curFilter, /*batch=*/false, m_debug)
     );
-    m_ptrWorkerThread->performTask(m_ptrInteractiveQueue->takeForProcessing());
+    startInteractiveTask();
 }
 
 void
