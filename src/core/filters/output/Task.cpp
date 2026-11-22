@@ -315,6 +315,8 @@ Task::process(
     Params p = m_ptrSettings->getParams(m_pageId);
     Params::Regenerate val = p.getForceReprocess();
     bool need_reprocess = val & Params::RegeneratePage;
+    // The stored output parameters do not hold the forced TIFF format, thus a current file can have the wrong format.
+    need_reprocess = need_reprocess || cli.hasTiffForceRGB() || cli.hasTiffForceGrayscale();
     if (need_reprocess) {
         val = (Params::Regenerate)(val & ~Params::RegeneratePage);
         p.setForceReprocess(val);
