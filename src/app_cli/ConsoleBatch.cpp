@@ -451,7 +451,7 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
 
         output::ColorParams colorParams = params.colorParams();
         if (cli.hasColorMode()) {
-            colorParams.setColorMode(cli.getColorMode());
+            colorParams.setColorModeWithDefaults(cli.getColorMode());
         }
 
         if (cli.hasWhiteMargins() || cli.hasNormalizeIllumination() ||
