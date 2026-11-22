@@ -673,6 +673,12 @@ OptionsWidget::updateColorsDisplay()
         fillOffcutCB->setEnabled(!opt.whiteMargins());
         fillMarginsCB->setChecked(opt.fillMargins());
         fillMarginsCB->setEnabled(!opt.whiteMargins());
+        // Mixed mode keeps the old white margins, so the panel hides the fill options there.
+        bool const fill_options_visible = m_currentMode != ColorParams::MIXED;
+        fillOffcutCB->setVisible(fill_options_visible);
+        fillMarginsCB->setVisible(fill_options_visible);
+        fillingColorLabel->setVisible(fill_options_visible);
+        fillingColorSelector->setVisible(fill_options_visible);
         fillingColorSelector->setCurrentIndex(fillingColorSelector->findData(opt.fillingColor()));
     }
 

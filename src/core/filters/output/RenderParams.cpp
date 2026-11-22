@@ -71,10 +71,13 @@ RenderParams::RenderParams(ColorParams const& cp)
         if (opt.fillMargins() && !opt.whiteMargins()) {
             m_mask |= FILL_MARGINS;
         }
-        if (opt.fillingColor() == FILL_WHITE) {
-            m_mask |= WHITE_FILLING;
-        } else if (opt.fillingColor() == FILL_BLACK) {
-            m_mask |= BLACK_FILLING;
+        // The GUI hides the filling color in Mixed mode, so a value from Color mode must not act there.
+        if (cp.colorMode() == ColorParams::COLOR_GRAYSCALE) {
+            if (opt.fillingColor() == FILL_WHITE) {
+                m_mask |= WHITE_FILLING;
+            } else if (opt.fillingColor() == FILL_BLACK) {
+                m_mask |= BLACK_FILLING;
+            }
         }
         break;
     }
