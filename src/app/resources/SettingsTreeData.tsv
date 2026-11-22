@@ -10,6 +10,7 @@ pageSplitPages
 	pageApplyCut	apply_cut/enabled
 pageDeskew
 	pageDeviantDeskew	deskew_deviant/enabled	0
+	pageDeskewPictureEdges	deskew/picture_edges	1
 pageSelectContent
 	pagePageDetecton	page_detection/enabled	0
 	pageDeviantContent	select_content_deviant/enabled	0

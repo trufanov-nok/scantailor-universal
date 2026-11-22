@@ -4257,6 +4257,51 @@ As Foreground layer is using binarization to separate content from background it
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageDeskewPictureEdges">
+       <layout class="QVBoxLayout" name="layoutDeskewPictureEdges">
+        <item>
+         <widget class="QGroupBox" name="groupDeskewPictureEdgesDescr">
+          <property name="title">
+           <string>Description</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutDeskewPictureEdgesDescr">
+           <item>
+            <widget class="QLabel" name="lblDeskewPictureEdgesDescr">
+             <property name="text">
+              <string>&lt;p&gt;If enabled, the automatic deskew of a picture page uses the straight edges of the picture, not the text lines. A picture page is a page that is mostly a photo, a plate or a map. On such a page, a few lines of captions can give a wrong angle. The frame of the picture gives the correct angle.&lt;/p&gt;&lt;p&gt;Other pages keep the angle from the text lines. A page that already has an angle, for example a manual one, keeps it. The setting applies when the Deskew stage finds the angle of a page the next time.&lt;/p&gt;&lt;p&gt;Disable this option to deskew all pages by the text lines, as in earlier versions.&lt;/p&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacerDeskewPictureEdges">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="pageDebugMode">
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <property name="spacing">

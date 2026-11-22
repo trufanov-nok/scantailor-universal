@@ -10,6 +10,7 @@ SET(
         TestRasterOp.cpp TestShear.cpp
         TestOrthogonalRotation.cpp
         TestSkewFinder.cpp
+        TestPictureSkewFinder.cpp
         TestScale.cpp
         TestTransform.cpp
         TestMorphology.cpp
