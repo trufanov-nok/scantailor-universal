@@ -26,6 +26,9 @@ class QDomElement;
 namespace output
 {
 
+// AUTO converts only the pages that GrayscaleDetector finds to be gray.
+enum GrayscaleFirst { GRAYSCALE_FIRST_OFF, GRAYSCALE_FIRST_ON, GRAYSCALE_FIRST_AUTO };
+
 class ColorGrayscaleOptions
 {
 public:
@@ -33,7 +36,8 @@ public:
                           bool autoLayer = true, bool pictureZonesLayer = false, bool foregroundLayer = false)
         : m_whiteMargins(whiteMargins), m_normalizeIllumination(normalizeIllumination),
           m_autoLayerEnabled(autoLayer), m_pictureZonesLayerEnabled(pictureZonesLayer),
-          m_foregroundLayerEnabled(foregroundLayer) {}
+          m_foregroundLayerEnabled(foregroundLayer),
+          m_grayscaleFirst(GRAYSCALE_FIRST_OFF) {}
 
     ColorGrayscaleOptions(QDomElement const& el, bool mixed_mode);
 
@@ -89,6 +93,20 @@ public:
         m_foregroundLayerEnabled = enabled;
     }
 
+    GrayscaleFirst grayscaleFirst() const
+    {
+        return m_grayscaleFirst;
+    }
+
+    void setGrayscaleFirst(GrayscaleFirst mode)
+    {
+        m_grayscaleFirst = mode;
+    }
+
+    static GrayscaleFirst parseGrayscaleFirst(QString const& str);
+
+    static QString formatGrayscaleFirst(GrayscaleFirst mode);
+
     bool operator==(ColorGrayscaleOptions const& other) const;
 
     bool operator!=(ColorGrayscaleOptions const& other) const;
@@ -98,6 +116,7 @@ private:
     bool m_autoLayerEnabled;
     bool m_pictureZonesLayerEnabled;
     bool m_foregroundLayerEnabled;
+    GrayscaleFirst m_grayscaleFirst;
 };
 
 } // namespace output

@@ -72,6 +72,11 @@ public:
         return (m_mask & FOREGROUND_LAYER) != 0;
     }
 
+    bool convertToGrayscale() const
+    {
+        return (m_mask & CONVERT_TO_GRAYSCALE) != 0;
+    }
+
     bool anyLayer() const
     {
         return autoLayer() || pictureZonesLayer() || foregroundLayer();
@@ -85,7 +90,8 @@ private:
         MIXED_OUTPUT = 8,
         AUTO_LAYER = 16,
         PICTURE_ZONES_LAYER = 32,
-        FOREGROUND_LAYER = 64
+        FOREGROUND_LAYER = 64,
+        CONVERT_TO_GRAYSCALE = 128
     };
 
     int m_mask;

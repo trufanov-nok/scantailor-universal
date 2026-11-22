@@ -63,6 +63,10 @@ RenderParams::RenderParams(ColorParams const& cp)
                 m_mask |= NORMALIZE_ILLUMINATION;
             }
         }
+        // The output task changes AUTO to ON or OFF before it makes the output.
+        if (opt.grayscaleFirst() == GRAYSCALE_FIRST_ON) {
+            m_mask |= CONVERT_TO_GRAYSCALE;
+        }
         break;
     }
 

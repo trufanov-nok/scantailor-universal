@@ -32,6 +32,7 @@ ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_m
     m_autoLayerEnabled = el.attribute("autoLayer", default_value) == "1";
     m_pictureZonesLayerEnabled = el.attribute("pictureZonesLayer", "0") == "1";
     m_foregroundLayerEnabled = el.attribute("foregroundLayer", "0") == "1";
+    m_grayscaleFirst = parseGrayscaleFirst(el.attribute("convertToGrayscale"));
 }
 
 QDomElement
@@ -43,7 +44,36 @@ ColorGrayscaleOptions::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("autoLayer", m_autoLayerEnabled ? "1" : "0");
     el.setAttribute("pictureZonesLayer", m_pictureZonesLayerEnabled ? "1" : "0");
     el.setAttribute("foregroundLayer", m_foregroundLayerEnabled ? "1" : "0");
+    // Write the attribute only when the option is on, so that projects without the option stay the same.
+    if (m_grayscaleFirst != GRAYSCALE_FIRST_OFF) {
+        el.setAttribute("convertToGrayscale", formatGrayscaleFirst(m_grayscaleFirst));
+    }
     return el;
+}
+
+GrayscaleFirst
+ColorGrayscaleOptions::parseGrayscaleFirst(QString const& str)
+{
+    if (str == "1") {
+        return GRAYSCALE_FIRST_ON;
+    } else if (str == "auto") {
+        return GRAYSCALE_FIRST_AUTO;
+    }
+    return GRAYSCALE_FIRST_OFF;
+}
+
+QString
+ColorGrayscaleOptions::formatGrayscaleFirst(GrayscaleFirst const mode)
+{
+    switch (mode) {
+    case GRAYSCALE_FIRST_ON:
+        return QStringLiteral("1");
+    case GRAYSCALE_FIRST_AUTO:
+        return QStringLiteral("auto");
+    case GRAYSCALE_FIRST_OFF:
+        break;
+    }
+    return QStringLiteral("0");
 }
 
 bool
@@ -66,6 +96,10 @@ ColorGrayscaleOptions::operator==(ColorGrayscaleOptions const& other) const
     }
 
     if (m_foregroundLayerEnabled != other.m_foregroundLayerEnabled) {
+        return false;
+    }
+
+    if (m_grayscaleFirst != other.m_grayscaleFirst) {
         return false;
     }
 

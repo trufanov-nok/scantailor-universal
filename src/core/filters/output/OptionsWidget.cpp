@@ -72,6 +72,9 @@ OptionsWidget::OptionsWidget(
     thresholdMethodSelector->addItem(tr("EdgePlus"), T_EDGEPLUS);
     thresholdMethodSelector->addItem(tr("BlurDiv"), T_BLURDIV);
     thresholdMethodSelector->addItem(tr("EdgeDiv"), T_EDGEDIV);
+    grayscaleFirstSelector->addItem(tr("Off"), GRAYSCALE_FIRST_OFF);
+    grayscaleFirstSelector->addItem(tr("On"), GRAYSCALE_FIRST_ON);
+    grayscaleFirstSelector->addItem(tr("Auto"), GRAYSCALE_FIRST_AUTO);
 
     setDespeckleLevel(DESPECKLE_NORMAL);
 
@@ -108,6 +111,10 @@ OptionsWidget::OptionsWidget(
     connect(
         equalizeIlluminationCB, SIGNAL(clicked(bool)),
         this, SLOT(equalizeIlluminationToggled(bool))
+    );
+    connect(
+        grayscaleFirstSelector, SIGNAL(activated(int)),
+        this, SLOT(grayscaleFirstChanged(int))
     );
 
     despeckleSliderPanel->setVisible(false);
@@ -317,6 +324,16 @@ OptionsWidget::equalizeIlluminationToggled(bool const checked)
 {
     ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
     opt.setNormalizeIllumination(checked);
+    m_colorParams.setColorGrayscaleOptions(opt);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::grayscaleFirstChanged(int const idx)
+{
+    ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
+    opt.setGrayscaleFirst(static_cast<GrayscaleFirst>(grayscaleFirstSelector->itemData(idx).toInt()));
     m_colorParams.setColorGrayscaleOptions(opt);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     emit reloadRequested();
@@ -620,6 +637,7 @@ OptionsWidget::updateColorsDisplay()
         whiteMarginsCB->setEnabled(m_currentMode != ColorParams::MIXED); // Mixed must have margins
         equalizeIlluminationCB->setChecked(opt.normalizeIllumination());
         equalizeIlluminationCB->setEnabled(opt.whiteMargins());
+        grayscaleFirstSelector->setCurrentIndex(grayscaleFirstSelector->findData(opt.grayscaleFirst()));
     }
 
     modePanel->setVisible(m_lastTab != TAB_DEWARPING);
