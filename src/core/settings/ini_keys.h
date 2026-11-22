@@ -79,7 +79,6 @@ static const char* _key_batch_dialog_remember_choice = "batch_dialog/remember_ch
 static const bool _key_batch_dialog_remember_choice_def = false;
 static const char* _key_batch_processing_priority = "settings/batch_processing_priority";
 static const char* _key_batch_processing_threads = "settings/batch_processing_threads";
-static const int _key_batch_processing_threads_def = 1;
 
 /* Thumbnails */
 

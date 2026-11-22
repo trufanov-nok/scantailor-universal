@@ -32,21 +32,18 @@ signals:
 private slots:
     void sliderPressed();
 
-    void sliderMoved(int prio);
+    void sliderMoved(int threads);
 
-    void valueChanged(int prio);
+    void valueChanged(int threads);
 
-    void decreasePriority();
+    void decreaseLoad();
 
-    void increasePriority();
-
-    void threadCountEdited(int threads);
+    void increaseLoad();
 private:
-    void showHideToolTip(int prio);
-
-    static QString tooltipText(int prio);
+    void showHideToolTip(int threads);
 
     Ui::SystemLoadWidget ui;
+    int m_maxThreads;
 };
 
 #endif

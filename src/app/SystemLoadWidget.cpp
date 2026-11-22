@@ -18,45 +18,30 @@
 
 #include "SystemLoadWidget.h"
 
-#include "ThreadPriority.h"
 #include "WorkerThreadPool.h"
 #include "settings/ini_keys.h"
-#include <QToolTip>
 #include <QSettings>
+#include <QToolTip>
 
 SystemLoadWidget::SystemLoadWidget(QWidget* parent)
-    :   QWidget(parent)
+    :   QWidget(parent),
+        m_maxThreads(WorkerThreadPool::maxThreadCount())
 {
     ui.setupUi(this);
 
-    ThreadPriority const prio(ThreadPriority::load(_key_batch_processing_priority));
-    ui.slider->setRange(ThreadPriority::Minimum, ThreadPriority::Maximum);
-    ui.slider->setValue(prio.value());
+    ui.slider->setRange(1, m_maxThreads);
+    ui.slider->setValue(WorkerThreadPool::threadCountSetting());
+    ui.slider->setToolTip(
+        tr("Number of pages that batch processing handles at the same time.\n"
+           "Each page needs its own memory. With large images, too many threads\n"
+           "can use all of the memory and stop the processing.")
+    );
 
     connect(ui.slider, SIGNAL(sliderPressed()), SLOT(sliderPressed()));
     connect(ui.slider, SIGNAL(sliderMoved(int)), SLOT(sliderMoved(int)));
     connect(ui.slider, SIGNAL(valueChanged(int)), SLOT(valueChanged(int)));
-    connect(ui.minusBtn, SIGNAL(clicked()), SLOT(decreasePriority()));
-    connect(ui.plusBtn, SIGNAL(clicked()), SLOT(increasePriority()));
-
-    QString const threads_tooltip(
-        tr("Number of pages that batch processing handles at the same time.\n"
-           "Each page needs its own memory. With large images, more than one thread\n"
-           "can use all of the memory and stop the processing.")
-    );
-    ui.threadsLabel->setToolTip(threads_tooltip);
-    ui.threadsSpinBox->setToolTip(threads_tooltip);
-    ui.threadsSpinBox->setRange(1, WorkerThreadPool::maxThreadCount());
-    ui.threadsSpinBox->setValue(WorkerThreadPool::threadCountSetting());
-    connect(ui.threadsSpinBox, SIGNAL(valueChanged(int)), SLOT(threadCountEdited(int)));
-}
-
-void
-SystemLoadWidget::threadCountEdited(int threads)
-{
-    QSettings settings;
-    settings.setValue(_key_batch_processing_threads, threads);
-    emit threadCountChanged();
+    connect(ui.minusBtn, SIGNAL(clicked()), SLOT(decreaseLoad()));
+    connect(ui.plusBtn, SIGNAL(clicked()), SLOT(increaseLoad()));
 }
 
 void
@@ -66,40 +51,41 @@ SystemLoadWidget::sliderPressed()
 }
 
 void
-SystemLoadWidget::sliderMoved(int prio)
+SystemLoadWidget::sliderMoved(int threads)
 {
-    showHideToolTip(prio);
+    showHideToolTip(threads);
 }
 
 void
-SystemLoadWidget::valueChanged(int prio)
+SystemLoadWidget::valueChanged(int threads)
 {
-    ThreadPriority((ThreadPriority::Priority)prio).save(_key_batch_processing_priority);
+    QSettings settings;
+    if (threads == m_maxThreads) {
+        // Without a stored value, the slider follows the processor count of each computer.
+        settings.remove(_key_batch_processing_threads);
+    } else {
+        settings.setValue(_key_batch_processing_threads, threads);
+    }
+    emit threadCountChanged();
 }
 
 void
-SystemLoadWidget::decreasePriority()
+SystemLoadWidget::decreaseLoad()
 {
     ui.slider->setValue(ui.slider->value() - 1);
     showHideToolTip(ui.slider->value());
 }
 
 void
-SystemLoadWidget::increasePriority()
+SystemLoadWidget::increaseLoad()
 {
     ui.slider->setValue(ui.slider->value() + 1);
     showHideToolTip(ui.slider->value());
 }
 
 void
-SystemLoadWidget::showHideToolTip(int prio)
+SystemLoadWidget::showHideToolTip(int threads)
 {
-    QString const tooltip_text(tooltipText(prio));
-    if (tooltip_text.isEmpty()) {
-        QToolTip::hideText();
-        return;
-    }
-
     // Show the tooltip immediately.
     QPoint const center(ui.slider->rect().center());
     QPoint tooltip_pos(ui.slider->mapFromGlobal(QCursor::pos()));
@@ -110,17 +96,5 @@ SystemLoadWidget::showHideToolTip(int prio)
         tooltip_pos.setY(center.y());
     }
     tooltip_pos = ui.slider->mapToGlobal(tooltip_pos);
-    QToolTip::showText(tooltip_pos, tooltip_text, ui.slider);
-}
-
-QString
-SystemLoadWidget::tooltipText(int prio)
-{
-    if (prio == ThreadPriority::Minimum) {
-        return tr("Minimal");
-    } else if (prio == ThreadPriority::Normal) {
-        return tr("Normal");
-    } else {
-        return QString();
-    }
+    QToolTip::showText(tooltip_pos, tr("Threads: %1/%2").arg(threads).arg(m_maxThreads), ui.slider);
 }
