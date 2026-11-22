@@ -493,6 +493,9 @@ ConsoleBatch::setupOutput(std::set<PageId> allPages)
         if (cli.hasDepthPerception()) {
             params.setDepthPerception(cli.getDepthPerception());
         }
+        if (cli.hasOutputRotation()) {
+            params.setOutputRotation(cli.getOutputRotation());
+        }
 
         if (cli.hasTiffCompressionBW()) {
             GlobalStaticSettings::setTiffCompressionBW(cli.getTiffCompressionBW());

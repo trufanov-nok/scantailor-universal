@@ -238,6 +238,10 @@ public:
     {
         return contains("match-layout-tolerance") && !m_options["match-layout-tolerance"].isEmpty();
     }
+    bool hasOutputRotation() const
+    {
+        return contains("output-rotate") && !m_options["output-rotate"].isEmpty();
+    }
     bool hasDepthPerception() const
     {
         return contains("depth-perception") && !m_options["depth-perception"].isEmpty();
@@ -386,6 +390,10 @@ public:
     {
         return m_depthPerception;
     }
+    int getOutputRotation() const
+    {
+        return m_outputRotation;
+    }
     float getMatchLayoutTolerance() const
     {
         return m_matchLayoutTolerance;
@@ -486,6 +494,7 @@ private:
     int m_startFilterIdx;
     int m_endFilterIdx;
     output::DewarpingMode m_dewarpingMode;
+    int m_outputRotation = 0;
     output::DespeckleLevel m_despeckleLevel;
     output::DepthPerception m_depthPerception;
     float m_matchLayoutTolerance;
@@ -527,6 +536,7 @@ private:
     int fetchStartFilterIdx();
     int fetchEndFilterIdx();
     output::DewarpingMode fetchDewarpingMode();
+    int fetchOutputRotation();
     output::DespeckleLevel fetchDespeckleLevel();
     output::DepthPerception fetchDepthPerception();
     float fetchMatchLayoutTolerance();

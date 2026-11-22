@@ -91,7 +91,7 @@ CacheDrivenTask::process(
                 params.outputDpi(), params.colorParams(), params.despeckleLevel(),
                 new_xform, content_rect_phys
             );
-            OutputImageParams const new_output_image_params(
+            OutputImageParams new_output_image_params(
                 generator.outputImageSize(), generator.outputContentRect(),
                 new_xform, params.outputDpi(), params.colorParams(),
                 params.dewarpingMode(), params.distortionModel(),
@@ -100,6 +100,7 @@ CacheDrivenTask::process(
                             GlobalStaticSettings::m_tiff_compr_method_bw :
                             GlobalStaticSettings::m_tiff_compr_method_color
             );
+            new_output_image_params.setOutputRotation(params.outputRotation());
 
             if (!stored_output_params->outputImageParams().matches(new_output_image_params)) {
                 need_reprocess = true;
@@ -149,8 +150,14 @@ CacheDrivenTask::process(
                 )
             );
         } else {
+            // The output file is already rotated, so its rectangle and DPI have the rotated axes.
+            int const rotation = params.outputRotation();
+            bool const swap_axes = rotation == 90 || rotation == 270;
+            QRectF const out_rect(new_xform.resultingRect());
+            Dpi const out_dpi(params.outputDpi());
             ImageTransformation const out_xform(
-                new_xform.resultingRect(), params.outputDpi()
+                swap_axes ? QRectF(out_rect.topLeft(), out_rect.size().transposed()) : out_rect,
+                swap_axes ? Dpi(out_dpi.vertical(), out_dpi.horizontal()) : out_dpi
             );
 
             thumb_col->processThumbnail(

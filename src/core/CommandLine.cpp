@@ -106,6 +106,7 @@ CommandLine::parseCli(QStringList const& argv)
     opts << "despeckle";
     opts << "dewarping";
     opts << "depth-perception";
+    opts << "output-rotate";
     opts << "start-filter";
     opts << "end-filter";
     opts << "output-project";
@@ -283,6 +284,7 @@ CommandLine::setup()
     m_endFilterIdx = fetchEndFilterIdx();
     m_matchLayoutTolerance = fetchMatchLayoutTolerance();
     m_dewarpingMode = fetchDewarpingMode();
+    m_outputRotation = fetchOutputRotation();
     m_compressionBW = fetchCompressionBW();
     m_compressionColor = fetchCompressionColor();
     m_language = fetchLanguage();
@@ -400,6 +402,8 @@ CommandLine::printHelp()
     std::cout << "\t--despeckle=<off|cautious|normal|aggressive>\n\t\t\t\t\t\t-- default: normal" << std::endl;
     std::cout << "\t--dewarping=<off|auto>\t\t\t-- default: off" << std::endl;
     std::cout << "\t--depth-perception=<1.0...3.0>\t\t-- default: 2.0" << std::endl;
+    std::cout << "\t--output-rotate=<0|90|180|270>\t\t-- turns only the final output image clockwise, for example a sideways table;" << std::endl;
+    std::cout << "\t\t\t\t\t\t   filters 1-5 keep the book orientation. With 90 or 270, width and height swap. default: 0" << std::endl;
     std::cout << "\t--start-filter=<1...6>\t\t\t-- default: 4" << std::endl;
     std::cout << "\t--end-filter=<1...6>\t\t\t-- default: 6" << std::endl;
     std::cout << "\t--output-project=, -o=<project_name>" << std::endl;
@@ -777,6 +781,25 @@ CommandLine::fetchEndFilterIdx()
     }
 
     return m_options.value("end-filter").toInt() - 1;
+}
+
+int
+CommandLine::fetchOutputRotation()
+{
+    if (!hasOutputRotation()) {
+        return 0;
+    }
+
+    QString const value = m_options.value("output-rotate");
+    bool ok = false;
+    int const degrees = value.toInt(&ok);
+    if (!ok || (degrees != 0 && degrees != 90 && degrees != 180 && degrees != 270)) {
+        std::cout << "Wrong output rotation " << value.toLocal8Bit().constData()
+                  << ", use 0, 90, 180 or 270" << std::endl;
+        exit(1);
+    }
+
+    return degrees;
 }
 
 output::DewarpingMode
