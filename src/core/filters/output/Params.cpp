@@ -48,16 +48,8 @@ Params::Params(QDomElement const& el)
 //        m_TiffCompression(el.attribute("tiff-compression"))
 
 {
-    QDomElement const cp(el.namedItem("color-params").toElement());
-    m_colorParams.setColorMode(parseColorMode(cp.attribute("colorMode")));
-    m_colorParams.setColorGrayscaleOptions(
-        ColorGrayscaleOptions(
-            cp.namedItem("color-or-grayscale").toElement(), m_colorParams.colorMode() == ColorParams::MIXED
-        )
-    );
-    m_colorParams.setBlackWhiteOptions(
-        BlackWhiteOptions(cp.namedItem("bw").toElement())
-    );
+    // ColorParams reads the options of the other color mode too, so that a mode change keeps them.
+    m_colorParams = ColorParams(el.namedItem("color-params").toElement());
 }
 
 QDomElement
@@ -73,57 +65,9 @@ Params::toXml(QDomDocument& doc, QString const& name) const
 //    el.setAttribute("tiff-compression", m_TiffCompression);
     el.appendChild(marshaller.dpi(m_dpi, "dpi"));
 
-    QDomElement cp(doc.createElement("color-params"));
-    cp.setAttribute(
-        "colorMode",
-        formatColorMode(m_colorParams.colorMode())
-    );
-
-    cp.appendChild(
-        m_colorParams.colorGrayscaleOptions().toXml(
-            doc, "color-or-grayscale"
-        )
-    );
-    cp.appendChild(m_colorParams.blackWhiteOptions().toXml(doc, "bw"));
-
-    el.appendChild(cp);
+    el.appendChild(m_colorParams.toXml(doc, "color-params"));
 
     return el;
-}
-
-ColorParams::ColorMode
-Params::parseColorMode(QString const& str)
-{
-    if (str == "bw") {
-        return ColorParams::BLACK_AND_WHITE;
-    } else if (str == "bitonal") {
-        // Backwards compatibility.
-        return ColorParams::BLACK_AND_WHITE;
-    } else if (str == "colorOrGray") {
-        return ColorParams::COLOR_GRAYSCALE;
-    } else if (str == "mixed") {
-        return ColorParams::MIXED;
-    } else {
-        return ColorParams::DefaultColorMode();
-    }
-}
-
-QString
-Params::formatColorMode(ColorParams::ColorMode const mode)
-{
-    char const* str = "";
-    switch (mode) {
-    case ColorParams::BLACK_AND_WHITE:
-        str = "bw";
-        break;
-    case ColorParams::COLOR_GRAYSCALE:
-        str = "colorOrGray";
-        break;
-    case ColorParams::MIXED:
-        str = "mixed";
-        break;
-    }
-    return QLatin1String(str);
 }
 
 void
@@ -138,8 +82,7 @@ Params::setColorParams(ColorParams const& params, ColorParamsApplyFilter const& 
             // it's time to apply defaults
             //TRUF m_pictureShape = (PictureShape) QSettings().value("picture_zones_layer/default", output::FREE_SHAPE).toUInt();
         }
-        m_colorParams.setColorMode(params.colorMode());
-        m_colorParams.setColorGrayscaleOptions(params.colorGrayscaleOptions());
+        m_colorParams.copyModeAndOptions(params);
     }
     break;
 

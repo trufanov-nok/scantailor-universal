@@ -45,14 +45,9 @@ public:
         return m_colorMode;
     }
 
-    void setColorMode(ColorMode mode)
-    {
-        if (mode != ColorParams::BLACK_AND_WHITE && m_colorMode != mode) {
-            bool defaults = (mode == ColorParams::MIXED);
-            setColorGrayscaleOptions(ColorGrayscaleOptions(defaults, defaults));
-        }
-        m_colorMode = mode;
-    }
+    void setColorMode(ColorMode mode);
+
+    void copyModeAndOptions(ColorParams const& other);
 
     ColorGrayscaleOptions const& colorGrayscaleOptions() const
     {
@@ -81,6 +76,11 @@ private:
 
     ColorMode m_colorMode;
     ColorGrayscaleOptions m_colorGrayscaleOptions;
+    // The mode of m_colorGrayscaleOptions, COLOR_GRAYSCALE or MIXED, because in B/W mode the color mode does not tell it.
+    ColorMode m_optionsMode;
+    // The last options of the other color mode, so that a mode change and a change back restore them.
+    ColorGrayscaleOptions m_otherOptions;
+    bool m_hasOtherOptions;
     BlackWhiteOptions m_bwOptions;
 };
 

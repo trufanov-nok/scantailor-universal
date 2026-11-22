@@ -22,21 +22,62 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
+#include <algorithm>
 
 namespace output
 {
 
 ColorParams::ColorParams()
-    : m_colorMode(DefaultColorMode())
+    :   m_colorMode(DefaultColorMode()),
+        m_optionsMode(m_colorMode == MIXED ? MIXED : COLOR_GRAYSCALE),
+        m_hasOtherOptions(false)
 {
 }
 
 ColorParams::ColorParams(QDomElement const& el)
-    :   m_colorMode(parseColorMode(el.attribute("colorMode")))
+    :   m_colorMode(parseColorMode(el.attribute("colorMode"))),
+        m_hasOtherOptions(false)
 {
-    m_colorGrayscaleOptions = ColorGrayscaleOptions(el.namedItem("color-or-grayscale").toElement(),
-                              colorMode() == MIXED);
+    QDomElement const options_el(el.namedItem("color-or-grayscale").toElement());
+    m_optionsMode = m_colorMode;
+    if (m_optionsMode == BLACK_AND_WHITE) {
+        m_optionsMode = options_el.attribute("mode") == "mixed" ? MIXED : COLOR_GRAYSCALE;
+    }
+    m_colorGrayscaleOptions = ColorGrayscaleOptions(options_el, m_optionsMode == MIXED);
+
+    QDomElement const other_el(el.namedItem("other-color-or-grayscale").toElement());
+    if (!other_el.isNull()) {
+        m_otherOptions = ColorGrayscaleOptions(other_el, m_optionsMode != MIXED);
+        m_hasOtherOptions = true;
+    }
     m_bwOptions = BlackWhiteOptions(el.namedItem("bw").toElement());
+}
+
+void
+ColorParams::setColorMode(ColorMode const mode)
+{
+    // B/W mode keeps the color options, and the next change to a color mode finds them again.
+    if (mode != BLACK_AND_WHITE && mode != m_optionsMode) {
+        if (m_hasOtherOptions) {
+            std::swap(m_colorGrayscaleOptions, m_otherOptions);
+        } else {
+            m_otherOptions = m_colorGrayscaleOptions;
+            m_hasOtherOptions = true;
+            bool const defaults = (mode == MIXED);
+            m_colorGrayscaleOptions = ColorGrayscaleOptions(defaults, defaults);
+        }
+        m_optionsMode = mode;
+    }
+    m_colorMode = mode;
+}
+
+void
+ColorParams::copyModeAndOptions(ColorParams const& other)
+{
+    // A B/W source can hold options of either color mode, so first move to that mode to keep the options of the other mode.
+    setColorMode(other.m_optionsMode);
+    m_colorMode = other.m_colorMode;
+    m_colorGrayscaleOptions = other.m_colorGrayscaleOptions;
 }
 
 ColorParams::ColorMode
@@ -50,7 +91,14 @@ ColorParams::toXml(QDomDocument& doc, QString const& name) const
 {
     QDomElement el(doc.createElement(name));
     el.setAttribute("colorMode", formatColorMode(m_colorMode));
-    el.appendChild(m_colorGrayscaleOptions.toXml(doc, "color-or-grayscale"));
+    QDomElement options_el(m_colorGrayscaleOptions.toXml(doc, "color-or-grayscale"));
+    if (m_colorMode == BLACK_AND_WHITE && m_optionsMode == MIXED) {
+        options_el.setAttribute("mode", "mixed");
+    }
+    el.appendChild(options_el);
+    if (m_hasOtherOptions) {
+        el.appendChild(m_otherOptions.toXml(doc, "other-color-or-grayscale"));
+    }
     el.appendChild(m_bwOptions.toXml(doc, "bw"));
     return el;
 }
