@@ -102,6 +102,7 @@ CommandLine::parseCli(QStringList const& argv)
     opts << "color-mode";
     opts << "white-margins";
     opts << "normalize-illumination";
+    opts << "grayscale-first";
     opts << "threshold";
     opts << "despeckle";
     opts << "dewarping";
@@ -396,6 +397,10 @@ CommandLine::printHelp()
     std::cout << "\t--picture-shape=<free|rectangular>\n\t\t\t\t\t\t-- default: free" << std::endl;
     std::cout << "\t--white-margins\t\t\t\t-- default: false" << std::endl;
     std::cout << "\t--normalize-illumination\t\t-- default: false" << std::endl;
+    std::cout << "\t--grayscale-first[=<true|false|auto>]\t-- color and mixed modes only: convert the original image to grayscale" << std::endl;
+    std::cout << "\t\t\t\t\t\t   before all other output steps, so that the output file is grayscale; default: false." << std::endl;
+    std::cout << "\t\t\t\t\t\t   auto: convert only the pages where the pictures have no color." << std::endl;
+    std::cout << "\t\t\t\t\t\t   --white-margins, --normalize-illumination and the layer options reset it, so give it again with them." << std::endl;
     std::cout << "\t--threshold=<n>\t\t\t\t-- n<0 thinner, n>0 thicker; default: 0" << std::endl;
     std::cout << "\t--despeckle=<off|cautious|normal|aggressive>\n\t\t\t\t\t\t-- default: normal" << std::endl;
     std::cout << "\t--dewarping=<off|auto>\t\t\t-- default: off" << std::endl;

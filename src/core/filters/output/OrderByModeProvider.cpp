@@ -55,6 +55,9 @@ OrderByModeProvider::precedes(
     if (cgoptsl.normalizeIllumination() != cgoptsr.normalizeIllumination()) {
         return cgoptsl.normalizeIllumination() < cgoptsr.normalizeIllumination();
     }
+    if (cgoptsl.grayscaleFirst() != cgoptsr.grayscaleFirst()) {
+        return cgoptsl.grayscaleFirst() < cgoptsr.grayscaleFirst();
+    }
 
     if (lclr_param.blackWhiteOptions().thresholdAdjustment() == rclr_param.blackWhiteOptions().thresholdAdjustment()) {
         return lhs_page < rhs_page;

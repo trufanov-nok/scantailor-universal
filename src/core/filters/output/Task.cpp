@@ -55,6 +55,7 @@
 #include "ThumbnailPixmapCache.h"
 #include "DebugImages.h"
 #include "OutputGenerator.h"
+#include "GrayscaleDetector.h"
 #include "TiffWriter.h"
 #include "ImageLoader.h"
 #include "ErrorWidget.h"
@@ -208,10 +209,36 @@ Task::process(
             colorParams.setColorMode(ColorParams::COLOR_GRAYSCALE);
             break;
         }
+        // The option asks for the color space of the original image, so a grayscale conversion must not happen.
+        ColorGrayscaleOptions cgo(colorParams.colorGrayscaleOptions());
+        cgo.setGrayscaleFirst(GRAYSCALE_FIRST_OFF);
+        colorParams.setColorGrayscaleOptions(cgo);
         params.setColorParams(colorParams);
     }
 
     RenderParams render_params(params.colorParams());
+
+    // The output generator gets only ON or OFF, because the automatic detection happens here.
+    ColorParams generator_color_params(params.colorParams());
+    ColorGrayscaleOptions generator_cgo(generator_color_params.colorGrayscaleOptions());
+    if (generator_color_params.colorMode() != ColorParams::BLACK_AND_WHITE
+            && generator_cgo.grayscaleFirst() == GRAYSCALE_FIRST_AUTO) {
+        QRectF area(content_rect_phys.boundingRect());
+        if (area.isEmpty()) {
+            area = data.xform().transformBack().map(data.xform().resultingPreCropArea()).boundingRect();
+        }
+        double const chroma = GrayscaleDetector::measureChroma(data.origImage(), area);
+        generator_cgo.setGrayscaleFirst(
+            GrayscaleDetector::isGrayscale(chroma) ? GRAYSCALE_FIRST_ON : GRAYSCALE_FIRST_OFF
+        );
+    }
+    // A gray original has nothing to convert, so it keeps its ICC profile as before.
+    if (generator_cgo.grayscaleFirst() == GRAYSCALE_FIRST_ON && data.origImage().allGray()) {
+        generator_cgo.setGrayscaleFirst(GRAYSCALE_FIRST_OFF);
+    }
+    generator_color_params.setColorGrayscaleOptions(generator_cgo);
+    bool const drop_icc_profile = RenderParams(generator_color_params).convertToGrayscale();
+
     QString const out_file_path(m_outFileNameGen.filePathFor(m_pageId));
     QFileInfo const out_file_info(out_file_path);
 
@@ -246,7 +273,7 @@ Task::process(
     }
 
     OutputGenerator const generator(
-        params.outputDpi(), params.colorParams(), params.despeckleLevel(),
+        params.outputDpi(), generator_color_params, params.despeckleLevel(),
         new_xform, content_rect_phys
     );
 
@@ -476,7 +503,8 @@ Task::process(
         } else {
             deleteMutuallyExclusiveOutputFiles();
 #ifdef HAVE_EXIV2
-            if (GlobalStaticSettings::m_output_copy_icc_metadata) {
+            // A color profile does not fit a grayscale output that the page made from a color original.
+            if (GlobalStaticSettings::m_output_copy_icc_metadata && !drop_icc_profile) {
                 ImageMetadataCopier::copyMetadata(m_pageId.imageId().filePath(), out_file_path);
             }
 #endif

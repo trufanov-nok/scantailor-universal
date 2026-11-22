@@ -187,6 +187,24 @@
            </property>
           </widget>
          </item>
+         <item>
+          <layout class="QHBoxLayout" name="grayscaleFirstLayout">
+           <item>
+            <widget class="QLabel" name="grayscaleFirstLabel">
+             <property name="text">
+              <string>Convert to grayscale first:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="grayscaleFirstSelector">
+             <property name="toolTip">
+              <string>Convert the original image to grayscale before all other output steps. The output file is grayscale. Use it for photos and halftones on tinted paper. Auto converts only the pages where the pictures have no color. It has no effect in the Black and White mode.</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </widget>
       </item>

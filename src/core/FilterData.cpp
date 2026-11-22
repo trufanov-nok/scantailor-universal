@@ -40,3 +40,11 @@ FilterData::FilterData(FilterData const& other, ImageTransformation const& xform
         m_bwThreshold(other.m_bwThreshold)
 {
 }
+
+FilterData
+FilterData::grayscaled() const
+{
+    FilterData data(*this);
+    data.m_origImage = m_grayImage.toQImage();
+    return data;
+}
