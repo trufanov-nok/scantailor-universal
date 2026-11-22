@@ -277,6 +277,12 @@ private:
 
     static unsigned char calcDominantBackgroundGrayLevel(QImage const& img);
 
+    static unsigned char calcDominantLevel(int const* hist);
+
+    static QColor calcDominantBackgroundColor(QImage const& img, QPolygonF const& crop_area);
+
+    QColor estimateBackgroundColor(FilterData const& input) const;
+
     static QImage normalizeIllumination(QImage const& gray_input, DebugImages* dbg);
 
     QImage transformAndNormalizeIllumination(

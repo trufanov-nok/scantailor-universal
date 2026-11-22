@@ -243,6 +243,12 @@ void combineMixed(
     }
 }
 
+// Text uses pure black and white, so the estimated color must not use them.
+QColor reserveBlackAndWhiteColor(QColor const& color)
+{
+    return QColor(reserveBlackAndWhite<uint32_t>(color.rgb()));
+}
+
 // The "Background" choice keeps the color that each output path used before this option existed.
 QColor selectFillingColor(RenderParams const& render_params, QColor const& background)
 {
@@ -619,6 +625,9 @@ OutputGenerator::processAsIs(
 {
     RenderParams const render_params(m_colorParams);
     QColor bg_color(selectFillingColor(render_params, QColor()));
+    if (!bg_color.isValid() && (render_params.fillMargins() || render_params.fillOffcut())) {
+        bg_color = reserveBlackAndWhiteColor(estimateBackgroundColor(input));
+    }
     if (!bg_color.isValid()) {
         uint8_t const dominant_gray = reserveBlackAndWhite<uint8_t>(
                                           calcDominantBackgroundGrayLevel(input.grayImage())
@@ -1573,10 +1582,14 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
 
     QColor bg_color(selectFillingColor(render_params, Qt::white));
     if (!render_params.whiteMargins() && !render_params.fillWhite() && !render_params.fillBlack()) {
-        uint8_t const dominant_gray = reserveBlackAndWhite<uint8_t>(
-                                          calcDominantBackgroundGrayLevel(input.grayImage())
-                                      );
-        bg_color = QColor(dominant_gray, dominant_gray, dominant_gray);
+        if (render_params.fillMargins() || render_params.fillOffcut()) {
+            bg_color = reserveBlackAndWhiteColor(estimateBackgroundColor(input));
+        } else {
+            uint8_t const dominant_gray = reserveBlackAndWhite<uint8_t>(
+                                              calcDominantBackgroundGrayLevel(input.grayImage())
+                                          );
+            bg_color = QColor(dominant_gray, dominant_gray, dominant_gray);
+        }
     }
 
     if (render_params.whiteMargins()) {
@@ -2446,6 +2459,99 @@ OutputGenerator::calcDominantBackgroundGrayLevel(QImage const& img)
 
     assert(!"Unreachable");
     return 0;
+}
+
+QColor
+OutputGenerator::estimateBackgroundColor(FilterData const& input) const
+{
+    // The same area as in Advanced: the part of the page inside the output rectangle, in original coordinates.
+    QPolygonF const crop_area(
+        m_xform.transformBack().map(m_xform.resultingPreCropArea().intersected(QRectF(m_outRect)))
+    );
+    return calcDominantBackgroundColor(input.origImage(), crop_area);
+}
+
+// Ported from BackgroundColorCalculator of ScanTailor Advanced: the peak of a 10-level window in the histogram.
+unsigned char
+OutputGenerator::calcDominantLevel(int const* hist)
+{
+    int integral_hist[256];
+    integral_hist[0] = hist[0];
+    for (int i = 1; i < 256; ++i) {
+        integral_hist[i] = hist[i] + integral_hist[i - 1];
+    }
+
+    int const num_colors = 256;
+    int const window_size = 10;
+
+    int best_pos = 0;
+    int best_sum = integral_hist[window_size - 1];
+    for (int i = 1; i <= num_colors - window_size; ++i) {
+        int const sum = integral_hist[i + window_size - 1] - integral_hist[i - 1];
+        if (sum > best_sum) {
+            best_sum = sum;
+            best_pos = i;
+        }
+    }
+
+    int half_sum = 0;
+    for (int i = best_pos; i < best_pos + window_size; ++i) {
+        half_sum += hist[i];
+        if (half_sum >= best_sum / 2) {
+            return static_cast<unsigned char>(i);
+        }
+    }
+    return static_cast<unsigned char>(best_pos);
+}
+
+QColor
+OutputGenerator::calcDominantBackgroundColor(QImage const& img, QPolygonF const& crop_area)
+{
+    QImage const gray(toGrayscale(img));
+
+    // Only the page area counts, so that a dark scanner background does not give the color.
+    BinaryImage area_mask(gray.size(), BLACK);
+    PolygonRasterizer::fillExcept(area_mask, WHITE, crop_area, Qt::WindingFill);
+    if (area_mask.countBlackPixels() == 0) {
+        area_mask.fill(BLACK);
+    }
+
+    BinaryImage background(gray, BinaryThreshold::otsuThreshold(GrayscaleHistogram(gray, area_mask)));
+    background.invert();
+    rasterOp<RopAnd<RopSrc, RopDst> >(background, area_mask);
+
+    int red[256] = {0};
+    int green[256] = {0};
+    int blue[256] = {0};
+
+    bool const is_gray = img.allGray();
+    QImage const rgb(is_gray ? QImage() : img.convertToFormat(QImage::Format_RGB32));
+    uint32_t const* mask_line = background.data();
+    int const mask_stride = background.wordsPerLine();
+    uint32_t const msb = uint32_t(1) << 31;
+    for (int y = 0; y < gray.height(); ++y) {
+        uint8_t const* gray_line = gray.constScanLine(y);
+        uint32_t const* rgb_line = is_gray ? 0 : reinterpret_cast<uint32_t const*>(rgb.constScanLine(y));
+        for (int x = 0; x < gray.width(); ++x) {
+            if (!(mask_line[x >> 5] & (msb >> (x & 31)))) {
+                continue;
+            }
+            if (is_gray) {
+                ++red[gray_line[x]];
+            } else {
+                ++red[(rgb_line[x] >> 16) & 0xff];
+                ++green[(rgb_line[x] >> 8) & 0xff];
+                ++blue[rgb_line[x] & 0xff];
+            }
+        }
+        mask_line += mask_stride;
+    }
+
+    if (is_gray) {
+        unsigned char const level = calcDominantLevel(red);
+        return QColor(level, level, level);
+    }
+    return QColor(calcDominantLevel(red), calcDominantLevel(green), calcDominantLevel(blue));
 }
 
 void
