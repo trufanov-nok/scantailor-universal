@@ -63,6 +63,7 @@ private:
 
     void setupFilter(int idx, std::set<PageId> allPages);
     void setupFixOrientation(std::set<PageId> allPages);
+    void setupAutoOrientation(std::set<PageId> const& pages);
     void setupPageSplit(std::set<PageId> allPages);
     void setupDeskew(std::set<PageId> allPages);
     void setupSelectContent(std::set<PageId> allPages);

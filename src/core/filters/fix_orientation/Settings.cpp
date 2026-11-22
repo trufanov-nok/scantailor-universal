@@ -20,12 +20,16 @@
 #include "Utils.h"
 #include "RelinkablePath.h"
 #include "AbstractRelinker.h"
+#include <QChar>
+#include <QCoreApplication>
+#include <algorithm>
 
 namespace fix_orientation
 {
 
 Settings::Settings()
 {
+    std::fill(m_bookVotes, m_bookVotes + 4, 0);
 }
 
 Settings::~Settings()
@@ -37,6 +41,12 @@ Settings::clear()
 {
     QMutexLocker locker(&m_mutex);
     m_perImageRotation.clear();
+    m_autoState.clear();
+    m_autoResultText.clear();
+    m_detected.clear();
+    m_votes.clear();
+    m_sizeVotes.clear();
+    std::fill(m_bookVotes, m_bookVotes + 4, 0);
 }
 
 void
@@ -53,6 +63,20 @@ Settings::performRelinking(AbstractRelinker const& relinker)
     }
 
     m_perImageRotation.swap(new_rotations);
+
+    std::map<ImageId, AutoState> new_states;
+    for (auto const& kv : m_autoState) {
+        ImageId new_image_id(kv.first);
+        new_image_id.setFilePath(relinker.substitutionPathFor(RelinkablePath(kv.first.filePath(), RelinkablePath::File)));
+        new_states[new_image_id] = kv.second;
+    }
+    m_autoState.swap(new_states);
+    m_autoResultText.clear();
+    // These caches use the old file paths, so the stage detects the pending scans again.
+    m_detected.clear();
+    m_votes.clear();
+    m_sizeVotes.clear();
+    std::fill(m_bookVotes, m_bookVotes + 4, 0);
 }
 
 void
@@ -61,6 +85,11 @@ Settings::applyRotation(
 {
     QMutexLocker locker(&m_mutex);
     setImageRotationLocked(image_id, rotation);
+    // A rotation from the user replaces an automatic one.
+    m_autoState.erase(image_id);
+    m_autoResultText.erase(image_id);
+    m_detected.erase(image_id);
+    removeVoteLocked(image_id);
 }
 
 void
@@ -71,7 +100,210 @@ Settings::applyRotation(
 
     for (PageId const& page : pages) {
         setImageRotationLocked(page.imageId(), rotation);
+        m_autoState.erase(page.imageId());
+        m_autoResultText.erase(page.imageId());
+        m_detected.erase(page.imageId());
+        removeVoteLocked(page.imageId());
     }
+}
+
+void
+Settings::requestAutoRotation(ImageId const& image_id)
+{
+    QMutexLocker locker(&m_mutex);
+    m_autoState[image_id] = AUTO_PENDING;
+    m_autoResultText.erase(image_id);
+    // A new request must detect again, because a result from an older look-ahead can be out of date.
+    m_detected.erase(image_id);
+    removeVoteLocked(image_id);
+}
+
+void
+Settings::requestAutoRotation(std::set<PageId> const& pages)
+{
+    QMutexLocker locker(&m_mutex);
+    for (PageId const& page : pages) {
+        m_autoState[page.imageId()] = AUTO_PENDING;
+        m_autoResultText.erase(page.imageId());
+        m_detected.erase(page.imageId());
+        removeVoteLocked(page.imageId());
+    }
+}
+
+Settings::AutoState
+Settings::autoState(ImageId const& image_id) const
+{
+    QMutexLocker locker(&m_mutex);
+    std::map<ImageId, AutoState>::const_iterator const it(m_autoState.find(image_id));
+    return it == m_autoState.end() ? AUTO_NONE : it->second;
+}
+
+void
+Settings::setAutoState(ImageId const& image_id, AutoState const state)
+{
+    QMutexLocker locker(&m_mutex);
+    if (state == AUTO_NONE) {
+        m_autoState.erase(image_id);
+    } else {
+        m_autoState[image_id] = state;
+    }
+}
+
+void
+Settings::addVoteLocked(ImageId const& image_id, imageproc::OrientationResult const& result)
+{
+    if (m_votes.find(image_id) != m_votes.end()) {
+        return;
+    }
+    std::pair<int, int> const size(result.imageSize().width(), result.imageSize().height());
+    int angle = -1;
+    if (result.isDecided() && result.confidence() >= imageproc::OrientationDetector::confidenceThreshold()) {
+        angle = result.angle();
+        ++m_bookVotes[angle / 90];
+        ++m_sizeVotes[size];
+    }
+    m_votes[image_id] = std::make_pair(angle, size);
+}
+
+void
+Settings::removeVoteLocked(ImageId const& image_id)
+{
+    auto const it(m_votes.find(image_id));
+    if (it == m_votes.end()) {
+        return;
+    }
+    if (it->second.first >= 0) {
+        --m_bookVotes[it->second.first / 90];
+        if (--m_sizeVotes[it->second.second] <= 0) {
+            m_sizeVotes.erase(it->second.second);
+        }
+    }
+    m_votes.erase(it);
+}
+
+QSize
+Settings::bookSizeLocked() const
+{
+    QSize size;
+    int best = 0;
+    for (auto const& kv : m_sizeVotes) {
+        if (kv.second > best) {
+            best = kv.second;
+            size = QSize(kv.first.first, kv.first.second);
+        }
+    }
+    return size;
+}
+
+int
+Settings::bookAngleLocked() const
+{
+    // The same rule as OrientationDetector::applyBookRotation(): a clear majority of at least 5 confident scans.
+    int decisions = 0;
+    int book = 0;
+    for (int i = 0; i < 4; ++i) {
+        decisions += m_bookVotes[i];
+        if (m_bookVotes[i] > m_bookVotes[book]) {
+            book = i;
+        }
+    }
+    if (m_bookVotes[book] < 5 || m_bookVotes[book] * 10 < decisions * 6) {
+        return -1;
+    }
+    return book * 90;
+}
+
+bool
+Settings::hasBookRotation() const
+{
+    QMutexLocker locker(&m_mutex);
+    return bookAngleLocked() >= 0;
+}
+
+std::vector<ImageId>
+Settings::pendingImages() const
+{
+    QMutexLocker locker(&m_mutex);
+    std::vector<ImageId> images;
+    for (auto const& kv : m_autoState) {
+        if (kv.second == AUTO_PENDING && m_detected.find(kv.first) == m_detected.end()) {
+            images.push_back(kv.first);
+        }
+    }
+    return images;
+}
+
+void
+Settings::cacheDetection(ImageId const& image_id, imageproc::OrientationResult const& result)
+{
+    QMutexLocker locker(&m_mutex);
+    m_detected[image_id] = result;
+    addVoteLocked(image_id, result);
+}
+
+bool
+Settings::cachedDetection(ImageId const& image_id, imageproc::OrientationResult* result) const
+{
+    QMutexLocker locker(&m_mutex);
+    std::map<ImageId, imageproc::OrientationResult>::const_iterator const it(m_detected.find(image_id));
+    if (it == m_detected.end()) {
+        return false;
+    }
+    *result = it->second;
+    return true;
+}
+
+imageproc::OrientationResult
+Settings::applyAutoResult(ImageId const& image_id, imageproc::OrientationResult const& result)
+{
+    using imageproc::OrientationResult;
+
+    QMutexLocker locker(&m_mutex);
+
+    // A manual rotation during the detection wins, because the user made it after the request.
+    std::map<ImageId, AutoState>::const_iterator const state(m_autoState.find(image_id));
+    if (state == m_autoState.end() || state->second != AUTO_PENDING) {
+        return result;
+    }
+
+    addVoteLocked(image_id, result);
+    m_detected.erase(image_id);
+
+    OrientationResult const final_result(
+        imageproc::OrientationDetector::applyBookRotation(result, bookAngleLocked(), bookSizeLocked())
+    );
+
+    if (final_result.isDecided()) {
+        OrthogonalRotation rotation;
+        for (int i = 0; i < final_result.angle() / 90; ++i) {
+            rotation.nextClockwiseDirection();
+        }
+        setImageRotationLocked(image_id, rotation);
+        m_autoResultText[image_id] = QCoreApplication::translate("fix_orientation::Settings", "Auto: %1%2 (%3)")
+                                     .arg(final_result.angle()).arg(QChar(0x00B0)).arg(final_result.reason());
+    } else {
+        m_autoResultText[image_id] = QCoreApplication::translate("fix_orientation::Settings", "Auto: no decision (%1)")
+                                     .arg(final_result.reason());
+    }
+    m_autoState[image_id] = AUTO_DONE;
+    return final_result;
+}
+
+QString
+Settings::autoResultText(ImageId const& image_id) const
+{
+    QMutexLocker locker(&m_mutex);
+    std::map<ImageId, QString>::const_iterator const it(m_autoResultText.find(image_id));
+    if (it != m_autoResultText.end()) {
+        return it->second;
+    }
+    std::map<ImageId, AutoState>::const_iterator const st(m_autoState.find(image_id));
+    if (st == m_autoState.end()) {
+        return QString();
+    }
+    return st->second == AUTO_PENDING
+           ? QCoreApplication::translate("fix_orientation::Settings", "Auto: the stage finds the rotation")
+           : QCoreApplication::translate("fix_orientation::Settings", "Auto");
 }
 
 OrthogonalRotation

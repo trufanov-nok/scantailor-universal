@@ -48,6 +48,7 @@ SET(
         FindPeaksGeneric.h
         ColorMixer.h
         ColorForId.h
+        OrientationDetector.cpp OrientationDetector.h
 )
 
 SOURCE_GROUP(Sources FILES ${sources})

@@ -55,6 +55,8 @@ public:
 
     FilterResultPtr process(TaskStatus const& status, FilterData const& data);
 private:
+    void lookAheadForBookRotation(TaskStatus const& status);
+
     class UiUpdater;
 
     IntrusivePtr<Filter> m_ptrFilter;

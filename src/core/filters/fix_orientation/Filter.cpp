@@ -143,6 +143,12 @@ Filter::loadSettings(ProjectReader const& reader, QDomElement const& filters_el)
         );
 
         m_ptrSettings->applyRotation(image_id, rotation);
+        QString const auto_state(el.attribute("auto"));
+        if (auto_state == "pending") {
+            m_ptrSettings->setAutoState(image_id, Settings::AUTO_PENDING);
+        } else if (auto_state == "done") {
+            m_ptrSettings->setAutoState(image_id, Settings::AUTO_DONE);
+        }
     }
 }
 
@@ -175,7 +181,8 @@ Filter::writeImageSettings(
     ImageId const& image_id, int const numeric_id) const
 {
     OrthogonalRotation const rotation(m_ptrSettings->getRotationFor(image_id));
-    if (rotation.toDegrees() == 0) {
+    Settings::AutoState const auto_state(m_ptrSettings->autoState(image_id));
+    if (rotation.toDegrees() == 0 && auto_state == Settings::AUTO_NONE) {
         return;
     }
 
@@ -184,6 +191,12 @@ Filter::writeImageSettings(
     QDomElement image_el(doc.createElement("image"));
     image_el.setAttribute("id", numeric_id);
     image_el.appendChild(marshaller.rotation(rotation, "rotation"));
+    // A pending request must survive a save, because the stage finds the rotation only when it processes the scan.
+    if (auto_state == Settings::AUTO_PENDING) {
+        image_el.setAttribute("auto", "pending");
+    } else if (auto_state == Settings::AUTO_DONE) {
+        image_el.setAttribute("auto", "done");
+    }
     filter_el.appendChild(image_el);
 }
 

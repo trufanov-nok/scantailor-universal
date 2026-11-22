@@ -43,7 +43,7 @@ public:
 
     void preUpdateUI(PageId const& page_id, OrthogonalRotation rotation);
 
-    void postUpdateUI();
+    void postUpdateUI(OrthogonalRotation rotation);
 signals:
     void rotated(OrthogonalRotation rotation);
 private slots:
@@ -55,6 +55,8 @@ private slots:
 
     void showApplyToDialog();
 
+    void autoRotation();
+
 private:
     void setRotation(OrthogonalRotation rotation);
 
@@ -63,6 +65,10 @@ private:
     void appliedTo(std::set<PageId> const& pages);
 
     void appliedToAllPages(std::set<PageId> const& pages);
+
+    void autoAppliedTo(std::set<PageId> const& pages);
+
+    void showAutoResult(QString const& text);
 
     IntrusivePtr<Settings> m_ptrSettings;
     PageSelectionAccessor m_pageSelectionAccessor;

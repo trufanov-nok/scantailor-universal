@@ -65,6 +65,7 @@ CommandLine::parseCli(QStringList const& argv)
     opts << "layout";
     opts << "layout-direction";
     opts << "orientation";
+    opts << "detect-orientation";
     opts << "rotate";
     opts << "deskew";
     opts << "skew-deviation";
@@ -351,7 +352,10 @@ CommandLine::printHelp()
     std::cout << "\t\t\t1.5: one page layout but cutting is needed" << std::endl;
     std::cout << "\t\t\t  2: two page layout" << std::endl;
     std::cout << "\t--layout-direction=, -ld=<lr|rl>\t-- default: lr" << std::endl;
-    std::cout << "\t--orientation=<left|right|upsidedown|none>\n\t\t\t\t\t\t-- default: none" << std::endl;
+    std::cout << "\t--orientation=<left|right|upsidedown|none|auto>\n\t\t\t\t\t\t-- default: none" << std::endl;
+    std::cout << "\t\t\t\t\t\t   auto: find the rotation of each image from its text; an image without a clear result keeps its rotation" << std::endl;
+    std::cout << "\t--detect-orientation=<list file>\t-- print one JSON line with the detected rotation for each image path in the file," << std::endl;
+    std::cout << "\t\t\t\t\t\t   one path (or path, tab, page) per line, and stop; it needs no project and no output directory" << std::endl;
     std::cout << "\t--rotate=<0.0...360.0>\t\t\t-- it also sets deskew to manual mode" << std::endl;
     std::cout << "\t--deskew=<auto|manual>\t\t\t-- default: auto" << std::endl;
     std::cout << "\t--skew-deviation=<0.0...)\t\t-- default: 5.0; pages with bigger skew deviation will be painted in red" << std::endl;
@@ -703,6 +707,8 @@ CommandLine::fetchOrientation()
         orient = RIGHT;
     } else if (cli_orient == "upsidedown") {
         orient = UPSIDEDOWN;
+    } else if (cli_orient == "auto") {
+        orient = AUTO_ORIENTATION;
     } else {
         std::cout << "Wrong orientation " << m_options.value("orientation").toLocal8Bit().constData() << std::endl;
         exit(1);

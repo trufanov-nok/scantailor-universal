@@ -24,9 +24,14 @@
 #include "OrthogonalRotation.h"
 #include "ImageId.h"
 #include "PageId.h"
+#include "imageproc/OrientationDetector.h"
 #include <QMutex>
+#include <QString>
 #include <map>
 #include <set>
+#include <vector>
+#include <utility>
+#include <QSize>
 
 class AbstractRelinker;
 
@@ -50,6 +55,28 @@ public:
     void applyRotation(std::set<PageId> const& pages, OrthogonalRotation rotation);
 
     OrthogonalRotation getRotationFor(ImageId const& image_id) const;
+
+    enum AutoState { AUTO_NONE, AUTO_PENDING, AUTO_DONE };
+
+    void requestAutoRotation(ImageId const& image_id);
+
+    void requestAutoRotation(std::set<PageId> const& pages);
+
+    AutoState autoState(ImageId const& image_id) const;
+
+    void setAutoState(ImageId const& image_id, AutoState state);
+
+    imageproc::OrientationResult applyAutoResult(ImageId const& image_id, imageproc::OrientationResult const& result);
+
+    QString autoResultText(ImageId const& image_id) const;
+
+    std::vector<ImageId> pendingImages() const;
+
+    bool hasBookRotation() const;
+
+    void cacheDetection(ImageId const& image_id, imageproc::OrientationResult const& result);
+
+    bool cachedDetection(ImageId const& image_id, imageproc::OrientationResult* result) const;
 private:
     typedef std::map<ImageId, OrthogonalRotation> PerImageRotation;
 
@@ -58,6 +85,23 @@ private:
 
     mutable QMutex m_mutex;
     PerImageRotation m_perImageRotation;
+    std::map<ImageId, AutoState> m_autoState;
+    std::map<ImageId, QString> m_autoResultText;
+    // Confident automatic results of this session, so that a sideways table can take the rotation of the book.
+    int m_bookVotes[4];
+    // Results that a look-ahead found, so that the stage does not detect these scans again.
+    std::map<ImageId, imageproc::OrientationResult> m_detected;
+    // The vote of each scan, so that a new request or a manual rotation can take it back.
+    std::map<ImageId, std::pair<int, std::pair<int, int> > > m_votes;
+    std::map<std::pair<int, int>, int> m_sizeVotes;
+
+    void addVoteLocked(ImageId const& image_id, imageproc::OrientationResult const& result);
+
+    void removeVoteLocked(ImageId const& image_id);
+
+    int bookAngleLocked() const;
+
+    QSize bookSizeLocked() const;
 };
 
 } // namespace fix_orientation
