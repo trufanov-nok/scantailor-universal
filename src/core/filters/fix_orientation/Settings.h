@@ -91,10 +91,13 @@ private:
     int m_bookVotes[4];
     // Results that a look-ahead found, so that the stage does not detect these scans again.
     std::map<ImageId, imageproc::OrientationResult> m_detected;
-    std::set<ImageId> m_voted;
+    // The vote of each scan, so that a new request or a manual rotation can take it back.
+    std::map<ImageId, std::pair<int, std::pair<int, int> > > m_votes;
     std::map<std::pair<int, int>, int> m_sizeVotes;
 
     void addVoteLocked(ImageId const& image_id, imageproc::OrientationResult const& result);
+
+    void removeVoteLocked(ImageId const& image_id);
 
     int bookAngleLocked() const;
 

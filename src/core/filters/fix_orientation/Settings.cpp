@@ -44,7 +44,7 @@ Settings::clear()
     m_autoState.clear();
     m_autoResultText.clear();
     m_detected.clear();
-    m_voted.clear();
+    m_votes.clear();
     m_sizeVotes.clear();
     std::fill(m_bookVotes, m_bookVotes + 4, 0);
 }
@@ -74,7 +74,7 @@ Settings::performRelinking(AbstractRelinker const& relinker)
     m_autoResultText.clear();
     // These caches use the old file paths, so the stage detects the pending scans again.
     m_detected.clear();
-    m_voted.clear();
+    m_votes.clear();
     m_sizeVotes.clear();
     std::fill(m_bookVotes, m_bookVotes + 4, 0);
 }
@@ -88,6 +88,8 @@ Settings::applyRotation(
     // A rotation from the user replaces an automatic one.
     m_autoState.erase(image_id);
     m_autoResultText.erase(image_id);
+    m_detected.erase(image_id);
+    removeVoteLocked(image_id);
 }
 
 void
@@ -100,6 +102,8 @@ Settings::applyRotation(
         setImageRotationLocked(page.imageId(), rotation);
         m_autoState.erase(page.imageId());
         m_autoResultText.erase(page.imageId());
+        m_detected.erase(page.imageId());
+        removeVoteLocked(page.imageId());
     }
 }
 
@@ -111,6 +115,7 @@ Settings::requestAutoRotation(ImageId const& image_id)
     m_autoResultText.erase(image_id);
     // A new request must detect again, because a result from an older look-ahead can be out of date.
     m_detected.erase(image_id);
+    removeVoteLocked(image_id);
 }
 
 void
@@ -121,6 +126,7 @@ Settings::requestAutoRotation(std::set<PageId> const& pages)
         m_autoState[page.imageId()] = AUTO_PENDING;
         m_autoResultText.erase(page.imageId());
         m_detected.erase(page.imageId());
+        removeVoteLocked(page.imageId());
     }
 }
 
@@ -146,13 +152,33 @@ Settings::setAutoState(ImageId const& image_id, AutoState const state)
 void
 Settings::addVoteLocked(ImageId const& image_id, imageproc::OrientationResult const& result)
 {
-    if (!m_voted.insert(image_id).second) {
+    if (m_votes.find(image_id) != m_votes.end()) {
         return;
     }
+    std::pair<int, int> const size(result.imageSize().width(), result.imageSize().height());
+    int angle = -1;
     if (result.isDecided() && result.confidence() >= imageproc::OrientationDetector::confidenceThreshold()) {
-        ++m_bookVotes[result.angle() / 90];
-        ++m_sizeVotes[std::make_pair(result.imageSize().width(), result.imageSize().height())];
+        angle = result.angle();
+        ++m_bookVotes[angle / 90];
+        ++m_sizeVotes[size];
     }
+    m_votes[image_id] = std::make_pair(angle, size);
+}
+
+void
+Settings::removeVoteLocked(ImageId const& image_id)
+{
+    auto const it(m_votes.find(image_id));
+    if (it == m_votes.end()) {
+        return;
+    }
+    if (it->second.first >= 0) {
+        --m_bookVotes[it->second.first / 90];
+        if (--m_sizeVotes[it->second.second] <= 0) {
+            m_sizeVotes.erase(it->second.second);
+        }
+    }
+    m_votes.erase(it);
 }
 
 QSize
@@ -233,6 +259,12 @@ Settings::applyAutoResult(ImageId const& image_id, imageproc::OrientationResult 
     using imageproc::OrientationResult;
 
     QMutexLocker locker(&m_mutex);
+
+    // A manual rotation during the detection wins, because the user made it after the request.
+    std::map<ImageId, AutoState>::const_iterator const state(m_autoState.find(image_id));
+    if (state == m_autoState.end() || state->second != AUTO_PENDING) {
+        return result;
+    }
 
     addVoteLocked(image_id, result);
     m_detected.erase(image_id);

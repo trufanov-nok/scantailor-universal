@@ -89,11 +89,17 @@ Task::process(TaskStatus const& status, FilterData const& data)
         using imageproc::OrientationDetector;
         imageproc::OrientationResult result;
         if (!m_ptrSettings->cachedDetection(m_imageId, &result)) {
-            result = OrientationDetector::detect(data.origImage(), OrientationDetector::exifRotation(m_imageId.filePath()));
+            // The file image has the same DPI as in the look-ahead and the CLI, and the detector scale depends on it.
+            QImage const file_image(ImageLoader::load(m_imageId));
+            result = OrientationDetector::detect(
+                file_image.isNull() ? data.origImage() : file_image,
+                OrientationDetector::exifRotation(m_imageId.filePath())
+            );
             m_ptrSettings->cacheDetection(m_imageId, result);
         }
         status.throwIfCancelled();
-        if (!result.isDecided() && !m_ptrSettings->hasBookRotation()) {
+        // Only a batch looks ahead, so that the result does not depend on the page order and an open page does not wait.
+        if (m_batchProcessing && !m_ptrSettings->hasBookRotation()) {
             lookAheadForBookRotation(status);
         }
         m_ptrSettings->applyAutoResult(m_imageId, result);

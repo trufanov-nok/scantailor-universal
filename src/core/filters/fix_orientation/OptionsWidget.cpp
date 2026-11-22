@@ -87,6 +87,12 @@ OptionsWidget::rotateRight()
 void
 OptionsWidget::resetRotation()
 {
+    // Reset also ends the automatic mode of the scan when its rotation is already 0.
+    if (m_rotation == OrthogonalRotation()) {
+        m_ptrSettings->applyRotation(m_pageId.imageId(), m_rotation);
+        showAutoResult(QString());
+        return;
+    }
     setRotation(OrthogonalRotation());
 }
 
