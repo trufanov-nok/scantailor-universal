@@ -91,6 +91,8 @@ private slots:
 
     void fillOffcutToggled(bool checked);
 
+    void fillMarginsToggled(bool checked);
+
     void fillingColorChanged(int idx);
 
     void despeckleOffSelected();

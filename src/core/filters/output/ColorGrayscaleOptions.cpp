@@ -33,6 +33,7 @@ ColorGrayscaleOptions::ColorGrayscaleOptions(QDomElement const& el, bool mixed_m
     m_pictureZonesLayerEnabled = el.attribute("pictureZonesLayer", "0") == "1";
     m_foregroundLayerEnabled = el.attribute("foregroundLayer", "0") == "1";
     m_fillOffcut = el.attribute("fillOffcut", "0") == "1";
+    m_fillMargins = el.attribute("fillMargins", "0") == "1";
     m_fillingColor = parseFillingColor(el.attribute("fillingColor"));
 }
 
@@ -46,6 +47,7 @@ ColorGrayscaleOptions::toXml(QDomDocument& doc, QString const& name) const
     el.setAttribute("pictureZonesLayer", m_pictureZonesLayerEnabled ? "1" : "0");
     el.setAttribute("foregroundLayer", m_foregroundLayerEnabled ? "1" : "0");
     el.setAttribute("fillOffcut", m_fillOffcut ? "1" : "0");
+    el.setAttribute("fillMargins", m_fillMargins ? "1" : "0");
     el.setAttribute("fillingColor", formatFillingColor(m_fillingColor));
     return el;
 }
@@ -99,6 +101,10 @@ ColorGrayscaleOptions::operator==(ColorGrayscaleOptions const& other) const
     }
 
     if (m_fillOffcut != other.m_fillOffcut) {
+        return false;
+    }
+
+    if (m_fillMargins != other.m_fillMargins) {
         return false;
     }
 

@@ -670,6 +670,12 @@ OutputGenerator::processAsIs(
         fillMarginsInPlace(out, crop_area, bg_color);
     }
 
+    // Without a content box, the fill would erase the whole page.
+    if (render_params.fillMargins() && !m_contentRect.isEmpty()) {
+        QRectF const content_area(QRectF(m_contentRect).translated(-m_outRect.topLeft()));
+        fillMarginsInPlace(out, QPolygonF(content_area), bg_color);
+    }
+
     applyFillZonesInPlace(out, fill_zones);
     reserveBlackAndWhite(out);
 
@@ -1580,8 +1586,10 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
         if (dbg) {
             dbg->add(normalized_original, "white margins");
         }
-    } else if (render_params.fillOffcut()) {
-        fillMarginsInPlace(normalized_original, orig_image_crop_area, bg_color);
+    } else {
+        if (render_params.fillOffcut()) {
+            fillMarginsInPlace(normalized_original, orig_image_crop_area, bg_color);
+        }
     }
 
     status.throwIfCancelled();
@@ -1601,6 +1609,11 @@ OutputGenerator::processWithDewarping(TaskStatus const& status, FilterData const
                    );
     }
     normalized_original = QImage(); // Save memory.
+    // Fill after the dewarp, because the inverse linear transform does not follow the curved text lines.
+    if (render_params.fillMargins() && !m_contentRect.isEmpty()) {
+        QRectF const content_area(QRectF(m_contentRect).translated(-m_outRect.topLeft()));
+        fillMarginsInPlace(dewarped, QPolygonF(content_area), bg_color);
+    }
     if (dbg) {
         dbg->add(dewarped, "dewarped");
     }

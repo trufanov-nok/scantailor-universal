@@ -118,6 +118,10 @@ OptionsWidget::OptionsWidget(
         this, SLOT(fillOffcutToggled(bool))
     );
     connect(
+        fillMarginsCB, SIGNAL(clicked(bool)),
+        this, SLOT(fillMarginsToggled(bool))
+    );
+    connect(
         fillingColorSelector, SIGNAL(activated(int)),
         this, SLOT(fillingColorChanged(int))
     );
@@ -322,6 +326,7 @@ OptionsWidget::whiteMarginsToggled(bool const checked)
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     equalizeIlluminationCB->setEnabled(checked);
     fillOffcutCB->setEnabled(!checked);
+    fillMarginsCB->setEnabled(!checked);
     emit reloadRequested();
 }
 
@@ -340,6 +345,16 @@ OptionsWidget::fillOffcutToggled(bool const checked)
 {
     ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
     opt.setFillOffcut(checked);
+    m_colorParams.setColorGrayscaleOptions(opt);
+    m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::fillMarginsToggled(bool const checked)
+{
+    ColorGrayscaleOptions opt(m_colorParams.colorGrayscaleOptions());
+    opt.setFillMargins(checked);
     m_colorParams.setColorGrayscaleOptions(opt);
     m_ptrSettings->setColorParams(m_pageId, m_colorParams, ColorParamsApplyFilter::CopyMode);
     emit reloadRequested();
@@ -656,6 +671,8 @@ OptionsWidget::updateColorsDisplay()
         fillOffcutCB->setChecked(opt.fillOffcut());
         // White margins already fill the offcut, so the option has no effect there.
         fillOffcutCB->setEnabled(!opt.whiteMargins());
+        fillMarginsCB->setChecked(opt.fillMargins());
+        fillMarginsCB->setEnabled(!opt.whiteMargins());
         fillingColorSelector->setCurrentIndex(fillingColorSelector->findData(opt.fillingColor()));
     }
 

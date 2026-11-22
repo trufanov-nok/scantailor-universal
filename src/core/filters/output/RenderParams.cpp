@@ -67,6 +67,10 @@ RenderParams::RenderParams(ColorParams const& cp)
         if (opt.fillOffcut() && !opt.whiteMargins()) {
             m_mask |= FILL_OFFCUT;
         }
+        // White margins already fill the margins, so the option has no effect there.
+        if (opt.fillMargins() && !opt.whiteMargins()) {
+            m_mask |= FILL_MARGINS;
+        }
         if (opt.fillingColor() == FILL_WHITE) {
             m_mask |= WHITE_FILLING;
         } else if (opt.fillingColor() == FILL_BLACK) {
