@@ -19,6 +19,7 @@ SET(
         ReduceThreshold.cpp ReduceThreshold.h
         Shear.cpp Shear.h
         SkewFinder.cpp SkewFinder.h
+        PictureSkewFinder.cpp PictureSkewFinder.h
         OrthogonalRotation.cpp OrthogonalRotation.h
         Scale.cpp Scale.h
         Transform.cpp Transform.h

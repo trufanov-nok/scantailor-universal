@@ -71,6 +71,14 @@ public:
     {
         return m_gui;
     }
+    bool hasDeskewPictures() const
+    {
+        return contains("deskew-pictures");
+    }
+    bool isDeskewPictures() const
+    {
+        return m_deskewPictures;
+    }
     bool isVerbose() const
     {
         return contains("verbose");
@@ -486,6 +494,7 @@ private:
     int m_startFilterIdx;
     int m_endFilterIdx;
     output::DewarpingMode m_dewarpingMode;
+    bool m_deskewPictures = false;
     output::DespeckleLevel m_despeckleLevel;
     output::DepthPerception m_depthPerception;
     float m_matchLayoutTolerance;
@@ -527,6 +536,7 @@ private:
     int fetchStartFilterIdx();
     int fetchEndFilterIdx();
     output::DewarpingMode fetchDewarpingMode();
+    bool fetchDeskewPictures();
     output::DespeckleLevel fetchDespeckleLevel();
     output::DepthPerception fetchDepthPerception();
     float fetchMatchLayoutTolerance();

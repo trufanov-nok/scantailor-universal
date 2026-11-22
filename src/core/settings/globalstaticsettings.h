@@ -100,6 +100,7 @@ public:
 
     static bool m_dewarpAutoVertHalfCorrection;
     static bool m_dewarpAutoDeskewAfterDewarp;
+    static bool m_deskewPictureEdges;
     static bool m_simulateSelectionModifier;
     static bool m_simulateSelectionModifierHintEnabled;
     static bool m_inversePageOrder;

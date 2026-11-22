@@ -67,6 +67,7 @@ CommandLine::parseCli(QStringList const& argv)
     opts << "orientation";
     opts << "rotate";
     opts << "deskew";
+    opts << "deskew-pictures";
     opts << "skew-deviation";
     opts << "disable-content-detection";
     opts << "enable-page-detection";
@@ -283,6 +284,7 @@ CommandLine::setup()
     m_endFilterIdx = fetchEndFilterIdx();
     m_matchLayoutTolerance = fetchMatchLayoutTolerance();
     m_dewarpingMode = fetchDewarpingMode();
+    m_deskewPictures = fetchDeskewPictures();
     m_compressionBW = fetchCompressionBW();
     m_compressionColor = fetchCompressionColor();
     m_language = fetchLanguage();
@@ -354,6 +356,10 @@ CommandLine::printHelp()
     std::cout << "\t--orientation=<left|right|upsidedown|none>\n\t\t\t\t\t\t-- default: none" << std::endl;
     std::cout << "\t--rotate=<0.0...360.0>\t\t\t-- it also sets deskew to manual mode" << std::endl;
     std::cout << "\t--deskew=<auto|manual>\t\t\t-- default: auto" << std::endl;
+    std::cout << "\t--deskew-pictures[=<true|false|1|0>]\t-- default: " << (_key_deskew_picture_edges_def ? "true" : "false")
+              << "; on a page that is mostly a photo or a plate, find the" << std::endl;
+    std::cout << "\t\t\t\t\t\t   auto deskew angle from the straight edges of the picture, not from text lines;" << std::endl;
+    std::cout << "\t\t\t\t\t\t   pages that have a deskew angle in the project keep it" << std::endl;
     std::cout << "\t--skew-deviation=<0.0...)\t\t-- default: 5.0; pages with bigger skew deviation will be painted in red" << std::endl;
     std::cout << "\t--disable-content-detection\t\t-- default: enabled" << std::endl;
     std::cout << "\t--enable-page-detection\t\t\t-- default: disabled" << std::endl;
@@ -777,6 +783,26 @@ CommandLine::fetchEndFilterIdx()
     }
 
     return m_options.value("end-filter").toInt() - 1;
+}
+
+bool
+CommandLine::fetchDeskewPictures()
+{
+    if (!hasDeskewPictures()) {
+        return _key_deskew_picture_edges_def;
+    }
+
+    // A switch without a value gets "true" from the parser.
+    QString const value = m_options.value("deskew-pictures").toLower();
+    if (value == "true" || value == "1") {
+        return true;
+    }
+    if (value == "false" || value == "0") {
+        return false;
+    }
+    std::cout << "Wrong --deskew-pictures value " << m_options.value("deskew-pictures").toLocal8Bit().constData()
+              << ", use true, false, 1 or 0" << std::endl;
+    exit(1);
 }
 
 output::DewarpingMode

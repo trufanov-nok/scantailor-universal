@@ -31,10 +31,14 @@ class QImage;
 class QSize;
 class Dpi;
 class DebugImages;
+class QRect;
+class ImageTransformation;
 
 namespace imageproc
 {
 class BinaryImage;
+class GrayImage;
+class PictureSkew;
 };
 
 namespace select_content
@@ -67,6 +71,10 @@ private:
     static void cleanup(
         TaskStatus const& status,
         imageproc::BinaryImage& img, Dpi const& dpi);
+
+    static imageproc::PictureSkew findPictureSkew(
+        imageproc::GrayImage const& gray, ImageTransformation const& xform,
+        QRect const& area, Dpi const& dpi);
 
     static int from150dpi(int size, int target_dpi);
 

@@ -60,6 +60,7 @@ bool GlobalStaticSettings::m_displayOrderHints = true;
 
 bool GlobalStaticSettings::m_dewarpAutoVertHalfCorrection = false;
 bool GlobalStaticSettings::m_dewarpAutoDeskewAfterDewarp = false;
+bool GlobalStaticSettings::m_deskewPictureEdges = _key_deskew_picture_edges_def;
 bool GlobalStaticSettings::m_simulateSelectionModifier = false;
 bool GlobalStaticSettings::m_simulateSelectionModifierHintEnabled = true;
 bool GlobalStaticSettings::m_inversePageOrder = false;
@@ -215,6 +216,7 @@ void GlobalStaticSettings::updateSettings()
 
     m_dewarpAutoVertHalfCorrection = settings.value(_key_dewarp_auto_vert_half_correction, _key_dewarp_auto_vert_half_correction_def).toBool();
     m_dewarpAutoDeskewAfterDewarp = settings.value(_key_dewarp_auto_deskew_after_dewarp, _key_dewarp_auto_deskew_after_dewarp_def).toBool();
+    m_deskewPictureEdges = settings.value(_key_deskew_picture_edges, _key_deskew_picture_edges_def).toBool();
 
     m_simulateSelectionModifierHintEnabled = settings.value(_key_thumbnails_simulate_key_press_hint, _key_thumbnails_simulate_key_press_hint_def).toBool();
 

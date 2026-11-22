@@ -35,6 +35,10 @@
 #include "imageproc/BWColor.h"
 #include "imageproc/OrthogonalRotation.h"
 #include "imageproc/SkewFinder.h"
+#include "imageproc/PictureSkewFinder.h"
+#include "imageproc/GrayImage.h"
+#include "imageproc/Scale.h"
+#include "imageproc/PolygonRasterizer.h"
 #include "imageproc/RasterOp.h"
 #include "imageproc/ReduceThreshold.h"
 #include "imageproc/UpscaleIntegerTimes.h"
@@ -50,10 +54,12 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <iostream>
 #include <assert.h>
 #include <stddef.h>
 
 #include "CommandLine.h"
+#include "settings/globalstaticsettings.h"
 
 namespace deskew
 {
@@ -198,12 +204,34 @@ Task::process(TaskStatus const& status, FilterData const& data)
             Skew const skew(skew_finder.findSkew(rotated_image));
             //std::cout << "deskew: SkewFinder" << std::endl;
 
-            if (skew.confidence() >= skew.GOOD_CONFIDENCE) {
+            bool const text_found = skew.confidence() >= skew.GOOD_CONFIDENCE;
+            if (text_found) {
                 ui_data.setEffectiveDeskewAngle(-skew.angle());
             } else {
                 ui_data.setEffectiveDeskewAngle(0);
             }
             ui_data.setMode(MODE_AUTO);
+
+            // The CLI does not read the GUI settings file, so only its option or the default applies there.
+            bool const use_picture_edges = cli.hasDeskewPictures()
+                                           ? cli.isDeskewPictures() : GlobalStaticSettings::m_deskewPictureEdges;
+            if (use_picture_edges) {
+                PictureSkew const picture(
+                    findPictureSkew(data.grayImage(), data.xform(),
+                                    bounded_image_area, Dpi(Dpm(data.origImage())))
+                );
+                if (picture.isReliable()) {
+                    ui_data.setEffectiveDeskewAngle(picture.angle());
+                }
+                if (cli.isVerbose()) {
+                    std::cout << "\tdeskew: text angle " << (text_found ? -skew.angle() : 0.0)
+                              << ", picture angle " << picture.angle()
+                              << " (picture fraction " << picture.pictureFraction()
+                              << ", confidence " << picture.confidence()
+                              << "), used: " << (picture.isReliable() ? "picture" : (text_found ? "text" : "none"))
+                              << std::endl;
+                }
+            }
 
             Params new_params(
                 ui_data.effectiveDeskewAngle(), deps, ui_data.mode()
@@ -270,6 +298,32 @@ Task::cleanup(TaskStatus const& status, BinaryImage& image, Dpi const& dpi)
     status.throwIfCancelled();
 
     rasterOp<RopSubtract<RopDst, RopSrc> >(image, garbage);
+}
+
+PictureSkew
+Task::findPictureSkew(GrayImage const& gray, ImageTransformation const& xform,
+                      QRect const& area, Dpi const& dpi)
+{
+    // Most scans without a resolution have 300 DPI.
+    double const dpi_x = dpi.horizontal() > 0 ? dpi.horizontal() : 300;
+    double const dpi_y = dpi.vertical() > 0 ? dpi.vertical() : 300;
+    // One scale for both axes keeps the angles of the picture edges.
+    double const scale_x = std::min(1.0, PictureSkewFinder::TARGET_DPI / std::max(dpi_x, dpi_y));
+    double const scale_y = scale_x;
+    QSize const small_size(
+        std::max(1, qRound(area.width() * scale_x)),
+        std::max(1, qRound(area.height() * scale_y))
+    );
+    GrayImage const small(scaleToGray(GrayImage(gray.toQImage().copy(area)), small_size));
+
+    QTransform to_small;
+    to_small.scale(double(small_size.width()) / area.width(), double(small_size.height()) / area.height());
+    to_small.translate(-area.x(), -area.y());
+    QPolygonF const page(xform.transformBack().map(xform.resultingPreCropArea()));
+    BinaryImage page_mask(small_size, WHITE);
+    PolygonRasterizer::fill(page_mask, BLACK, to_small.map(page), Qt::WindingFill);
+
+    return PictureSkewFinder::findSkew(small, page_mask);
 }
 
 int
