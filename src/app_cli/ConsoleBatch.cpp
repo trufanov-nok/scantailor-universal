@@ -40,6 +40,8 @@
 #include "ProjectReader.h"
 #include "OrthogonalRotation.h"
 #include "SelectedPage.h"
+#include "ImageLoader.h"
+#include "imageproc/OrientationDetector.h"
 
 #include "filters/fix_orientation/Settings.h"
 #include "filters/fix_orientation/Filter.h"
@@ -273,6 +275,11 @@ ConsoleBatch::setupFixOrientation(std::set<PageId> allPages)
     IntrusivePtr<fix_orientation::Filter> fix_orientation = m_ptrStages->fixOrientationFilter();
     CommandLine const& cli = CommandLine::get();
 
+    if (cli.hasOrientation() && cli.getOrientation() == CommandLine::AUTO_ORIENTATION) {
+        setupAutoOrientation(allPages);
+        return;
+    }
+
     for (PageId const& page : allPages) {
 
         OrthogonalRotation rotation;
@@ -293,6 +300,60 @@ ConsoleBatch::setupFixOrientation(std::set<PageId> allPages)
                 break;
             }
             fix_orientation->getSettings()->applyRotation(page.imageId(), rotation);
+        }
+    }
+}
+
+static OrthogonalRotation
+rotationFromDegrees(int const degrees)
+{
+    OrthogonalRotation rotation;
+    for (int i = 0; i < degrees / 90; ++i) {
+        rotation.nextClockwiseDirection();
+    }
+    return rotation;
+}
+
+void
+ConsoleBatch::setupAutoOrientation(std::set<PageId> const& pages)
+{
+    using imageproc::OrientationDetector;
+    using imageproc::OrientationResult;
+
+    CommandLine const& cli = CommandLine::get();
+    std::set<ImageId> images;
+    for (PageId const& page : pages) {
+        images.insert(page.imageId());
+    }
+
+    // The detector sees the whole scan before the split, so both pages of a spread get the same rotation.
+    std::vector<ImageId> const ids(images.begin(), images.end());
+    std::vector<OrientationResult> results;
+    for (ImageId const& image_id : ids) {
+        QImage const image(ImageLoader::load(image_id));
+        if (image.isNull()) {
+            results.push_back(OrientationResult(0, 0.0, false, QStringLiteral("cannot load the image")));
+        } else {
+            results.push_back(OrientationDetector::detect(image, OrientationDetector::exifRotation(image_id.filePath())));
+        }
+    }
+    OrientationDetector::applyBookRotation(results);
+
+    fix_orientation::Settings* const settings = m_ptrStages->fixOrientationFilter()->getSettings();
+    for (size_t i = 0; i < ids.size(); ++i) {
+        OrientationResult const& result = results[i];
+        if (cli.isVerbose()) {
+            std::cout << "Orientation: " << ids[i].filePath().toLocal8Bit().constData() << " ";
+            if (result.isDecided()) {
+                std::cout << result.angle();
+            } else {
+                std::cout << "none";
+            }
+            std::cout << " (" << result.reason().toLocal8Bit().constData()
+                      << ", " << result.confidence() << ")" << std::endl;
+        }
+        if (result.isDecided()) {
+            settings->applyRotation(ids[i], rotationFromDegrees(result.angle()));
         }
     }
 }

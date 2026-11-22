@@ -54,7 +54,7 @@ class CommandLine
 {
     // Member-wise copying is OK.
 public:
-    enum Orientation {TOP, LEFT, RIGHT, UPSIDEDOWN};
+    enum Orientation {TOP, LEFT, RIGHT, UPSIDEDOWN, AUTO_ORIENTATION};
 
     static CommandLine const& get()
     {
@@ -165,6 +165,14 @@ public:
     bool hasOrientation() const
     {
         return contains("orientation") && !m_options["orientation"].isEmpty();
+    }
+    bool hasDetectOrientation() const
+    {
+        return contains("detect-orientation") && !m_options["detect-orientation"].isEmpty();
+    }
+    QString getDetectOrientationList() const
+    {
+        return m_options.value("detect-orientation");
     }
     bool hasDeskewAngle() const
     {

@@ -26,6 +26,8 @@
 #include "TaskStatus.h"
 #include "ImageView.h"
 #include "FilterUiInterface.h"
+#include "imageproc/OrientationDetector.h"
+#include "ImageLoader.h"
 #include <QImage>
 #include <iostream>
 
@@ -82,6 +84,21 @@ Task::process(TaskStatus const& status, FilterData const& data)
 
     status.throwIfCancelled();
 
+    // The automatic rotation runs here, so that the stage itself finds the rotation of each requested scan.
+    if (m_ptrSettings->autoState(m_imageId) == Settings::AUTO_PENDING) {
+        using imageproc::OrientationDetector;
+        imageproc::OrientationResult result;
+        if (!m_ptrSettings->cachedDetection(m_imageId, &result)) {
+            result = OrientationDetector::detect(data.origImage(), OrientationDetector::exifRotation(m_imageId.filePath()));
+            m_ptrSettings->cacheDetection(m_imageId, result);
+        }
+        status.throwIfCancelled();
+        if (!result.isDecided() && !m_ptrSettings->hasBookRotation()) {
+            lookAheadForBookRotation(status);
+        }
+        m_ptrSettings->applyAutoResult(m_imageId, result);
+    }
+
     ImageTransformation xform(data.xform());
     xform.setPreRotation(m_ptrSettings->getRotationFor(m_imageId));
 
@@ -94,6 +111,29 @@ Task::process(TaskStatus const& status, FilterData const& data)
                        m_batchProcessing
                    )
                );
+    }
+}
+
+void
+Task::lookAheadForBookRotation(TaskStatus const& status)
+{
+    using imageproc::OrientationDetector;
+    // A scan without text, such as a cover, needs the rotation of the book, so other requested scans give their votes first.
+    std::vector<ImageId> const pending(m_ptrSettings->pendingImages());
+    int checked = 0;
+    for (ImageId const& image_id : pending) {
+        if (m_ptrSettings->hasBookRotation() || checked >= 30) {
+            break;
+        }
+        status.throwIfCancelled();
+        QImage const image(ImageLoader::load(image_id));
+        if (image.isNull()) {
+            continue;
+        }
+        m_ptrSettings->cacheDetection(
+            image_id, OrientationDetector::detect(image, OrientationDetector::exifRotation(image_id.filePath()))
+        );
+        ++checked;
     }
 }
 
@@ -119,7 +159,7 @@ Task::UiUpdater::updateUI(FilterUiInterface* ui)
     // This function is executed from the GUI thread.
     OptionsWidget* const opt_widget = m_ptrFilter->optionsWidget();
     if (!m_batchProcessing) {
-        opt_widget->postUpdateUI();
+        opt_widget->postUpdateUI(m_xform.preRotation());
     }
     ui->setOptionsWidget(opt_widget, ui->KEEP_OWNERSHIP);
 

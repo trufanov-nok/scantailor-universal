@@ -22,7 +22,6 @@
 #include "ApplyToDialog.h"
 #include "Settings.h"
 #include "ProjectPages.h"
-#include "ImageId.h"
 #include "PageId.h"
 #include <vector>
 #include <assert.h>
@@ -42,6 +41,8 @@ OptionsWidget::OptionsWidget(
     connect(rotateRightBtn, SIGNAL(clicked()), this, SLOT(rotateRight()));
     connect(resetBtn, SIGNAL(clicked()), this, SLOT(resetRotation()));
     connect(applyToBtn, SIGNAL(clicked()), this, SLOT(showApplyToDialog()));
+    connect(autoBtn, SIGNAL(clicked()), this, SLOT(autoRotation()));
+    showAutoResult(QString());
 }
 
 OptionsWidget::~OptionsWidget()
@@ -55,12 +56,16 @@ OptionsWidget::preUpdateUI(
     m_pageId = page_id;
     m_rotation = rotation;
     setRotationPixmap();
+    showAutoResult(m_ptrSettings->autoResultText(page_id.imageId()));
 }
 
 void
-OptionsWidget::postUpdateUI()
+OptionsWidget::postUpdateUI(OrthogonalRotation const rotation)
 {
-    setRotation(m_rotation);
+    // The stage can change the rotation with the automatic detection, so the display takes the processed value.
+    m_rotation = rotation;
+    setRotationPixmap();
+    showAutoResult(m_ptrSettings->autoResultText(m_pageId.imageId()));
 }
 
 void
@@ -97,7 +102,9 @@ OptionsWidget::showApplyToDialog()
     connect(dialog, &ApplyToDialog::accepted, this, [ = ]() {
         std::vector<PageId> vec = dialog->getPageRangeSelectorWidget().result();
         std::set<PageId> pages(vec.begin(), vec.end());
-        if (!dialog->getPageRangeSelectorWidget().allPagesSelected()) {
+        if (m_ptrSettings->autoState(m_pageId.imageId()) != Settings::AUTO_NONE) {
+            autoAppliedTo(pages);
+        } else if (!dialog->getPageRangeSelectorWidget().allPagesSelected()) {
             appliedTo(pages);
         } else {
             appliedToAllPages(pages);
@@ -125,6 +132,35 @@ OptionsWidget::appliedToAllPages(std::set<PageId> const& pages)
 {
     m_ptrSettings->applyRotation(pages, m_rotation);
     emit invalidateAllThumbnails();
+}
+
+void
+OptionsWidget::autoRotation()
+{
+    // The stage finds the rotation when it processes this scan, so the reload starts the detection.
+    m_ptrSettings->requestAutoRotation(m_pageId.imageId());
+    showAutoResult(m_ptrSettings->autoResultText(m_pageId.imageId()));
+    emit reloadRequested();
+}
+
+void
+OptionsWidget::autoAppliedTo(std::set<PageId> const& pages)
+{
+    if (pages.empty()) {
+        return;
+    }
+    // The pages get only the request, and the stage finds each rotation when it processes the page.
+    m_ptrSettings->requestAutoRotation(pages);
+    for (PageId const& page_id : pages) {
+        emit invalidateThumbnail(page_id);
+    }
+}
+
+void
+OptionsWidget::showAutoResult(QString const& text)
+{
+    autoResultLabel->setText(text);
+    autoResultLabel->setVisible(!text.isEmpty());
 }
 
 void

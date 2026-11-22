@@ -147,6 +147,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="autoBtn">
+          <property name="toolTip">
+           <string>Find the rotation from the text of this scan. Apply to... then gives the automatic rotation to other scans, and the Fix Orientation stage finds their rotation.</string>
+          </property>
+          <property name="text">
+           <string>Auto</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -161,15 +171,19 @@
         </item>
        </layout>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="scopeBox">
-     <property name="title">
-      <string>Scope</string>
-     </property>
-     <layout class="QVBoxLayout">
+      <item>
+       <widget class="QLabel" name="autoResultLabel">
+        <property name="text">
+         <string notr="true"/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QHBoxLayout">
         <item>
