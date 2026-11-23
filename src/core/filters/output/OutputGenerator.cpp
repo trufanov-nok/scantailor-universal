@@ -33,6 +33,7 @@
 #include "ZoneSet.h"
 #include "PictureLayerProperty.h"
 #include "FillColorProperty.h"
+#include "imageproc/SmoothFill.h"
 #include "dewarping/CylindricalSurfaceDewarper.h"
 #include "dewarping/TextLineTracer.h"
 #include "dewarping/TopBottomEdgeTracer.h"
@@ -2422,28 +2423,25 @@ OutputGenerator::applyFillZonesInPlace(
 
     QImage canvas(img.convertToFormat(QImage::Format_ARGB32_Premultiplied));
 
-    {
-        QPainter painter(&canvas);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setPen(Qt::NoPen);
-
-        for (Zone const& zone : zones) {
-            QColor const color(zone.properties().locateOrDefault<FillColorProperty>()->color());
-            painter.setBrush(color);
-            if (zone.type() == Zone::SplineType) {
-                QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());
-                painter.drawPolygon(poly, Qt::WindingFill);
-            } else if (zone.type() == Zone::EllipseType) {
-                const SerializableEllipse e = zone.ellipse().transformed(orig_to_output);
-                QPainterPath path;
-                QTransform t;
-                t.translate(e.center().x(), e.center().y());
-                t.rotate(e.angle());
-                t.translate(-e.center().x(), -e.center().y());
-                path.addEllipse(e.center(), e.rx(), e.ry());
-                path = t.map(path);
-                painter.drawPolygon(path.toFillPolygon(), Qt::WindingFill);
+    for (Zone const& zone : zones) {
+        IntrusivePtr<FillColorProperty const> const fill(zone.properties().locateOrDefault<FillColorProperty>());
+        QPolygonF const poly(fillZonePolygon(zone, orig_to_output));
+        if (fill->isAuto()) {
+            QPainterPath path;
+            path.addPolygon(poly);
+            path.setFillRule(Qt::WindingFill);
+            QPoint origin;
+            // The patch reads the canvas, so the zones that come before it are already on the canvas.
+            QImage const patch(smoothFillPatch(canvas, path, &origin));
+            if (!patch.isNull()) {
+                QPainter(&canvas).drawImage(origin, patch);
             }
+        } else {
+            QPainter painter(&canvas);
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(fill->color());
+            painter.drawPolygon(poly, Qt::WindingFill);
         }
     }
 
@@ -2452,6 +2450,24 @@ OutputGenerator::applyFillZonesInPlace(
     } else {
         img = canvas.convertToFormat(img.format());
     }
+}
+
+QPolygonF
+OutputGenerator::fillZonePolygon(
+    Zone const& zone, boost::function<QPointF(QPointF const&)> const& orig_to_output)
+{
+    if (zone.type() == Zone::EllipseType) {
+        const SerializableEllipse e = zone.ellipse().transformed(orig_to_output);
+        QPainterPath path;
+        QTransform t;
+        t.translate(e.center().x(), e.center().y());
+        t.rotate(e.angle());
+        t.translate(-e.center().x(), -e.center().y());
+        path.addEllipse(e.center(), e.rx(), e.ry());
+        path = t.map(path);
+        return path.toFillPolygon();
+    }
+    return zone.spline().transformed(orig_to_output).toPolygon();
 }
 
 /**
@@ -2476,22 +2492,38 @@ OutputGenerator::applyFillZonesInPlace(
         return;
     }
 
+    // One copy for all zones is enough, because each zone writes its pixels to the copy too.
+    QImage mono;
     for (Zone const& zone : zones) {
-        QColor const color(zone.properties().locateOrDefault<FillColorProperty>()->color());
-        BWColor const bw_color = qGray(color.rgb()) < 128 ? BLACK : WHITE;
-        if (zone.type() == Zone::SplineType) {
-            QPolygonF const poly(zone.spline().transformed(orig_to_output).toPolygon());
-            PolygonRasterizer::fill(img, bw_color, poly, Qt::WindingFill);
-        } else if (zone.type() == Zone::EllipseType) {
-            const SerializableEllipse e = zone.ellipse().transformed(orig_to_output);
+        IntrusivePtr<FillColorProperty const> const fill(zone.properties().locateOrDefault<FillColorProperty>());
+        QPolygonF const poly(fillZonePolygon(zone, orig_to_output));
+        if (fill->isAuto()) {
+            if (mono.isNull()) {
+                mono = img.toQImage();
+            }
             QPainterPath path;
-            QTransform t;
-            t.translate(e.center().x(), e.center().y());
-            t.rotate(e.angle());
-            t.translate(-e.center().x(), -e.center().y());
-            path.addEllipse(e.center(), e.rx(), e.ry());
-            path = t.map(path);
-            PolygonRasterizer::fill(img, bw_color, path.toFillPolygon(), Qt::WindingFill);
+            path.addPolygon(poly);
+            path.setFillRule(Qt::WindingFill);
+            QPoint origin;
+            QImage const patch(smoothFillPatch(mono, path, &origin));
+            for (int y = 0; y < patch.height(); ++y) {
+                QRgb const* line = reinterpret_cast<QRgb const*>(patch.constScanLine(y));
+                for (int x = 0; x < patch.width(); ++x) {
+                    // Half coverage is the same limit that the rasterizer uses for a color zone.
+                    if (qAlpha(line[x]) >= 128) {
+                        BWColor const bw_color = qGray(line[x]) < 128 ? BLACK : WHITE;
+                        img.setPixel(origin.x() + x, origin.y() + y, bw_color);
+                        mono.setPixel(origin.x() + x, origin.y() + y, bw_color == BLACK ? 1 : 0);
+                    }
+                }
+            }
+        } else {
+            QColor const color(fill->color());
+            BWColor const bw_color = qGray(color.rgb()) < 128 ? BLACK : WHITE;
+            PolygonRasterizer::fill(img, bw_color, poly, Qt::WindingFill);
+            if (!mono.isNull()) {
+                mono = img.toQImage();
+            }
         }
     }
 }

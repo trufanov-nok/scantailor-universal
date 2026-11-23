@@ -27,12 +27,14 @@
 #include "SerializableSpline.h"
 #include "PropertySet.h"
 #include "FillColorProperty.h"
+#include "imageproc/SmoothFill.h"
 #include "Settings.h"
 #include "ImageTransformation.h"
 #include "ImagePresentation.h"
 #include "OutputMargins.h"
 #include "VirtualZoneProperty.h"
 #include <QTransform>
+#include <algorithm>
 #include <QImage>
 #include <QPointer>
 #include <QPainter>
@@ -74,6 +76,7 @@ FillZoneEditor::FillZoneEditor(
             OutputMargins()
         ),
         m_colorAdapter(colorAdapterFor(image)),
+        m_image(image),
         m_context(*this, m_zones),
         m_colorPickupInteraction(m_zones, m_context),
         m_dragHandler(*this),
@@ -117,6 +120,14 @@ FillZoneEditor::FillZoneEditor(
             m_zones.addEllipse(ellipse, zone.properties());
         }
     }
+
+    for (EditableZoneSet::Zone const& zone : qAsConst(m_zones)) {
+        m_bakedFillPaths.push_back(zonePath(zone));
+    }
+
+    m_exactFillTimer.setSingleShot(true);
+    m_exactFillTimer.setInterval(250);
+    connect(&m_exactFillTimer, SIGNAL(timeout()), SLOT(computeExactAutoFills()));
 }
 
 FillZoneEditor::~FillZoneEditor()
@@ -135,25 +146,126 @@ FillZoneEditor::onPaint(QPainter& painter, InteractionState const& interaction)
 
     painter.setPen(Qt::NoPen);
 
+    QPainterPath const exclude(staleFillsPath());
     for (EditableZoneSet::Zone const& zone : qAsConst(m_zones)) {
         typedef FillColorProperty FCP;
-        QColor const color(zone.properties()->locateOrDefault<FCP>()->color());
-        painter.setBrush(m_colorAdapter(color));
-        if (!zone.isEllipse()) {
-            painter.drawPolygon(zone.spline()->toPolygon(), Qt::WindingFill);
+        IntrusivePtr<FCP const> const fill(zone.properties()->locateOrDefault<FCP>());
+        QPainterPath const path(zonePath(zone));
+        if (fill->isAuto()) {
+            AutoFillPatch const entry(autoFillPatch(path, exclude));
+            if (!entry.patch.isNull()) {
+                painter.setRenderHint(QPainter::SmoothPixmapTransform, !entry.exact);
+                painter.drawImage(entry.target, entry.patch);
+            }
         } else {
-            const EditableEllipse::Ptr& e = zone.ellipse();
-            const QPointF& center = e->center();
-
-            QPainterPath path;
-            path.addEllipse(center, e->rx(), e->ry());
-            QTransform t;
-            t.translate(center.x(), center.y());
-            t.rotate(zone.ellipse()->angle());
-            t.translate(-center.x(), -center.y());
-            painter.drawPolygon(t.map(path).toFillPolygon(), Qt::WindingFill);
+            painter.setBrush(m_colorAdapter(fill->color()));
+            painter.drawPolygon(path.toFillPolygon(), Qt::WindingFill);
         }
     }
+
+    m_autoFillPatches.swap(m_usedAutoFillPatches);
+    m_usedAutoFillPatches.clear();
+    m_exactFillAllowed = false;
+}
+
+void
+FillZoneEditor::computeExactAutoFills()
+{
+    m_exactFillAllowed = true;
+    viewport()->update();
+}
+
+QPainterPath
+FillZoneEditor::staleFillsPath() const
+{
+    QPainterPath exclude;
+    exclude.setFillRule(Qt::WindingFill);
+    for (QPainterPath const& baked : m_bakedFillPaths) {
+        bool unchanged = false;
+        for (EditableZoneSet::Zone const& zone : m_zones) {
+            if (zonePath(zone) == baked) {
+                unchanged = true;
+                break;
+            }
+        }
+        if (!unchanged) {
+            exclude.addPath(baked);
+        }
+    }
+    return exclude;
+}
+
+QPainterPath
+FillZoneEditor::zonePath(EditableZoneSet::Zone const& zone)
+{
+    QPainterPath path;
+    path.setFillRule(Qt::WindingFill);
+    if (!zone.isEllipse()) {
+        path.addPolygon(zone.spline()->toPolygon());
+        return path;
+    }
+
+    const EditableEllipse::Ptr& e = zone.ellipse();
+    const QPointF& center = e->center();
+    path.addEllipse(center, e->rx(), e->ry());
+    QTransform t;
+    t.translate(center.x(), center.y());
+    t.rotate(e->angle());
+    t.translate(-center.x(), -center.y());
+    return t.map(path);
+}
+
+FillZoneEditor::AutoFillPatch
+FillZoneEditor::autoFillPatch(QPainterPath const& path, QPainterPath const& exclude)
+{
+    // The preview side of this size is fast enough for each mouse move.
+    qreal const preview_side = 256.0;
+
+    auto it = std::find_if(
+        m_autoFillPatches.begin(), m_autoFillPatches.end(),
+        [&](AutoFillPatch const& p) {
+            return p.path == path && p.exclude == exclude && (p.exact || !m_exactFillAllowed);
+        }
+    );
+    if (it != m_autoFillPatches.end()) {
+        m_usedAutoFillPatches.push_back(*it);
+        return *it;
+    }
+
+    AutoFillPatch entry;
+    entry.path = path;
+    entry.exclude = exclude;
+    QRectF const bounds(path.boundingRect());
+    qreal const factor = preview_side / std::max(bounds.width(), bounds.height());
+    if (m_exactFillAllowed || factor >= 1.0) {
+        QPoint origin;
+        entry.patch = imageproc::smoothFillPatch(m_image, path, &origin, exclude);
+        entry.target = QRectF(origin, entry.patch.size());
+        entry.exact = true;
+    } else {
+        QRect const crop(bounds.toAlignedRect().adjusted(-16, -16, 16, 16).intersected(m_image.rect()));
+        QImage small(
+            m_image.copy(crop).scaled(
+                qMax(1, qRound(crop.width() * factor)), qMax(1, qRound(crop.height() * factor)),
+                Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+            )
+        );
+        if (m_image.format() == QImage::Format_Mono || m_image.format() == QImage::Format_MonoLSB) {
+            small = small.convertToFormat(QImage::Format_Mono, Qt::ThresholdDither);
+        }
+        QTransform const to_small(
+            QTransform::fromTranslate(-crop.x(), -crop.y()) * QTransform::fromScale(factor, factor)
+        );
+        QPoint origin;
+        entry.patch = imageproc::smoothFillPatch(small, to_small.map(path), &origin, to_small.map(exclude));
+        entry.target = QRectF(
+            crop.x() + origin.x() / factor, crop.y() + origin.y() / factor,
+            entry.patch.width() / factor, entry.patch.height() / factor
+        );
+        m_exactFillTimer.start();
+    }
+    m_usedAutoFillPatches.push_back(entry);
+    return entry;
 }
 
 InteractionHandler*
@@ -163,6 +275,22 @@ FillZoneEditor::createContextMenuInteraction(InteractionState& interaction)
     return ZoneContextMenuInteraction::create(
                m_context, interaction, MenuCustomizer(this)
            );
+}
+
+InteractionHandler*
+FillZoneEditor::setAutoColor(
+    EditableZoneSet::Zone const& zone, InteractionState& interaction)
+{
+    typedef FillColorProperty FCP;
+    zone.properties()->locateOrCreate<FCP>()->setAuto(true);
+
+    // The next zones also get the automatic fill, as after a pick of a color.
+    PropertySet default_props(m_zones.defaultProperties());
+    default_props.locateOrCreate<FCP>()->setAuto(true);
+    m_zones.setDefaultProperties(default_props);
+    m_zones.commit();
+
+    return m_context.createDefaultInteraction();
 }
 
 InteractionHandler*
@@ -256,7 +384,16 @@ FillZoneEditor::MenuCustomizer::operator()(
     }
 
     std::vector<ZoneContextMenuItem> items;
-    items.reserve(was_copyed_to ? 6 : 5);
+    items.reserve(was_copyed_to ? 7 : 6);
+    items.push_back(
+        ZoneContextMenuItem(
+            tr("Automatic color"),
+            boost::bind(
+                &FillZoneEditor::setAutoColor,
+                m_pEditor, zone, _1
+            )
+        )
+    );
     items.push_back(
         ZoneContextMenuItem(
             tr("Pick color"),

@@ -279,7 +279,7 @@ QStringList exportZonesInfo(ZoneSet const& picture_zones, ZoneSet const& fill_zo
 
     res.append(QString("; STU ").append(VERSION));
     res.append("; Format: Type[tab]Info[tab]x1, y1<...>[tab]xN, yN");
-    res.append("; Types: 0 - layer zone (has Mode in Info field), 1 - fill zone (has Color in Info field)");
+    res.append("; Types: 0 - layer zone (has Mode in Info field), 1 - fill zone (has Color or AUTO in Info field)");
     res.append("; Mode : 1 - subtract from auto layer, 2 - add to auto layer, 3 - subtract from all layers");
     res.append("; Color: has format #RRGGBB/n");
 
@@ -291,8 +291,11 @@ QStringList exportZonesInfo(ZoneSet const& picture_zones, ZoneSet const& fill_zo
     }
 
     for (const Zone& z : fill_zones) {
-        QColor const color(z.properties().locateOrDefault<output::FillColorProperty>()->color());
-        QString info = "1\t" + color.name().toUpper() + "\t" + zone2Coords(z);
+        IntrusivePtr<output::FillColorProperty const> const fill(
+            z.properties().locateOrDefault<output::FillColorProperty>()
+        );
+        QString const color_info(fill->isAuto() ? QString("AUTO") : fill->color().name().toUpper());
+        QString info = "1\t" + color_info + "\t" + zone2Coords(z);
         res.append(info);
 
     }
