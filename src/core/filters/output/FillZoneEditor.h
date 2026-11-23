@@ -37,6 +37,11 @@
 #include <QPoint>
 #include <QPointF>
 #include <QColor>
+#include <QImage>
+#include <QRectF>
+#include <QTimer>
+#include <QPainterPath>
+#include <vector>
 
 class InteractionState;
 class QPainter;
@@ -64,6 +69,8 @@ protected:
 private slots:
     void commitZones();
 
+    void computeExactAutoFills();
+
     void updateRequested();
 private:
     class MenuCustomizer;
@@ -75,6 +82,17 @@ private:
     InteractionHandler* createColorPickupInteraction(
         EditableZoneSet::Zone const& zone, InteractionState& interaction);
 
+    InteractionHandler* setAutoColor(
+        EditableZoneSet::Zone const& zone, InteractionState& interaction);
+
+    static QPainterPath zonePath(EditableZoneSet::Zone const& zone);
+
+    struct AutoFillPatch;
+
+    AutoFillPatch autoFillPatch(QPainterPath const& path, QPainterPath const& exclude);
+
+    QPainterPath staleFillsPath() const;
+
     static QColor toOpaque(QColor const& color);
 
     static QColor toGrayscale(QColor const& color);
@@ -83,7 +101,25 @@ private:
 
     static ColorAdapter colorAdapterFor(QImage const& image);
 
+    struct AutoFillPatch
+    {
+        QPainterPath path;
+        QPainterPath exclude;
+        QRectF target;
+        QImage patch;
+        bool exact = false;
+    };
+
     ColorAdapter m_colorAdapter;
+    QImage m_image;
+    // The fill is slow to compute, so a patch stays until its zone changes.
+    std::vector<AutoFillPatch> m_autoFillPatches;
+    std::vector<AutoFillPatch> m_usedAutoFillPatches;
+    // The image already has the fills of these zones, so a ring pixel in a changed zone area is not the background.
+    std::vector<QPainterPath> m_bakedFillPaths;
+    // A full-size fill is too slow for each mouse move, so the editor computes it when the zones do not change for a short time.
+    QTimer m_exactFillTimer;
+    bool m_exactFillAllowed = false;
     EditableZoneSet m_zones;
 
     // Must go after m_zones.

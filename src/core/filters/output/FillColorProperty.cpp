@@ -28,7 +28,8 @@ namespace output
 char const FillColorProperty::m_propertyName[] = "FillColorProperty";
 
 FillColorProperty::FillColorProperty(QDomElement const& el)
-    :   m_rgb(rgbFromString(el.attribute("color")))
+    :   m_rgb(rgbFromString(el.attribute("color"))),
+        m_auto(el.attribute("auto") == "1")
 {
 }
 
@@ -50,6 +51,10 @@ FillColorProperty::toXml(QDomDocument& doc, QString const& name) const
     QDomElement el(doc.createElement(name));
     el.setAttribute("type", m_propertyName);
     el.setAttribute("color", rgbToString(m_rgb));
+    if (m_auto) {
+        // Older versions ignore this attribute and use the color, so the project still opens there.
+        el.setAttribute("auto", "1");
+    }
     return el;
 }
 

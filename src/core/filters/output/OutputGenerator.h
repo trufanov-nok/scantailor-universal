@@ -58,6 +58,7 @@
 class TaskStatus;
 class DebugImages;
 class FilterData;
+class Zone;
 class ZoneSet;
 class QSize;
 class QImage;
@@ -291,6 +292,9 @@ private:
                                boost::function<QPointF(QPointF const&)> const& orig_to_output) const;
 
     void applyFillZonesInPlace(QImage& img, ZoneSet const& zones) const;
+
+    static QPolygonF fillZonePolygon(Zone const& zone,
+                                     boost::function<QPointF(QPointF const&)> const& orig_to_output);
 
     void applyFillZonesInPlace(imageproc::BinaryImage& img, ZoneSet const& zones,
                                boost::function<QPointF(QPointF const&)> const& orig_to_output) const;

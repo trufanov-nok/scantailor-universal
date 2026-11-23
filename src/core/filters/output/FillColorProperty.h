@@ -35,7 +35,7 @@ namespace output
 class FillColorProperty : public Property
 {
 public:
-    FillColorProperty(QColor const& color = Qt::white) : m_rgb(color.rgb()) {}
+    FillColorProperty(QColor const& color = Qt::white) : m_rgb(color.rgb()), m_auto(false) {}
 
     FillColorProperty(QDomElement const& el);
 
@@ -53,6 +53,18 @@ public:
     void setColor(QColor const& color)
     {
         m_rgb = color.rgb();
+        m_auto = false;
+    }
+
+    // An automatic zone takes its fill from the pixels around it, so the user does not have to pick a color.
+    bool isAuto() const
+    {
+        return m_auto;
+    }
+
+    void setAuto(bool is_auto)
+    {
+        m_auto = is_auto;
     }
 private:
     static IntrusivePtr<Property> construct(QDomElement const& el);
@@ -63,6 +75,7 @@ private:
 
     static char const m_propertyName[];
     QRgb m_rgb;
+    bool m_auto;
 };
 
 } // namespace output

@@ -67,7 +67,9 @@ bool
 FillZoneComparator::equal(PropertySet const& lhs, PropertySet const& rhs)
 {
     typedef FillColorProperty FCP;
-    return lhs.locateOrDefault<FCP>()->color() == rhs.locateOrDefault<FCP>()->color();
+    IntrusivePtr<FCP const> const lhs_prop(lhs.locateOrDefault<FCP>());
+    IntrusivePtr<FCP const> const rhs_prop(rhs.locateOrDefault<FCP>());
+    return lhs_prop->isAuto() == rhs_prop->isAuto() && lhs_prop->color() == rhs_prop->color();
 }
 
 } // namespace output

@@ -4021,7 +4021,12 @@ Continue?</source>
 <context>
     <name>output::FillZoneEditor</name>
     <message>
-        <location filename="../core/filters/output/FillZoneEditor.cpp" line="262"/>
+        <location filename="../core/filters/output/FillZoneEditor.cpp" line="319"/>
+        <source>Automatic color</source>
+        <translation>Автоматический цвет</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/output/FillZoneEditor.cpp" line="328"/>
         <source>Pick color</source>
         <translation>Выбрать цвет</translation>
     </message>

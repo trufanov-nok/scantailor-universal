@@ -329,7 +329,7 @@ PropertySet
 Settings::initialFillZoneProps()
 {
     PropertySet props;
-    props.locateOrCreate<FillColorProperty>()->setColor(Qt::white);
+    props.locateOrCreate<FillColorProperty>()->setAuto(true);
     return props;
 }
 

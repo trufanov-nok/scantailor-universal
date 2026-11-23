@@ -15,6 +15,7 @@ SET(
         TestMorphology.cpp
         TestBinarize.cpp
         TestPolygonRasterizer.cpp
+        TestSmoothFill.cpp
         TestSeedFill.cpp
         TestSEDM.cpp
         TestRastLineFinder.cpp

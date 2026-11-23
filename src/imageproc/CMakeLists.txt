@@ -27,6 +27,7 @@ SET(
         Binarize.cpp Binarize.h
         PolygonUtils.cpp PolygonUtils.h
         PolygonRasterizer.cpp PolygonRasterizer.h
+        SmoothFill.cpp SmoothFill.h
         HoughLineDetector.cpp HoughLineDetector.h
         GaussBlur.cpp GaussBlur.h
         Sobel.h
