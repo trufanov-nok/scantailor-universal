@@ -150,8 +150,14 @@ MainWindow::MainWindow()
         m_debug(false),
         m_closing(false),
         m_docking_enabled(true),
-        m_autosave_timer(nullptr)
+        m_autosave_timer(nullptr),
+        m_projectReloadPending(false),
+        m_projectReloadPromptActive(false),
+        m_projectFileBusy(0),
+        m_reloadFilterIdx(-1)
 {
+    connect(&m_projectFileWatcher, SIGNAL(changedOnDisk()), SLOT(projectFileChangedOnDisk()));
+
     GlobalStaticSettings::updateSettings();
     QSettings settings;
     m_maxLogicalThumbSize = settings.value(_key_thumbnails_max_thumb_size, _key_thumbnails_max_thumb_size_def).toSizeF();
@@ -442,6 +448,12 @@ MainWindow::switchToNewProject(
 
     m_ptrPages = pages;
     m_projectFile = project_file_path;
+    if (m_projectFile.isEmpty()) {
+        m_projectFileWatcher.stop();
+    } else {
+        m_projectFileWatcher.watch(m_projectFile);
+    }
+    m_projectReloadPending = false;
 
     if (project_reader) {
         m_selectedPage = project_reader->selectedPage();
@@ -1641,6 +1653,10 @@ MainWindow::stopBatchProcessing(MainAreaAction main_area)
 
     m_ptrStages->filterAt(m_curFilter)->updateStatistics();
     resetThumbSequence(currentPageOrderProvider());
+
+    if (m_projectReloadPending) {
+        QTimer::singleShot(0, this, SLOT(projectFileChangedOnDisk()));
+    }
 }
 
 void
@@ -1772,7 +1788,8 @@ MainWindow::saveProjectTriggered()
     }
 
     pauseAutoSaveTimer();
-    if (saveProjectWithFeedback(m_projectFile)) {
+    ScopedIncDec<int> const busy_guard(m_projectFileBusy);
+    if (confirmOverwriteOfChangedProject() && saveProjectWithFeedback(m_projectFile)) {
         updateWindowTitle();
     }
     resumeAutoSaveTimer();
@@ -1782,6 +1799,7 @@ void
 MainWindow::saveProjectAsTriggered()
 {
     // XXX: this function is duplicated in OutOfMemoryDialog.
+    ScopedIncDec<int> const busy_guard(m_projectFileBusy);
 
     QString project_dir;
     if (!m_projectFile.isEmpty()) {
@@ -1809,6 +1827,7 @@ MainWindow::saveProjectAsTriggered()
 
     if (saveProjectWithFeedback(project_file)) {
         m_projectFile = project_file;
+        m_projectFileWatcher.watch(m_projectFile);
         updateWindowTitle();
 
         QSettings settings;
@@ -1911,6 +1930,7 @@ MainWindow::openProject(QString const& project_file)
 
     ProjectOpeningContext* context = new ProjectOpeningContext(this, project_file, doc);
     connect(context, SIGNAL(done(ProjectOpeningContext*)), SLOT(projectOpened(ProjectOpeningContext*)));
+    connect(context, SIGNAL(destroyed(QObject*)), SLOT(projectOpeningEnded()));
     context->proceed();
 }
 
@@ -1936,6 +1956,18 @@ MainWindow::projectOpened(ProjectOpeningContext* context)
 
     setAutoSaveInputDir(context->projectReader()->inputDirectory());
     resumeAutoSaveTimer();
+
+    // After a reload, the user continues at the same filter and page as before.
+    if (m_reloadFilterIdx >= 0) {
+        int const filter_idx = m_reloadFilterIdx;
+        m_reloadFilterIdx = -1;
+        if (filter_idx < m_ptrStages->count()) {
+            filterList->selectRow(filter_idx);
+        }
+        if (!m_reloadPage.isNull() && m_ptrPages->toPageSequence(getCurrentView()).pageNo(m_reloadPage) >= 0) {
+            goToPage(m_reloadPage);
+        }
+    }
 }
 
 void
@@ -2402,6 +2434,7 @@ MainWindow::closeProjectInteractive()
     if (!isProjectLoaded()) {
         return true;
     }
+    ScopedIncDec<int> const busy_guard(m_projectFileBusy);
 
     if (m_projectFile.isEmpty()) {
         switch (promptProjectSave()) {
@@ -2451,6 +2484,10 @@ MainWindow::closeProjectInteractive()
 
     switch (promptProjectSave()) {
     case SAVE:
+        if (!confirmOverwriteOfChangedProject()) {
+            QFile::remove(backup_file_path);
+            return false;
+        }
         if (!Utils::overwritingRename(
                     backup_file_path, m_projectFile)) {
             QMessageBox::warning(
@@ -2495,7 +2532,106 @@ MainWindow::saveProjectWithFeedback(QString const& project_file)
         return false;
     }
 
+    // The autosave writes a ".as" file first, and it tells the watcher about the project file after its copy.
+    if (!m_projectFile.isEmpty() && project_file == m_projectFile) {
+        m_projectFileWatcher.rememberFileContent(project_file);
+    }
+
     return true;
+}
+
+bool
+MainWindow::confirmOverwriteOfChangedProject()
+{
+    if (!m_projectFileWatcher.isChangedOnDisk()) {
+        return true;
+    }
+    QMessageBox::StandardButton const res = QMessageBox::question(
+        this, tr("Project file changed"),
+        tr("Another program changed the project file after ScanTailor read it:\n%1\n\n"
+           "Save the project from ScanTailor over the file?").arg(QDir::toNativeSeparators(m_projectFile)),
+        QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Cancel
+    );
+    return res == QMessageBox::Save;
+}
+
+void
+MainWindow::projectFileChangedOnDisk()
+{
+    if (m_projectFile.isEmpty() || m_projectReloadPromptActive || m_closing) {
+        return;
+    }
+    if (!m_projectFileWatcher.isChangedOnDisk()) {
+        return;
+    }
+    if (isBatchProcessingInProgress()) {
+        m_projectReloadPending = true;
+        return;
+    }
+    // A native file dialog is not always an active modal widget, so the busy counter covers the save, open and close code.
+    if (m_projectFileBusy > 0 || QApplication::activeModalWidget()) {
+        QTimer::singleShot(1000, this, SLOT(projectFileChangedOnDisk()));
+        return;
+    }
+    m_projectReloadPending = false;
+    m_projectReloadPromptActive = true;
+    pauseAutoSaveTimer();
+
+    QMessageBox box(
+        QMessageBox::Question, tr("Project file changed"),
+        tr("Another program changed the project file:\n%1\n\n"
+           "Reload the project from the file? The changes that you made in ScanTailor after the last save "
+           "will be lost.\n\nIf you keep the project in ScanTailor, the next save writes it over the file.")
+        .arg(QDir::toNativeSeparators(m_projectFile)),
+        QMessageBox::NoButton, this
+    );
+    QPushButton* const reload_btn = box.addButton(tr("Reload"), QMessageBox::AcceptRole);
+    box.addButton(tr("Keep the project in ScanTailor"), QMessageBox::RejectRole);
+    box.setDefaultButton(reload_btn);
+    box.exec();
+    m_projectReloadPromptActive = false;
+
+    if (box.clickedButton() == reload_btn) {
+        reloadProject();
+    } else {
+        // The user chose to keep the project in the GUI, so the same change does not ask again.
+        m_projectFileWatcher.rememberFileContent(m_projectFile);
+        resumeAutoSaveTimer();
+    }
+}
+
+void
+MainWindow::reloadProject()
+{
+    // If ScanTailor cannot read the new file, for example before its writer ends, the current project must stay open.
+    QFile file(m_projectFile);
+    QDomDocument doc;
+    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file) || !ProjectReader(doc).success()) {
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("ScanTailor cannot read the changed project file, so the project in ScanTailor stays open.")
+        );
+        resumeAutoSaveTimer();
+        return;
+    }
+    file.close();
+
+    m_reloadFilterIdx = m_curFilter;
+    m_reloadPage = m_selectedPage.get(getCurrentView());
+    QString const project_file(m_projectFile);
+    closeProjectWithoutSaving();
+    openProject(project_file);
+}
+
+void
+MainWindow::projectOpeningEnded()
+{
+    // An open that did not reach projectOpened(), for example after a cancel of the DPI dialog, must not leave the reload state.
+    if (m_reloadFilterIdx >= 0) {
+        m_reloadFilterIdx = -1;
+        m_reloadPage = PageId();
+        resumeAutoSaveTimer();
+    }
 }
 
 /**

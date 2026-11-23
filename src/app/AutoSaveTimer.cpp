@@ -48,6 +48,13 @@ QAutoSaveTimer::autoSaveProject()
         QDir::toNativeSeparators(getAutoSaveInputDir() + "/UnnamedAutoSave.Scantailor")
     );
 
+    // An autosave over a file that another program changed would lose that change, so the window asks the user first.
+    if (!m_MW->projectFile().isEmpty() && m_MW->isProjectFileChangedOnDisk()) {
+        blockSignals(false);
+        m_MW->projectFileChangedOnDisk();
+        return;
+    }
+
     if (m_MW->numImages() != 0) {
         if (m_MW->projectFile().isEmpty()) {
             m_MW->saveProjectWithFeedback(unnamed_autosave_projectFile);
@@ -61,11 +68,19 @@ QAutoSaveTimer::autoSaveProject()
             QString const file_as_path(file_as.absoluteFilePath());
             if (m_MW->saveProjectWithFeedback(file_as_path)) {
                 QFile::remove(unnamed_autosave_projectFile);
+                // Another program can write the project during the write of the ".as" file, so we check the project file again.
+                if (m_MW->isProjectFileChangedOnDisk()) {
+                    QFile::remove(file_as_path);
+                    blockSignals(false);
+                    m_MW->projectFileChangedOnDisk();
+                    return;
+                }
                 if (copyFileTo(project_filename, project_filename + ".bak")) {
                     QFile::remove(project_filename);
                 }
                 if (copyFileTo(file_as_path, project_filename)) {
                     QFile::remove(file_as_path);
+                    m_MW->rememberProjectFileContent();
                 }
                 //QFile::remove(project_filename+".bak");
             }
