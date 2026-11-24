@@ -144,7 +144,11 @@ public:
     }
     bool hasOutputProject() const
     {
-        return contains("output-project") && !m_options["output-project"].isEmpty();
+        return !m_outputProjectFile.isEmpty();
+    }
+    bool isProjectSaveRequested() const
+    {
+        return contains("save-project");
     }
     bool hasLayout() const
     {

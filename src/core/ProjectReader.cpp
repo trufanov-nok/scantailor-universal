@@ -24,6 +24,8 @@
 #include "Dpi.h"
 #include <QSize>
 #include <QDir>
+#include <QRegularExpression>
+#include <QFileInfo>
 #include <QDomElement>
 #include <QDomNode>
 #ifndef Q_MOC_RUN
@@ -31,12 +33,16 @@
 #endif
 #include <set>
 
-ProjectReader::ProjectReader(QDomDocument const& doc)
+ProjectReader::ProjectReader(QDomDocument const& doc, QString const& project_file)
     :   m_doc(doc),
         m_ptrDisambiguator(new FileNameDisambiguator)
 {
+    if (!project_file.isEmpty()) {
+        m_projectDir = QFileInfo(project_file).absolutePath();
+    }
+
     QDomElement project_el(m_doc.documentElement());
-    m_outDir = project_el.attribute("outputDirectory");
+    m_outDir = resolvePath(project_el.attribute("outputDirectory"));
 
     Qt::LayoutDirection layout_direction = Qt::LeftToRight;
     if (project_el.attribute("layoutDirection") == "RTL") {
@@ -95,6 +101,25 @@ ProjectReader::readFilterSettings(std::vector<FilterPtr> const& filters) const
     }
 }
 
+QString
+ProjectReader::resolvePath(QString const& path) const
+{
+    if (path.isEmpty() || m_projectDir.isEmpty()) {
+        return path;
+    }
+    // a Windows drive path (C:/x, C:\\x) is absolute even where QDir thinks it is not
+    static QRegularExpression const drive_rx("^[A-Za-z]:[\\\\/]");
+    if (QDir::isAbsolutePath(path) || drive_rx.match(path).hasMatch() || path.startsWith(':')) {
+        return path;
+    }
+    QString const from_project(QDir::cleanPath(QDir(m_projectDir).absoluteFilePath(path)));
+    if (!QFileInfo::exists(from_project) && QFileInfo::exists(path)) {
+        // Older builds wrote paths relative to the current directory, so this keeps their projects usable.
+        return QDir::cleanPath(QFileInfo(path).absoluteFilePath());
+    }
+    return from_project;
+}
+
 void
 ProjectReader::processDirectories(QDomElement const& dirs_el)
 {
@@ -116,7 +141,7 @@ ProjectReader::processDirectories(QDomElement const& dirs_el)
             continue;
         }
 
-        QString const path(el.attribute("path"));
+        QString const path(resolvePath(el.attribute("path")));
         if (path.isEmpty()) {
             continue;
         }
