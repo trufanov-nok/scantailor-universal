@@ -18,6 +18,7 @@
 */
 
 #include <QCoreApplication>
+#include <QDir>
 #include "settings/ini_keys.h"
 #include <QString>
 #include <QStringList>
@@ -52,9 +53,23 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (cli.hasHelp() || cli.outputDirectory().isEmpty() || (cli.images().size() == 0 && cli.projectFile().isEmpty())) {
+    // A project has its own output directory, so only a run on images needs one on the command line.
+    bool const no_output = cli.outputDirectory().isEmpty() && cli.projectFile().isEmpty();
+    if (cli.hasHelp() || no_output || (cli.images().size() == 0 && cli.projectFile().isEmpty())) {
         cli.printHelp();
         return 0;
+    }
+
+    // The check comes before the processing, so that a missing file name does not lose the result of a long run.
+    if (cli.isProjectSaveRequested() && !cli.hasOutputProject()) {
+        std::cerr << "No project file to save to: give a name, or use a project as the input." << std::endl;
+        return 1;
+    }
+
+    // The parser only reads the options, so the CLI makes the directory of --output-dir here.
+    if (!cli.outputDirectory().isEmpty() && !QDir().mkpath(cli.outputDirectory())) {
+        std::cerr << "Cannot make the output directory: " << cli.outputDirectory().toStdString() << std::endl;
+        return 1;
     }
 
     std::unique_ptr<ConsoleBatch> cbatch;
@@ -71,7 +86,8 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    if (cli.hasOutputProject()) {
-        cbatch->saveProject(cli.outputProjectFile());
+    if (cli.hasOutputProject() && !cbatch->saveProject(cli.outputProjectFile())) {
+        return 1;
     }
+    return 0;
 }

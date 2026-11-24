@@ -70,6 +70,8 @@
 #include <QMap>
 #include <QImage>
 #include <QDomDocument>
+#include <QDir>
+#include <QFileInfo>
 
 #include "ConsoleBatch.h"
 #include "CommandLine.h"
@@ -115,6 +117,14 @@ ConsoleBatch::ConsoleBatch(QString const project_file)
     QString output_directory = m_ptrReader->outputDirectory();
     if (!cli.outputDirectory().isEmpty()) {
         output_directory = cli.outputDirectory();
+    } else {
+        // A path from another computer, for example a Windows path on Linux, must not make new folders here.
+        if (output_directory.isEmpty() || !QDir(output_directory).exists()) {
+            throw std::runtime_error(
+                "The output directory of the project does not exist: " + output_directory.toStdString()
+                + ". Give one as the last argument or with --output-dir."
+            );
+        }
     }
 
     //m_ptrThumbnailCache = IntrusivePtr<ThumbnailPixmapCache>(new ThumbnailPixmapCache(output_directory+"/cache/thumbs", QSize(200,200), 40, 5));
@@ -240,13 +250,23 @@ ConsoleBatch::process()
     }
 }
 
-void
+bool
 ConsoleBatch::saveProject(QString const project_file)
 {
-    PageInfo fpage = m_ptrPages->toPageSequence(PAGE_VIEW).pageAt(0);
+    PageSequence const pages(m_ptrPages->toPageSequence(PAGE_VIEW));
+    // A project without pages has no page to select, and pageAt() throws for it.
+    if (pages.numPages() == 0) {
+        std::cerr << "The project has no pages, so the CLI does not save it." << std::endl;
+        return false;
+    }
+    PageInfo fpage = pages.pageAt(0);
     SelectedPage sPage(fpage.id(), IMAGE_VIEW);
     ProjectWriter writer(m_ptrPages, sPage, m_outFileNameGen);
-    writer.write(project_file, m_ptrStages->filters());
+    if (!writer.write(project_file, m_ptrStages->filters())) {
+        std::cerr << "Cannot write the project file: " << project_file.toStdString() << std::endl;
+        return false;
+    }
+    return true;
 }
 
 void
