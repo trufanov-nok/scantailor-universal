@@ -28,6 +28,7 @@
 #include "version.h"
 #include <QtXml>
 #include <QFile>
+#include <QSaveFile>
 #include <QTextStream>
 #include <QFileInfo>
 #include <QDir>
@@ -125,14 +126,17 @@ ProjectWriter::write(QString const& file_path, std::vector<FilterPtr> const& fil
     qSetGlobalQHashSeed(-1);
 #endif
 
-    QFile file(file_path);
-    if (file.open(QIODevice::WriteOnly)) {
-        QTextStream strm(&file);
-        doc.save(strm, 2);
-        return true;
+    // A save to a temporary file and a rename keep the old project when the write stops halfway.
+    QSaveFile file(file_path);
+    // Some users can write the project file but not its folder, and the rename needs the folder.
+    file.setDirectWriteFallback(true);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
     }
-
-    return false;
+    QTextStream strm(&file);
+    doc.save(strm, 2);
+    strm.flush();
+    return file.commit();
 }
 
 QString
