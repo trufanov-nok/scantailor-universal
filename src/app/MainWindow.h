@@ -51,6 +51,7 @@
 #include "ExportDialog.h"
 //end of modified by monday2000
 #include "AutoSaveTimer.h"
+#include "ProjectFileWatcher.h"
 #include "PageSequence.h"
 #include "PageSelectionProvider.h"
 
@@ -124,8 +125,22 @@ public:
     bool saveProjectWithFeedback(QString const& project_file);
     // AutoSave Timer / end
 
+    bool isProjectFileChangedOnDisk() const
+    {
+        return m_projectFileWatcher.isChangedOnDisk();
+    }
+
+    void rememberProjectFileContent()
+    {
+        m_projectFileWatcher.rememberFileContent(m_projectFile);
+    }
+
 public slots:
     void openProject(QString const& project_file);
+
+    void projectFileChangedOnDisk();
+
+    void projectOpeningEnded();
 //Export_Subscans
     void ExportOutput(exporting::ExportSettings settings);
     void SetStartExport();
@@ -428,6 +443,19 @@ private:
     bool m_docking_enabled;
 
     QTimer* m_autosave_timer;
+
+    bool confirmOverwriteOfChangedProject();
+
+    void reloadProject();
+
+    ProjectFileWatcher m_projectFileWatcher;
+    // The question waits until the batch processing ends, because a dialog would stop the work.
+    bool m_projectReloadPending;
+    bool m_projectReloadPromptActive;
+    // A reload during a save, an open or a close would replace the project under that code.
+    int m_projectFileBusy;
+    int m_reloadFilterIdx;
+    PageId m_reloadPage;
 
 #ifdef HAVE_CANBERRA
     CanberraSoundPlayer m_canberraPlayer;

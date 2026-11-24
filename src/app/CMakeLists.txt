@@ -49,6 +49,7 @@ SET(
         ExportDialog.cpp ExportDialog.h
         StartBatchProcessingDialog.cpp StartBatchProcessingDialog.h
         AutoSaveTimer.cpp AutoSaveTimer.h
+        ProjectFileWatcher.cpp ProjectFileWatcher.h
         OpenWithMenuProvider.cpp OpenWithMenuProvider.h
         
         settings/fancylineedit.cpp settings/fancylineedit.h
